@@ -18,8 +18,8 @@ export const appBarSlice = createSlice({
     setVisible: state => {
       state.isVisible = true;
     },
-    setInvisible: (state, action) => {
-      state.isVisible += action.payload;
+    setInvisible: state => {
+      state.isVisible = false;
     },
     changeVisibility : (state, action : PayloadAction<boolean>) => {
         state.isVisible = action.payload
