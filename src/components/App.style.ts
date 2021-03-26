@@ -1,26 +1,26 @@
-import { makeStyles } from "@material-ui/core/styles";
-
+import { makeStyles } from '@material-ui/core/styles';
 
 export const topbarHeight = 48;
 
 export const styles = makeStyles((theme) => ({
   root: {
-    display: "flex",
-  },
-  drawerHeader: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    height: topbarHeight, 
-  },
+    display: 'flex',
+  }, 
   content: {
-    flexGrow: 1,
+    flexGrow : 1,
+    marginTop : 0,
+  },
+  contentWithTopBar: {
+    marginTop : topbarHeight,
   },
   viewerContainer: {
-    width: "100%",
-    height: `calc(100vh - ${topbarHeight}px)`,
-    display: "flex",
+    width: '100%',
+    height: '100vh',
+    display: 'flex',
     zIndex: 1000,
-    background: "linear-gradient(#a0a0ff, white)"
+    background: 'linear-gradient(#a0a0ff, white)'
+  },
+  viewerContainerWithTopBar: {
+    height: `calc(100vh - ${topbarHeight}px)`,
   },
 }));

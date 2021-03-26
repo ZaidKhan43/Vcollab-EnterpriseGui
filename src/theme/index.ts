@@ -1,4 +1,4 @@
-import { responsiveFontSizes, createMuiTheme } from "@material-ui/core/styles";
+import { responsiveFontSizes, createMuiTheme } from '@material-ui/core/styles';
 
 export const appTheme = createMuiTheme({
 
@@ -6,20 +6,20 @@ export const appTheme = createMuiTheme({
     MuiCssBaseline: {
       '@global': {
         body: {
-          backgroundColor: "rgb(160,160,255)",
+          backgroundColor: 'rgb(160,160,255)',
         },
       },
     },
   },  
   typography: {
-    fontFamily: ["Montserrat", "san-serif"].join(","),
+    fontFamily: ['Montserrat', 'san-serif'].join(','),
     h4: {
       fontWeight: 300,
       fontSize: 20,
     },
     h1: {
       fontWeight: 600,
-      fontSize: "1.15rem",
+      fontSize: '1.15rem',
     },
     h2: {
       fontWeight: 300,
