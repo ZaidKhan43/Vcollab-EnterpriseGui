@@ -2,7 +2,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import { topbarHeight  } from '../../App.style';
 
-export const styles = makeStyles((theme) => ({
+export default makeStyles((theme) => ({
     appBar : {
         boxShadow: 'none',
         width: '100%',

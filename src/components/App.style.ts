@@ -2,7 +2,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 export const topbarHeight = 48;
 
-export const styles = makeStyles((theme) => ({
+export default makeStyles((theme) => ({
   root: {
     display: 'flex',
   }, 
