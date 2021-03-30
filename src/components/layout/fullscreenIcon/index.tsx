@@ -1,4 +1,4 @@
-import Fab from '@material-ui/core/Fab';
+import MuiFab from '@material-ui/core/Fab';
 import Fullscreen from '../../../assets/images/fullscreen.svg';
 import FullscreenClose from '../../../assets/images/fullscreen_exit.svg';
 import styles from './style';
@@ -16,11 +16,11 @@ export default function FullscreenIcon(props : any) {
     }
 
     return (
-        <Fab size = 'small' className = {classes.iconPosition} {...props} onClick={ OnClickFullscreen }>
+        <MuiFab size = 'small' className = {classes.iconPosition} {...props} onClick={ OnClickFullscreen }>
             {(isFullscreenEnabled ?
                 <img src={ FullscreenClose  } alt='fullscreen' />:
                 <img src={ Fullscreen } alt='fullscreen' />
             )}
-        </Fab>
+        </MuiFab>
     );
 }

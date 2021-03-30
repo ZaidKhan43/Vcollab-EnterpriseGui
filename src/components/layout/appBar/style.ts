@@ -1,12 +1,23 @@
 import { makeStyles } from '@material-ui/core/styles';
-
-import { topbarHeight  } from '../../App.style';
+import { topbarHeight, drawerWidth } from '../../../config';
 
 export default makeStyles((theme) => ({
     appBar : {
         boxShadow: 'none',
         width: '100%',
-        transition: 'none',
+        marginLeft: 0,
+        transition: theme.transitions.create(['margin', 'width'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
+    },
+    appBarwithSideBar : {
+        width: `calc(100% - ${drawerWidth}px)`,
+        marginLeft: drawerWidth,
+        transition: theme.transitions.create(['margin', 'width'], {
+            easing: theme.transitions.easing.easeOut,
+            duration: theme.transitions.duration.enteringScreen,
+        }),
     },
     toolBar : {
         minHeight: topbarHeight,
@@ -32,8 +43,19 @@ export default makeStyles((theme) => ({
     },
     leftTitle : {
         display: 'block',
+        padding : 10,
         [theme.breakpoints.down('xs')]: {
             display: 'none',
+        },
+    },
+    hamburgerIcon : {
+        [theme.breakpoints.down('xs')]: {
+            display: 'none',
+        },
+    },
+    hamburgerIconHidden: {
+        [theme.breakpoints.down("sm")]: {
+          display: "none",
         },
     },
     divIcon : {
