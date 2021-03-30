@@ -11,7 +11,7 @@ import Fullscreen from '../../../assets/images/fullscreen.svg';
 import FullscreenClose from '../../../assets/images/fullscreen_exit.svg';
 import Hamburger from '../../../assets/images/hamburger.svg';
 import More from '../../../assets/images/more.svg';
-import { selectFullscreen, selectSidebarVisibility, setFullscreenState, setSidebarVisibilityState } from '../../../store/appSlice';
+import {selectFullscreenStatus,selectSidebarVisibility, setFullscreenState, setSidebarVisibility } from '../../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
 
 import  styles from './style';
@@ -19,7 +19,7 @@ import  styles from './style';
 function AppBar() {
     
     const classes = styles();
-    const isFullscreenEnabled = useAppSelector(selectFullscreen);
+    const isFullscreenEnabled = useAppSelector(selectFullscreenStatus);
     const isSidebarVisible = useAppSelector(selectSidebarVisibility);
     const dispatch = useAppDispatch();  
 
@@ -28,7 +28,7 @@ function AppBar() {
     }
 
     const onClickHamburger = function(){
-      dispatch(setSidebarVisibilityState(!isSidebarVisible));
+      dispatch(setSidebarVisibility(!isSidebarVisible));
     }  
 
     return (
