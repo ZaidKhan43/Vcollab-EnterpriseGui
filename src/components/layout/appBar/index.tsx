@@ -44,7 +44,7 @@ function AppBar() {
               <IconButton edge={false} src={Hamburger} />
             </div>
             
-            <div className={classes.leftTitle}>
+            <div className={clsx( classes.leftTitle, { [classes.leftTitleHidden]: isSidebarVisible })}>
               <MuiTypography variant='h1' noWrap>
                 ModelName 
               </MuiTypography>

@@ -12,8 +12,10 @@ export default makeStyles((theme) => ({
           }),
     },
     appBarwithSideBar : {
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: drawerWidth,
+        [theme.breakpoints.up('md')]: {
+          width: `calc(100% - ${drawerWidth}px)`,
+          marginLeft: drawerWidth,
+        },
         transition: theme.transitions.create(['margin', 'width'], {
             easing: theme.transitions.easing.easeOut,
             duration: theme.transitions.duration.enteringScreen,
@@ -46,6 +48,11 @@ export default makeStyles((theme) => ({
         padding : 10,
         [theme.breakpoints.down('xs')]: {
             display: 'none',
+        },
+    },
+    leftTitleHidden : {
+        [theme.breakpoints.down("sm")]: {
+            display: "none",
         },
     },
     hamburgerIcon : {
