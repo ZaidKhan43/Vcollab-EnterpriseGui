@@ -1,9 +1,10 @@
 import { makeStyles } from '@material-ui/core/styles';
+import { colors } from '../../../config';
 
 export default makeStyles((theme) => ({
     btn:{
       '&:hover': {
-        background: 'rgba(240,240,240,0.3)'
+        background: colors.primaryHover
       }
     }
 }));

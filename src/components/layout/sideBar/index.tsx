@@ -8,10 +8,16 @@ import  styles  from "./style";
 import {selectSidebarVisibility, selectSideBarActiveContent,
         setSidebarVisibility } from '../../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
-import { sideBarContents } from '../../../config';
+import { sideBarContentTypes } from '../../../config';
 
-import ProductExplorer from '../../core/productExplorer';
-import MainMenu from '../../core/mainMenu';
+import MainMenu from '../../sideBarContents/mainMenu';
+import ProductExplorer from '../../sideBarContents/productExplorer';
+import Colormaps from '../../sideBarContents/colormaps';
+import ClipPlanes from '../../sideBarContents/clipPlanes';
+import Views from '../../sideBarContents/views';
+import Annotations from '../../sideBarContents/annotations';
+import Settings from '../../sideBarContents/settings';
+import Notifications from '../../sideBarContents/notifications';
 
 export default function Sidebar(){
     
@@ -31,10 +37,22 @@ export default function Sidebar(){
 
     const renderContent = () => {
       switch (sidebarActiveContent) {
-        case sideBarContents.productExplorer:
-          return <ProductExplorer />;
-        case sideBarContents.mainMenu:
+        case sideBarContentTypes.mainMenu:
           return <MainMenu />;
+        case sideBarContentTypes.productExplorer:
+          return <ProductExplorer />;
+        case sideBarContentTypes.colormaps:
+          return <Colormaps />;
+        case sideBarContentTypes.clipsPlanes:
+          return <ClipPlanes />;
+        case sideBarContentTypes.views:
+          return <Views />;
+        case sideBarContentTypes.annotations:
+          return <Annotations />;
+        case sideBarContentTypes.settings:
+          return <Settings />;
+        case sideBarContentTypes.notifications:
+          return <Notifications />;       
         default:
           return null;
       }

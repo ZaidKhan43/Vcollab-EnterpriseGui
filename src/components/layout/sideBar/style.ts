@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { drawerWidth } from '../../../config';
+import { drawerWidth, colors } from '../../../config';
 
 export default makeStyles((theme) => ({
   drawer: {
@@ -8,9 +8,9 @@ export default makeStyles((theme) => ({
   },
   drawerPaper: {
     width: drawerWidth,
-    backgroundColor: "rgba(0, 0, 0, 1)",
+    background: colors.secondary,
     [theme.breakpoints.down("sm")]: {
-      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      backgroundColor: colors.secondaryTransparent,
     },
     overflowX: "hidden",
     overflowY: "hidden",

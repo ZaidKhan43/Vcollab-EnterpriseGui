@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { topbarHeight, drawerWidth } from '../config';
+import { topbarHeight, drawerWidth, colors } from '../config';
 
 export default makeStyles((theme) => ({
   root: {
@@ -33,7 +33,7 @@ export default makeStyles((theme) => ({
     height: '100vh',
     display: 'flex',
     zIndex: 1000,
-    background: 'linear-gradient(#a0a0ff, white)',
+    background: `linear-gradient(${colors.vcollabColor}, white)`,
     //backgroundColor : 'blue'
   },
   viewerContainerWithTopBar: {

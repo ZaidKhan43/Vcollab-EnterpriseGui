@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from './index';
-import { sideBarContents } from '../config';
+import { sideBarContentTypes } from '../config';
 
 // Define a type for the slice state
 interface appState {
@@ -15,7 +15,7 @@ const initialState: appState = {
     isAppBarVisible: false,
     isFullscreenEnabled: false,
     isSideBarVisible : false,
-    sideBarActiveContent : sideBarContents.mainMenu
+    sideBarActiveContent : sideBarContentTypes.mainMenu
 }
 
 export const appSlice = createSlice({
