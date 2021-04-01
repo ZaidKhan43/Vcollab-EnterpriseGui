@@ -1,17 +1,30 @@
 import { makeStyles } from '@material-ui/core/styles';
+import { topbarHeight, drawerWidth, colors } from '../../../config';
 
-import { topbarHeight  } from '../../App.style';
-
-export const styles = makeStyles((theme) => ({
+export default makeStyles((theme) => ({
     appBar : {
         boxShadow: 'none',
         width: '100%',
-        transition: 'none',
+        marginLeft: 0,
+        transition: theme.transitions.create(['margin', 'width'], {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.leavingScreen,
+          }),
+    },
+    appBarwithSideBar : {
+        [theme.breakpoints.up('md')]: {
+          width: `calc(100% - ${drawerWidth}px)`,
+          marginLeft: drawerWidth,
+        },
+        transition: theme.transitions.create(['margin', 'width'], {
+            easing: theme.transitions.easing.easeOut,
+            duration: theme.transitions.duration.enteringScreen,
+        }),
     },
     toolBar : {
         minHeight: topbarHeight,
         height: topbarHeight,
-        background: '#000000',
+        background: colors.primary,
         boxShadow: 'none',
         //padding: sidebarContentLeftMargin,
         display: 'flex',
@@ -32,8 +45,24 @@ export const styles = makeStyles((theme) => ({
     },
     leftTitle : {
         display: 'block',
+        padding : 10,
         [theme.breakpoints.down('xs')]: {
             display: 'none',
+        },
+    },
+    leftTitleHidden : {
+        [theme.breakpoints.down("sm")]: {
+            display: "none",
+        },
+    },
+    hamburgerIcon : {
+        [theme.breakpoints.down('xs')]: {
+            display: 'none',
+        },
+    },
+    hamburgerIconHidden: {
+        [theme.breakpoints.down("sm")]: {
+          display: "none",
         },
     },
     divIcon : {

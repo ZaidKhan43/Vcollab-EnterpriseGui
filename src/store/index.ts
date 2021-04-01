@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import appBarSlice from './appBarSlice';
+import appSlice from './appSlice';
 
 const store = configureStore({
   reducer: {
-    appBar: appBarSlice,
+    app: appSlice,
   },
 });
 
