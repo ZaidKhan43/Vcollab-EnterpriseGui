@@ -70,6 +70,8 @@ export default function MainMenu(){
         },
     ];
 
+
+  
     const getHeaderContent = () => {
       return <img style={{paddingLeft: '12px', width:'150px'}} src={Logo} alt='VCollab Logo' />;
     }
