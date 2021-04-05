@@ -18,6 +18,7 @@ import { setSidebarActiveContent } from '../../../store/appSlice';
 import { useAppDispatch } from '../../../store/storeHooks';
 import { sideBarContentTypes } from '../../../config';
 
+import SideBarContainer from '../../layout/sideBar/sideBarContainer'
 
 export default function MainMenu(){
 
@@ -69,37 +70,42 @@ export default function MainMenu(){
         },
     ];
 
-    return ( 
-    <div>    
-        <div className={classes.header}>
-            <img style={{width:'150px'}} src={Logo} alt='VCollab Logo' />
-        </div>
+    const getHeaderContent = () => {
+      return <img style={{paddingLeft: '12px', width:'150px'}} src={Logo} alt='VCollab Logo' />;
+    }
 
-        <div className={classes.divider}></div>
-
-        <List style={{ padding: '0' }}>
-            { 
-             menuItem.map((item, index) => (
-            <ListItem
-            disabled = {item.disabled === true}
-            onClick={item.onClick}
-            className={classes.listItem}
-            button
-            key={item.title}
-          >
-            <ListItemIcon style={{minWidth:'40px'}}>
-              <img style={{width:'22px', height:'22px'}} src={item.icon} alt={`${item.title} Icon`} />
-            </ListItemIcon>
-            <ListItemText            
-              className={classes.listItemText}
-              primary={
-                <Typography variant='h1' className={classes.listItemText}>
-                  {item.title}
-                </Typography>
-            }
-            />
-          </ListItem>
-            ))}
+    const getBody = () => {
+      return (  
+      <List style={{ padding: '0' }}>
+      { 
+        menuItem.map((item, index) => (
+        <ListItem
+      disabled = {item.disabled === true}
+      onClick={item.onClick}
+      className={classes.listItem}
+      button
+      key={item.title}
+    >
+      <ListItemIcon style={{minWidth:'40px'}}>
+        <img style={{width:'22px', height:'22px'}} src={item.icon} alt={`${item.title} Icon`} />
+      </ListItemIcon>
+      <ListItemText            
+        className={classes.listItemText}
+        primary={
+          <Typography variant='h1' className={classes.listItemText}>
+            {item.title}
+          </Typography>
+      }
+      />
+    </ListItem>
+        ))
+      }
       </List>
-    </div>)
+      );
+    }
+
+    return (<SideBarContainer
+      headerContent={ getHeaderContent() }
+      body ={ getBody() }
+      />)
 }
