@@ -2,6 +2,8 @@ export const appBarMinHeight = 300;
 export const drawerWidth = 300;
 export const topbarHeight = 48;
 
+export const sideBarHeaderHeight = topbarHeight;
+
 export const colors = {
   primary : "rgba(0, 0, 0, 1.0)",
   primaryTransparent : "rgba(0, 0, 0, 0.8)",
