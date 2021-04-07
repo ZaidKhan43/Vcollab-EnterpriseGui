@@ -2,13 +2,18 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import SideBarContainer from '../../layout/sideBar/sideBarContainer';
 import BackIcon from '../../../assets/images/back.svg';
-import Search from '../../../assets/images/search.svg';
 import styles from './style';
 import { sideBarContentTypes } from '../../../config';
 import { setSidebarActiveContent } from '../../../store/appSlice';
 import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
-import { useSelector} from 'react-redux'
+
 import Checkbox from '@material-ui/core/Checkbox';
+
+import AddIcon from "../../../assets/images/plus.svg";
+import Edit from "../../../assets/images/edit.svg";
+import Copy from "../../../assets/images/copy.svg";
+import ClipPlates from "../../../assets/images/clipboard.svg";
+import Delete from "../../../assets/images/trash.svg";
 
 export default function ClipPlanes(){
     
@@ -34,6 +39,10 @@ export default function ClipPlanes(){
             Clip Planes
           </Typography>;
     }
+
+    const getHeaderRightIcon = () => {
+      return  <IconButton><img src={AddIcon} alt={'Add'}/></IconButton>;
+    }
     
     const getBody = () => {
       return (
@@ -49,13 +58,20 @@ export default function ClipPlanes(){
     }
 
     const getFooter = () => {
-        return (<div>Footer<br />Footer<br />Footer</div>)          
+        return (
+        <div>
+            <IconButton> <img src={Edit} alt={'Edit'}/></IconButton>
+            <IconButton> <img src={Copy} alt={'Copy'}/></IconButton>
+            <IconButton> <img src={ClipPlates} alt={'Paste'}/></IconButton> 
+            <IconButton> <img src={Delete} alt={'Delete'}/></IconButton> 
+        </div>)          
     }
 
     return (
     <SideBarContainer
       headerLeftIcon = { getHeaderLeftIcon() }
       headerContent={ getHeaderContent() }
+      headerRightIcon = { getHeaderRightIcon() }
       body ={ getBody() }
       footer = { getFooter() }
       />)
