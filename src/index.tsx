@@ -14,7 +14,7 @@ import { ThemeProvider } from '@material-ui/core/styles';
 ReactDOM.render(
   <React.StrictMode>  
     <Provider store={store}>
-      <ThemeProvider theme={appTheme}>
+      <ThemeProvider theme={appTheme}> 
         <App />
       </ThemeProvider>
     </Provider>
