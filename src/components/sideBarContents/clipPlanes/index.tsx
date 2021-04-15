@@ -23,6 +23,16 @@ import { addItem } from '../../../store/clipSlice';
 import {editCheck} from "../../../store/clipSlice";
 import {editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane} from "../../../store/clipSlice";
 
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Snackbar from '@material-ui/core/Snackbar';
+import CloseIcon from '@material-ui/icons/Close';
+import { spawn } from 'node:child_process';
+
 export default function ClipPlanes(){
 
 //   type clicked = {
@@ -47,6 +57,8 @@ export default function ClipPlanes(){
   const [copied, setCopied] = useState<any>(false); 
   const [copy, setCopy] = useState<any>(null);
   const [edit, setEdit] = useState<any>(false);
+  const [openDialog, setOpenDialog] = useState<any>(false);
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState<any>(false);
   // const [showClip, setShowClip] = useState(false) 
   // const[clicked, setClicked] =  useState(false)
 
@@ -96,6 +108,8 @@ export default function ClipPlanes(){
   }
 
   const onHandleDelete = () => {
+    setOpenDialog(false);
+    setOpenDeleteConfirm(true);
     dispatch(deletePlane(clickedVal.name))
     setClickedVal(null);
   }
@@ -106,6 +120,14 @@ export default function ClipPlanes(){
   
   const onHandleSave = () => {
     setEdit(!edit);
+  }
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false)
+  }
+
+  const handleCloseAlert = () => {
+    setOpenDeleteConfirm(false)
   }
 
   const displayClicked = () => {
@@ -189,7 +211,7 @@ export default function ClipPlanes(){
               <IconButton> <img src={Copy} alt={'Copy'} onClick={() => onHandleCopy(planes.find((item : any )=> item.name == clickedVal.name))}/></IconButton>
               {copied ? <IconButton> <img src={ClipPlates} alt={'Paste'} onClick={() => onHandlePaste(copy)}/></IconButton>  : null}
               
-              <IconButton> <img src={Delete} alt={'Delete'} onClick={() => onHandleDelete()}/></IconButton>  
+              <IconButton> <img src={Delete} alt={'Delete'} onClick={() => setOpenDialog(!openDialog)}/></IconButton>  
             </div>
           : 
             null 
@@ -197,6 +219,8 @@ export default function ClipPlanes(){
       </div>
     )          
   }
+
+  
 
   return (
     <div>
@@ -209,6 +233,53 @@ export default function ClipPlanes(){
       body ={ getBody() }
       footer = { getFooter() }
     /> }
+
+      <Dialog
+        open={openDialog}
+        // onClose={handleClose}
+        // PaperComponent={PaperComponent}
+        aria-labelledby="draggable-dialog-title"
+      >
+        {/* <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
+          Subscribe
+        </DialogTitle> */}
+        <DialogContent>
+          <DialogContentText>
+            Are you sure want to delete this clip ?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus 
+          onClick={onHandleDelete} 
+          color="primary">
+            Confirm
+          </Button>
+          <Button 
+          onClick={handleCloseDialog} 
+          color="primary">
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <div>
+      <Snackbar
+        anchorOrigin={{vertical:"top", horizontal:'center'}}
+        autoHideDuration={2000}
+        open={openDeleteConfirm}
+        onClose={handleCloseAlert}
+        // action={
+          
+        // }
+        message={
+          <div>
+          <IconButton> <img src={Delete} alt={'Delete'}/></IconButton>
+          <span> Clip Plane Deleted</span>
+          </div>
+         }
+        
+      
+      />
+    </div>
     </div>
     
   )
