@@ -1,0 +1,14 @@
+import {makeStyles, createStyles} from '@material-ui/core/styles'
+
+const useStyles = makeStyles(theme => createStyles(
+    {
+        displayModeList: {
+            width: '100%'
+        },
+        accordianDetails: {
+            flexDirection: 'column'
+        }
+    }
+))
+
+export default useStyles;

@@ -24,7 +24,7 @@ export default makeStyles((theme) => ({
     toolBar : {
         minHeight: topbarHeight,
         height: topbarHeight,
-        background: colors.primary,
+        //background: theme.palette.background.default,
         boxShadow: 'none',
         //padding: sidebarContentLeftMargin,
         display: 'flex',

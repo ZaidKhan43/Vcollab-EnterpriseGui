@@ -10,6 +10,7 @@ import Fitview from '../../../assets/images/fitview.svg';
 import Fullscreen from '../../../assets/images/fullscreen.svg';
 import FullscreenClose from '../../../assets/images/fullscreen_exit.svg';
 import Hamburger from '../../../assets/images/hamburger.svg';
+import SvgIcon from "@material-ui/core/SvgIcon"
 import More from '../../../assets/images/more.svg';
 import {selectFullscreenStatus,selectSidebarVisibility, setFullscreenState, setSidebarVisibility } from '../../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
@@ -35,13 +36,14 @@ function AppBar() {
         <MuiAppBar 
           className = { clsx( classes.appBar , {[classes.appBarwithSideBar]: isSidebarVisible}) }
           position='fixed'
+          color='default'
         >
-        <MuiToolbar className={classes.toolBar}>
+        <MuiToolbar className={classes.toolBar} >
 
           <div className={classes.toolBarLeftContent}>            
             <div onClick ={ onClickHamburger }
             className={ clsx( classes.divIcon, classes.hamburgerIcon, { [classes.hamburgerIconHidden]: isSidebarVisible }) }>
-              <IconButton edge={false} src={Hamburger} />
+              <IconButton edge={false} src={Hamburger} color='inherit'/>
             </div>
             
             <div className={clsx( classes.leftTitle, { [classes.leftTitleHidden]: isSidebarVisible })}>

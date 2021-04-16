@@ -1,4 +1,4 @@
-import { useRef,  useCallback } from 'react';
+import { useRef,  useCallback,useEffect } from 'react';
 import clsx from 'clsx';
 import { useResizeDetector } from 'react-resize-detector';
 import FullScreen from 'react-fullscreen-crossbrowser';
@@ -11,7 +11,11 @@ import { useAppSelector, useAppDispatch } from '../store/storeHooks';
 import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
         setAppBarVisibility, setFullscreenState } from '../store/appSlice';
 import { appBarMinHeight } from '../config';
+import SnackBar from "./sideBarContents/notifications/SnackBar";
 
+//dummy
+import {saveTree} from "../store/sideBar/ProductTreeSlice"
+import {tree} from "../data/f30";
 function App() {
       
   const classes = styles();
@@ -21,6 +25,40 @@ function App() {
   const dispatch = useAppDispatch();  
   const targetRef = useRef(null);
 
+  //dummy to be removed =======================================================
+  const convertTreeToList= (tree:any[]) => {
+     let out:any[] = [];
+     let index = 0;
+     let loop = (node:any, parent:any) => {
+       let childrenIds = [];
+       let listNode = {
+          ...node,
+          index: index++,
+          pIndex: parent? parent.index : -1,
+          state: {
+            checked: false,
+            partiallyChecked: false,
+            expanded: true,
+            visibility: true
+          }
+       };
+        if(node.children.length > 0) {
+          childrenIds = node.children.map((c:any) => loop(c,listNode));
+        }
+        listNode['children'] = childrenIds;
+        out[listNode.index] = listNode;
+        return listNode.index; 
+     }
+     tree.map((node:any) => loop(node,null))
+     return out;
+  }
+  useEffect(() => {
+    let data = convertTreeToList(tree);
+    dispatch(saveTree({data}));
+
+  }, [])
+
+  //===========================================================================
   const onResize = useCallback((width ?:number, height ?: number) => {
     if(height && height > appBarMinHeight)
           dispatch(setAppBarVisibility(true));
@@ -53,6 +91,7 @@ function App() {
         <main  className={ clsx(classes.content , {[classes.contentWithSideBar]: isSidebarVisible} , {[classes.contentWithTopBar]: isAppBarVisible}) }>
           <div className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}></div>        
         </main>
+        <SnackBar/>
       </div>
     </FullScreen>
   );

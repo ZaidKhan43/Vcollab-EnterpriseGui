@@ -10,6 +10,9 @@ export const appTheme = createMuiTheme({
       },
     },
   },  
+  palette:{
+    type:'dark'
+  },
   typography: {
     fontFamily: ['Montserrat', 'san-serif'].join(','),
     h4: {
