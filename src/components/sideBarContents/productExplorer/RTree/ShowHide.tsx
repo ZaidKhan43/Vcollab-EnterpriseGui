@@ -18,7 +18,7 @@ const VisiblilityIcon = (props:any) => {
 function ShowHide(props:any) {
     const dispatch = useAppDispatch();
     const handleVisibility = (toShow:boolean,node:any) => {
-        dispatch(toggleVisibility({toShow, nodeIndex:node.index}));
+        dispatch(toggleVisibility({toShow, nodeId:node.id}));
 
     }
     return (

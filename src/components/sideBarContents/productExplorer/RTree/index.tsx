@@ -4,7 +4,7 @@ import useContainer from '../../../../customHooks/useContainer';
 import { Table ,Column, ColumnGroup, HeaderCell, Cell, } from 'rsuite-table';
 import Paper from '@material-ui/core/Paper'
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
-import {selectProductTreeData,checkNode, expandNode} from '../../../../store/sideBar/ProductTreeSlice'
+import {selectProductTreeData, selectRootIds, checkNode, expandNode, TreeNode as ITreeNode} from '../../../../store/sideBar/ProductTreeSlice'
 import TreeNode from "./TreeNode"
 import InvertCell from "./Invert"
 import ShowHideCell from "./ShowHide"
@@ -16,35 +16,38 @@ function RTree(props:any) {
     const treeData = useAppSelector(selectProductTreeData);
     const dispatch = useAppDispatch()
     const expandedNodes:string[] = [];
-    const getNodeByIndex = (index:number) => treeData[index];
-    const createTreeNode = (index:number,data:any[]) => {
-      let node = data[index];
-      if(node.state.expanded) {
-        expandedNodes.push(node.id);
+    const getNode = (id:string) => treeData[id];
+    const createTreeNode = (id:string,data:Map<string,ITreeNode>) => {
+      let node = getNode(id);
+      if(node) {
+        if(node.state.expanded) {
+          expandedNodes.push(node.id);
+        }
+        let children:any[] = [];
+        if(node.children.length > 0)
+        {
+          children = node.children.map((c:string) => createTreeNode(c,data));
+        }
+        return {
+          id: node.id,
+          pid: node.pid,
+          title: node.title,
+          children
+        }
       }
-      let children = [];
-      if(node.children.length > 0)
-      {
-        children = node.children.map((c:number) => createTreeNode(c,data));
-      }
-      return {
-        id: node.id,
-        index:node.index,
-        pIndex: node.pIndex,
-        title: node.title,
-        children
-      }
+
     }
-    const convertListToTree = (data:any[]) => {
-      let root = [createTreeNode(data[0].index,data)];
+    const convertListToTree = (data:Map<string,ITreeNode>,rootIds:string[]) => {
+      let root = [createTreeNode(rootIds[0],data)];
       return root;
     }
-    const [data, setData] = useState(convertListToTree(treeData));
-    const handleExpand = (toOpen:boolean,nodeIndex:number) => {
-      dispatch(expandNode({toOpen,nodeIndex}));
+    const rootIds = useAppSelector(selectRootIds);
+    const [data, setData] = useState(convertListToTree(treeData,rootIds));
+    const handleExpand = (toOpen:boolean,nodeId:string) => {
+      dispatch(expandNode({toOpen,nodeId}));
     }
-    const handleCheck = (toCheck:boolean, nodeIndex:number) => {
-      dispatch(checkNode({toCheck,nodeIndex}));
+    const handleCheck = (toCheck:boolean, nodeId:string) => {
+      dispatch(checkNode({toCheck,nodeId}));
     }
       return (
       <Paper ref = {containerRef} style={{height:'100%'}} variant="outlined" square >
@@ -57,7 +60,7 @@ function RTree(props:any) {
             rowHeight = {(rowData:any) => 40}
             width={300}
             height={containerHeight-5}
-            data={data}
+            data={data as any}
             virtualized={true}
             showHeader={false}
             shouldUpdateScroll= {true}
@@ -80,9 +83,9 @@ function RTree(props:any) {
             <Cell align='center' verticalAlign='middle' >
               {
                 rowData => {
-                  let node = getNodeByIndex(rowData.index);
+                  let node = getNode(rowData.id);
                   return (
-                    <TreeNode rowData={rowData} visibility= {node.state.visibility} checked={node.state.checked} partiallyChecked={node.state.partiallyChecked} onCheck={handleCheck}></TreeNode>
+                    <TreeNode rowData={rowData} visibility= {node?.state.visibility} checked={node?.state.checked} partiallyChecked={node?.state.partiallyChecked} onCheck={handleCheck}></TreeNode>
                   )
                 }
               }
@@ -98,7 +101,7 @@ function RTree(props:any) {
               <Cell align='left' verticalAlign='middle' >
                 {
                   rowData => {
-                    let node = getNodeByIndex(rowData.index);
+                    let node = getNode(rowData.id);
                     return (
                       <InvertCell rowData = {node} ></InvertCell>
                     )
@@ -115,9 +118,9 @@ function RTree(props:any) {
               <Cell align='left' verticalAlign='middle'>
                 {
                   rowData => {
-                    let node = getNodeByIndex(rowData.index);
+                    let node = getNode(rowData.id);
                     return (
-                      <ShowHideCell rowData = {node} visibility={node.state.visibility}></ShowHideCell>
+                      <ShowHideCell rowData = {node} visibility={node?.state.visibility}></ShowHideCell>
                     )
                   }
                 }

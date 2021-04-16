@@ -13,7 +13,7 @@ const InvertIcon = (props:any) => {
 function InvertCell(props:any) {
     const dispatch = useAppDispatch();
     const handleInvert = (node:any) => {
-        dispatch(invertNode({nodeIndex:node.index}));
+        dispatch(invertNode({nodeId:node.id}));
     }
     return (
         <div >

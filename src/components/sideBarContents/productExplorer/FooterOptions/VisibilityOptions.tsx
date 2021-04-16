@@ -68,7 +68,7 @@ function VisibilityOptions(props:any) {
           {
               options.map((item:any) => {
                 return (
-                <MenuItem onClick={() => handleIconClick(item)}>
+                <MenuItem key={item.id} onClick={() => handleIconClick(item)}>
                 <ListItemIcon>
                     {item.icon}
                 </ListItemIcon>

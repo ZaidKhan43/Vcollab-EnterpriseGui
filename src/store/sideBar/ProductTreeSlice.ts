@@ -1,23 +1,33 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../index';
 // Define a type for the slice state
+export interface TreeNode{
+  id:string,
+  pid:string|null,
+  title:string,
+  children:string[],
+  state:any,
+  attributes:any
+}
 interface ProductTreeState {
-    data: any[],
+    data: any,
+    rootIds: string[],
     prevSearches: any,
     searchQuery: string
 }
 
 // Define the initial state using that type
 const initialState: ProductTreeState = {
-    data: [],
+    data: {},
+    rootIds: [],
     prevSearches: {},
     searchQuery: ''
 }
 
-const getNode = (index:number, state:ProductTreeState) => {
-    return state.data[index];
+const getNode = (id:string, state:ProductTreeState):TreeNode|undefined => {
+    return state.data[id];
 }
-const getCheckedChildCount = (nodes:any[]) => {
+const getCheckedChildCount = (nodes:TreeNode[]) => {
     let checkedCount = 0;
     let partialCount = 0;
     nodes.forEach(node => {
@@ -63,38 +73,38 @@ const updateCheckedState = (parent:any,state:ProductTreeState) => {
     parent.state.partiallyChecked = true;
   }
 }
-const updateParent = (node:any, state:ProductTreeState) => {
-    let parent = getParent(node.pIndex,state);
+const updateParent = (node:TreeNode, state:ProductTreeState) => {
+    let parent = node.pid ? getParent(node.pid,state): null;
     if(parent){
       updateCheckedState(parent,state);
       updateVisiblityState(parent,state);
-      let grandParent = getParent(parent.pIndex,state);
+      let grandParent = parent.pid ? getParent(parent.pid,state): null;
       if(grandParent !== null && grandParent !== undefined){
           updateParent(parent, state);
       }
     }
 }
-const getParent = (nodeIndex:number,state:ProductTreeState) => {
-  return state.data[nodeIndex];
+const getParent = (id:string,state:ProductTreeState):TreeNode|undefined => {
+  return state.data[id];
 }
 
-const _checkNode = (toCheck:boolean, node:any, checkChildren:boolean,state:ProductTreeState) => {
+const _checkNode = (toCheck:boolean, node:TreeNode, checkChildren:boolean,state:ProductTreeState) => {
     node.state.checked = toCheck;
     node.state.partiallyChecked = false;
     if(checkChildren == true && node.children) {
-      node.children.map((c:any) => getNode(c,state)).forEach((node:any) => _checkNode(toCheck,node,true,state));
+      node.children.map((c:string) => getNode(c,state)).forEach((node:TreeNode|undefined) => node ? _checkNode(toCheck,node,true,state) : null);
     }
 }
-const RcheckNode = (toCheck:boolean,node:any, state:ProductTreeState) => {
+const RcheckNode = (toCheck:boolean,node:TreeNode, state:ProductTreeState) => {
 
     _checkNode(toCheck,node,true, state);
     updateParent(node, state);
 }
-const RinvertNode = (node:any, state:ProductTreeState) => {
+const RinvertNode = (node:TreeNode, state:ProductTreeState) => {
   
   if(node.children.length > 0)
   {
-    node.children.map((c:number) => getNode(c,state)).forEach((e:any) => {
+    node.children.map((c:string) => getNode(c,state)).forEach((e:any) => {
       RinvertNode(e,state);
     });
   }
@@ -102,14 +112,14 @@ const RinvertNode = (node:any, state:ProductTreeState) => {
     RcheckNode(!node.state.checked,node,state);
   }
 }
-const setVisibility = (value:boolean,node:any,checkChildren:boolean,state:ProductTreeState) => {
+const setVisibility = (value:boolean,node:TreeNode,checkChildren:boolean,state:ProductTreeState) => {
     node.state.visibility = value;
     if(node.children.length > 0 && checkChildren == true){
     
-      node.children.map((c:number) => getNode(c,state)).forEach((e:any) => setVisibility(value,e,true,state))
+      node.children.map((c:string) => getNode(c,state)).forEach((e:TreeNode | undefined) => e ? setVisibility(value,e,true,state) : null)
     }
 }
-const RtoggleVisibility = (toShow:boolean, node:any,state:ProductTreeState) => {
+const RtoggleVisibility = (toShow:boolean, node:TreeNode,state:ProductTreeState) => {
   setVisibility(toShow,node,true,state);
   updateParent(node,state);
 }
@@ -121,41 +131,57 @@ export const productTreeSlice = createSlice({
   name: 'productTree',
   initialState,
   reducers: {
-    saveTree : (state, action : PayloadAction<{data:any[]}>) => {
-        state.data = action.payload.data;
+    saveTree : (state, action : PayloadAction<{tree:Map<string,TreeNode>,rootIds:string[]}>) => {
+        state.data = action.payload.tree;
+        state.rootIds = action.payload.rootIds;
     },
-    checkNode : (state, action : PayloadAction<{toCheck:boolean,nodeIndex:number}>) => {
-        const {toCheck,nodeIndex} = action.payload;
-        RcheckNode(toCheck,state.data[nodeIndex], state)
+    checkNode : (state, action : PayloadAction<{toCheck:boolean,nodeId:string}>) => {
+        const {toCheck,nodeId} = action.payload;
+        let node = getNode(nodeId,state);
+        if(node)
+        RcheckNode(toCheck, node, state)
     },
-    invertNode : (state, action : PayloadAction<{nodeIndex:number}>) => {
-        const {nodeIndex} = action.payload;
-        RinvertNode(state.data[nodeIndex],state);
+    invertNode : (state, action : PayloadAction<{nodeId:string}>) => {
+        const {nodeId} = action.payload;
+        let node = getNode(nodeId,state);
+        if(node)
+        RinvertNode(node,state);
     },
-    expandNode : (state, action: PayloadAction<{toOpen:boolean, nodeIndex:number}>) => {
-        const {toOpen,nodeIndex} = action.payload;
-        state.data[nodeIndex].state.expanded = toOpen;
+    expandNode : (state, action: PayloadAction<{toOpen:boolean, nodeId:string}>) => {
+        const {toOpen,nodeId} = action.payload;
+        let node = state.data[nodeId];
+        if(node){
+          node.state.expanded = toOpen;
+        }
     },
-    toggleVisibility : (state, action : PayloadAction<{toShow:boolean,nodeIndex:number}>) => {
-        const {toShow,nodeIndex} = action.payload;
-        RtoggleVisibility(toShow,state.data[nodeIndex],state);
+    toggleVisibility : (state, action : PayloadAction<{toShow:boolean,nodeId:string}>) => {
+        const {toShow,nodeId} = action.payload;
+        let node = getNode(nodeId,state);
+        if(node)
+        RtoggleVisibility(toShow,node,state);
     },
     invertVisibility: (state) => {
-        state.data.forEach((node:any) => {
+      [...Object.values(state.data)].forEach((node:any) => {
             if(node.children.length == 0 ){
-              RtoggleVisibility(!node.state.visibility,state.data[node.index],state);
+              let n = getNode(node.id,state);
+              if(n)
+              RtoggleVisibility(!node.state.visibility,n,state);
             } 
         })
     },
     setCheckedVisibility: (state, action:PayloadAction<{toShow:boolean}>) => {
-        state.data.forEach((node:any) => {
+        [...Object.values(state.data)].forEach((node:any) => {
           if(node.state.checked && node.children.length == 0)
-          RtoggleVisibility(action.payload.toShow,state.data[node.index],state);
+          {
+            let n = getNode(node.id,state);
+            if(n)
+            RtoggleVisibility(action.payload.toShow,n,state);
+          }
       })
     },
     groupSelectedNodes: (state, action:PayloadAction<{tagName:string}>) => {
        let {tagName} = action.payload; 
-        state.data.forEach((node:any) => {
+       [...Object.values(state.data)].forEach((node:any) => {
           if(node.state.checked && (node.children.length === 0))
           {
             if(node.attributes.tags) {
@@ -194,9 +220,10 @@ export const {
 
 //Define the selectors
 export const selectProductTreeData = (state:RootState) => state.productTree.data
+export const selectRootIds = (state:RootState) => state.productTree.rootIds
 export const selectPrevSearches = (state:RootState) => Object.keys(state.productTree.prevSearches)
 export const selectCheckedLeafNodes = (state:RootState) => {
-  return state.productTree.data.filter((item:any) => item.children.length == 0 && item.state.checked);
+  return [...Object.values(state.productTree.data)].filter((item:any) => item.children.length == 0 && item.state.checked);
 }
 
 export default productTreeSlice.reducer;

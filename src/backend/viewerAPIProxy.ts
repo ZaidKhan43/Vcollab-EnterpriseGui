@@ -3,7 +3,9 @@ import viewerMgr from './viewerMgr';
 export function createViewer(viewerDivID : string){
     return viewerMgr.createViewer(viewerDivID);
 }
-
+export function getProductTree(viewerDivID : string){
+    return viewerMgr.getProductTree(viewerDivID);
+}
 export function getEventDispatcher(){
     return viewerMgr.getEventDispatcher();
 }

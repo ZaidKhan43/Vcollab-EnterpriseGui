@@ -14,7 +14,7 @@ import {useAppSelector, useAppDispatch} from "../../../store/storeHooks";
 import {sideBarContentTypes} from "../../../config";
 import {setSidebarActiveContent} from "../../../store/appSlice";
 import {checkNode, selectCheckedLeafNodes, toggleVisibility, invertVisibility} from "../../../store/sideBar/ProductTreeSlice"
-import {ProductTreeStates} from './config' 
+import {ProductTreeStates} from './TreeStates' 
 import DisplayModeBody from './DisplayModes/DisplayModesBody'
 import Footer from './Footer'
 

@@ -4,7 +4,7 @@ import useContainer from '../../../../customHooks/useContainer';
 import { Table, Column,HeaderCell,Cell } from 'rsuite-table';
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
 import SearchItem from './SearchItem'
-import {selectPrevSearches,saveSearchQuery,checkNode,selectProductTreeData, updatePrevSearches} from "../../../../store/sideBar/ProductTreeSlice"
+import {selectPrevSearches,saveSearchQuery,checkNode,selectProductTreeData, updatePrevSearches, TreeNode as ITreeNode} from "../../../../store/sideBar/ProductTreeSlice"
 import Checkbox from "@material-ui/core/Checkbox"
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper'
@@ -85,12 +85,12 @@ function Search(props:any) {
     useEffect(() => {
         let options = {
             includeScore: true,
-            keys: getAttrbKeys(treeData),
+            keys: getAttrbKeys([...Object.values(treeData)]),
             ignoreLocation: true,
             includeMatches:true,
             useExtendedSearch: true
         }
-        let fuse:any = new Fuse(treeData,options);
+        let fuse:any = new Fuse([...Object.values(treeData)],options);
         setFuse(fuse);
         return () => {
             dispatch(updatePrevSearches())
@@ -118,13 +118,13 @@ function Search(props:any) {
     const handleAutoCompleteOpenState = (v:boolean) => {
       setisOpen(v);
     }
-    const handleCheck = (toCheck:boolean,node:any) => {
-        dispatch(checkNode({toCheck,nodeIndex:node.index}));
+    const handleCheck = (toCheck:boolean,node:ITreeNode) => {
+        dispatch(checkNode({toCheck,nodeId:node.id}));
     }
 
     const handleSelectAll = (state:boolean) => {
         result.forEach((data:any) => {
-            dispatch(checkNode({toCheck: state, nodeIndex: data.item.index}));
+            dispatch(checkNode({toCheck: state, nodeId: data.item.id}));
         })
         setSelectAll(state);
     }
@@ -201,7 +201,7 @@ function Search(props:any) {
                             return 30 * (Object.keys(attr).length+1);
                         }
                         else{
-                            return 30;
+                            return 45;
                         }
                         
                    }}
@@ -216,7 +216,7 @@ function Search(props:any) {
                     <Cell >
                         {
                             rowData => {
-                                let node = treeData[rowData.item.index];
+                                let node = treeData[rowData.item.id];
                                 return(<SearchItem item = {node} onChange = {handleCheck}/>)
                             }
                         }

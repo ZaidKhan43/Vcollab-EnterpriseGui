@@ -9939,7 +9939,23 @@ var MouseControl = /** @class */ (function (_super) {
         return _this;
     }
     MouseControl.prototype.handleContatinerDoubleClick = function (event) {
-        return;
+        event = event || window.event;
+        this.mouseDown = KeyState.DOWN;
+        this.mouseButtonPressed = (event.keyCode || event.which);
+        var mouse = fromValues$3(event.clientX, event.clientY);
+        var contatinerPos = MathUtils.getContainerBox(this.container);
+        var containerTop = contatinerPos[0];
+        var containerLeft = contatinerPos[1];
+        this.lastMouseX = mouse[0] - containerLeft;
+        this.lastMouseY = mouse[1] - containerTop;
+        if (this.mouseButtonPressed == 1) {
+            fromValues$3(this.lastMouseX, (contatinerPos[2] - containerTop) - this.lastMouseY);
+            AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.DBL_CLICK, message: event });
+            //let triangle = AppObjects.picker.probePart();
+            //AppObjects.picker.highlightPart();
+        }
+        event.preventDefault();
+        this.handleContainerMouseUp(event);
     };
     MouseControl.prototype.handleContainerMouseDown = function (event) {
         event = event || window.event; //window.event for IE
@@ -13175,7 +13191,349 @@ var LabelManager = /** @class */ (function () {
 }());
 
 return new vctViewer(_containerID, _connectorObject);
-};var URLObject = /** @class */ (function () {
+};var Utility = /** @class */ (function () {
+    function Utility() {
+    }
+    Utility.create_UUID = function () {
+        var dt = new Date().getTime();
+        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = (dt + Math.random() * 16) % 16 | 0;
+            dt = Math.floor(dt / 16);
+            return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+        return uuid;
+    };
+    Utility.deepCopy = function (obj) {
+        var _this = this;
+        if (typeof obj !== 'object' || obj === null) {
+            return obj;
+        }
+        if (obj instanceof Array) {
+            return obj.reduce(function (arr, item, i) {
+                arr[i] = _this.deepCopy(item);
+                return arr;
+            }, []);
+        }
+        if (obj instanceof Object) {
+            return Object.keys(obj).reduce(function (newObj, key) {
+                newObj[key] = _this.deepCopy(obj[key]);
+                return newObj;
+            }, {});
+        }
+    };
+    Utility.downloadDataAsFile = function (data, filename, type) {
+        if (!type)
+            type = 'application/json';
+        // @ts-ignore
+        var blob = new Blob([JSON.stringify(data)], { type: type });
+        // @ts-ignore
+        var url = URL.createObjectURL(blob);
+        // Create a new anchor element
+        // @ts-ignore
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename || 'download';
+        a.click();
+        a.remove();
+    };
+    Utility.getURLParameterByName = function (URL, name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)", 'i'), results = regex.exec(URL);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    };
+    Utility.getPathFromUrl = function (url) {
+        return url.split(/[?#]/)[0];
+    };
+    return Utility;
+}());var orientation = {
+    VERTICAL: 0,
+    HORIZONTAL: 1,
+};
+var paletteType = {
+    CONTINUOUS: 0,
+    DISCRETE: 1
+};
+var valueType = {
+    CONTINUOUS: 0,
+    DISCRETE: 1
+};
+var valuePlacement = {
+    EDGE: 0,
+    MIDDLE: 1
+};
+var ticsPosition = {
+    NONE: 0,
+    INSIDE: 1,
+    OUTSIDE: 2,
+    ACROSS: 3,
+};
+var colorValueMode = {
+    BOUNDED: 0,
+    EXTENDED: 1,
+};
+var colorMap = {
+    PRESET1: [
+        [255, 0, 0],
+        [255, 78, 0],
+        [255, 156, 0],
+        [247, 227, 0],
+        [196, 255, 0],
+        [117, 255, 0],
+        [39, 255, 0],
+        [0, 255, 39],
+        [0, 255, 117],
+        [0, 255, 196],
+        [0, 227, 247],
+        [0, 156, 255],
+        [0, 78, 255],
+        [0, 0, 255],
+    ],
+    COLORS_2: [
+        [255, 0, 0],
+        [0, 0, 255],
+    ]
+};
+var probeMode = {
+    LABEL: 0,
+    SECTION: 1
+};
+var displayModes = {
+    DM_1: {
+        ID: "DM_1",
+        DISPLAYNAME: "Bounding Box",
+        DISPLAYORDER: 1
+    },
+    DM_2: {
+        ID: "DM_2",
+        DISPLAYNAME: "Point",
+        DISPLAYORDER: 2
+    },
+    DM_3: {
+        ID: "DM_3",
+        DISPLAYNAME: "Wireframe",
+        DISPLAYORDER: 3
+    },
+    DM_4: {
+        ID: "DM_4",
+        DISPLAYNAME: "Hidden Line",
+        DISPLAYORDER: 4
+    },
+    DM_5: {
+        ID: "DM_5",
+        DISPLAYNAME: "Shaded",
+        DISPLAYORDER: 5
+    },
+    DM_6: {
+        ID: "DM_6",
+        DISPLAYNAME: "Shaded Mesh",
+        DISPLAYORDER: 6
+    },
+    DM_7: {
+        ID: "DM_7",
+        DISPLAYNAME: "Transparent",
+        DISPLAYORDER: 7
+    }
+};
+var downloadMetricTypes = {
+    NONE: "NONE",
+    SIZE: "SIZE",
+    TIME: "TIME",
+};var ModelTree = /** @class */ (function () {
+    function ModelTree(treeMap, modelIds) {
+        this.models = treeMap;
+        this.rootNodeIds = modelIds;
+    }
+    ModelTree.prototype.getVisibleNodes = function () {
+        if (this.models) {
+            return __spread(this.models.values()).filter(function (node) { return (node.children.length === 0 && node.customData.displayProps.visibility == true); });
+        }
+    };
+    ModelTree.prototype.getInvisibleNodes = function () {
+        if (this.models) {
+            return __spread(this.models.values()).filter(function (node) { return (node.children.length === 0 && node.customData.displayProps.visibility == false); });
+        }
+    };
+    ModelTree.prototype.getPartNodeFromNodeIds = function (nodeIds) {
+        var _this = this;
+        var out = [];
+        if (this.models) {
+            nodeIds.forEach(function (nodeId) {
+                var node = _this.models.get(nodeId);
+                if (node)
+                    out.push(node);
+            });
+        }
+        //console.log(out);
+        return out;
+    };
+    ModelTree.prototype.getAllPartNodes = function () {
+        if (this.models) {
+            return __spread(this.models.values()).filter(function (node) { return node.children.length === 0; });
+        }
+    };
+    ModelTree.prototype.getRepresentationsFromParts = function (nodes) {
+        var out = [];
+        nodes.forEach(function (part) {
+            if (part.customData && part.customData.geometries) {
+                part.customData.geometries.forEach(function (geometry) {
+                    if (geometry.customData && geometry.customData.representations) {
+                        out.push.apply(out, __spread(geometry.customData.representations));
+                    }
+                });
+            }
+        });
+        return out;
+    };
+    return ModelTree;
+}());
+var ModelTreeBuilder = /** @class */ (function () {
+    function ModelTreeBuilder(_mcax) {
+        this.mcax = _mcax;
+        this.tree = new Map();
+    }
+    ModelTreeBuilder.prototype.build = function () {
+        var rootNodeIds = this.processModels(Utility.deepCopy(this.mcax.models));
+        return new ModelTree(this.tree, rootNodeIds);
+    };
+    ModelTreeBuilder.prototype.processModels = function (models) {
+        var _this = this;
+        var modelIds = [];
+        if (models && models instanceof Array && models.length > 0) {
+            var filteredModels = models.filter(this.filter);
+            for (var j = 0; j < filteredModels.length; j++) {
+                var model = filteredModels[j];
+                var children = [];
+                if (model.components) {
+                    var filteredComponents = model.components.filter(function (item) { return _this.filter(_this.mcax.components[item]); });
+                    for (var i = 0, l = filteredComponents.length; i < l; i++) {
+                        var childID = this.buildComponentsHierachy("model_" + j, filteredComponents[i], this.mcax.components);
+                        children.push(childID);
+                    }
+                }
+                var name = model.name || "model_" + j;
+                var tempModel = {
+                    //name,
+                    id: "model_" + j,
+                    pid: null,
+                    children: children,
+                    customData: model,
+                    title: name,
+                    attributes: model.attributes
+                };
+                this.tree.set(tempModel.id, tempModel);
+                modelIds.push(tempModel.id);
+            }
+        }
+        return modelIds;
+    };
+    ModelTreeBuilder.prototype.buildComponentsHierachy = function (pid, componentId, allComponents) {
+        var _this = this;
+        var component = JSON.parse(JSON.stringify(this.mcax.components[componentId]));
+        var children = [];
+        if (component.geometries) {
+            //children = this.processGeometries(component.geometries);
+            component.geometries = this.processGeometries(component.geometries);
+            component.displayProps = {
+                displayId: displayModes.DM_1.ID,
+                hiddenlineEnabled: false,
+                transparency: 0.0,
+                useTexture: false,
+                visibility: false
+            };
+        }
+        if (component.children) {
+            var filteredChildren = component.children.filter(function (item) { return _this.filter(allComponents[item]); });
+            for (var i = 0, l = filteredChildren.length; i < l; i++) {
+                var compo = this.buildComponentsHierachy("component_" + componentId, filteredChildren[i], allComponents);
+                children.push(compo);
+            }
+        }
+        var name = component.name || "component_" + componentId;
+        var tempComponent = {
+            //name,
+            id: "component_" + componentId,
+            pid: pid,
+            children: children,
+            customData: component,
+            title: name,
+            attributes: component.attributes
+        };
+        this.tree.set(tempComponent.id, tempComponent);
+        return tempComponent.id;
+    };
+    ModelTreeBuilder.prototype.buildChildHierachy = function (pid, childId, allmodels, allComponents) {
+        var _this = this;
+        var model = JSON.parse(JSON.stringify(allmodels[childId]));
+        var children = [];
+        if (model.components) {
+            var filteredComponents = model.components.filter(function (item) { return _this.filter(allComponents[item]); });
+            for (var i = 0, l = filteredComponents.length; i < l; i++) {
+                var child = this.buildComponentsHierachy("component_" + childId, filteredComponents[i], allComponents);
+                children.push(child);
+            }
+        }
+        if (model.children) {
+            var filteredChildren = model.children.filter(function (item) { return _this.filter(allmodels[item]); });
+            for (var i = 0, l = filteredChildren.length; i < l; i++) {
+                var child = this.buildChildHierachy("model_" + childId, filteredChildren[i], allmodels, allComponents);
+                children.push(child);
+            }
+        }
+        var name = model.name || "model_" + childId;
+        var tempModel = {
+            //name,
+            id: "model_" + childId,
+            pid: pid,
+            children: children,
+            customData: model,
+            title: name,
+            key: "model_" + childId,
+            attributes: model.attributes
+        };
+        return tempModel;
+    };
+    ModelTreeBuilder.prototype.processGeometries = function (geometryArray) {
+        var geometries = [];
+        if (geometryArray && geometryArray instanceof Array) {
+            for (var i = 0; i < geometryArray.length; i++) {
+                var geometryIndex = geometryArray[i];
+                var geometry = JSON.parse(JSON.stringify(this.mcax.geometries[geometryIndex]));
+                if (geometry.representations)
+                    geometry.representations = this.processRepresentation(geometry.representations, geometryIndex);
+                var name = geometry.name || "geometry_" + geometryIndex;
+                var tempGeometry = {
+                    name: name,
+                    id: "geometry_" + geometryIndex,
+                    customData: geometry
+                };
+                geometries.push(tempGeometry);
+            }
+        }
+        return geometries;
+    };
+    ModelTreeBuilder.prototype.processRepresentation = function (representationArray, geometryIndex) {
+        var representations = [];
+        if (representationArray && representationArray instanceof Array) {
+            for (var i = 0; i < representationArray.length; i++) {
+                var representationIndex = representationArray[i];
+                var representation = JSON.parse(JSON.stringify(this.mcax.representations[representationIndex]));
+                var name = representation.name || "representation_" + representationIndex;
+                var tempRepresentation = {
+                    name: name,
+                    id: "representation_" + representationIndex,
+                    geometryIndex: geometryIndex,
+                    customData: representation
+                };
+                representations.push(tempRepresentation);
+            }
+        }
+        return representations;
+    };
+    ModelTreeBuilder.prototype.filter = function (item) {
+        return item.active;
+    };
+    return ModelTreeBuilder;
+}());var URLObject = /** @class */ (function () {
     function URLObject(_url) {
         this.bufferViewLength = 0;
         this.url = _url;
@@ -13303,60 +13661,6 @@ var Logger = /** @class */ (function () {
     };
     Logger.externalLogger = null;
     return Logger;
-}());var Utility = /** @class */ (function () {
-    function Utility() {
-    }
-    Utility.create_UUID = function () {
-        var dt = new Date().getTime();
-        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = (dt + Math.random() * 16) % 16 | 0;
-            dt = Math.floor(dt / 16);
-            return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-        });
-        return uuid;
-    };
-    Utility.deepCopy = function (obj) {
-        var _this = this;
-        if (typeof obj !== 'object' || obj === null) {
-            return obj;
-        }
-        if (obj instanceof Array) {
-            return obj.reduce(function (arr, item, i) {
-                arr[i] = _this.deepCopy(item);
-                return arr;
-            }, []);
-        }
-        if (obj instanceof Object) {
-            return Object.keys(obj).reduce(function (newObj, key) {
-                newObj[key] = _this.deepCopy(obj[key]);
-                return newObj;
-            }, {});
-        }
-    };
-    Utility.downloadDataAsFile = function (data, filename, type) {
-        if (!type)
-            type = 'application/json';
-        // @ts-ignore
-        var blob = new Blob([JSON.stringify(data)], { type: type });
-        // @ts-ignore
-        var url = URL.createObjectURL(blob);
-        // Create a new anchor element
-        // @ts-ignore
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = filename || 'download';
-        a.click();
-        a.remove();
-    };
-    Utility.getURLParameterByName = function (URL, name) {
-        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)", 'i'), results = regex.exec(URL);
-        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-    };
-    Utility.getPathFromUrl = function (url) {
-        return url.split(/[?#]/)[0];
-    };
-    return Utility;
 }());var ProgressiveLoader = /** @class */ (function () {
     function ProgressiveLoader(_mcax, _renderApp, _connector) {
         this.mcax = _mcax;
@@ -13756,330 +14060,6 @@ var ManagedURLDownloader = /** @class */ (function () {
     };
     ManagedURLDownloader.downloadSizeLimit = 4 * 1024 * 1024; // 4 MB
     return ManagedURLDownloader;
-}());var orientation = {
-    VERTICAL: 0,
-    HORIZONTAL: 1,
-};
-var paletteType = {
-    CONTINUOUS: 0,
-    DISCRETE: 1
-};
-var valueType = {
-    CONTINUOUS: 0,
-    DISCRETE: 1
-};
-var valuePlacement = {
-    EDGE: 0,
-    MIDDLE: 1
-};
-var ticsPosition = {
-    NONE: 0,
-    INSIDE: 1,
-    OUTSIDE: 2,
-    ACROSS: 3,
-};
-var colorValueMode = {
-    BOUNDED: 0,
-    EXTENDED: 1,
-};
-var colorMap = {
-    PRESET1: [
-        [255, 0, 0],
-        [255, 78, 0],
-        [255, 156, 0],
-        [247, 227, 0],
-        [196, 255, 0],
-        [117, 255, 0],
-        [39, 255, 0],
-        [0, 255, 39],
-        [0, 255, 117],
-        [0, 255, 196],
-        [0, 227, 247],
-        [0, 156, 255],
-        [0, 78, 255],
-        [0, 0, 255],
-    ],
-    COLORS_2: [
-        [255, 0, 0],
-        [0, 0, 255],
-    ]
-};
-var probeMode = {
-    LABEL: 0,
-    SECTION: 1
-};
-var displayModes = {
-    DM_1: {
-        ID: "DM_1",
-        DISPLAYNAME: "Bounding Box",
-        DISPLAYORDER: 1
-    },
-    DM_2: {
-        ID: "DM_2",
-        DISPLAYNAME: "Point",
-        DISPLAYORDER: 2
-    },
-    DM_3: {
-        ID: "DM_3",
-        DISPLAYNAME: "Wireframe",
-        DISPLAYORDER: 3
-    },
-    DM_4: {
-        ID: "DM_4",
-        DISPLAYNAME: "Hidden Line",
-        DISPLAYORDER: 4
-    },
-    DM_5: {
-        ID: "DM_5",
-        DISPLAYNAME: "Shaded",
-        DISPLAYORDER: 5
-    },
-    DM_6: {
-        ID: "DM_6",
-        DISPLAYNAME: "Shaded Mesh",
-        DISPLAYORDER: 6
-    },
-    DM_7: {
-        ID: "DM_7",
-        DISPLAYNAME: "Transparent",
-        DISPLAYORDER: 7
-    }
-};
-var downloadMetricTypes = {
-    NONE: "NONE",
-    SIZE: "SIZE",
-    TIME: "TIME",
-};var ProductTree = /** @class */ (function () {
-    function ProductTree(_mcax) {
-        this.mcax = _mcax;
-    }
-    ProductTree.prototype.createTreeObj = function () {
-        //return this.processModels(JSON.parse(JSON.stringify(this.mcax.models)));
-        return this.processModels(Utility.deepCopy(this.mcax.models));
-    };
-    ProductTree.prototype.processModels = function (models) {
-        var _this = this;
-        var tempModels = [];
-        if (models && models instanceof Array && models.length > 0) {
-            var filteredModels = models.filter(this.filter);
-            for (var j = 0; j < filteredModels.length; j++) {
-                var model = filteredModels[j];
-                var children = [];
-                if (model.components) {
-                    var filteredComponents = model.components.filter(function (item) { return _this.filter(_this.mcax.components[item]); });
-                    for (var i = 0, l = filteredComponents.length; i < l; i++) {
-                        var child = this.buildComponentsHierachy("model_" + j, filteredComponents[i], this.mcax.components);
-                        children.push(child);
-                    }
-                }
-                /*
-                if(model.children){
-                     let filteredChildren = model.children.filter(item => this.filter(models[item]));
-                    for ( let i = 0, l = filteredChildren.length; i < l; i ++ ) {
-                        let child =  this.buildChildHierachy("model_"+i,filteredChildren[i], models, this.mcax.components);
-                        children.push(child);
-                    }
-                }
-                */
-                var name = model.name || "model_" + j;
-                var tempModel = {
-                    //name,
-                    id: "model_" + j,
-                    pid: null,
-                    children: children,
-                    customData: model,
-                    title: name,
-                    key: "model_" + j,
-                    visiblity: true,
-                    attributes: model.attributes
-                };
-                tempModels.push(tempModel);
-            }
-        }
-        return tempModels;
-    };
-    ProductTree.prototype.buildComponentsHierachy = function (pid, componentId, allComponents) {
-        var _this = this;
-        var component = JSON.parse(JSON.stringify(this.mcax.components[componentId]));
-        var children = [];
-        if (component.geometries) {
-            //children = this.processGeometries(component.geometries);
-            component.geometries = this.processGeometries(component.geometries);
-            component.displayProps = {
-                displayId: displayModes.DM_1.ID,
-                hiddenlineEnabled: false,
-                transparency: 0.0,
-                useTexture: false,
-                visiblity: false
-            };
-        }
-        if (component.children) {
-            var filteredChildren = component.children.filter(function (item) { return _this.filter(allComponents[item]); });
-            for (var i = 0, l = filteredChildren.length; i < l; i++) {
-                var compo = this.buildComponentsHierachy("component_" + componentId, filteredChildren[i], allComponents);
-                children.push(compo);
-            }
-        }
-        var name = component.name || "component_" + componentId;
-        var tempComponent = {
-            //name,
-            id: "component_" + componentId,
-            pid: pid,
-            children: children,
-            customData: component,
-            title: name,
-            key: "component_" + componentId,
-            visiblity: true,
-            attributes: component.attributes
-        };
-        return tempComponent;
-    };
-    ProductTree.prototype.buildChildHierachy = function (pid, childId, allmodels, allComponents) {
-        var _this = this;
-        var model = JSON.parse(JSON.stringify(allmodels[childId]));
-        var children = [];
-        if (model.components) {
-            var filteredComponents = model.components.filter(function (item) { return _this.filter(allComponents[item]); });
-            for (var i = 0, l = filteredComponents.length; i < l; i++) {
-                var child = this.buildComponentsHierachy("component_" + childId, filteredComponents[i], allComponents);
-                children.push(child);
-            }
-        }
-        if (model.children) {
-            var filteredChildren = model.children.filter(function (item) { return _this.filter(allmodels[item]); });
-            for (var i = 0, l = filteredChildren.length; i < l; i++) {
-                var child = this.buildChildHierachy("model_" + childId, filteredChildren[i], allmodels, allComponents);
-                children.push(child);
-            }
-        }
-        var name = model.name || "model_" + childId;
-        var tempModel = {
-            //name,
-            id: "model_" + childId,
-            pid: pid,
-            children: children,
-            customData: model,
-            title: name,
-            key: "model_" + childId,
-            visiblity: true,
-            attributes: model.attributes
-        };
-        return tempModel;
-    };
-    ProductTree.prototype.processGeometries = function (geometryArray) {
-        var geometries = [];
-        if (geometryArray && geometryArray instanceof Array) {
-            for (var i = 0; i < geometryArray.length; i++) {
-                var geometryIndex = geometryArray[i];
-                var geometry = JSON.parse(JSON.stringify(this.mcax.geometries[geometryIndex]));
-                if (geometry.representations)
-                    geometry.representations = this.processRepresentation(geometry.representations, geometryIndex);
-                var name = geometry.name || "geometry_" + geometryIndex;
-                var tempGeometry = {
-                    name: name,
-                    id: "geometry_" + geometryIndex,
-                    customData: geometry
-                };
-                geometries.push(tempGeometry);
-            }
-        }
-        return geometries;
-    };
-    ProductTree.prototype.processRepresentation = function (representationArray, geometryIndex) {
-        var representations = [];
-        if (representationArray && representationArray instanceof Array) {
-            for (var i = 0; i < representationArray.length; i++) {
-                var representationIndex = representationArray[i];
-                var representation = JSON.parse(JSON.stringify(this.mcax.representations[representationIndex]));
-                var name = representation.name || "representation_" + representationIndex;
-                var tempRepresentation = {
-                    name: name,
-                    id: "representation_" + representationIndex,
-                    geometryIndex: geometryIndex,
-                    customData: representation
-                };
-                representations.push(tempRepresentation);
-            }
-        }
-        return representations;
-    };
-    ProductTree.prototype.filter = function (item) {
-        return item.active;
-        /*
-        if(item &&
-            item.extensions &&
-            item.extensions.ui
-            )
-            return item.extensions.ui.active;
-        return true;
-        */
-    };
-    ProductTree.filterParts = function (node) {
-        var _this = this;
-        var out = [];
-        if (node.customData.geometries)
-            out.push(node);
-        else if (node.children && node.children.length > 0) {
-            node.children.forEach(function (child) {
-                out.push.apply(out, __spread(_this.filterParts(child)));
-            });
-        }
-        return out;
-    };
-    ProductTree.getPartNodeFromNodeIds = function (nodeIds, tree) {
-        var out = [];
-        if (tree) {
-            var leafNodes_1 = this.filterParts(tree[0]);
-            nodeIds === null || nodeIds === void 0 ? void 0 : nodeIds.forEach(function (id) {
-                var nd = leafNodes_1.find(function (node) { return node.id == id; });
-                if (nd)
-                    out.push(nd);
-            });
-        }
-        //console.log(out);
-        return out;
-    };
-    ProductTree.getVisibleNodes = function (tree) {
-        if (tree) {
-            var leafNodes = this.filterParts(tree[0]);
-            return leafNodes.filter(function (node) { return node.visiblity == true; });
-        }
-        return [];
-    };
-    ProductTree.getInvisibleNodes = function (tree) {
-        var leafNodes = this.filterParts(tree[0]);
-        return leafNodes.filter(function (node) { return node.visiblity == false; });
-    };
-    ProductTree.getAllPartNodes = function (tree) {
-        if (tree) {
-            return this.filterParts(tree[0]);
-        }
-        return [];
-    };
-    ProductTree.getRepresentationsFromParts = function (partNodes) {
-        var out = [];
-        partNodes === null || partNodes === void 0 ? void 0 : partNodes.forEach(function (part) {
-            if (part && part.customData && part.customData.geometries) {
-                part.customData.geometries.forEach(function (geometry) {
-                    if (geometry && geometry.customData && geometry.customData.representations) {
-                        out.push.apply(out, __spread(geometry.customData.representations));
-                    }
-                });
-            }
-        });
-        return out;
-    };
-    ProductTree.setNodesVisibility = function (nodeIds, tree, visibility) {
-        if (tree) {
-            var leafNodes_2 = this.filterParts(tree[0]);
-            nodeIds === null || nodeIds === void 0 ? void 0 : nodeIds.forEach(function (id) {
-                var node = leafNodes_2.find(function (node) { return node.id == id; });
-                if (node)
-                    node.visiblity = visibility;
-            });
-        }
-    };
-    return ProductTree;
 }());var basicType = Object.freeze({
     ANALYTICAL: 1,
     PRIMITIVES: 2,
@@ -14860,7 +14840,11 @@ var Section = /** @class */ (function () {
         this.externalEventDispatcher.addEventListener(this.events.PROBE_FINISH, this.handleSelection.bind(this));
     };
     LabelManager.prototype.handleSelection = function (e) {
-        return;
+        var probeData = e.data;
+        if (probeData.hitPoint && this.appState.probeMode == probeMode.LABEL) {
+            this.renderApp.addLabel(probeData.connectivityIndex.toString(), probeData.hitPoint, probeData.connectivityIndex.toString());
+            Logger.setStatusBar("probing for labels");
+        }
     };
     return LabelManager;
 }());var RepresentationType;
@@ -14954,242 +14938,7 @@ var getEventObject = function (type, viewerID, data) {
         viewerID: viewerID,
         data: data
     };
-};var ServerConnectionType = {
-    XHR: 1,
-    AXIOS: 2
-};
-var serverURLs = {
-    getLicense: '/api/1.0/license/acquire',
-    releaseLicense: '/api/1.0/license/release',
-    ping: '/api/1.0/ping',
-    is_free: '/api/1.0/isfree',
-    getCAEResultList: '/api/1.0/getCAEResultList',
-    connect: '/api/1.0/connect',
-    disconnect: '/api/1.0/disconnect',
-    taskState: '/api/1.0/task'
-};
-var ResponseType = {
-    JSON: 'json',
-    BUFFER: 'arraybuffer'
-};
-var errorCode = {
-    noerror: '',
-    connectionError: 'Not connected. Please verify your network connection.',
-    error404: 'The requested page not found [404].',
-    serverError: 'Internal server error [500].',
-    jsonError: 'Requested JSON parse failed.',
-    timeoutError: 'Time out error.',
-    ajaxError: 'Ajax request aborted.',
-    unknownError: 'Unkown network error.',
-    noresponseError: 'No response from server',
-    invalidDataError: 'Invalid data received from server'
-};
-var range = [" seconds ", " minutes ", " hours ", " days ", " weeks "];
-var SizeRange = ["Bytes", "KB", "MB", "GB", "TB"];
-var SpeedRange = ["B/s", "KB/s", "MB/s", "GB/s", "TB/s"];
-//Convert number of seconds to structure string E.g. 65 as input returns 1minutes 5seconds
-var SecondsToStructuredString = function (time) {
-    var min;
-    var sec;
-    var hr;
-    var days;
-    var wks;
-    if (time < 1)
-        return "0 milliseconds";
-    if (time < 1000)
-        return Math.floor(time) + " milliseconds";
-    else
-        time = time / 1000;
-    if (time < 60) //Seconds
-     {
-        return Math.floor(time) + range[0];
-    }
-    else if ((time / 60) < 60) //Minutes
-     {
-        min = Math.floor(time / 60);
-        sec = Math.floor(time - (min * 60));
-        return min + range[1] + (sec > 0 ? sec + range[0] : "");
-    }
-    else if ((time / (60 * 60)) >= 1 && (time / (60 * 60)) < 24) //Hours
-     {
-        hr = Math.floor(time / (60 * 60));
-        min = time - (hr * (60 * 60));
-        min = Math.floor(min / 60);
-        sec = Math.floor(time - ((hr * (60 * 60)) + (min * 60)));
-        return hr + range[2] + (min > 0 ? min + range[1] : "") + (sec > 0 ? Math.floor(sec) + range[0] : "");
-    }
-    else if ((time / (60 * 60)) >= 24 && (time / (60 * 60 * 24)) < 7) //Days
-     {
-        days = Math.floor(time / (60 * 60 * 24));
-        hr = time - (days * 60 * 60 * 24);
-        hr = Math.floor(hr / (60 * 60));
-        min = time - ((days * 60 * 60 * 24) + (hr * 60 * 60));
-        min = Math.floor(min / 60);
-        sec = Math.floor(time - ((days * 60 * 60 * 24) + (hr * 60 * 60) + (min * 60)));
-        return days + range[3] + (hr > 0 ? hr + range[2] : "") + (min > 0 ? min + range[1] : "") + (sec > 0 ? sec + range[0] : "");
-    }
-    else //if((time / (60*60*24)) >= 7) //Weeks
-     {
-        wks = Math.floor(time / (60 * 60 * 24 * 7));
-        days = time - (wks * (60 * 60 * 24 * 7));
-        days = Math.floor(days / (60 * 60 * 24));
-        hr = time - ((wks * 60 * 60 * 24 * 7) + (days * 60 * 60 * 24));
-        hr = Math.floor(hr / (60 * 60));
-        min = time - (((wks * (60 * 60 * 24 * 7)) + (days * 60 * 60 * 24) + (hr * 60 * 60)));
-        min = Math.floor(min / 60);
-        sec = Math.floor(time - ((wks * (60 * 60 * 24 * 7)) + (days * 60 * 60 * 24) + (hr * 60 * 60) + (min * 60)));
-        return wks + range[4] + (days > 0 ? days + range[3] : "") + (hr > 0 ? hr + range[2] : "") + (min > 0 ? min + range[1] : "") + (sec > 0 ? sec + range[0] : "");
-    }
-};
-//Returns number of bytes as structure string E.g. 1076 as input returns 1.05KB  
-var BytesToStructuredString = function (bytes) {
-    if (bytes < 1)
-        return "0 Byte";
-    var i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return (bytes / Math.pow(1024, i)).toFixed(2) + " " + SizeRange[i];
-};
-//Returns number of bytes/sec as structure string E.g. 1076 as input returns 1.05KB/s
-var SpeedToStructuredString = function (speed) {
-    if (speed < 1)
-        return "0 B/s";
-    var i = Math.floor(Math.log(speed) / Math.log(1024));
-    return (speed / Math.pow(1024, i)).toFixed(2) + " " + SpeedRange[i];
-};var RequestMeter = /** @class */ (function () {
-    function RequestMeter(url) {
-        this._url = url,
-            this._requestInitaitedOn = null,
-            this._firstResponseReceivedOn = null,
-            this._finalResponseReceivedOn = null,
-            this._isErrorOccurred = false,
-            this._isSuccess = false,
-            this._loaded = 0;
-        this._progessList = [];
-        this._error = null;
-        this.size = 0;
-        this.timeForFirstResponse = null;
-        this.timeForDownload = null;
-        this.eventCallback = function () { };
-    }
-    RequestMeter.prototype.requestInitaited = function () {
-        this._requestInitaitedOn = new Date().getTime();
-    };
-    RequestMeter.prototype.addEventCallbackFn = function (callbackfn) {
-        this.eventCallback = callbackfn;
-    };
-    RequestMeter.prototype.addProgress = function (event) {
-        //console.log("event : ", event);
-        if (event) {
-            var current_time = new Date().getTime();
-            if (this.eventCallback) {
-                this.eventCallback(event);
-            }
-            if (this._progessList.length === 0) {
-                this._firstResponseReceivedOn = current_time;
-                this.timeForFirstResponse = this._firstResponseReceivedOn - this._requestInitaitedOn;
-                this.size = event.total;
-            }
-            if (event.loaded === event.total) {
-                this._finalResponseReceivedOn = current_time;
-                this.timeForDownload = this._finalResponseReceivedOn - this._requestInitaitedOn;
-            }
-            var prvTime = this._requestInitaitedOn;
-            var bitsLoaded = event.loaded;
-            if (this._progessList.length > 0) {
-                prvTime = this._progessList[this._progessList.length - 1].time;
-                bitsLoaded = event.loaded - this._progessList[this._progessList.length - 1].loaded;
-            }
-            var durationInMS = (current_time - prvTime);
-            var durationInSec = durationInMS / 1000;
-            //bitsLoaded = bitsLoaded * 8;
-            var speedBps = bitsLoaded / durationInSec;
-            var progressEvent = {
-                time: current_time,
-                loaded: event.loaded,
-                duration: durationInMS,
-                //event : event,
-                speed: speedBps
-            };
-            this._progessList.push(progressEvent);
-            this._loaded = event.loaded;
-        }
-    };
-    RequestMeter.prototype.succeeded = function () {
-        this._isSuccess = true;
-    };
-    RequestMeter.prototype.errorOccurred = function (errorString) {
-        this._isErrorOccurred = true;
-        this._error = errorString;
-    };
-    RequestMeter.prototype.getTransferSpeed = function () {
-        var transferSpeed = {
-            maxSpeed: 0,
-            avgSpeed: 0,
-            minSpeed: 0,
-        };
-        for (var i = 1; i < this._progessList.length; i++) //skip the first response since in contains server processing time
-         {
-            var item = this._progessList[i];
-            if (item.speed < transferSpeed.minSpeed || transferSpeed.minSpeed == 0)
-                transferSpeed.minSpeed = item.speed;
-            if (item.speed > transferSpeed.maxSpeed)
-                transferSpeed.maxSpeed = item.speed;
-            transferSpeed.avgSpeed = transferSpeed.avgSpeed + item.speed;
-        }
-        if (this._progessList.length > 1)
-            transferSpeed.avgSpeed = transferSpeed.avgSpeed / (this._progessList.length - 1);
-        return transferSpeed;
-    };
-    RequestMeter.prototype.getMetrics = function () {
-        var metricsString = "";
-        if (this._isSuccess === true && this._isErrorOccurred === false) {
-            var transferSpeed = this.getTransferSpeed();
-            var size = BytesToStructuredString(this.size);
-            var timeForFirstResponse = SecondsToStructuredString(this.timeForFirstResponse);
-            var timeToDownload = SecondsToStructuredString(this.timeForDownload);
-            var minSpeed = SpeedToStructuredString(transferSpeed.minSpeed);
-            var maxSpeed = SpeedToStructuredString(transferSpeed.maxSpeed);
-            var avgSpeed = SpeedToStructuredString(transferSpeed.avgSpeed);
-            metricsString =
-                "URL :  " + this._url + "\nSize :  " + size + "\nWaiting (TTFB) :  " + timeForFirstResponse + "\nTimeToDownload :  " + timeToDownload + "\nMIN Speed :  " + minSpeed + "\nMAX Speed :  " + maxSpeed + "\nAVG Speed :  " + avgSpeed + "\nChunk Count :  " + this._progessList.length;
-        }
-        else if (this._isErrorOccurred === true && this._error !== null) {
-            metricsString =
-                "URL :  " + this._url + "\nError :  " + this._error;
-        }
-        else {
-            metricsString =
-                "URL :  " + this._url + "\nError :  Unknown Error";
-        }
-        return metricsString;
-    };
-    return RequestMeter;
-}());var NetworkMetrics = /** @class */ (function () {
-    function NetworkMetrics() {
-    }
-    NetworkMetrics.addURL = function (url) {
-        var reqObj = new RequestMeter(url);
-        NetworkMetrics.URLMap.set(url, reqObj);
-        return reqObj;
-    };
-    NetworkMetrics.getRequestObject = function (url) {
-        return NetworkMetrics.URLMap.get(url);
-    };
-    NetworkMetrics.getAllMetrics = function () {
-        var rtnString = "";
-        NetworkMetrics.URLMap.forEach(function (value) {
-            if (rtnString === "") {
-                rtnString = "" + value.getMetrics();
-            }
-            else {
-                rtnString =
-                    rtnString + " \n\n" + value.getMetrics();
-            }
-        });
-        return rtnString;
-    };
-    NetworkMetrics.URLMap = new Map();
-    return NetworkMetrics;
-}());var Viewer = /** @class */ (function () {
+};var Viewer = /** @class */ (function () {
     function Viewer(_UUID, _containerID, _connector, _eventDispacther) {
         this.UUID = _UUID;
         this.containerID = _containerID;
@@ -15219,8 +14968,7 @@ var SpeedToStructuredString = function (speed) {
     Viewer.prototype.loadModel = function (api, url) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var jsonResult, obj, requestTracker, model, obj_1, tree, gltf, error_1;
-            var _this = this;
+            var jsonResult, obj, model, obj_1, gltf, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -15236,14 +14984,7 @@ var SpeedToStructuredString = function (speed) {
                         Logger.setStatusBar("Downloading data from server");
                         obj = getEventObject(viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, this.UUID, "Downloading data from server");
                         this.eventDispatcher.dispatchEvent(obj);
-                        requestTracker = NetworkMetrics.addURL(url);
-                        requestTracker.addEventCallbackFn(function (event) {
-                            var percetage = (event.loaded / event.total) * 100;
-                            var msg = "Downloading data " + percetage.toFixed(1) + "% completed.";
-                            var obj = getEventObject(viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, _this.UUID, msg);
-                            _this.eventDispatcher.dispatchEvent(obj);
-                        });
-                        return [4 /*yield*/, this.connector.getJsonData(jsonResult.json_url, requestTracker)];
+                        return [4 /*yield*/, this.connector.getJsonData(jsonResult.json_url)];
                     case 2:
                         model = _a.sent();
                         if (!model.error) return [3 /*break*/, 3];
@@ -15254,8 +14995,8 @@ var SpeedToStructuredString = function (speed) {
                         this.eventDispatcher.dispatchEvent(obj_1);
                         //logger.setStatusBar("Processing data");
                         this.mcax = Utility.deepCopy(model);
-                        tree = new ProductTree(Utility.deepCopy(model));
-                        this.productTree = tree.createTreeObj();
+                        //console.log(this.mcax);          
+                        this.productTree = new ModelTreeBuilder(this.mcax).build();
                         this.legendManager = new LegendManager();
                         this.caeResult = new CAEResult(Utility.deepCopy(this.mcax), this.renderApp, this.connector, this.legendManager);
                         gltf = Utility.deepCopy(model.gltf);
@@ -15342,21 +15083,22 @@ var SpeedToStructuredString = function (speed) {
         //return "Not implemented"
         return "SUCCESS";
     };
-    Viewer.prototype.setPartsVisibility = function (selectedNodes, visiblity) {
+    Viewer.prototype.setPartsVisibility = function (selectedNodes, visibility) {
         return __awaiter(this, void 0, void 0, function () {
             var nodes, reps, repIds;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        nodes = ProductTree.getPartNodeFromNodeIds(selectedNodes.map(function (node) { return node.id; }), this.productTree);
+                        nodes = this.productTree.getPartNodeFromNodeIds(selectedNodes.map(function (node) { return node.id; }));
                         if (selectedNodes.length == 0) {
-                            nodes = ProductTree.getAllPartNodes(this.productTree);
+                            nodes = this.productTree.getAllPartNodes();
                         }
-                        reps = ProductTree.getRepresentationsFromParts(nodes);
+                        //update in local tree;
+                        nodes.forEach(function (node) { return node.customData.displayProps.visibility = visibility; });
+                        reps = this.productTree.getRepresentationsFromParts(nodes);
                         repIds = reps.map(function (rep) { return rep.customData.node; });
-                        ProductTree.setNodesVisibility(nodes.map(function (node) { return node.id; }), this.productTree, visiblity);
-                        if (!(repIds.length > 0 && visiblity == false)) return [3 /*break*/, 1];
+                        if (!(repIds.length > 0 && (visibility === false))) return [3 /*break*/, 1];
                         this.renderApp.setNodeVisibility(repIds, false);
                         return [3 /*break*/, 3];
                     case 1: return [4 /*yield*/, Promise.all(nodes.map(function (node) {
@@ -15376,8 +15118,8 @@ var SpeedToStructuredString = function (speed) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        visibleNodes = ProductTree.getVisibleNodes(this.productTree);
-                        invisibleNodes = ProductTree.getInvisibleNodes(this.productTree);
+                        visibleNodes = this.productTree.getVisibleNodes();
+                        invisibleNodes = this.productTree.getInvisibleNodes();
                         if (!(visibleNodes.length > 0)) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.setPartsVisibility(visibleNodes, false)];
                     case 1:
@@ -15422,11 +15164,10 @@ var SpeedToStructuredString = function (speed) {
         return Promise.resolve(modes);
     };
     Viewer.prototype.getDownloadSize = function (selectedNodes, displayModeId) {
-        var nodes = [];
-        if ((selectedNodes === null || selectedNodes === void 0 ? void 0 : selectedNodes.length) === 0)
-            nodes = ProductTree.getVisibleNodes(this.productTree);
-        else
-            nodes = ProductTree.getPartNodeFromNodeIds(selectedNodes === null || selectedNodes === void 0 ? void 0 : selectedNodes.map(function (node) { return node.id; }), this.productTree);
+        var nodes = this.productTree.getPartNodeFromNodeIds(selectedNodes.map(function (node) { return node.id; }));
+        if ((selectedNodes === null || selectedNodes === void 0 ? void 0 : selectedNodes.length) === 0) {
+            nodes = this.productTree.getAllPartNodes();
+        }
         var representations = {
             meshEnabled: false,
             lineEnabled: false,
@@ -15503,7 +15244,7 @@ var SpeedToStructuredString = function (speed) {
                             hiddenlineEnabled: false,
                             transparency: 0.0,
                             useTexture: false,
-                            visiblity: node.visiblity
+                            visibility: node.customData.displayProps.visibility
                         };
                         switch (displayModeId) {
                             case displayModes.DM_1.ID:
@@ -15554,12 +15295,11 @@ var SpeedToStructuredString = function (speed) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        nodes = [];
-                        if ((selectedNodes === null || selectedNodes === void 0 ? void 0 : selectedNodes.length) === 0)
-                            nodes = ProductTree.getVisibleNodes(this.productTree);
-                        else
-                            nodes = ProductTree.getPartNodeFromNodeIds(selectedNodes === null || selectedNodes === void 0 ? void 0 : selectedNodes.map(function (node) { return node.id; }), this.productTree);
-                        reps = ProductTree.getRepresentationsFromParts(nodes);
+                        nodes = this.productTree.getPartNodeFromNodeIds(selectedNodes.map(function (node) { return node.id; }));
+                        if (selectedNodes.length == 0) {
+                            nodes = this.productTree.getAllPartNodes();
+                        }
+                        reps = this.productTree.getRepresentationsFromParts(nodes);
                         repIds = reps.map(function (rep) { return rep.customData.node; });
                         if (repIds.length > 0)
                             this.renderApp.setNodeVisibility(repIds, false);
@@ -15613,10 +15353,10 @@ var SpeedToStructuredString = function (speed) {
                         });
                     }
                 });
-                if (selectionInfo.visiblity === false) {
+                if (selectionInfo.visibility === false) {
                     var nodes = representations_1.map(function (items) { return items.customData.node; });
                     if (nodes.length > 0)
-                        _this.renderApp.setNodeVisibility(nodes, selectionInfo.visiblity);
+                        _this.renderApp.setNodeVisibility(nodes, selectionInfo.visibility);
                     resolve(true);
                 }
                 else {
@@ -15735,7 +15475,107 @@ var SpeedToStructuredString = function (speed) {
         return 'SUCCESS';
     };
     return Viewer;
-}());var AjaxConnector = /** @class */ (function () {
+}());var ServerConnectionType = {
+    XHR: 1,
+    AXIOS: 2
+};
+var serverURLs = {
+    getLicense: '/api/1.0/license/acquire',
+    releaseLicense: '/api/1.0/license/release',
+    ping: '/api/1.0/ping',
+    is_free: '/api/1.0/isfree',
+    getCAEResultList: '/api/1.0/getCAEResultList',
+    connect: '/api/1.0/connect',
+    disconnect: '/api/1.0/disconnect',
+    taskState: '/api/1.0/task'
+};
+var ResponseType = {
+    JSON: 'json',
+    BUFFER: 'arraybuffer'
+};
+var errorCode = {
+    noerror: '',
+    connectionError: 'Not connected. Please verify your network connection.',
+    error404: 'The requested page not found [404].',
+    serverError: 'Internal server error [500].',
+    jsonError: 'Requested JSON parse failed.',
+    timeoutError: 'Time out error.',
+    ajaxError: 'Ajax request aborted.',
+    unknownError: 'Unkown network error.',
+    noresponseError: 'No response from server',
+    invalidDataError: 'Invalid data received from server'
+};
+var range = [" seconds ", " minutes ", " hours ", " days ", " weeks "];
+var SizeRange = ["Bytes", "KB", "MB", "GB", "TB"];
+var SpeedRange = ["B/s", "KB/s", "MB/s", "GB/s", "TB/s"];
+//Convert number of seconds to structure string E.g. 65 as input returns 1minutes 5seconds
+var SecondsToStructuredString = function (time) {
+    var min;
+    var sec;
+    var hr;
+    var days;
+    var wks;
+    if (time < 1)
+        return "0 milliseconds";
+    if (time < 1000)
+        return Math.floor(time) + " milliseconds";
+    else
+        time = time / 1000;
+    if (time < 60) //Seconds
+     {
+        return Math.floor(time) + range[0];
+    }
+    else if ((time / 60) < 60) //Minutes
+     {
+        min = Math.floor(time / 60);
+        sec = Math.floor(time - (min * 60));
+        return min + range[1] + (sec > 0 ? sec + range[0] : "");
+    }
+    else if ((time / (60 * 60)) >= 1 && (time / (60 * 60)) < 24) //Hours
+     {
+        hr = Math.floor(time / (60 * 60));
+        min = time - (hr * (60 * 60));
+        min = Math.floor(min / 60);
+        sec = Math.floor(time - ((hr * (60 * 60)) + (min * 60)));
+        return hr + range[2] + (min > 0 ? min + range[1] : "") + (sec > 0 ? Math.floor(sec) + range[0] : "");
+    }
+    else if ((time / (60 * 60)) >= 24 && (time / (60 * 60 * 24)) < 7) //Days
+     {
+        days = Math.floor(time / (60 * 60 * 24));
+        hr = time - (days * 60 * 60 * 24);
+        hr = Math.floor(hr / (60 * 60));
+        min = time - ((days * 60 * 60 * 24) + (hr * 60 * 60));
+        min = Math.floor(min / 60);
+        sec = Math.floor(time - ((days * 60 * 60 * 24) + (hr * 60 * 60) + (min * 60)));
+        return days + range[3] + (hr > 0 ? hr + range[2] : "") + (min > 0 ? min + range[1] : "") + (sec > 0 ? sec + range[0] : "");
+    }
+    else //if((time / (60*60*24)) >= 7) //Weeks
+     {
+        wks = Math.floor(time / (60 * 60 * 24 * 7));
+        days = time - (wks * (60 * 60 * 24 * 7));
+        days = Math.floor(days / (60 * 60 * 24));
+        hr = time - ((wks * 60 * 60 * 24 * 7) + (days * 60 * 60 * 24));
+        hr = Math.floor(hr / (60 * 60));
+        min = time - (((wks * (60 * 60 * 24 * 7)) + (days * 60 * 60 * 24) + (hr * 60 * 60)));
+        min = Math.floor(min / 60);
+        sec = Math.floor(time - ((wks * (60 * 60 * 24 * 7)) + (days * 60 * 60 * 24) + (hr * 60 * 60) + (min * 60)));
+        return wks + range[4] + (days > 0 ? days + range[3] : "") + (hr > 0 ? hr + range[2] : "") + (min > 0 ? min + range[1] : "") + (sec > 0 ? sec + range[0] : "");
+    }
+};
+//Returns number of bytes as structure string E.g. 1076 as input returns 1.05KB  
+var BytesToStructuredString = function (bytes) {
+    if (bytes < 1)
+        return "0 Byte";
+    var i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return (bytes / Math.pow(1024, i)).toFixed(2) + " " + SizeRange[i];
+};
+//Returns number of bytes/sec as structure string E.g. 1076 as input returns 1.05KB/s
+var SpeedToStructuredString = function (speed) {
+    if (speed < 1)
+        return "0 B/s";
+    var i = Math.floor(Math.log(speed) / Math.log(1024));
+    return (speed / Math.pow(1024, i)).toFixed(2) + " " + SpeedRange[i];
+};var AjaxConnector = /** @class */ (function () {
     function AjaxConnector() {
     }
     AjaxConnector.xhr2 = function (_url, _data, _callback, _method, _async, responseType) {
@@ -15822,6 +15662,134 @@ var SpeedToStructuredString = function (speed) {
         });
     };
     return AjaxConnector;
+}());var RequestMeter = /** @class */ (function () {
+    function RequestMeter(url) {
+        this._url = url,
+            this._requestInitaitedOn = null,
+            this._firstResponseReceivedOn = null,
+            this._finalResponseReceivedOn = null,
+            this._isErrorOccurred = false,
+            this._isSuccess = false,
+            this._loaded = 0;
+        this._progessList = [];
+        this._error = null;
+        this.size = 0;
+        this.timeForFirstResponse = null;
+        this.timeForDownload = null;
+    }
+    RequestMeter.prototype.requestInitaited = function () {
+        this._requestInitaitedOn = new Date().getTime();
+    };
+    RequestMeter.prototype.addProgress = function (event) {
+        //console.log("event : ", event);
+        if (event) {
+            var current_time = new Date().getTime();
+            if (this._progessList.length === 0) {
+                this._firstResponseReceivedOn = current_time;
+                this.timeForFirstResponse = this._firstResponseReceivedOn - this._requestInitaitedOn;
+                this.size = event.total;
+            }
+            if (event.loaded === event.total) {
+                this._finalResponseReceivedOn = current_time;
+                this.timeForDownload = this._finalResponseReceivedOn - this._requestInitaitedOn;
+            }
+            var prvTime = this._requestInitaitedOn;
+            var bitsLoaded = event.loaded;
+            if (this._progessList.length > 0) {
+                prvTime = this._progessList[this._progessList.length - 1].time;
+                bitsLoaded = event.loaded - this._progessList[this._progessList.length - 1].loaded;
+            }
+            var durationInMS = (current_time - prvTime);
+            var durationInSec = durationInMS / 1000;
+            //bitsLoaded = bitsLoaded * 8;
+            var speedBps = bitsLoaded / durationInSec;
+            var progressEvent = {
+                time: current_time,
+                loaded: event.loaded,
+                duration: durationInMS,
+                //event : event,
+                speed: speedBps
+            };
+            this._progessList.push(progressEvent);
+            this._loaded = event.loaded;
+        }
+    };
+    RequestMeter.prototype.succeeded = function () {
+        this._isSuccess = true;
+    };
+    RequestMeter.prototype.errorOccurred = function (errorString) {
+        this._isErrorOccurred = true;
+        this._error = errorString;
+    };
+    RequestMeter.prototype.getTransferSpeed = function () {
+        var transferSpeed = {
+            maxSpeed: 0,
+            avgSpeed: 0,
+            minSpeed: 0,
+        };
+        for (var i = 1; i < this._progessList.length; i++) //skip the first response since in contains server processing time
+         {
+            var item = this._progessList[i];
+            if (item.speed < transferSpeed.minSpeed || transferSpeed.minSpeed == 0)
+                transferSpeed.minSpeed = item.speed;
+            if (item.speed > transferSpeed.maxSpeed)
+                transferSpeed.maxSpeed = item.speed;
+            transferSpeed.avgSpeed = transferSpeed.avgSpeed + item.speed;
+        }
+        if (this._progessList.length > 1)
+            transferSpeed.avgSpeed = transferSpeed.avgSpeed / (this._progessList.length - 1);
+        return transferSpeed;
+    };
+    RequestMeter.prototype.getMetrics = function () {
+        var metricsString = "";
+        if (this._isSuccess === true && this._isErrorOccurred === false) {
+            var transferSpeed = this.getTransferSpeed();
+            var size = BytesToStructuredString(this.size);
+            var timeForFirstResponse = SecondsToStructuredString(this.timeForFirstResponse);
+            var timeToDownload = SecondsToStructuredString(this.timeForDownload);
+            var minSpeed = SpeedToStructuredString(transferSpeed.minSpeed);
+            var maxSpeed = SpeedToStructuredString(transferSpeed.maxSpeed);
+            var avgSpeed = SpeedToStructuredString(transferSpeed.avgSpeed);
+            metricsString =
+                "URL :  " + this._url + "\nSize :  " + size + "\nWaiting (TTFB) :  " + timeForFirstResponse + "\nTimeToDownload :  " + timeToDownload + "\nMIN Speed :  " + minSpeed + "\nMAX Speed :  " + maxSpeed + "\nAVG Speed :  " + avgSpeed + "\nChunk Count :  " + this._progessList.length;
+        }
+        else if (this._isErrorOccurred === true && this._error !== null) {
+            metricsString =
+                "URL :  " + this._url + "\nError :  " + this._error;
+        }
+        else {
+            metricsString =
+                "URL :  " + this._url + "\nError :  Unknown Error";
+        }
+        return metricsString;
+    };
+    return RequestMeter;
+}());var NetworkMetrics = /** @class */ (function () {
+    function NetworkMetrics() {
+    }
+    NetworkMetrics.addURL = function (url) {
+        var reqObj = new RequestMeter(url);
+        NetworkMetrics.URLMap.set(url, reqObj);
+        return reqObj;
+    };
+    NetworkMetrics.getRequestObject = function (url) {
+        return NetworkMetrics.URLMap.get(url);
+    };
+    NetworkMetrics.getAllMetrics = function () {
+        var rtnString = "";
+        NetworkMetrics.URLMap.forEach(function (value) {
+            if (rtnString === "") {
+                rtnString = "" + value.getMetrics();
+            }
+            else {
+                rtnString =
+                    rtnString + " \n\n" + value.getMetrics();
+            }
+        });
+        return rtnString;
+    };
+    NetworkMetrics.URLMap = new Map();
+    return NetworkMetrics;
 }());var bind = function bind(fn, thisArg) {
   return function wrap() {
     var args = new Array(arguments.length);
@@ -17228,13 +17196,13 @@ var _default = axios;
 axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class */ (function () {
     function AxiosConnector() {
     }
-    AxiosConnector.send = function (_url, _data, _method, _reponseType, _requestTracker) {
+    AxiosConnector.send = function (_url, _data, _method, _reponseType) {
         if (!_url)
             throw new Error('Invalid request parameters');
         var responseType = _reponseType || ResponseType.JSON;
         if (responseType === ResponseType.JSON || responseType === ResponseType.BUFFER) {
             return new Promise(function (resolve, reject) {
-                var requestObject = _requestTracker;
+                var requestObject = NetworkMetrics.addURL(_url);
                 requestObject.requestInitaited();
                 axios$1({
                     method: _method,
@@ -17290,23 +17258,23 @@ axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class
     function ServerConnector(connectionType) {
         this.connectionType = connectionType || ServerConnectionType.AXIOS;
     }
-    ServerConnector.prototype.getJsonData = function (url, _requestTracker) {
+    ServerConnector.prototype.getJsonData = function (url) {
         if (this.connectionType === ServerConnectionType.XHR) {
             return AjaxConnector.send(url, null, 'GET', true, ResponseType.JSON);
         }
         else if (this.connectionType === ServerConnectionType.AXIOS) {
-            return AxiosConnector.send(url, null, 'GET', ResponseType.JSON, _requestTracker);
+            return AxiosConnector.send(url, null, 'GET', ResponseType.JSON);
         }
         else {
             throw new Error('Invalid server connection type');
         }
     };
-    ServerConnector.prototype.getArrayBuffer = function (url, _requestTracker) {
+    ServerConnector.prototype.getArrayBuffer = function (url) {
         if (this.connectionType === ServerConnectionType.XHR) {
             return AjaxConnector.send(url, null, 'GET', true, ResponseType.BUFFER);
         }
         else if (this.connectionType === ServerConnectionType.AXIOS) {
-            return AxiosConnector.send(url, null, 'GET', ResponseType.BUFFER, _requestTracker);
+            return AxiosConnector.send(url, null, 'GET', ResponseType.BUFFER);
         }
         else {
             throw new Error('Invalid server connection type');
@@ -17321,13 +17289,11 @@ axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class
         this.connector = new ServerConnector(ServerConnectionType.AXIOS);
         this.eventDispacther = _eventDispacther;
     }
-    AppConnector.prototype.getArrayBuffer = function (url, _requestTracker) {
-        var requestTrackerObject = _requestTracker ? _requestTracker : NetworkMetrics.addURL(url);
-        return this.connector.getArrayBuffer(url, requestTrackerObject);
+    AppConnector.prototype.getArrayBuffer = function (url) {
+        return this.connector.getArrayBuffer(url);
     };
-    AppConnector.prototype.getJsonData = function (url, _requestTracker) {
-        var requestTrackerObject = _requestTracker ? _requestTracker : NetworkMetrics.addURL(url);
-        return this.connector.getJsonData(url, requestTrackerObject);
+    AppConnector.prototype.getJsonData = function (url) {
+        return this.connector.getJsonData(url);
     };
     AppConnector.prototype.getNetworkMetrics = function () {
         return this.connector.getNetworkMetrics();
@@ -17610,7 +17576,7 @@ var ViewerManager = /** @class */ (function () {
         }
         return "Invalid viewer ID";
     };
-    ViewerManager.prototype.setPartsVisibility = function (selectedParts, visiblity, viewerUUID) {
+    ViewerManager.prototype.setPartsVisibility = function (selectedParts, visibility, viewerUUID) {
         return __awaiter(this, void 0, void 0, function () {
             var viewer;
             return __generator(this, function (_a) {
@@ -17618,7 +17584,7 @@ var ViewerManager = /** @class */ (function () {
                     case 0:
                         viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
                         if (!viewer) return [3 /*break*/, 2];
-                        return [4 /*yield*/, viewer.setPartsVisibility(selectedParts, visiblity)];
+                        return [4 /*yield*/, viewer.setPartsVisibility(selectedParts, visibility)];
                     case 1: return [2 /*return*/, _a.sent()];
                     case 2: return [2 /*return*/, Promise.reject("Invalid viewer ID")];
                 }
@@ -17674,10 +17640,6 @@ var ViewerManager = /** @class */ (function () {
             });
         });
     };
-    // changeDisplayedNodes(selectionInfo:any, viewerUUID:any){
-    //     let viewer = this.getViewer(viewerUUID);
-    //     return viewer.changeDisplayedNodes(selectionInfo);
-    // }
     //#endregion
     //#region CAE Result
     ViewerManager.prototype.getIsCAEResultAvailable = function (viewerUUID) {

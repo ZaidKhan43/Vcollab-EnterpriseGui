@@ -27,39 +27,6 @@ function App() {
   const dispatch = useAppDispatch();  
   const targetRef = useRef(null);
 
-  //dummy to be removed =======================================================
-  const convertTreeToList= (tree:any[]) => {
-     let out:any[] = [];
-     let index = 0;
-     let loop = (node:any, parent:any) => {
-       let childrenIds = [];
-       let listNode = {
-          ...node,
-          index: index++,
-          pIndex: parent? parent.index : -1,
-          state: {
-            checked: false,
-            partiallyChecked: false,
-            expanded: true,
-            visibility: true
-          }
-       };
-        if(node.children.length > 0) {
-          childrenIds = node.children.map((c:any) => loop(c,listNode));
-        }
-        listNode['children'] = childrenIds;
-        out[listNode.index] = listNode;
-        return listNode.index; 
-     }
-     tree.map((node:any) => loop(node,null))
-     return out;
-  }
-  useEffect(() => {
-    let data = convertTreeToList(tree);
-    dispatch(saveTree({data}));
-
-  }, [])
-
   //===========================================================================
   const onResize = useCallback((width ?:number, height ?: number) => {
     if(height && height > appBarMinHeight)

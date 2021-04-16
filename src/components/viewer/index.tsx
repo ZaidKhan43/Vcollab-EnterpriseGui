@@ -3,6 +3,7 @@ import { createRef } from 'react';
 import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
 import { useAppDispatch } from '../../store/storeHooks';
+import {saveTree, TreeNode} from "../../store/sideBar/ProductTreeSlice";
 import { addViewer } from '../../store/appSlice';
 
 function Viewer(){
@@ -35,7 +36,18 @@ function Viewer(){
         viewerAPIProxy
           .showModel(activeViewerID)
           .then((response1 : string) => {
-            console.log("Showing Model : " + response1);   
+            console.log("Showing Model : " + response1);  
+            let tree = viewerAPIProxy.getProductTree(activeViewerID); 
+            [...tree.models.values()].forEach((node)=>{
+                node.state = {
+                    checked: false,
+                    partiallyChecked: false,
+                    expanded: true,
+                    visibility: true
+                  }
+            })
+            let treeData = Object.fromEntries(tree.models) as any;
+            dispatch(saveTree({tree:treeData,rootIds:tree.rootNodeIds}));
             /*       
             setTimeout(() => {
               viewerAPIProxy.fitView(activeViewerID);
