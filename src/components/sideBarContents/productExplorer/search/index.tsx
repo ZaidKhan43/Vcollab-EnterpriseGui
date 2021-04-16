@@ -110,6 +110,8 @@ function Search(props:any) {
         dispatch(saveSearchQuery({data:query}));
     }
     const handleAutoComplete = (e:any) => {
+        if(e.key == "Enter")
+        return;
         setSearchString(e.target.outerText);
         dispatch(saveSearchQuery({data:e.target.outerText}));
     }

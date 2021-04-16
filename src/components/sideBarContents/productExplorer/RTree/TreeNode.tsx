@@ -1,5 +1,5 @@
 import React from 'react'
-import Checkbox from '../../../common/Checkbox'
+import Checkbox from '../../../common/checkbox'
 import Typography from '@material-ui/core/Typography'
 import {useStyles} from './styles/TreeNodeStyle'
 function TreeNode(props:any) {
