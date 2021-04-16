@@ -12,8 +12,10 @@ import FullscreenClose from '../../../assets/images/fullscreen_exit.svg';
 import Hamburger from '../../../assets/images/hamburger.svg';
 import SvgIcon from "@material-ui/core/SvgIcon"
 import More from '../../../assets/images/more.svg';
-import {selectFullscreenStatus,selectSidebarVisibility, setFullscreenState, setSidebarVisibility } from '../../../store/appSlice';
+import {selectFullscreenStatus,selectSidebarVisibility,selectActiveViewerID, setFullscreenState, setSidebarVisibility } from '../../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
+
+import * as viewerAPIProxy from '../../../backend/viewerAPIProxy';
 
 import  styles from './style';
 
@@ -22,10 +24,19 @@ function AppBar() {
     const classes = styles();
     const isFullscreenEnabled = useAppSelector(selectFullscreenStatus);
     const isSidebarVisible = useAppSelector(selectSidebarVisibility);
+    const activeViewerID = useAppSelector(selectActiveViewerID);
     const dispatch = useAppDispatch();  
 
     const OnClickFullscreen = function(){
       dispatch(setFullscreenState(!isFullscreenEnabled));
+    }
+
+    const OnClickCapture = function(){
+      viewerAPIProxy.captureScreen(activeViewerID);
+    }
+
+    const OnClickFitview = function(){
+      viewerAPIProxy.fitView(activeViewerID);
     }
 
     const onClickHamburger = function(){
@@ -55,10 +66,10 @@ function AppBar() {
           </div>
      
           <div className={classes.toolBarRightContent}>
-              <div className={classes.divIcon} >
+              <div className={classes.divIcon} onClick={ OnClickCapture } >
                   <IconButton edge={false} src={Displaymodes} />
               </div>
-              <div className={classes.divIcon} >
+              <div className={classes.divIcon} onClick={ OnClickFitview }>
                   <IconButton edge={false} src={Fitview} />
               </div>
               <div className={classes.divIcon} >

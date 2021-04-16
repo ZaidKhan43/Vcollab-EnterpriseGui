@@ -16,6 +16,8 @@ import SnackBar from "./sideBarContents/notifications/SnackBar";
 //dummy
 import {saveTree} from "../store/sideBar/ProductTreeSlice"
 import {tree} from "../data/f30";
+import Viewer from './viewer';
+
 function App() {
       
   const classes = styles();
@@ -89,7 +91,9 @@ function App() {
         { ( isAppBarVisible ?  <AppBar /> : null ) }
         <Sidebar />
         <main  className={ clsx(classes.content , {[classes.contentWithSideBar]: isSidebarVisible} , {[classes.contentWithTopBar]: isAppBarVisible}) }>
-          <div className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}></div>        
+          <div className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
+            <Viewer />
+          </div>        
         </main>
         <SnackBar/>
       </div>
