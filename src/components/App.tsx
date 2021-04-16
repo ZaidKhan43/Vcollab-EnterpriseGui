@@ -12,6 +12,8 @@ import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
         setAppBarVisibility, setFullscreenState } from '../store/appSlice';
 import { appBarMinHeight } from '../config';
 
+import Viewer from './viewer';
+
 function App() {
       
   const classes = styles();
@@ -51,7 +53,9 @@ function App() {
         { ( isAppBarVisible ?  <AppBar /> : null ) }
         <Sidebar />
         <main  className={ clsx(classes.content , {[classes.contentWithSideBar]: isSidebarVisible} , {[classes.contentWithTopBar]: isAppBarVisible}) }>
-          <div className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}></div>        
+          <div className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
+            <Viewer />
+          </div>        
         </main>
       </div>
     </FullScreen>
