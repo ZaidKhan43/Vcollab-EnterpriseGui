@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import styles from './style';
 
 import SideBarContainer from '../../layout/sideBar/sideBarContainer';
 import Typography from '@material-ui/core/Typography';
@@ -20,7 +21,8 @@ import FlipDirectionRight from "../../../assets/images/flipDirectionRight.svg";
 import { editPlane } from '../../../store/clipSlice';
 
 export default function ClipPlanes(props : any){
-  
+
+  const classes = styles();
   const dispatch = useAppDispatch();  
 
   const [equation,setEquation] = useState(props.clicked.equation)
@@ -76,31 +78,40 @@ export default function ClipPlanes(props : any){
     
     const getHeaderContent = () => {
             return (
-                <div>
-                <Typography  variant="h1" noWrap>
-          Clip Plates -
-        </Typography>
-        <Typography variant="h2" noWrap>
-          {`Plane ${props.clicked.name}`}
-        </Typography>
-        </div>
+              <div>
+                <Grid container spacing={2} alignItems="center">
+                  <Grid item xs>
+                    <Typography className={classes.listSub} variant="h1" noWrap>
+                      Clip Plates -
+                    </Typography>
+                  </Grid>
+                  <Grid item xs>
+                    <Typography className={classes.listSub} variant="h2" noWrap>
+                      {`Plane ${props.clicked.name}`}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </div>
             )
     }
 
     const getBody = () => {
       return (
         <div>
-         <Typography noWrap>
+         <Typography className={classes.listSub} noWrap>
          Plane Equation
        </Typography>
        <form  noValidate autoComplete="off">
-       <TextField
-        // inputProps={{className: classes.planeEqn}}
+         <div className={classes.listSub}>
+         <TextField
+        inputProps={{style: {color:"white"}}}
         variant="outlined"
         value={equation}
         onChange={OnHandleEquation}
       />
-     <Typography noWrap>
+         </div>
+      
+     <Typography className={classes.listSub} noWrap>
          Coordinate System
       </Typography>
       <Grid container spacing={3}>
@@ -138,7 +149,7 @@ export default function ClipPlanes(props : any){
         </Grid>
       </Grid>
       <br/>
-      <Typography >
+      <Typography className={classes.listSub} >
          Translate
       </Typography>
       <Grid container spacing={2} alignItems="center">
@@ -153,7 +164,7 @@ export default function ClipPlanes(props : any){
             </Grid>
             <Grid item>
               <Input
-                // className={classes.planeEqn}
+                style={{color:"white"}}
                 value={translate}
                 margin="dense"
                 // onChange={handleInputChange}
@@ -170,7 +181,7 @@ export default function ClipPlanes(props : any){
             </Grid>
           </Grid>
           <br/>
-          <Typography  variant="h2" noWrap>Rotate</Typography>
+          <Typography className={classes.listSub} variant="h2" noWrap>Rotate</Typography>
           <Grid container spacing={3}>
           <Grid item xs={12} sm={6}>
           <CircularSlider
@@ -226,14 +237,14 @@ export default function ClipPlanes(props : any){
 
     const getFooter = () => {
       return (
-        <Grid container spacing={3}>
-        <Grid item xs={12} sm={6}>
-        <Button variant="contained" color="primary" onClick={onHandleSave}>
+        <Grid container spacing={3} >
+        <Grid item xs={12} sm={4}>
+        <Button style={{backgroundColor:"#8C8BFF"}} variant="contained" color="primary" onClick={onHandleSave}>
           Save
         </Button>
         </Grid>
       <Grid item xs={12} sm={6}>
-      <Button variant="contained" onClick={onHandleReset} >Reset</Button>
+      <Button style={{color:"#8C8BFF", backgroundColor:"#353535"}} variant="contained" onClick={onHandleReset} >Reset</Button>
       </Grid>
         </Grid>
       )

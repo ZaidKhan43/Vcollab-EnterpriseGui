@@ -102,7 +102,7 @@ export const clipSlice = createSlice({
             const lengthO= state.planes.length;
           nameO = state.planes[lengthO - 1].name + 1;
           }
-          state.planes= [...state.planes,{name: nameO, checkbox: false, showClip: true, showEdge: false, showCap: true, equation: "x+y+z = 0",clipDirection: true, translate: "+50", rotate: 219, xAxis: 189, yAxis: 212,}]
+          state.planes= [...state.planes,{name: nameO, checkbox: false, showClip: true, showEdge: false, showCap: true, equation: "x+y+z = 0",clipDirection: true, translate: "50", rotate: 219, xAxis: 189, yAxis: 212,}]
         }
       },
 
