@@ -1,4 +1,4 @@
-
+import {useEffect} from 'react';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
@@ -24,9 +24,12 @@ import WireframeIcon from "../../../common/svgIcons/wireframe";
 import DownloadStatusIcon from "./DownloadStatusIcon";
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
+import {selectCheckedLeafNodes} from "../../../../store/sideBar/ProductTreeSlice";
 import {DownloadStates, expandPanel, selectDisplayModesData,setSelectedMenu,setDownloadStatus} from "../../../../store/sideBar/DisplayModesSlice";
 import {toastMsg} from "../../../../store/toastSlice";
+import {getDisplayModes} from "../../../../backend/viewerAPIProxy";
 import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";
+import {selectActiveViewerID} from "../../../../store/appSlice";
 import useStyles from './styles';
 import {BytesToStructuredString} from "../../../utils/networkUtils"
 
@@ -54,7 +57,9 @@ const getIcon = (name:String) => {
 
 
 function DisplayModesBody() {
+    const viewerId = useAppSelector(selectActiveViewerID);
     const dispatch = useAppDispatch();
+    const checkedNodes:any = useAppSelector(selectCheckedLeafNodes);
     const panelsData = useAppSelector(selectDisplayModesData);
 
 
@@ -97,6 +102,13 @@ function DisplayModesBody() {
       dispatch(toastMsg({msg:"Display Mode changed"}))
     }
     
+    useEffect(() => {
+      getDisplayModes(viewerId,checkedNodes.map((node:any) => node.id)).then((res:any) => {
+        console.log(res);
+      })
+      
+    },[])
+
     const renderSelectedMenu = (panel:any,panelIndex:number) => {
       return(panel?.menuData?.map((item:any, menuIndex:number) => (
         item.selected && item.status == DownloadStates.NOT_DOWNLOADED ? (

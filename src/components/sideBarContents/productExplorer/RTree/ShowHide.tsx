@@ -1,5 +1,5 @@
 import React from 'react'
-import {toggleVisibility} from '../../../../store/sideBar/ProductTreeSlice';
+import {toggleVisibilityAsync} from '../../../../store/sideBar/ProductTreeSlice';
 import { useAppDispatch} from "../../../../store/storeHooks";
 import EyeIcon from '../../../common/svgIcons/eyeIcon';
 import EyeSlashIcon from '../../../common/svgIcons/eyeSlashIcon';
@@ -18,7 +18,7 @@ const VisiblilityIcon = (props:any) => {
 function ShowHide(props:any) {
     const dispatch = useAppDispatch();
     const handleVisibility = (toShow:boolean,node:any) => {
-        dispatch(toggleVisibility({toShow, nodeId:node.id}));
+        dispatch(toggleVisibilityAsync({toShow, nodeId:node.id}));
 
     }
     return (

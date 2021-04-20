@@ -13343,14 +13343,16 @@ var downloadMetricTypes = {
         this.models = treeMap;
         this.rootNodeIds = modelIds;
     }
-    ModelTree.prototype.getVisibleNodes = function () {
+    ModelTree.prototype.getVisibleNodeIds = function () {
         if (this.models) {
-            return __spread(this.models.values()).filter(function (node) { return (node.children.length === 0 && node.customData.displayProps.visibility == true); });
+            var visible = __spread(this.models.values()).filter(function (node) { return (node.children.length === 0 && node.customData.displayProps.visibility == true); });
+            return visible.map(function (node) { return node.id; });
         }
     };
-    ModelTree.prototype.getInvisibleNodes = function () {
+    ModelTree.prototype.getInvisibleNodeIds = function () {
         if (this.models) {
-            return __spread(this.models.values()).filter(function (node) { return (node.children.length === 0 && node.customData.displayProps.visibility == false); });
+            var invisible = __spread(this.models.values()).filter(function (node) { return (node.children.length === 0 && node.customData.displayProps.visibility == false); });
+            return invisible.map(function (node) { return node.id; });
         }
     };
     ModelTree.prototype.getPartNodeFromNodeIds = function (nodeIds) {
@@ -13383,6 +13385,14 @@ var downloadMetricTypes = {
             }
         });
         return out;
+    };
+    ModelTree.prototype.setVisibility = function (nodes, toShow) {
+        var _this = this;
+        nodes.forEach(function (node) {
+            var curNode = __assign({}, _this.models.get(node.id));
+            curNode.customData.displayProps.visibility = toShow;
+            _this.models.set(curNode.id, curNode);
+        });
     };
     return ModelTree;
 }());
@@ -15076,7 +15086,10 @@ var getEventObject = function (type, viewerID, data) {
     //#region product tree
     Viewer.prototype.getProductTree = function () {
         if (this.productTree)
-            return this.productTree;
+            return {
+                models: Utility.deepCopy(Object.fromEntries(this.productTree.models)),
+                rootNodeIds: Utility.deepCopy(this.productTree.rootNodeIds)
+            };
         return "No model is loaded";
     };
     Viewer.prototype.setSelectedParts = function (selectedParts) {
@@ -15090,12 +15103,12 @@ var getEventObject = function (type, viewerID, data) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        nodes = this.productTree.getPartNodeFromNodeIds(selectedNodes.map(function (node) { return node.id; }));
+                        nodes = this.productTree.getPartNodeFromNodeIds(selectedNodes);
                         if (selectedNodes.length == 0) {
                             nodes = this.productTree.getAllPartNodes();
                         }
                         //update in local tree;
-                        nodes.forEach(function (node) { return node.customData.displayProps.visibility = visibility; });
+                        this.productTree.setVisibility(nodes, visibility);
                         reps = this.productTree.getRepresentationsFromParts(nodes);
                         repIds = reps.map(function (rep) { return rep.customData.node; });
                         if (!(repIds.length > 0 && (visibility === false))) return [3 /*break*/, 1];
@@ -15114,20 +15127,20 @@ var getEventObject = function (type, viewerID, data) {
     };
     Viewer.prototype.invertPartsVisibility = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var visibleNodes, invisibleNodes;
+            var visibleNodeIds, invisibleNodeIds;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        visibleNodes = this.productTree.getVisibleNodes();
-                        invisibleNodes = this.productTree.getInvisibleNodes();
-                        if (!(visibleNodes.length > 0)) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.setPartsVisibility(visibleNodes, false)];
+                        visibleNodeIds = this.productTree.getVisibleNodeIds();
+                        invisibleNodeIds = this.productTree.getInvisibleNodeIds();
+                        if (!(visibleNodeIds.length > 0)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.setPartsVisibility(visibleNodeIds, false)];
                     case 1:
                         _a.sent();
                         _a.label = 2;
                     case 2:
-                        if (!(invisibleNodes.length > 0)) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.setPartsVisibility(invisibleNodes, true)];
+                        if (!(invisibleNodeIds.length > 0)) return [3 /*break*/, 4];
+                        return [4 /*yield*/, this.setPartsVisibility(invisibleNodeIds, true)];
                     case 3:
                         _a.sent();
                         _a.label = 4;

@@ -38,7 +38,7 @@ function Viewer(){
           .then((response1 : string) => {
             console.log("Showing Model : " + response1);  
             let tree = viewerAPIProxy.getProductTree(activeViewerID); 
-            [...tree.models.values()].forEach((node)=>{
+            [...Object.values(tree.models)].forEach((node:any)=>{
                 node.state = {
                     checked: false,
                     partiallyChecked: false,
@@ -46,8 +46,7 @@ function Viewer(){
                     visibility: true
                   }
             })
-            let treeData = Object.fromEntries(tree.models) as any;
-            dispatch(saveTree({tree:treeData,rootIds:tree.rootNodeIds}));
+            dispatch(saveTree({tree:tree.models,rootIds:tree.rootNodeIds}));
             /*       
             setTimeout(() => {
               viewerAPIProxy.fitView(activeViewerID);
@@ -76,7 +75,7 @@ function Viewer(){
             //let url = "file://samples/merged.cax";
             //let url = "file://samples/F30_model.cax";
             //let url = "file%3A%2F%2FC%3A%5CWORK%5Centerprise-1.1-win64%5Csamples%5Cbracket.cax";
-            let url = "file%3A%2F%2FD%3A%5Ccaxserver%5Cbracket.cax";
+            let url = "file%3A%2F%2FD%3A%5Ccaxserver%5CF30_model.cax";
       
             //let api = "http://100.26.229.30:8181/api/1.0/model";
             //let url = "file%3A%2F%2FC%3A%5CUsers%5CAdministrator%5CDownloads%5Centerprise-1.1-win64%5Csamples%5CF30_model.cax";

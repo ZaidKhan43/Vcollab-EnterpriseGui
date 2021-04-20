@@ -5,7 +5,7 @@ import EyeInvert from '../../../../components/common/svgIcons/eyeInvert';
 import Popover from '@material-ui/core/Popover';
 import ToolTip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
-import {setCheckedVisibility, invertVisibility} from "../../../../store/sideBar/ProductTreeSlice"
+import {setCheckedVisibilityAsync, invertVisibilityAsync} from "../../../../store/sideBar/ProductTreeSlice"
 import { useAppDispatch } from '../../../../store/storeHooks';
 import Typography  from '@material-ui/core/Typography';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -18,17 +18,17 @@ function VisibilityOptions(props:any) {
         {
             id: 'show',
             icon: <EyeIcon/>,
-            event: () => dispatch(setCheckedVisibility({toShow:true}))
+            event: () => dispatch(setCheckedVisibilityAsync({toShow:true}))
         },
         {
             id: 'hide',
             icon: <EyeSlashIcon/>,
-            event: () => dispatch(setCheckedVisibility({toShow:false}))
+            event: () => dispatch(setCheckedVisibilityAsync({toShow:false}))
         },
         {
             id: 'invert',
             icon: <EyeInvert viewBox = '0 0 19 20'></EyeInvert>,
-            event: () => dispatch(invertVisibility())
+            event: () => dispatch(invertVisibilityAsync())
         }
     ]);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {

@@ -22,6 +22,18 @@ export function showModel(activeViewerID: string){
     return viewerMgr.showModel(activeViewerID);
 }
 
+export function setPartVisibility(activeViewerID:string,nodeIds:string[], toShow:boolean){
+    return viewerMgr.setPartsVisibility(nodeIds,toShow,activeViewerID);
+}
+
+export function invertPartsVisibility(activeViewerID:string) {
+    return viewerMgr.invertPartsVisibility(activeViewerID);
+}
+
+export function getDisplayModes(activeViewerID:string,nodeIds:string[]) {
+    return viewerMgr.getDisplayModes(nodeIds,activeViewerID);
+}
+
 export function fitView(activeViewerID: string){
     return viewerMgr.fitView(activeViewerID);
 }
