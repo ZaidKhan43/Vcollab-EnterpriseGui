@@ -37,21 +37,6 @@ import {Icon} from '@material-ui/core';
 
 export default function ClipPlanes(){
 
-//   type clicked = {
-//     // planes: object[],
-//     name: number,
-//     checkbox: boolean,
-//     showClip: boolean,
-//     showEdge: boolean,
-//     showCap: boolean,
-//     equation: string,
-//     clipDirection: boolean,
-//     translate: string,
-//     rotate: number,
-//     xAxis: number,
-//     yAxis: number,
-// }
-
   const dispatch = useAppDispatch();  
   const classes = styles();
   const planes = useAppSelector((state) => state.clip.planes);
@@ -61,18 +46,13 @@ export default function ClipPlanes(){
   const [edit, setEdit] = useState<any>(false);
   const [openDialog, setOpenDialog] = useState<any>(false);
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState<any>(false);
-  // const [showClip, setShowClip] = useState(false) 
-  // const[clicked, setClicked] =  useState(false)
 
   const onClickBackIcon = () =>{
     dispatch(setSidebarActiveContent(sideBarContentTypes.mainMenu))
   }
 
-
-
   const onHandleClick :(click: any) => any = (click)=> {
     setClickedVal(click);
-    // setShowClip(click.showClip)
   }
 
   const onClickAddItem = () => {
@@ -83,21 +63,18 @@ export default function ClipPlanes(){
     dispatch(editCheck(item.name))
   }
 
-
-
   const onHandleClip: (item: any, functionName: any) => any = (item, functionName) => {
-    // setShowClip(!showClip)
     switch (functionName){
       case "showClip":
         dispatch(editShowClip(item.name));
-        break;
+      break;
       case "showEdge":
         dispatch(editEdgeClip(item.name));
-        break;
+      break;
       case "showCap":
         dispatch(editShowCap(item.name));
+      break;
     } 
-    
   }
 
   const onHandleCopy: (item: any) => any = (item) => {
@@ -117,11 +94,12 @@ export default function ClipPlanes(){
   }
 
   const onHandleEdit = () => {
-    setEdit(!edit);
+    setEdit(!edit);  
   }
   
   const onHandleSave = () => {
     setEdit(!edit);
+    setClickedVal(null);
   }
 
   const handleCloseDialog = () => {
@@ -133,28 +111,28 @@ export default function ClipPlanes(){
   }
 
   const displayClicked = () => {
-    const displayClick :any = planes.find((item : any )=> item.name == clickedVal.name);
+    const displayClick :any = planes.find((item : any )=> item.name === clickedVal.name);
     return(
-      <div>
-      <Typography className={classes.listItem} noWrap onClick={() =>onHandleClip(clickedVal, "showClip")}>
-      <Checkbox checked ={displayClick.showClip} />
-      Show Clip Plate
-    </Typography>
-    <Typography className={classes.listItem} onClick={() =>onHandleClip(clickedVal,"showEdge")} noWrap>
-      <Checkbox checked={displayClick.showEdge} />
-      Show Edge
-    </Typography>
-    <Typography  className={classes.listItem} onClick={() =>onHandleClip(clickedVal,"showCap")}  noWrap>
-      <Checkbox checked={displayClick.showCap} />
-      Show Cap
-    </Typography>
-    </div>
+      <div  className={classes.displayList}>
+        <Typography className={classes.listItem} noWrap onClick={() =>onHandleClip(clickedVal, "showClip")}>
+          <Checkbox style={{color:"#DFDEDE"}} checked ={displayClick.showClip} />
+          Show Clip Plate
+        </Typography>
+        <Typography className={classes.listItem} onClick={() =>onHandleClip(clickedVal,"showEdge")} noWrap>
+          <Checkbox style={{color:"#DFDEDE"}} checked={displayClick.showEdge} />
+          Show Edge
+        </Typography>
+        <Typography  className={classes.listItem} onClick={() =>onHandleClip(clickedVal,"showCap")}  noWrap>
+          <Checkbox style={{color:"#DFDEDE"}} checked={displayClick.showCap} />
+          Show Cap
+        </Typography>
+      </div>
     )
   }
 
-    const getHeaderLeftIcon= () => {
+  const getHeaderLeftIcon= () => {
     return (
-      <IconButton onClick={() => onClickBackIcon()}>
+      <IconButton className={classes.headerIcon} onClick={() => onClickBackIcon()}>
         <img src={ BackIcon } alt={'BackIcon'}/> 
       </IconButton>
     );
@@ -163,48 +141,41 @@ export default function ClipPlanes(){
   const getHeaderContent = () => {
     return <Typography className={classes.heading} variant='h1' noWrap>Clip Planes</Typography>;
   }
-
-  // const getHeaderRightIcon = () => {
-  //   return 
-  // }
     
   const getBody = () => {
     return (
       <div>
-      <div className={classes.heading}>
-        <Typography  variant='h1' noWrap>Clip Planes</Typography>
-        <IconButton><img src={AddIcon} alt={'Add'} onClick={() => onClickAddItem()}/></IconButton>
+        <div className={classes.heading}>
+          <Typography  variant='h1' noWrap>Clip Planes</Typography>
+          <IconButton style={{right: "6.5%",}}><img src={AddIcon} alt={'Add'} onClick={() => onClickAddItem()}/></IconButton>
         </div>
-        <div>
+        <div className={classes.list}>
           {
             planes.map((item : any) =>
-              <div className={clickedVal ? item.name == clickedVal.name ? classes.listItemClicked : classes.listItem : classes.listItem} >
-              <Typography className={classes.listItemText} onClick={() => onHandleClick(item)}>
-                <Checkbox  checked={item.checkbox} onChange={() => onHandleCheck(item)}/>
-                {`Plane ${item.name}`}
-              </Typography>
-              
+              <div className={clickedVal ? item.name === clickedVal.name ? classes.listItemClicked : classes.listItem : classes.listItem} >
+                <Typography className={classes.listItemText} onClick={() => onHandleClick(item)}>
+                  <Checkbox style={{color:"#DFDEDE"}}  checked={item.checkbox} onChange={() => onHandleCheck(item)}/>
+                  {`Plane ${item.name}`}
+                </Typography>
               </div>
             )
           }
         </div>
         <div>
-         {clickedVal ? 
-           <div>
-           <Typography className={classes.displayOption} noWrap>
-             Display Options
-           </Typography>
-            { displayClicked()}
-         </div> 
-         :
-         null
-         }
+          {clickedVal ? 
+            <div>
+              <Typography className={classes.displayOption} noWrap>
+                Display Options
+              </Typography>
+              {displayClicked()}
+            </div> 
+          :
+            null
+          }
         </div>
       </div>
     )
   }
-
-  
 
   const getFooter = () => {
     return (
@@ -212,12 +183,12 @@ export default function ClipPlanes(){
         {
           clickedVal 
           ? 
-            <div className={classes.footerIconsContainer}>
-              <IconButton> <img src={Edit} alt={'Edit'} onClick={() => onHandleEdit()}/></IconButton>
-              <IconButton> <img src={Copy} alt={'Copy'} onClick={() => onHandleCopy(planes.find((item : any )=> item.name == clickedVal.name))}/></IconButton>
-              {copied ? <IconButton> <img src={ClipPlates} alt={'Paste'} onClick={() => onHandlePaste(copy)}/></IconButton>  : null}
+            <div>
+              <IconButton style={{ position:"absolute",left:"10%",}}> <img src={Edit} alt={'Edit'} onClick={() => onHandleEdit()}/></IconButton>
+              <IconButton style={{ position:"absolute",left:"30%",}}> <img src={Copy} alt={'Copy'} onClick={() => onHandleCopy(planes.find((item : any )=> item.name === clickedVal.name))}/></IconButton>
+              {copied ? <IconButton style={{ position:"absolute",left:"55%",}}> <img src={ClipPlates} alt={'Paste'} onClick={() => onHandlePaste(copy)}/></IconButton>  : <IconButton disabled style={{ position:"absolute",left:"55%",}}> <img src={ClipPlates} alt={'Paste'} onClick={() => onHandlePaste(copy)}/></IconButton>}
               
-              <IconButton> <img src={Delete} alt={'Delete'} onClick={() => setOpenDialog(!openDialog)}/></IconButton>  
+              <IconButton style={{ position:"absolute",right:"10%",}}> <img src={Delete} alt={'Delete'} onClick={() => setOpenDialog(!openDialog)}/></IconButton>  
             </div>
           : 
             null 
@@ -226,8 +197,6 @@ export default function ClipPlanes(){
     )          
   }
 
-  
-
   return (
     <div>
       {edit ?  <ClipPlane clicked ={clickedVal} onHandleEdit={onHandleEdit} editSave={onHandleSave}/>
@@ -235,60 +204,52 @@ export default function ClipPlanes(){
       <SideBarContainer
       headerLeftIcon = { getHeaderLeftIcon() }
       headerContent={ getHeaderContent() }
-      // headerRightIcon = { getHeaderRightIcon() }
       body ={ getBody() }
       footer = { getFooter() }
     /> }
 
       <Dialog
         open={openDialog}
-        // onClose={handleClose}
-        // PaperComponent={PaperComponent}
         aria-labelledby="draggable-dialog-title"
       >
-        {/* <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
-          Subscribe
-        </DialogTitle> */}
         <DialogContent style={{backgroundColor: "#171727"}}>
           <DialogContentText style={{color:"#DFDEDE"}}>
-            <Icon > <img style={{marginLeft: "120px"}} src={ WarningCircle } alt={'Warning Icon'}/> </Icon>
+            <Icon > <img style={{marginLeft: "40%"}} src={ WarningCircle } alt={'Warning Icon'}/> </Icon>
             <div>
-            Are you sure want to delete this clip ? 
+              Are you sure want to delete this clip ? 
             </div>
           </DialogContentText>
         </DialogContent>
         <DialogActions style={{backgroundColor: "#171727",display: "flex",alignItems: "center",justifyContent: "center",}}>
           <Button style={{backgroundColor:"#8C8BFF"}} 
-          autoFocus 
-          onClick={onHandleDelete} 
-          color="primary">
+            autoFocus 
+            onClick={onHandleDelete} 
+            color="primary"
+          >
             Confirm
           </Button>
           <Button style={{color: "#8C8BFF"}}
-          onClick={handleCloseDialog} 
-          color="primary">
+            onClick={handleCloseDialog} 
+            color="primary"
+          >
             Cancel
           </Button>
         </DialogActions>
       </Dialog>
       <div>
-      <Snackbar style={{backgroundColor:"#DFDEDE", opacity:"50%",}}
-        anchorOrigin={{vertical:"top", horizontal:'center'}}
-        autoHideDuration={2000}
-        open={openDeleteConfirm}
-        onClose={handleCloseAlert}
-        // action={
-          
-        // }
-        message={
-          <div>
-          <IconButton> <img src={Delete} alt={'Delete'}/></IconButton>
-          <span style={{color:"#DFDEDE"}}> Clip Plane Deleted</span>
-          </div>
-         }
-      />
+        <Snackbar style={{backgroundColor:"#DFDEDE", opacity:"50%",}}
+          anchorOrigin={{vertical:"top", horizontal:'center'}}
+          autoHideDuration={2000}
+          open={openDeleteConfirm}
+          onClose={handleCloseAlert}
+          message={
+            <div>
+              <IconButton> <img src={Delete} alt={'Delete'}/></IconButton>
+              <span style={{color:"#DFDEDE"}}> Clip Plane Deleted</span>
+            </div>
+          }
+        />
+      </div>
     </div>
-    </div>
-    
   )
 }

@@ -11,6 +11,17 @@ export default makeStyles((theme) => ({
         color:colors.secondaryText,
       padding: 12,
       },
+
+      headerIcon:{
+        width : 48,
+        height: 48,
+      },
+      
+      list:{
+        position: "absolute",
+        left: "5%",
+        right: "-40%",
+      },
     
       listItem: {
         display: "flex",
@@ -39,16 +50,23 @@ export default makeStyles((theme) => ({
 
       listItemText: {
         color: colors.secondaryText,
+        fontSize: "18px",
       },
       displayOption: {
         display: "flex",
         alignItems: "center",
         justifyContent: "flex-start",
         padding: 12,
-        marginTop:"20px",
+        marginTop:"90%",
         color:colors.secondaryText,
-
       },
+      displayList:{
+        position:"absolute",
+        left: "5%",
+        right: "-100%",
+       
+      },
+
       footerCard:{
         height:"45px",
         backgroundColor: colors.secondaryHover,
@@ -60,11 +78,13 @@ export default makeStyles((theme) => ({
         right: -20,
         padding: "5px -20px 0px 20px",
       },
-      footerIconsContainer: {
-        width: "100%",
-        display:"flex",
-        justifyContent:"space-between",
+
+      icon : {
+        // '&:hover': {
+        //   background: colors.secondary,
+        // },
       },
+
       listSub: {
         display: "flex",
         alignItems: "center",
@@ -73,7 +93,10 @@ export default makeStyles((theme) => ({
         padding: 1,
         marginTop:"15px",
         color: colors.secondaryText,
+        fontSize: "14px",
+        marginLeft:"2%"
       },
+
       planeEquation:{
         justifySelf: "start",
        width:"60%",
