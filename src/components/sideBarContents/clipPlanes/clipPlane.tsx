@@ -19,6 +19,7 @@ import FlipDirectionLeft from "../../../assets/images/flipDirectionLeft.svg";
 import FlipDirectionRight from "../../../assets/images/flipDirectionRight.svg";
 
 import { editPlane } from '../../../store/clipSlice';
+import RotateSlider from './rotateSlider'
 
 export default function ClipPlanes(props : any){
 
@@ -30,9 +31,7 @@ export default function ClipPlanes(props : any){
   const [translate, setTranslate] = useState(props.clicked.translate);
   const [rotate, setRotate] = useState(props.clicked.rotate);
   const [xAxis, setXAxis] = useState(props.clicked.xAxis);
-  const [yAxis, setYAxis] = useState(props.clicked.yAxis);
-  // const [edited, setEdited] = useState(false)
-
+  const [yAxis, setYAxis] = useState(props.clicked.yAxis); 
 
   const OnHandleEquation:(e : any) => any = e => {
     setEquation(e.target.value)
@@ -142,41 +141,7 @@ export default function ClipPlanes(props : any){
               <Typography style={{fontSize:"14px"}}   noWrap>Flip Direction</Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <CircularSlider
-                dataIndex={rotate}
-                width={90}
-                knobRadius={10}
-                progressWidth={20}
-                direction={-1}
-                circleWidth={3}
-                max={359}
-                knobPosition= "right"
-                knobColor="#ffffff"
-                knobSize={24}
-                tooltipColor="#6ab6e1"
-                labelColor="#DFDEDE"
-                labelFontSize="12px"
-                label="Rotate"
-                valueFontSize="20px"
-                showTooltip={true}
-                tooltipSize={26}
-                onChange={ (value : any) => onHandleRotate(setRotate,value)}
-              />
-              <div style={{marginRight:"4%"}}>
-                	<Input
-                    style={{color:"#DFDEDE",  border: "1px solid #DFDEDE", paddingLeft:"5%",width:"45%"}}
-                    value={rotate}
-                    margin="dense"
-                    inputProps={{
-                      step: 1,
-                      min: 0,
-                      max: 359,
-                      type: 'number',
-                      'aria-labelledby': 'input-slider', 
-                    }}
-                    onChange={onHandleRotateType}
-                  />
-              </div>
+              <RotateSlider value={rotate} functionOne={onHandleRotate} functionTwo={onHandleRotateType} setFunction={setRotate} label={"Rotate"}/>
             </Grid>
           </Grid>
           <Typography className={classes.listSub} >
@@ -211,78 +176,10 @@ export default function ClipPlanes(props : any){
         <Typography className={classes.listSub} variant="h2" noWrap>Rotate</Typography>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
-              <CircularSlider
-                dataIndex={xAxis}
-                width={90}
-                knobRadius={15}
-                progressWidth={20}
-                direction={-1}
-                circleWidth={3}
-                max={359}
-                knobPosition= "right"
-                knobColor="#ffffff"
-                knobSize={24}
-                tooltipColor="#6ab6e1"
-                labelColor="#DFDEDE"
-                labelFontSize="12px"
-                label="X-Axis"
-                valueFontSize="20px"
-                showTooltip={true}
-                tooltipSize={26}
-                onChange={ (value :any) => onHandleRotate(setXAxis,value)}
-              />
-              <div style={{marginRight:"4%"}}>
-              	<Input
-                  style={{color:"#DFDEDE",  border: "1px solid #DFDEDE", paddingLeft:"5%",width:"45%"}}
-                  value={xAxis}
-                  margin="dense"
-                  inputProps={{
-                    step: 1,
-                    min: 0,
-                    max: 359,
-                    type: 'number',
-                    'aria-labelledby': 'input-slider', 
-                  }}
-                  onChange={onHandleRotateXType}
-                />
-              </div>
+            <RotateSlider value={xAxis} functionOne={onHandleRotate} functionTwo={onHandleRotateXType} setFunction={setXAxis} label={"X-Axis"}/>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <CircularSlider
-                dataIndex={yAxis}
-                width={90}
-                knobRadius={15}
-                progressWidth={20}
-                direction={-1}
-                circleWidth={3}
-                max={359}
-                knobPosition= "right"
-                knobColor="#ffffff"
-                knobSize={24}
-                tooltipColor="#6ab6e1"
-                labelColor="#DFDEDE"
-                labelFontSize="12px"
-                label="Y-Axis"
-                valueFontSize="20px"
-                showTooltip={true}
-                tooltipSize={26}
-                onChange={ (value :any) => onHandleRotate(setYAxis,value)}
-              />
-              <div style={{marginRight:"4%"}}>
-                <Input
-                  style={{color:"#DFDEDE",  border: "1px solid #DFDEDE", paddingLeft:"5%",width:"45%"}}
-                  value={yAxis}
-                  margin="dense"
-                  inputProps={{
-                    step: 1,
-                    min: 0,
-                    max: 359,
-                    type: 'number',
-                    'aria-labelledby': 'input-slider', 
-                  }}
-                  onChange={onHandleRotateYType}
-                />
-              </div>
+            <RotateSlider value={yAxis} functionOne={onHandleRotate} functionTwo={onHandleRotateYType} setFunction={setYAxis} label={"Y-Axis"}/>
             </Grid>
           </Grid>         
         </form>

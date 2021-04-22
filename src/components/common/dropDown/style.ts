@@ -25,6 +25,6 @@ export default makeStyles((theme) => ({
     color:"#DFDEDE",
     fontSize:"12px", 
     textDecoration: "underline",
-      },
+  },
 
 }));
