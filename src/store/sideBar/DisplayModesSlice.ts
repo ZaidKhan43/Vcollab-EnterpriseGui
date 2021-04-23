@@ -1,4 +1,7 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { $CombinedState, createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import {getDisplayModes, setDisplayMode} from "../../backend/viewerAPIProxy";
+import {selectCheckedLeafNodes} from "../sideBar/ProductTreeSlice"
+import {toastMsg} from "../toastSlice";
 import type { RootState } from '../index';
 // Define a type for the slice state
 interface DisplayModesState {
@@ -7,7 +10,15 @@ interface DisplayModesState {
 export enum DownloadStates {
     DOWNLOADED,
     IN_PROGRESS,
-    NOT_DOWNLOADED
+    NOT_DOWNLOADED,
+    NO_DATA_AWAILABLE
+}
+interface IDisplayMenuItem{
+    displayId:string,
+    title: string,
+    selected: boolean,
+    size: number,
+    status: DownloadStates
 }
 // Define the initial state using that type
 const initialState: DisplayModesState = {
@@ -15,53 +26,47 @@ const initialState: DisplayModesState = {
         id: "Display Modes",
         icon: "ExpandMoreIcon",
         expanded: true,
-        menuData: [
-          { 
-            title: "Bounding Box",
-            selected: false,
-            size: 0,
-            status: DownloadStates.NOT_DOWNLOADED, 
-          },
-          {
-            title: "Point",
-            selected: false,
-            size: 10,
-            status: DownloadStates.NOT_DOWNLOADED,
-          },
-          {
-            title: "Wireframe",
-            selected: false,
-            size: 100,
-            status: DownloadStates.NOT_DOWNLOADED,
-          },
-          {
-            title: "Hidden Line",
-            selected: false,
-            size: 1000,
-            status: DownloadStates.NOT_DOWNLOADED,
-          },
-          { 
-            title: "Shaded", 
-            selected: false,
-            size: 10000,
-            status: DownloadStates.NOT_DOWNLOADED,
-          },
-          {
-            title: "Shaded Mesh",
-            selected: false,
-            size: 100000,
-            status: DownloadStates.NOT_DOWNLOADED,
-          },
-          {
-            title: "Transparent",
-            selected: false,
-            size: 1000000,
-            status: DownloadStates.NOT_DOWNLOADED,
-          },
-        ],
+        menuData: []
       },]
 }
 
+export const fetchDisplayModes = createAsyncThunk(
+  "displayModes/fetchDisplayModes",
+  async (data,{dispatch, getState}) => {
+    let root = getState() as RootState;
+    const viewerId = root.app.viewers[root.app.activeViewer || ""];
+    const nodeIds = selectCheckedLeafNodes(root).map(node => node.id);
+    let result = await getDisplayModes(viewerId,nodeIds);
+    let menuData:IDisplayMenuItem[] = []
+    result.forEach((item:any) => {
+      if(item.displayOrder !== 0)
+      menuData.push(
+        <IDisplayMenuItem>{
+          displayId: item.id,
+          title: item.displayName,
+          selected: false,
+          size: item.downloadMetricValue,
+          status: item.isDataAvailable ? DownloadStates.DOWNLOADED : DownloadStates.NOT_DOWNLOADED
+        }
+      )
+    })
+    dispatch(displayModesSlice.actions.setMenuData({panelId:0,menuData}));
+  }
+)
+
+export const setDisplayModeAsync = createAsyncThunk(
+  "displayModes/setDisplayModeAsync",
+  async (data:{menuId:number}, {dispatch,getState}) => {
+    let root = getState() as RootState;
+    const viewerId = root.app.viewers[root.app.activeViewer || ""];
+    const nodeIds = selectCheckedLeafNodes(root).map(node => node.id);
+    const item = root.displayModes.displayModesData[0].menuData[data.menuId];
+    let res = await setDisplayMode(viewerId,item.displayId,nodeIds);
+    dispatch(setDownloadStatus({panelId:0,menuId: data.menuId,status:DownloadStates.DOWNLOADED}));
+    dispatch(fetchDisplayModes());
+    dispatch(toastMsg({msg:"Display Mode changed"}));
+  } 
+)
 export const displayModesSlice = createSlice({
   name: 'displayModes',
   initialState,
@@ -69,6 +74,10 @@ export const displayModesSlice = createSlice({
       expandPanel: (state, action:PayloadAction<{panelId:number,value:boolean}>) => {
         let selectedPanel = state.displayModesData[action.payload.panelId];
         selectedPanel.expanded = action.payload.value;
+      },
+      setMenuData: (state, action:PayloadAction<{panelId:number, menuData: any[]}>) => {
+        let selectedPanel = state.displayModesData[action.payload.panelId];
+        selectedPanel.menuData = action.payload.menuData;
       },
       setSelectedMenu: (state, action:PayloadAction<{panelId:number,menuId:number,value:boolean}>) => {
          let selectedMenu = state.displayModesData[action.payload.panelId].menuData[action.payload.menuId];

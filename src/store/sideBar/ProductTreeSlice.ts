@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../index';
-import {setPartVisibility, invertPartsVisibility} from "../../backend/viewerAPIProxy"
+import {setPartVisibility, invertPartsVisibility, setHighlightedNodes, fitView, getSearchHints} from "../../backend/viewerAPIProxy"
 // Define a type for the slice state
 export interface TreeNode{
   id:string,
@@ -13,6 +13,7 @@ export interface TreeNode{
 interface ProductTreeState {
     data: any,
     rootIds: string[],
+    searchHints: any[],
     prevSearches: any,
     searchQuery: string
 }
@@ -21,6 +22,7 @@ interface ProductTreeState {
 const initialState: ProductTreeState = {
     data: {},
     rootIds: [],
+    searchHints: [],
     prevSearches: {},
     searchQuery: ''
 }
@@ -176,6 +178,27 @@ export const invertVisibilityAsync = createAsyncThunk(
  }
 )
 
+export const setCheckedNodesAsync = createAsyncThunk(
+  'productTree/setCheckedNodesAsync',
+  async (data:{toCheck: boolean, nodeId:string},
+         {dispatch, getState}) => {
+    const rootState = getState() as RootState;
+    const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
+    let leafNodesId:string[] = [];
+    traverseNode(data.nodeId,rootState.productTree,(node) => {
+       if(node.children.length == 0)
+       leafNodesId.push(node.id);
+    });
+    let result = setHighlightedNodes(viewerId,data.toCheck, leafNodesId);
+    if(result == 'SUCCESS'){
+      dispatch(productTreeSlice.actions.checkNode({...data}))
+      return Promise.resolve();
+    }
+    else{
+      return Promise.reject();
+    }
+  }
+)
 export const setCheckedVisibilityAsync = createAsyncThunk(
   'productTree/setCheckedVisibilityAsync',
   async (data:any,{dispatch, getState}) => {
@@ -188,6 +211,23 @@ export const setCheckedVisibilityAsync = createAsyncThunk(
      result =  await setPartVisibility(viewerId,checkedNodesId,toShow)
      if(result == 'SUCCESS'){
        return Promise.resolve(data);
+     }
+     else{
+       return Promise.reject();
+     }
+  }
+)
+export const fetchSearchHints = createAsyncThunk(
+  "productTree/fetchSearchHints",
+  async (data,{dispatch,getState}) => {
+     
+     const rootState = getState() as RootState;
+     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
+     let result = [];
+     if(viewerId)
+     result =  await getSearchHints(viewerId);
+     if(result instanceof Array){
+       return Promise.resolve(result);
      }
      else{
        return Promise.reject();
@@ -262,6 +302,11 @@ export const productTreeSlice = createSlice({
           }
         })
     },
+    focusSelectedNodes: (state, action:PayloadAction<{viewerId:string}>) => {
+      let nodes = [...Object.values(state.data)] as TreeNode[];
+      let checkedLeavesId = nodes.filter((item: TreeNode) => item.children.length == 0 && item.state.checked).map((item) => item.id);
+      fitView(action.payload.viewerId,checkedLeavesId);
+    },
     updatePrevSearches: (state) => {
       if(!state.prevSearches[state.searchQuery] && state.searchQuery !== ''){
         state.prevSearches[state.searchQuery] = Object.keys(state.prevSearches).length;
@@ -280,7 +325,10 @@ export const productTreeSlice = createSlice({
     });
     builder.addCase(invertVisibilityAsync.fulfilled, (state,{payload}) => {
       productTreeSlice.caseReducers.invertVisibility(state)
-  })
+    });
+    builder.addCase(fetchSearchHints.fulfilled, (state,{payload}) => {
+        state.searchHints = payload;
+    });
   }
 });
 
@@ -291,12 +339,14 @@ export const {
   invertNode, 
   expandNode,
   groupSelectedNodes, 
+  focusSelectedNodes,
   saveSearchQuery, 
   updatePrevSearches } = productTreeSlice.actions;
 
 //Define the selectors
 export const selectProductTreeData = (state:RootState) => state.productTree.data
 export const selectRootIds = (state:RootState) => state.productTree.rootIds
+export const selectSearchHints = (state:RootState) => state.productTree.searchHints
 export const selectPrevSearches = (state:RootState) => Object.keys(state.productTree.prevSearches)
 export const selectCheckedLeafNodes = (state:RootState):TreeNode[] => {
   let nodes = [...Object.values(state.productTree.data)] as TreeNode[];

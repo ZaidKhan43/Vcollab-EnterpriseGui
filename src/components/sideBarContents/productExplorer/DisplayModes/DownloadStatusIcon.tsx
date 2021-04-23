@@ -1,6 +1,7 @@
 import React,{useState, useEffect} from 'react'
 import DownloadIcon from "@material-ui/icons/CloudDownload"
 import DownloadedIcon from "@material-ui/icons/CloudDone";
+import ReportProblemIcon from "@material-ui/icons/ReportProblem"
 import CircularProgress from "@material-ui/core/CircularProgress";
 import {DownloadStates} from "../../../../store/sideBar/DisplayModesSlice";
 
@@ -13,6 +14,8 @@ const Render = (props:any) => {
                 return <CircularProgress color='inherit' size={20} ></CircularProgress>
             case DownloadStates.NOT_DOWNLOADED:
                 return <DownloadIcon/>
+            case DownloadStates.NO_DATA_AWAILABLE:
+                return <ReportProblemIcon/>
             default:
                 return null;
         }

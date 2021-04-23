@@ -1,5 +1,4 @@
-/* eslint-disable */ 
-
+/* eslint-disable */
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
 
@@ -1376,6 +1375,15 @@ var TextureManager = /** @class */ (function () {
     };
     Material.prototype.setUseUserDefinedColor = function (value) {
         this.useUserDefinedColor = value;
+    };
+    Material.prototype.clone = function () {
+        var m = Object.create(this);
+        m.diffuseColor = __spread(this.diffuseColor);
+        m.specularColor = __spread(this.specularColor);
+        m.ambientColor = __spread(this.ambientColor);
+        m.emissiveColor = __spread(this.emissiveColor);
+        m.userDefinedColor = __spread(this.userDefinedColor);
+        return m;
     };
     return Material;
 }());
@@ -3285,6 +3293,11 @@ function fromValues$3(x, y) {
     CoreMesh.prototype.setMax = function (maxValue) {
         this.BBox.setMax(maxValue);
     };
+    CoreMesh.prototype.clone = function (isDeep) {
+        var c = Object.create(this);
+        c.material = this.material.clone();
+        return c;
+    };
     CoreMesh.prototype.delete = function () {
         if (this.attribs)
             this.attribs.delete();
@@ -3546,6 +3559,15 @@ var Mesh = /** @class */ (function () {
             for (var key in this.subMeshes)
                 this.subMeshes[key].setUseUserDefinedColor(value);
     };
+    Mesh.prototype.clone = function (isDeep) {
+        var m = Object.create(this);
+        if (this.subMeshes) {
+            for (var key in this.subMeshes) {
+                m.subMeshes[key] = this.subMeshes[key].clone();
+            }
+        }
+        return m;
+    };
     Mesh.bufferAttributeCache = new Utility.Registry(); // used in old  code 
     return Mesh;
 }());var SceneNode = /** @class */ (function () {
@@ -3754,6 +3776,11 @@ var ShapeNode = /** @class */ (function (_super) {
         if (this.mesh != null) {
             this.mesh.setTextureData(textureData);
         }
+    };
+    ShapeNode.prototype.clone = function (isDeep) {
+        var node = Object.create(this);
+        node.mesh = this.mesh.clone();
+        return node;
     };
     ShapeNode.prototype.delete = function () {
         this.mesh.delete();
@@ -4542,6 +4569,11 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         }
         return null;
     };
+    Scene.prototype.addRenderNodes = function (nodes) {
+        var _a;
+        (_a = this.renderableNodes).push.apply(_a, __spread(nodes));
+        //this.updateRenderableObjects();
+    };
     Scene.prototype.updateRenderableObjects = function () {
         this.renderableNodes = (this.sceneGraph) ? this.sceneGraph.getRenderableNode() : null;
     };
@@ -4863,9 +4895,11 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
             return this.bbox;
         }
     };
-    Scene.prototype.updateBBox = function () {
+    Scene.getBoundingBoxFromNodes = function (nodes) {
         var bbox = new BoundingBox();
-        var nodes = this.renderableNodes;
+        return Scene.calculateBBox(nodes, bbox);
+    };
+    Scene.calculateBBox = function (nodes, bbox) {
         if (nodes) {
             nodes.forEach(function (node) {
                 var _a;
@@ -4957,8 +4991,13 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
                     }
                 }
             });
-            this.bbox = bbox;
         }
+        return bbox;
+    };
+    Scene.prototype.updateBBox = function () {
+        var bbox = new BoundingBox();
+        var nodes = this.renderableNodes;
+        this.bbox = Scene.calculateBBox(nodes, bbox);
         return this.bbox;
     };
     Scene.prototype.applyResult = function (scene) {
@@ -5305,6 +5344,9 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         });
         return BBox;
     };
+    SceneManager.prototype.getBoundingBoxFromNodes = function (nodes) {
+        return Scene.getBoundingBoxFromNodes(nodes);
+    };
     SceneManager.prototype.updateBBox = function () {
         this.scenes.forEach(function (scene) {
             scene.updateBBox();
@@ -5334,6 +5376,11 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
                 nodes = nodes.concat.apply(nodes, __spread(scene.getRenderableObjects()));
             });
         return nodes;
+    };
+    SceneManager.prototype.addRenderNodes = function (nodes) {
+        if (this.scenes instanceof Array) {
+            this.scenes[0].addRenderNodes(nodes);
+        }
     };
     SceneManager.prototype.updateRenderNodes = function () {
         if (this.scenes instanceof Array)
@@ -6151,15 +6198,17 @@ var CameraControl = /** @class */ (function (_super) {
         var invMat = this.getInverseCameraMatrix(type);
         return fromValues(invMat[0], invMat[1], invMat[2]);
     };
-    CameraControl.prototype.fitView = function () {
-        var zPos = (this.sceneBoundingBox.getRadius() / (Math.tan((this.perspParams.fov / 2.0) * 0.01745329251)));
+    CameraControl.prototype.fitView = function (bbox) {
+        if (bbox === void 0) { bbox = null; }
+        var boundingBox = bbox ? bbox : this.sceneBoundingBox;
+        var zPos = (boundingBox.getRadius() / (Math.tan((this.perspParams.fov / 2.0) * 0.01745329251)));
         var camMatrixPersp = this.getCameraMatrix(CameraType.Perspective);
         var camMatrixOrtho = this.getCameraMatrix(CameraType.Ortho);
         invert(camMatrixPersp, camMatrixPersp);
         invert(camMatrixOrtho, camMatrixOrtho);
         var newZPos = zPos;
-        var dimensionPersp = this.GetCamAxisAlignedBBox(camMatrixPersp, this.sceneBoundingBox);
-        this.GetCamAxisAlignedBBox(camMatrixOrtho, this.sceneBoundingBox);
+        var dimensionPersp = this.GetCamAxisAlignedBBox(camMatrixPersp, boundingBox);
+        this.GetCamAxisAlignedBBox(camMatrixOrtho, boundingBox);
         if (dimensionPersp) {
             var verRange = dimensionPersp[1];
             if (dimensionPersp[1] < (dimensionPersp[0] / this.perspParams.aspect)) {
@@ -6174,7 +6223,7 @@ var CameraControl = /** @class */ (function (_super) {
             zPos = newZPos + (newZPos * 0.1);
         }
         var distance = create$2();
-        distance = sub(distance, this.sceneBoundingBox.getCenter(), MathUtils.getPositionVector(camMatrixPersp));
+        distance = sub(distance, boundingBox.getCenter(), MathUtils.getPositionVector(camMatrixPersp));
         translate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, negate(distance, distance));
         fromValues(0, 0, -zPos);
         //glmatrix.mat4.translate(this.perspCamera.camMatrix,this.perspCamera.camMatrix,trans);
@@ -10361,6 +10410,7 @@ var Point = /** @class */ (function () {
             nearPoint: out ? out.nearPoint : null,
             connectivityIndex: indicesId,
             primitiveSize: primitiveSize,
+            renderNodeId: this.selectNode ? this.selectNode.index : -1,
             primitiveData: transPrimitive.data()
         };
         AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.PROBE_FINISH, data: probeData });
@@ -12407,10 +12457,16 @@ var LabelManager = /** @class */ (function () {
     App.prototype.getSceneBoundingBox = function () {
         return this.sceneManager.getBoundingBox();
     };
-    App.prototype.fitView = function () {
+    App.prototype.fitView = function (selectedNodeIds) {
         var bbox = this.sceneManager.getBoundingBox();
         this.renderer.camControl.setBoundingBox(bbox);
-        this.renderer.camControl.fitView();
+        if (selectedNodeIds.length !== 0) {
+            var selectedNodes = this.getRenderNodesFromId(selectedNodeIds);
+            var nodesBBox = this.sceneManager.getBoundingBoxFromNodes(selectedNodes);
+            this.renderer.camControl.fitView(nodesBBox);
+        }
+        else
+            this.renderer.camControl.fitView();
     };
     App.prototype.setDisplayMode = function (value, arr) {
         var scenes = this.sceneManager.getScenes();
@@ -12434,26 +12490,18 @@ var LabelManager = /** @class */ (function () {
             console.log(nodes);
         });
     };
-    App.prototype.highlightParts = function (isHighlighted, arr) {
-        var scenes = this.sceneManager.getScenes();
-        scenes.forEach(function (scene) {
-            var nodes = scene.getRenderableObjects();
-            if (nodes && arr.length == 0) {
-                nodes.forEach(function (node) {
-                    if (node.mesh)
-                        node.mesh.subMeshes['bbox'].visible = isHighlighted;
-                });
-            }
-            else if (nodes) {
-                arr.forEach(function (id) {
-                    var node = nodes[id];
-                    if (node && node.mesh) {
-                        node.mesh.subMeshes['bbox'].visible = isHighlighted;
-                    }
-                });
-            }
-            console.log(nodes);
+    App.prototype.setHighlightedNodes = function (nodeIds, visibility) {
+        this.setNodeVisibility(nodeIds, visibility);
+        var nodes = this.getRenderNodesFromId(nodeIds);
+        nodes.forEach(function (node) {
+            console.log(node.mesh.subMeshes['primitive_0'].material.diffuseColor = visibility ? [1, 1, 0] : [0, 0, 0]);
         });
+    };
+    App.prototype.cloneRenderNode = function (sourceRep, targetRep, isDeep) {
+        var sourceNode = this.getRenderNodesFromId([sourceRep.customData.node]);
+        var targetNode = sourceNode[0].clone();
+        targetNode.index = targetRep.customData.node;
+        this.sceneManager.addRenderNodes([targetNode]);
     };
     App.prototype.applyResultByURL = function (filePath) {
         var _this = this;
@@ -13019,16 +13067,20 @@ var LabelManager = /** @class */ (function () {
     vctViewer.prototype.getSceneBoundingBox = function () {
         return this.appli.getSceneBoundingBox();
     };
-    vctViewer.prototype.fitView = function () {
-        this.appli.fitView();
+    vctViewer.prototype.fitView = function (selectedNodeIds) {
+        if (selectedNodeIds === void 0) { selectedNodeIds = []; }
+        this.appli.fitView(selectedNodeIds);
     };
     vctViewer.prototype.setDisplayMode = function (displayModeValue, arr) {
         if (arr === void 0) { arr = []; }
         this.appli.setDisplayMode(displayModeValue, arr);
     };
-    vctViewer.prototype.highlightParts = function (isHighlighted, arr) {
-        if (arr === void 0) { arr = []; }
-        this.appli.highlightParts(isHighlighted, arr);
+    vctViewer.prototype.setHighlightedNodes = function (selectedNodeIds, visibility) {
+        if (selectedNodeIds === void 0) { selectedNodeIds = []; }
+        this.appli.setHighlightedNodes(selectedNodeIds, visibility);
+    };
+    vctViewer.prototype.cloneRenderNode = function (sourceRep, targetRep, isDeep) {
+        this.appli.cloneRenderNode(sourceRep, targetRep, isDeep);
     };
     vctViewer.prototype.applyResultByURL = function (filePath) {
         this.appli.applyResultByURL(filePath);
@@ -13360,9 +13412,9 @@ var downloadMetricTypes = {
         var out = [];
         if (this.models) {
             nodeIds.forEach(function (nodeId) {
-                var node = _this.models.get(nodeId);
-                if (node)
-                    out.push(node);
+                var selectedNode = _this.models.get(nodeId);
+                if (selectedNode)
+                    out.push(selectedNode);
             });
         }
         //console.log(out);
@@ -13385,6 +13437,30 @@ var downloadMetricTypes = {
             }
         });
         return out;
+    };
+    ModelTree.prototype.getRenderNodeIdsFromIds = function (nodeIds) {
+        var nodes = this.getPartNodeFromNodeIds(nodeIds);
+        var reps = this.getRepresentationsFromParts(nodes);
+        return reps.map(function (rep) { return rep.customData.node; });
+    };
+    ModelTree.prototype.getPartIdsFromRenderNodeIds = function (renderIds) {
+        var partIds = [];
+        __spread(this.models.values()).forEach(function (node) {
+            if (node.children.length === 0) {
+                if (node.customData && node.customData.geometries) {
+                    node.customData.geometries.forEach(function (geometry) {
+                        if (geometry.customData && geometry.customData.representations) {
+                            geometry.customData.representations.forEach(function (rep) {
+                                if (renderIds.includes(rep.customData.node)) {
+                                    partIds.push(node.id);
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+        return partIds;
     };
     ModelTree.prototype.setVisibility = function (nodes, toShow) {
         var _this = this;
@@ -13448,7 +13524,8 @@ var ModelTreeBuilder = /** @class */ (function () {
                 hiddenlineEnabled: false,
                 transparency: 0.0,
                 useTexture: false,
-                visibility: false
+                isHighlighted: false,
+                visibility: component.display
             };
         }
         if (component.children) {
@@ -14436,16 +14513,19 @@ var sqrLen = squaredLength;
         this.connector = _connector;
         this.legendManager = _legendManager;
         this.legendID = null;
-        this.appliedResultIndex = null;
-        this.appliedStepIndex = null;
-        this.appliedDerivedTypeIndex = null;
+        this.result = null;
+        if (this.getIsCAEResultAvailable())
+            this.createResult();
+        this.appliedResultId = null;
+        this.appliedStepId = null;
+        this.appliedDerivedTypeId = null;
         if (this.mcax.selection) {
             if (this.mcax.selection.variableIndex != undefined && this.mcax.selection.variableIndex != null)
-                this.appliedResultIndex = this.mcax.selection.variableIndex;
+                this.appliedResultId = this.mcax.selection.variableIndex;
             if (this.mcax.selection.stepIndex != undefined && this.mcax.selection.stepIndex != null)
-                this.appliedStepIndex = this.mcax.selection.stepIndex;
+                this.appliedStepId = this.mcax.selection.stepIndex;
             if (this.mcax.selection.derivedTypeIndex != undefined && this.mcax.selection.derivedTypeIndex != null)
-                this.appliedDerivedTypeIndex = this.mcax.selection.derivedTypeIndex;
+                this.appliedDerivedTypeId = this.mcax.selection.derivedTypeIndex;
             if (this.legendManager)
                 this.legendID = this.legendManager.createLegend();
         }
@@ -14459,91 +14539,167 @@ var sqrLen = squaredLength;
         }
         return false;
     };
-    CAEResult.prototype.getDisplayResult = function () {
-        var resultSet = {
-            resultsNameList: [],
-            stepsNameList: [],
-            derivedTypesNameList: [],
-            result: null,
-            step: null,
-            derivedType: null,
+    CAEResult.prototype.setDefaultDerived = function (variableTypeId, defaultValue) {
+        this.result.variableTypes[variableTypeId].defaultDerived = this.mcax.derivedTypes[defaultValue].generator;
+    };
+    CAEResult.prototype.createResult = function () {
+        var _this = this;
+        this.result = {
+            variables: {},
+            derivedTypes: {},
+            missingVariableSteps: {},
+            variableTypes: {},
+            stepVariables: {},
+            selection: {}
         };
         try {
-            var variables = this.mcax.variables;
-            if (variables) {
-                var resultObj = this.getResults();
-                var stepObj = this.getSteps(this.appliedResultIndex);
-                var derivedTypeObj = this.getDerivedTypes(this.appliedResultIndex);
-                resultSet.resultsNameList = resultObj.results;
-                resultSet.stepsNameList = stepObj.steps;
-                resultSet.derivedTypesNameList = derivedTypeObj.derivedTypes;
-                resultSet.result = resultObj.defaultValue;
-                resultSet.step = stepObj.defaultValue;
-                resultSet.derivedType = derivedTypeObj.defaultValue;
-            }
+            this.result.selection = {
+                variableId: this.mcax.variables[this.mcax.selection.variableIndex].id,
+                stepId: this.mcax.steps[this.mcax.selection.stepIndex].id,
+                derivedTypeId: this.mcax.derivedTypes[this.mcax.selection.derivedTypeIndex].generator
+            };
+            this.mcax.variableTypes.forEach(function (variableType) {
+                if (variableType.active == true) {
+                    _this.result.variableTypes[variableType.id] = {
+                        name: variableType.name,
+                        defaultDerived: "",
+                        derivedTypeIds: variableType.derivedTypes.map(function (e) { return _this.mcax.derivedTypes[e].generator; })
+                    };
+                }
+            });
+            this.mcax.variables.forEach(function (variable) {
+                if (variable.active == true) {
+                    _this.result.variables[variable.id] = {
+                        name: variable.name,
+                        type: _this.mcax.variableTypes[variable.type].id,
+                        attributes: {}
+                    };
+                    _this.setDefaultDerived(_this.mcax.variableTypes[variable.type].id, variable.defaultDerived['colorplot']);
+                }
+            });
+            this.mcax.derivedTypes.forEach(function (derivedType) {
+                _this.result.derivedTypes[derivedType.generator] = {
+                    name: derivedType.name,
+                    generator: derivedType.generator
+                };
+            });
+            this.mcax.steps.forEach(function (step) {
+                if (step.active == true) {
+                    _this.result.stepVariables[step.id] = {
+                        name: step.name
+                    };
+                }
+            });
+            //missing steps
+            this.mcax.variables.forEach(function (variable) {
+                if (_this.mcax.steps.length !== variable.stepsAvailable.length) {
+                    var missingStepIds_1 = [];
+                    _this.mcax.steps.forEach(function (step, index) {
+                        if (!variable.stepsAvailable.find(function (sIndex) { return index == sIndex; })) {
+                            missingStepIds_1.push(step.id);
+                        }
+                    });
+                    _this.result.missingVariableSteps[variable.id] = missingStepIds_1;
+                }
+                else {
+                    _this.result.missingVariableSteps[variable.id] = [];
+                }
+            });
+            console.log(this.result);
         }
         catch (error) {
             throw new Error(error);
         }
-        return resultSet;
+    };
+    CAEResult.prototype.getCAEResult = function () {
+        return this.result ? Object.freeze(this.result) : null;
+    };
+    CAEResult.prototype.getDisplayResult = function () {
+        return this.getCAEResult();
+        // let resultSet:any = {
+        //     resultsNameList : [],
+        //     stepsNameList : [],
+        //     derivedTypesNameList : [],
+        //     result : null,
+        //     step : null,
+        //     derivedType : null,
+        // };
+        // try{
+        //     let variables =  this.mcax.variables;
+        //     if(variables){                  
+        //         let resultObj = this.getResults();
+        //         let stepObj = this.getSteps(this.appliedResultIndex);
+        //         let derivedTypeObj = this.getDerivedTypes(this.appliedResultIndex);
+        //         resultSet.resultsNameList =resultObj.results;
+        //         resultSet.stepsNameList = stepObj.steps;
+        //         resultSet.derivedTypesNameList = derivedTypeObj.derivedTypes;
+        //         resultSet.result = resultObj.defaultValue;
+        //         resultSet.step = stepObj.defaultValue;
+        //         resultSet.derivedType = derivedTypeObj.defaultValue;           
+        //     }  
+        // } 
+        // catch(error){
+        //     throw new Error(error);
+        // }  
+        // return resultSet;        
     };
     CAEResult.prototype.getResults = function () {
-        var variables = this.mcax.variables;
-        if (variables) {
-            try {
-                var CAEResults_1 = {
-                    results: [],
-                    defaultValue: null
-                };
-                variables.forEach(function (element, index) {
-                    if (element.active === true) {
-                        CAEResults_1.results.push({
-                            name: element.name,
-                            id: element.id,
-                            value: index
-                        });
-                    }
-                });
-                CAEResults_1.defaultValue = (this.appliedResultIndex !== null ? this.appliedResultIndex : 0);
-                return CAEResults_1;
-            }
-            catch (error) {
-                throw new Error(error);
-            }
-        }
-        else
-            throw new Error("Invalid data");
+        // let variables = this.mcax.variables;
+        // if(variables){  
+        //     try{   
+        //         let CAEResults: any = {
+        //             results : [],
+        //             defaultValue : null
+        //         };
+        //         variables.forEach((element:any, index:number) => {
+        //             if(element.active === true){
+        //                 CAEResults.results.push({
+        //                     name : element.name,
+        //                     id : element.id,
+        //                     value : index
+        //                 });
+        //             }
+        //         });
+        //         CAEResults.defaultValue = (this.appliedResultIndex !== null ? this.appliedResultIndex : 0); 
+        //         return CAEResults;
+        //     }
+        //     catch(error){
+        //         throw new Error(error);
+        //     }            
+        // } 
+        // else
+        //     throw new Error("Invalid data")
     };
     CAEResult.prototype.getSteps = function (selectedResultIndex) {
-        var _this = this;
-        selectedResultIndex = selectedResultIndex || 0;
-        try {
-            var oldStepIndex = this.appliedStepIndex;
-            var CAESteps_1 = {
-                steps: [],
-                defaultValue: null
-            };
-            var steps = this.mcax.variables[selectedResultIndex].stepsAvailable;
-            if (steps && steps instanceof Array && this.mcax.steps instanceof Array) {
-                steps.forEach(function (stepIndex) {
-                    if (_this.mcax.steps.length > stepIndex) {
-                        CAESteps_1.steps.push({
-                            name: _this.mcax.steps[stepIndex].name,
-                            id: _this.mcax.steps[stepIndex].id,
-                            value: stepIndex
-                        });
-                    }
-                });
-            }
-            if (steps.includes(oldStepIndex))
-                CAESteps_1.defaultValue = oldStepIndex;
-            else if (CAESteps_1.steps.length > 0)
-                CAESteps_1.defaultValue = CAESteps_1.steps[0].value;
-            return CAESteps_1;
-        }
-        catch (error) {
-            throw new Error(error);
-        }
+        // selectedResultIndex = selectedResultIndex || 0;  
+        // try{       
+        //     let oldStepIndex =this.appliedStepIndex;
+        //     let CAESteps:any = {
+        //         steps : [],
+        //         defaultValue : null
+        //     };
+        //     let steps = this.mcax.variables[ selectedResultIndex ].stepsAvailable;
+        //     if(steps && steps instanceof Array &&  this.mcax.steps instanceof Array)
+        //     {
+        //         steps.forEach(stepIndex => {
+        //             if (this.mcax.steps.length > stepIndex){
+        //                 CAESteps.steps.push({
+        //                     name :  this.mcax.steps[stepIndex].name,
+        //                     id :  this.mcax.steps[stepIndex].id,
+        //                     value : stepIndex
+        //                 });  
+        //             }
+        //         });
+        //     }
+        //     if(steps.includes(oldStepIndex))
+        //         CAESteps.defaultValue = oldStepIndex;
+        //     else if(CAESteps.steps.length > 0)
+        //         CAESteps.defaultValue =  CAESteps.steps[0].value;               
+        //         return CAESteps; 
+        // }
+        // catch(error){
+        //     throw new Error(error);
+        // }           
     };
     CAEResult.prototype.getDerivedTypes = function (selectedResultIndex) {
         var _this = this;
@@ -14582,32 +14738,36 @@ var sqrLen = squaredLength;
             throw new Error(error);
         }
     };
-    CAEResult.prototype.applyResult = function (resultIndex, stepIndex, derivedTypeIndex) {
+    CAEResult.prototype.applyResult = function (variableId, stepId, derivedTypeId) {
         var _this = this;
-        return new Promise(function (resolve) { return __awaiter(_this, void 0, void 0, function () {
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var resultName, stepName, derivedGenerator, textureCoordsURL, uri, uri_meta_info, textureArrayBuffer, textureMetaData, legend, min, max, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 5, , 6]);
-                        resultName = this.mcax.variables[resultIndex].name;
-                        stepName = this.mcax.steps[stepIndex].name;
-                        derivedGenerator = this.mcax.derivedTypes[derivedTypeIndex].generator;
+                        if (!this.getIsCAEResultAvailable())
+                            reject("No CAE Result available");
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 6, , 7]);
+                        resultName = this.result.variables[variableId].name;
+                        stepName = this.result.stepVariables[stepId].name;
+                        derivedGenerator = this.result.derivedTypes[derivedTypeId].generator;
                         textureCoordsURL = this.mcax.gltf.buffers.filter(function (buffer) { return buffer.uri.includes('type=texcoords'); });
-                        this.appliedResultIndex = resultIndex;
-                        this.appliedStepIndex = stepIndex;
-                        this.appliedDerivedTypeIndex = derivedTypeIndex;
-                        if (!(textureCoordsURL && textureCoordsURL.length > 0)) return [3 /*break*/, 3];
+                        this.appliedResultId = variableId;
+                        this.appliedStepId = stepId;
+                        this.appliedDerivedTypeId = derivedTypeId;
+                        if (!(textureCoordsURL && textureCoordsURL.length > 0)) return [3 /*break*/, 4];
                         uri = textureCoordsURL[0].uri.replace("${variableIndex}", resultName);
                         uri = uri.replace("${stepIndex}", stepName);
                         uri = uri.replace("${derivedTypeIndex}", derivedGenerator);
                         uri_meta_info = uri.replace("/extract/buffer", "/extract/buffermeta");
                         Logger.setStatusBar("Downloading result buffers.");
                         return [4 /*yield*/, this.connector.getArrayBuffer(uri)];
-                    case 1:
+                    case 2:
                         textureArrayBuffer = _a.sent();
                         return [4 /*yield*/, this.connector.getJsonData(uri_meta_info)];
-                    case 2:
+                    case 3:
                         textureMetaData = _a.sent();
                         Logger.setStatusBar("Result buffers downloaded.");
                         this.renderApp.applyResultByData(textureCoordsURL[0].uri, textureArrayBuffer);
@@ -14617,13 +14777,13 @@ var sqrLen = squaredLength;
                         legend.setMinMAX(min, max);
                         this.renderApp.setTextureData(legend.getTextureData());
                         resolve(true);
-                        return [3 /*break*/, 4];
-                    case 3: throw new Error("Invalid texture Coords URL");
-                    case 4: return [3 /*break*/, 6];
-                    case 5:
+                        return [3 /*break*/, 5];
+                    case 4: throw new Error("Invalid texture Coords URL");
+                    case 5: return [3 /*break*/, 7];
+                    case 6:
                         error_1 = _a.sent();
                         throw new Error(error_1);
-                    case 6: return [2 /*return*/];
+                    case 7: return [2 /*return*/];
                 }
             });
         }); });
@@ -14847,7 +15007,7 @@ var Section = /** @class */ (function () {
         this.registerEvents();
     }
     LabelManager.prototype.registerEvents = function () {
-        this.externalEventDispatcher.addEventListener(this.events.PROBE_FINISH, this.handleSelection.bind(this));
+        //this.externalEventDispatcher.addEventListener(this.events.PROBE_FINISH,this.handleSelection.bind(this));
     };
     LabelManager.prototype.handleSelection = function (e) {
         var probeData = e.data;
@@ -14863,6 +15023,7 @@ var Section = /** @class */ (function () {
     RepresentationType[RepresentationType["MESH"] = 132] = "MESH";
     RepresentationType[RepresentationType["WIREFRAME"] = 136] = "WIREFRAME";
     RepresentationType[RepresentationType["POINTS"] = 384] = "POINTS";
+    RepresentationType[RepresentationType["HIGHLIGHT"] = 143345245] = "HIGHLIGHT"; // to be changed if we get from server
 })(RepresentationType || (RepresentationType = {}));var MCAXFilter = /** @class */ (function () {
     function MCAXFilter(renderer, mcax) {
         this.renderApp = renderer;
@@ -14933,15 +15094,18 @@ var Section = /** @class */ (function () {
         this.probeMode = probeMode.LABEL;
     }
     return AppState;
-}());var viewerEvents = {
-    MODEL_DOWNLOAD_STATUS_UPDATE: "MODEL_DOWNLOAD_STATUS_UPDATE",
-};
-var globalEvents = {
-    ERROR: "ERROR",
-    INFO: "INFO",
-    WARN: "WARN",
-    LOG: "LOG"
-};
+}());var viewerEvents;
+(function (viewerEvents) {
+    viewerEvents["MODEL_DOWNLOAD_STATUS_UPDATE"] = "MODEL_DOWNLOAD_STATUS_UPDATE";
+    viewerEvents["MODEL_PART_HIGHLIGHTED"] = "MODEL_PART_HIGHLIGHTED";
+})(viewerEvents || (viewerEvents = {}));
+var globalEvents;
+(function (globalEvents) {
+    globalEvents["ERROR"] = "ERROR";
+    globalEvents["INFO"] = "INFO";
+    globalEvents["WARN"] = "WARN";
+    globalEvents["LOG"] = "LOG";
+})(globalEvents || (globalEvents = {}));
 var getEventObject = function (type, viewerID, data) {
     return {
         type: type,
@@ -15074,7 +15238,23 @@ var getEventObject = function (type, viewerID, data) {
         var xyFromBtm = [
             xyFromTop[0], rect.bottom - rect.top - xyFromTop[1]
         ];
-        this.probeFromNodes({ xyFromBtm: xyFromBtm, xyFromTop: xyFromTop });
+        var data = this.probeFromNodes({ xyFromBtm: xyFromBtm, xyFromTop: xyFromTop });
+        console.log("probeData", data);
+        if ((data === null || data === void 0 ? void 0 : data.renderNodeId) > -1) {
+            var nodeIds = this.productTree.getPartIdsFromRenderNodeIds([data.renderNodeId]);
+            this.setHighlightedNodes(nodeIds, true);
+            this.eventDispatcher.dispatchEvent(getEventObject(viewerEvents.MODEL_PART_HIGHLIGHTED, this.UUID, {
+                isHighlighted: true,
+                nodeIds: nodeIds
+            }));
+        }
+        else {
+            this.setHighlightedNodes([], false);
+            this.eventDispatcher.dispatchEvent(getEventObject(viewerEvents.MODEL_PART_HIGHLIGHTED, this.UUID, {
+                isHighlighted: false,
+                nodeIds: []
+            }));
+        }
     };
     Viewer.prototype.handleModelLoad = function (e) {
         this.labelManager = new LabelManager(this.renderApp, this.state);
@@ -15115,7 +15295,7 @@ var getEventObject = function (type, viewerID, data) {
                         this.renderApp.setNodeVisibility(repIds, false);
                         return [3 /*break*/, 3];
                     case 1: return [4 /*yield*/, Promise.all(nodes.map(function (node) {
-                            _this.setDisplayMode(node.customData.displayProps.displayId, [node]);
+                            _this.setDisplayMode(node.customData.displayProps.displayId, [node.id]);
                         }))];
                     case 2:
                         _a.sent();
@@ -15177,7 +15357,7 @@ var getEventObject = function (type, viewerID, data) {
         return Promise.resolve(modes);
     };
     Viewer.prototype.getDownloadSize = function (selectedNodes, displayModeId) {
-        var nodes = this.productTree.getPartNodeFromNodeIds(selectedNodes.map(function (node) { return node.id; }));
+        var nodes = this.productTree.getPartNodeFromNodeIds(selectedNodes);
         if ((selectedNodes === null || selectedNodes === void 0 ? void 0 : selectedNodes.length) === 0) {
             nodes = this.productTree.getAllPartNodes();
         }
@@ -15250,11 +15430,12 @@ var getEventObject = function (type, viewerID, data) {
                             meshEnabled: false,
                             lineEnabled: false,
                             pointEnabled: false,
-                            bboxEnabled: false
+                            bboxEnabled: false,
                         };
                         node.customData.displayProps = {
                             displayId: displayModeId,
                             hiddenlineEnabled: false,
+                            isHighlighted: node.customData.displayProps.isHighlighted,
                             transparency: 0.0,
                             useTexture: false,
                             visibility: node.customData.displayProps.visibility
@@ -15308,7 +15489,7 @@ var getEventObject = function (type, viewerID, data) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        nodes = this.productTree.getPartNodeFromNodeIds(selectedNodes.map(function (node) { return node.id; }));
+                        nodes = this.productTree.getPartNodeFromNodeIds(selectedNodes);
                         if (selectedNodes.length == 0) {
                             nodes = this.productTree.getAllPartNodes();
                         }
@@ -15316,6 +15497,7 @@ var getEventObject = function (type, viewerID, data) {
                         repIds = reps.map(function (rep) { return rep.customData.node; });
                         if (repIds.length > 0)
                             this.renderApp.setNodeVisibility(repIds, false);
+                        nodes.forEach(function (node) { return _this.setHighlightedNodes([node.id], node.customData.displayProps.isHighlighted); });
                         return [4 /*yield*/, Promise.all(nodes.map(function (node) { return __awaiter(_this, void 0, void 0, function () {
                                 return __generator(this, function (_a) {
                                     switch (_a.label) {
@@ -15328,10 +15510,43 @@ var getEventObject = function (type, viewerID, data) {
                             }); }))];
                     case 1:
                         _a.sent();
+                        //this.setHighlightedNodes(selectedNodes,true);
                         return [2 /*return*/, Promise.resolve("SUCCESS")];
                 }
             });
         });
+    };
+    Viewer.prototype.setHighlightedNodes = function (selectedNodes, visiblity) {
+        var _this = this;
+        //selectedNodes = [{id:"component_17"},{id:"component_18"},{id:"component_19"}];
+        var nodes = this.productTree.getPartNodeFromNodeIds(selectedNodes);
+        if (selectedNodes.length == 0) {
+            nodes = this.productTree.getAllPartNodes();
+        }
+        var hreps = [];
+        nodes.forEach(function (node) {
+            node.customData.displayProps.isHighlighted = visiblity;
+            var reps = _this.productTree.getRepresentationsFromParts([node]);
+            var hRep = reps.find(function (rep) { return rep.customData.type === RepresentationType.HIGHLIGHT; });
+            if (!hRep) {
+                var boxRep = reps.find(function (rep) { return rep.customData.type === RepresentationType.BBOX; });
+                var highlightRep = Utility.deepCopy(boxRep);
+                highlightRep.customData.type = RepresentationType.HIGHLIGHT;
+                var uid = RepresentationType.HIGHLIGHT;
+                highlightRep.id += uid;
+                highlightRep.name += uid;
+                highlightRep.customData.type = RepresentationType.HIGHLIGHT;
+                highlightRep.customData.node += uid;
+                highlightRep.customData.name += uid;
+                hRep = highlightRep;
+                node.customData.geometries[0].customData.representations.push(hRep);
+                _this.renderApp.cloneRenderNode(boxRep, hRep, false);
+            }
+            hreps.push(hRep);
+        });
+        var repIds = hreps.map(function (rep) { return rep.customData.node; });
+        this.renderApp.setHighlightedNodes(repIds, visiblity);
+        return "SUCCESS";
     };
     Viewer.prototype.changeDisplayedNodes = function (selectionInfo) {
         var _this = this;
@@ -15408,7 +15623,8 @@ var getEventObject = function (type, viewerID, data) {
                     selection.push(repId);
             });
         });
-        this.renderApp.probeFromNodes(selection, pointerData);
+        var data = this.renderApp.probeFromNodes(selection, pointerData);
+        return data;
         //console.log(data);
     };
     //#endregion
@@ -15479,8 +15695,15 @@ var getEventObject = function (type, viewerID, data) {
     };
     //#endregion
     //#region Quick Tools
-    Viewer.prototype.fitView = function () {
-        this.renderApp.fitView();
+    Viewer.prototype.fitView = function (selectedNodes) {
+        if (selectedNodes.length == 0) {
+            this.renderApp.fitView();
+        }
+        else {
+            var repIds = this.productTree.getRenderNodeIdsFromIds(selectedNodes);
+            this.renderApp.fitView(repIds);
+            console.log("fitView for", repIds);
+        }
         return 'SUCCESS';
     };
     Viewer.prototype.captureScreen = function () {
@@ -17653,9 +17876,19 @@ var ViewerManager = /** @class */ (function () {
             });
         });
     };
+    ViewerManager.prototype.setHighlightedNodes = function (selectedNodes, toHighlight, viewerUUID) {
+        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if (viewer) {
+            return viewer.setHighlightedNodes(selectedNodes, toHighlight);
+        }
+    };
+    // changeDisplayedNodes(selectionInfo:any, viewerUUID:any){
+    //     let viewer = this.getViewer(viewerUUID);
+    //     return viewer.changeDisplayedNodes(selectionInfo);
+    // }
     //#endregion
     //#region CAE Result
-    ViewerManager.prototype.getIsCAEResultAvailable = function (viewerUUID) {
+    ViewerManager.prototype.isCAEResultAvailable = function (viewerUUID) {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
         return viewer.getIsCAEResultAvailable();
     };
@@ -17675,9 +17908,9 @@ var ViewerManager = /** @class */ (function () {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
         return viewer.getDerivedTypes(selectedResultIndex);
     };
-    ViewerManager.prototype.applyResult = function (resultIndex, stepIndex, derivedTypeIndex, viewerUUID) {
+    ViewerManager.prototype.applyResult = function (resultId, stepId, derivedTypeId, viewerUUID) {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
-        return viewer.applyResult(resultIndex, stepIndex, derivedTypeIndex);
+        return viewer.applyResult(resultId, stepId, derivedTypeId);
     };
     ViewerManager.prototype.getLegendData = function (viewerUUID) {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
@@ -17726,10 +17959,11 @@ var ViewerManager = /** @class */ (function () {
     };
     //#endregion
     //#region Quick tools
-    ViewerManager.prototype.fitView = function (viewerUUID) {
+    ViewerManager.prototype.fitView = function (selectedNodes, viewerUUID) {
+        if (selectedNodes === void 0) { selectedNodes = []; }
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
         if (viewer)
-            return viewer.fitView();
+            return viewer.fitView(selectedNodes);
         return "Invalid viewer id";
     };
     ViewerManager.prototype.captureScreen = function (viewerUUID) {

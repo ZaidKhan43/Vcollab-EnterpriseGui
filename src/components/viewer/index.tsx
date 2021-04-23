@@ -1,9 +1,9 @@
-import { memo, useEffect , useState, useCallback } from 'react';
+import { memo, useEffect , useRef, useState, useCallback } from 'react';
 import { createRef } from 'react';
 import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
 import { useAppDispatch } from '../../store/storeHooks';
-import {saveTree, TreeNode} from "../../store/sideBar/ProductTreeSlice";
+import {saveTree, TreeNode, setCheckedNodesAsync } from "../../store/sideBar/ProductTreeSlice";
 import { addViewer } from '../../store/appSlice';
 
 function Viewer(){
@@ -12,6 +12,7 @@ function Viewer(){
     const viewerDomID = nextId("vct-viewer-");
     const [mount, setMount] = useState(false)
     const dispatch = useAppDispatch(); 
+    const tree = useRef();
 
     /*
     //To get the queryString Name from url
@@ -37,8 +38,11 @@ function Viewer(){
           .showModel(activeViewerID)
           .then((response1 : string) => {
             console.log("Showing Model : " + response1);  
-            let tree = viewerAPIProxy.getProductTree(activeViewerID); 
-            [...Object.values(tree.models)].forEach((node:any)=>{
+            tree.current = viewerAPIProxy.getProductTree(activeViewerID); 
+            if(tree.current)
+            {
+              let treeData = tree.current as any;
+              [...Object.values(treeData.models)].forEach((node:any)=>{
                 node.state = {
                     checked: false,
                     partiallyChecked: false,
@@ -46,7 +50,9 @@ function Viewer(){
                     visibility: true
                   }
             })
-            dispatch(saveTree({tree:tree.models,rootIds:tree.rootNodeIds}));
+            dispatch(saveTree({tree:treeData.models,rootIds:treeData.rootNodeIds}));
+            }
+
             /*       
             setTimeout(() => {
               viewerAPIProxy.fitView(activeViewerID);
@@ -75,7 +81,7 @@ function Viewer(){
             //let url = "file://samples/merged.cax";
             //let url = "file://samples/F30_model.cax";
             //let url = "file%3A%2F%2FC%3A%5CWORK%5Centerprise-1.1-win64%5Csamples%5Cbracket.cax";
-            let url = "file%3A%2F%2FD%3A%5Ccaxserver%5CF30_model.cax";
+            let url = "file%3A%2F%2FD%3A%5Ccaxserver%5Cheater.cax";
       
             //let api = "http://100.26.229.30:8181/api/1.0/model";
             //let url = "file%3A%2F%2FC%3A%5CUsers%5CAdministrator%5CDownloads%5Centerprise-1.1-win64%5Csamples%5CF30_model.cax";
@@ -105,6 +111,25 @@ function Viewer(){
                   //this.props.saveViewerLoadingStatus(event.data);
                 }
               );
+              eventDispatcher?.addEventListener(
+                events.viewerEvents.MODEL_PART_HIGHLIGHTED,
+                (event: any) => {
+                  console.log(event);
+                  const toCheck = event.data.isHighlighted;
+                  const nodeIds = event.data.nodeIds
+                  if(nodeIds.length > 0)
+                  {
+                    nodeIds.forEach((nodeId:string) => {
+                      dispatch(setCheckedNodesAsync({toCheck, nodeId }))
+                    })
+                  }
+                  else{
+                    let treeData = tree.current as any;
+                    dispatch(setCheckedNodesAsync({toCheck,nodeId:treeData.rootNodeIds[0]}))
+                  }
+                  
+                }
+              )
             }
             loadModel(api, url, viewerID);
           }

@@ -46,8 +46,8 @@ function VisibilityOptions(props:any) {
     const id = open ? 'simple-popover' : undefined;
     return (
         <>
-        <ToolTip title='Change visibility'>
-        <IconButton aria-label="delete" onClick={handleClick}>
+        <ToolTip title='Change selected visibility'>
+        <IconButton aria-label="delete" {...props} onClick={handleClick}>
             <EyeIcon/>
         </IconButton>
         </ToolTip>

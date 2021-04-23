@@ -24,12 +24,10 @@ import WireframeIcon from "../../../common/svgIcons/wireframe";
 import DownloadStatusIcon from "./DownloadStatusIcon";
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
-import {selectCheckedLeafNodes} from "../../../../store/sideBar/ProductTreeSlice";
-import {DownloadStates, expandPanel, selectDisplayModesData,setSelectedMenu,setDownloadStatus} from "../../../../store/sideBar/DisplayModesSlice";
+import {DownloadStates, expandPanel,fetchDisplayModes,setDisplayModeAsync, selectDisplayModesData,setSelectedMenu,setDownloadStatus} from "../../../../store/sideBar/DisplayModesSlice";
 import {toastMsg} from "../../../../store/toastSlice";
-import {getDisplayModes} from "../../../../backend/viewerAPIProxy";
+import {setDisplayMode} from "../../../../backend/viewerAPIProxy";
 import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";
-import {selectActiveViewerID} from "../../../../store/appSlice";
 import useStyles from './styles';
 import {BytesToStructuredString} from "../../../utils/networkUtils"
 
@@ -57,11 +55,8 @@ const getIcon = (name:String) => {
 
 
 function DisplayModesBody() {
-    const viewerId = useAppSelector(selectActiveViewerID);
     const dispatch = useAppDispatch();
-    const checkedNodes:any = useAppSelector(selectCheckedLeafNodes);
     const panelsData = useAppSelector(selectDisplayModesData);
-
 
     const handlePanelClick = (panelIndex:number) => {
         const selectedPanel = panelsData[panelIndex];
@@ -79,7 +74,7 @@ function DisplayModesBody() {
               dispatch(setSelectedMenu({menuId:index,panelId:panelIndex,value:true}));
               if(menu.status == DownloadStates.DOWNLOADED)
               {
-                handleDisplayModeChange();
+                handleDownload(menuIndex,panelIndex);
               }
             } else {
               dispatch(setSelectedMenu({menuId:index,panelId:panelIndex,value:false}));
@@ -93,19 +88,12 @@ function DisplayModesBody() {
         let panel = newData[pannelIndex];
         let item = panel.menuData[menuIndex];
         dispatch(setDownloadStatus({panelId:pannelIndex,menuId:menuIndex,status:DownloadStates.IN_PROGRESS}));
-        setTimeout(() => {
-          dispatch(setDownloadStatus({panelId:pannelIndex,menuId:menuIndex,status:DownloadStates.DOWNLOADED}));
-          handleDisplayModeChange();
-        },5000);
+        dispatch(setDisplayModeAsync({menuId:menuIndex}));
     }
-    const handleDisplayModeChange = () => {
-      dispatch(toastMsg({msg:"Display Mode changed"}))
-    }
+
     
     useEffect(() => {
-      getDisplayModes(viewerId,checkedNodes.map((node:any) => node.id)).then((res:any) => {
-        console.log(res);
-      })
+      dispatch(fetchDisplayModes());
       
     },[])
 

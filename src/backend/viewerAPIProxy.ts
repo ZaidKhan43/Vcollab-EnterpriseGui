@@ -33,11 +33,20 @@ export function invertPartsVisibility(activeViewerID:string) {
 export function getDisplayModes(activeViewerID:string,nodeIds:string[]) {
     return viewerMgr.getDisplayModes(nodeIds,activeViewerID);
 }
-
-export function fitView(activeViewerID: string){
-    return viewerMgr.fitView(activeViewerID);
+export function setDisplayMode(activeViewerID:string, displayModeId:string, nodeIds:string[]) {
+    return viewerMgr.setDisplayMode(displayModeId,nodeIds,activeViewerID);
+}
+export function setHighlightedNodes(activeViewerID:string, toShow: boolean, nodeIds:string[]) {
+    return viewerMgr.setHighlightedNodes(nodeIds,toShow,activeViewerID);
+}
+export function fitView(activeViewerID: string, nodeIds:string[] = []){
+    return viewerMgr.fitView(nodeIds,activeViewerID);
 }
 
 export function captureScreen(activeViewerID: string){
     return viewerMgr.captureScreen(activeViewerID);
+}
+
+export function getSearchHints(activeViewerID:string) {
+    return viewerMgr.getSearchHints(activeViewerID);
 }

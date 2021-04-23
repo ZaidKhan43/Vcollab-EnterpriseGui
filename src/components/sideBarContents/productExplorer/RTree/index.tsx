@@ -4,7 +4,7 @@ import useContainer from '../../../../customHooks/useContainer';
 import { Table ,Column, ColumnGroup, HeaderCell, Cell, } from 'rsuite-table';
 import Paper from '@material-ui/core/Paper'
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
-import {selectProductTreeData, selectRootIds, checkNode, expandNode, TreeNode as ITreeNode} from '../../../../store/sideBar/ProductTreeSlice'
+import {selectProductTreeData, selectRootIds, setCheckedNodesAsync, expandNode, TreeNode as ITreeNode} from '../../../../store/sideBar/ProductTreeSlice'
 import TreeNode from "./TreeNode"
 import InvertCell from "./Invert"
 import ShowHideCell from "./ShowHide"
@@ -47,7 +47,7 @@ function RTree(props:any) {
       dispatch(expandNode({toOpen,nodeId}));
     }
     const handleCheck = (toCheck:boolean, nodeId:string) => {
-      dispatch(checkNode({toCheck,nodeId}));
+      dispatch(setCheckedNodesAsync({toCheck,nodeId}));
     }
       return (
       <Paper ref = {containerRef} style={{height:'100%'}} variant="outlined" square >

@@ -4,50 +4,20 @@ import useContainer from '../../../../customHooks/useContainer';
 import { Table, Column,HeaderCell,Cell } from 'rsuite-table';
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
 import SearchItem from './SearchItem'
-import {selectPrevSearches,saveSearchQuery,checkNode,selectProductTreeData, updatePrevSearches, TreeNode as ITreeNode} from "../../../../store/sideBar/ProductTreeSlice"
+import {fetchSearchHints,selectSearchHints,selectPrevSearches,saveSearchQuery,setCheckedNodesAsync,selectProductTreeData, updatePrevSearches, TreeNode as ITreeNode} from "../../../../store/sideBar/ProductTreeSlice"
 import Checkbox from "@material-ui/core/Checkbox"
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper'
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
-import { createStyles, fade, Theme, makeStyles } from '@material-ui/core/styles';
 import Fuse from 'fuse.js'
 
 function Search(props:any) {
     const updateCssPath = useLoadCss('./globalStyles/RTreeStylesOverrideDark.css');
     const treeData = useAppSelector(selectProductTreeData);
     const prevSearches = useAppSelector(selectPrevSearches);
-    const searchHints = [
-          {
-            code:"F30",
-            description:"items that fuzzy match"
-          },
-          {
-            code:"=Cell Zones",
-            description:"items that exact match"
-          },
-          {
-            code:"'VO",
-            description:"items that include"
-          },
-          {
-            code:"!WT",
-            description:"items that do not include"
-          },
-          {
-            code:"^WT",
-            description:"items that start with"
-          },
-          {
-            code:"!^WT",
-            description:"items that do not start with"
-          },
-          {
-            code:"!Li$",
-            description:"items that do not end with"
-          },
-        ];
+    const searchHints:any[] = useAppSelector(selectSearchHints);
     const dispatch = useAppDispatch();
     const [fuse, setFuse] = useState(null);
     const [result, setResult] = useState([] as any);
@@ -91,6 +61,7 @@ function Search(props:any) {
             useExtendedSearch: true
         }
         let fuse:any = new Fuse([...Object.values(treeData)],options);
+        dispatch(fetchSearchHints());
         setFuse(fuse);
         return () => {
             dispatch(updatePrevSearches())
@@ -119,12 +90,12 @@ function Search(props:any) {
       setisOpen(v);
     }
     const handleCheck = (toCheck:boolean,node:ITreeNode) => {
-        dispatch(checkNode({toCheck,nodeId:node.id}));
+        dispatch(setCheckedNodesAsync({toCheck,nodeId:node.id}));
     }
 
     const handleSelectAll = (state:boolean) => {
         result.forEach((data:any) => {
-            dispatch(checkNode({toCheck: state, nodeId: data.item.id}));
+            dispatch(setCheckedNodesAsync({toCheck: state, nodeId: data.item.id}));
         })
         setSelectAll(state);
     }

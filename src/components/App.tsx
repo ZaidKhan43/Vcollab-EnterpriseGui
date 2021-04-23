@@ -13,9 +13,6 @@ import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
 import { appBarMinHeight } from '../config';
 import SnackBar from "./sideBarContents/notifications/SnackBar";
 
-//dummy
-import {saveTree} from "../store/sideBar/ProductTreeSlice"
-import {tree} from "../data/f30";
 import Viewer from './viewer';
 
 function App() {
