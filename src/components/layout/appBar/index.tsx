@@ -129,8 +129,7 @@ function AppBar() {
                   <IconButton edge={false} src={Fullscreen} />
                 )}
               </div>
-          </div>
-          <ClickAwayListener onClickAway={() => {  
+              <ClickAwayListener onClickAway={() => {  
           if(clickedMenu === "more" || clickedMenu === "display")
             setClickedMenu(null);
           else{
@@ -138,12 +137,14 @@ function AppBar() {
             setMoreAnchorEl(null);
           }
           }}>
-          <div  style={{position:"absolute",top:"0px",left:"0px"}}>
+          <div  className={classes.toolBarRightContent}>
 
-          <DropDown open={Boolean(displayAnchorEl)} ancgorEl={displayAnchorEl} items={displayMenuItems} style={{backgroundColor: "#171727",opacity:"70%", borderRadius: "0px",marginTop: "58px",marginLeft:"1100px",boxShadow: "none",}} size={true}/>
-          <DropDown open={Boolean(moreAnchorEl)} ancgorEl={moreAnchorEl} items={moreMenuItems}  style={{backgroundColor: "#171727",opacity:"70%", borderRadius: "0px",marginTop: "58px",marginLeft:"1150px",boxShadow: "none",}} size={false}/>
+          <DropDown open={Boolean(displayAnchorEl)} ancgorEl={displayAnchorEl} items={displayMenuItems} style={{backgroundColor: "#171727",opacity:"70%", borderRadius: "0px",marginTop: "58px",marginLeft:"80%",boxShadow: "none",}} size={true}/>
+          <DropDown open={Boolean(moreAnchorEl)} ancgorEl={moreAnchorEl} items={moreMenuItems}  style={{backgroundColor: "#171727",opacity:"70%", borderRadius: "0px",marginTop: "58px",marginLeft:"85%",boxShadow: "none",}} size={false}/>
                   </div>
                   </ClickAwayListener>
+          </div>
+         
         </MuiToolbar>     
       </MuiAppBar>
     );

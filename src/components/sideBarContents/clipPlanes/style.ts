@@ -95,20 +95,23 @@ export default makeStyles((theme) => ({
 
   circularSlider: {
     position:"absolute",
-    left:"30%",
-    top:"30%"
+    left:"20%",
+    right:"20%",
+    top:"10%",
+    zIndex: 10,
   },
-
-  clicularSliderInput: {
+  
+  clicularSliderInputOne: {
     color:"#DFDEDE",
     border: "1px solid #DFDEDE",
     paddingLeft:"20%",
     paddingTop:"10%",
-    width:"90%",
-    left:"-10%",
+    width:"100%",
+    left:"70%",
     top:"30%",
-    fontSize:"10px",
-    zIndex: 10
+    // right:"10%",
+    fontSize:"5px",
+    zIndex: 10,
+    size: 4,
   },
-
 }));

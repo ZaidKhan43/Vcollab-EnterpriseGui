@@ -6,8 +6,6 @@ import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import BackIcon from '../../../assets/images/back.svg';
 
-import CircularSlider from '@fseehawer/react-circular-slider';
-
 import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
 
 import Grid from '@material-ui/core/Grid';
@@ -59,12 +57,12 @@ export default function ClipPlanes(props : any){
     setRotate(e.target.value)
   }
 
-  const onHandleRotateYType = ( e : any) => {
-    setYAxis(e.target.value)
+  const onHandleRotateYType = ( value : any) => {
+    setYAxis(value)
   }
 
-  const onHandleRotateXType = (e : any) => {
-    setXAxis(e.target.value)
+  const onHandleRotateXType = (value : any) => {
+    setXAxis(value)
   }
 
   const onHandleReset = () => {
@@ -90,6 +88,36 @@ export default function ClipPlanes(props : any){
       </IconButton>
     );
   }
+
+  const onHandleClick = (value : any , func : any, operation : any) => {
+    if(operation === "Add"){
+      switch(func){
+        case setRotate:
+          setRotate(value + 1)
+        break;
+        case setXAxis:
+          setXAxis(value + 1)
+        break;
+        case setYAxis:
+          setYAxis(value + 1)
+        break;
+      }
+    }
+    if(operation === "Sub"){
+      switch(func){
+        case setRotate:
+          setRotate(value - 1)
+        break;
+        case setXAxis:
+          setXAxis(value - 1)
+        break;
+        case setYAxis:
+          setYAxis(value - 1)
+        break;
+      }
+    }
+  }
+
     
   const getHeaderContent = () => {
     return (
@@ -141,7 +169,7 @@ export default function ClipPlanes(props : any){
               <Typography style={{fontSize:"14px"}}   noWrap>Flip Direction</Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <RotateSlider value={rotate} functionOne={onHandleRotate} functionTwo={onHandleRotateType} setFunction={setRotate} label={"Rotate"}/>
+              <RotateSlider value={rotate} functionOne={onHandleRotate} functionTwo={onHandleRotateType} functionClick={onHandleClick} setFunction={setRotate} label={"Rotate"}/>
             </Grid>
           </Grid>
           <Typography className={classes.listSub} >
@@ -176,10 +204,10 @@ export default function ClipPlanes(props : any){
         <Typography className={classes.listSub} variant="h2" noWrap>Rotate</Typography>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
-            <RotateSlider value={xAxis} functionOne={onHandleRotate} functionTwo={onHandleRotateXType} setFunction={setXAxis} label={"X-Axis"}/>
+            <RotateSlider value={xAxis} functionOne={onHandleRotate} functionTwo={onHandleRotateXType} functionClick={onHandleClick} setFunction={setXAxis} label={"X-Axis"}/>
             </Grid>
             <Grid item xs={12} sm={6}>
-            <RotateSlider value={yAxis} functionOne={onHandleRotate} functionTwo={onHandleRotateYType} setFunction={setYAxis} label={"Y-Axis"}/>
+            <RotateSlider value={yAxis} functionOne={onHandleRotate} functionTwo={onHandleRotateYType} functionClick={onHandleClick} setFunction={setYAxis} label={"Y-Axis"}/>
             </Grid>
           </Grid>         
         </form>
