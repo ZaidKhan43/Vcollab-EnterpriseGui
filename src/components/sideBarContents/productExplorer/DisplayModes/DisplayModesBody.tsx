@@ -114,12 +114,13 @@ function DisplayModesBody() {
     }
     const classes = useStyles();
     return (
-        <Paper square variant="outlined">
+        <div >
         {panelsData.map((panel:any, panelIndex:number) => (
          
           <Accordion
             key={`${panel.id}index`}
             square
+            className = {classes.accordian}
             expanded={panel.expanded}
             onChange={() => handlePanelClick(panelIndex)}
           >
@@ -156,7 +157,7 @@ function DisplayModesBody() {
           </Accordion>
 
         ))}
-      </Paper>
+      </div>
     )
 }
 

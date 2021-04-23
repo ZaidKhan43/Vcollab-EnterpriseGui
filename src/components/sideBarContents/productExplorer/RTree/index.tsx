@@ -4,11 +4,10 @@ import useContainer from '../../../../customHooks/useContainer';
 import { Table ,Column, ColumnGroup, HeaderCell, Cell, } from 'rsuite-table';
 import Paper from '@material-ui/core/Paper'
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
-import {selectProductTreeData, selectRootIds, setCheckedNodesAsync, expandNode, TreeNode as ITreeNode} from '../../../../store/sideBar/ProductTreeSlice'
+import {selectProductTreeData, selectRootIds, setCheckedNodesAsync, setHightLightedNodesAsync, expandNode, TreeNode as ITreeNode} from '../../../../store/sideBar/ProductTreeSlice'
 import TreeNode from "./TreeNode"
 import InvertCell from "./Invert"
 import ShowHideCell from "./ShowHide"
-
 
 function RTree(props:any) {
     const updateCssPath = useLoadCss('./globalStyles/RTreeStylesOverrideDark.css');
@@ -16,6 +15,7 @@ function RTree(props:any) {
     const treeData = useAppSelector(selectProductTreeData);
     const dispatch = useAppDispatch()
     const expandedNodes:string[] = [];
+    
     const getNode = (id:string) => treeData[id];
     const createTreeNode = (id:string,data:Map<string,ITreeNode>) => {
       let node = getNode(id);
@@ -49,8 +49,11 @@ function RTree(props:any) {
     const handleCheck = (toCheck:boolean, nodeId:string) => {
       dispatch(setCheckedNodesAsync({toCheck,nodeId}));
     }
+    const handleHighlight = (toHighlight:boolean, nodeId:string) => {
+      dispatch(setHightLightedNodesAsync({toHighlight,nodeId}))
+    }
       return (
-      <Paper ref = {containerRef} style={{height:'100%'}} variant="outlined" square >
+      <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
           {/*
 // @ts-ignore */}
           <Table
@@ -63,7 +66,6 @@ function RTree(props:any) {
             data={data as any}
             virtualized={true}
             showHeader={false}
-            shouldUpdateScroll= {true}
             onExpandChange={(isOpen:boolean, rowData:any) => {
               handleExpand(isOpen, rowData.index);
             }}
@@ -85,7 +87,7 @@ function RTree(props:any) {
                 rowData => {
                   let node = getNode(rowData.id);
                   return (
-                    <TreeNode rowData={rowData} visibility= {node?.state.visibility} checked={node?.state.checked} partiallyChecked={node?.state.partiallyChecked} onCheck={handleCheck}></TreeNode>
+                    <TreeNode rowData={rowData} visibility= {node?.state.visibility} checked={node?.state.checked} highlighted={node?.state.highlighted} partiallyChecked={node?.state.partiallyChecked} onCheck={handleCheck} onHighlight={handleHighlight}></TreeNode>
                   )
                 }
               }
@@ -129,7 +131,7 @@ function RTree(props:any) {
             </ColumnGroup>
  
           </Table>
-        </Paper>
+        </div>
       );
   }
 

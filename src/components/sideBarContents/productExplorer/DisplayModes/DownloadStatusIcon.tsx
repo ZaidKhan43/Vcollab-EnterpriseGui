@@ -4,12 +4,13 @@ import DownloadedIcon from "@material-ui/icons/CloudDone";
 import ReportProblemIcon from "@material-ui/icons/ReportProblem"
 import CircularProgress from "@material-ui/core/CircularProgress";
 import {DownloadStates} from "../../../../store/sideBar/DisplayModesSlice";
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 
 const Render = (props:any) => {
         switch (props.downloadState) {
             case DownloadStates.DOWNLOADED:
-                return < DownloadedIcon/>
+                return < DownloadedIcon color='primary' />
             case DownloadStates.IN_PROGRESS:
                 return <CircularProgress color='inherit' size={20} ></CircularProgress>
             case DownloadStates.NOT_DOWNLOADED:

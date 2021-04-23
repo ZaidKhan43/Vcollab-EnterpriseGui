@@ -3,6 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 export default makeStyles((theme) => ({
     sideBarFooter : {
         position: 'absolute',
+        background:'transparent',
         left: 0,
         bottom: 0,
         textAlign: 'center',

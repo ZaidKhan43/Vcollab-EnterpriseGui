@@ -101,7 +101,7 @@ function Search(props:any) {
     }
 
     return (
-        <Paper ref = {containerRef} style={{height:'100%'}} square variant="outlined">
+        <div ref = {containerRef} style={{height:'100%'}} >
           <div style={{height:headerHeight}}>
           <Autocomplete
                 style={{paddingLeft: 10, paddingRight: 10}}
@@ -194,7 +194,7 @@ function Search(props:any) {
                     </Cell>
                 </Column>
             </Table>
-        </Paper>
+        </div>
     )
 }
 

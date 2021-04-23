@@ -112,10 +112,20 @@ const _checkNode = (toCheck:boolean, node:TreeNode, checkChildren:boolean,state:
       node.children.map((c:string) => getNode(c,state)).forEach((node:TreeNode|undefined) => node ? _checkNode(toCheck,node,true,state) : null);
     }
 }
+const _hightlightNode = (toHighlight:boolean, node:TreeNode, checkChildren:boolean,state:ProductTreeState) => {
+  node.state.highlighted = toHighlight;
+  if(checkChildren == true && node.children) {
+    node.children.map((c:string) => getNode(c,state)).forEach((node:TreeNode|undefined) => node ? _hightlightNode(toHighlight,node,true,state) : null);
+  }
+}
 const RcheckNode = (toCheck:boolean,node:TreeNode, state:ProductTreeState) => {
 
     _checkNode(toCheck,node,true, state);
     updateParent(node, state);
+}
+const RHighlightNode = (toHighlight:boolean, node:TreeNode, state:ProductTreeState) => {
+    _hightlightNode(toHighlight,node,true,state);
+    updateParent(node,state);
 }
 const RinvertNode = (node:TreeNode, state:ProductTreeState) => {
   
@@ -182,6 +192,28 @@ export const setCheckedNodesAsync = createAsyncThunk(
   'productTree/setCheckedNodesAsync',
   async (data:{toCheck: boolean, nodeId:string},
          {dispatch, getState}) => {
+    // const rootState = getState() as RootState;
+    // const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
+    // let leafNodesId:string[] = [];
+    // traverseNode(data.nodeId,rootState.productTree,(node) => {
+    //    if(node.children.length == 0)
+    //    leafNodesId.push(node.id);
+    // });
+    // let result = setHighlightedNodes(viewerId,data.toCheck, leafNodesId);
+    let result = 'SUCCESS';
+    if(result == 'SUCCESS'){
+      dispatch(productTreeSlice.actions.checkNode({...data}))
+      return Promise.resolve();
+    }
+    else{
+      return Promise.reject();
+    }
+  }
+)
+export const setHightLightedNodesAsync = createAsyncThunk(
+  'productTree/setHighLightedNodesAsync',
+  async (data:{toHighlight: boolean, nodeId:string},
+         {dispatch, getState}) => {
     const rootState = getState() as RootState;
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
     let leafNodesId:string[] = [];
@@ -189,9 +221,10 @@ export const setCheckedNodesAsync = createAsyncThunk(
        if(node.children.length == 0)
        leafNodesId.push(node.id);
     });
-    let result = setHighlightedNodes(viewerId,data.toCheck, leafNodesId);
+    let result = setHighlightedNodes(viewerId,data.toHighlight, leafNodesId);
+    
     if(result == 'SUCCESS'){
-      dispatch(productTreeSlice.actions.checkNode({...data}))
+      dispatch(productTreeSlice.actions.highlightNode({...data}))
       return Promise.resolve();
     }
     else{
@@ -248,6 +281,12 @@ export const productTreeSlice = createSlice({
         let node = getNode(nodeId,state);
         if(node)
         RcheckNode(toCheck, node, state)
+    },
+    highlightNode : (state, action : PayloadAction<{toHighlight:boolean,nodeId:string}>) => {
+      const {toHighlight,nodeId} = action.payload;
+      let node = getNode(nodeId,state);
+      if(node)
+      RHighlightNode(toHighlight, node, state)
     },
     invertNode : (state, action : PayloadAction<{nodeId:string}>) => {
         const {nodeId} = action.payload;

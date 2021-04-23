@@ -1,11 +1,11 @@
-import {useState,useEffect} from 'react'
+import {useState,useLayoutEffect} from 'react'
 
 function useLoadCss(path:string) {
     const [RTreeStylePath, setRTreeStylePath] = useState('')
-    useEffect(() => {
+   useLayoutEffect(() => {
         setRTreeStylePath(path);
       }, [])
-    useEffect(() => {
+   useLayoutEffect(() => {
     var head = document.head;
     var link = document.createElement("link");
 

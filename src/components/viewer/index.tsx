@@ -3,7 +3,7 @@ import { createRef } from 'react';
 import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
 import { useAppDispatch } from '../../store/storeHooks';
-import {saveTree, TreeNode, setCheckedNodesAsync } from "../../store/sideBar/ProductTreeSlice";
+import {saveTree, TreeNode, setHightLightedNodesAsync } from "../../store/sideBar/ProductTreeSlice";
 import { addViewer } from '../../store/appSlice';
 
 function Viewer(){
@@ -47,6 +47,7 @@ function Viewer(){
                     checked: false,
                     partiallyChecked: false,
                     expanded: true,
+                    highlighted: false,
                     visibility: true
                   }
             })
@@ -81,7 +82,7 @@ function Viewer(){
             //let url = "file://samples/merged.cax";
             //let url = "file://samples/F30_model.cax";
             //let url = "file%3A%2F%2FC%3A%5CWORK%5Centerprise-1.1-win64%5Csamples%5Cbracket.cax";
-            let url = "file%3A%2F%2FD%3A%5Ccaxserver%5Cheater.cax";
+            let url = "file%3A%2F%2FD%3A%5Ccaxserver%5Cbracket.cax";
       
             //let api = "http://100.26.229.30:8181/api/1.0/model";
             //let url = "file%3A%2F%2FC%3A%5CUsers%5CAdministrator%5CDownloads%5Centerprise-1.1-win64%5Csamples%5CF30_model.cax";
@@ -115,17 +116,17 @@ function Viewer(){
                 events.viewerEvents.MODEL_PART_HIGHLIGHTED,
                 (event: any) => {
                   console.log(event);
-                  const toCheck = event.data.isHighlighted;
+                  const toHighlight = event.data.isHighlighted;
                   const nodeIds = event.data.nodeIds
                   if(nodeIds.length > 0)
                   {
                     nodeIds.forEach((nodeId:string) => {
-                      dispatch(setCheckedNodesAsync({toCheck, nodeId }))
+                      dispatch(setHightLightedNodesAsync({toHighlight, nodeId }))
                     })
                   }
                   else{
                     let treeData = tree.current as any;
-                    dispatch(setCheckedNodesAsync({toCheck,nodeId:treeData.rootNodeIds[0]}))
+                    dispatch(setHightLightedNodesAsync({toHighlight,nodeId:treeData.rootNodeIds[0]}))
                   }
                   
                 }
