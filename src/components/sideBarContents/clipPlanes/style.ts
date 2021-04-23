@@ -1,5 +1,4 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { ColorLensTwoTone, ControlPointDuplicateSharp } from '@material-ui/icons';
 import { colors } from '../../../config/index';
 
 export default makeStyles((theme) => ({
@@ -47,6 +46,9 @@ export default makeStyles((theme) => ({
     width: "100%",
     padding: 1,
     background: colors.secondaryHover,
+    [theme.breakpoints.down('sm')]: {
+        background: colors.secondaryHoverTransparent,
+    },
   },
   
   listItemText: {
@@ -59,7 +61,7 @@ export default makeStyles((theme) => ({
     alignItems: "center",
     justifyContent: "flex-start",
     padding: 12,
-    marginTop:"90%",
+    marginTop:"%",
     color:colors.secondaryText,
   },
   
@@ -99,8 +101,9 @@ export default makeStyles((theme) => ({
     right:"20%",
     top:"10%",
     zIndex: 10,
+    
   },
-  
+
   clicularSliderInputOne: {
     color:"#DFDEDE",
     border: "1px solid #DFDEDE",

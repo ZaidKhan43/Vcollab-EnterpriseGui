@@ -160,8 +160,7 @@ export default function ClipPlanes(){
               </div>
             )
           }
-        </div>
-        <div>
+           <div>
           {clickedVal ? 
             <div>
               <Typography className={classes.displayOption} noWrap>
@@ -173,6 +172,8 @@ export default function ClipPlanes(){
             null
           }
         </div>
+        </div>
+       
       </div>
     )
   }

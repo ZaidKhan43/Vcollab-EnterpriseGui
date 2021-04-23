@@ -111,38 +111,36 @@ function AppBar() {
 
           </div>
      
-          <div className={classes.toolBarRightContent}>
-              <div className={classes.divIcon} >
-                  <IconButton edge={false} src={Displaymodes} onClick={(e : any) => handleClick(e, "display") }/>
-              </div>
-              <div className={classes.divIcon} >
-                  <IconButton edge={false} src={Fitview} />
-              </div>
-              <div className={classes.divIcon} >
-                  <IconButton edge={false} src={More}  onClick={(e : any) => handleClick(e, "more") } />
-              </div>
-             
-              <div className={classes.divIcon} onClick={ OnClickFullscreen }>
-                {(isFullscreenEnabled ?
-                  <IconButton edge={false} src={FullscreenClose } /> 
-                   :
-                  <IconButton edge={false} src={Fullscreen} />
-                )}
-              </div>
-              <ClickAwayListener onClickAway={() => {  
-          if(clickedMenu === "more" || clickedMenu === "display")
-            setClickedMenu(null);
-          else{
-            setDisplayAnchorEl(null);
-            setMoreAnchorEl(null);
-          }
-          }}>
-          <div  className={classes.toolBarRightContent}>
-
-          <DropDown open={Boolean(displayAnchorEl)} ancgorEl={displayAnchorEl} items={displayMenuItems} style={{backgroundColor: "#171727",opacity:"70%", borderRadius: "0px",marginTop: "58px",marginLeft:"80%",boxShadow: "none",}} size={true}/>
-          <DropDown open={Boolean(moreAnchorEl)} ancgorEl={moreAnchorEl} items={moreMenuItems}  style={{backgroundColor: "#171727",opacity:"70%", borderRadius: "0px",marginTop: "58px",marginLeft:"85%",boxShadow: "none",}} size={false}/>
-                  </div>
-                  </ClickAwayListener>
+          <div className={classes.toolBarRightContent} id="simple-menu">
+            <div className={classes.divIcon} >
+              <IconButton edge={false} src={Displaymodes} onClick={(e : any) => handleClick(e, "display") }/>
+            </div>
+            <div className={classes.divIcon} >
+              <IconButton edge={false} src={Fitview} />
+            </div>
+            <div className={classes.divIcon} >
+              <IconButton edge={false} src={More}  onClick={(e : any) => handleClick(e, "more") } />
+            </div>             
+            <div className={classes.divIcon} onClick={ OnClickFullscreen }>
+              {(isFullscreenEnabled ?
+                <IconButton edge={false} src={FullscreenClose } /> 
+                 :
+                <IconButton edge={false} src={Fullscreen} />
+              )}
+            </div>
+            <ClickAwayListener onClickAway={() => {  
+              if(clickedMenu === "more" || clickedMenu === "display")
+              setClickedMenu(null);
+            else{
+              setDisplayAnchorEl(null);
+              setMoreAnchorEl(null);
+            }
+            }}>
+            <div>
+              <DropDown  open={Boolean(displayAnchorEl)} ancgorEl={displayAnchorEl} items={displayMenuItems}  size={true}/>
+                <DropDown open={Boolean(moreAnchorEl)} ancgorEl={moreAnchorEl} items={moreMenuItems}  style={{backgroundColor: "#171727",opacity:"70%", borderRadius: "0px",marginTop: "58px",marginLeft:"85%",boxShadow: "none",}} size={false}/>
+            </div>
+         </ClickAwayListener>
           </div>
          
         </MuiToolbar>     

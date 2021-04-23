@@ -28,7 +28,7 @@ export default function DropDown (props : any) {
 
   return (
     <div>
-      <Popper disablePortal id="display-menu" open={props.open} anchorEl={props.anchorEl} style={props.style}>
+      <Popper className={classes.popper} disablePortal id="display-menu" open={props.open} anchorEl={props.anchorEl} >
         <MenuList id="simple-menu"  >
           {props.items.map((item :any,index : any)=>(
             <div>

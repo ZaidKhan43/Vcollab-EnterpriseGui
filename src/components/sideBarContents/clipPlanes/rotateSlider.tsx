@@ -3,23 +3,40 @@ import NumericInput from 'react-numeric-input';
 import CircularSlider from '@fseehawer/react-circular-slider';
 import Typography from '@material-ui/core/Typography';
 import styles from './style';
+import React, { useState, useEffect } from "react";
 
 export default function RotateSlider( props : any ){
 
+    const [value,setValue] = useState(props.value);
     const classes = styles();
 
     const onChangeHandle = (value: any) => {
+        setValue(value)
         props.functionOne(props.setFunction, value)
     }
 
     const onHandleClick = (toDo : any) => {
-        props.functionClick(props.value, props.setFunction, toDo)
+        if(toDo === "Add"){
+            if(value == 359){
+                setValue(0)
+            }
+            else
+            setValue(value + 1)
+        }
+        if(toDo === "Sub"){
+            setValue(value - 1)
+        }
     }
+
+    const onEdit = (e : any) => {
+        setValue(e.target.value)
+    }
+
     return(
         <div>
 
             <CircularSlider
-                dataIndex={props.value}
+                dataIndex={value}
                 width={90}
                 knobRadius={10}
                 progressWidth={20}
@@ -46,7 +63,7 @@ export default function RotateSlider( props : any ){
                             zIndex: 10,
                             border: "1px solid #DFDEDE",
                         }}    
-                            value={props.value}
+                            value={value}
                             margin="dense"
                             inputProps={{
                                 step: 1,
@@ -56,7 +73,7 @@ export default function RotateSlider( props : any ){
                                
                                 'aria-labelledby': 'input-slider', 
                             }}
-                            onChange={props.functionTwo}
+                            onChange={onEdit}
                         />
                         {/* <button onClick={() => console.log("hello")} > + </button>
                         <NumericInput style={{input:{color: "white", fontSize:"13px",background:"#353535",},}}

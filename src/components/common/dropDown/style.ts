@@ -26,5 +26,33 @@ export default makeStyles((theme) => ({
     fontSize:"12px", 
     textDecoration: "underline",
   },
-
+  popper:
+  {
+    backgroundColor: "#171727",
+  opacity:"70%", 
+  marginTop:"58px",
+  marginLeft:"80%",
+  [theme.breakpoints.down(1200)]: {
+    marginTop: "58px",
+    marginLeft:"75%",
+    boxShadow: "none",
+  },
+  [theme.breakpoints.down(879)]: {
+    marginTop: "58px",
+    marginLeft:"65%",
+    boxShadow: "none",
+  },
+  [theme.breakpoints.down(700)]: {
+    marginTop: "58px",
+    marginLeft:"60%",
+    boxShadow: "none",
+  },
+  
+  [theme.breakpoints.down(602)]: {
+    marginTop: "58px",
+    marginLeft:"55%",
+    boxShadow: "none",
+},
+},
+  
 }));
