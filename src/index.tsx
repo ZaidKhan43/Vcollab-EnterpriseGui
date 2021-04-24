@@ -7,16 +7,44 @@ import reportWebVitals from './reportWebVitals';
 import store from './store';
 import { Provider } from 'react-redux';
 
-import appTheme from './theme';
-import { ThemeProvider } from '@material-ui/core/styles';
+
+
+//import appTheme from './theme';
+import { createMuiTheme } from "@material-ui/core/styles";
+import { ThemeProvider} from '@material-ui/core/styles';
+
+//Custom theme 
+
+import darkMode from './theme/dark';
+import lightMode from  './theme/light';
+
+
+// Redux Selector
+
+import {  selectDarkModeEnable } from './store/appSlice';
+import { useAppSelector } from './store/storeHooks';
+
+
+//Enabling darkmode and light mode
+
+function CustomThemeProvider() {
+
+  const isDarkModeEnable = useAppSelector(selectDarkModeEnable);
+
+  const appliedTheme = createMuiTheme(isDarkModeEnable ? darkMode : lightMode);
+
+  return (
+       <ThemeProvider theme={appliedTheme}> 
+        <App />
+      </ThemeProvider>
+  )
+}
 
 
 ReactDOM.render(
   <React.StrictMode>  
     <Provider store={store}>
-      <ThemeProvider theme={appTheme}>
-        <App />
-      </ThemeProvider>
+      <CustomThemeProvider/>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')

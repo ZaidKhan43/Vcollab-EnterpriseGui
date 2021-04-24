@@ -8,7 +8,7 @@ export default makeStyles((theme) => ({
   },
   drawerPaper: {
     width: drawerWidth,
-    background: colors.secondary,
+    background: theme.palette.background.paper,
     [theme.breakpoints.down("sm")]: {
       backgroundColor: colors.secondaryTransparent,
     },
