@@ -1,28 +1,11 @@
 import { PaletteType } from '@material-ui/core';
+import appTheme from './index';
 
 const darMode = {
-    palette: {
-      type: 'dark' as PaletteType,
-    },
-    typography: {
-      fontFamily: ['Montserrat', 'san-serif'].join(','),
-      h4: {
-        fontWeight: 300,
-        fontSize: 20,
-      },
-      h1: {
-        fontWeight: 600,
-        fontSize: '1.15rem',
-      },
-      h2: {
-        fontWeight: 300,
-        fontSize: 18,
-      },
-      h3: {
-        fontWeight: 400,
-        fontSize: 13,
-      },
-    },
-  }
+  ...appTheme,
+  palette: {
+    type: 'dark' as PaletteType,
+  },
+} 
 
- export default darMode; 
+export default darMode; 

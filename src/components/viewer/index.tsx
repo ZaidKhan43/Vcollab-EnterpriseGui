@@ -2,6 +2,7 @@ import { memo, useEffect , useState, useCallback } from 'react';
 import { createRef } from 'react';
 import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
+import {setModelLoadedState} from '../../store/appSlice';
 import { useAppDispatch } from '../../store/storeHooks';
 import { addViewer } from '../../store/appSlice';
 
@@ -27,7 +28,12 @@ function Viewer(){
     const loadModel = useCallback((api : string, url : string, activeViewerID : string) => {
       viewerAPIProxy.loadModel(api, url, activeViewerID )
       .then(async (response : string) => {
-        //console.log("response",response );
+
+        if(response === "SUCCESS") {
+
+               dispatch(setModelLoadedState(true));
+        }
+
         //let modelName = viewerMgr.getModelInfo(viewerID);
         //this.props.saveModelName(modelName[0]?.name);
         //this.props.saveModelLoadingStatus(response);
@@ -35,7 +41,7 @@ function Viewer(){
         viewerAPIProxy
           .showModel(activeViewerID)
           .then((response1 : string) => {
-            console.log("Showing Model : " + response1);   
+           // console.log("Showing Model : " + response1);   
             /*       
             setTimeout(() => {
               viewerAPIProxy.fitView(activeViewerID);
@@ -56,10 +62,10 @@ function Viewer(){
       if(!mount) {
             setMount(true);
             //this.props.saveModelLoadingStatus("");
-            let viewerDivID= viewerRefs.current?.id || '';
+            let viewerDivID = viewerRefs.current?.id || '';
             let api = "http://localhost:8181/api/1.0/model";
-            let url = "file://samples/bracket.cax";
-            //let url = "file://samples/airbag.cax";
+            //let url = "file://samples/bracket.cax";
+            let url = "file://samples/airbag.cax";
             //let url = "file://samples/heater.cax";
             //let url = "file://samples/merged.cax";
             //let url = "file://samples/F30_model.cax";

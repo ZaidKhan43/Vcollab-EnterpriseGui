@@ -1,7 +1,9 @@
 import {selectModelLoadingStatus,setModelLoadingStatus,setModelLoadedState} from '../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../store/storeHooks';
 
-import  { useEffect } from 'react';
+import {getEventDispatcher , getEventsList} from '../../backend/viewerAPIProxy';
+
+//import  { useEffect } from 'react';
 
 import Logo from "../../assets/images/LogoBig.svg";
 import { makeStyles } from "@material-ui/core/styles";
@@ -33,56 +35,29 @@ export const styles = makeStyles((theme) => ({
 
 export default function AppLoader() {
 
-  useEffect(() => {
 
-    UpdateModelStatus();
-    
-  },[]);
-
-  let count = 0;
+  let eventDispatcher = getEventDispatcher();
+  let eventList = getEventsList();
 
   const modelStatus = useAppSelector(selectModelLoadingStatus);
   const dispatch = useAppDispatch();
 
+  eventDispatcher?.addEventListener(eventList.viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE,(e:any ) => {
 
-  function UpdateModelStatus() {
+    //console.log(e);
 
-    setTimeout(function() {
+    if(e.data === "SUCCESS") {
 
-      dispatch(setModelLoadingStatus ("Downloading file on the server"));
+      dispatch(setModelLoadedState(true));
 
-     }, 1000)
+    }
+    else {
 
-    let test =   setInterval(function() { 
+      dispatch(setModelLoadingStatus(e.data));
 
-      count = count + 10; 
-   
-      dispatch(setModelLoadingStatus ("File download in progress: "+count.toString()+"% completed"));
-
-     }, 2000);
-
-
-     setTimeout(function() {
-
-      dispatch(setModelLoadingStatus ("Downloading data from server"));
-
-      clearInterval(test);
-
-     }, 20000)
-
-     setTimeout(function() {
-
-      dispatch(setModelLoadingStatus ("Process data"));
-
-     }, 22000)
-
-     setTimeout(function() {
-
-      dispatch(setModelLoadedState (true));
-
-     }, 23000)
-
-  }
+    }
+     
+  } )
 
 
   const classes = styles();
