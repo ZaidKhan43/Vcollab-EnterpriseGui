@@ -1,4 +1,4 @@
-import { $CombinedState, createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {getDisplayModes, setDisplayMode} from "../../backend/viewerAPIProxy";
 import {selectCheckedLeafNodes} from "../sideBar/ProductTreeSlice"
 import {toastMsg} from "../toastSlice";
@@ -41,13 +41,13 @@ export const fetchDisplayModes = createAsyncThunk(
     result.forEach((item:any) => {
       if(item.displayOrder !== 0)
       menuData.push(
-        <IDisplayMenuItem>{
+        {
           displayId: item.id,
           title: item.displayName,
           selected: false,
           size: item.downloadMetricValue,
           status: item.isDataAvailable ? DownloadStates.DOWNLOADED : DownloadStates.NOT_DOWNLOADED
-        }
+        } as IDisplayMenuItem
       )
     })
     dispatch(displayModesSlice.actions.setMenuData({panelId:0,menuData}));
@@ -62,9 +62,13 @@ export const setDisplayModeAsync = createAsyncThunk(
     const nodeIds = selectCheckedLeafNodes(root).map(node => node.id);
     const item = root.displayModes.displayModesData[0].menuData[data.menuId];
     let res = await setDisplayMode(viewerId,item.displayId,nodeIds);
-    dispatch(setDownloadStatus({panelId:0,menuId: data.menuId,status:DownloadStates.DOWNLOADED}));
-    dispatch(fetchDisplayModes());
-    dispatch(toastMsg({msg:"Display Mode changed"}));
+    if(res === "SUCCESS")
+    {
+      dispatch(setDownloadStatus({panelId:0,menuId: data.menuId,status:DownloadStates.DOWNLOADED}));
+      dispatch(fetchDisplayModes());
+      dispatch(toastMsg({msg:"Display Mode changed"}));
+    }
+    
   } 
 )
 export const displayModesSlice = createSlice({

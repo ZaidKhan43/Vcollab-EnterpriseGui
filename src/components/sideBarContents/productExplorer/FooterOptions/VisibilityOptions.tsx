@@ -7,7 +7,6 @@ import ToolTip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import {setCheckedVisibilityAsync, invertVisibilityAsync} from "../../../../store/sideBar/ProductTreeSlice"
 import { useAppDispatch } from '../../../../store/storeHooks';
-import Typography  from '@material-ui/core/Typography';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -24,7 +23,7 @@ const useStyles = makeStyles(createStyles({
 function VisibilityOptions(props:any) {
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
     const dispatch = useAppDispatch();
-    const [options, setOptions] = useState([
+    const [options] = useState([
         {
             id: 'Show',
             icon: <EyeIcon/>,

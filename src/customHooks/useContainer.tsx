@@ -8,7 +8,7 @@ function useContainer() {
         {
             setContainerHeight(containerRef.current.clientHeight);
         }
-      }, [containerRef.current, containerRef.current?.clientHeight])
+      }, [containerRef.current?.clientHeight])
 
     return {containerRef, containerHeight };
 }

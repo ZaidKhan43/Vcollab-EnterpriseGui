@@ -2,7 +2,7 @@ import React from 'react'
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import NextIcon from '@material-ui/icons/KeyboardArrowRight'
-import {makeStyles, createStyles} from '@material-ui/core/styles';
+import {makeStyles} from '@material-ui/core/styles';
 import FooterOptions from './FooterOptions'
 import IconButton from '@material-ui/core/IconButton'
 import Tooltip from '@material-ui/core/Tooltip';

@@ -1,8 +1,7 @@
-import React, {useState, useEffect, useRef} from 'react'
+import React, {useState} from 'react'
 import useLoadCss from "../../../../customHooks/useLoadCss";
 import useContainer from '../../../../customHooks/useContainer';
 import { Table ,Column, ColumnGroup, HeaderCell, Cell, } from 'rsuite-table';
-import Paper from '@material-ui/core/Paper'
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
 import {selectProductTreeData, selectRootIds, setCheckedNodesAsync, setHightLightedNodesAsync, expandNode, TreeNode as ITreeNode} from '../../../../store/sideBar/ProductTreeSlice'
 import TreeNode from "./TreeNode"
@@ -10,6 +9,8 @@ import InvertCell from "./Invert"
 import ShowHideCell from "./ShowHide"
 
 function RTree(props:any) {
+    // need for future use
+    // eslint-disable-next-line 
     const updateCssPath = useLoadCss('./globalStyles/RTreeStylesOverrideDark.css');
     const {containerRef, containerHeight} = useContainer();
     const treeData = useAppSelector(selectProductTreeData);
@@ -42,7 +43,7 @@ function RTree(props:any) {
       return root;
     }
     const rootIds = useAppSelector(selectRootIds);
-    const [data, setData] = useState(convertListToTree(treeData,rootIds));
+    const [data] = useState(convertListToTree(treeData,rootIds));
     const handleExpand = (toOpen:boolean,nodeId:string) => {
       dispatch(expandNode({toOpen,nodeId}));
     }

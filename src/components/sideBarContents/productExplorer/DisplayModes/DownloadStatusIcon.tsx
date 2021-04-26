@@ -1,10 +1,9 @@
-import React,{useState, useEffect} from 'react'
+import React from 'react'
 import DownloadIcon from "@material-ui/icons/CloudDownload"
 import DownloadedIcon from "@material-ui/icons/CloudDone";
 import ReportProblemIcon from "@material-ui/icons/ReportProblem"
 import CircularProgress from "@material-ui/core/CircularProgress";
 import {DownloadStates} from "../../../../store/sideBar/DisplayModesSlice";
-import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 
 const Render = (props:any) => {

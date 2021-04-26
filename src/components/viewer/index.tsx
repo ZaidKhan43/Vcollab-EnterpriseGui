@@ -3,7 +3,7 @@ import { createRef } from 'react';
 import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
 import { useAppDispatch } from '../../store/storeHooks';
-import {saveTree, TreeNode, setHightLightedNodesAsync } from "../../store/sideBar/ProductTreeSlice";
+import {saveTree, setHightLightedNodesAsync } from "../../store/sideBar/ProductTreeSlice";
 import { addViewer } from '../../store/appSlice';
 
 function Viewer(){

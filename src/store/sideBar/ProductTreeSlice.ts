@@ -108,13 +108,13 @@ const getParent = (id:string,state:ProductTreeState):TreeNode|undefined => {
 const _checkNode = (toCheck:boolean, node:TreeNode, checkChildren:boolean,state:ProductTreeState) => {
     node.state.checked = toCheck;
     node.state.partiallyChecked = false;
-    if(checkChildren == true && node.children) {
+    if(checkChildren === true && node.children) {
       node.children.map((c:string) => getNode(c,state)).forEach((node:TreeNode|undefined) => node ? _checkNode(toCheck,node,true,state) : null);
     }
 }
 const _hightlightNode = (toHighlight:boolean, node:TreeNode, checkChildren:boolean,state:ProductTreeState) => {
   node.state.highlighted = toHighlight;
-  if(checkChildren == true && node.children) {
+  if(checkChildren === true && node.children) {
     node.children.map((c:string) => getNode(c,state)).forEach((node:TreeNode|undefined) => node ? _hightlightNode(toHighlight,node,true,state) : null);
   }
 }
@@ -141,7 +141,7 @@ const RinvertNode = (node:TreeNode, state:ProductTreeState) => {
 }
 const setVisibility = (value:boolean,node:TreeNode,checkChildren:boolean,state:ProductTreeState) => {
     node.state.visibility = value;
-    if(node.children.length > 0 && checkChildren == true){
+    if(node.children.length > 0 && checkChildren === true){
     
       node.children.map((c:string) => getNode(c,state)).forEach((e:TreeNode | undefined) => e ? setVisibility(value,e,true,state) : null)
     }
@@ -157,14 +157,14 @@ export const toggleVisibilityAsync = createAsyncThunk(
      const rootState = getState() as RootState;
      let leafNodesId:string[] = [];
      traverseNode(nodeId,rootState.productTree,(node) => {
-        if(node.children.length == 0)
+        if(node.children.length === 0)
         leafNodesId.push(node.id);
      });
      const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
      let result = "";
      if(viewerId)
      result =  await setPartVisibility(viewerId,leafNodesId,toShow)
-     if(result == 'SUCCESS'){
+     if(result === 'SUCCESS'){
        return Promise.resolve(data);
      }
      else{
@@ -179,7 +179,7 @@ export const invertVisibilityAsync = createAsyncThunk(
     const rootState = getState() as RootState;
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
     let result = await invertPartsVisibility(viewerId)
-    if(result == 'SUCCESS'){
+    if(result === 'SUCCESS'){
       return Promise.resolve();
     }
     else{
@@ -201,7 +201,7 @@ export const setCheckedNodesAsync = createAsyncThunk(
     // });
     // let result = setHighlightedNodes(viewerId,data.toCheck, leafNodesId);
     let result = 'SUCCESS';
-    if(result == 'SUCCESS'){
+    if(result === 'SUCCESS'){
       dispatch(productTreeSlice.actions.checkNode({...data}))
       return Promise.resolve();
     }
@@ -218,12 +218,12 @@ export const setHightLightedNodesAsync = createAsyncThunk(
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
     let leafNodesId:string[] = [];
     traverseNode(data.nodeId,rootState.productTree,(node) => {
-       if(node.children.length == 0)
+       if(node.children.length === 0)
        leafNodesId.push(node.id);
     });
     let result:string = setHighlightedNodes(viewerId,data.toHighlight, leafNodesId);
     
-    if(result == 'SUCCESS'){
+    if(result === 'SUCCESS'){
       dispatch(productTreeSlice.actions.highlightNode({...data}))
       return Promise.resolve();
     }
@@ -242,7 +242,7 @@ export const setCheckedVisibilityAsync = createAsyncThunk(
      let result = "";
      if(viewerId)
      result =  await setPartVisibility(viewerId,checkedNodesId,toShow)
-     if(result == 'SUCCESS'){
+     if(result === 'SUCCESS'){
        return Promise.resolve(data);
      }
      else{
@@ -309,7 +309,7 @@ export const productTreeSlice = createSlice({
     },
     invertVisibility: (state) => {
       [...Object.values(state.data)].forEach((node:any) => {
-            if(node.children.length == 0 ){
+            if(node.children.length === 0 ){
               let n = getNode(node.id,state);
               if(n)
               RtoggleVisibility(!node.state.visibility,n,state);
@@ -318,7 +318,7 @@ export const productTreeSlice = createSlice({
     },
     setCheckedVisibility: (state, action:PayloadAction<{toShow:boolean}>) => {
         [...Object.values(state.data)].forEach((node:any) => {
-          if(node.state.checked && node.children.length == 0)
+          if(node.state.checked && node.children.length === 0)
           {
             let n = getNode(node.id,state);
             if(n)
@@ -343,7 +343,7 @@ export const productTreeSlice = createSlice({
     },
     focusSelectedNodes: (state, action:PayloadAction<{viewerId:string}>) => {
       let nodes = [...Object.values(state.data)] as TreeNode[];
-      let checkedLeavesId = nodes.filter((item: TreeNode) => item.children.length == 0 && item.state.checked).map((item) => item.id);
+      let checkedLeavesId = nodes.filter((item: TreeNode) => item.children.length === 0 && item.state.checked).map((item) => item.id);
       fitView(action.payload.viewerId,checkedLeavesId);
     },
     updatePrevSearches: (state) => {
@@ -389,7 +389,7 @@ export const selectSearchHints = (state:RootState) => state.productTree.searchHi
 export const selectPrevSearches = (state:RootState) => Object.keys(state.productTree.prevSearches)
 export const selectCheckedLeafNodes = (state:RootState):TreeNode[] => {
   let nodes = [...Object.values(state.productTree.data)] as TreeNode[];
-  return nodes.filter((item: TreeNode) => item.children.length == 0 && item.state.checked);
+  return nodes.filter((item: TreeNode) => item.children.length === 0 && item.state.checked);
 }
 
 export default productTreeSlice.reducer;

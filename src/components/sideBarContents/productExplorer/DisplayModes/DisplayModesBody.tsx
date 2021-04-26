@@ -8,7 +8,6 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper'
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 
@@ -25,8 +24,6 @@ import DownloadStatusIcon from "./DownloadStatusIcon";
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
 import {DownloadStates, expandPanel,fetchDisplayModes,setDisplayModeAsync, selectDisplayModesData,setSelectedMenu,setDownloadStatus} from "../../../../store/sideBar/DisplayModesSlice";
-import {toastMsg} from "../../../../store/toastSlice";
-import {setDisplayMode} from "../../../../backend/viewerAPIProxy";
 import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";
 import useStyles from './styles';
 import {BytesToStructuredString} from "../../../utils/networkUtils"
@@ -60,7 +57,7 @@ function DisplayModesBody() {
 
     const handlePanelClick = (panelIndex:number) => {
         const selectedPanel = panelsData[panelIndex];
-        panelsData.map((panel:any,index:number) => {
+        panelsData.forEach((panel:any,index:number) => {
           if (panel.id === selectedPanel.id) dispatch(expandPanel({panelId:panelIndex,value:!selectedPanel.expanded}));
           else dispatch(expandPanel({panelId:index,value:false}));
         });
@@ -69,10 +66,10 @@ function DisplayModesBody() {
     const onSelectMenu = (menuIndex:number, panelIndex:number) => {
         const selectedPanel = panelsData[panelIndex];
         if(panelIndex === 0){
-          selectedPanel.menuData.map((menu:any,index:number) => {
+          selectedPanel.menuData.forEach((menu:any,index:number) => {
             if (index === menuIndex) {
               dispatch(setSelectedMenu({menuId:index,panelId:panelIndex,value:true}));
-              if(menu.status == DownloadStates.DOWNLOADED)
+              if(menu.status === DownloadStates.DOWNLOADED)
               {
                 handleDownload(menuIndex,panelIndex);
               }
@@ -84,9 +81,7 @@ function DisplayModesBody() {
       // console.log(panelsData);
     };
     const handleDownload = (menuIndex:number, pannelIndex:number) => {
-        let newData = [...panelsData];
-        let panel = newData[pannelIndex];
-        let item = panel.menuData[menuIndex];
+        
         dispatch(setDownloadStatus({panelId:pannelIndex,menuId:menuIndex,status:DownloadStates.IN_PROGRESS}));
         dispatch(setDisplayModeAsync({menuId:menuIndex}));
     }
@@ -95,11 +90,11 @@ function DisplayModesBody() {
     useEffect(() => {
       dispatch(fetchDisplayModes());
       
-    },[])
+    },[dispatch])
 
     const renderSelectedMenu = (panel:any,panelIndex:number) => {
       return(panel?.menuData?.map((item:any, menuIndex:number) => (
-        item.selected && item.status == DownloadStates.NOT_DOWNLOADED ? (
+        item.selected && item.status === DownloadStates.NOT_DOWNLOADED ? (
             <Button
               key = {menuIndex}
               variant="contained"

@@ -7,7 +7,7 @@ import {useStyles } from './styles/TreeNodeStyle'
 
 const VisiblilityIcon = (props:any) => {
     const classes = useStyles();
-    if(props.visibility == true){
+    if(props.visibility === true){
         return <EyeIcon className={props.visibility ? classes.actionShow : classes.actionHide} onClick = {() => props.onClick(false,props.node)} width='16' height='16' />
     }
     else{

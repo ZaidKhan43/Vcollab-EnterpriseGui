@@ -11,7 +11,7 @@ const useStyles = makeStyles( theme =>
   })
 )
 function Checkbox(props:any) {
-  const classes = useStyles();
+  
   return (
     <>
       <MUICheckBox 

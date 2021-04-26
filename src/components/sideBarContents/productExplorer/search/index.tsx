@@ -7,15 +7,16 @@ import SearchItem from './SearchItem'
 import {fetchSearchHints,selectSearchHints,selectPrevSearches,saveSearchQuery,setCheckedNodesAsync,selectProductTreeData, updatePrevSearches, TreeNode as ITreeNode} from "../../../../store/sideBar/ProductTreeSlice"
 import Checkbox from "@material-ui/core/Checkbox"
 import TextField from '@material-ui/core/TextField';
-import Paper from '@material-ui/core/Paper'
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
 import Fuse from 'fuse.js'
 
 function Search(props:any) {
+    // eslint-disable-next-line
     const updateCssPath = useLoadCss('./globalStyles/RTreeStylesOverrideDark.css');
     const treeData = useAppSelector(selectProductTreeData);
+    const treeDataRef = useRef(treeData);
     const prevSearches = useAppSelector(selectPrevSearches);
     const searchHints:any[] = useAppSelector(selectSearchHints);
     const dispatch = useAppDispatch();
@@ -33,7 +34,7 @@ function Search(props:any) {
         for (let i=0; i< treeArray.length; i++){
           if(treeArray[i].pid){
             let attr = treeArray[i].attributes;
-            Object.keys(attr).map(key => {
+            Object.keys(attr).forEach(key => {
               keys.add("attributes."+key);
             })
           }
@@ -55,25 +56,25 @@ function Search(props:any) {
     useEffect(() => {
         let options = {
             includeScore: true,
-            keys: getAttrbKeys([...Object.values(treeData)]),
+            keys: getAttrbKeys([...Object.values(treeDataRef.current)]),
             ignoreLocation: true,
             includeMatches:true,
             useExtendedSearch: true
         }
-        let fuse:any = new Fuse([...Object.values(treeData)],options);
+        let fuse:any = new Fuse([...Object.values(treeDataRef.current)],options);
         dispatch(fetchSearchHints());
         setFuse(fuse);
         return () => {
             dispatch(updatePrevSearches())
         }
-    }, [])
+    }, [dispatch])
 
     useEffect(() => {
         let r = (fuse as any)?.search(searchString);
         if(r)
         setResult(r);
         setSelectAll(false)
-    },[searchString])
+    },[searchString,fuse])
 
     const handleSearch = (e:any) => {
        const query = e? e.target.value : "";
@@ -81,7 +82,7 @@ function Search(props:any) {
         dispatch(saveSearchQuery({data:query}));
     }
     const handleAutoComplete = (e:any) => {
-        if(e.key == "Enter")
+        if(e.key === "Enter")
         return;
         setSearchString(e.target.outerText);
         dispatch(saveSearchQuery({data:e.target.outerText}));
@@ -113,7 +114,7 @@ function Search(props:any) {
                 onOpen = {(e:any) => {handleAutoCompleteOpenState(true)}}
                 onClose = {(e:any) => {handleAutoCompleteOpenState(false)}}
                 onKeyPress = {(e:any) => {
-                  if(e.code == 'Enter' || e.code == 'NumpadEnter'){
+                  if(e.code === 'Enter' || e.code === 'NumpadEnter'){
                     setisOpen(false);
                   }
                 }}

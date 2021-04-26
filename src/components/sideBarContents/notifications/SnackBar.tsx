@@ -1,9 +1,8 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
 import Snackbar from '@material-ui/core/Snackbar';
 import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
-import {MsgSeverity, selectMsg,selectOpen,setOpen,clearMsg} from "../../../store/toastSlice";
+import { selectMsg,selectOpen,setOpen,clearMsg} from "../../../store/toastSlice";
 import {useAppSelector, useAppDispatch } from '../../../store/storeHooks';
 import Slide from '@material-ui/core/Slide';
 import { TransitionProps } from '@material-ui/core/transitions';
