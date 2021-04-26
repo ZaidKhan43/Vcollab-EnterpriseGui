@@ -57,9 +57,12 @@ function VisibilityOptions(props:any) {
     return (
         <>
         <ToolTip title='Change selected visibility'>
-        <IconButton aria-label="delete" {...props} onClick={handleClick}>
-            <EyeIcon/>
-        </IconButton>
+            <span>
+            <IconButton aria-label="delete" {...props} onClick={handleClick}>
+               <EyeIcon/>
+            </IconButton>
+            </span>
+
         </ToolTip>
        <Popover
         id={id}

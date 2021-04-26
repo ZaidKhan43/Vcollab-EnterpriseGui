@@ -25,9 +25,11 @@ function Footer(props:any) {
                     </Grid>
                     <Grid item>
                         <Tooltip title='Next'>
-                        <IconButton disabled={props.selectedCount === 0} onClick={props.handleNext}>
-                            <NextIcon/>
-                        </IconButton>
+                            <span>
+                            <IconButton disabled={props.selectedCount === 0} onClick={props.handleNext}>
+                                <NextIcon/>
+                            </IconButton>
+                            </span>
                         </Tooltip>
                     </Grid>
             </Grid>

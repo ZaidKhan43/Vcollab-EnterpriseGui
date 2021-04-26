@@ -33,20 +33,24 @@ function FooterOptions(props:any) {
     return (
         <Grid container justify="space-around">
             <Grid item>
-                <VisibilityOptions {...props}></VisibilityOptions>
+                <VisibilityOptions disabled={props.disabled}></VisibilityOptions>
             </Grid>
             <Grid item>
             <ToolTip title='Tag selected'>
-                <IconButton {...props} onClick={() => handleDialogOpen()}>
+                <span>
+                <IconButton disabled={props.disabled} onClick={() => handleDialogOpen()}>
                     <LocalOfferIcon/>
                 </IconButton>  
+                </span>
             </ToolTip>
             </Grid>
             <Grid item>
             <ToolTip title='Focus selected'>
-                <IconButton {...props} onClick={() => handleFocus()}>
+                <span>
+                <IconButton disabled={props.disabled} onClick={() => handleFocus()}>
                     <CenterFocusWeakSharpIcon/>
                 </IconButton>  
+                </span>
             </ToolTip>
             </Grid>
             <AddTagDialog open={showDialog} handleSave={handleDialogSave} handleClose={handleDialogClose}></AddTagDialog>
