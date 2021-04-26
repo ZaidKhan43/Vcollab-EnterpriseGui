@@ -38,7 +38,7 @@ function Viewer(){
           .showModel(activeViewerID)
           .then((response1 : string) => {
             console.log("Showing Model : " + response1);  
-            tree.current = viewerAPIProxy.getProductTree(activeViewerID); 
+            tree.current = viewerAPIProxy.getProductTree(activeViewerID) as any; 
             if(tree.current)
             {
               let treeData = tree.current as any;

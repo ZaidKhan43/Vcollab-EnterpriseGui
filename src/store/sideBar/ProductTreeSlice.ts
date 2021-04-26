@@ -161,7 +161,7 @@ export const toggleVisibilityAsync = createAsyncThunk(
         leafNodesId.push(node.id);
      });
      const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
-     let result = [];
+     let result = "";
      if(viewerId)
      result =  await setPartVisibility(viewerId,leafNodesId,toShow)
      if(result == 'SUCCESS'){
@@ -221,7 +221,7 @@ export const setHightLightedNodesAsync = createAsyncThunk(
        if(node.children.length == 0)
        leafNodesId.push(node.id);
     });
-    let result = setHighlightedNodes(viewerId,data.toHighlight, leafNodesId);
+    let result:string = setHighlightedNodes(viewerId,data.toHighlight, leafNodesId);
     
     if(result == 'SUCCESS'){
       dispatch(productTreeSlice.actions.highlightNode({...data}))
@@ -239,7 +239,7 @@ export const setCheckedVisibilityAsync = createAsyncThunk(
      const rootState = getState() as RootState;
      let checkedNodesId:string[] = selectCheckedLeafNodes(rootState).map(node => node.id);
      const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
-     let result = [];
+     let result = "";
      if(viewerId)
      result =  await setPartVisibility(viewerId,checkedNodesId,toShow)
      if(result == 'SUCCESS'){
@@ -256,7 +256,7 @@ export const fetchSearchHints = createAsyncThunk(
      
      const rootState = getState() as RootState;
      const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
-     let result = [];
+     let result:any[] = [];
      if(viewerId)
      result =  await getSearchHints(viewerId);
      if(result instanceof Array){

@@ -11,22 +11,32 @@ import Typography  from '@material-ui/core/Typography';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import MenuItem from '@material-ui/core/MenuItem';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
+
+const useStyles = makeStyles(createStyles({
+    item: {
+        maxWidth: 150
+    },
+    icon: {
+        minWidth: 40
+    }
+}))
 function VisibilityOptions(props:any) {
     const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
     const dispatch = useAppDispatch();
     const [options, setOptions] = useState([
         {
-            id: 'show',
+            id: 'Show',
             icon: <EyeIcon/>,
             event: () => dispatch(setCheckedVisibilityAsync({toShow:true}))
         },
         {
-            id: 'hide',
+            id: 'Hide',
             icon: <EyeSlashIcon/>,
             event: () => dispatch(setCheckedVisibilityAsync({toShow:false}))
         },
         {
-            id: 'invert',
+            id: 'Invert',
             icon: <EyeInvert viewBox = '0 0 19 20'></EyeInvert>,
             event: () => dispatch(invertVisibilityAsync())
         }
@@ -44,6 +54,7 @@ function VisibilityOptions(props:any) {
     }
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
+    const classes = useStyles();
     return (
         <>
         <ToolTip title='Change selected visibility'>
@@ -68,8 +79,8 @@ function VisibilityOptions(props:any) {
           {
               options.map((item:any) => {
                 return (
-                <MenuItem key={item.id} onClick={() => handleIconClick(item)}>
-                <ListItemIcon>
+                <MenuItem className={classes.item} key={item.id} alignItems='center' onClick={() => handleIconClick(item)}>
+                <ListItemIcon classes={{root: classes.icon}}>
                     {item.icon}
                 </ListItemIcon>
                 <ListItemText primary={item.id}>
