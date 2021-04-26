@@ -53,8 +53,8 @@ export default function ClipPlanes(props : any){
     fun(value)
   }
 
-  const onHandleRotateType = (e : any) => {
-    setRotate(e.target.value)
+  const onHandleRotateType = (value : any) => {
+    setRotate(value)
   }
 
   const onHandleRotateYType = ( value : any) => {
