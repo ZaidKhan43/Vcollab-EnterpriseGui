@@ -1,10 +1,11 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { colors } from '../../../config';
+//import { Palette } from '@material-ui/icons';
+//import { colors } from '../../../config';
 
 export default makeStyles((theme) => ({
     btn:{
       '&:hover': {
-        background: colors.primaryHover
+        background: theme.palette.action.hover
       }
     }
 }));

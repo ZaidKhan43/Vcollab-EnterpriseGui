@@ -4,14 +4,16 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import Divider from '@material-ui/core/Divider';
 
-import BranchIcon from '../../../assets/images/branch.svg';
-import StackIcon from '../../../assets/images/stack.svg';
-import clipplanes from '../../../assets/images/clipplanes.svg';
-import views from '../../../assets/images/views.svg';
-import annotations from '../../../assets/images/annotations.svg';
-import settings from '../../../assets/images/settings.svg';
-import notifications from '../../../assets/images/notifications.svg';
+
+import BranchIcon  from '../../../assets/images/branch';
+import StackIcon from '../../../assets/images/stackicon';
+import Clipplanes from '../../../assets/images/clipplanes';
+import Views from '../../../assets/images/views';
+import Annotations from '../../../assets/images/annotation';
+import Settings from '../../../assets/images/settings';
+import Notifications from '../../../assets/images/notification';
 import Logo from '../../../assets/images/LogoBig.svg';
 import styles from './style';
 import { setSidebarActiveContent } from '../../../store/appSlice';
@@ -28,43 +30,43 @@ export default function MainMenu(){
     const menuItem = [
         {
           title: 'Product Explorer',
-          icon: BranchIcon,
+          icon: <BranchIcon />,
           disabled : false,
           onClick: () => dispatch(setSidebarActiveContent(sideBarContentTypes.productExplorer)),
         },
         {
           title: 'Color Maps',
-          icon: StackIcon,
+          icon: <StackIcon />,
           disabled : false,
           onClick: () => dispatch(setSidebarActiveContent(sideBarContentTypes.colormaps)),
         },
         {
           title: 'Clip Planes',
-          icon: clipplanes,
+          icon: <Clipplanes />,
           disabled : false,
           onClick: () => dispatch(setSidebarActiveContent(sideBarContentTypes.clipsPlanes)),
         },
         {
           title: 'Views',
-          icon: views,
+          icon: <Views />,
           disabled : false,
           onClick: () => dispatch(setSidebarActiveContent(sideBarContentTypes.views)),
         },
         {
           title: 'Annotations',
-          icon: annotations,
+          icon: <Annotations />,
           disabled : false,
           onClick: () =>dispatch(setSidebarActiveContent(sideBarContentTypes.annotations)),
         },
         {
           title: 'Settings',
-          icon: settings,
+          icon: <Settings />,
           disabled : false,
           onClick: () => dispatch(setSidebarActiveContent(sideBarContentTypes.settings)),
         },
         {
           title: 'Notifications',
-          icon: notifications,
+          icon: <Notifications />,
           disabled : false,
           onClick: () => dispatch(setSidebarActiveContent(sideBarContentTypes.notifications)),
         },
@@ -78,31 +80,35 @@ export default function MainMenu(){
 
     const getBody = () => {
       return (  
+       <> 
+      <Divider className={classes.divider} />
+      
       <List style={{ padding: '0' }}>
-      { 
-        menuItem.map((item, index) => (
-        <ListItem
-      disabled = {item.disabled === true}
-      onClick={item.onClick}
-      className={classes.listItem}
-      button
-      key={item.title}
-    >
-      <ListItemIcon style={{minWidth:'40px'}}>
-        <img style={{width:'22px', height:'22px'}} src={item.icon} alt={`${item.title} Icon`} />
-      </ListItemIcon>
-      <ListItemText            
-        className={classes.listItemText}
-        primary={
-          <Typography variant='h1' className={classes.listItemText}>
-            {item.title}
-          </Typography>
+            { 
+             menuItem.map((item, index) => (
+            <ListItem
+            disabled = {item.disabled === true}
+            onClick={item.onClick}
+            className={classes.listItem}
+            button
+            key={item.title}
+          >
+            <ListItemIcon style={{minWidth:'40px'}}>
+              <div>{item.icon}</div>
+            </ListItemIcon>
+            <ListItemText            
+              className={classes.listItemText}
+              primary={
+                <Typography variant='h1' className={classes.listItemText}>
+                  {item.title}
+                </Typography>
       }
       />
     </ListItem>
         ))
       }
       </List>
+      </>
       );
     }
 

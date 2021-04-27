@@ -7,16 +7,14 @@ import reportWebVitals from './reportWebVitals';
 import store from './store';
 import { Provider } from 'react-redux';
 
-import appTheme from './theme';
-import { ThemeProvider } from '@material-ui/core/styles';
-
+import CustomThemeProvider from './components/common/CustomThemeProvider';
 
 ReactDOM.render(
   <React.StrictMode>  
     <Provider store={store}>
-      <ThemeProvider theme={appTheme}>
+      <CustomThemeProvider>
         <App />
-      </ThemeProvider>
+      </CustomThemeProvider>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')
