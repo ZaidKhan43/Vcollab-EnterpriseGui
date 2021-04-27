@@ -10,15 +10,15 @@ const VisiblilityIcon = (props:any) => {
     const classes = useStyles();
     if(props.visibility === true){
         return (
-            <IconButton size='small'>
-                <EyeIcon className={props.visibility ? classes.actionShow : classes.actionHide} onClick = {() => props.onClick(false,props.node)} width='16' height='16' />
+            <IconButton size='small' onClick = {() => props.onClick(false,props.node)}>
+                <EyeIcon className={props.visibility ? classes.actionShow : classes.actionHide}  width='16' height='16' />
             </IconButton>
         )
     }
     else{
         return (
-            <IconButton size='small'>
-                <EyeSlashIcon className={props.visibility ? classes.actionShow : classes.actionHide} onClick = {() => props.onClick(true,props.node)} width='16' height='16'/>
+            <IconButton size='small' onClick = {() => props.onClick(true,props.node)}>
+                <EyeSlashIcon className={props.visibility ? classes.actionShow : classes.actionHide}  width='16' height='16'/>
             </IconButton>
         )
     }
