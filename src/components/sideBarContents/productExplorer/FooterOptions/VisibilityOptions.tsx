@@ -25,7 +25,6 @@ const useStyles = makeStyles(createStyles({
     }
 }))
 function VisibilityOptions(props:any) {
-    const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
     const dispatch = useAppDispatch();
     const [options] = useState([
         {
@@ -44,43 +43,59 @@ function VisibilityOptions(props:any) {
             event: () => dispatch(invertVisibilityAsync())
         }
     ]);
+    const [open, setOpen] = React.useState(false);
+    const anchorRef = React.useRef<HTMLButtonElement>(null);
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-        setAnchorEl(event.currentTarget);
+        setOpen((prevOpen) => !prevOpen);
       };
     
-    const handleClose = () => {
-    setAnchorEl(null);
+    const handleClose = (event: React.MouseEvent<EventTarget>) => {
+        if (anchorRef.current && anchorRef.current.contains(event.target as HTMLElement)) {
+            return;
+          }
+      
+          setOpen(false);
     };
-    const handleIconClick = (item:any) => {
+    const handleIconClick = (e:React.MouseEvent<EventTarget>,item:any) => {
             item.event();
-            setAnchorEl(null);
+            handleClose(e);
     }
-    const open = Boolean(anchorEl);
-    const id = open ? 'simple-popover' : undefined;
+    const prevOpen = React.useRef(open);
+    React.useEffect(() => {
+      if (prevOpen.current === true && open === false) {
+        anchorRef.current!.focus();
+      }
+  
+      prevOpen.current = open;
+    }, [open]);
     const classes = useStyles();
     return (
         <>
         <ToolTip title='Change selected visibility'>
             <span>
-            <IconButton ref={anchorEl} aria-label="changle visibility" {...props} onClick={handleClick}>
+            <IconButton ref={anchorRef} aria-label="changle visibility" {...props} onClick={handleClick}>
                <EyeIcon/>
             </IconButton>
             </span>
 
         </ToolTip>
        <Popper
-        id={id}
+        role={undefined}
+        transition
         open={open}
-        anchorEl={anchorEl}
+        anchorEl={anchorRef.current}
         disablePortal
       >
-          {<Paper elevation={10}>
+          { (props:any) => (
+              <Grow {...props.TransitionProps}
+              style={{ transformOrigin: props.placement === 'bottom' ? 'center top' : 'center bottom' }}>
+              <Paper elevation={10}>
                 <ClickAwayListener onClickAway={handleClose}>
                     <MenuList>
                     {
                         options.map((item:any) => {
                             return (
-                            <MenuItem className={classes.item} key={item.id} alignItems='center' onClick={() => handleIconClick(item)}>
+                            <MenuItem className={classes.item} key={item.id} alignItems='center' onClick={(e) => handleIconClick(e,item)}>
                             <ListItemIcon classes={{root: classes.icon}}>
                                 {item.icon}
                             </ListItemIcon>
@@ -93,6 +108,8 @@ function VisibilityOptions(props:any) {
                     </MenuList>
                </ClickAwayListener>
               </Paper>
+              </Grow>
+          )
           }
         
       </Popper>

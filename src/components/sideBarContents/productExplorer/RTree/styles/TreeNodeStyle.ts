@@ -10,7 +10,7 @@ export const useStyles = makeStyles((theme) => (
         },
         hightlight: {
             padding: theme.spacing(0.5),
-            background: theme.palette.type == 'dark' ? theme.palette.warning.dark : theme.palette.warning.light,
+            background: theme.palette.type === 'dark' ? theme.palette.warning.dark : theme.palette.warning.light,
         }
     })
 ));
