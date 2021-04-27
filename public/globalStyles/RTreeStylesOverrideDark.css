@@ -37,11 +37,10 @@
     top: 0;
   }
   .rs-table-hover .rs-table-row:hover {
-    background: #f5f5f500;
+    background: transparent;
   }
   .rs-table-hover .rs-table-row:hover .rs-table-cell-group {
-    background: #3333337a;
-
+    background: transparent;
   }
   .rs-table-hover .rs-table-row:hover .rs-table-cell {
     background: #f5f5f500;
@@ -56,9 +55,7 @@
     box-shadow: 0 2px 3px rgba(0, 0, 0, 0);
     z-index: 5;
   }
-  .rs-table-hover .rs-table-row:hover .rs-table-cell {
-    background: #f5f5f500;
-  }
+
   .rs-table-header-row-wrapper {
     z-index: 2;
     position: relative;
@@ -145,7 +142,6 @@
     position: absolute;
     z-index: 4;
     background: #33333381;
-    ;
   }
   /* .rs-table-cell-group-left-shadow {
     box-shadow: 3px 0px 5px rgba(255, 255, 255, 0);

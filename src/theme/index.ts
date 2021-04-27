@@ -2,12 +2,24 @@ export const appTheme = {
   overrides: {
     MuiCssBaseline: {
       '@global': {
+          '.rs-table-scrollbar': {
+            background: 'green',
+            position: 'absolute',
+          },
+          '.rs-table-scrollbar-active': {
+            background: 'blue',
+          },
+          '.rs-table-scrollbar-handle': {
+            position: 'absolute',
+            background: 'yellow',
+            borderRadius: '4px'
+          }
+        },
         body: {
-          backgroundColor: 'rgb(160,160,255)',
+          //backgroundColor: 'rgb(160,160,255)',
         },
       },
-    },
-  },  
+    },  
   palette:{
     type:'dark'
   },

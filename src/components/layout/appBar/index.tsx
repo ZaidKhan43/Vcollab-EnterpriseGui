@@ -56,7 +56,7 @@ function AppBar() {
         <MuiAppBar 
           className = { clsx( classes.appBar , {[classes.appBarwithSideBar]: isSidebarVisible}) }
           position='fixed'
-          color='default'
+          //color='default'
         >
         <MuiToolbar className={classes.toolBar} >
 

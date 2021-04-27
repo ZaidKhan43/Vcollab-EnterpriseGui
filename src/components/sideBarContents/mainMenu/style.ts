@@ -25,6 +25,6 @@ export default makeStyles((theme) => ({
           },
       },
       listItemText: {
-        color: theme.palette.text.primary,
+        //color: theme.palette.text.primary,
       },
 }));

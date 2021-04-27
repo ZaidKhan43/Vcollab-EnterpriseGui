@@ -10,7 +10,28 @@ import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
-import Fuse from 'fuse.js'
+import Fuse from 'fuse.js';
+import {makeStyles} from '@material-ui/core/styles'
+
+const useRTreeOverrideStyles = makeStyles((theme) => ({
+  tree: {
+      '& .rs-table-scrollbar': {
+        background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.05)':'rgba(25, 25, 25, 0.05)',
+        position: 'absolute'
+      },
+      '& .rs-table-scrollbar-active': {
+        background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.1)':'rgba(25, 25, 25, 0.1)'
+      },
+      '& .rs-table-scrollbar-handle': {
+        position: 'absolute',
+        background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.5)':'rgba(25, 25, 25, 0.5)',
+        borderRadius: '4px'
+      },
+      '':{
+
+      }
+  }
+})) 
 
 function Search(props:any) {
     // eslint-disable-next-line
@@ -100,7 +121,7 @@ function Search(props:any) {
         })
         setSelectAll(state);
     }
-
+    const overrideStyles = useRTreeOverrideStyles();
     return (
         <div ref = {containerRef} style={{height:'100%'}} >
           <div style={{height:headerHeight}}>
@@ -162,6 +183,7 @@ function Search(props:any) {
             {/*
  // @ts-ignore */}
             <Table height={containerHeight - headerHeight}
+                   className={overrideStyles.tree}
                    data={result}
                    id="searchList"
                    showHeader={false}

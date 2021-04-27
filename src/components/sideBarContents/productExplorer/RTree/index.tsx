@@ -7,6 +7,33 @@ import {selectProductTreeData, selectRootIds, setCheckedNodesAsync, setHightLigh
 import TreeNode from "./TreeNode"
 import InvertCell from "./Invert"
 import ShowHideCell from "./ShowHide"
+import { makeStyles } from '@material-ui/core/styles';
+
+const useRTreeOverrideStyles = makeStyles((theme) => ({
+  tree: {
+      '& .rs-table-scrollbar': {
+        background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.05)':'rgba(25, 25, 25, 0.05)',
+        position: 'absolute'
+      },
+      '& .rs-table-scrollbar-active': {
+        background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.1)':'rgba(25, 25, 25, 0.1)'
+      },
+      '& .rs-table-scrollbar-handle': {
+        position: 'absolute',
+        background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.5)':'rgba(25, 25, 25, 0.5)',
+        borderRadius: '4px'
+      },
+      '':{
+
+      }
+  },
+  rightColumn: {
+      '& .rs-table-cell-group-fixed-right': {
+        background: 'transparent',
+        
+      }
+    }
+})) 
 
 function RTree(props:any) {
     // need for future use
@@ -53,11 +80,13 @@ function RTree(props:any) {
     const handleHighlight = (toHighlight:boolean, nodeId:string) => {
       dispatch(setHightLightedNodesAsync({toHighlight,nodeId}))
     }
+    const overrideClasses = useRTreeOverrideStyles();
       return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
           {/*
 // @ts-ignore */}
           <Table
+            className = {overrideClasses.tree}
             isTree
             defaultExpandedRowKeys = {expandedNodes}
             rowKey="id"
@@ -70,14 +99,16 @@ function RTree(props:any) {
             onExpandChange={(isOpen:boolean, rowData:any) => {
               handleExpand(isOpen, rowData.index);
             }}
+            rowClassName={overrideClasses.rightColumn}
             renderTreeToggle={(icon, rowData:any) => {
               if (rowData.children && rowData.children.length === 0) {
                 return <div></div>;
               }
               return icon;
             }}
+            affixHorizontalScrollbar
           >
-            <Column  width={900} align='left' verticalAlign='middle' >
+            <Column width={900} treeCol={true} align='left' verticalAlign='middle' >
             {/*
  // @ts-ignore */}
             <HeaderCell>Tree</HeaderCell>
@@ -94,8 +125,8 @@ function RTree(props:any) {
               }
             </Cell>
             </Column>
-            <ColumnGroup fixed='right' header="Actions" align='left' verticalAlign='middle' >
-            <Column fixed='right' width={25} verticalAlign='middle' align='left'>
+            <ColumnGroup fixed= { 'right'} header="Actions" align='left' verticalAlign='middle' >
+            <Column fixed={'right'} width={30} verticalAlign='middle' align='left'>
               {/*
  // @ts-ignore */}
               <HeaderCell>Invert</HeaderCell>
@@ -112,7 +143,7 @@ function RTree(props:any) {
                 }
               </Cell>
             </Column>
-            <Column fixed='right' width={25} verticalAlign='middle' align='left'>
+            <Column fixed={'right'} width={30} verticalAlign='middle' align='left'>
               {/*
  // @ts-ignore */}
               <HeaderCell>ShowHide</HeaderCell>

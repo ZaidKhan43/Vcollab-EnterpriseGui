@@ -2,7 +2,10 @@ import React ,{useState} from 'react'
 import EyeIcon from '../../../../components/common/svgIcons/eyeIcon';
 import EyeSlashIcon from '../../../../components/common/svgIcons/eyeSlashIcon';
 import EyeInvert from '../../../../components/common/svgIcons/eyeInvert';
-import Popover from '@material-ui/core/Popover';
+import Popper from '@material-ui/core/Popper';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import Grow from '@material-ui/core/Grow';
+import Paper from '@material-ui/core/Paper';
 import ToolTip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import {setCheckedVisibilityAsync, invertVisibilityAsync} from "../../../../store/sideBar/ProductTreeSlice"
@@ -10,6 +13,7 @@ import { useAppDispatch } from '../../../../store/storeHooks';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import MenuItem from '@material-ui/core/MenuItem';
+import MenuList from '@material-ui/core/MenuList';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(createStyles({
@@ -58,41 +62,40 @@ function VisibilityOptions(props:any) {
         <>
         <ToolTip title='Change selected visibility'>
             <span>
-            <IconButton aria-label="delete" {...props} onClick={handleClick}>
+            <IconButton ref={anchorEl} aria-label="changle visibility" {...props} onClick={handleClick}>
                <EyeIcon/>
             </IconButton>
             </span>
 
         </ToolTip>
-       <Popover
+       <Popper
         id={id}
         open={open}
         anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
+        disablePortal
       >
-          {
-              options.map((item:any) => {
-                return (
-                <MenuItem className={classes.item} key={item.id} alignItems='center' onClick={() => handleIconClick(item)}>
-                <ListItemIcon classes={{root: classes.icon}}>
-                    {item.icon}
-                </ListItemIcon>
-                <ListItemText primary={item.id}>
-                </ListItemText>
-                </MenuItem>
-                )
-              })
+          {<Paper elevation={10}>
+                <ClickAwayListener onClickAway={handleClose}>
+                    <MenuList>
+                    {
+                        options.map((item:any) => {
+                            return (
+                            <MenuItem className={classes.item} key={item.id} alignItems='center' onClick={() => handleIconClick(item)}>
+                            <ListItemIcon classes={{root: classes.icon}}>
+                                {item.icon}
+                            </ListItemIcon>
+                            <ListItemText primary={item.id}>
+                            </ListItemText>
+                            </MenuItem>
+                            )
+                        })
+                    }
+                    </MenuList>
+               </ClickAwayListener>
+              </Paper>
           }
         
-      </Popover>
+      </Popper>
         </>
     )
 }

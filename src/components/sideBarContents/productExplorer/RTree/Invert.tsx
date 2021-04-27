@@ -3,6 +3,7 @@ import {invertNode} from '../../../../store/sideBar/ProductTreeSlice';
 import { useAppDispatch} from "../../../../store/storeHooks";
 import SwapIcon from '@material-ui/icons/SwapHoriz';
 import {useStyles } from './styles/TreeNodeStyle'
+import IconButton  from '@material-ui/core/IconButton';
 
 const InvertIcon = (props:any) => {
         const classes = useStyles();
@@ -18,7 +19,12 @@ function InvertCell(props:any) {
     return (
         <div >
                 {
-                    props.rowData.children.length > 0 ? <InvertIcon node = {props.rowData} visibility = {props.rowData.state.visibility} handleInvert={handleInvert}></InvertIcon> : null
+                    props.rowData.children.length > 0 ? 
+                    <IconButton size="small">
+                    <InvertIcon node = {props.rowData} visibility = {props.rowData.state.visibility} handleInvert={handleInvert}>
+                    </InvertIcon>
+                    </IconButton>
+                     : null
                 }
                 
         </div>
