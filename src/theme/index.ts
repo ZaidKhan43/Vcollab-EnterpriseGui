@@ -1,6 +1,4 @@
-import { responsiveFontSizes, createMuiTheme } from '@material-ui/core/styles';
-
-export const appTheme = createMuiTheme({
+export const appTheme = {
   overrides: {
     MuiCssBaseline: {
       '@global': {
@@ -41,6 +39,6 @@ export const appTheme = createMuiTheme({
       xl: 1920,
     },
   },
-});
+};
 
-export default responsiveFontSizes(appTheme);
+export default appTheme;

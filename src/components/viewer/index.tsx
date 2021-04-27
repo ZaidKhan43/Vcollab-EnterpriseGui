@@ -2,6 +2,7 @@ import { memo, useEffect , useRef, useState, useCallback } from 'react';
 import { createRef } from 'react';
 import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
+import {setModelLoadedState} from '../../store/appSlice';
 import { useAppDispatch } from '../../store/storeHooks';
 import {saveTree, setHightLightedNodesAsync } from "../../store/sideBar/ProductTreeSlice";
 import { addViewer } from '../../store/appSlice';
@@ -29,7 +30,12 @@ function Viewer(){
     const loadModel = useCallback((api : string, url : string, activeViewerID : string) => {
       viewerAPIProxy.loadModel(api, url, activeViewerID )
       .then(async (response : string) => {
-        //console.log("response",response );
+
+        if(response === "SUCCESS") {
+
+               dispatch(setModelLoadedState(true));
+        }
+
         //let modelName = viewerMgr.getModelInfo(viewerID);
         //this.props.saveModelName(modelName[0]?.name);
         //this.props.saveModelLoadingStatus(response);
@@ -54,6 +60,7 @@ function Viewer(){
             dispatch(saveTree({tree:treeData.models,rootIds:treeData.rootNodeIds}));
             }
 
+           // console.log("Showing Model : " + response1);   
             /*       
             setTimeout(() => {
               viewerAPIProxy.fitView(activeViewerID);
@@ -74,7 +81,7 @@ function Viewer(){
       if(!mount) {
             setMount(true);
             //this.props.saveModelLoadingStatus("");
-            let viewerDivID= viewerRefs.current?.id || '';
+            let viewerDivID = viewerRefs.current?.id || '';
             let api = "http://localhost:8181/api/1.0/model";
             //let url = "file://samples/bracket.cax";
             //let url = "file://samples/airbag.cax";
@@ -83,6 +90,7 @@ function Viewer(){
             //let url = "file://samples/F30_model.cax";
             //let url = "file%3A%2F%2FC%3A%5CWORK%5Centerprise-1.1-win64%5Csamples%5Cbracket.cax";
             let url = "file%3A%2F%2FD%3A%5Ccaxserver%5Cbracket.cax";
+          //  let url = "file%3A%2F%2FC%3A%5CWORK%5Centerprise-1.1-win64%5Csamples%5CF30_model.cax";
       
             //let api = "http://100.26.229.30:8181/api/1.0/model";
             //let url = "file%3A%2F%2FC%3A%5CUsers%5CAdministrator%5CDownloads%5Centerprise-1.1-win64%5Csamples%5CF30_model.cax";
