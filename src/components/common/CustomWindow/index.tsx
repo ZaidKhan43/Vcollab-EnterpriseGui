@@ -43,7 +43,12 @@ const useStyles = makeStyles((theme:any) => ({
     }
 }))
 
-const TitleBar = (props:any) => {
+type TitleProps = {
+    title: string,
+    isEditMode: boolean,
+    onClose: (e:any) => void
+}
+const TitleBar = (props:TitleProps) => {
     
     const classes = useStyles(props);
     return (
@@ -55,7 +60,7 @@ const TitleBar = (props:any) => {
             }
         )} >
                 <Box flexGrow={1} component="span" style={{paddingLeft:'4px'}}>
-                    <Typography variant="subtitle2" color='textPrimary' >Title</Typography>
+                    <Typography variant="subtitle2" color='textPrimary' >{props.title}</Typography>
                 </Box>
                 <Box>
                     <IconButton size='small' onClick={props.onClose}>
@@ -68,6 +73,7 @@ const TitleBar = (props:any) => {
 
 type CustomWindowProps = {
     uid: string,
+    title?: string,
     width?: number,
     height?: number,
     parentRef: React.MutableRefObject<null | HTMLDivElement>,
@@ -82,6 +88,7 @@ const CustomWindow = (props:CustomWindowProps) => {
     const [width, setWidth] = useState(props.width || 300);
     const [height, setHeight] = useState(props.height || 300);
     const uid = props.uid;
+    const [title, setTitle] = useState(props.title || uid);
     const window = windowMgr.windows[uid];
     const windowRef = useRef(null);
 
@@ -146,7 +153,7 @@ const CustomWindow = (props:CustomWindowProps) => {
                 setY(position.y );
             }}
             >
-             <TitleBar onClose = {toggleVisibility} isEditMode={window?.isEditMode}></TitleBar>
+             <TitleBar title={title} onClose = {toggleVisibility} isEditMode={window?.isEditMode}></TitleBar>
              {props.children}
             </Rnd>
             </ClickAwayListener>

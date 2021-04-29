@@ -16,6 +16,7 @@ import SnackBar from "./sideBarContents/notifications/SnackBar";
 
 import Viewer from './viewer';
 import CustomWindow from "./common/CustomWindow"
+import Legend from "./common/ColorPlot"
 
 function App() {
 
@@ -68,20 +69,8 @@ function App() {
           <div ref = {viewerContainerRef} className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
             <Viewer />
             <CustomWindow uid="window" parentRef={viewerContainerRef}>
-        <div style={{width:'500px',height:'500px',background:'red'}}>
-          test
-        </div>
-      </CustomWindow>
-      <CustomWindow uid="window2" parentRef={viewerContainerRef}>
-        <div style={{width:'500px',height:'500px',background:'green'}}>
-          test
-        </div>
-      </CustomWindow>
-      <CustomWindow uid="window3" parentRef={viewerContainerRef}>
-        <div style={{width:'500px',height:'500px',background:'blue'}}>
-          test
-        </div>
-      </CustomWindow>
+            <Legend></Legend>
+            </CustomWindow>
           </div>        
         </main>
         <SnackBar/>
