@@ -2,11 +2,13 @@ import { configureStore,combineReducers } from '@reduxjs/toolkit';
 import appSlice from './appSlice';
 import productTreeSlice from './sideBar/ProductTreeSlice';
 import displayModesSlice from "./sideBar/DisplayModesSlice";
+import windowMgrSlice from "./windowMgrSlice";
 import toastSlice from "./toastSlice";
 const store = configureStore({
     reducer:
       combineReducers({
         app: appSlice,
+        windowMgr: windowMgrSlice,
         productTree: productTreeSlice,
         displayModes: displayModesSlice,
         toast: toastSlice

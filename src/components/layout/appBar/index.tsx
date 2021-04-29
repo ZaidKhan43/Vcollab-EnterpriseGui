@@ -1,9 +1,11 @@
+import {useState} from 'react'
 import MuiAppBar from '@material-ui/core/AppBar';
 import MuiToolbar from '@material-ui/core/Toolbar';
 import MuiTypography from '@material-ui/core/Typography';
 import clsx from 'clsx';
 import IconButton from '@material-ui/core/IconButton';
 
+import WindowIcon from '@material-ui/icons/LaptopWindows'
 import Displaymodes from '../../../assets/images/displaymodes';
 import Fitview from '../../../assets/images/fitview';
 import Fullscreen from '../../../assets/images/fullscreen';
@@ -13,7 +15,7 @@ import More from '../../../assets/images/more';
 
 import {selectFullscreenStatus,selectSidebarVisibility,selectDarkModeEnable, selectActiveViewerID,setFullscreenState, setSidebarVisibility , setDarkModeEnable} from '../../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
-
+import {setWindowAccess} from '../../../store/windowMgrSlice'
 //toggle button
 import Switch from "@material-ui/core/Switch";
 
@@ -30,6 +32,8 @@ function AppBar() {
     const activeViewerID = useAppSelector(selectActiveViewerID);
     const dispatch = useAppDispatch();  
 
+    //testing
+    const [windowEnabled, setWindowEnabled] = useState(false);
     const OnClickFullscreen = function(){
       dispatch(setFullscreenState(!isFullscreenEnabled));
     }
@@ -79,6 +83,13 @@ function AppBar() {
           <div className={classes.divIcon}  >
                <IconButton> <Switch checked={isDarkModeEnable} onChange={handleThemeChange} /> </IconButton>
           </div>
+          <div className={classes.divIcon} >
+                <Switch checked={windowEnabled} onChange={(e) => {
+                      setWindowEnabled(e.target.checked)
+                      dispatch(setWindowAccess({enable:e.target.checked}))
+                }
+                  } />
+              </div>
               <div className={classes.divIcon} onClick={ OnClickCapture } >
                     <IconButton><Displaymodes /></IconButton> 
               </div>
