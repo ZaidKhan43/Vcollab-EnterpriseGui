@@ -12,14 +12,16 @@ type WindowMgrState = {
     windows : {[id: string] : WindowState},
     windowsCount: number,
     isEnabled: boolean,
-    baseZIndex: number
+    editModeZIndex: number,
+    viewModeZIndex: number
 }
 
 const initialState = {
     isEnabled: false,
     windowsCount: 0,
     windows: {},
-    baseZIndex: 100
+    editModeZIndex: 100,
+    viewModeZIndex: 5
 } as WindowMgrState
 
 export const windowMgrSlice = createSlice({
@@ -49,20 +51,15 @@ export const windowMgrSlice = createSlice({
         setWindowAccess: (state, action:PayloadAction<{enable:boolean}>) => {
             let windows = state.windows;
             const {enable} = action.payload;
-            if(enable === false)
-            {
-                const windowsSorted = [...Object.values(windows)].sort((a,b) => {
-                    return (a.zOrder < b.zOrder) ? -1 : 1
-                });
-                windowsSorted.forEach((v,i) => {
-                    v.zOrder = i ;
-                    windows[v.id] = v;
-                })
-            }else{
-                [...Object.values(windows)].forEach(window => {
-                    window.zOrder = window.zOrder + state.baseZIndex;
-                })
-            }
+          
+            const windowsSorted = [...Object.values(windows)].sort((a,b) => {
+                return (a.zOrder < b.zOrder) ? -1 : 1
+            });
+            windowsSorted.forEach((v,i) => {
+                v.zOrder = i + (enable ? state.editModeZIndex : state.viewModeZIndex);
+                windows[v.id] = v;
+            })
+            
             state.isEnabled = enable;
         },
         setEditMode: (state, action:PayloadAction<{uid:string,isEdit:boolean}>) => {
@@ -77,7 +74,7 @@ export const windowMgrSlice = createSlice({
                             window.zOrder = window.zOrder-1;
                         }
                     })
-                    const topIndex = state.windowsCount -1 + state.baseZIndex;
+                    const topIndex = state.windowsCount -1 + state.editModeZIndex;
                     if(selectedWindow.zOrder !== topIndex)
                     {
                         let diffToTop = topIndex-selectedWindow.zOrder;

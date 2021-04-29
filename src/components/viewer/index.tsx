@@ -6,8 +6,6 @@ import {setModelLoadedState} from '../../store/appSlice';
 import { useAppDispatch } from '../../store/storeHooks';
 import {saveTree, setHightLightedNodesAsync } from "../../store/sideBar/ProductTreeSlice";
 import { addViewer } from '../../store/appSlice';
-import CustomWindow from "../common/CustomWindow"
-import {addWindow,removeWindow} from "../../store/windowMgrSlice";
 
 function Viewer(){
     
@@ -153,21 +151,6 @@ function Viewer(){
         ref={viewerRefs}
         className="viewer"
       >
-      <CustomWindow uid="window">
-        <div style={{width:'500px',height:'500px',background:'red'}}>
-          test
-        </div>
-      </CustomWindow>
-      <CustomWindow uid="window2">
-        <div style={{width:'500px',height:'500px',background:'green'}}>
-          test
-        </div>
-      </CustomWindow>
-      <CustomWindow uid="window3">
-        <div style={{width:'500px',height:'500px',background:'blue'}}>
-          test
-        </div>
-      </CustomWindow>
       </div>
     );
 }

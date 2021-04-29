@@ -15,6 +15,7 @@ import { appBarMinHeight } from '../config';
 import SnackBar from "./sideBarContents/notifications/SnackBar";
 
 import Viewer from './viewer';
+import CustomWindow from "./common/CustomWindow"
 
 function App() {
 
@@ -26,6 +27,7 @@ function App() {
   const isSidebarVisible = useAppSelector(selectSidebarVisibility);
   const dispatch = useAppDispatch();  
   const targetRef = useRef(null);
+  const viewerContainerRef = useRef(null);
 
   //===========================================================================
   const onResize = useCallback((width ?:number, height ?: number) => {
@@ -63,8 +65,23 @@ function App() {
         { ( isAppBarVisible ?  <AppBar /> : null ) }
         <Sidebar />
         <main  className={ clsx(classes.content , {[classes.contentWithSideBar]: isSidebarVisible} , {[classes.contentWithTopBar]: isAppBarVisible}) }>
-          <div className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
+          <div ref = {viewerContainerRef} className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
             <Viewer />
+            <CustomWindow uid="window" parentRef={viewerContainerRef}>
+        <div style={{width:'500px',height:'500px',background:'red'}}>
+          test
+        </div>
+      </CustomWindow>
+      <CustomWindow uid="window2" parentRef={viewerContainerRef}>
+        <div style={{width:'500px',height:'500px',background:'green'}}>
+          test
+        </div>
+      </CustomWindow>
+      <CustomWindow uid="window3" parentRef={viewerContainerRef}>
+        <div style={{width:'500px',height:'500px',background:'blue'}}>
+          test
+        </div>
+      </CustomWindow>
           </div>        
         </main>
         <SnackBar/>

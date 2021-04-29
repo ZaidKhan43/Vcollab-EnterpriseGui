@@ -1,8 +1,9 @@
 import { Box, IconButton, Typography, ClickAwayListener } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/styles';
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useCallback, useState } from 'react'
 import { Rnd } from 'react-rnd'
+import { useResizeDetector } from 'react-resize-detector';
 import clsx from 'clsx'
 import { selectWindowMgr, addWindow, removeWindow, setEditMode, setHiddenState, setWindowAccess} from '../../../store/windowMgrSlice'
 import {useAppSelector, useAppDispatch} from "../../../store/storeHooks";
@@ -67,19 +68,46 @@ const TitleBar = (props:any) => {
 
 type CustomWindowProps = {
     uid: string,
+    width?: number,
+    height?: number,
+    parentRef: React.MutableRefObject<null | HTMLDivElement>,
     children:any
 } 
 
 const CustomWindow = (props:CustomWindowProps) => {
     const dispatch = useAppDispatch();
     const windowMgr = useAppSelector(selectWindowMgr);
+    const [x, setX] = useState(0);
+    const [y, setY] = useState(0);
+    const [width, setWidth] = useState(props.width || 300);
+    const [height, setHeight] = useState(props.height || 300);
     const uid = props.uid;
     const window = windowMgr.windows[uid];
+    const windowRef = useRef(null);
+
+    const onResize = useCallback((width ?:number, height ?: number) => {
+     if(windowRef.current)
+        {
+            const windowEl = windowRef.current as any;
+            console.log(windowEl.updateOffsetFromParent());
+        }
+        
+      }, [ dispatch, props.parentRef]);
+
+    useResizeDetector({ 
+        refreshMode: 'debounce',
+        refreshRate: 400,
+        refreshOptions :{trailing : true, leading : false },
+        onResize,
+        targetRef: props.parentRef
+      });
+    
     let styleProps = {
         window,
         isEnabled: windowMgr.isEnabled
     }
     let classes = useStyles(styleProps);
+
     const toggleVisibility = (v:boolean) => {
         dispatch(setHiddenState({uid, isHidden: window ? !window.isHidden : false}));
     }
@@ -95,17 +123,28 @@ const CustomWindow = (props:CustomWindowProps) => {
         <>
             <ClickAwayListener onClickAway={() => dispatch(setEditMode({uid,isEdit:false}))}>
             <Rnd 
+            ref = {windowRef}
             className={clsx( classes.overflow,
                 {   [classes.edit]: !window?.isHidden && window?.isEditMode,
                     [classes.view]: !window?.isHidden && !window?.isEditMode,
                     [classes.hide]: window?.isHidden
                 })} 
             style = {!window?.isEditMode ? {userSelect:'none'}: {}}
-            default={{x:100,y:100,width:300,height:300}}
             bounds="parent" 
             onDoubleClick = {() => dispatch(setEditMode({uid,isEdit:true}))}
             enableResizing={window?.isEditMode}
             dragHandleClassName={`${classes.grabHandle}`}
+            size={{ width,  height }}
+            position={{ x, y}}
+            onDragStop={(e, d) => {
+                setX(d.x); setY(d.y); 
+             }}
+            onResize={(e, direction, ref, delta, position) => {
+                setWidth(ref.offsetWidth);
+                setHeight(ref.offsetHeight);
+                setX(position.x );
+                setY(position.y );
+            }}
             >
              <TitleBar onClose = {toggleVisibility} isEditMode={window?.isEditMode}></TitleBar>
              {props.children}
