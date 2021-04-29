@@ -9,13 +9,23 @@ import React, { useState, useEffect } from "react";
 export default function RotateSlider( props : any ){
 
     const [value,setValue] = useState(props.value);
+    const [valueOne, setValueOne] = useState(value)
     const classes = styles();
 
     const onChangeHandle = (value: any) => {
-        setValue(value)
-        props.functionOne(props.setFunction, value)
+        setValueOne(value)
+        if(Math.round(value) !== valueOne)
+            setValue(valueOne)
+        props.functionOne(props.setFunction, valueOne)
     }
 
+    const functionTwo = (value: any) => {
+        if(value > 359.99)
+            value = 359 
+        setValue(value)
+        setValueOne(value)
+        props.functionTwo(value)
+    } 
     // const onHandleClick = (toDo : any) => {
     //     if(toDo === "Add"){
     //         if(value == 359){
@@ -37,7 +47,7 @@ export default function RotateSlider( props : any ){
         <div>
 
             <CircularSlider
-                dataIndex={props.value}
+                dataIndex={valueOne}
                 width={90}
                 knobRadius={10}
                 progressWidth={20}
@@ -50,7 +60,7 @@ export default function RotateSlider( props : any ){
                 tooltipColor="#6ab6e1"
                 showTooltip={true}
                 tooltipSize={26}
-                onChange={ (value : any) => onChangeHandle(value)}
+                onChange={onChangeHandle}
                 renderLabelValue ={
                     <div className={classes.circularSlider}>
                         {/* <div onClick={() => onHandleClick("Add")} > + </div> */}
@@ -81,29 +91,18 @@ export default function RotateSlider( props : any ){
                         {/* <button onClick={() => console.log("hello")} > + </button> */}
                         <NumericInput style={{input:{color: "white", fontSize:"12px",background:"#353535",},}}
                         className={classes.clicularSliderInputOne}
-                        format={() => props.value + "°"}
-                        value={props.value}
-                        precision={2}
+                        format={() => value + "°"}
+                        value={value}
+                        precision={4}
                         min={0.0}
                         max={359.9}
                         mobile={false}
-                        onChange={props.functionTwo}
+                        onChange={functionTwo}
                         />
                         {/* <div onClick={() => onHandleClick("Sub")}>-</div> */}
                     </div>
                 }
             />
-{/* 
-      <NumericInput style={{input:{color: "white", fontSize:"12px",background:"#353535",},}}
-                        className={classes.clicularSliderInputOne}
-                        format={() => props.value + "°"}
-                        value={props.value}
-                        precision={2}
-                        min={0.0}
-                        max={359.9}
-                        mobile={false}
-                        onChange={props.functionTwo}
-                        /> */}
             
             <Typography style={{fontSize:"14px"}}   noWrap>{props.label}</Typography>
         </div>
