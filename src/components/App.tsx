@@ -4,15 +4,20 @@ import { useResizeDetector } from 'react-resize-detector';
 import FullScreen from 'react-fullscreen-crossbrowser';
 
 import styles from './App.style';
+import AppLoader from './appLoader/appLoader';
 import Sidebar from './layout/sideBar';
 import AppBar from './layout/appBar';
 import FullscreenIcon from './layout/fullscreenIcon';
 import { useAppSelector, useAppDispatch } from '../store/storeHooks';
 import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
-        setAppBarVisibility, setFullscreenState } from '../store/appSlice';
+        setAppBarVisibility, setFullscreenState ,selectModelLoadedState} from '../store/appSlice';
 import { appBarMinHeight } from '../config';
 
+import Viewer from './viewer';
+
 function App() {
+
+  const isModelLoaded = useAppSelector(selectModelLoadedState);
       
   const classes = styles();
   const isAppBarVisible  = useAppSelector(selectAppBarVisibility);
@@ -47,11 +52,18 @@ function App() {
     onChange={(isFullscreenEnabled: any) => handleFullscreen(isFullscreenEnabled)}
     >
       <div className={classes.root} ref = { targetRef }> 
+      
+      {isModelLoaded === false ? (
+        <AppLoader />
+      ) : null} 
+
         <FullscreenIcon />
         { ( isAppBarVisible ?  <AppBar /> : null ) }
         <Sidebar />
         <main  className={ clsx(classes.content , {[classes.contentWithSideBar]: isSidebarVisible} , {[classes.contentWithTopBar]: isAppBarVisible}) }>
-          <div className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}></div>        
+          <div className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
+            <Viewer />
+          </div>        
         </main>
       </div>
     </FullScreen>

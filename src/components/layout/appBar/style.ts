@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { topbarHeight, drawerWidth, colors } from '../../../config';
+import { topbarHeight, drawerWidth } from '../../../config';
 
 export default makeStyles((theme) => ({
     appBar : {
@@ -10,6 +10,7 @@ export default makeStyles((theme) => ({
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
           }),
+        backgroundColor:theme.palette.background.default,
     },
     appBarwithSideBar : {
         [theme.breakpoints.up('md')]: {
@@ -24,11 +25,8 @@ export default makeStyles((theme) => ({
     toolBar : {
         minHeight: topbarHeight,
         height: topbarHeight,
-        background: colors.primary,
         boxShadow: 'none',
-        //padding: sidebarContentLeftMargin,
         display: 'flex',
-        //width: '100%',
         justifyContent: 'space-between',
         paddingLeft: '0px',
         paddingRight: '0px',
@@ -46,6 +44,7 @@ export default makeStyles((theme) => ({
     leftTitle : {
         display: 'block',
         padding : 10,
+        color: theme.palette.text.primary,
         [theme.breakpoints.down('xs')]: {
             display: 'none',
         },

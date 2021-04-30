@@ -4,15 +4,16 @@ import MuiTypography from '@material-ui/core/Typography';
 import clsx from 'clsx';
 import IconButton from '../../common/iconbutton';
 import React, { useState, useEffect } from "react";
+// import IconButton from '@material-ui/core/IconButton';
 
-//import Capture from '../../../assets/images/capture.svg';
-import Displaymodes from '../../../assets/images/displaymodes.svg';
-import Fitview from '../../../assets/images/fitview.svg';
-import Fullscreen from '../../../assets/images/fullscreen.svg';
-import FullscreenClose from '../../../assets/images/fullscreen_exit.svg';
-import Hamburger from '../../../assets/images/hamburger.svg';
-import More from '../../../assets/images/more.svg';
-import {selectFullscreenStatus,selectSidebarVisibility, setFullscreenState, setSidebarVisibility } from '../../../store/appSlice';
+import Displaymodes from '../../../assets/images/displaymodes';
+import Fitview from '../../../assets/images/fitview';
+import Fullscreen from '../../../assets/images/fullscreen';
+import FullscreenClose from '../../../assets/images/fullscreen_exit';
+import Hamburger from '../../../assets/images/hamburger';
+import More from '../../../assets/images/more';
+
+import {selectFullscreenStatus,selectSidebarVisibility,selectDarkModeEnable, selectActiveViewerID,setFullscreenState, setSidebarVisibility , setDarkModeEnable} from '../../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
 
 import Shaded from "../../../assets/views/shaded.svg";
@@ -33,6 +34,10 @@ import Typography from '@material-ui/core/Typography';
 
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import DropDown from '../../../components/common/dropDown';
+//toggle button
+import Switch from "@material-ui/core/Switch";
+
+import * as viewerAPIProxy from '../../../backend/viewerAPIProxy';
 
 import  styles from './style';
 
@@ -41,6 +46,8 @@ function AppBar() {
     const classes = styles();
     const isFullscreenEnabled = useAppSelector(selectFullscreenStatus);
     const isSidebarVisible = useAppSelector(selectSidebarVisibility);
+    const isDarkModeEnable = useAppSelector(selectDarkModeEnable);
+    const activeViewerID = useAppSelector(selectActiveViewerID);
     const dispatch = useAppDispatch();  
 
     const [moreAnchorEl, setMoreAnchorEl] = useState(null);
@@ -68,9 +75,23 @@ function AppBar() {
       dispatch(setFullscreenState(!isFullscreenEnabled));
     }
 
+    const OnClickCapture = function(){
+      viewerAPIProxy.captureScreen(activeViewerID);
+    }
+
+    const OnClickFitview = function(){
+      viewerAPIProxy.fitView(activeViewerID);
+    }
+
     const onClickHamburger = function(){
       dispatch(setSidebarVisibility(!isSidebarVisible));
     }  
+  
+// Toggleing theme
+
+    const handleThemeChange = function() {
+      dispatch(setDarkModeEnable (!isDarkModeEnable));
+    }
 
     const handleClick = (e: any, name : any) => {
       if(name === "display"){
@@ -100,7 +121,7 @@ function AppBar() {
           <div className={classes.toolBarLeftContent}>            
             <div onClick ={ onClickHamburger }
             className={ clsx( classes.divIcon, classes.hamburgerIcon, { [classes.hamburgerIconHidden]: isSidebarVisible }) }>
-              <IconButton edge={false} src={Hamburger} />
+              <IconButton> <Hamburger /></IconButton> 
             </div>
             
             <div className={clsx( classes.leftTitle, { [classes.leftTitleHidden]: isSidebarVisible })}>
@@ -111,24 +132,31 @@ function AppBar() {
 
           </div>
      
-          <div className={classes.toolBarRightContent} id="simple-menu">
-            <div className={classes.divIcon} >
-              <IconButton edge={false} src={Displaymodes} onClick={(e : any) => handleClick(e, "display") }/>
-            </div>
-            <div className={classes.divIcon} >
-              <IconButton edge={false} src={Fitview} />
-            </div>
-            <div className={classes.divIcon} >
-              <IconButton edge={false} src={More}  onClick={(e : any) => handleClick(e, "more") } />
-            </div>             
-            <div className={classes.divIcon} onClick={ OnClickFullscreen }>
-              {(isFullscreenEnabled ?
-                <IconButton edge={false} src={FullscreenClose } /> 
-                 :
-                <IconButton edge={false} src={Fullscreen} />
-              )}
-            </div>
-            <ClickAwayListener onClickAway={() => {  
+         
+          <div className={classes.toolBarRightContent}>
+          
+          <div className={classes.divIcon}  >
+               <IconButton> <Switch checked={isDarkModeEnable} onChange={handleThemeChange} /> </IconButton>
+          </div>
+              <div className={classes.divIcon} onClick={ OnClickCapture } >
+                    <IconButton><Displaymodes /></IconButton> 
+              </div>
+              <div className={classes.divIcon} onClick={ OnClickFitview }>
+                 <IconButton><Fitview/></IconButton>
+              </div>
+              <div className={classes.divIcon} >
+                  <IconButton><More /></IconButton>
+              </div>
+             
+              <div className={classes.divIcon} onClick={ OnClickFullscreen }>
+                {(isFullscreenEnabled ?
+                  <IconButton><FullscreenClose  /></IconButton>  :
+                 <IconButton><Fullscreen /> </IconButton> 
+                )}
+              </div>
+          </div>
+          
+          <ClickAwayListener onClickAway={() => {  
               if(clickedMenu === "more" || clickedMenu === "display")
               setClickedMenu(null);
             else{
@@ -141,7 +169,6 @@ function AppBar() {
                 <DropDown open={Boolean(moreAnchorEl)} ancgorEl={moreAnchorEl} items={moreMenuItems}  style={{backgroundColor: "#171727",opacity:"70%", borderRadius: "0px",marginTop: "58px",marginLeft:"85%",boxShadow: "none",}} size={false}/>
             </div>
          </ClickAwayListener>
-          </div>
          
         </MuiToolbar>     
       </MuiAppBar>
