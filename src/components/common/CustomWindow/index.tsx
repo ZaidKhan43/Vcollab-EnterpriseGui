@@ -1,6 +1,6 @@
 import { Box, IconButton, Typography, ClickAwayListener } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
-import { makeStyles } from '@material-ui/styles';
+import { makeStyles, createStyles } from '@material-ui/core/styles';
 import React, { useEffect, useRef, useCallback, useState } from 'react'
 import { Rnd } from 'react-rnd'
 import { useResizeDetector } from 'react-resize-detector';
@@ -9,10 +9,10 @@ import { selectWindowMgr, addWindow, removeWindow, setEditMode, setHiddenState, 
 import {useAppSelector, useAppDispatch} from "../../../store/storeHooks";
 
 
-const useStyles = makeStyles((theme:any) => ({
+const useStyles = makeStyles(theme => createStyles({
     titleBar:{
         alignItems: 'center',
-        backgroundColor: theme.palette.primary.main
+        background: theme.palette.background.paper
     },
     grabHandle:{
         cursor: "grab",
@@ -20,7 +20,6 @@ const useStyles = makeStyles((theme:any) => ({
     },
     edit: {
         border: "solid 1px #ddd",
-        backgroundColor: theme.palette.background,
         boxShadow: theme.shadows[1],
         zIndex: (props:any) => (props.window? props.window.zOrder : 0),
         pointerEvents: 'initial',
