@@ -1,20 +1,24 @@
 import { makeStyles } from '@material-ui/core/styles';
 import { colors } from '../../../config/index';
 
-export default makeStyles((theme) => ({
+export default makeStyles((theme) => (
+  {
   heading: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     width: '100%',
-    color:colors.secondaryText,
+    color: theme.palette.text.primary,
     padding: 12,
   },
-      
-  headerIcon:{
-    width : 48,
-    height: 48,
+  
+  button : {
+    color: theme.palette.text.primary,
   },
+  // headerIcon:{
+  //   width : 48,
+  //   height: 48,
+  // },
       
   list:{
     position: "absolute",
@@ -28,13 +32,13 @@ export default makeStyles((theme) => ({
     justifyContent: "flex-start",
     width: "100%",
     padding: 1,
-    color: colors.secondaryText,
+    color: theme.palette.text.primary,
     '&:hover': {
-      background: colors.secondaryHover,
+      background: theme.palette.action.hover,
     },
     [theme.breakpoints.down('sm')]: {
       '&:hover': {
-        background: colors.secondaryHoverTransparent,
+        background: theme.palette.action.hover,
       }
     },
   },
@@ -45,14 +49,14 @@ export default makeStyles((theme) => ({
     justifyContent: "flex-start",
     width: "100%",
     padding: 1,
-    background: colors.secondaryHover,
+    background: theme.palette.action.selected,
     [theme.breakpoints.down('sm')]: {
-        background: colors.secondaryHoverTransparent,
+      background: theme.palette.action.hover,
     },
   },
   
   listItemText: {
-    color: colors.secondaryText,
+    color: theme.palette.text.primary,
     fontSize: "18px",
   },
   
@@ -62,18 +66,18 @@ export default makeStyles((theme) => ({
     justifyContent: "flex-start",
     padding: 12,
     marginTop:"%",
-    color:colors.secondaryText,
+    color: theme.palette.text.primary,
   },
   
   displayList:{
-    position:"absolute",
-    left: "5%",
-    right: "-100%",     
+    // position:"absolute",
+    paddingLeft: "5%",
+    // right: "-100%",     
   },
 
   footerCard:{
     height:"45px",
-    backgroundColor: colors.secondaryHover,
+    backgroundColor: theme.palette.action.selected,
     width: "100%",
     position: "absolute",
     borderRadius:"10px 10px 0 0",
@@ -90,9 +94,27 @@ export default makeStyles((theme) => ({
     width: "100%",
     padding: 1,
     marginTop:"15px",
-    color: colors.secondaryText,
+    color: theme.palette.text.primary,
     fontSize: "14px",
     marginLeft:"2%"
+  },
+
+  dialogBox: {
+    color: theme.palette.text.primary,
+    fontSize: "50px",
+  },
+
+  snackBar: {
+    background: theme.palette.background.paper,
+    color: theme.palette.error.light,
+    opacity:"50%",
+    marginTop:'40px',
+  },
+
+  dialogBoxIconCard: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   circularSlider: {
@@ -105,17 +127,42 @@ export default makeStyles((theme) => ({
   },
 
   clicularSliderInputOne: {
-    color:"#DFDEDE",
-    border: "1px solid #DFDEDE",
+    color:theme.palette.text.primary,
+    background:"none",
+    border: "1px solid",
+    borderColor: theme.palette.text.primary ,
     marginTop:"-50%",
     // paddingLeft:"20%",
     paddingTop:"10%",
     width:"100%",
     // left:"70%",
     // top:"10%",
-    // right:"10%",
-    fontSize:"5px",
+    right:"10%",
+    fontSize:"4px",
     zIndex: 10,
     size: 4,
   },
+
+  input :{
+    width: "150px",
+  height: "20px",
+  color:theme.palette.text.primary,
+  paddingLeft:"25%",
+},
+
+inputOne :{
+  color: theme.palette.text.primary, 
+  border: "1px solid",
+  boderColor: theme.palette.text.primary, 
+  paddingLeft:"10%",
+},
+
+  caption: {
+    fontSize:"14px",
+    color: theme.palette.text.primary,
+    opacity: 0.7,
+  },
+
+ 
+  
 }));

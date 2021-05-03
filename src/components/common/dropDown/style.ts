@@ -5,7 +5,7 @@ import { colors } from '../../../config/index';
 export default makeStyles((theme) => ({
   icon : {
    '&:hover': {
-      background: colors.secondary,
+    background: theme.palette.action.hover,
     },
   },
 
@@ -15,23 +15,23 @@ export default makeStyles((theme) => ({
   },
 
   listItem:{
-    color:"#DFDEDE", 
+    color: theme.palette.text.primary, 
     flex: 1, 
     minWidth: "148px", 
     fontSize:"18px"
   },
 
   listItemSize: {
-    color:"#DFDEDE",
+    color: theme.palette.text.primary,
     fontSize:"12px", 
     textDecoration: "underline",
   },
   popper:
   {
-    backgroundColor: "#171727",
+    backgroundColor: theme.palette.background.default ,
   opacity:"70%", 
   marginTop:"58px",
-  marginLeft:"80%",
+  marginLeft:"83%",
   [theme.breakpoints.down(1200)]: {
     marginTop: "58px",
     marginLeft:"75%",
@@ -53,6 +53,11 @@ export default makeStyles((theme) => ({
     marginLeft:"55%",
     boxShadow: "none",
 },
+},
+
+snackBar:{ 
+  opacity:"30%", 
+  marginTop:'40px'
 },
   
 }));

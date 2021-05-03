@@ -4,6 +4,12 @@ import { Popover,Popper } from "@material-ui/core";
 import Typography from '@material-ui/core/Typography';
 import Snackbar from '@material-ui/core/Snackbar';
 
+import Alert from '@material-ui/lab/Alert';
+import Collapse from '@material-ui/core/Collapse';
+
+
+import {Icon} from '@material-ui/core';
+
 import styles from './style';
 
 import React, { useState, useEffect } from "react";
@@ -33,7 +39,7 @@ export default function DropDown (props : any) {
           {props.items.map((item :any,index : any)=>(
             <div>
               <MenuItem className={classes.icon}  key={index} onClick={() => showAlert(item)} disabled = {item.disabled === true}>
-                <img  src={item.icon} style ={{ paddingRight: "10px"}} alt="Vcollab Logo"/>
+                <Icon><item.icon/></Icon>
                 <Typography  className={classes.listItem} variant="h2">{item.title} </Typography>
                 {props.size ?  <Typography  className={classes.listItemSize} variant="subtitle1">0 B</Typography> : null}
               </MenuItem>
@@ -42,18 +48,18 @@ export default function DropDown (props : any) {
         </MenuList>
       </Popper>   
       
-      <Snackbar style={{backgroundColor:"#DFDEDE", opacity:"30%", marginTop:'40px'}}
+      <Snackbar className={classes.snackBar}
         anchorOrigin={{vertical:"top", horizontal:'center'}}
         autoHideDuration={2000}
         open={openAlert}
-        onClose={handleCloseAlert}
-        message={
+        onClose={handleCloseAlert} >
+          <Alert icon={false}>
           <span>
-            <img className={classes.iconStyle}  src={itemImage} style ={{ paddingRight: "10px"}} alt="Vcollab Logo"/>
-            <span className={classes.listItem} >{itemMessage} </span>
+          {/* <Icon>{itemImage}</Icon> */}
+            <span>{itemMessage} </span>
           </span>
-        }
-      />
+          </Alert>
+        </Snackbar>
     </div>
   )
 }

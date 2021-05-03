@@ -2,6 +2,8 @@
 import React, { Component } from "react"
 import PropTypes from 'prop-types'
 
+import Typography from '@material-ui/core/Typography';
+
 const KEYCODE_UP           = 38;
 const KEYCODE_DOWN         = 40;
 const IS_BROWSER           = typeof document != 'undefined';
@@ -116,6 +118,9 @@ class NumericInput extends Component
             }
         }
     };
+
+ 
+
 
     /**
      * The default behavior is to start from 0, use step of 1 and display
@@ -1134,16 +1139,18 @@ class NumericInput extends Component
                 </span>
             )
         }
+        
 
         return (
             <div>
-            <div {...attrs.btnUp}>
-            +
-            </div>
+                <div  {...attrs.btnUp}>
+                <Typography className={props.classes}>+</Typography>
+                </div>
+        
             <div style={{marginTop:"50%",}} {...attrs.wrap}>
-                <InputTag {...attrs.input}/>
+                <InputTag {...attrs.input} ClassName={props.className}/>
             </div> 
-                <div {...attrs.btnDown}>
+                <div {...attrs.btnDown} className={props.classes}>
                  -
                 </div>
             </div>

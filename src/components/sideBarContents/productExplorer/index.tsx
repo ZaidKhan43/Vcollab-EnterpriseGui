@@ -1,7 +1,7 @@
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import SideBarContainer from '../../layout/sideBar/sideBarContainer';
-import BackIcon from '../../../assets/images/back.svg';
+// import BackIcon from '../../../assets/images/back.svg';
 import Search from '../../../assets/images/search.svg';
 import styles from './style';
 
@@ -15,9 +15,11 @@ export default function ProductExplorer(){
     }
 
     const getHeaderLeftIcon= () => {
-      return (<IconButton
-      className={classes.backIcon}
-      onClick={() => onClickBackIcon()}><img src={ BackIcon } alt={'BackIcon'} /> </IconButton>);
+      return (
+      // <IconButton
+      // className={classes.backIcon}
+      // onClick={() => onClickBackIcon()}><img src={ BackIcon } alt={'BackIcon'} /> </IconButton>
+      <div></div>);
     }
 
     const getHeaderContent = () => {

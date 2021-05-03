@@ -2,9 +2,9 @@ import MuiAppBar from '@material-ui/core/AppBar';
 import MuiToolbar from '@material-ui/core/Toolbar';
 import MuiTypography from '@material-ui/core/Typography';
 import clsx from 'clsx';
-import IconButton from '../../common/iconbutton';
+// import IconButton from '../../common/iconbutton';
 import React, { useState, useEffect } from "react";
-// import IconButton from '@material-ui/core/IconButton';
+import IconButton from '@material-ui/core/IconButton';
 
 import Displaymodes from '../../../assets/images/displaymodes';
 import Fitview from '../../../assets/images/fitview';
@@ -16,16 +16,16 @@ import More from '../../../assets/images/more';
 import {selectFullscreenStatus,selectSidebarVisibility,selectDarkModeEnable, selectActiveViewerID,setFullscreenState, setSidebarVisibility , setDarkModeEnable} from '../../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
 
-import Shaded from "../../../assets/views/shaded.svg";
-import ShadedMesh from "../../../assets/views/shadedMesh.svg";
-import BoundingBox from "../../../assets/views/boundingBox.svg";
-import HiddenLine from "../../../assets/views/hiddenLine.svg";
-import Wireframe from "../../../assets/views/wireframe.svg";
-import Point from "../../../assets/views/point.svg";
-import Transparent from "../../../assets/views/transparent.svg";
+import Shaded from "../../../assets/views/shaded";
+import ShadedMesh from "../../../assets/views/shadedMesh";
+import BoundingBox from "../../../assets/views/boundingBox";
+import HiddenLine from "../../../assets/views/hiddenLine";
+import Wireframe from "../../../assets/views/wireframe";
+import Point from "../../../assets/views/point";
+import Transparent from "../../../assets/views/transparent";
 
-import Capture from "../../../assets/images/capture.svg";
-import Clock from "../../../assets/images/clock.svg";
+import CameraAltOutlinedIcon from '@material-ui/icons/CameraAltOutlined';
+import UpdateOutlinedIcon from '@material-ui/icons/UpdateOutlined';
 
 import MenuItem from "@material-ui/core/MenuItem";
 import MenuList from "@material-ui/core/MenuList";
@@ -62,13 +62,13 @@ function AppBar() {
     { title: "Wireframe", icon: Wireframe,id:"DM_3", disabled : false},
     { title: "Shaded Mesh", icon: ShadedMesh,id:"DM_6", disabled : false},  
     { title: "Hidden Line", icon: HiddenLine,id:"DM_4", disabled : false},
-    { title: "Transparent", icon: Transparent,id:"DM_7", disabled : false},
+    { title: "Transparant", icon: Transparent,id:"DM_7", disabled : false},
     { title: "Point", icon: Point,id:"DM_2", disabled : false},   
   ];
 
   const moreMenuItems = [
-    { title: "Status", icon: Clock },
-    { title: "Capture", icon: Capture },
+    { title: "Status", icon: UpdateOutlinedIcon },
+    { title: "Capture", icon: CameraAltOutlinedIcon },
   ];
 
     const OnClickFullscreen = function(){
@@ -138,14 +138,14 @@ function AppBar() {
           <div className={classes.divIcon}  >
                <IconButton> <Switch checked={isDarkModeEnable} onChange={handleThemeChange} /> </IconButton>
           </div>
-              <div className={classes.divIcon} onClick={ OnClickCapture } >
-                    <IconButton><Displaymodes /></IconButton> 
+              <div className={classes.divIcon}  >
+                    <IconButton onClick={(e) => handleClick(e,"display") }><Displaymodes /></IconButton> 
               </div>
               <div className={classes.divIcon} onClick={ OnClickFitview }>
                  <IconButton><Fitview/></IconButton>
               </div>
               <div className={classes.divIcon} >
-                  <IconButton><More /></IconButton>
+                  <IconButton onClick={(e) => handleClick(e,"more") }><More /></IconButton>
               </div>
              
               <div className={classes.divIcon} onClick={ OnClickFullscreen }>
@@ -154,21 +154,22 @@ function AppBar() {
                  <IconButton><Fullscreen /> </IconButton> 
                 )}
               </div>
+              <ClickAwayListener onClickAway={() => {  
+                if(clickedMenu === "more" || clickedMenu === "display")
+                  setClickedMenu(null);
+                else{
+                  setDisplayAnchorEl(null);
+                  setMoreAnchorEl(null);
+                }
+              }}>
+                <div>
+                  <DropDown  open={Boolean(displayAnchorEl)} ancgorEl={displayAnchorEl} items={displayMenuItems}  size={true}/>
+                  <DropDown open={Boolean(moreAnchorEl)} ancgorEl={moreAnchorEl} items={moreMenuItems}  style={{backgroundColor: "#171727",opacity:"70%", borderRadius: "0px",marginTop: "58px",marginLeft:"85%",boxShadow: "none",}} size={false}/>
+                </div>
+         </ClickAwayListener>
           </div>
           
-          <ClickAwayListener onClickAway={() => {  
-              if(clickedMenu === "more" || clickedMenu === "display")
-              setClickedMenu(null);
-            else{
-              setDisplayAnchorEl(null);
-              setMoreAnchorEl(null);
-            }
-            }}>
-            <div>
-              <DropDown  open={Boolean(displayAnchorEl)} ancgorEl={displayAnchorEl} items={displayMenuItems}  size={true}/>
-                <DropDown open={Boolean(moreAnchorEl)} ancgorEl={moreAnchorEl} items={moreMenuItems}  style={{backgroundColor: "#171727",opacity:"70%", borderRadius: "0px",marginTop: "58px",marginLeft:"85%",boxShadow: "none",}} size={false}/>
-            </div>
-         </ClickAwayListener>
+        
          
         </MuiToolbar>     
       </MuiAppBar>

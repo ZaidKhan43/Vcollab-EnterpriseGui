@@ -13,7 +13,7 @@ export default function RotateSlider( props : any ){
     const classes = styles();
 
     const onChangeHandle = (value: any) => {
-        setValueOne(value)
+        setValueOne(parseFloat(value))
         if(Math.round(value) !== valueOne)
             setValue(valueOne)
         props.functionOne(props.setFunction, valueOne)
@@ -42,10 +42,10 @@ export default function RotateSlider( props : any ){
     // const onEdit = (e : any) => {
     //     setValue(e.target.value)
     // }
+    
 
     return(
         <div>
-
             <CircularSlider
                 dataIndex={valueOne}
                 width={90}
@@ -55,7 +55,8 @@ export default function RotateSlider( props : any ){
                 circleWidth={3}
                 max={359.9}
                 knobPosition= "right"
-                knobColor="#ffffff"
+                knobColor="#8C8BFF"
+                trackColor = '#DDDEFB' 
                 knobSize={24}
                 tooltipColor="#6ab6e1"
                 showTooltip={true}
@@ -63,33 +64,7 @@ export default function RotateSlider( props : any ){
                 onChange={onChangeHandle}
                 renderLabelValue ={
                     <div className={classes.circularSlider}>
-                        {/* <div onClick={() => onHandleClick("Add")} > + </div> */}
-                        {/* <Input
-                            style={{ color:"#DFDEDE",paddingLeft:"20%",
-                            paddingTop:"10%",
-                            width:"70%",
-                            left:"0%",
-                            top:"15%",bottom:"-20%",
-                            fontSize:"8px",
-                            zIndex: 10,
-                            border: "1px solid #DFDEDE",
-                        }}    
-                            value={value}
-                            margin="dense"
-                            inputProps={{
-                                step: 1,
-                                min: 0,
-                                max: 359,
-                                // type:"number",
-                               
-                                'aria-labelledby': 'input-slider', 
-                            }}
-                            onChange={onEdit}
-                        /> */}
-
-
-                        {/* <button onClick={() => console.log("hello")} > + </button> */}
-                        <NumericInput style={{input:{color: "white", fontSize:"12px",background:"#353535",},}}
+                        <NumericInput style={{input:{ fontSize:"12px",},}}
                         className={classes.clicularSliderInputOne}
                         format={() => value + "°"}
                         value={value}
@@ -98,13 +73,14 @@ export default function RotateSlider( props : any ){
                         max={359.9}
                         mobile={false}
                         onChange={functionTwo}
+                        classes={classes.button}
                         />
                         {/* <div onClick={() => onHandleClick("Sub")}>-</div> */}
                     </div>
                 }
             />
             
-            <Typography style={{fontSize:"14px"}}   noWrap>{props.label}</Typography>
+            <Typography className={classes.caption}  noWrap>{props.label}</Typography>
         </div>
     )
 }

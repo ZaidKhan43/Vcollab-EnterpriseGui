@@ -4,17 +4,19 @@ import styles from './style';
 import SideBarContainer from '../../layout/sideBar/sideBarContainer';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
-import BackIcon from '../../../assets/images/back.svg';
+import BackButton from '../../../assets/images/back';
 
 import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
 
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
+
+
 import Input from '@material-ui/core/Input';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
-import FlipDirectionLeft from "../../../assets/images/flipDirectionLeft.svg";
-import FlipDirectionRight from "../../../assets/images/flipDirectionRight.svg";
+import FlipDirectionLeft from "../../../assets/images/flipDirectionLeft";
+import FlipDirectionRight from "../../../assets/images/flipDirectionRight";
 
 import { editPlane } from '../../../store/clipSlice';
 import RotateSlider from './rotateSlider'
@@ -83,9 +85,7 @@ export default function ClipPlanes(props : any){
 
   const getHeaderLeftIcon= () => {
     return (
-      <IconButton className={classes.headerIcon} >
-        <img src={ BackIcon } alt={'BackIcon'} onClick={() => props.onHandleEdit()}/> 
-      </IconButton>
+      <IconButton onClick={() => props.onHandleEdit()}><BackButton/></IconButton>
     );
   }
 
@@ -146,10 +146,12 @@ export default function ClipPlanes(props : any){
         </Typography>
         <form noValidate autoComplete="off">
           <div className={classes.listSub}>
-            <Input
-              inputProps={{style: {width: "200px",height: "20px",color:"#DFDEDE",border: "1px solid #DFDEDE",paddingLeft:"3%"}}}
+            <TextField
+              inputProps={{className : classes.input}}
               value={equation}
-              onChange={OnHandleEquation}
+              onChange={OnHandleEquation} 
+              variant="outlined"
+              size="small"
             />
           </div>
           <Typography className={classes.listSub} noWrap>
@@ -157,12 +159,15 @@ export default function ClipPlanes(props : any){
           </Typography>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
-              <IconButton style={{width:"39px",height: "90px"}}>
-                <img src =  {clipDirection== false ? FlipDirectionLeft : FlipDirectionRight} alt={"Clip Direction"} 
-                  onClick={() => onHandleDirection()}
-                />
+              <IconButton style={{width:"60px",height: "90px", }}   onClick={() => onHandleDirection()}>
+               {clipDirection== false 
+               ? 
+               <FlipDirectionLeft />
+               :
+                <FlipDirectionRight/>
+                }
               </IconButton>
-              <Typography style={{fontSize:"14px"}}   noWrap>Flip Direction</Typography>
+              <Typography className={classes.caption}  noWrap>Flip Direction</Typography>
             </Grid>
             <Grid item xs={12} sm={6}>
               <RotateSlider value={rotate} functionOne={onHandleRotate} functionTwo={onHandleRotateType}  setFunction={setRotate} label={"Rotate"}/>
@@ -183,7 +188,7 @@ export default function ClipPlanes(props : any){
             </Grid>
           <Grid item style={{marginRight:"5%"}}>
             <Input
-              style={{color:"#DFDEDE",  border: "1px solid #DFDEDE", paddingLeft:"10%"}}
+              className={classes.inputOne}
               value={translate}
               margin="dense"
               inputProps={{
@@ -197,7 +202,7 @@ export default function ClipPlanes(props : any){
             />
           </Grid>
         </Grid>
-        <Typography className={classes.listSub} variant="h2" noWrap>Rotate</Typography>
+        <Typography className={classes.listSub} noWrap>Rotate</Typography>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
             <RotateSlider value={xAxis} functionOne={onHandleRotate} functionTwo={onHandleRotateXType}  setFunction={setXAxis} label={"X-Axis"}/>
