@@ -6794,10 +6794,18 @@ var Renderer2D = /** @class */ (function () {
                 });
             }
             if (!AppObjects.picker.selectNode || !AppObjects.picker.isProbingEnabled) ;
-            if (AppObjects.picker.triangle && AppObjects.picker && AppObjects.picker.selectNode) {
-                this.renderBufferDirect(AppObjects.picker.triangle, AppObjects.picker.selectNode.worldMatrix, AppObjects.picker.pickShader, [1, 0, 0]);
-                this.renderBufferDirect(AppObjects.picker.line, AppObjects.picker.selectNode.worldMatrix, AppObjects.picker.pickShader, [0, 1, 0]);
-            }
+            // if(AppObjects.picker.triangle && AppObjects.picker && AppObjects.picker.selectNode){
+            //     this.renderBufferDirect(
+            //         AppObjects.picker.triangle,
+            //         AppObjects.picker.selectNode.worldMatrix,
+            //         AppObjects.picker.pickShader,
+            //         [1,0,0]);
+            //     this.renderBufferDirect(
+            //         AppObjects.picker.line,
+            //         AppObjects.picker.selectNode.worldMatrix,
+            //         AppObjects.picker.pickShader,
+            //         [0,1,0]);
+            // }
             //render labels
             if (AppObjects.labelManager) {
                 AppObjects.labelManager.render();
