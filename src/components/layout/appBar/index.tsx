@@ -1,11 +1,9 @@
-import {useState} from 'react'
 import MuiAppBar from '@material-ui/core/AppBar';
 import MuiToolbar from '@material-ui/core/Toolbar';
 import MuiTypography from '@material-ui/core/Typography';
 import clsx from 'clsx';
-import IconButton from '@material-ui/core/IconButton';
+import MuiIconButton from '@material-ui/core/IconButton';
 
-import WindowIcon from '@material-ui/icons/LaptopWindows'
 import Displaymodes from '../../../assets/images/displaymodes';
 import Fitview from '../../../assets/images/fitview';
 import Fullscreen from '../../../assets/images/fullscreen';
@@ -15,7 +13,7 @@ import More from '../../../assets/images/more';
 
 import {selectFullscreenStatus,selectSidebarVisibility,selectDarkModeEnable, selectActiveViewerID,setFullscreenState, setSidebarVisibility , setDarkModeEnable} from '../../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
-import {setWindowAccess} from '../../../store/windowMgrSlice'
+
 //toggle button
 import Switch from "@material-ui/core/Switch";
 
@@ -32,8 +30,6 @@ function AppBar() {
     const activeViewerID = useAppSelector(selectActiveViewerID);
     const dispatch = useAppDispatch();  
 
-    //testing
-    const [windowEnabled, setWindowEnabled] = useState(false);
     const OnClickFullscreen = function(){
       dispatch(setFullscreenState(!isFullscreenEnabled));
     }
@@ -60,14 +56,13 @@ function AppBar() {
         <MuiAppBar 
           className = { clsx( classes.appBar , {[classes.appBarwithSideBar]: isSidebarVisible}) }
           position='fixed'
-          //color='default'
         >
-        <MuiToolbar className={classes.toolBar} >
+        <MuiToolbar className={classes.toolBar}>
 
           <div className={classes.toolBarLeftContent}>            
             <div onClick ={ onClickHamburger }
             className={ clsx( classes.divIcon, classes.hamburgerIcon, { [classes.hamburgerIconHidden]: isSidebarVisible }) }>
-              <IconButton> <Hamburger /></IconButton> 
+              <MuiIconButton> <Hamburger /></MuiIconButton> 
             </div>
             
             <div className={clsx( classes.leftTitle, { [classes.leftTitleHidden]: isSidebarVisible })}>
@@ -81,29 +76,22 @@ function AppBar() {
           <div className={classes.toolBarRightContent}>
           
           <div className={classes.divIcon}  >
-               <IconButton> <Switch checked={isDarkModeEnable} onChange={handleThemeChange} /> </IconButton>
+               <MuiIconButton> <Switch checked={isDarkModeEnable} onChange={handleThemeChange} /> </MuiIconButton>
           </div>
-          <div className={classes.divIcon} >
-                <Switch checked={windowEnabled} onChange={(e) => {
-                      setWindowEnabled(e.target.checked)
-                      dispatch(setWindowAccess({enable:e.target.checked}))
-                }
-                  } />
-              </div>
               <div className={classes.divIcon} onClick={ OnClickCapture } >
-                    <IconButton><Displaymodes /></IconButton> 
+                    <MuiIconButton><Displaymodes /></MuiIconButton> 
               </div>
               <div className={classes.divIcon} onClick={ OnClickFitview }>
-                 <IconButton><Fitview/></IconButton>
+                 <MuiIconButton><Fitview/></MuiIconButton>
               </div>
               <div className={classes.divIcon} >
-                  <IconButton><More /></IconButton>
+                  <MuiIconButton><More /></MuiIconButton>
               </div>
              
               <div className={classes.divIcon} onClick={ OnClickFullscreen }>
                 {(isFullscreenEnabled ?
-                  <IconButton><FullscreenClose  /></IconButton>  :
-                 <IconButton><Fullscreen /> </IconButton> 
+                  <MuiIconButton><FullscreenClose  /></MuiIconButton>  :
+                  <MuiIconButton><Fullscreen /> </MuiIconButton> 
                 )}
               </div>
           </div>

@@ -11,7 +11,7 @@ export enum DownloadStates {
     DOWNLOADED,
     IN_PROGRESS,
     NOT_DOWNLOADED,
-    NO_DATA_AWAILABLE
+    NO_DATA_AVAILABLE
 }
 interface IDisplayMenuItem{
     displayId:string,
@@ -71,6 +71,7 @@ export const setDisplayModeAsync = createAsyncThunk(
     
   } 
 )
+
 export const displayModesSlice = createSlice({
   name: 'displayModes',
   initialState,
@@ -92,7 +93,7 @@ export const displayModesSlice = createSlice({
          selectedMenu.status = action.payload.status;
       }
   },
-});
+})
 
 //Define the Reducers
 export const { 

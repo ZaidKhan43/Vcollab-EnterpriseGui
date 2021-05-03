@@ -44,7 +44,7 @@ export const toastSlice = createSlice({
 });
 
 //Define the Reducers
-export const { toastMsg, clearMsg,setOpen } = toastSlice.actions;
+export const { toastMsg, clearMsg, setOpen } = toastSlice.actions;
 
 //Define selector
 export const selectMsg = (state: RootState) => state.toast.messageInfo;

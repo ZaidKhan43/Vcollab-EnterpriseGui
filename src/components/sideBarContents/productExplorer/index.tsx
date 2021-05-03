@@ -120,18 +120,15 @@ export default function ProductExplorer(props:any){
     const getFooter = () => {
       switch (currentState) {
         case ProductTreeStates.Tree:
-          return (<Footer selectedCount={checkedNodes.length}
+          return checkedNodes.length > 0 ? (<Footer selectedCount={checkedNodes.length}
             handleNext = {handleNext}
-          ></Footer>)
+          ></Footer>) : null
         case ProductTreeStates.Search:
           return (<Footer selectedCount={checkedNodes.length}
             handleNext = {handleNext}
           ></Footer>)
-        case ProductTreeStates.DisplayModes:
-          return null
-      
         default:
-          break;
+          return null
       }     
     }
 

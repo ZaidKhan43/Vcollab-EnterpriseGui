@@ -2,7 +2,7 @@ import { memo, useEffect , useRef, useState, useCallback } from 'react';
 import { createRef } from 'react';
 import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
-import {setModelLoadedState} from '../../store/appSlice';
+import { setModelLoadedState, setModelLoadingStatus } from '../../store/appSlice';
 import { useAppDispatch } from '../../store/storeHooks';
 import {saveTree, setHightLightedNodesAsync } from "../../store/sideBar/ProductTreeSlice";
 import { addViewer } from '../../store/appSlice';
@@ -32,8 +32,7 @@ function Viewer(){
       .then(async (response : string) => {
 
         if(response === "SUCCESS") {
-
-               dispatch(setModelLoadedState(true));
+          dispatch(setModelLoadedState(true));
         }
 
         //let modelName = viewerMgr.getModelInfo(viewerID);
@@ -75,7 +74,7 @@ function Viewer(){
       .catch((error : string) => {
         console.error("Error in loading model : ", error);
       });;
-    },[]);
+    },[dispatch]);
 
     useEffect  (() => {
       if(!mount) {
@@ -116,7 +115,7 @@ function Viewer(){
               eventDispatcher?.addEventListener(
                 events.viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE,
                 (event : any) => {
-                  //this.props.saveViewerLoadingStatus(event.data);
+                  dispatch(setModelLoadingStatus(event.data));
                 }
               );
               eventDispatcher?.addEventListener(
@@ -150,8 +149,7 @@ function Viewer(){
         id={viewerDomID}
         ref={viewerRefs}
         className="viewer"
-      >
-      </div>
+      />
     );
 }
 

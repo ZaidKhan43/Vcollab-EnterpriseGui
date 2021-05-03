@@ -177,8 +177,25 @@ export const invertVisibilityAsync = createAsyncThunk(
   'productTree/invertVisibilityAsync',
   async (data,{dispatch, getState}) => {
     const rootState = getState() as RootState;
+     let checkedNodes = selectCheckedLeafNodes(rootState);
+     let visibleNodeIds:string[] = [];
+     let invisibleNodeIds:string[] = [];
+     checkedNodes.forEach(node => {
+       if(node.state.visibility === true)
+       {
+         visibleNodeIds.push(node.id);
+       }
+       else{
+         invisibleNodeIds.push(node.id);
+       }
+     })
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
-    let result = await invertPartsVisibility(viewerId)
+     
+    let result = '';
+    if(visibleNodeIds.length > 0) 
+    result = await setPartVisibility(viewerId,visibleNodeIds,false);
+    if(invisibleNodeIds.length > 0)
+    result = await setPartVisibility(viewerId,invisibleNodeIds,true);
     if(result === 'SUCCESS'){
       return Promise.resolve();
     }
@@ -309,7 +326,7 @@ export const productTreeSlice = createSlice({
     },
     invertVisibility: (state) => {
       [...Object.values(state.data)].forEach((node:any) => {
-            if(node.children.length === 0 ){
+            if(node.children.length === 0 && node.state.checked){
               let n = getNode(node.id,state);
               if(n)
               RtoggleVisibility(!node.state.visibility,n,state);

@@ -1,4 +1,4 @@
-import { useRef,  useCallback,useEffect } from 'react';
+import { useRef,  useCallback } from 'react';
 import clsx from 'clsx';
 import { useResizeDetector } from 'react-resize-detector';
 import FullScreen from 'react-fullscreen-crossbrowser';
@@ -15,8 +15,6 @@ import { appBarMinHeight } from '../config';
 import SnackBar from "./sideBarContents/notifications/SnackBar";
 
 import Viewer from './viewer';
-import CustomWindow from "./common/CustomWindow"
-import Legend from "./common/ColorPlot"
 
 function App() {
 
@@ -28,7 +26,6 @@ function App() {
   const isSidebarVisible = useAppSelector(selectSidebarVisibility);
   const dispatch = useAppDispatch();  
   const targetRef = useRef(null);
-  const viewerContainerRef = useRef(null);
 
   //===========================================================================
   const onResize = useCallback((width ?:number, height ?: number) => {
@@ -62,15 +59,16 @@ function App() {
         <AppLoader />
       ) : null} 
 
+        {( !isAppBarVisible ? 
         <FullscreenIcon />
-        { ( isAppBarVisible ?  <AppBar /> : null ) }
-        <Sidebar />
+        : null ) }
+
+        { ( isAppBarVisible ?   
+        <><AppBar /><Sidebar /></>
+        : null ) }
         <main  className={ clsx(classes.content , {[classes.contentWithSideBar]: isSidebarVisible} , {[classes.contentWithTopBar]: isAppBarVisible}) }>
-          <div ref = {viewerContainerRef} className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
+          <div className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
             <Viewer />
-            <CustomWindow uid="window" parentRef={viewerContainerRef}>
-            <Legend></Legend>
-            </CustomWindow>
           </div>        
         </main>
         <SnackBar/>

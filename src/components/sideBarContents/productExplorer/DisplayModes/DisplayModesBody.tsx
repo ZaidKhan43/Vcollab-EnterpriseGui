@@ -61,7 +61,7 @@ function DisplayModesBody() {
           if (panel.id === selectedPanel.id) dispatch(expandPanel({panelId:panelIndex,value:!selectedPanel.expanded}));
           else dispatch(expandPanel({panelId:index,value:false}));
         });
-      };
+    };
   
     const onSelectMenu = (menuIndex:number, panelIndex:number) => {
         const selectedPanel = panelsData[panelIndex];
@@ -80,17 +80,18 @@ function DisplayModesBody() {
         }
       // console.log(panelsData);
     };
+
     const handleDownload = (menuIndex:number, pannelIndex:number) => {
         
         dispatch(setDownloadStatus({panelId:pannelIndex,menuId:menuIndex,status:DownloadStates.IN_PROGRESS}));
         dispatch(setDisplayModeAsync({menuId:menuIndex}));
-    }
+    };
 
     
     useEffect(() => {
       dispatch(fetchDisplayModes());
       
-    },[dispatch])
+    },[dispatch]);
 
     const renderSelectedMenu = (panel:any,panelIndex:number) => {
       return(panel?.menuData?.map((item:any, menuIndex:number) => (
@@ -106,7 +107,8 @@ function DisplayModesBody() {
             </Button>
         ) : null
     )))
-    }
+    };
+
     const classes = useStyles();
     return (
         <div >
@@ -122,7 +124,11 @@ function DisplayModesBody() {
             <AccordionSummary
               aria-controls="panel1d-content"
               id="panel1d-header"
+              classes={{expandIcon: classes.accordianSummaryIcon,
+                content: classes.accordianSummaryContent,
+              expanded: classes.accordianSummaryExpanded}}
               expandIcon={<ExpandMoreIcon />}
+              IconButtonProps={{edge:'start'}}
             >
               <Typography>{panel.id}</Typography>
             </AccordionSummary>
@@ -153,7 +159,7 @@ function DisplayModesBody() {
 
         ))}
       </div>
-    )
+    );
 }
 
 export default DisplayModesBody

@@ -30,10 +30,10 @@ export default function FormDialog(props:any) {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => props.handleSave(input)} color="primary">
+          <Button onClick={() => {props.handleSave(input); setInput('');}} color="primary">
             Add
           </Button>
-          <Button onClick={props.handleClose} color="secondary">
+          <Button onClick={() => {props.handleClose(); setInput('');}} color="secondary">
             Cancel
           </Button>
         </DialogActions>

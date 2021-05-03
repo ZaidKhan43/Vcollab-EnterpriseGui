@@ -14,7 +14,7 @@ const Render = (props:any) => {
                 return <CircularProgress color='inherit' size={20} ></CircularProgress>
             case DownloadStates.NOT_DOWNLOADED:
                 return <DownloadIcon/>
-            case DownloadStates.NO_DATA_AWAILABLE:
+            case DownloadStates.NO_DATA_AVAILABLE:
                 return <ReportProblemIcon/>
             default:
                 return null;

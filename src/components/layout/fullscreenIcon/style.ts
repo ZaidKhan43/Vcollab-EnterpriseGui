@@ -7,6 +7,7 @@ export default makeStyles((theme) => ({
         position : 'fixed',
         top : 5,
         right : 5,
-        background: theme.palette.background.default,
-    }
+        backgroundColor: theme.palette.background.default,
+        zIndex : 20000
+     }
 }));
