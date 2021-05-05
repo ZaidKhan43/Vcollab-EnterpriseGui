@@ -1,10 +1,16 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore,combineReducers } from '@reduxjs/toolkit';
 import appSlice from './appSlice';
-
+import productTreeSlice from './sideBar/ProductTreeSlice';
+import displayModesSlice from "./sideBar/DisplayModesSlice";
+import toastSlice from "./toastSlice";
 const store = configureStore({
-  reducer: {
-    app: appSlice,
-  },
+    reducer:
+      combineReducers({
+        app: appSlice,
+        productTree: productTreeSlice,
+        displayModes: displayModesSlice,
+        toast: toastSlice
+      })
 });
 
 export default store;

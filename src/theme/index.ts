@@ -8,6 +8,9 @@ export const appTheme = {
       },
     },
   },  
+  palette:{
+    type:'dark'
+  },
   typography: {
     fontFamily: ['Montserrat', 'san-serif'].join(','),
     h4: {

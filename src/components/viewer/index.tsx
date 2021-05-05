@@ -1,9 +1,10 @@
-import { memo, useEffect , useState, useCallback } from 'react';
+import { memo, useEffect , useRef, useState, useCallback } from 'react';
 import { createRef } from 'react';
 import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
-import {setModelLoadedState} from '../../store/appSlice';
+import { setModelLoadedState, setModelLoadingStatus } from '../../store/appSlice';
 import { useAppDispatch } from '../../store/storeHooks';
+import {saveTree, setHightLightedNodesAsync } from "../../store/sideBar/ProductTreeSlice";
 import { addViewer } from '../../store/appSlice';
 
 function Viewer(){
@@ -12,6 +13,7 @@ function Viewer(){
     const viewerDomID = nextId("vct-viewer-");
     const [mount, setMount] = useState(false)
     const dispatch = useAppDispatch(); 
+    const tree = useRef();
 
     /*
     //To get the queryString Name from url
@@ -30,8 +32,7 @@ function Viewer(){
       .then(async (response : string) => {
 
         if(response === "SUCCESS") {
-
-               dispatch(setModelLoadedState(true));
+          dispatch(setModelLoadedState(true));
         }
 
         //let modelName = viewerMgr.getModelInfo(viewerID);
@@ -41,6 +42,23 @@ function Viewer(){
         viewerAPIProxy
           .showModel(activeViewerID)
           .then((response1 : string) => {
+            console.log("Showing Model : " + response1);  
+            tree.current = viewerAPIProxy.getProductTree(activeViewerID) as any; 
+            if(tree.current)
+            {
+              let treeData = tree.current as any;
+              [...Object.values(treeData.models)].forEach((node:any)=>{
+                node.state = {
+                    checked: false,
+                    partiallyChecked: false,
+                    expanded: true,
+                    highlighted: false,
+                    visibility: true
+                  }
+            })
+            dispatch(saveTree({tree:treeData.models,rootIds:treeData.rootNodeIds}));
+            }
+
            // console.log("Showing Model : " + response1);   
             /*       
             setTimeout(() => {
@@ -56,7 +74,7 @@ function Viewer(){
       .catch((error : string) => {
         console.error("Error in loading model : ", error);
       });;
-    },[]);
+    },[dispatch]);
 
     useEffect  (() => {
       if(!mount) {
@@ -65,12 +83,12 @@ function Viewer(){
             let viewerDivID = viewerRefs.current?.id || '';
             let api = "http://localhost:8181/api/1.0/model";
             //let url = "file://samples/bracket.cax";
-            let url = "file://samples/airbag.cax";
+            //let url = "file://samples/airbag.cax";
             //let url = "file://samples/heater.cax";
             //let url = "file://samples/merged.cax";
-            //let url = "file://samples/F30_model.cax";
+            let url = "file://samples/F30_model.cax";
             //let url = "file%3A%2F%2FC%3A%5CWORK%5Centerprise-1.1-win64%5Csamples%5Cbracket.cax";
-          //  let url = "file%3A%2F%2FC%3A%5CWORK%5Centerprise-1.1-win64%5Csamples%5CF30_model.cax";
+            //let url = "file%3A%2F%2FD%3A%5Ccaxserver%5Cheater.cax";
       
             //let api = "http://100.26.229.30:8181/api/1.0/model";
             //let url = "file%3A%2F%2FC%3A%5CUsers%5CAdministrator%5CDownloads%5Centerprise-1.1-win64%5Csamples%5CF30_model.cax";
@@ -97,9 +115,28 @@ function Viewer(){
               eventDispatcher?.addEventListener(
                 events.viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE,
                 (event : any) => {
-                  //this.props.saveViewerLoadingStatus(event.data);
+                  dispatch(setModelLoadingStatus(event.data));
                 }
               );
+              eventDispatcher?.addEventListener(
+                events.viewerEvents.MODEL_PART_HIGHLIGHTED,
+                (event: any) => {
+                  console.log(event);
+                  const toHighlight = event.data.isHighlighted;
+                  const nodeIds = event.data.nodeIds
+                  if(nodeIds.length > 0)
+                  {
+                    nodeIds.forEach((nodeId:string) => {
+                      dispatch(setHightLightedNodesAsync({toHighlight, nodeId }))
+                    })
+                  }
+                  else{
+                    let treeData = tree.current as any;
+                    dispatch(setHightLightedNodesAsync({toHighlight,nodeId:treeData.rootNodeIds[0]}))
+                  }
+                  
+                }
+              )
             }
             loadModel(api, url, viewerID);
           }
@@ -117,7 +154,7 @@ function Viewer(){
 }
 
 function arePropsEqual(prevProps : any, nextProps : any) {
-  return false; 
+  return true; 
 }
 
 export default memo(Viewer, arePropsEqual);

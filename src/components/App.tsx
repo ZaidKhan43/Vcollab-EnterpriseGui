@@ -10,8 +10,9 @@ import AppBar from './layout/appBar';
 import FullscreenIcon from './layout/fullscreenIcon';
 import { useAppSelector, useAppDispatch } from '../store/storeHooks';
 import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
-        setAppBarVisibility, setFullscreenState ,selectModelLoadedState} from '../store/appSlice';
+        setAppBarVisibility, setFullscreenState } from '../store/appSlice';
 import { appBarMinHeight } from '../config';
+import SnackBar from "./sideBarContents/notifications/SnackBar";
 
 import Viewer from './viewer';
 
@@ -26,6 +27,7 @@ function App() {
   const dispatch = useAppDispatch();  
   const targetRef = useRef(null);
 
+  //===========================================================================
   const onResize = useCallback((width ?:number, height ?: number) => {
     if(height && height > appBarMinHeight)
           dispatch(setAppBarVisibility(true));
@@ -57,14 +59,19 @@ function App() {
         <AppLoader />
       ) : null} 
 
+        {( !isAppBarVisible ? 
         <FullscreenIcon />
-        { ( isAppBarVisible ?  <AppBar /> : null ) }
-        <Sidebar />
+        : null ) }
+
+        { ( isAppBarVisible ?   
+        <><AppBar /><Sidebar /></>
+        : null ) }
         <main  className={ clsx(classes.content , {[classes.contentWithSideBar]: isSidebarVisible} , {[classes.contentWithTopBar]: isAppBarVisible}) }>
           <div className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
             <Viewer />
           </div>        
         </main>
+        <SnackBar/>
       </div>
     </FullScreen>
   );

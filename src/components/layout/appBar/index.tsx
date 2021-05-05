@@ -2,7 +2,7 @@ import MuiAppBar from '@material-ui/core/AppBar';
 import MuiToolbar from '@material-ui/core/Toolbar';
 import MuiTypography from '@material-ui/core/Typography';
 import clsx from 'clsx';
-import IconButton from '@material-ui/core/IconButton';
+import MuiIconButton from '@material-ui/core/IconButton';
 
 import Displaymodes from '../../../assets/images/displaymodes';
 import Fitview from '../../../assets/images/fitview';
@@ -62,7 +62,7 @@ function AppBar() {
           <div className={classes.toolBarLeftContent}>            
             <div onClick ={ onClickHamburger }
             className={ clsx( classes.divIcon, classes.hamburgerIcon, { [classes.hamburgerIconHidden]: isSidebarVisible }) }>
-              <IconButton> <Hamburger /></IconButton> 
+              <MuiIconButton> <Hamburger /></MuiIconButton> 
             </div>
             
             <div className={clsx( classes.leftTitle, { [classes.leftTitleHidden]: isSidebarVisible })}>
@@ -76,22 +76,22 @@ function AppBar() {
           <div className={classes.toolBarRightContent}>
           
           <div className={classes.divIcon}  >
-               <IconButton> <Switch checked={isDarkModeEnable} onChange={handleThemeChange} /> </IconButton>
+               <MuiIconButton> <Switch checked={isDarkModeEnable} onChange={handleThemeChange} /> </MuiIconButton>
           </div>
               <div className={classes.divIcon} onClick={ OnClickCapture } >
-                    <IconButton><Displaymodes /></IconButton> 
+                    <MuiIconButton><Displaymodes /></MuiIconButton> 
               </div>
               <div className={classes.divIcon} onClick={ OnClickFitview }>
-                 <IconButton><Fitview/></IconButton>
+                 <MuiIconButton><Fitview/></MuiIconButton>
               </div>
               <div className={classes.divIcon} >
-                  <IconButton><More /></IconButton>
+                  <MuiIconButton><More /></MuiIconButton>
               </div>
              
               <div className={classes.divIcon} onClick={ OnClickFullscreen }>
                 {(isFullscreenEnabled ?
-                  <IconButton><FullscreenClose  /></IconButton>  :
-                 <IconButton><Fullscreen /> </IconButton> 
+                  <MuiIconButton><FullscreenClose  /></MuiIconButton>  :
+                  <MuiIconButton><Fullscreen /> </MuiIconButton> 
                 )}
               </div>
           </div>
