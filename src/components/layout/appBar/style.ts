@@ -7,19 +7,19 @@ export default makeStyles((theme) => ({
         width: '100%',
         marginLeft: 0,
         transition: theme.transitions.create(['margin', 'width'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
+            easing: theme.transitions.easing.easeIn,
+            duration: 0,
           }),
         backgroundColor:theme.palette.background.default,
     },
     appBarwithSideBar : {
         [theme.breakpoints.up('md')]: {
           width: `calc(100% - ${drawerWidth}px)`,
-          marginLeft: drawerWidth,
+          //marginLeft: drawerWidth,
         },
         transition: theme.transitions.create(['margin', 'width'], {
             easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
+            duration: 250,
         }),
     },
     toolBar : {

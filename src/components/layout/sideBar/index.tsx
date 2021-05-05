@@ -68,8 +68,13 @@ export default function Sidebar(){
       touchEvent="onTouchStart"
       onClickAway={handleClickAway}>
         <MuiDrawer
-        className={classes.drawer}
-        variant="persistent"
+        className={ classes.drawer}
+        variant= { smMatches ? "temporary" : "persistent"}
+        ModalProps={{
+          hideBackdrop : true,
+          disablePortal : true
+        }}
+        transitionDuration = {{ appear: 0, enter: 0, exit: 250 }}
         anchor="left"
         open={ isSidebarVisible }
         classes={{

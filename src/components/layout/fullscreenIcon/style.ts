@@ -1,13 +1,15 @@
 import { makeStyles } from '@material-ui/core/styles';
-//import { colors } from '../../../config';
-
 
 export default makeStyles((theme) => ({
-    iconPosition :{
+    divFullscreen :{
         position : 'fixed',
-        top : 5,
-        right : 5,
-        backgroundColor: theme.palette.background.default,
-        zIndex : 20000
+        top : 0,
+        right : 0,
+        width: 48,
+        height:48,
+        backgroundColor:theme.palette.background.default,
+        borderRadius:25,
+        color:theme.palette.text.primary,
+        zIndex:5000
      }
 }));

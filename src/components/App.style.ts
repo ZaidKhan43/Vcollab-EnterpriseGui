@@ -8,21 +8,24 @@ export default makeStyles((theme) => ({
   content: {
     flexGrow : 1,
     marginTop : 0,
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeIn,
+      duration: 0,
     }),
-    marginLeft : -drawerWidth,
-    width : '100%'
+    marginLeft : 0,
+    width : '100%',
+    [theme.breakpoints.up('md')]: {
+      marginLeft : -drawerWidth,
+    }  
   },
   contentWithSideBar : {
-    transition: theme.transitions.create('margin', {
+    transition: theme.transitions.create(['margin', 'width'], {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
+      duration: 250,
     }),
     [theme.breakpoints.up('md')]: {
-      width: `calc(100% - ${drawerWidth}px)`,
-      marginLeft: 0,
+     //width: `calc(100% - ${drawerWidth}px)`,
+     marginLeft: 0,
     }
   },
   contentWithTopBar: {
