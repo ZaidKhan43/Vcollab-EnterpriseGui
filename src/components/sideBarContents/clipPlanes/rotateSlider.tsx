@@ -8,46 +8,27 @@ import React, { useState, useEffect } from "react";
 
 export default function RotateSlider( props : any ){
 
-    const [value,setValue] = useState(props.value);
-    const [valueOne, setValueOne] = useState(value)
+    const [value, setValue] = useState(props.value)
+
     const classes = styles();
 
+    useEffect(() => {
+        setValue(props.value)
+      },[props.value]);
+
     const onChangeHandle = (value: any) => {
-        setValueOne(parseFloat(value))
-        if(Math.round(value) !== valueOne)
-            setValue(valueOne)
-        props.functionOne(props.setFunction, valueOne)
+       setValue(value)
+
+       if(Math.round(props.value) !== value)
+        props.functionOne(props.setFunction, value)
+       
     }
-
-    const functionTwo = (value: any) => {
-        if(value > 359.99)
-            value = 359 
-        setValue(value)
-        setValueOne(value)
-        props.functionTwo(value)
-    } 
-    // const onHandleClick = (toDo : any) => {
-    //     if(toDo === "Add"){
-    //         if(value == 359){
-    //             setValue(0)
-    //         }
-    //         else
-    //         setValue(value + 1)
-    //     }
-    //     if(toDo === "Sub"){
-    //         setValue(value - 1)
-    //     }
-    // }
-
-    // const onEdit = (e : any) => {
-    //     setValue(e.target.value)
-    // }
     
-
+console.log(value)
     return(
-        <div>
-            <CircularSlider
-                dataIndex={valueOne}
+        <div className={classes.rotate}>
+            <CircularSlider 
+                dataIndex={Math.round(value)}
                 width={90}
                 knobRadius={10}
                 progressWidth={20}
@@ -55,9 +36,11 @@ export default function RotateSlider( props : any ){
                 circleWidth={3}
                 max={359.9}
                 knobPosition= "right"
-                knobColor="#8C8BFF"
-                trackColor = '#DDDEFB' 
+                knobColor="currentColor"
+                trackColor = 'currentColor' 
                 knobSize={24}
+                progressColorFrom="#8C8BFF"
+                progressColorTo="#8C8BFF"
                 tooltipColor="#6ab6e1"
                 showTooltip={true}
                 tooltipSize={26}
@@ -66,13 +49,13 @@ export default function RotateSlider( props : any ){
                     <div className={classes.circularSlider}>
                         <NumericInput style={{input:{ fontSize:"12px",},}}
                         className={classes.clicularSliderInputOne}
-                        format={() => value + "°"}
-                        value={value}
+                        format={() => props.value + "°"}
+                        value={props.value}
                         precision={4}
                         min={0.0}
                         max={359.9}
                         mobile={false}
-                        onChange={functionTwo}
+                        onChange={props.functionTwo}
                         classes={classes.button}
                         />
                         {/* <div onClick={() => onHandleClick("Sub")}>-</div> */}

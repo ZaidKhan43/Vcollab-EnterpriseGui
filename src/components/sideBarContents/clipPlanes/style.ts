@@ -144,17 +144,18 @@ export default makeStyles((theme) => (
   },
 
   input :{
-    width: "150px",
+    width: "160px",
   height: "20px",
   color:theme.palette.text.primary,
-  paddingLeft:"25%",
+  paddingLeft:"10%",
 },
 
 inputOne :{
   color: theme.palette.text.primary, 
+  textAlign: "center",
   border: "1px solid",
   boderColor: theme.palette.text.primary, 
-  paddingLeft:"10%",
+  paddingLeft:"30%",
 },
 
   caption: {
@@ -163,6 +164,15 @@ inputOne :{
     opacity: 0.7,
   },
 
- 
-  
+  translate:{
+    color:theme.palette.text.primary,
+    marginLeft:"10px",
+    marginRight:"20px"
+  },
+
+  rotate: {
+    color: theme.palette.text.secondary,
+    secondaryColor: "red",
+    
+  }
 }));

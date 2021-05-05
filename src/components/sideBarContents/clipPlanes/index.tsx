@@ -147,15 +147,21 @@ export default function ClipPlanes(){
   const getHeaderContent = () => {
     return <Typography className={classes.heading} variant='h1' noWrap>Clip Planes</Typography>;
   }
+
+  const getHeaderRightIcon = () => {
+    return (
+      <IconButton onClick={() => onClickAddItem()}><AddIcon/></IconButton>
+    )
+  }
     
   const getBody = () => {
     return (
       <div>
-        <div className={classes.heading}>
+        {/* <div className={classes.heading}>
           <Typography  variant='h1' noWrap>Clip Planes</Typography>
           <IconButton style={{right: "6.5%",}} onClick={() => onClickAddItem()}><AddIcon/></IconButton>
 
-        </div>
+        </div> */}
         <div className={classes.list}>
           {
             planes.map((item : any) =>
@@ -167,7 +173,8 @@ export default function ClipPlanes(){
               </div>
             )
           }
-           <div>
+        </div>
+        <div style={{paddingTop:"110%"}}>
           {clickedVal ? 
             <div>
               <Typography className={classes.heading} variant='h1' noWrap>
@@ -179,8 +186,6 @@ export default function ClipPlanes(){
             null
           }
         </div>
-        </div>
-       
       </div>
     )
   }
@@ -233,6 +238,7 @@ export default function ClipPlanes(){
       <SideBarContainer
       headerLeftIcon = { getHeaderLeftIcon() }
       headerContent={ getHeaderContent() }
+      headerRightIcon = { getHeaderRightIcon() }
       body ={ getBody() }
       footer = { getFooter() }
     /> }

@@ -9,12 +9,17 @@ type plane = {
     showClip: boolean,
     showEdge: boolean,
     showCap: boolean,
-    equation: string,
+    xCord: number,
+    yCord: number,
+    zCord: number,
+    constant: number,
+    // equation: string,
     clipDirection: boolean,
     translate: string,
     rotate: number,
     xAxis: number,
     yAxis: number,
+    // clipPlaneMode: string,
 }
 
 type planesType = plane[];
@@ -32,12 +37,17 @@ const state : planeState = {
       showClip: true,
       showEdge: false,
       showCap: false,
-      equation: "x+y+z = 5",
+      xCord: 5,
+      yCord: 4,
+      zCord: 6,
+      constant:10,
+      // equation: "x+y+z = 5",
       clipDirection: false,
       translate: "50",
       rotate: 0,
       xAxis: 0,
       yAxis: 90,
+      // clipPlaneMode: "Surface",
     },
     {
       name : 2,
@@ -45,12 +55,17 @@ const state : planeState = {
       showClip: false,
       showEdge: false,
       showCap: true,
-      equation: "x+y+z = 15",
+      xCord: 3,
+      yCord:2,
+      zCord:4,
+      constant:10,
+      // equation: "x+y+z = 15",
       clipDirection: true,
       translate: "-50",
       rotate: 60,
       xAxis: 180,
       yAxis: 90,
+      // clipPlaneMode: "Points",
     },
   ]
 }
@@ -102,7 +117,7 @@ export const clipSlice = createSlice({
             const lengthO= state.planes.length;
           nameO = state.planes[lengthO - 1].name + 1;
           }
-          state.planes= [...state.planes,{name: nameO, checkbox: false, showClip: true, showEdge: false, showCap: true, equation: "x+y+z = 0",clipDirection: true, translate: "50", rotate: 219, xAxis: 189, yAxis: 212,}]
+          state.planes= [...state.planes,{name: nameO, checkbox: false, showClip: true, showEdge: false, showCap: true, xCord:0, yCord:0, zCord:0,constant:0,clipDirection: true, translate: "50", rotate: 219, xAxis: 189, yAxis: 212,}]
         }
       },
 
@@ -176,7 +191,10 @@ export const clipSlice = createSlice({
         let changeItem : any = state.planes.find((item) => item.name === action.payload.name);
         console.log("change",changeItem)
         console.log("action", action.payload)
-        changeItem.equation = action.payload.equation;
+        changeItem.xCord = action.payload.xCord;
+        changeItem.yCord = action.payload.yCord;
+        changeItem.zCord = action.payload.zCord;
+        changeItem.constant = action.payload.constant;
          changeItem.clipDirection = action.payload.clipDirection;
          changeItem.translate = action.payload.translate;
          changeItem.rotate = action.payload.rotate;

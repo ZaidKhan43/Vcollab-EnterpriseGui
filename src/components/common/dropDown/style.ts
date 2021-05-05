@@ -7,6 +7,7 @@ export default makeStyles((theme) => ({
    '&:hover': {
     background: theme.palette.action.hover,
     },
+    color:theme.palette.text.primary,
   },
 
   iconStyle:{

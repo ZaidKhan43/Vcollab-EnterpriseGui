@@ -270,7 +270,8 @@ class NumericInput extends Component
 
         // The input (input[type="text"])
         input: {
-            paddingRight: '3ex',
+            textAlign: "center",
+            // paddingRight: '3ex',
             boxSizing   : 'border-box',
             fontSize    : 'inherit',
         },
