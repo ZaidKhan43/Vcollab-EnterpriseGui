@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useRef, useState} from 'react'
 import useLoadCss from "../../../../customHooks/useLoadCss";
 import useContainer from '../../../../customHooks/useContainer';
 import { Table ,Column, ColumnGroup, HeaderCell, Cell, } from 'rsuite-table';
@@ -39,7 +39,8 @@ function RTree(props:any) {
     // need for future use
     // eslint-disable-next-line 
     const updateCssPath = useLoadCss('./globalStyles/RTreeStylesOverrideDark.css');
-    const {containerRef, containerHeight} = useContainer();
+    const containerRef = useRef(null);
+    const [containerWidth, containerHeight] = useContainer(containerRef,[]);
     const treeData = useAppSelector(selectProductTreeData);
     const dispatch = useAppDispatch()
     const expandedNodes:string[] = [];

@@ -47,7 +47,8 @@ function Search(props:any) {
     const [isOpen, setisOpen] = useState(false);
     const [selectAll, setSelectAll] = useState(false);
 
-    const {containerRef, containerHeight} = useContainer();
+    const containerRef = useRef(null);
+    const [containerWidth, containerHeight] = useContainer(containerRef,[]);
     const headerHeight = 111;
 
     const getAttrbKeys = (treeArray:any[]) => {
