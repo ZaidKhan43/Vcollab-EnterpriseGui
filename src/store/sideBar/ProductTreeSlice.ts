@@ -134,9 +134,12 @@ const RinvertNode = (node:TreeNode, state:ProductTreeState) => {
     node.children.map((c:string) => getNode(c,state)).forEach((e:any) => {
       RinvertNode(e,state);
     });
+    const firstNodeId = node.children[0] as string;
+    const firstNode = getNode(firstNodeId,state) as TreeNode;
+    updateParent(firstNode,state);
   }
   else{
-    RcheckNode(!node.state.checked,node,state);
+    _checkNode(!node.state.checked,node,true,state);
   }
 }
 const setVisibility = (value:boolean,node:TreeNode,checkChildren:boolean,state:ProductTreeState) => {
@@ -177,16 +180,25 @@ export const invertVisibilityAsync = createAsyncThunk(
   'productTree/invertVisibilityAsync',
   async (data,{dispatch, getState}) => {
     const rootState = getState() as RootState;
-     let checkedNodes = selectCheckedLeafNodes(rootState);
+     let nodes = rootState.productTree.data;
      let visibleNodeIds:string[] = [];
+     let visibleNodes:TreeNode[] = [];
      let invisibleNodeIds:string[] = [];
-     checkedNodes.forEach(node => {
-       if(node.state.visibility === true)
+     let invisibleNodes:TreeNode[] = [];
+     [...Object.values(nodes)].forEach((node) => {
+       const currNode = node as TreeNode;
+       if(currNode.state.checked && currNode.children.length === 0)
        {
-         visibleNodeIds.push(node.id);
-       }
-       else{
-         invisibleNodeIds.push(node.id);
+         if(currNode.state.visibility === true)
+         {
+           visibleNodeIds.push(currNode.id) 
+           visibleNodes.push(currNode);
+         }
+         else{
+           invisibleNodeIds.push(currNode.id);
+           invisibleNodes.push(currNode);
+         } 
+         
        }
      })
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
