@@ -10,7 +10,7 @@ import AppBar from './layout/appBar';
 import FullscreenIcon from './layout/fullscreenIcon';
 import { useAppSelector, useAppDispatch } from '../store/storeHooks';
 import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
-        setAppBarVisibility, setFullscreenState } from '../store/appSlice';
+        setAppBarVisibility, setFullscreenState ,selectModelLoadedState} from '../store/appSlice';
 import { appBarMinHeight } from '../config';
 import SnackBar from "./sideBarContents/notifications/SnackBar";
 

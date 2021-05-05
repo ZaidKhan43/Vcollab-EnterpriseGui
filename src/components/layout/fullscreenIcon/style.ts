@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { colors } from '../../../config';
+//import { colors } from '../../../config';
 
 
 export default makeStyles((theme) => ({
@@ -7,7 +7,7 @@ export default makeStyles((theme) => ({
         position : 'fixed',
         top : 5,
         right : 5,
-        background: colors.primary,
+        backgroundColor: theme.palette.background.default,
         zIndex : 20000
-    }
+     }
 }));
