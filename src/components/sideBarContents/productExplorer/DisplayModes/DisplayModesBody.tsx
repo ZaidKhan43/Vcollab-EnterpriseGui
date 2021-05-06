@@ -92,24 +92,32 @@ function DisplayModesBody() {
       dispatch(fetchDisplayModes());
       
     },[dispatch]);
-
+    const classes = useStyles();
     const renderSelectedMenu = (panel:any,panelIndex:number) => {
       return(panel?.menuData?.map((item:any, menuIndex:number) => (
         item.selected && item.status === DownloadStates.NOT_DOWNLOADED ? (
+          <>
+            <Typography>{BytesToStructuredString(item.size)}</Typography>
             <Button
+              className = {classes.selectedButton}
               key = {menuIndex}
               variant="contained"
+              size="small"
               color="primary"
-              startIcon={<ArrowDownwardIcon />}
               onClick={() => handleDownload(menuIndex,panelIndex)}
             >
-              {BytesToStructuredString(item.size)}
+              Download and Show
             </Button>
+          </>
+
+        ) : item.selected && item.status === DownloadStates.DOWNLOADED ? (
+            <>
+
+            </>
         ) : null
     )))
     };
 
-    const classes = useStyles();
     return (
         <div >
         {panelsData.map((panel:any, panelIndex:number) => (

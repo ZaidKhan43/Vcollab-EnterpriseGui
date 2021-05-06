@@ -4,8 +4,8 @@ import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 
 import SideBarContainer from '../../layout/sideBar/sideBarContainer';
-import BackIcon from '../../../assets/images/back.svg';
-import Search from '../../../assets/images/search.svg';
+import BackIcon from '@material-ui/icons/ArrowBack'
+import Search from '@material-ui/icons/Search';
 
 import styles from './style';
 import RTree from './RTree';
@@ -62,7 +62,7 @@ export default function ProductExplorer(props:any){
       <ToolTip title='Back'>
       <IconButton
       className={classes.backIcon}
-      onClick={() => onClickBackIcon()}><img src={ BackIcon } alt={'BackIcon'} /> </IconButton>
+      onClick={() => onClickBackIcon()}><BackIcon/></IconButton>
       </ToolTip>
       );
     }
@@ -93,7 +93,7 @@ export default function ProductExplorer(props:any){
               <ToolTip title='Search'>
                 <IconButton
                 className={classes.backIcon}
-                onClick={() => onClickSearchIcon()}><img src={ Search } alt={'Search'} /> 
+                onClick={() => onClickSearchIcon()}><Search/>
                 </IconButton>
               </ToolTip>
             )
@@ -124,9 +124,9 @@ export default function ProductExplorer(props:any){
             handleNext = {handleNext}
           ></Footer>) : null
         case ProductTreeStates.Search:
-          return (<Footer selectedCount={checkedNodes.length}
+          return checkedNodes.length > 0 ? (<Footer selectedCount={checkedNodes.length}
             handleNext = {handleNext}
-          ></Footer>)
+          ></Footer>) : null
         default:
           return null
       }     

@@ -1,5 +1,5 @@
 import React from 'react'
-import DownloadIcon from "@material-ui/icons/CloudDownload"
+import DownloadIcon from "@material-ui/icons/GetApp";
 import DownloadedIcon from "@material-ui/icons/Done";
 import ReportProblemIcon from "@material-ui/icons/ReportProblem"
 import CircularProgress from "@material-ui/core/CircularProgress";
