@@ -8,6 +8,8 @@ import { setSidebarActiveContent } from '../../../store/appSlice';
 import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
 import React, { useState, useEffect } from "react";
 
+import Input from '@material-ui/core/Input';
+
 import Checkbox from '@material-ui/core/Checkbox';
 
 import EditIcon from '@material-ui/icons/EditOutlined';
@@ -54,6 +56,9 @@ export default function ClipPlanes(){
   const [edit, setEdit] = useState<any>(false);
   const [openDialog, setOpenDialog] = useState<any>(false);
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState<any>(false);
+  const [editPlane, setEditPlane] = useState(false)
+
+  const [editName, setEditName] = useState<string>(null);
 
   const onClickBackIcon = () =>{
     dispatch(setSidebarActiveContent(sideBarContentTypes.mainMenu))
@@ -68,19 +73,19 @@ export default function ClipPlanes(){
   }
 
   const onHandleCheck: (item: any) => any = (item) => {
-    dispatch(editCheck(item.name))
+    dispatch(editCheck(item.id))
   }
 
   const onHandleClip: (item: any, functionName: any) => any = (item, functionName) => {
     switch (functionName){
       case "showClip":
-        dispatch(editShowClip(item.name));
+        dispatch(editShowClip(item.id));
       break;
       case "showEdge":
-        dispatch(editEdgeClip(item.name));
+        dispatch(editEdgeClip(item.id));
       break;
       case "showCap":
-        dispatch(editShowCap(item.name));
+        dispatch(editShowCap(item.id));
       break;
     } 
   }
@@ -97,7 +102,7 @@ export default function ClipPlanes(){
   const onHandleDelete = () => {
     setOpenDialog(false);
     setOpenDeleteConfirm(true);
-    dispatch(deletePlane(clickedVal.name))
+    dispatch(deletePlane(clickedVal.id))
     setClickedVal(null);
   }
 
@@ -119,7 +124,7 @@ export default function ClipPlanes(){
   }
 
   const displayClicked = () => {
-    const displayClick :any = planes.find((item : any )=> item.name === clickedVal.name);
+    const displayClick :any = planes.find((item : any )=> item.id === clickedVal.id);
     return(
       <div  className={classes.displayList}>
         <Typography className={classes.listItem} noWrap onClick={() =>onHandleClip(clickedVal, "showClip")}>
@@ -165,11 +170,20 @@ export default function ClipPlanes(){
         <div className={classes.list}>
           {
             planes.map((item : any) =>
-              <div onClick={() => onHandleClick(item)} className={clickedVal ? item.name === clickedVal.name ? classes.listItemClicked : classes.listItem : classes.listItem} >
-                <Typography className={classes.listItemText} >
+              <div onClick={() => onHandleClick(item)} onDoubleClick={() => setEditPlane(true)} className={clickedVal ? item.id === clickedVal.id ? classes.listItemClicked : classes.listItem : classes.listItem} >
+                { editPlane === false 
+                  ?
+                  <Typography className={classes.listItemText} >
                   <Checkbox color="default"  checked={item.checkbox} onChange={() => onHandleCheck(item)}/>
-                  {`Plane ${item.name}`}
+                  {item.name}
                 </Typography>
+
+                :
+
+                <Input value={item.name}/>
+
+                }
+                
               </div>
             )
           }
@@ -206,7 +220,7 @@ export default function ClipPlanes(){
               </IconButton>
               <IconButton style={{ }}> 
               <FileCopyOutlinedIcon onClick={() => onHandleCopy(planes.find((item : any )=> 
-                item.name === clickedVal.name))}/>
+                item.id === clickedVal.id))}/>
               </IconButton>
               {copied 
                 ? 

@@ -20,6 +20,6 @@ function FlipDirectionRight(props:any) {
 export default function FlipDirectionRightIcon() {
 
   return (
-      <FlipDirectionRight viewBox="0 0 61 90"/>
+      <FlipDirectionRight viewBox="0 0 61 90" style={{fontSize:"80px"}}/>
   );
 }

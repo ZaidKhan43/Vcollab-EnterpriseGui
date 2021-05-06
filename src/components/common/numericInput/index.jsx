@@ -1144,17 +1144,26 @@ class NumericInput extends Component
 
         return (
             <div>
-                <div  {...attrs.btnUp}>
-                <Typography className={props.classes}>+</Typography>
-                </div>
-        
-            <div style={{marginTop:"50%",}} {...attrs.wrap}>
-                <InputTag {...attrs.input} ClassName={props.className}/>
-            </div> 
-                <div {...attrs.btnDown} className={props.classes}>
-                 -
-                </div>
+                {props.button == "no"
+                    ?
+                        <div {...attrs.wrap}>
+                            <InputTag {...attrs.input} ClassName={props.className}/>
+                        </div>
+                    :
+                        <div>
+                            <div  {...attrs.btnUp}>
+                                <Typography className={props.classes}>+</Typography>
+                            </div> 
+                            <div style={{marginTop:"50%",}} {...attrs.wrap}>
+                                <InputTag {...attrs.input} ClassName={props.className}/>
+                            </div> 
+                            <div {...attrs.btnDown}>
+                                <Typography className={props.classes}>-</Typography>
+                            </div>
+                        </div>
+                }
             </div>
+            
         );
     }
 }

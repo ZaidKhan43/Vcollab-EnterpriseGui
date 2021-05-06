@@ -4,7 +4,8 @@ import { sideBarContentTypes } from '../config';
 
 type plane = {
     // planes: object[],
-    name: number,
+    id: number,
+    name: string,
     checkbox: boolean,
     showClip: boolean,
     showEdge: boolean,
@@ -32,7 +33,8 @@ type planeState = {
 const state : planeState = {
   planes:[
     {
-      name : 1,
+      id : 1,
+      name: "Plane 1",
       checkbox: true,
       showClip: true,
       showEdge: false,
@@ -50,7 +52,8 @@ const state : planeState = {
       // clipPlaneMode: "Surface",
     },
     {
-      name : 2,
+      id : 2,
+      name: "Plane 2",
       checkbox: false,
       showClip: false,
       showEdge: false,
@@ -115,16 +118,16 @@ export const clipSlice = createSlice({
           }
           else{
             const lengthO= state.planes.length;
-          nameO = state.planes[lengthO - 1].name + 1;
+          nameO = Number(state.planes[lengthO - 1].id + 1);
           }
-          state.planes= [...state.planes,{name: nameO, checkbox: false, showClip: true, showEdge: false, showCap: true, xCord:0, yCord:0, zCord:0,constant:0,clipDirection: true, translate: "50", rotate: 219, xAxis: 189, yAxis: 212,}]
+          state.planes= [...state.planes,{id: nameO,name:`Plane ${nameO}`, checkbox: false, showClip: true, showEdge: false, showCap: true, xCord:0, yCord:0, zCord:0,constant:0,clipDirection: true, translate: "50", rotate: 219, xAxis: 189, yAxis: 212,}]
         }
       },
 
       editCheck: (state, action) => {
         let newArray=[...state.planes];
-        const index= state.planes.findIndex((item) => item.name === action.payload);
-        let changeItem : any = state.planes.find((item) => item.name === action.payload);
+        const index= state.planes.findIndex((item) => item.id === action.payload);
+        let changeItem : any = state.planes.find((item) => item.id === action.payload);
         const val = changeItem&& changeItem?.checkbox
         changeItem = {...changeItem, checkbox:!val}
         // changeItem.checkbox= !changeItem.checkbox;
@@ -137,8 +140,8 @@ export const clipSlice = createSlice({
 
       editShowClip : (state,action) => {
         let newArray=[...state.planes];
-        const index= state.planes.findIndex((item) => item.name === action.payload);
-        let changeItem : any = state.planes.find((item) => item.name === action.payload);
+        const index= state.planes.findIndex((item) => item.id === action.payload);
+        let changeItem : any = state.planes.find((item) => item.id === action.payload);
         // const val = changeItem&& changeItem?.showClip
         changeItem.showClip = !changeItem.showClip
         // changeItem.checkbox= !changeItem.checkbox;
@@ -149,8 +152,8 @@ export const clipSlice = createSlice({
 
       editEdgeClip : (state,action) => {
         let newArray=[...state.planes];
-        const index= state.planes.findIndex((item) => item.name === action.payload);
-        let changeItem : any = state.planes.find((item) => item.name === action.payload);
+        const index= state.planes.findIndex((item) => item.id === action.payload);
+        let changeItem : any = state.planes.find((item) => item.id === action.payload);
         changeItem.showEdge = !changeItem.showEdge
         newArray[index]=changeItem;
          state.planes=[...newArray]
@@ -158,8 +161,8 @@ export const clipSlice = createSlice({
 
       editShowCap : (state,action) => {
         let newArray=[...state.planes];
-        const index= state.planes.findIndex((item) => item.name === action.payload);
-        let changeItem : any = state.planes.find((item) => item.name === action.payload);
+        const index= state.planes.findIndex((item) => item.id === action.payload);
+        let changeItem : any = state.planes.find((item) => item.id === action.payload);
         console.log("show", changeItem)
         changeItem.showCap = !changeItem.showCap
         newArray[index]=changeItem;
@@ -172,7 +175,8 @@ export const clipSlice = createSlice({
           for (let key in action.payload) {
             clone[key] = action.payload[key];
           }
-          clone.name=state.planes[state.planes.length - 1].name + 1;
+          clone.id=state.planes[state.planes.length - 1].id + 1;
+          clone.name = `${clone.name} (Copy)`
           clone.checkbox= false;
           state.planes=[...state.planes, clone];
           console.log("clone",clone)
@@ -181,14 +185,14 @@ export const clipSlice = createSlice({
       },
 
       deletePlane : (state, action) => {
-        const newArray = state.planes.filter(item => item.name !== action.payload);
+        const newArray = state.planes.filter(item => item.id !== action.payload);
         state.planes=[...newArray]
       },
 
       editPlane: (state, action) => {
         let newArray=[...state.planes];
-        const index : any = state.planes.findIndex((item) => item.name === action.payload.name);
-        let changeItem : any = state.planes.find((item) => item.name === action.payload.name);
+        const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
+        let changeItem : any = state.planes.find((item) => item.id === action.payload.id);
         console.log("change",changeItem)
         console.log("action", action.payload)
         changeItem.xCord = action.payload.xCord;

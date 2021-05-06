@@ -144,7 +144,7 @@ export default makeStyles((theme) => (
   },
 
   input :{
-    width: "160px",
+    // width: "160px",
   height: "20px",
   color:theme.palette.text.primary,
   paddingLeft:"10%",
@@ -152,10 +152,23 @@ export default makeStyles((theme) => (
 
 inputOne :{
   color: theme.palette.text.primary, 
+  paddingLeft: "30%",
   textAlign: "center",
   border: "1px solid",
   boderColor: theme.palette.text.primary, 
-  paddingLeft:"30%",
+},
+
+inputEquation:{
+  // width:"40px",
+  color: theme.palette.text.primary, 
+  textAlign:"center",
+  border: "1px solid",
+  boderColor: theme.palette.text.primary,
+  paddingLeft:"10px",
+  background:"none",
+  borderColor: theme.palette.text.primary ,
+  fontSize:"4px",
+  width:"100%",
 },
 
   caption: {
@@ -174,5 +187,10 @@ inputOne :{
     color: theme.palette.text.secondary,
     secondaryColor: "red",
     
-  }
+  },
+
+  largeIcon: {
+    fontSize: "3em"
+  },
+  
 }));

@@ -14,6 +14,7 @@ import Slider from '@material-ui/core/Slider';
 import Triangle from '../../../assets/images/triangle'
 import ThreePoints from '../../../assets/images/threePoints'
 
+import NumericInput from '../../common/numericInput'
 
 import Input from '@material-ui/core/Input';
 import Button from '@material-ui/core/Button';
@@ -23,14 +24,13 @@ import FlipDirectionRight from "../../../assets/images/flipDirectionRight";
 
 import { editPlane } from '../../../store/clipSlice';
 import RotateSlider from './rotateSlider'
-import { Z_BLOCK } from "node:zlib";
+
 
 export default function ClipPlanes(props : any){
 
   const classes = styles();
   const dispatch = useAppDispatch();  
 
-  const [equation,setEquation] = useState(`${props.clicked.xCord}X+${props.clicked.yCord}Y+${props.clicked.zCord}Z=${props.clicked.constant}`)
   const [clipDirection, setClipDirection] = useState(props.clicked.clipDirection);
   const [translate, setTranslate] = useState(props.clicked.translate);
   const [rotate, setRotate] = useState(props.clicked.rotate);
@@ -40,40 +40,23 @@ export default function ClipPlanes(props : any){
   const [xCord, setXCord] = useState(props.clicked.xCord);
   const [yCord, setYCord] = useState(props.clicked.yCord);
   const [zCord, setZCord] = useState(props.clicked.zCord);
-  const [constant, setConstant] = useState(props.clicked.yCord);
+  const [constant, setConstant] = useState(props.clicked.constant);
 
-
-  const OnHandleEquation:(e : any) => any = e => {
-    setEquation(e.target.value)
-
-    // var result = e.targer.value.match(/([0-9])/g)
-
-    var re = /\d+/g, 
-        result : any= [],
-        temp;
-      while ((temp = re.exec(e.target.value)) !== null)
-        result.push(temp[0]);
-
-        setXCord(parseInt(result[0]))
-        setYCord(parseInt(result[1]))
-        setZCord(parseInt(result[2]))
-        setConstant(parseInt(result[3]))
-
-      //   var sed =-?[0-9.]*[Xx];
-      //   const xValue = sed.exec(e.target.value)
-      //  console.log("x", xValue)
-
-    // const xValue = parseInt(e.target.value.split("X")[0]);
-    // const yValue = parseInt(e.target.value.split("+")[1].split("Y")[0]);
-    // const zValue = parseInt(e.target.value.split("Y")[1].split("Z")[0]);
-    // const consta = parseInt(e.target.value.split("=")[1]);
-
-    // setXCord(xValue)
-    // setYCord(yValue)
-    // setZCord(zValue)
-    // setConstant(consta)
-    
-   
+  const OnHandleEquation:(value : number, variable: string) => any = (value,variable) => {
+    switch(variable){
+      case "xCord" :
+        setXCord(value);
+      break;
+      case "yCord" :
+        setYCord(Number(value));
+      break;
+      case "zCord" :
+        setZCord(Number(value));
+      break;
+      case "constant" :
+        setConstant(Number(value));
+      break;
+    }
   }
 
   const onHandleDirection = () => {
@@ -110,7 +93,6 @@ export default function ClipPlanes(props : any){
     setYCord(props.clicked.yCord)
     setZCord(props.clicked.yCord)
     setConstant(props.clicked.consta)
-    setEquation(`${props.clicked.xCord}X+${props.clicked.yCord}Y+${props.clicked.zCord}Z=${props.clicked.constant}`);
     setClipDirection(props.clicked.clipDirection);
     setTranslate(props.clicked.translate);
     setRotate(props.clicked.rotate);
@@ -121,8 +103,8 @@ export default function ClipPlanes(props : any){
   }
 
   const onHandleSave = () => {
-    const name= props.clicked.name
-    const clip = {name, xCord, yCord, zCord, constant, clipDirection, translate, rotate, xAxis, yAxis}
+    const id= props.clicked.id
+    const clip = {id, xCord, yCord, zCord, constant, clipDirection, translate, rotate, xAxis, yAxis}
     dispatch(editPlane(clip));
     props.editSave();
   }
@@ -163,14 +145,14 @@ export default function ClipPlanes(props : any){
     return (
       <div className={classes.heading}>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs>
+          <Grid item >
             <Typography  variant="h1" noWrap>
               Clip Plates -
             </Typography>
           </Grid>
           <Grid item xs>
-            <Typography variant="h2" noWrap>
-              {`Plane ${props.clicked.name}`}
+            <Typography variant="h2" noWrap style={{marginLeft :"-10px"}}> 
+              {props.clicked.name}
             </Typography>
           </Grid>
         </Grid>
@@ -188,14 +170,61 @@ export default function ClipPlanes(props : any){
         <form noValidate autoComplete="off">
           <div style={{ display: "flex",
     alignItems: "center",
-    justifyContent: "flex-start", marginLeft:"5%",
-    marginTop:"5px"}}>
-            <TextField
+    justifyContent: "flex-start", marginLeft:"5%", marginRight:"5%",
+    marginTop:"5px", }}>
+            {/* <TextField
               inputProps={{className : classes.input}}
               value={equation}
               onChange={OnHandleEquation} 
               variant="outlined"
               size="small"
+            /> */}
+            <NumericInput
+             className={classes.inputEquation}
+              value={xCord}
+              button={"no"}
+              format={() => xCord + "X"}
+              margin="dense"
+              inputProps={{
+                'aria-labelledby': 'input-slider', 
+                type: 'number',
+              }}
+              onChange={(value : any) => OnHandleEquation(value,"xCord")} 
+              /> +
+             <NumericInput
+             className={classes.inputEquation}
+              value={yCord}
+              button={"no"}
+              format={() => yCord + "Y"}
+              margin="dense"
+              inputProps={{
+                'aria-labelledby': 'input-slider', 
+                type: 'number',
+              }}
+              onChange={(value : any) => OnHandleEquation(value,"yCord")} 
+            /> +
+            <NumericInput
+             className={classes.inputEquation}
+              value={zCord}
+              button={"no"}
+              format={() => zCord + "Z"}
+              margin="dense"
+              inputProps={{
+                'aria-labelledby': 'input-slider',
+                type: 'number', 
+              }}
+              onChange={(value : any) => OnHandleEquation(value, "zCord")} 
+            /> =
+            <NumericInput
+             className={classes.inputEquation}
+              value={constant}
+              button={"no"}
+              margin="dense"
+              inputProps={{
+                'aria-labelledby': 'input-slider', 
+                type: 'number',
+              }}
+              onChange={(value : any) => OnHandleEquation(value, "constant")} 
             />
           </div>
           <Grid container spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
@@ -226,7 +255,7 @@ export default function ClipPlanes(props : any){
               <IconButton style={{width:"60px",height: "90px", }}   onClick={() => onHandleDirection()}>
                {clipDirection== false 
                ? 
-               <FlipDirectionLeft />
+               <FlipDirectionLeft/>
                :
                 <FlipDirectionRight/>
                 }
@@ -284,7 +313,14 @@ export default function ClipPlanes(props : any){
 
     const getFooter = () => {
       let edited = false;
-      if( equation !== `${props.clicked.xCord}X+${props.clicked.yCord}Y+${props.clicked.zCord}Z=${props.clicked.constant}` || clipDirection !== props.clicked.clipDirection || translate !== props.clicked.translate || rotate !== props.clicked.rotate || xAxis !== props.clicked.xAxis || yAxis !== props.clicked.yAxis)
+      if( xCord !== props.clicked.xCord || yCord !== props.clicked.yCord ||
+          zCord !== props.clicked.zCord || constant !== props.clicked.constant ||
+          clipDirection !== props.clicked.clipDirection || 
+          translate !== props.clicked.translate || 
+          rotate !== props.clicked.rotate || 
+          xAxis !== props.clicked.xAxis || 
+          yAxis !== props.clicked.yAxis
+        )
         edited = true;
 
       return (
