@@ -15589,29 +15589,32 @@ var getEventObject = function (type, viewerID, data) {
                         });
                     }
                 });
-                if (selectionInfo.visibility === false) {
+                // if(selectionInfo.visibility === false)
+                // {
+                //     let nodes = representations.map(items => items.customData.node);
+                //     if (nodes.length > 0)
+                //         this.renderApp.setNodeVisibility(nodes, selectionInfo.visibility);   
+                //     resolve(true);          
+                // }
+                //else{         
+                _this.progressiveLoader.loadSelectedRepresentations(representations_1).then(function () {
                     var nodes = representations_1.map(function (items) { return items.customData.node; });
+                    if (selectionInfo.hiddenlineEnabled) {
+                        var meshNodes = meshRepresentation_1.map(function (items) { return items.customData.node; });
+                        var lineNodes = lineRepresentation_1.map(function (items) { return items.customData.node; });
+                        _this.renderApp.showHiddenLines(meshNodes, lineNodes);
+                    }
+                    _this.renderApp.setNodeTransparency(nodes, selectionInfo.transparency);
+                    _this.renderApp.setUseTexture(nodes, selectionInfo.useTexture);
                     if (nodes.length > 0)
                         _this.renderApp.setNodeVisibility(nodes, selectionInfo.visibility);
                     resolve(true);
-                }
-                else {
-                    _this.progressiveLoader.loadSelectedRepresentations(representations_1).then(function () {
-                        var nodes = representations_1.map(function (items) { return items.customData.node; });
-                        if (selectionInfo.hiddenlineEnabled) {
-                            var meshNodes = meshRepresentation_1.map(function (items) { return items.customData.node; });
-                            var lineNodes = lineRepresentation_1.map(function (items) { return items.customData.node; });
-                            _this.renderApp.showHiddenLines(meshNodes, lineNodes);
-                        }
-                        _this.renderApp.setNodeTransparency(nodes, selectionInfo.transparency);
-                        _this.renderApp.setUseTexture(nodes, selectionInfo.useTexture);
-                        resolve(true);
-                    })
-                        .catch(function () {
-                        Logger.setStatusBar("Error occurred while downloading buffers.", statusIconType.ERROR);
-                        throw new Error("Error occurred while downloading buffers.");
-                    });
-                }
+                })
+                    .catch(function () {
+                    Logger.setStatusBar("Error occurred while downloading buffers.", statusIconType.ERROR);
+                    throw new Error("Error occurred while downloading buffers.");
+                });
+                //}          
             }
             else {
                 throw new Error("Invalid selection info.");
