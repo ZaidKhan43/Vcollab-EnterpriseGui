@@ -34,8 +34,7 @@ const useRTreeOverrideStyles = makeStyles((theme) => ({
 })) 
 
 function Search(props:any) {
-    // eslint-disable-next-line
-    const updateCssPath = useLoadCss('./globalStyles/RTreeStylesOverrideDark.css');
+
     const treeData = useAppSelector(selectProductTreeData);
     const treeDataRef = useRef(treeData);
     const prevSearches = useAppSelector(selectPrevSearches);
@@ -183,7 +182,7 @@ function Search(props:any) {
 
             {/*
  // @ts-ignore */}
-            <Table height={containerHeight - headerHeight}
+            <Table height={containerHeight? containerHeight - headerHeight : 0}
                    className={overrideStyles.tree}
                    data={result}
                    id="searchList"

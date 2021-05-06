@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import useLoadCss from "../../../../customHooks/useLoadCss";
 import useContainer from '../../../../customHooks/useContainer';
 import { Table ,Column, ColumnGroup, HeaderCell, Cell, } from 'rsuite-table';
@@ -36,14 +36,19 @@ const useRTreeOverrideStyles = makeStyles((theme) => ({
 })) 
 
 function RTree(props:any) {
-    // need for future use
-    // eslint-disable-next-line 
-    const updateCssPath = useLoadCss('./globalStyles/RTreeStylesOverrideDark.css');
+
     const containerRef = useRef(null);
-    const [containerWidth, containerHeight] = useContainer(containerRef,[]);
     const treeData = useAppSelector(selectProductTreeData);
+    const [containerWidth, containerHeight] = useContainer(containerRef,[treeData]);
+    const rootIds = useAppSelector(selectRootIds);
     const dispatch = useAppDispatch()
-    const expandedNodes:string[] = [];
+    console.log("Tree Rendered")
+    const convertListToTree = (data:Map<string,ITreeNode>,rootIds:string[]) => {
+      let root = [createTreeNode(rootIds[0],data)];
+      return root;
+    }
+    const [data,setData] = useState<any[]>([]);
+    const [expandedNodes,setExpandedNodes] = useState<string[]>([]);
     
     const getNode = (id:string) => treeData[id];
     const createTreeNode = (id:string,data:Map<string,ITreeNode>) => {
@@ -66,12 +71,10 @@ function RTree(props:any) {
       }
 
     }
-    const convertListToTree = (data:Map<string,ITreeNode>,rootIds:string[]) => {
-      let root = [createTreeNode(rootIds[0],data)];
-      return root;
-    }
-    const rootIds = useAppSelector(selectRootIds);
-    const [data] = useState(convertListToTree(treeData,rootIds));
+    useEffect(() => {
+      console.log("Tree mounted")
+      setData(convertListToTree(treeData,rootIds));
+    },[])
     const handleExpand = (toOpen:boolean,nodeId:string) => {
       dispatch(expandNode({toOpen,nodeId}));
     }
@@ -84,7 +87,9 @@ function RTree(props:any) {
     const overrideClasses = useRTreeOverrideStyles();
       return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
-          {/*
+          {
+            
+          /*
 // @ts-ignore */}
           <Table
             className = {overrideClasses.tree}
@@ -93,12 +98,12 @@ function RTree(props:any) {
             rowKey="id"
             rowHeight = {(rowData:any) => 40}
             width={300}
-            height={containerHeight-5}
+            height={containerHeight? containerHeight - 5 : 0}
             data={data as any}
             virtualized={true}
             showHeader={false}
             onExpandChange={(isOpen:boolean, rowData:any) => {
-              handleExpand(isOpen, rowData.index);
+              handleExpand(isOpen, rowData.id);
             }}
             rowClassName={overrideClasses.rightColumn}
             renderTreeToggle={(icon, rowData:any) => {
