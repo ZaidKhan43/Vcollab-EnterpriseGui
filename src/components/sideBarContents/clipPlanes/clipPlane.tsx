@@ -31,36 +31,37 @@ export default function ClipPlanes(props : any){
   const classes = styles();
   const dispatch = useAppDispatch();  
 
-  const [clipDirection, setClipDirection] = useState(props.clicked.clipDirection);
+  const [clipNormalInverted, setClipNormalInverted] = useState(props.clicked.clipNormalInverted);
   const [translate, setTranslate] = useState(props.clicked.translate);
   const [rotate, setRotate] = useState(props.clicked.rotate);
-  const [xAxis, setXAxis] = useState(props.clicked.xAxis);
-  const [yAxis, setYAxis] = useState(props.clicked.yAxis); 
+  const [axisX, setXAxis] = useState(props.clicked.axisX);
+  const [axisY, setAxisY] = useState(props.clicked.axisY); 
+  const [clipCordX, setClipCordX] = useState(props.clicked.clipCordX);
+  const [clipCordY, setClipCordY] = useState(props.clicked.clipCordY);
+  const [clipCordZ, setClipCordZ] = useState(props.clicked.clipCordZ);
+  const [clipConstD, setClipConstD] = useState(props.clicked.clipConstD);
+
   const [clipPlaneMode, setClipPlaneMode] = useState(props.clicked.clipPlaneMode);
-  const [xCord, setXCord] = useState(props.clicked.xCord);
-  const [yCord, setYCord] = useState(props.clicked.yCord);
-  const [zCord, setZCord] = useState(props.clicked.zCord);
-  const [constant, setConstant] = useState(props.clicked.constant);
 
   const OnHandleEquation:(value : number, variable: string) => any = (value,variable) => {
     switch(variable){
-      case "xCord" :
-        setXCord(value);
+      case "clipCordX" :
+        setClipCordX(value);
       break;
-      case "yCord" :
-        setYCord(Number(value));
+      case "clipCordY" :
+        setClipCordY(Number(value));
       break;
-      case "zCord" :
-        setZCord(Number(value));
+      case "clipCordZ" :
+        setClipCordZ(Number(value));
       break;
-      case "constant" :
-        setConstant(Number(value));
+      case "clipConstD" :
+        setClipConstD(Number(value));
       break;
     }
   }
 
   const onHandleDirection = () => {
-    setClipDirection(!clipDirection)
+    setClipNormalInverted(!clipNormalInverted)
   
   }
 
@@ -69,7 +70,7 @@ export default function ClipPlanes(props : any){
   }
 
   const onHandleTranslateType= (e : any) => {
-    setTranslate(e.target.value)
+    setTranslate(Number(e.target.value))
   }
 
   const onHandleRotate = (fun : any, value : any) => {
@@ -81,7 +82,7 @@ export default function ClipPlanes(props : any){
   }
 
   const onHandleRotateYType = ( value : any) => {
-    setYAxis(value)
+    setAxisY(value)
   }
 
   const onHandleRotateXType = (value : any) => {
@@ -89,22 +90,22 @@ export default function ClipPlanes(props : any){
   }
 
   const onHandleReset = () => {
-    setXCord(props.clicked.xCord)
-    setYCord(props.clicked.yCord)
-    setZCord(props.clicked.yCord)
-    setConstant(props.clicked.consta)
-    setClipDirection(props.clicked.clipDirection);
+    setClipCordX(props.clicked.clipCordX)
+    setClipCordY(props.clicked.clipCordY)
+    setClipCordZ(props.clicked.clipCordY)
+    setClipConstD(props.clicked.clipConstD)
+    setClipNormalInverted(props.clicked.clipNormalInverted);
     setTranslate(props.clicked.translate);
     setRotate(props.clicked.rotate);
     console.log("handleReset props", props.clicked.rotate)
-    setXAxis(props.clicked.xAxis);
-    setYAxis(props.clicked.yAxis);
+    setXAxis(props.clicked.axisX);
+    setAxisY(props.clicked.axisY);
     
   }
 
   const onHandleSave = () => {
     const id= props.clicked.id
-    const clip = {id, xCord, yCord, zCord, constant, clipDirection, translate, rotate, xAxis, yAxis}
+    const clip = {id, clipCordX, clipCordY, clipCordZ, clipConstD, clipNormalInverted, translate, rotate, axisX, axisY}
     dispatch(editPlane(clip));
     props.editSave();
   }
@@ -123,8 +124,8 @@ export default function ClipPlanes(props : any){
   //       case setXAxis:
   //         setXAxis(value)
   //       break;
-  //       case setYAxis:
-  //         setYAxis(value)
+  //       case setAxisY:
+  //         setAxisY(value)
   //       break;
   //     }
   //     switch(func){
@@ -134,8 +135,8 @@ export default function ClipPlanes(props : any){
   //       case setXAxis:
   //         setXAxis(value)
   //       break;
-  //       case setYAxis:
-  //         setYAxis(value)
+  //       case setAxisY:
+  //         setAxisY(value)
   //       break;
   //   }
   // }
@@ -181,50 +182,50 @@ export default function ClipPlanes(props : any){
             /> */}
             <NumericInput
              className={classes.inputEquation}
-              value={xCord}
+              value={clipCordX}
               button={"no"}
-              format={() => xCord + "X"}
+              format={() => clipCordX + "X"}
               margin="dense"
               inputProps={{
                 'aria-labelledby': 'input-slider', 
                 type: 'number',
               }}
-              onChange={(value : any) => OnHandleEquation(value,"xCord")} 
+              onChange={(value : any) => OnHandleEquation(value,"clipCordX")} 
               /> +
              <NumericInput
              className={classes.inputEquation}
-              value={yCord}
+              value={clipCordY}
               button={"no"}
-              format={() => yCord + "Y"}
+              format={() => clipCordY + "Y"}
               margin="dense"
               inputProps={{
                 'aria-labelledby': 'input-slider', 
                 type: 'number',
               }}
-              onChange={(value : any) => OnHandleEquation(value,"yCord")} 
+              onChange={(value : any) => OnHandleEquation(value,"clipCordY")} 
             /> +
             <NumericInput
              className={classes.inputEquation}
-              value={zCord}
+              value={clipCordZ}
               button={"no"}
-              format={() => zCord + "Z"}
+              format={() => clipCordZ + "Z"}
               margin="dense"
               inputProps={{
                 'aria-labelledby': 'input-slider',
                 type: 'number', 
               }}
-              onChange={(value : any) => OnHandleEquation(value, "zCord")} 
+              onChange={(value : any) => OnHandleEquation(value, "clipCordZ")} 
             /> =
             <NumericInput
              className={classes.inputEquation}
-              value={constant}
+              value={clipConstD}
               button={"no"}
               margin="dense"
               inputProps={{
                 'aria-labelledby': 'input-slider', 
                 type: 'number',
               }}
-              onChange={(value : any) => OnHandleEquation(value, "constant")} 
+              onChange={(value : any) => OnHandleEquation(value, "clipConstD")} 
             />
           </div>
           <Grid container spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
@@ -253,7 +254,7 @@ export default function ClipPlanes(props : any){
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
               <IconButton style={{width:"60px",height: "90px", }}   onClick={() => onHandleDirection()}>
-               {clipDirection== false 
+               {clipNormalInverted== false 
                ? 
                <FlipDirectionLeft/>
                :
@@ -298,10 +299,10 @@ export default function ClipPlanes(props : any){
         <Typography className={classes.listSub} style={{marginTop:"10%"}} noWrap>Rotate</Typography>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
-            <RotateSlider value={xAxis} functionOne={onHandleRotate} functionTwo={onHandleRotateXType}  setFunction={setXAxis} label={"X-Axis"}/>
+            <RotateSlider value={axisX} functionOne={onHandleRotate} functionTwo={onHandleRotateXType}  setFunction={setXAxis} label={"X-Axis"}/>
             </Grid>
             <Grid item xs={12} sm={6}>
-            <RotateSlider value={yAxis} functionOne={onHandleRotate} functionTwo={onHandleRotateYType}  setFunction={setYAxis} label={"Y-Axis"}/>
+            <RotateSlider value={axisY} functionOne={onHandleRotate} functionTwo={onHandleRotateYType}  setFunction={setAxisY} label={"Y-Axis"}/>
             </Grid>
           </Grid>         
         </form>
@@ -313,13 +314,13 @@ export default function ClipPlanes(props : any){
 
     const getFooter = () => {
       let edited = false;
-      if( xCord !== props.clicked.xCord || yCord !== props.clicked.yCord ||
-          zCord !== props.clicked.zCord || constant !== props.clicked.constant ||
-          clipDirection !== props.clicked.clipDirection || 
+      if( clipCordX !== props.clicked.clipCordX || clipCordY !== props.clicked.clipCordY ||
+          clipCordZ !== props.clicked.clipCordZ || clipConstD !== props.clicked.clipConstD ||
+          clipNormalInverted !== props.clicked.clipNormalInverted || 
           translate !== props.clicked.translate || 
           rotate !== props.clicked.rotate || 
-          xAxis !== props.clicked.xAxis || 
-          yAxis !== props.clicked.yAxis
+          axisX !== props.clicked.axisX || 
+          axisY !== props.clicked.axisY
         )
         edited = true;
 

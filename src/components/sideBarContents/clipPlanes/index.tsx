@@ -28,7 +28,7 @@ import { PlayCircleOutlineSharp } from '@material-ui/icons';
 
 import ClipPlane from "./clipPlane"
 
-import { addItem } from '../../../store/clipSlice';
+import { createPlane } from '../../../store/clipSlice';
 import {editCheck} from "../../../store/clipSlice";
 import {editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane} from "../../../store/clipSlice";
 
@@ -71,7 +71,7 @@ export default function ClipPlanes(){
   }
 
   const onClickAddItem = () => {
-    dispatch(addItem());
+    dispatch(createPlane());
   }
 
   const onHandleCheck: (item: any) => any = (item) => {
@@ -182,14 +182,14 @@ export default function ClipPlanes(){
                 { editPlane !== item.id 
                   ?
                   <Typography className={classes.listItemText} >
-                  <Checkbox color="default"  checked={item.checkbox} onChange={() => onHandleCheck(item)}/>
+                  <Checkbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/>
                   {item.name}
                 </Typography>
 
                 :
 
                  <Typography className={classes.listItemText} >
-                  <Checkbox color="default"  checked={item.checkbox} onChange={() => onHandleCheck(item)}/>
+                  <Checkbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/>
                   <Input value={editOne}
                   onChange={onHandlePlateName}
                   onKeyDown={event => {
