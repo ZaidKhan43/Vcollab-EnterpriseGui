@@ -4,6 +4,7 @@ import useContainer from '../../../../customHooks/useContainer';
 import { Table, Column,HeaderCell,Cell } from 'rsuite-table';
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
 import SearchItem from './SearchItem'
+import SearchHints from './SearchHints'
 import {fetchSearchHints,selectSearchHints,selectPrevSearches,saveSearchQuery,setCheckedNodesAsync,selectProductTreeData, updatePrevSearches, TreeNode as ITreeNode} from "../../../../store/sideBar/ProductTreeSlice"
 import Checkbox from "@material-ui/core/Checkbox"
 import TextField from '@material-ui/core/TextField';
@@ -46,9 +47,10 @@ function Search(props:any) {
     const [isOpen, setisOpen] = useState(false);
     const [selectAll, setSelectAll] = useState(false);
 
+    const headerRef = useRef(null);
+    const [headerWidth, headerHeight] = useContainer(headerRef,[]);
     const containerRef = useRef(null);
     const [containerWidth, containerHeight] = useContainer(containerRef,[]);
-    const headerHeight = 111;
 
     const getAttrbKeys = (treeArray:any[]) => {
         let keys = new Set();
@@ -75,12 +77,14 @@ function Search(props:any) {
     }
 
     useEffect(() => {
-        let options = {
-            includeScore: true,
+      let options = {
+            includeScore: false,
             keys: getAttrbKeys([...Object.values(treeDataRef.current)]),
-            ignoreLocation: true,
-            includeMatches:true,
-            useExtendedSearch: true
+            ignoreLocation: false,
+            includeMatches:false,
+            threshold: 0.2,
+            useExtendedSearch: true,
+            minMatchCharLength: 2
         }
         let fuse:any = new Fuse([...Object.values(treeDataRef.current)],options);
         dispatch(fetchSearchHints());
@@ -124,14 +128,15 @@ function Search(props:any) {
     const overrideStyles = useRTreeOverrideStyles();
     return (
         <div ref = {containerRef} style={{height:'100%'}} >
-          <div style={{height:headerHeight}}>
+          <div ref = {headerRef} >
           <Autocomplete
                 style={{paddingLeft: 10, paddingRight: 10}}
                 size = 'small'
                 color = 'inherit'
                 disableClearable
                 clearOnBlur = {false}
-                open = {isOpen}
+                open = {false}
+                forcePopupIcon = {false}
                 onOpen = {(e:any) => {handleAutoCompleteOpenState(true)}}
                 onClose = {(e:any) => {handleAutoCompleteOpenState(false)}}
                 onKeyPress = {(e:any) => {
@@ -169,12 +174,13 @@ function Search(props:any) {
                 />
                 )}
             />
+            <SearchHints/>
             {
             result.length !== 0 ?
-            <span>
-            <Checkbox color="primary" onChange = {(e:any) => {handleSelectAll(e.target.checked)}} checked = {selectAll} ></Checkbox>
+            <div>
+            <Checkbox color="primary" size='small' onChange = {(e:any) => {handleSelectAll(e.target.checked)}} checked = {selectAll} ></Checkbox>
                 Select All
-            </span>
+            </div>
             : null
             }
           </div>
