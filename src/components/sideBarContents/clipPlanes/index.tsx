@@ -44,6 +44,7 @@ import { spawn } from 'node:child_process';
 import {Icon} from '@material-ui/core';
 
 import Alert from '@material-ui/lab/Alert';
+import { isNonNullExpression } from 'typescript';
 
 export default function ClipPlanes(){
 
@@ -56,9 +57,10 @@ export default function ClipPlanes(){
   const [edit, setEdit] = useState<any>(false);
   const [openDialog, setOpenDialog] = useState<any>(false);
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState<any>(false);
-  const [editPlane, setEditPlane] = useState(false)
+  const [editPlane, setEditPlane] = useState(null)
 
-  const [editName, setEditName] = useState<string>(null);
+  const [editName, setEditName] = useState(null);
+  const [editOne, setEditOne] = useState(null);
 
   const onClickBackIcon = () =>{
     dispatch(setSidebarActiveContent(sideBarContentTypes.mainMenu))
@@ -123,6 +125,12 @@ export default function ClipPlanes(){
     setOpenDeleteConfirm(false)
   }
 
+  const onHandlePlateName = (e : any) => {
+   setEditOne(e.target.value)
+   console.log(e.target.value)
+   console.log(editOne)
+  }
+
   const displayClicked = () => {
     const displayClick :any = planes.find((item : any )=> item.id === clickedVal.id);
     return(
@@ -170,8 +178,8 @@ export default function ClipPlanes(){
         <div className={classes.list}>
           {
             planes.map((item : any) =>
-              <div onClick={() => onHandleClick(item)} onDoubleClick={() => setEditPlane(true)} className={clickedVal ? item.id === clickedVal.id ? classes.listItemClicked : classes.listItem : classes.listItem} >
-                { editPlane === false 
+              <div onClick={() => onHandleClick(item)} onDoubleClick={() => {setEditPlane(item.id); setEditOne(item.name)}} className={clickedVal ? item.id === clickedVal.id ? classes.listItemClicked : classes.listItem : classes.listItem} >
+                { editPlane !== item.id 
                   ?
                   <Typography className={classes.listItemText} >
                   <Checkbox color="default"  checked={item.checkbox} onChange={() => onHandleCheck(item)}/>
@@ -180,7 +188,22 @@ export default function ClipPlanes(){
 
                 :
 
-                <Input value={item.name}/>
+                 <Typography className={classes.listItemText} >
+                  <Checkbox color="default"  checked={item.checkbox} onChange={() => onHandleCheck(item)}/>
+                  <Input value={editOne}
+                  onChange={onHandlePlateName}
+                  onKeyDown={event => {
+                    if (event.key === 'Enter') {
+                      setEditPlane(null)
+                    }
+                    
+                    if (event.keyCode === 27) {
+                      event.preventDefault();
+                      setEditPlane(null)
+                    }}}
+                   />
+                </Typography>
+               
 
                 }
                 
