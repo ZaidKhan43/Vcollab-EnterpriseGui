@@ -207,9 +207,18 @@ export const clipSlice = createSlice({
         state.planes[index] = changeItem;
       }      
     },
+
+    editPlaneName: (state, action) => {
+      const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
+      if ( index >= 0) {
+        let changeItem : any = state.planes[index];
+        changeItem.name = action.payload.editName;
+        state.planes[index] = changeItem;
+      }
+    },
   }
 })
 
-export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlane } = clipSlice.actions;
+export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlane, editPlaneName } = clipSlice.actions;
 
 export default clipSlice.reducer;

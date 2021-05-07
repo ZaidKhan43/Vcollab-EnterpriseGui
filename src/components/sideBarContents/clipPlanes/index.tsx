@@ -29,7 +29,7 @@ import { PlayCircleOutlineSharp } from '@material-ui/icons';
 import ClipPlane from "./clipPlane"
 
 import {editEnabled} from "../../../store/clipSlice";
-import {createPlane, editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane} from "../../../store/clipSlice";
+import {createPlane, editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlaneName} from "../../../store/clipSlice";
 
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -56,17 +56,25 @@ export default function ClipPlanes(){
   const [edit, setEdit] = useState<any>(false);
   const [openDialog, setOpenDialog] = useState<any>(false);
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState<any>(false);
+  
   const [editPlane, setEditPlane] = useState(null)
-
-  const [editName, setEditName] = useState(null);
-  const [editOne, setEditOne] = useState(null);
+  const [editName, SetEditName] = useState(null);
 
   const onClickBackIcon = () =>{
     dispatch(setSidebarActiveContent(sideBarContentTypes.mainMenu))
   }
 
   const onHandleClick :(click: any) => any = (click)=> {
-    setClickedVal(click);
+    if ( clickedVal) {
+      setClickedVal(null)
+      
+    }
+    else{
+      setClickedVal(click);
+    if(click.id !== editPlane)
+      setEditPlane(null)
+    }
+    
   }
 
   const onClickAddItem = () => {
@@ -124,10 +132,26 @@ export default function ClipPlanes(){
     setOpenDeleteConfirm(false)
   }
 
-  const onHandlePlateName = (e : any) => {
-   setEditOne(e.target.value)
+  const onHandlePlateNameEdit = (e : any) => {
+   SetEditName(e.target.value)
    console.log(e.target.value)
-   console.log(editOne)
+   console.log(editName)
+  }
+
+  const onHandlePlateKey = (e : any, item : any) => {
+    {
+      if (e.key === 'Enter') {
+        setEditPlane(null)
+        console.log(item, editName)
+        const hello = {id : item.id, editName : editName}
+        dispatch(editPlaneName(hello))
+      }
+      
+      if (e.keyCode === 27) {
+        e.preventDefault();
+        setEditPlane(null)
+      }
+    }
   }
 
   const displayClicked = () => {
@@ -177,10 +201,19 @@ export default function ClipPlanes(){
         <div className={classes.list}>
           {
             planes.map((item : any) =>
-              <div onClick={() => onHandleClick(item)} onDoubleClick={() => {setEditPlane(item.id); setEditOne(item.name)}} className={clickedVal ? item.id === clickedVal.id ? classes.listItemClicked : classes.listItem : classes.listItem} >
+              <div 
+                onDoubleClick={() => {setEditPlane(item.id); SetEditName(item.name)}} 
+                className={clickedVal 
+                            ? 
+                              item.id === clickedVal.id 
+                                ? 
+                                  classes.listItemClicked 
+                                : classes.listItem 
+                            : classes.listItem} 
+              >
                 { editPlane !== item.id 
                   ?
-                  <Typography className={classes.listItemText} >
+                  <Typography className={classes.listItemText} onClick={() => onHandleClick(item)}  >
                   <Checkbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/>
                   {item.name}
                 </Typography>
@@ -189,18 +222,9 @@ export default function ClipPlanes(){
 
                  <Typography className={classes.listItemText} >
                   <Checkbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/>
-                  <Input value={editOne}
-                  onChange={onHandlePlateName}
-                  onKeyDown={event => {
-                    if (event.key === 'Enter') {
-                      setEditPlane(null)
-                    }
-                    
-                    if (event.keyCode === 27) {
-                      event.preventDefault();
-                      setEditPlane(null)
-                    }}}
-                   />
+                  <Input value={editName}
+                  onChange={onHandlePlateNameEdit}
+                  onKeyDown={(e) => onHandlePlateKey(e, item)}/>
                 </Typography>
                
 
