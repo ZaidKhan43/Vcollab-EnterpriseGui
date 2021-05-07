@@ -2,13 +2,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from './index';
 import { sideBarContentTypes } from '../config';
 
-interface IViewer {
+type Viewer = {
     name :string,
     id :string
 }
 
 // Define a type for the slice state
-interface IAppState {
+type AppState = {
     isAppBarVisible: boolean
     isFullscreenEnabled: boolean,
     isSideBarVisible : boolean,
@@ -21,7 +21,7 @@ interface IAppState {
 }
 
 // Define the initial state using that type
-const initialState: IAppState = {
+const initialState: AppState = {
     isAppBarVisible: false,
     isFullscreenEnabled: false,
     isSideBarVisible : false,
@@ -58,7 +58,7 @@ export const appSlice = createSlice({
     setModelLoadingStatus : (state, action : PayloadAction<string>) => {
         state.modelLoadingStatus = action.payload
     },
-    addViewer : (state,action : PayloadAction<IViewer>) => {
+    addViewer : (state,action : PayloadAction<Viewer>) => {
         state.viewers[action.payload.name] = action.payload.id;
         if(state.activeViewer === null)
             state.activeViewer = action.payload.name;

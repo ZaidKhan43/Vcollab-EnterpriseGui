@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../index';
 import {setPartVisibility, invertPartsVisibility, setHighlightedNodes, fitView, getSearchHints} from "../../backend/viewerAPIProxy"
 // Define a type for the slice state
-export interface TreeNode{
+export type TreeNode = {
   id:string,
   pid:string|null,
   title:string,
@@ -10,7 +10,7 @@ export interface TreeNode{
   state:any,
   attributes:any
 }
-interface ProductTreeState {
+type ProductTreeState = {
     data: any,
     rootIds: string[],
     searchHints: any[],

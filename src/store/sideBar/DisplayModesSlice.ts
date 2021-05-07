@@ -4,7 +4,7 @@ import {selectCheckedLeafNodes} from "../sideBar/ProductTreeSlice"
 import {toastMsg} from "../toastSlice";
 import type { RootState } from '../index';
 // Define a type for the slice state
-interface DisplayModesState {
+type DisplayModesState  = {
     displayModesData: any[],
 }
 export enum DownloadStates {
@@ -13,7 +13,7 @@ export enum DownloadStates {
     NOT_DOWNLOADED,
     NO_DATA_AVAILABLE
 }
-interface IDisplayMenuItem{
+type DisplayMenuItem = {
     displayId:string,
     title: string,
     selected: boolean,
@@ -37,7 +37,7 @@ export const fetchDisplayModes = createAsyncThunk(
     const viewerId = root.app.viewers[root.app.activeViewer || ""];
     const nodeIds = selectCheckedLeafNodes(root).map(node => node.id);
     let result = await getDisplayModes(viewerId,nodeIds);
-    let menuData:IDisplayMenuItem[] = []
+    let menuData:DisplayMenuItem[] = []
     result.forEach((item:any) => {
       if(item.displayOrder !== 0)
       menuData.push(
@@ -47,7 +47,7 @@ export const fetchDisplayModes = createAsyncThunk(
           selected: false,
           size: item.downloadMetricValue,
           status: item.isDataAvailable ? DownloadStates.DOWNLOADED : DownloadStates.NOT_DOWNLOADED
-        } as IDisplayMenuItem
+        } as DisplayMenuItem
       )
     })
     dispatch(displayModesSlice.actions.setMenuData({panelId:0,menuData}));
