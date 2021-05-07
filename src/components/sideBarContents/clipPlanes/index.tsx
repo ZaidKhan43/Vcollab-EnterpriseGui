@@ -28,9 +28,8 @@ import { PlayCircleOutlineSharp } from '@material-ui/icons';
 
 import ClipPlane from "./clipPlane"
 
-import { createPlane } from '../../../store/clipSlice';
-import {editCheck} from "../../../store/clipSlice";
-import {editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane} from "../../../store/clipSlice";
+import {editEnabled} from "../../../store/clipSlice";
+import {createPlane, editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane} from "../../../store/clipSlice";
 
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -75,7 +74,7 @@ export default function ClipPlanes(){
   }
 
   const onHandleCheck: (item: any) => any = (item) => {
-    dispatch(editCheck(item.id))
+    dispatch(editEnabled(item.id))
   }
 
   const onHandleClip: (item: any, functionName: any) => any = (item, functionName) => {
