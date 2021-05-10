@@ -1,19 +1,16 @@
-import MenuItem from "@material-ui/core/MenuItem";
-import MenuList from "@material-ui/core/MenuList";
-import { Popover,Popper } from "@material-ui/core";
-import Typography from '@material-ui/core/Typography';
-import Snackbar from '@material-ui/core/Snackbar';
+import MuiMenuItem from "@material-ui/core/MenuItem";
+import MuiMenuList from "@material-ui/core/MenuList";
+import MuiPopper from "@material-ui/core/Popper";
+import MuiTypography from '@material-ui/core/Typography';
+import MuiSnackbar from '@material-ui/core/Snackbar';
 
-import Alert from '@material-ui/lab/Alert';
-import Collapse from '@material-ui/core/Collapse';
+import MuiAlert from '@material-ui/lab/Alert';
 
-
-import {Icon} from '@material-ui/core';
+import MuiIcon from '@material-ui/core/Icon';
 
 import styles from './style';
 
-import React, { useState, useEffect } from "react";
-import { SettingsRemoteTwoTone } from "@material-ui/icons";
+import { useState, useEffect} from "react";
 
 export default function DropDown (props : any) {
   const [openAlert, setOpenAlert] = useState<any>(false);
@@ -34,32 +31,32 @@ export default function DropDown (props : any) {
 
   return (
     <div>
-      <Popper className={classes.popper} disablePortal id="display-menu" open={props.open} anchorEl={props.anchorEl} >
-        <MenuList id="simple-menu"  >
+      <MuiPopper className={classes.popper} disablePortal id="display-menu" open={props.open} anchorEl={props.anchorEl} >
+        <MuiMenuList id="simple-menu"  >
           {props.items.map((item :any,index : any)=>(
             <div>
-              <MenuItem className={classes.icon}  key={index} onClick={() => showAlert(item)} disabled = {item.disabled === true}>
-                <Icon><item.icon/></Icon>
-                <Typography  className={classes.listItem} variant="h2">{item.title} </Typography>
-                {props.size ?  <Typography  className={classes.listItemSize} variant="subtitle1">0 B</Typography> : null}
-              </MenuItem>
+              <MuiMenuItem className={classes.icon}  key={index} onClick={() => showAlert(item)} disabled = {item.disabled === true}>
+                <MuiIcon><item.icon/></MuiIcon>
+                <MuiTypography  className={classes.listItem} variant="h2">{item.title} </MuiTypography>
+                {props.size ?  <MuiTypography  className={classes.listItemSize} variant="subtitle1">0 B</MuiTypography> : null}
+              </MuiMenuItem>
             </div> 
           ))}
-        </MenuList>
-      </Popper>   
+        </MuiMenuList>
+      </MuiPopper>   
       
-      <Snackbar className={classes.snackBar}
+      <MuiSnackbar className={classes.snackBar}
         anchorOrigin={{vertical:"top", horizontal:'center'}}
         autoHideDuration={2000}
         open={openAlert}
         onClose={handleCloseAlert} >
-          <Alert icon={false}>
+          <MuiAlert icon={false}>
           <span>
-          {/* <Icon>{itemImage}</Icon> */}
+          {/* <MuiIcon>{itemImage}</MuiIcon> */}
             <span>{itemMessage} </span>
           </span>
-          </Alert>
-        </Snackbar>
+          </MuiAlert>
+        </MuiSnackbar>
     </div>
   )
 }

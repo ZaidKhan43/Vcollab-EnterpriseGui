@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import styles from './style';
 
 import SideBarContainer from '../../layout/sideBar/sideBarContainer';
-import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
+import MuiTypography from '@material-ui/core/Typography';
+import MuiIconButton from '@material-ui/core/IconButton';
 import BackButton from '../../../assets/images/back';
 
 import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
@@ -16,9 +16,9 @@ import ThreePoints from '../../../assets/images/threePoints'
 
 import NumericInput from '../../common/numericInput'
 
-import Input from '@material-ui/core/Input';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
+import MuiInput from '@material-ui/core/Input';
+import MuiButton from '@material-ui/core/Button';
+import MuiTextField from '@material-ui/core/TextField';
 import FlipDirectionLeft from "../../../assets/images/flipDirectionLeft";
 import FlipDirectionRight from "../../../assets/images/flipDirectionRight";
 
@@ -112,49 +112,22 @@ export default function ClipPlanes(props : any){
 
   const getHeaderLeftIcon= () => {
     return (
-      <IconButton onClick={() => props.onHandleEdit()}><BackButton/></IconButton>
+      <MuiIconButton onClick={() => props.onHandleEdit()}><BackButton/></MuiIconButton>
     );
   }
-
-  // const onHandleClick = (value : any , func : any) => {
-  //     switch(func){
-  //       case setRotate:
-  //         setRotate(value)
-  //       break;
-  //       case setXAxis:
-  //         setXAxis(value)
-  //       break;
-  //       case setAxisY:
-  //         setAxisY(value)
-  //       break;
-  //     }
-  //     switch(func){
-  //       case setRotate:
-  //         setRotate(value)
-  //       break;
-  //       case setXAxis:
-  //         setXAxis(value)
-  //       break;
-  //       case setAxisY:
-  //         setAxisY(value)
-  //       break;
-  //   }
-  // }
-
-    
   const getHeaderContent = () => {
     return (
       <div className={classes.heading}>
         <Grid container spacing={2} alignItems="center">
           <Grid item >
-            <Typography  variant="h1" noWrap>
+            <MuiTypography  variant="h1" noWrap>
               Clip Plates -
-            </Typography>
+            </MuiTypography>
           </Grid>
           <Grid item xs>
-            <Typography variant="h2" noWrap style={{marginLeft :"-10px"}}> 
+            <MuiTypography variant="h2" noWrap style={{marginLeft :"-10px"}}> 
               {props.clicked.name}
-            </Typography>
+            </MuiTypography>
           </Grid>
         </Grid>
       </div>
@@ -165,14 +138,14 @@ export default function ClipPlanes(props : any){
     console.log("getBody",rotate)
     return (
       <div>
-        <Typography className={classes.listSub} noWrap>
+        <MuiTypography className={classes.listSub} noWrap>
           Plane Equation
-        </Typography>
+        </MuiTypography>
         <form noValidate autoComplete="off">
-          <div style={{ display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-start", marginLeft:"5%", marginRight:"5%",
-    marginTop:"5px", }}>
+          <div style={{ display: "flex",alignItems: "center",
+            justifyContent: "flex-start", marginLeft:"5%", marginRight:"5%",
+            marginTop:"5px", }}
+          >
             {/* <TextField
               inputProps={{className : classes.input}}
               value={equation}
@@ -191,7 +164,10 @@ export default function ClipPlanes(props : any){
                 type: 'number',
               }}
               onChange={(value : any) => OnHandleEquation(value,"clipCordX")} 
-              /> +
+              />
+              <MuiTypography className={classes.button}>
+                +
+              </MuiTypography>
              <NumericInput
              className={classes.inputEquation}
               value={clipCordY}
@@ -203,7 +179,10 @@ export default function ClipPlanes(props : any){
                 type: 'number',
               }}
               onChange={(value : any) => OnHandleEquation(value,"clipCordY")} 
-            /> +
+            />
+            <MuiTypography className={classes.button}>
+              +
+            </MuiTypography>
             <NumericInput
              className={classes.inputEquation}
               value={clipCordZ}
@@ -215,7 +194,10 @@ export default function ClipPlanes(props : any){
                 type: 'number', 
               }}
               onChange={(value : any) => OnHandleEquation(value, "clipCordZ")} 
-            /> =
+            />
+            <MuiTypography className={classes.button}>
+              =
+            </MuiTypography>
             <NumericInput
              className={classes.inputEquation}
               value={clipConstD}
@@ -228,48 +210,48 @@ export default function ClipPlanes(props : any){
               onChange={(value : any) => OnHandleEquation(value, "clipConstD")} 
             />
           </div>
-          <Grid container spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
+          <Grid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
         <Grid item xs={12} sm={6} >
-          <Button size="small"  startIcon={<Triangle />} style={clipPlaneMode=="Surface" ? {background:"grey"} : null} onClick={() => {setClipPlaneMode("Surface")}}>
+          <MuiButton size="small"  startIcon={<Triangle />} style={clipPlaneMode=="Surface" ? {background:"grey"} : null} onClick={() => {setClipPlaneMode("Surface")}}>
           
-            <Typography style={{fontSize:"12px",textTransform:"none"}} >
+            <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
             Select Surface
-            </Typography>
+            </MuiTypography>
            
-          </Button>
+          </MuiButton>
         </Grid>
         <Grid item xs={12} sm={6} style={{position:"absolute",left: "50%",}}>
-          <Button size="small" startIcon={<ThreePoints/>} style={clipPlaneMode=="Points" ? {background:"grey"} : null}  onClick={() => {setClipPlaneMode("Points")}}>
-          <Typography style={{fontSize:"12px",textTransform:"none"}}>
+          <MuiButton size="small" startIcon={<ThreePoints/>} style={clipPlaneMode=="Points" ? {background:"grey"} : null}  onClick={() => {setClipPlaneMode("Points")}}>
+          <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
            Select Points
-            </Typography>
+            </MuiTypography>
            
-            </Button>
+            </MuiButton>
         </Grid>
       </Grid>
 
-          <Typography className={classes.listSub}  style={{marginTop:"10%"}} noWrap>
+          <MuiTypography className={classes.listSub}  style={{marginTop:"10%"}} noWrap>
             Coordinate System
-          </Typography>
+          </MuiTypography>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
-              <IconButton style={{width:"60px",height: "90px", }}   onClick={() => onHandleDirection()}>
+              <MuiIconButton style={{width:"60px",height: "90px", }}   onClick={() => onHandleDirection()}>
                {clipNormalInverted== false 
                ? 
                <FlipDirectionLeft/>
                :
                 <FlipDirectionRight/>
                 }
-              </IconButton>
-              <Typography className={classes.caption}  noWrap>Flip Direction</Typography>
+              </MuiIconButton>
+              <MuiTypography className={classes.caption}  noWrap>Flip Direction</MuiTypography>
             </Grid>
             <Grid item xs={12} sm={6}>
               <RotateSlider value={rotate} functionOne={onHandleRotate} functionTwo={onHandleRotateType}  setFunction={setRotate} label={"Rotate"}/>
             </Grid>
           </Grid>
-          <Typography className={classes.listSub} style={{marginTop:"10%"}} >
+          <MuiTypography className={classes.listSub} style={{marginTop:"10%"}} >
             Translate
-          </Typography>
+          </MuiTypography>
           <Grid container spacing={2} alignItems="center">
             <Grid item xs className={classes.translate}>
               <Slider className={classes.translate} style={{color:"currentColor",}}
@@ -281,7 +263,7 @@ export default function ClipPlanes(props : any){
               />
             </Grid>
           <Grid item style={{marginRight:"5%"}}>
-            <Input
+            <MuiInput
               className={classes.inputOne}
               value={translate}
               margin="dense"
@@ -296,7 +278,7 @@ export default function ClipPlanes(props : any){
             />
           </Grid>
         </Grid>
-        <Typography className={classes.listSub} style={{marginTop:"10%"}} noWrap>Rotate</Typography>
+        <MuiTypography className={classes.listSub} style={{marginTop:"10%"}} noWrap>Rotate</MuiTypography>
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
             <RotateSlider value={axisX} functionOne={onHandleRotate} functionTwo={onHandleRotateXType}  setFunction={setXAxis} label={"X-Axis"}/>
@@ -328,24 +310,24 @@ export default function ClipPlanes(props : any){
         <div style={{marginBottom:"10px"}} >
         {edited == false ? <Grid container spacing={3} >
         <Grid item xs={12} sm={4}  style={{marginLeft:"60px"}}>
-          <Button disabled style={{backgroundColor:"#8C8BFF"}} variant="contained" color="primary" onClick={onHandleSave}>
+          <MuiButton disabled style={{backgroundColor:"#8C8BFF"}} variant="contained" color="primary" onClick={onHandleSave}>
             Save
-          </Button>
+          </MuiButton>
         </Grid>
         <Grid item xs={12} sm={6} style={{position:"absolute",left: "50%",}}>
-          <Button disabled style={{color:"#8C8BFF",}} color="primary" onClick={onHandleReset} >Reset</Button>
+          <MuiButton disabled style={{color:"#8C8BFF",}} color="primary" onClick={onHandleReset} >Reset</MuiButton>
         </Grid>
       </Grid> 
       
       :
        <Grid container spacing={3} >
         <Grid item xs={12} sm={4} style={{marginLeft:"60px"}}>
-          <Button  style={{backgroundColor:"#8C8BFF"}} variant="contained" color="primary" onClick={onHandleSave}>
+          <MuiButton  style={{backgroundColor:"#8C8BFF"}} variant="contained" color="primary" onClick={onHandleSave}>
             Save
-          </Button>
+          </MuiButton>
         </Grid>
         <Grid item xs={12} sm={6} style={{position:"absolute",left: "50%",}}>
-          <Button  style={{color:"#8C8BFF",}} color="primary" onClick={onHandleReset} >Reset</Button>
+          <MuiButton  style={{color:"#8C8BFF",}} color="primary" onClick={onHandleReset} >Reset</MuiButton>
         </Grid>
       </Grid>} 
       </div>  

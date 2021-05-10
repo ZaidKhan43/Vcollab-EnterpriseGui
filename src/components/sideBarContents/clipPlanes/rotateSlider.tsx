@@ -1,8 +1,8 @@
-import Input from '@material-ui/core/Input';
+import MuiInput from '@material-ui/core/Input';
 import NumericInput from '../../common/numericInput'
 // import NumericInput from 'react-numeric-input';
 import CircularSlider from '@fseehawer/react-circular-slider';
-import Typography from '@material-ui/core/Typography';
+import MuiTypgraphy from '@material-ui/core/Typography';
 import styles from './style';
 import React, { useState, useEffect } from "react";
 
@@ -63,7 +63,7 @@ console.log(value)
                 }
             />
             
-            <Typography className={classes.caption}  noWrap>{props.label}</Typography>
+            <MuiTypgraphy className={classes.caption}  noWrap>{props.label}</MuiTypgraphy>
         </div>
     )
 }

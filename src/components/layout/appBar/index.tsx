@@ -2,9 +2,9 @@ import MuiAppBar from '@material-ui/core/AppBar';
 import MuiToolbar from '@material-ui/core/Toolbar';
 import MuiTypography from '@material-ui/core/Typography';
 import clsx from 'clsx';
-// import IconButton from '../../common/iconbutton';
+// import MuiIconButton from '../../common/iconbutton';
 import React, { useState, useEffect } from "react";
-import IconButton from '@material-ui/core/IconButton';
+import MuiIconButton from '@material-ui/core/IconButton';
 
 import Displaymodes from '../../../assets/images/displaymodes';
 import Fitview from '../../../assets/images/fitview';
@@ -24,18 +24,17 @@ import Wireframe from "../../../assets/views/wireframe";
 import Point from "../../../assets/views/point";
 import Transparent from "../../../assets/views/transparent";
 
-import CameraAltOutlinedIcon from '@material-ui/icons/CameraAltOutlined';
-import UpdateOutlinedIcon from '@material-ui/icons/UpdateOutlined';
+import MuiCameraAltOutlinedIcon from '@material-ui/icons/CameraAltOutlined';
+import MuiUpdateOutlinedIcon from '@material-ui/icons/UpdateOutlined';
 
-import MenuItem from "@material-ui/core/MenuItem";
-import MenuList from "@material-ui/core/MenuList";
+import MuiMenuItem from "@material-ui/core/MenuItem";
+import MuiMenuList from "@material-ui/core/MenuList";
 import { Popover,Popper } from "@material-ui/core";
-import Typography from '@material-ui/core/Typography';
 
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import MuiClickAwayListener from '@material-ui/core/ClickAwayListener';
 import DropDown from '../../../components/common/dropDown';
 //toggle button
-import Switch from "@material-ui/core/Switch";
+import MuiSwitch from "@material-ui/core/Switch";
 
 import * as viewerAPIProxy from '../../../backend/viewerAPIProxy';
 
@@ -67,8 +66,8 @@ function AppBar() {
   ];
 
   const moreMenuItems = [
-    { title: "Status", icon: UpdateOutlinedIcon },
-    { title: "Capture", icon: CameraAltOutlinedIcon },
+    { title: "Status", icon: MuiUpdateOutlinedIcon },
+    { title: "Capture", icon: MuiCameraAltOutlinedIcon },
   ];
 
     const OnClickFullscreen = function(){
@@ -121,7 +120,7 @@ function AppBar() {
           <div className={classes.toolBarLeftContent}>            
             <div onClick ={ onClickHamburger }
             className={ clsx( classes.divIcon, classes.hamburgerIcon, { [classes.hamburgerIconHidden]: isSidebarVisible }) }>
-              <IconButton> <Hamburger /></IconButton> 
+              <MuiIconButton> <Hamburger /></MuiIconButton> 
             </div>
             
             <div className={clsx( classes.leftTitle, { [classes.leftTitleHidden]: isSidebarVisible })}>
@@ -136,25 +135,25 @@ function AppBar() {
           <div className={classes.toolBarRightContent}>
           
           <div className={classes.divIcon}  >
-               <IconButton> <Switch checked={isDarkModeEnable} onChange={handleThemeChange} /> </IconButton>
+               <MuiIconButton> <MuiSwitch checked={isDarkModeEnable} onChange={handleThemeChange} /> </MuiIconButton>
           </div>
               <div className={classes.divIcon}  >
-                    <IconButton onClick={(e) => handleClick(e,"display") }><Displaymodes /></IconButton> 
+                    <MuiIconButton onClick={(e) => handleClick(e,"display") }><Displaymodes /></MuiIconButton> 
               </div>
               <div className={classes.divIcon} onClick={ OnClickFitview }>
-                 <IconButton><Fitview/></IconButton>
+                 <MuiIconButton><Fitview/></MuiIconButton>
               </div>
               <div className={classes.divIcon} >
-                  <IconButton onClick={(e) => handleClick(e,"more") }><More /></IconButton>
+                  <MuiIconButton onClick={(e) => handleClick(e,"more") }><More /></MuiIconButton>
               </div>
              
               <div className={classes.divIcon} onClick={ OnClickFullscreen }>
                 {(isFullscreenEnabled ?
-                  <IconButton><FullscreenClose  /></IconButton>  :
-                 <IconButton><Fullscreen /> </IconButton> 
+                  <MuiIconButton><FullscreenClose  /></MuiIconButton>  :
+                 <MuiIconButton><Fullscreen /> </MuiIconButton> 
                 )}
               </div>
-              <ClickAwayListener onClickAway={() => {  
+              <MuiClickAwayListener onClickAway={() => {  
                 if(clickedMenu === "more" || clickedMenu === "display")
                   setClickedMenu(null);
                 else{
@@ -166,7 +165,7 @@ function AppBar() {
                   <DropDown  open={Boolean(displayAnchorEl)} ancgorEl={displayAnchorEl} items={displayMenuItems}  size={true}/>
                   <DropDown open={Boolean(moreAnchorEl)} ancgorEl={moreAnchorEl} items={moreMenuItems}  style={{backgroundColor: "#171727",opacity:"70%", borderRadius: "0px",marginTop: "58px",marginLeft:"85%",boxShadow: "none",}} size={false}/>
                 </div>
-         </ClickAwayListener>
+         </MuiClickAwayListener>
           </div>
           
         

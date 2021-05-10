@@ -108,15 +108,15 @@ export const clipSlice = createSlice({
   reducers: {
     createPlane: (state) => {
       if (state.planes.length < state.settings.maxAllowedPlanes){
-        let nameO;
+        let idNew;
         if(state.planes.length === 0) {
-           nameO = 1;
+           idNew = 1;
         }
         else{
           const lengthO= state.planes.length;
-          nameO = Number(state.planes[lengthO - 1].id + 1);
+          idNew = Number(state.planes[lengthO - 1].id + 1);
         }
-        state.planes= [...state.planes,{  id: nameO,name:`Plane ${nameO}`, 
+        state.planes= [...state.planes,{  id: idNew,name:`Plane ${idNew}`, 
                                           enabled: state.settings.defaultPlaneParameters.enabled, 
                                           showClip: state.settings.defaultPlaneParameters.showClip, 
                                           showEdge: state.settings.defaultPlaneParameters.showEdge,
