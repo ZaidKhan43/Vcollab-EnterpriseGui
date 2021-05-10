@@ -20,6 +20,8 @@ import MuiErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined
 
 import AddIcon from "../../../assets/images/plus";
 
+import DialogBox from "../../../components/common/dialogBox"
+
 // import Edit from "../../../assets/images/edit.svg";
 // import Copy from "../../../assets/images/copy.svg";
 // import ClipPlates from "../../../assets/images/clipboard.svg";
@@ -344,64 +346,34 @@ export default function ClipPlanes(){
 
   return (
     <div>
-      {edit ?  <ClipPlane clicked ={clickedVal} onHandleEdit={onHandleEdit} editSave={onHandleSave}/>
-      :
-      <SideBarContainer
-      headerLeftIcon = { getHeaderLeftIcon() }
-      headerContent={ getHeaderContent() }
-      headerRightIcon = { getHeaderRightIcon() }
-      body ={ getBody() }
-      footer = { getFooter() }
-    /> }
+      { edit 
+        ?  
+          <ClipPlane clicked ={clickedVal} onHandleEdit={onHandleEdit} editSave={onHandleSave}/>
+        :
+          <SideBarContainer
+            headerLeftIcon = { getHeaderLeftIcon() }
+            headerContent={ getHeaderContent() }
+            headerRightIcon = { getHeaderRightIcon() }
+            body ={ getBody() }
+            footer = { getFooter() }
+          /> 
+      }
+      
+      <DialogBox 
+        openDialog={openDialog} 
+        dialogBox={classes.dialogBox} 
+        clickedVal={clickedVal} 
+        onHandleDelete={onHandleDelete} 
+        handleCloseDialog={handleCloseDialog} 
+        snackBar={classes.snackBar} 
+        openDeleteConfirm={openDeleteConfirm} 
+        handleCloseAlert={handleCloseAlert} 
+        confirmationMessage={clickedVal ?  `Are you sure want to delete ${clickedVal.name}?` : null} 
+        confirmedMessage="ClipPlane deleted"
+        confirmationIcon={ <MuiErrorOutlineOutlinedIcon className={classes.dialogBox}/>}
+        confirmedIcon={<MuiDeleteForeverOutlinedIcon/>}
+  /> 
 
-      <MuiDialog
-        open={openDialog}
-        aria-labelledby="draggable-dialog-title"
-      >
-        <MuiDialogContent className={classes.dialogBox}>
-          <MuiDialogContentText >
-            <MuiIcon style={{marginLeft: "40%"}}><MuiErrorOutlineOutlinedIcon className={classes.dialogBox}/></MuiIcon>
-            
-            <MuiTypography color="inherit">
-              {clickedVal ?  `Are you sure want to delete ${clickedVal.name}?` : null}
-             
-            </MuiTypography>
-          </MuiDialogContentText>
-        </MuiDialogContent>
-        <MuiDialogActions >
-          <div>
-          <MuiButton style={{backgroundColor:"#8C8BFF", marginLeft:"-50%"}} 
-            autoFocus 
-            onClick={onHandleDelete} 
-            color="primary"
-          >
-            Confirm
-          </MuiButton>
-          <MuiButton style={{color: "#8C8BFF"}}
-            onClick={handleCloseDialog} 
-            color="primary"
-          >
-            Cancel
-          </MuiButton>
-          </div>
-        </MuiDialogActions>
-      </MuiDialog>
-      <div>
-        <MuiSnackbar className={classes.snackBar}
-          anchorOrigin={{vertical:"top", horizontal:'center'}}
-          autoHideDuration={2000}
-          open={openDeleteConfirm}
-          onClose={handleCloseAlert} >
-            <MuiAlert icon={false}>
-            <div style={{display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",}}>
-              <MuiIcon><MuiDeleteForeverOutlinedIcon/></MuiIcon>
-              <MuiTypography color="inherit">ClipPlane deleted</MuiTypography>
-            </div>
-            </MuiAlert>
-          </MuiSnackbar>
-      </div>
-    </div>
+</div>
   )
 }
