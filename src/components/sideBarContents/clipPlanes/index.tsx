@@ -51,6 +51,7 @@ export default function ClipPlanes(){
   const dispatch = useAppDispatch();  
   const classes = styles();
   const planes = useAppSelector((state) => state.clip.planes);
+  const limit = useAppSelector((state) => state.clip.settings.maxAllowedPlanes);
   const [clickedVal, setClickedVal] = useState<any>(null); 
   const [copied, setCopied] = useState<any>(false); 
   const [copy, setCopy] = useState(null);
@@ -185,7 +186,18 @@ export default function ClipPlanes(){
 
   const getHeaderRightIcon = () => {
     return (
-      <MuiIconButton onClick={() => onClickAddItem()}><AddIcon/></MuiIconButton>
+      <div>
+      {planes.length === limit 
+        ?  
+          <MuiIconButton disabled onClick={() => onClickAddItem()}>
+            <AddIcon/>
+          </MuiIconButton> 
+        : 
+          <MuiIconButton onClick={() => onClickAddItem()}>
+            <AddIcon/>
+          </MuiIconButton>
+      }
+      </div>
     )
   }
     
@@ -268,9 +280,18 @@ export default function ClipPlanes(){
               </MuiIconButton>
               {copied 
                 ? 
-                  <MuiIconButton style={{ }}>
-                    <MuiPaste onClick={() => onHandlePaste(copy)}/>
-                  </MuiIconButton>  
+                <div>
+                  { planes.length === limit 
+                    ?
+                      <MuiIconButton disabled style={{ }}>
+                        <MuiPaste onClick={() => onHandlePaste(copy)}/>
+                      </MuiIconButton>  
+                    :
+                      <MuiIconButton style={{ }}>
+                        <MuiPaste onClick={() => onHandlePaste(copy)}/>
+                      </MuiIconButton>  
+                  }
+                 </div>
                 : 
                   <MuiIconButton disabled style={{}}>
                      <MuiPaste/>
@@ -294,9 +315,18 @@ export default function ClipPlanes(){
           </MuiIconButton>
           {copied 
                 ? 
-                  <MuiIconButton style={{ }}>
-                    <MuiPaste onClick={() => onHandlePaste(copy)}/>
-                  </MuiIconButton>  
+                <div>
+                { planes.length === limit 
+                  ?
+                    <MuiIconButton disabled style={{ }}>
+                      <MuiPaste onClick={() => onHandlePaste(copy)}/>
+                    </MuiIconButton>  
+                  :
+                    <MuiIconButton style={{ }}>
+                      <MuiPaste onClick={() => onHandlePaste(copy)}/>
+                    </MuiIconButton>  
+                }
+               </div>
                 : 
                   <MuiIconButton disabled style={{}}>
                      <MuiPaste/>
