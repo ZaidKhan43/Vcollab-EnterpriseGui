@@ -25,6 +25,7 @@
     "react-id-generator": "^3.0.1",
     "react-redux": "^7.2.3",
     "react-resize-detector": "^6.6.4",
+    "react-resize-panel": "^0.3.5",
     "react-rnd": "^10.2.4",
     "react-scripts": "4.0.3",
     "redux-toolkit": "^1.1.2",

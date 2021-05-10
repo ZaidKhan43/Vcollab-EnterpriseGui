@@ -1,13 +1,16 @@
 import React, {useState, useEffect, useRef} from 'react'
-import useLoadCss from '../../../../customHooks/useLoadCss';
 import useContainer from '../../../../customHooks/useContainer';
 import { Table, Column,HeaderCell,Cell } from 'rsuite-table';
+import { getSearchInput} from "../../../utils/search";
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
 import SearchItem from './SearchItem'
 import SearchHints from './SearchHints'
 import {fetchSearchHints,selectSearchHints,selectPrevSearches,saveSearchQuery,setCheckedNodesAsync,selectProductTreeData, updatePrevSearches, TreeNode as ITreeNode} from "../../../../store/sideBar/ProductTreeSlice"
 import Checkbox from "@material-ui/core/Checkbox"
 import TextField from '@material-ui/core/TextField';
+import IconButtom from '@material-ui/core/IconButton';
+import Grid from '@material-ui/core/Grid';
+import AddIcon from '@material-ui/icons/Add';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
@@ -75,12 +78,11 @@ function Search(props:any) {
         })
         return Object.keys(options) as string[]
     }
-
     useEffect(() => {
       let options = {
             includeScore: false,
             keys: getAttrbKeys([...Object.values(treeDataRef.current)]),
-            ignoreLocation: false,
+            ignoreLocation: true,
             includeMatches:false,
             threshold: 0.2,
             useExtendedSearch: true,
@@ -89,19 +91,20 @@ function Search(props:any) {
         let fuse:any = new Fuse([...Object.values(treeDataRef.current)],options);
         dispatch(fetchSearchHints());
         setFuse(fuse);
-        return () => {
-            dispatch(updatePrevSearches())
-        }
     }, [dispatch])
 
     useEffect(() => {
-        let r = (fuse as any)?.search(searchString);
+        let searchInput = getSearchInput(searchString);
+        let r:any[] = (fuse as any)?.search(searchInput);
         if(r)
-        setResult(r);
+        setResult(r.filter(e => e.item.children.length == 0));
         setSelectAll(false)
     },[searchString,fuse])
 
     const handleSearch = (e:any) => {
+       if (!e) {
+         return
+       } 
        const query = e? e.target.value : "";
         setSearchString(query);
         dispatch(saveSearchQuery({data:query}));
@@ -127,16 +130,19 @@ function Search(props:any) {
     }
     const overrideStyles = useRTreeOverrideStyles();
     return (
-        <div ref = {containerRef} style={{height:'100%'}} >
+        <div ref = {containerRef} style={{height:'100%', overflow:'hidden'}} >
           <div ref = {headerRef} >
-          <Autocomplete
-                style={{paddingLeft: 10, paddingRight: 10}}
+            <Grid container alignItems='center' spacing={1}>
+              <Grid item xs={10}>
+              <Autocomplete
+                style={{paddingLeft: 10}}
                 size = 'small'
                 color = 'inherit'
                 disableClearable
                 clearOnBlur = {false}
                 open = {false}
                 forcePopupIcon = {false}
+                fullWidth = {false}
                 onOpen = {(e:any) => {handleAutoCompleteOpenState(true)}}
                 onClose = {(e:any) => {handleAutoCompleteOpenState(false)}}
                 onKeyPress = {(e:any) => {
@@ -174,7 +180,13 @@ function Search(props:any) {
                 />
                 )}
             />
-            <SearchHints/>
+              </Grid>
+              <Grid item>
+              <IconButtom size='small' style={{marginTop:7}} onClick={() => dispatch(updatePrevSearches())}> <AddIcon/></IconButtom>
+              </Grid>
+            </Grid>
+
+            <SearchHints data = {generateOptions()} setInput={setSearchString}></SearchHints>
             {
             result.length !== 0 ?
             <div>
