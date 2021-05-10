@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import styles from './style';
 
 import SideBarContainer from '../../layout/sideBar/sideBarContainer';
@@ -6,7 +6,7 @@ import MuiTypography from '@material-ui/core/Typography';
 import MuiIconButton from '@material-ui/core/IconButton';
 import BackButton from '../../../assets/images/back';
 
-import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
+import {useAppDispatch } from '../../../store/storeHooks';
 
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
@@ -18,7 +18,7 @@ import NumericInput from '../../common/numericInput'
 
 import MuiInput from '@material-ui/core/Input';
 import MuiButton from '@material-ui/core/Button';
-import MuiTextField from '@material-ui/core/TextField';
+// import MuiTextField from '@material-ui/core/TextField';
 import FlipDirectionLeft from "../../../assets/images/flipDirectionLeft";
 import FlipDirectionRight from "../../../assets/images/flipDirectionRight";
 
@@ -146,13 +146,6 @@ export default function ClipPlanes(props : any){
             justifyContent: "flex-start", marginLeft:"5%", marginRight:"5%",
             marginTop:"5px", }}
           >
-            {/* <TextField
-              inputProps={{className : classes.input}}
-              value={equation}
-              onChange={OnHandleEquation} 
-              variant="outlined"
-              size="small"
-            /> */}
             <NumericInput
              className={classes.inputEquation}
               value={clipCordX}
@@ -165,7 +158,7 @@ export default function ClipPlanes(props : any){
               }}
               onChange={(value : any) => OnHandleEquation(value,"clipCordX")} 
               />
-              <MuiTypography className={classes.button}>
+              <MuiTypography className={classes.buttonIcon}>
                 +
               </MuiTypography>
              <NumericInput
@@ -180,7 +173,7 @@ export default function ClipPlanes(props : any){
               }}
               onChange={(value : any) => OnHandleEquation(value,"clipCordY")} 
             />
-            <MuiTypography className={classes.button}>
+            <MuiTypography className={classes.buttonIcon}>
               +
             </MuiTypography>
             <NumericInput
@@ -195,7 +188,7 @@ export default function ClipPlanes(props : any){
               }}
               onChange={(value : any) => OnHandleEquation(value, "clipCordZ")} 
             />
-            <MuiTypography className={classes.button}>
+            <MuiTypography className={classes.buttonIcon}>
               =
             </MuiTypography>
             <NumericInput
@@ -212,16 +205,15 @@ export default function ClipPlanes(props : any){
           </div>
           <Grid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
         <Grid item xs={12} sm={6} >
-          <MuiButton size="small"  startIcon={<Triangle />} style={clipPlaneMode=="Surface" ? {background:"grey"} : null} onClick={() => {setClipPlaneMode("Surface")}}>
-          
+          <MuiButton className={clipPlaneMode==="Surface" ? classes.button : null} size="small"  startIcon={<Triangle />}  onClick={() => {setClipPlaneMode("Surface")}}>
             <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
             Select Surface
             </MuiTypography>
            
           </MuiButton>
         </Grid>
-        <Grid item xs={12} sm={6} style={{position:"absolute",left: "50%",}}>
-          <MuiButton size="small" startIcon={<ThreePoints/>} style={clipPlaneMode=="Points" ? {background:"grey"} : null}  onClick={() => {setClipPlaneMode("Points")}}>
+        <Grid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
+          <MuiButton className={clipPlaneMode==="Points" ? classes.button : null} size="small" startIcon={<ThreePoints/>}   onClick={() => {setClipPlaneMode("Points")}}>
           <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
            Select Points
             </MuiTypography>
@@ -236,7 +228,7 @@ export default function ClipPlanes(props : any){
           <Grid container spacing={3}>
             <Grid item xs={12} sm={6}>
               <MuiIconButton style={{width:"60px",height: "90px", }}   onClick={() => onHandleDirection()}>
-               {clipNormalInverted== false 
+               {clipNormalInverted === false 
                ? 
                <FlipDirectionLeft/>
                :
@@ -308,7 +300,7 @@ export default function ClipPlanes(props : any){
 
       return (
         <div style={{marginBottom:"10px"}} >
-        {edited == false ? <Grid container spacing={3} >
+        {edited === false ? <Grid container spacing={3} >
         <Grid item xs={12} sm={4}  style={{marginLeft:"60px"}}>
           <MuiButton disabled style={{backgroundColor:"#8C8BFF"}} variant="contained" color="primary" onClick={onHandleSave}>
             Save

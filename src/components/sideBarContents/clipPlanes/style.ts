@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { colors } from '../../../config/index';
+// import { colors } from '../../../config/index';
 
 export default makeStyles((theme) => (
   {
@@ -12,8 +12,12 @@ export default makeStyles((theme) => (
     padding: 12,
   },
   
-  button : {
+  buttonIcon : {
     color: theme.palette.text.primary,
+  },
+
+  button: {
+    background: theme.palette.action.selected,
   },
   // headerIcon:{
   //   width : 48,

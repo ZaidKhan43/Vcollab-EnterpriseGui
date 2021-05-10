@@ -10,17 +10,17 @@ import MuiIcon from '@material-ui/core/Icon';
 
 import styles from './style';
 
-import { useState, useEffect} from "react";
+import { useState} from "react";
 
 export default function DropDown (props : any) {
   const [openAlert, setOpenAlert] = useState<any>(false);
-  const [itemImage, setItemImage] = useState<any>(null)
+  // const [itemImage, setItemImage] = useState<any>(null)
   const [itemMessage, setItemMessage] = useState<any>(null);
 
   const classes = styles();
 
   const showAlert = (item: any) => {
-    setItemImage(item.icon);
+    // setItemImage(item.icon);
     setItemMessage(`${item.title} is applied`)
     setOpenAlert(true);     
   }

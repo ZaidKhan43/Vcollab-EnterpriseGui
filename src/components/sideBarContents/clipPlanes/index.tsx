@@ -6,7 +6,7 @@ import styles from './style';
 import { sideBarContentTypes } from '../../../config';
 import { setSidebarActiveContent } from '../../../store/appSlice';
 import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 
 import MuiInput from '@material-ui/core/Input';
 
@@ -19,12 +19,13 @@ import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlin
 import MuiErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined';
 
 import AddIcon from "../../../assets/images/plus";
+
 // import Edit from "../../../assets/images/edit.svg";
-import Copy from "../../../assets/images/copy.svg";
-import ClipPlates from "../../../assets/images/clipboard.svg";
-import Delete from "../../../assets/images/trash.svg";
-import WarningCircle from "../../../assets/images/warningCircle.svg";
-import { PlayCircleOutlineSharp } from '@material-ui/icons';
+// import Copy from "../../../assets/images/copy.svg";
+// import ClipPlates from "../../../assets/images/clipboard.svg";
+// import Delete from "../../../assets/images/trash.svg";
+// import WarningCircle from "../../../assets/images/warningCircle.svg";
+// import { PlayCircleOutlineSharp } from '@material-ui/icons';
 
 import ClipPlane from "./clipPlane"
 
@@ -36,14 +37,14 @@ import MuiDialog from '@material-ui/core/Dialog';
 import MuiDialogActions from '@material-ui/core/DialogActions';
 import MuiDialogContent from '@material-ui/core/DialogContent';
 import MuiDialogContentText from '@material-ui/core/DialogContentText';
-import MuiDialogTitle from '@material-ui/core/DialogTitle';
+// import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import MuiSnackbar from '@material-ui/core/Snackbar';
-import MuiCloseIcon from '@material-ui/icons/Close';
-import { spawn } from 'node:child_process';
+// import MuiCloseIcon from '@material-ui/icons/Close';
+// import { spawn } from 'node:child_process';
 import MuiIcon from '@material-ui/core/Icon';
 
 import MuiAlert from '@material-ui/lab/Alert';
-import { isNonNullExpression } from 'typescript';
+// import { isNonNullExpression } from 'typescript';
 
 export default function ClipPlanes(){
 
@@ -66,8 +67,10 @@ export default function ClipPlanes(){
 
   const onHandleClick :(click: any) => any = (click)=> {
     if ( clickedVal) {
-      setClickedVal(null)
-      
+      if (clickedVal.id === click.id)
+        setClickedVal(null)
+      else
+        setClickedVal(click)
     }
     else{
       setClickedVal(click);
@@ -138,7 +141,6 @@ export default function ClipPlanes(){
   }
 
   const onHandlePlateKey = (e : any, item : any) => {
-    {
       if (e.key === 'Enter') {
         setEditPlane(null)
         console.log(item, editName)
@@ -149,7 +151,6 @@ export default function ClipPlanes(){
         e.preventDefault();
         setEditPlane(null)
       }
-    }
   }
 
   const displayClicked = () => {
@@ -199,32 +200,34 @@ export default function ClipPlanes(){
         <div className={classes.list}>
           {
             planes.map((item : any) =>
-              <div 
-                onDoubleClick={() => {setEditPlane(item.id);setClickedVal(null); SetEditName(item.name)}} 
-                className={clickedVal 
-                            ? 
-                              item.id === clickedVal.id 
-                                ? 
-                                  classes.listItemClicked 
-                                : classes.listItem 
-                            : classes.listItem} 
-              >
+              <div>
                 { editPlane !== item.id 
                   ?
-                  <MuiTypography className={classes.listItemText} onClick={() => onHandleClick(item)}  >
-                  <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/>
-                  {item.name}
-                </MuiTypography>
-
+                  <div  onClick={() => onHandleClick(item)}
+                    onDoubleClick={() => {setEditPlane(item.id);setClickedVal(null); SetEditName(item.name)}} 
+                    className={clickedVal 
+                                ? 
+                                  item.id === clickedVal.id 
+                                    ? 
+                                      classes.listItemClicked 
+                                    : 
+                                      classes.listItem 
+                                    : classes.listItem} 
+                  >
+                    <MuiTypography className={classes.listItemText}>
+                      <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/>
+                      {item.name}
+                   </MuiTypography>
+                  </div>
                 :
-
+                  <div className={classes.listItemClicked}>
                  <MuiTypography className={classes.listItemText} >
                   <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/>
                   <MuiInput value={editName}
                   onChange={onHandlePlateNameEdit}
                   onKeyDown={(e) => onHandlePlateKey(e, item)}/>
                 </MuiTypography>
-               
+               </div>
 
                 }
                 

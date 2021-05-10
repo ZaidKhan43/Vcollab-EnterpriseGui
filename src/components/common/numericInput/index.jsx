@@ -56,7 +56,7 @@ function removeClass(element, className) {
  */
 function access(object, prop, defaultValue, ...args) {
     let result = object[prop];
-    if (typeof result == "function") {
+    if (typeof result === "function") {
         result = result(...args);
     }
     return result === undefined ? defaultValue : result;
@@ -530,7 +530,7 @@ class NumericInput extends Component
 
         // noValidate
         let noValidate = !!(
-            this.props.noValidate && this.props.noValidate != "false"
+            this.props.noValidate && this.props.noValidate !== "false"
         )
 
         this.refsInput.noValidate = noValidate
@@ -719,7 +719,7 @@ class NumericInput extends Component
             else {
                 let value = this.refsInput.value, length = value.length;
                 if (e.keyCode === 8) { // backspace
-                    if (this.refsInput.selectionStart == this.refsInput.selectionEnd &&
+                    if (this.refsInput.selectionStart === this.refsInput.selectionEnd &&
                         this.refsInput.selectionEnd > 0 &&
                         value.length &&
                         value.charAt(this.refsInput.selectionEnd - 1) === ".")
@@ -729,7 +729,7 @@ class NumericInput extends Component
                     }
                 }
                 else if (e.keyCode === 46) { // delete
-                    if (this.refsInput.selectionStart == this.refsInput.selectionEnd &&
+                    if (this.refsInput.selectionStart === this.refsInput.selectionEnd &&
                         this.refsInput.selectionEnd < length + 1 &&
                         value.length &&
                         value.charAt(this.refsInput.selectionEnd) === ".")
@@ -799,10 +799,10 @@ class NumericInput extends Component
      */
     onMouseDown(dir: "up"|"down", callback?: Function): void
     {
-        if (dir == 'down') {
+        if (dir === 'down') {
             this.decrease(false, callback);
         }
-        else if (dir == 'up') {
+        else if (dir === 'up') {
             this.increase(false, callback);
         }
     }
@@ -816,10 +816,10 @@ class NumericInput extends Component
     onTouchStart(dir: "up"|"down", e: Event): void
     {
         e.preventDefault();
-        if (dir == 'down') {
+        if (dir === 'down') {
             this.decrease();
         }
-        else if (dir == 'up') {
+        else if (dir === 'up') {
             this.increase();
         }
     }
@@ -877,7 +877,7 @@ class NumericInput extends Component
             props.className
         )
 
-        if (mobile == 'auto') {
+        if (mobile === 'auto') {
             mobile = IS_BROWSER && 'ontouchstart' in document
         }
 
@@ -889,13 +889,13 @@ class NumericInput extends Component
         let attrs = {
             wrap : {
                 // style       : noStyle ? null : css.wrap,
-                className   : 'react-numeric-input',
-                ref: (e)=>{if(e!=null && e!= undefined){this.refsWrapper=e;}},
+                className : 'react-numeric-input',
+                ref: (e)=>{if(e!==null && e!== undefined){this.refsWrapper=e;}},
                 onMouseUp   : undefined,
                 onMouseLeave: undefined
             },
             input : {
-                ref: (e)=>{if(e!=null && e!= undefined){this.refsInput=e;}},
+                ref: (e)=>{if(e!== null && e!== undefined){this.refsInput=e;}},
                 type: 'text',
                 style: noStyle ? null : Object.assign(
                     {},
@@ -988,8 +988,8 @@ class NumericInput extends Component
 
         // mobile
         if (mobile && !noStyle) {
-            Object.assign(attrs.input  .style, css['input.mobile'  ])
-            Object.assign(attrs.btnUp  .style, css['btnUp.mobile'  ])
+            Object.assign(attrs.input.style, css['input.mobile'])
+            Object.assign(attrs.btnUp.style, css['btnUp.mobile'])
             Object.assign(attrs.btnDown.style, css['btnDown.mobile'])
         }
 
@@ -1144,7 +1144,7 @@ class NumericInput extends Component
 
         return (
             <div>
-                {props.button == "no"
+                {props.button === "no"
                     ?
                         <div {...attrs.wrap}>
                             <InputTag {...attrs.input} ClassName={props.className}/>

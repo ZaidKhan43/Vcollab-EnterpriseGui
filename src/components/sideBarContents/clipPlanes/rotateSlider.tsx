@@ -1,4 +1,4 @@
-import MuiInput from '@material-ui/core/Input';
+// import MuiInput from '@material-ui/core/Input';
 import NumericInput from '../../common/numericInput'
 // import NumericInput from 'react-numeric-input';
 import CircularSlider from '@fseehawer/react-circular-slider';
@@ -56,7 +56,7 @@ console.log(value)
                         max={359.9}
                         mobile={false}
                         onChange={props.functionTwo}
-                        classes={classes.button}
+                        // classes={classes.button}
                         />
                         {/* <div onClick={() => onHandleClick("Sub")}>-</div> */}
                     </div>

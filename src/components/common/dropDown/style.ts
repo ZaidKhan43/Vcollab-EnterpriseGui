@@ -1,6 +1,6 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { ColorLensTwoTone, ControlPointDuplicateSharp } from '@material-ui/icons';
-import { colors } from '../../../config/index';
+// import { ColorLensTwoTone, ControlPointDuplicateSharp } from '@material-ui/icons';
+// import { colors } from '../../../config/index';
 
 export default makeStyles((theme) => ({
   icon : {
