@@ -13,8 +13,7 @@ import TreeSearch from './search';
 import {useAppSelector, useAppDispatch} from "../../../store/storeHooks";
 import {sideBarContentTypes} from "../../../config";
 import {setSidebarActiveContent} from "../../../store/appSlice";
-import {selectCheckedLeafNodes} from "../../../store/sideBar/ProductTreeSlice"
-import {ProductTreeStates} from './TreeStates' 
+import {selectCheckedLeafNodes,selectCurrentState,ProductTreeStates,setProductTreeState} from "../../../store/sideBar/ProductTreeSlice";
 import DisplayModeBody from './DisplayModes/DisplayModesBody'
 import Footer from './Footer'
 
@@ -22,19 +21,19 @@ export default function ProductExplorer(props:any){
     
     const classes = styles();
     const checkedNodes = useAppSelector(selectCheckedLeafNodes);
-    const [currentState, setCurrentState] = useState(ProductTreeStates.Tree);
+    const currentState = useAppSelector(selectCurrentState);
     const dispatch = useAppDispatch();  
 
     const onClickBackIcon = () =>{
       switch (currentState) {
         case ProductTreeStates.Search:
-          setCurrentState(ProductTreeStates.Tree);
+          dispatch(setProductTreeState({data:ProductTreeStates.Tree}));
           break;
         case ProductTreeStates.Tree:
           dispatch(setSidebarActiveContent(sideBarContentTypes.mainMenu));
           break;
         case ProductTreeStates.DisplayModes:
-          setCurrentState(ProductTreeStates.Tree);
+          dispatch(setProductTreeState({data:ProductTreeStates.Tree}));
           break;
         default:
           break;
@@ -42,16 +41,16 @@ export default function ProductExplorer(props:any){
     }
 
     const onClickSearchIcon = () => {
-       setCurrentState(ProductTreeStates.Search);
+       dispatch(setProductTreeState({data:ProductTreeStates.Search}));
     }
 
     const handleNext = () => {
        switch (currentState) {
          case ProductTreeStates.Tree:
-           setCurrentState(ProductTreeStates.DisplayModes);
+          dispatch(setProductTreeState({data:ProductTreeStates.DisplayModes}));
            break;
          case ProductTreeStates.Search:
-           setCurrentState(ProductTreeStates.DisplayModes);
+          dispatch(setProductTreeState({data:ProductTreeStates.DisplayModes}));
            break;
          default:
            break;

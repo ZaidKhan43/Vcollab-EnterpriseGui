@@ -36,12 +36,12 @@
     width: 100%;
     top: 0;
   }
-  .rs-table-hover .rs-table-row:hover {
+  /* .rs-table-hover .rs-table-row:hover {
     background: transparent;
   }
   .rs-table-hover .rs-table-row:hover .rs-table-cell-group {
     background: transparent;
-  }
+  } */
   .rs-table-hover .rs-table-row:hover .rs-table-cell {
     background: #f5f5f500;
   }

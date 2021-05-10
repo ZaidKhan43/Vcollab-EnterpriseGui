@@ -22,15 +22,14 @@ const useRTreeOverrideStyles = makeStyles((theme) => ({
         position: 'absolute',
         background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.5)':'rgba(25, 25, 25, 0.5)',
         borderRadius: '4px'
-      },
-      '':{
-
       }
   },
   rightColumn: {
       '& .rs-table-cell-group-fixed-right': {
-        background: 'transparent',
-        
+        background: theme.palette.background.paper,
+        [theme.breakpoints.down("sm")]: {
+          backgroundColor: theme.palette.background.paper,
+        },
       }
     }
 })) 
@@ -42,7 +41,6 @@ function RTree(props:any) {
     const [containerWidth, containerHeight] = useContainer(containerRef,[treeData]);
     const rootIds = useAppSelector(selectRootIds);
     const dispatch = useAppDispatch()
-    console.log("Tree Rendered")
     const convertListToTree = (data:Map<string,ITreeNode>,rootIds:string[]) => {
       let root = [createTreeNode(rootIds[0],data)];
       return root;
@@ -72,7 +70,6 @@ function RTree(props:any) {
 
     }
     useEffect(() => {
-      console.log("Tree mounted")
       setData(convertListToTree(treeData,rootIds));
     },[])
     const handleExpand = (toOpen:boolean,nodeId:string) => {

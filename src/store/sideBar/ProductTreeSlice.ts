@@ -10,9 +10,17 @@ export type TreeNode = {
   state:any,
   attributes:any
 }
+
+export enum ProductTreeStates {
+  Tree,
+  Search,
+  DisplayModes
+}
+
 type ProductTreeState = {
     data: any,
     rootIds: string[],
+    currentState: ProductTreeStates,
     searchHints: any[],
     prevSearches: any,
     searchQuery: string
@@ -22,6 +30,7 @@ type ProductTreeState = {
 const initialState: ProductTreeState = {
     data: {},
     rootIds: [],
+    currentState: ProductTreeStates.Tree,
     searchHints: [],
     prevSearches: {},
     searchQuery: ''
@@ -379,6 +388,9 @@ export const productTreeSlice = createSlice({
       let checkedLeavesId = nodes.filter((item: TreeNode) => item.children.length === 0 && item.state.checked).map((item) => item.id);
       fitView(action.payload.viewerId,checkedLeavesId);
     },
+    setProductTreeState: (state, action:PayloadAction<{data:ProductTreeStates}>) => {
+      state.currentState = action.payload.data;
+    },
     updatePrevSearches: (state) => {
       if(!state.prevSearches[state.searchQuery] && state.searchQuery !== ''){
         state.prevSearches[state.searchQuery] = Object.keys(state.prevSearches).length;
@@ -426,11 +438,13 @@ export const {
   expandNode,
   groupSelectedNodes, 
   focusSelectedNodes,
+  setProductTreeState,
   saveSearchQuery, 
   updatePrevSearches } = productTreeSlice.actions;
 
 //Define the selectors
 export const selectProductTreeData = (state:RootState) => state.productTree.data
+export const selectCurrentState = (state:RootState) => state.productTree.currentState
 export const selectRootIds = (state:RootState) => state.productTree.rootIds
 export const selectSearchHints = (state:RootState) => state.productTree.searchHints
 export const selectPrevSearches = (state:RootState) => Object.keys(state.productTree.prevSearches)
