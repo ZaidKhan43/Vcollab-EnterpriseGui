@@ -9,7 +9,7 @@ import IconButton  from '@material-ui/core/IconButton';
 const InvertIcon = (props:any) => {
         const classes = useStyles();
 
-        return <SwapIcon className={clsx({[classes.actionShow]: props.visibility,
+        return <SwapIcon fontSize='small' className={clsx({[classes.actionShow]: props.visibility,
                                           [classes.actionHide]: !props.visibility,
                                     })} 
                 width='16' height='16' />
@@ -20,18 +20,16 @@ function InvertCell(props:any) {
     const handleInvert = (node:any) => {
         dispatch(invertNode({nodeId:node.id}));
     }
+    const classes = useStyles();
     return (
-        <div >
-                {
-                    props.rowData.children.length > 0 ? 
+        props.rowData.children.length > 0 ? 
+        <div className={classes.hideText}>
                     <IconButton size="small"  onClick = {() => handleInvert(props.rowData)}>
                     <InvertIcon visibility = {props.rowData.state.visibility} >
                     </InvertIcon>
                     </IconButton>
-                     : null
-                }
-                
         </div>
+        :null
     )
 }
 

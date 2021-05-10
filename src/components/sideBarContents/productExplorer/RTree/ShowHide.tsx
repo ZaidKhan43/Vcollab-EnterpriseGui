@@ -11,14 +11,14 @@ const VisiblilityIcon = (props:any) => {
     if(props.visibility === true){
         return (
             <IconButton size='small' onClick = {() => props.onClick(false,props.node)}>
-                <EyeIcon className={props.visibility ? classes.actionShow : classes.actionHide}  width='16' height='16' />
+                <EyeIcon fontSize='small' className={props.visibility ? classes.actionShow : classes.actionHide}  width='16' height='16' />
             </IconButton>
         )
     }
     else{
         return (
             <IconButton size='small' onClick = {() => props.onClick(true,props.node)}>
-                <EyeSlashIcon className={props.visibility ? classes.actionShow : classes.actionHide}  width='16' height='16'/>
+                <EyeSlashIcon fontSize='small' className={props.visibility ? classes.actionShow : classes.actionHide}  width='16' height='16'/>
             </IconButton>
         )
     }
@@ -30,8 +30,9 @@ function ShowHide(props:any) {
         dispatch(toggleVisibilityAsync({toShow, nodeId:node.id}));
 
     }
+    const classes = useStyles();
     return (
-        <div>
+        <div className={classes.hideText}>
                 <VisiblilityIcon 
                 node = {props.rowData} 
                 visibility={props.visibility} 

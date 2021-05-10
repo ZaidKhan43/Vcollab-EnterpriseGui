@@ -26,10 +26,7 @@ const useRTreeOverrideStyles = makeStyles((theme) => ({
   },
   rightColumn: {
       '& .rs-table-cell-group-fixed-right': {
-        background: theme.palette.background.paper,
-        [theme.breakpoints.down("sm")]: {
-          backgroundColor: theme.palette.background.paper,
-        },
+        background:'transparent'
       }
     }
 })) 
@@ -94,6 +91,7 @@ function RTree(props:any) {
             defaultExpandedRowKeys = {expandedNodes}
             rowKey="id"
             rowHeight = {(rowData:any) => 40}
+            rowExpandedHeight = { 40}
             width={300}
             height={containerHeight? containerHeight - 5 : 0}
             data={data as any}
