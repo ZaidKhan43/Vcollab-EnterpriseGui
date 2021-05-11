@@ -3,7 +3,7 @@ import useLoadCss from "../../../../customHooks/useLoadCss";
 import useContainer from '../../../../customHooks/useContainer';
 import { Table ,Column, ColumnGroup, HeaderCell, Cell, } from 'rsuite-table';
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
-import {selectProductTreeData, selectRootIds, setCheckedNodesAsync, setHightLightedNodesAsync, expandNode, TreeNode as ITreeNode} from '../../../../store/sideBar/ProductTreeSlice'
+import {selectProductTreeData, selectRootIds, setCheckedNodesAsync, setHightLightedNodesAsync, expandNode, TreeNode as ITreeNode} from '../../../../store/sideBar/productTreeSlice'
 import TreeNode from "./TreeNode"
 import InvertCell from "./Invert"
 import ShowHideCell from "./ShowHide"

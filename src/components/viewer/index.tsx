@@ -2,9 +2,9 @@ import { memo, useEffect , useRef, useState, useCallback } from 'react';
 import { createRef } from 'react';
 import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
-import { setModelLoadedState, setModelLoadingStatus } from '../../store/appSlice';
+import { setModelInfo, setModelLoadedState, setModelLoadingStatus } from '../../store/appSlice';
 import { useAppDispatch } from '../../store/storeHooks';
-import {saveTree, fetchSearchHints,setHightLightedNodesAsync } from "../../store/sideBar/ProductTreeSlice";
+import {saveTree, fetchSearchHints,setHightLightedNodesAsync } from "../../store/sideBar/productTreeSlice";
 import { addViewer } from '../../store/appSlice';
 
 function Viewer(){
@@ -33,6 +33,8 @@ function Viewer(){
 
         if(response === "SUCCESS") {
           dispatch(setModelLoadedState(true));
+          let modelInfo = viewerAPIProxy.getModelInfo(activeViewerID) as any;
+          dispatch(setModelInfo(modelInfo));
         }
 
         //let modelName = viewerMgr.getModelInfo(viewerID);

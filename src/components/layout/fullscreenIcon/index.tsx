@@ -1,6 +1,6 @@
 import IconButton from '@material-ui/core/IconButton'
-import Fullscreen from '../../../assets/images/fullscreen';
-import FullscreenClose from '../../../assets/images/fullscreen_exit';
+import Fullscreen from '../../icons/fullscreen';
+import FullscreenClose from '../../icons/fullscreen_exit';
 import styles from './style';
 import { selectFullscreenStatus, setFullscreenState } from '../../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';

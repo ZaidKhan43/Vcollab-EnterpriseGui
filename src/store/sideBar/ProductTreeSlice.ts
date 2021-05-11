@@ -66,6 +66,7 @@ const getCheckedChildCount = (nodes:TreeNode[]) => {
     });
     return [checkedCount,partialCount];
 }
+
 const getHiddenChildCount =(nodes:any[]) => {
   let hiddenCount =0;
   nodes.forEach(node => {
@@ -75,6 +76,7 @@ const getHiddenChildCount =(nodes:any[]) => {
   });
   return hiddenCount;
 }
+
 const updateVisiblityState = (parent:any,state:ProductTreeState) =>{
   let hide= getHiddenChildCount(parent.children.map((c:any) => getNode(c,state)));
       if(hide === 0 && parent.children.length >0){
@@ -84,6 +86,7 @@ const updateVisiblityState = (parent:any,state:ProductTreeState) =>{
         parent.state.visibility =true;
       }
 }
+
 const updateCheckedState = (parent:any,state:ProductTreeState) => {
   let [checkedCount,partialCount] = getCheckedChildCount(parent.children.map((c:any) => getNode(c,state))); 
   if(checkedCount === parent.children.length){
@@ -99,6 +102,7 @@ const updateCheckedState = (parent:any,state:ProductTreeState) => {
     parent.state.partiallyChecked = true;
   }
 }
+
 const updateParent = (node:TreeNode, state:ProductTreeState) => {
     let parent = node.pid ? getParent(node.pid,state): null;
     if(parent){
@@ -110,6 +114,7 @@ const updateParent = (node:TreeNode, state:ProductTreeState) => {
       }
     }
 }
+
 const getParent = (id:string,state:ProductTreeState):TreeNode|undefined => {
   return state.data[id];
 }
@@ -121,21 +126,25 @@ const _checkNode = (toCheck:boolean, node:TreeNode, checkChildren:boolean,state:
       node.children.map((c:string) => getNode(c,state)).forEach((node:TreeNode|undefined) => node ? _checkNode(toCheck,node,true,state) : null);
     }
 }
+
 const _hightlightNode = (toHighlight:boolean, node:TreeNode, checkChildren:boolean,state:ProductTreeState) => {
   node.state.highlighted = toHighlight;
   if(checkChildren === true && node.children) {
     node.children.map((c:string) => getNode(c,state)).forEach((node:TreeNode|undefined) => node ? _hightlightNode(toHighlight,node,true,state) : null);
   }
 }
+
 const RcheckNode = (toCheck:boolean,node:TreeNode, state:ProductTreeState) => {
 
     _checkNode(toCheck,node,true, state);
     updateParent(node, state);
 }
+
 const RHighlightNode = (toHighlight:boolean, node:TreeNode, state:ProductTreeState) => {
     _hightlightNode(toHighlight,node,true,state);
     updateParent(node,state);
 }
+
 const RinvertNode = (node:TreeNode, state:ProductTreeState) => {
   
   if(node.children.length > 0)
@@ -151,6 +160,7 @@ const RinvertNode = (node:TreeNode, state:ProductTreeState) => {
     _checkNode(!node.state.checked,node,true,state);
   }
 }
+
 const setVisibility = (value:boolean,node:TreeNode,checkChildren:boolean,state:ProductTreeState) => {
     node.state.visibility = value;
     if(node.children.length > 0 && checkChildren === true){
@@ -158,10 +168,12 @@ const setVisibility = (value:boolean,node:TreeNode,checkChildren:boolean,state:P
       node.children.map((c:string) => getNode(c,state)).forEach((e:TreeNode | undefined) => e ? setVisibility(value,e,true,state) : null)
     }
 }
+
 const RtoggleVisibility = (toShow:boolean, node:TreeNode,state:ProductTreeState) => {
   setVisibility(toShow,node,true,state);
   updateParent(node,state);
 }
+
 export const toggleVisibilityAsync = createAsyncThunk(
   'productTree/toggleVisibilityAsync',
   async (data:any,{dispatch, getState}) => {
@@ -242,6 +254,7 @@ export const setCheckedNodesAsync = createAsyncThunk(
     }
   }
 )
+
 export const setHightLightedNodesAsync = createAsyncThunk(
   'productTree/setHighLightedNodesAsync',
   async (data:{toHighlight: boolean, nodeId:string},
@@ -264,6 +277,7 @@ export const setHightLightedNodesAsync = createAsyncThunk(
     }
   }
 )
+
 export const setCheckedVisibilityAsync = createAsyncThunk(
   'productTree/setCheckedVisibilityAsync',
   async (data:any,{dispatch, getState}) => {
@@ -293,6 +307,7 @@ export const setCheckedVisibilityAsync = createAsyncThunk(
      }
   }
 )
+
 export const fetchSearchHints = createAsyncThunk(
   "productTree/fetchSearchHints",
   async (data,{dispatch,getState}) => {

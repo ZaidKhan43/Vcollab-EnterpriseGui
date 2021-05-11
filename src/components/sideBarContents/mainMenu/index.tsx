@@ -1,19 +1,17 @@
-
-import Typography from '@material-ui/core/Typography';
+import MuiTypography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 
-
-import BranchIcon  from '../../../assets/images/branch';
-import StackIcon from '../../../assets/images/stackicon';
-import Clipplanes from '../../../assets/images/clipplanes';
-import Views from '../../../assets/images/views';
-import Annotations from '../../../assets/images/annotation';
-import Settings from '../../../assets/images/settings';
-import Notifications from '../../../assets/images/notification';
+import BranchIcon  from '../../icons/branch';
+import StackIcon from '../../icons/stackicon';
+import Clipplanes from '../../icons/clipplanes';
+import Views from '../../icons/views';
+import Annotations from '../../icons/annotation';
+import Settings from '../../icons/settings';
+import Notifications from '../../icons/notification';
 import Logo from '../../../assets/images/LogoBig.svg';
 import styles from './style';
 import { setSidebarActiveContent } from '../../../store/appSlice';
@@ -99,9 +97,9 @@ export default function MainMenu(){
             <ListItemText            
               className={classes.listItemText}
               primary={
-                <Typography variant='h1' className={classes.listItemText}>
+                <MuiTypography variant='h1' className={classes.listItemText}>
                   {item.title}
-                </Typography>
+                </MuiTypography>
       }
       />
     </ListItem>

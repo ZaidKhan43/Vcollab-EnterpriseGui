@@ -5,7 +5,7 @@ import { getSearchInput} from "../../../utils/search";
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
 import SearchItem from './SearchItem'
 import SearchHints from './SearchHints'
-import {selectSearchHints,selectPrevSearches,saveSearchQuery,setCheckedNodesAsync,selectProductTreeData, updatePrevSearches, TreeNode as ITreeNode} from "../../../../store/sideBar/ProductTreeSlice"
+import {selectSearchHints,selectPrevSearches,saveSearchQuery,setCheckedNodesAsync,selectProductTreeData, updatePrevSearches, TreeNode as ITreeNode} from "../../../../store/sideBar/productTreeSlice"
 import Checkbox from "@material-ui/core/Checkbox"
 import TextField from '@material-ui/core/TextField';
 import IconButtom from '@material-ui/core/IconButton';

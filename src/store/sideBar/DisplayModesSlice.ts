@@ -1,18 +1,13 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {getDisplayModes, setDisplayMode} from "../../backend/viewerAPIProxy";
-import {selectCheckedLeafNodes} from "../sideBar/ProductTreeSlice"
+import {selectCheckedLeafNodes} from "./productTreeSlice"
 import {toastMsg} from "../toastSlice";
 import type { RootState } from '../index';
 // Define a type for the slice state
-type DisplayModesState  = {
+type DisplayModesState = {
     displayModesData: any[],
 }
-export enum DownloadStates {
-    DOWNLOADED,
-    IN_PROGRESS,
-    NOT_DOWNLOADED,
-    NO_DATA_AVAILABLE
-}
+
 type DisplayMenuItem = {
     displayId:string,
     title: string,
@@ -20,6 +15,7 @@ type DisplayMenuItem = {
     size: number,
     status: DownloadStates
 }
+
 // Define the initial state using that type
 const initialState: DisplayModesState = {
     displayModesData: [ {
@@ -28,6 +24,13 @@ const initialState: DisplayModesState = {
         expanded: true,
         menuData: []
       },]
+}
+
+export enum DownloadStates {
+  DOWNLOADED,
+  IN_PROGRESS,
+  NOT_DOWNLOADED,
+  NO_DATA_AVAILABLE
 }
 
 export const fetchDisplayModes = createAsyncThunk(

@@ -13,17 +13,17 @@ import Button from '@material-ui/core/Button';
 
 //icons import
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import BoundingBoxIcon from "../../../common/svgIcons/boundingBox";
-import HiddenLineIcon from "../../../common/svgIcons/hiddenLine";
-import PointIcon from "../../../common/svgIcons/point";
-import ShadedIcon from "../../../common/svgIcons/shaded";
-import ShadedMeshIcon from "../../../common/svgIcons/shadedMesh";
-import TransparentIcon from "../../../common/svgIcons/transparent";
-import WireframeIcon from "../../../common/svgIcons/wireframe";
+import BoundingBoxIcon from "../../../icons/boundingBox";
+import HiddenLineIcon from "../../../icons/hiddenLine";
+import PointIcon from "../../../icons/point";
+import ShadedIcon from "../../../icons/shaded";
+import ShadedMeshIcon from "../../../icons/shadedMesh";
+import TransparentIcon from "../../../icons/transparent";
+import WireframeIcon from "../../../icons/wireframe";
 import DownloadStatusIcon from "./DownloadStatusIcon";
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
-import {DownloadStates, expandPanel,fetchDisplayModes,setDisplayModeAsync, selectDisplayModesData,setSelectedMenu,setDownloadStatus} from "../../../../store/sideBar/DisplayModesSlice";
+import {DownloadStates, expandPanel,fetchDisplayModes,setDisplayModeAsync, selectDisplayModesData,setSelectedMenu,setDownloadStatus} from "../../../../store/sideBar/displayModesSlice";
 import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";
 import useStyles from './styles';
 import {BytesToStructuredString} from "../../../utils/networkUtils"
