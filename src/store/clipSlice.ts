@@ -34,7 +34,8 @@ type settings= {
     axisX: number,
 	  axisY: number,
   },
-  maxAllowedPlanes : number
+  maxAllowedPlanes : number,
+  idGenerator: number
 }
 
 type planes = {
@@ -82,6 +83,7 @@ const initialState : planes = {
 
   settings :{
     maxAllowedPlanes : 6,
+    idGenerator :2,
     defaultPlaneParameters : {
       enabled: true,
       showClip: true,
@@ -100,21 +102,15 @@ const initialState : planes = {
   }
 }
 
+
 export const clipSlice = createSlice({
   name: "clip",
   initialState : initialState,
   reducers: {
     createPlane: (state) => {
       if (state.planes.length < state.settings.maxAllowedPlanes){
-        let idNew;
-        if(state.planes.length === 0) {
-           idNew = 1;
-        }
-        else{
-          const lengthO= state.planes.length;
-          idNew = Number(state.planes[lengthO - 1].id + 1);
-        }
-        state.planes= [...state.planes,{  id: idNew,name:`Plane ${idNew}`, 
+        state.settings.idGenerator +=1 ;
+        state.planes= [...state.planes,{  id: state.settings.idGenerator,name:`Plane ${state.settings.idGenerator}`, 
                                           enabled: state.settings.defaultPlaneParameters.enabled, 
                                           showClip: state.settings.defaultPlaneParameters.showClip, 
                                           showEdge: state.settings.defaultPlaneParameters.showEdge,
@@ -175,7 +171,8 @@ export const clipSlice = createSlice({
         for (let key in action.payload) {
           clone[key] = action.payload[key];
         }
-        clone.id=state.planes[state.planes.length - 1].id + 1;
+        state.settings.idGenerator+=1;
+        clone.id=state.settings.idGenerator;
         clone.name = `${clone.name} (Copy)`
         clone.checkbox= false;
         state.planes=[...state.planes, clone];
