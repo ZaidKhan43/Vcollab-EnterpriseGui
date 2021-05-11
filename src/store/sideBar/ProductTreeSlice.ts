@@ -21,8 +21,8 @@ type ProductTreeState = {
     data: any,
     rootIds: string[],
     currentState: ProductTreeStates,
-    searchHints: any[],
-    prevSearches: any,
+    searchHints: {[id:string]:any},
+    prevSearches: {[id:string]:any},
     searchQuery: string
 }
 
@@ -31,7 +31,7 @@ const initialState: ProductTreeState = {
     data: {},
     rootIds: [],
     currentState: ProductTreeStates.Tree,
-    searchHints: [],
+    searchHints: {},
     prevSearches: {},
     searchQuery: ''
 }
@@ -310,6 +310,12 @@ export const fetchSearchHints = createAsyncThunk(
      }
   }
 )
+export const removeSearchHint = createAsyncThunk(
+  "productTree/removeSearchHint",
+  async (data:{data:string},{dispatch,getState}) => {
+     return data
+  }
+)
 
 export const productTreeSlice = createSlice({
   name: 'productTree',
@@ -425,7 +431,18 @@ export const productTreeSlice = createSlice({
 
     });
     builder.addCase(fetchSearchHints.fulfilled, (state,{payload}) => {
-        state.searchHints = payload;
+        payload.forEach((e,idx) => {
+          state.searchHints[e['code']] = idx
+        })
+    });
+    builder.addCase(removeSearchHint.fulfilled, (state,{payload}) => {
+        let key = payload.data;
+        if(state.prevSearches[key] !== undefined) {
+          delete state.prevSearches[key]
+        }
+        if(state.searchHints[key] !== undefined) {
+          delete state.searchHints[key]
+        }
     });
   }
 });
@@ -446,7 +463,7 @@ export const {
 export const selectProductTreeData = (state:RootState) => state.productTree.data
 export const selectCurrentState = (state:RootState) => state.productTree.currentState
 export const selectRootIds = (state:RootState) => state.productTree.rootIds
-export const selectSearchHints = (state:RootState) => state.productTree.searchHints
+export const selectSearchHints = (state:RootState) => Object.keys(state.productTree.searchHints)
 export const selectPrevSearches = (state:RootState) => Object.keys(state.productTree.prevSearches)
 export const selectCheckedLeafNodes = (state:RootState):TreeNode[] => {
   let nodes = [...Object.values(state.productTree.data)] as TreeNode[];

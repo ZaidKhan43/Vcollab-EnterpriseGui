@@ -3,9 +3,12 @@ import Divider from '@material-ui/core/Divider'
 import List from '@material-ui/core/List'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import IconButton from '@material-ui/core/IconButton';
+import DeleteIcon from '@material-ui/icons/Delete';
 import React, { useRef, useState } from 'react'
 import {useAppDispatch} from '../../../../store/storeHooks'
-import {saveSearchQuery} from '../../../../store/sideBar/ProductTreeSlice'
+import {saveSearchQuery,removeSearchHint} from '../../../../store/sideBar/ProductTreeSlice'
 
 //@ts-expect-error
 import ResizePanel from 'react-resize-panel'
@@ -56,6 +59,9 @@ function Body(props:SearchHintsProps) {
         props.setInput(s);
         dispatch(saveSearchQuery({data:s}));
     }
+    const handleDelete = (s:string) => {
+        dispatch(removeSearchHint({data:s}));
+    }
     return(
         <List component='div' aria-label="search hints list">
             {
@@ -66,6 +72,11 @@ function Body(props:SearchHintsProps) {
                     return(
                         <ListItem onClick={() => handleClick(item)} button classes={{root:classes.listItem}}>
                         <ListItemText >{item}</ListItemText>
+                        <ListItemSecondaryAction>
+                        <IconButton onClick={() => handleDelete(item)} size='small' edge="end" aria-label="delete">
+                        <DeleteIcon color='secondary'></DeleteIcon>
+                        </IconButton>
+                        </ListItemSecondaryAction>
                         </ListItem>
                     )
                 })

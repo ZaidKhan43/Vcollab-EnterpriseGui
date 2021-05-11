@@ -4,7 +4,7 @@ import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
 import { setModelLoadedState, setModelLoadingStatus } from '../../store/appSlice';
 import { useAppDispatch } from '../../store/storeHooks';
-import {saveTree, setHightLightedNodesAsync } from "../../store/sideBar/ProductTreeSlice";
+import {saveTree, fetchSearchHints,setHightLightedNodesAsync } from "../../store/sideBar/ProductTreeSlice";
 import { addViewer } from '../../store/appSlice';
 
 function Viewer(){
@@ -57,6 +57,7 @@ function Viewer(){
                   }
             })
             dispatch(saveTree({tree:treeData.models,rootIds:treeData.rootNodeIds}));
+            dispatch(fetchSearchHints());
             }
 
            // console.log("Showing Model : " + response1);   

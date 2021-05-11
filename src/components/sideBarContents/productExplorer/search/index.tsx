@@ -5,7 +5,7 @@ import { getSearchInput} from "../../../utils/search";
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
 import SearchItem from './SearchItem'
 import SearchHints from './SearchHints'
-import {fetchSearchHints,selectSearchHints,selectPrevSearches,saveSearchQuery,setCheckedNodesAsync,selectProductTreeData, updatePrevSearches, TreeNode as ITreeNode} from "../../../../store/sideBar/ProductTreeSlice"
+import {selectSearchHints,selectPrevSearches,saveSearchQuery,setCheckedNodesAsync,selectProductTreeData, updatePrevSearches, TreeNode as ITreeNode} from "../../../../store/sideBar/ProductTreeSlice"
 import Checkbox from "@material-ui/core/Checkbox"
 import TextField from '@material-ui/core/TextField';
 import IconButtom from '@material-ui/core/IconButton';
@@ -42,7 +42,7 @@ function Search(props:any) {
     const treeData = useAppSelector(selectProductTreeData);
     const treeDataRef = useRef(treeData);
     const prevSearches = useAppSelector(selectPrevSearches);
-    const searchHints:any[] = useAppSelector(selectSearchHints);
+    const searchHints = useAppSelector(selectSearchHints);
     const dispatch = useAppDispatch();
     const [fuse, setFuse] = useState(null);
     const [result, setResult] = useState([] as any);
@@ -73,8 +73,8 @@ function Search(props:any) {
         prevSearches.forEach((e:string) => {
             options[e] = Object.keys(options).length;
         })
-        searchHints.forEach((e:any) => {
-            options[e['code']] = Object.keys(options).length;
+        searchHints.forEach((e:string) => {
+            options[e] = Object.keys(options).length;
         })
         return Object.keys(options) as string[]
     }
@@ -89,7 +89,6 @@ function Search(props:any) {
             minMatchCharLength: 2
         }
         let fuse:any = new Fuse([...Object.values(treeDataRef.current)],options);
-        dispatch(fetchSearchHints());
         setFuse(fuse);
     }, [dispatch])
 
