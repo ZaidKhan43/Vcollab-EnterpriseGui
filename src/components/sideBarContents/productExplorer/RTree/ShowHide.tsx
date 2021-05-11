@@ -32,7 +32,7 @@ function ShowHide(props:any) {
     }
     const classes = useStyles();
     return (
-        <div className={classes.hideText}>
+        <div className={classes.hideText} style={{paddingRight:'10px'}}>
                 <VisiblilityIcon 
                 node = {props.rowData} 
                 visibility={props.visibility} 

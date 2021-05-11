@@ -28,6 +28,10 @@ const useRTreeOverrideStyles = makeStyles((theme) => ({
       '& .rs-table-cell-group-fixed-right': {
         background:'transparent'
       }
+    },
+    invertCell: {
+      zIndex: '10!important' as any,
+      left: '10px!important'
     }
 })) 
 
@@ -126,14 +130,14 @@ function RTree(props:any) {
               }
             </Cell>
             </Column>
-            <ColumnGroup fixed= { 'right'} header="Actions" align='left' verticalAlign='middle' >
+            <ColumnGroup fixed= { 'right'} header="Actions" align='right' verticalAlign='middle' >
             <Column fixed={'right'} width={30} verticalAlign='middle' align='left'>
               {/*
  // @ts-ignore */}
               <HeaderCell>Invert</HeaderCell>
               {/*
  // @ts-ignore */}
-              <Cell align='left' verticalAlign='middle' >
+              <Cell className={overrideClasses.invertCell} align='right' verticalAlign='middle' >
                 {
                   rowData => {
                     let node = getNode(rowData.id);
@@ -144,13 +148,13 @@ function RTree(props:any) {
                 }
               </Cell>
             </Column>
-            <Column fixed={'right'} width={30} verticalAlign='middle' align='left'>
+            <Column fixed={'right'} width={40} verticalAlign='middle' align='left'>
               {/*
  // @ts-ignore */}
               <HeaderCell>ShowHide</HeaderCell>
               {/*
  // @ts-ignore */}
-              <Cell align='left' verticalAlign='middle'>
+              <Cell  align='right' verticalAlign='middle'>
                 {
                   rowData => {
                     let node = getNode(rowData.id);

@@ -23,7 +23,7 @@ function InvertCell(props:any) {
     const classes = useStyles();
     return (
         props.rowData.children.length > 0 ? 
-        <div className={classes.hideText}>
+        <div className={classes.hideText} >
                     <IconButton size="small"  onClick = {() => handleInvert(props.rowData)}>
                     <InvertIcon visibility = {props.rowData.state.visibility} >
                     </InvertIcon>
