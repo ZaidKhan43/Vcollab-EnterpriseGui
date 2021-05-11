@@ -5,6 +5,7 @@ import { useAppDispatch} from "../../../../store/storeHooks";
 import SwapIcon from '@material-ui/icons/SwapHoriz';
 import {useStyles } from './styles/TreeNodeStyle'
 import IconButton  from '@material-ui/core/IconButton';
+import Grid from '@material-ui/core/Grid';
 
 const InvertIcon = (props:any) => {
         const classes = useStyles();
@@ -23,12 +24,14 @@ function InvertCell(props:any) {
     const classes = useStyles();
     return (
         props.rowData.children.length > 0 ? 
-        <div className={classes.hideText} >
-                    <IconButton size="small"  onClick = {() => handleInvert(props.rowData)}>
-                    <InvertIcon visibility = {props.rowData.state.visibility} >
-                    </InvertIcon>
-                    </IconButton>
-        </div>
+        <Grid container alignItems='center' className={classes.hideText} style={{height:'100%',width:'100%'}}>
+            <Grid item>
+                <IconButton size="small"  onClick = {() => handleInvert(props.rowData)}>
+                <InvertIcon visibility = {props.rowData.state.visibility} >
+                </InvertIcon>
+                </IconButton>
+            </Grid>
+        </Grid>
         :null
     )
 }

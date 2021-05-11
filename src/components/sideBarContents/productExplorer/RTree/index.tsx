@@ -112,7 +112,7 @@ function RTree(props:any) {
               if (rowData.children && rowData.children.length === 0) {
                 return <div></div>;
               }
-              return icon;
+              return <div>{icon}</div>;
             }}
             affixHorizontalScrollbar
           >
