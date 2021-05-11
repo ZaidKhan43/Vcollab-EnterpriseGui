@@ -1,11 +1,10 @@
-import {useState} from 'react';
 import ToolTip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 
 import SideBarContainer from '../../layout/sideBar/sideBarContainer';
-import BackIcon from '../../../assets/images/back.svg';
-import Search from '../../../assets/images/search.svg';
+import BackIcon from '@material-ui/icons/ArrowBack'
+import Search from '@material-ui/icons/Search';
 
 import styles from './style';
 import RTree from './RTree';
@@ -13,8 +12,7 @@ import TreeSearch from './search';
 import {useAppSelector, useAppDispatch} from "../../../store/storeHooks";
 import {sideBarContentTypes} from "../../../config";
 import {setSidebarActiveContent} from "../../../store/appSlice";
-import {selectCheckedLeafNodes} from "../../../store/sideBar/productTreeSlice"
-import {ProductTreeStates} from './TreeStates' 
+import {selectCheckedLeafNodes,selectCurrentState,ProductTreeStates,setProductTreeState} from "../../../store/sideBar/productTreeSlice";
 import DisplayModeBody from './DisplayModes/DisplayModesBody'
 import Footer from './Footer'
 
@@ -22,19 +20,19 @@ export default function ProductExplorer(props:any){
     
     const classes = styles();
     const checkedNodes = useAppSelector(selectCheckedLeafNodes);
-    const [currentState, setCurrentState] = useState(ProductTreeStates.Tree);
+    const currentState = useAppSelector(selectCurrentState);
     const dispatch = useAppDispatch();  
 
     const onClickBackIcon = () =>{
       switch (currentState) {
         case ProductTreeStates.Search:
-          setCurrentState(ProductTreeStates.Tree);
+          dispatch(setProductTreeState({data:ProductTreeStates.Tree}));
           break;
         case ProductTreeStates.Tree:
           dispatch(setSidebarActiveContent(sideBarContentTypes.mainMenu));
           break;
         case ProductTreeStates.DisplayModes:
-          setCurrentState(ProductTreeStates.Tree);
+          dispatch(setProductTreeState({data:ProductTreeStates.Tree}));
           break;
         default:
           break;
@@ -42,16 +40,16 @@ export default function ProductExplorer(props:any){
     }
 
     const onClickSearchIcon = () => {
-       setCurrentState(ProductTreeStates.Search);
+       dispatch(setProductTreeState({data:ProductTreeStates.Search}));
     }
 
     const handleNext = () => {
        switch (currentState) {
          case ProductTreeStates.Tree:
-           setCurrentState(ProductTreeStates.DisplayModes);
+          dispatch(setProductTreeState({data:ProductTreeStates.DisplayModes}));
            break;
          case ProductTreeStates.Search:
-           setCurrentState(ProductTreeStates.DisplayModes);
+          dispatch(setProductTreeState({data:ProductTreeStates.DisplayModes}));
            break;
          default:
            break;
@@ -62,7 +60,7 @@ export default function ProductExplorer(props:any){
       <ToolTip title='Back'>
       <IconButton
       className={classes.backIcon}
-      onClick={() => onClickBackIcon()}><img src={ BackIcon } alt={'BackIcon'} /> </IconButton>
+      onClick={() => onClickBackIcon()}><BackIcon/></IconButton>
       </ToolTip>
       );
     }
@@ -93,7 +91,7 @@ export default function ProductExplorer(props:any){
               <ToolTip title='Search'>
                 <IconButton
                 className={classes.backIcon}
-                onClick={() => onClickSearchIcon()}><img src={ Search } alt={'Search'} /> 
+                onClick={() => onClickSearchIcon()}><Search/>
                 </IconButton>
               </ToolTip>
             )
@@ -124,9 +122,9 @@ export default function ProductExplorer(props:any){
             handleNext = {handleNext}
           ></Footer>) : null
         case ProductTreeStates.Search:
-          return (<Footer selectedCount={checkedNodes.length}
+          return checkedNodes.length > 0 ? (<Footer selectedCount={checkedNodes.length}
             handleNext = {handleNext}
-          ></Footer>)
+          ></Footer>) : null
         default:
           return null
       }     

@@ -1,12 +1,16 @@
 import React, {useState, useEffect, useRef} from 'react'
-import useLoadCss from '../../../../customHooks/useLoadCss';
 import useContainer from '../../../../customHooks/useContainer';
 import { Table, Column,HeaderCell,Cell } from 'rsuite-table';
+import { getSearchInput} from "../../../utils/search";
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
 import SearchItem from './SearchItem'
-import {fetchSearchHints,selectSearchHints,selectPrevSearches,saveSearchQuery,setCheckedNodesAsync,selectProductTreeData, updatePrevSearches, TreeNode as ITreeNode} from "../../../../store/sideBar/productTreeSlice"
+import SearchHints from './SearchHints'
+import {selectSearchHints,selectPrevSearches,saveSearchQuery,setCheckedNodesAsync,selectProductTreeData, updatePrevSearches, TreeNode as ITreeNode} from "../../../../store/sideBar/productTreeSlice"
 import Checkbox from "@material-ui/core/Checkbox"
 import TextField from '@material-ui/core/TextField';
+import IconButtom from '@material-ui/core/IconButton';
+import Grid from '@material-ui/core/Grid';
+import AddIcon from '@material-ui/icons/Add';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
@@ -34,21 +38,25 @@ const useRTreeOverrideStyles = makeStyles((theme) => ({
 })) 
 
 function Search(props:any) {
-    // eslint-disable-next-line
-    const updateCssPath = useLoadCss('./globalStyles/RTreeStylesOverrideDark.css');
+
     const treeData = useAppSelector(selectProductTreeData);
     const treeDataRef = useRef(treeData);
     const prevSearches = useAppSelector(selectPrevSearches);
-    const searchHints:any[] = useAppSelector(selectSearchHints);
+    const searchHints = useAppSelector(selectSearchHints);
     const dispatch = useAppDispatch();
     const [fuse, setFuse] = useState(null);
     const [result, setResult] = useState([] as any);
     const [searchString, setSearchString] = useState("");
+    // eslint-disable-next-line
     const [isOpen, setisOpen] = useState(false);
     const [selectAll, setSelectAll] = useState(false);
 
-    const {containerRef, containerHeight} = useContainer();
-    const headerHeight = 111;
+    const headerRef = useRef(null);
+    // eslint-disable-next-line
+    const [headerWidth, headerHeight] = useContainer(headerRef,[]);
+    const containerRef = useRef(null);
+    // eslint-disable-next-line
+    const [containerWidth, containerHeight] = useContainer(containerRef,[]);
 
     const getAttrbKeys = (treeArray:any[]) => {
         let keys = new Set();
@@ -68,36 +76,37 @@ function Search(props:any) {
         prevSearches.forEach((e:string) => {
             options[e] = Object.keys(options).length;
         })
-        searchHints.forEach((e:any) => {
-            options[e['code']] = Object.keys(options).length;
+        searchHints.forEach((e:string) => {
+            options[e] = Object.keys(options).length;
         })
         return Object.keys(options) as string[]
     }
-
     useEffect(() => {
-        let options = {
-            includeScore: true,
+      let options = {
+            includeScore: false,
             keys: getAttrbKeys([...Object.values(treeDataRef.current)]),
             ignoreLocation: true,
-            includeMatches:true,
-            useExtendedSearch: true
+            includeMatches:false,
+            threshold: 0.2,
+            useExtendedSearch: true,
+            minMatchCharLength: 2
         }
         let fuse:any = new Fuse([...Object.values(treeDataRef.current)],options);
-        dispatch(fetchSearchHints());
         setFuse(fuse);
-        return () => {
-            dispatch(updatePrevSearches())
-        }
     }, [dispatch])
 
     useEffect(() => {
-        let r = (fuse as any)?.search(searchString);
+        let searchInput = getSearchInput(searchString);
+        let r:any[] = (fuse as any)?.search(searchInput);
         if(r)
-        setResult(r);
+        setResult(r.filter(e => e.item.children.length === 0));
         setSelectAll(false)
     },[searchString,fuse])
 
     const handleSearch = (e:any) => {
+       if (!e) {
+         return
+       } 
        const query = e? e.target.value : "";
         setSearchString(query);
         dispatch(saveSearchQuery({data:query}));
@@ -123,15 +132,19 @@ function Search(props:any) {
     }
     const overrideStyles = useRTreeOverrideStyles();
     return (
-        <div ref = {containerRef} style={{height:'100%'}} >
-          <div style={{height:headerHeight}}>
-          <Autocomplete
-                style={{paddingLeft: 10, paddingRight: 10}}
+        <div ref = {containerRef} style={{height:'100%', overflow:'hidden'}} >
+          <div ref = {headerRef} >
+            <Grid container alignItems='center' spacing={1}>
+              <Grid item xs={10}>
+              <Autocomplete
+                style={{paddingLeft: 10}}
                 size = 'small'
                 color = 'inherit'
                 disableClearable
                 clearOnBlur = {false}
-                open = {isOpen}
+                open = {false}
+                forcePopupIcon = {false}
+                fullWidth = {false}
                 onOpen = {(e:any) => {handleAutoCompleteOpenState(true)}}
                 onClose = {(e:any) => {handleAutoCompleteOpenState(false)}}
                 onKeyPress = {(e:any) => {
@@ -169,12 +182,19 @@ function Search(props:any) {
                 />
                 )}
             />
+              </Grid>
+              <Grid item>
+              <IconButtom size='small' style={{marginTop:7}} onClick={() => dispatch(updatePrevSearches())}> <AddIcon/></IconButtom>
+              </Grid>
+            </Grid>
+
+            <SearchHints data = {generateOptions()} setInput={setSearchString}></SearchHints>
             {
             result.length !== 0 ?
-            <span>
-            <Checkbox color="primary" onChange = {(e:any) => {handleSelectAll(e.target.checked)}} checked = {selectAll} ></Checkbox>
+            <div>
+            <Checkbox color="primary" size='small' onChange = {(e:any) => {handleSelectAll(e.target.checked)}} checked = {selectAll} ></Checkbox>
                 Select All
-            </span>
+            </div>
             : null
             }
           </div>
@@ -182,7 +202,7 @@ function Search(props:any) {
 
             {/*
  // @ts-ignore */}
-            <Table height={containerHeight - headerHeight}
+            <Table height={containerHeight? containerHeight - headerHeight : 0}
                    className={overrideStyles.tree}
                    data={result}
                    id="searchList"

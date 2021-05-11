@@ -24,6 +24,10 @@ const useStyles = makeStyles(theme => createStyles(
         accordianDetails: {
             flexDirection: 'column',
             paddingTop: 0
+        },
+        selectedButton: {
+            marginTop: 5,
+            textTransform: 'none'
         }
     }
 ))

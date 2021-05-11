@@ -11,6 +11,12 @@ export const useStyles = makeStyles((theme) => (
         hightlight: {
             padding: theme.spacing(0.5),
             background: theme.palette.type === 'dark' ? theme.palette.warning.dark : theme.palette.warning.light,
+        },
+        hideText: {
+            background: theme.palette.background.paper,
+            [theme.breakpoints.down("sm")]: {
+              backgroundColor: theme.palette.background.paper,
+            },
         }
     })
 ));
