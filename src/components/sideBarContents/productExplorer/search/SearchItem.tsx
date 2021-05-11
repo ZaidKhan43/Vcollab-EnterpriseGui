@@ -1,5 +1,5 @@
 import React from 'react'
-import Checkbox from "../../../common/checkbox"
+import Checkbox from "../../../shared/checkbox"
 import { useStyles } from "../RTree/styles/TreeNodeStyle"
 import clsx from 'clsx'
 function SearchItem(props:any) {

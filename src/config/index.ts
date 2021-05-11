@@ -29,4 +29,11 @@ export const sideBarContentTypes = {
   settings : 'settings',
   notifications : 'notifications',
 };
+
+
+export const popupMenuContentTypes = {
+  none:'none',
+  displayModes: 'displayModes',
+  more: 'more',
+};
   

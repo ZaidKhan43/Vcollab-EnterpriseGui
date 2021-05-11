@@ -1,14 +1,14 @@
 import React ,{useState} from 'react'
-import EyeIcon from '../../../../components/common/svgIcons/eyeIcon';
-import EyeSlashIcon from '../../../../components/common/svgIcons/eyeSlashIcon';
-import EyeInvert from '../../../../components/common/svgIcons/eyeInvert';
+import EyeIcon from '../../../icons/eyeIcon';
+import EyeSlashIcon from '../../../icons/eyeSlashIcon';
+import EyeInvert from '../../../icons/eyeInvert';
 import Popper from '@material-ui/core/Popper';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Grow from '@material-ui/core/Grow';
 import Paper from '@material-ui/core/Paper';
 import ToolTip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
-import {setCheckedVisibilityAsync, invertVisibilityAsync} from "../../../../store/sideBar/ProductTreeSlice"
+import {setCheckedVisibilityAsync, invertVisibilityAsync} from "../../../../store/sideBar/productTreeSlice"
 import { useAppDispatch } from '../../../../store/storeHooks';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';

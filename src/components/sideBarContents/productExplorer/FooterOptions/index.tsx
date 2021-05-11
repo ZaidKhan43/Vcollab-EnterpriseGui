@@ -9,7 +9,7 @@ import AddTagDialog from "./Dialogs/AddTagDialog"
 import VisibilityOptions from './VisibilityOptions'
 import { useAppDispatch, useAppSelector } from '../../../../store/storeHooks';
 import {selectActiveViewerID} from '../../../../store/appSlice';
-import {groupSelectedNodes,focusSelectedNodes} from '../../../../store/sideBar/ProductTreeSlice'
+import {groupSelectedNodes,focusSelectedNodes} from '../../../../store/sideBar/productTreeSlice'
 
 
 

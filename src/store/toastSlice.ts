@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from './index';
 
-export interface SnackbarMessage {
+export type SnackbarMessage = {
     message: string ;
     severity: string | undefined;
     key: number;
@@ -15,7 +15,7 @@ export enum MsgSeverity {
 }
 
 // Define a type for the slice state
-interface toastState {
+type toastState = {
    messageInfo: SnackbarMessage | undefined,
    open:boolean
 }

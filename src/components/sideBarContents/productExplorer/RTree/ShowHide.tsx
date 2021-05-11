@@ -1,8 +1,8 @@
 import React from 'react'
-import {toggleVisibilityAsync} from '../../../../store/sideBar/ProductTreeSlice';
+import {toggleVisibilityAsync} from '../../../../store/sideBar/productTreeSlice';
 import { useAppDispatch} from "../../../../store/storeHooks";
-import EyeIcon from '../../../common/svgIcons/eyeIcon';
-import EyeSlashIcon from '../../../common/svgIcons/eyeSlashIcon';
+import EyeIcon from '../../../icons/eyeIcon';
+import EyeSlashIcon from '../../../icons/eyeSlashIcon';
 import IconButton  from '@material-ui/core/IconButton';
 import {useStyles } from './styles/TreeNodeStyle'
 

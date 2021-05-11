@@ -13,7 +13,7 @@ import TreeSearch from './search';
 import {useAppSelector, useAppDispatch} from "../../../store/storeHooks";
 import {sideBarContentTypes} from "../../../config";
 import {setSidebarActiveContent} from "../../../store/appSlice";
-import {selectCheckedLeafNodes} from "../../../store/sideBar/ProductTreeSlice"
+import {selectCheckedLeafNodes} from "../../../store/sideBar/productTreeSlice"
 import {ProductTreeStates} from './TreeStates' 
 import DisplayModeBody from './DisplayModes/DisplayModesBody'
 import Footer from './Footer'

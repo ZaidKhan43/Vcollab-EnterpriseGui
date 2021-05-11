@@ -50,3 +50,7 @@ export function captureScreen(activeViewerID: string){
 export function getSearchHints(activeViewerID:string) {
     return viewerMgr.getSearchHints(activeViewerID);
 }
+
+export function getModelInfo(activeViewerID:string) {
+    return viewerMgr.getModelInfo(activeViewerID);
+}

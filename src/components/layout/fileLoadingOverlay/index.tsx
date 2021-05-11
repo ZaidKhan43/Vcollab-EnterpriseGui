@@ -1,11 +1,11 @@
-import { selectModelLoadingStatus } from '../../store/appSlice';
-import { useAppSelector } from '../../store/storeHooks';
+import { selectModelLoadingStatus } from '../../../store/appSlice';
+import { useAppSelector } from '../../../store/storeHooks';
 
-import Logo from "../../assets/images/LogoBig.svg";
+import Logo from "../../../assets/images/LogoBig.svg";
 import Typography from "@material-ui/core/Typography";
 import styles from './style';
 
-export default function AppLoader() {
+export default function FileLoadingOverlay() {
   
   const classes = styles();
   const modelLoadingStatus = useAppSelector(selectModelLoadingStatus);

@@ -1,6 +1,6 @@
 import React from 'react'
 import clsx from 'clsx'
-import {invertNode} from '../../../../store/sideBar/ProductTreeSlice';
+import {invertNode} from '../../../../store/sideBar/productTreeSlice';
 import { useAppDispatch} from "../../../../store/storeHooks";
 import SwapIcon from '@material-ui/icons/SwapHoriz';
 import {useStyles } from './styles/TreeNodeStyle'
