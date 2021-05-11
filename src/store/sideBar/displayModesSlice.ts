@@ -3,6 +3,7 @@ import {getDisplayModes, setDisplayMode} from "../../backend/viewerAPIProxy";
 import {selectCheckedLeafNodes} from "./productTreeSlice"
 import {toastMsg} from "../toastSlice";
 import type { RootState } from '../index';
+
 // Define a type for the slice state
 type DisplayModesState = {
     displayModesData: any[],

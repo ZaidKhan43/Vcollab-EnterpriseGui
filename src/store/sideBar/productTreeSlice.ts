@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../index';
-import {setPartVisibility, setHighlightedNodes, fitView, getSearchHints} from "../../backend/viewerAPIProxy"
+import {setPartVisibility, setHighlightedNodes, fitView, getSearchHints} from "../../backend/viewerAPIProxy";
+
 // Define a type for the slice state
 export type TreeNode = {
   id:string,
