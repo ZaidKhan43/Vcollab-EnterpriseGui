@@ -21,7 +21,6 @@ import ShadedMeshIcon from "../../../icons/shadedMesh";
 import TransparentIcon from "../../../icons/transparent";
 import WireframeIcon from "../../../icons/wireframe";
 import DownloadStatusIcon from "./DownloadStatusIcon";
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
 import {DownloadStates, expandPanel,fetchDisplayModes,setDisplayModeAsync, selectDisplayModesData,setSelectedMenu,setDownloadStatus} from "../../../../store/sideBar/displayModesSlice";
 import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";

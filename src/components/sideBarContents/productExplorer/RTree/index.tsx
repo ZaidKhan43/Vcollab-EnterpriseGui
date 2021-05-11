@@ -1,5 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react'
-import useLoadCss from "../../../../customHooks/useLoadCss";
+import React, {useCallback, useEffect, useRef, useState} from 'react'
 import useContainer from '../../../../customHooks/useContainer';
 import { Table ,Column, ColumnGroup, HeaderCell, Cell, } from 'rsuite-table';
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
@@ -39,40 +38,44 @@ function RTree(props:any) {
 
     const containerRef = useRef(null);
     const treeData = useAppSelector(selectProductTreeData);
+    const treeDataRef = useRef(treeData);
+    // eslint-disable-next-line
     const [containerWidth, containerHeight] = useContainer(containerRef,[treeData]);
     const rootIds = useAppSelector(selectRootIds);
     const dispatch = useAppDispatch()
-    const convertListToTree = (data:Map<string,ITreeNode>,rootIds:string[]) => {
-      let root = [createTreeNode(rootIds[0],data)];
-      return root;
-    }
     const [data,setData] = useState<any[]>([]);
+    // eslint-disable-next-line
     const [expandedNodes,setExpandedNodes] = useState<string[]>([]);
     
-    const getNode = (id:string) => treeData[id];
-    const createTreeNode = (id:string,data:Map<string,ITreeNode>) => {
-      let node = getNode(id);
-      if(node) {
-        if(node.state.expanded) {
-          expandedNodes.push(node.id);
-        }
-        let children:any[] = [];
-        if(node.children.length > 0)
-        {
-          children = node.children.map((c:string) => createTreeNode(c,data));
-        }
-        return {
-          id: node.id,
-          pid: node.pid,
-          title: node.title,
-          children
-        }
-      }
-
-    }
+    const getNode = useCallback((id:string) => treeData[id],[treeData]);
     useEffect(() => {
-      setData(convertListToTree(treeData,rootIds));
-    },[])
+      const createTreeNode = (id:string,data:Map<string,ITreeNode>) => {
+        let node = treeDataRef.current[id];
+        if(node) {
+          if(node.state.expanded) {
+            expandedNodes.push(node.id);
+          }
+          let children:any[] = [];
+          if(node.children.length > 0)
+          {
+            children = node.children.map((c:string) => createTreeNode(c,data));
+          }
+          return {
+            id: node.id,
+            pid: node.pid,
+            title: node.title,
+            children
+          }
+        }
+  
+      }
+      const convertListToTree = (data:Map<string,ITreeNode>,rootIds:string[]) => {
+        let root = [createTreeNode(rootIds[0],data)];
+        return root;
+      }
+      if(treeDataRef.current)
+      setData(convertListToTree(treeDataRef.current,rootIds));
+    },[rootIds,expandedNodes])
     const handleExpand = (toOpen:boolean,nodeId:string) => {
       dispatch(expandNode({toOpen,nodeId}));
     }

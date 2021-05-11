@@ -47,12 +47,15 @@ function Search(props:any) {
     const [fuse, setFuse] = useState(null);
     const [result, setResult] = useState([] as any);
     const [searchString, setSearchString] = useState("");
+    // eslint-disable-next-line
     const [isOpen, setisOpen] = useState(false);
     const [selectAll, setSelectAll] = useState(false);
 
     const headerRef = useRef(null);
+    // eslint-disable-next-line
     const [headerWidth, headerHeight] = useContainer(headerRef,[]);
     const containerRef = useRef(null);
+    // eslint-disable-next-line
     const [containerWidth, containerHeight] = useContainer(containerRef,[]);
 
     const getAttrbKeys = (treeArray:any[]) => {
@@ -96,7 +99,7 @@ function Search(props:any) {
         let searchInput = getSearchInput(searchString);
         let r:any[] = (fuse as any)?.search(searchInput);
         if(r)
-        setResult(r.filter(e => e.item.children.length == 0));
+        setResult(r.filter(e => e.item.children.length === 0));
         setSelectAll(false)
     },[searchString,fuse])
 

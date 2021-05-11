@@ -6,9 +6,9 @@ import ListItemText from '@material-ui/core/ListItemText'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
-import React, { useRef, useState } from 'react'
+import React, { useRef } from 'react'
 import {useAppDispatch} from '../../../../store/storeHooks'
-import {saveSearchQuery,removeSearchHint} from '../../../../store/sideBar/ProductTreeSlice'
+import {saveSearchQuery,removeSearchHint} from '../../../../store/sideBar/productTreeSlice'
 
 //@ts-expect-error
 import ResizePanel from 'react-resize-panel'
@@ -36,11 +36,6 @@ const useStyles = makeStyles(theme => ({
         paddingBottom: 0
     }
 }))
-function Header() {
-    return (
-        <MuiTypography align='left' style={{marginLeft:10}}>Hints</MuiTypography>
-    )
-}
 
 function Footer() {
     const classes = useStyles();
@@ -91,8 +86,8 @@ type SearchHintsProps = {
 }
 function SearchHints(props:SearchHintsProps) {
     const containerRef = useRef(null);
+    /* eslint-disable-next-line */
     const [containerWidth,containerHeight] = useContainer(containerRef,[]);
-    const [footerHeight,setFooterHeight] = useState(10);
     const classes = useStyles();
     return (
         <div>
