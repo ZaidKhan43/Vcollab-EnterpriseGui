@@ -6,7 +6,7 @@ export default makeStyles((theme) => ({
     //backgroundColor: 'blue',
     width : '100%',
     height : 'auto',
-    color: 'white',
+    //color: 'white',
     textAlign: 'center',
     },
 }));

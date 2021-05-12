@@ -1,9 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-
-import { colors } from '../../../config';
 import { topbarHeight } from '../../../config';
-
-
 
 export default makeStyles((theme) => ({
       header: {
@@ -29,6 +25,6 @@ export default makeStyles((theme) => ({
           },
       },
       listItemText: {
-        color: theme.palette.text.primary,
+        //color: theme.palette.text.primary,
       },
 }));

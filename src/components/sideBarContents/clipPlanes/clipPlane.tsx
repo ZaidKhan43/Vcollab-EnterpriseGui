@@ -4,23 +4,23 @@ import styles from './style';
 import SideBarContainer from '../../layout/sideBar/sideBarContainer';
 import MuiTypography from '@material-ui/core/Typography';
 import MuiIconButton from '@material-ui/core/IconButton';
-import BackButton from '../../../assets/images/back';
+import BackButton from '../../../components/icons/back';
 
 import {useAppDispatch } from '../../../store/storeHooks';
 
 import Grid from '@material-ui/core/Grid';
 import Slider from '@material-ui/core/Slider';
 
-import Triangle from '../../../assets/images/triangle'
-import ThreePoints from '../../../assets/images/threePoints'
+import Triangle from '../../../components/icons/triangle'
+import ThreePoints from '../../../components/icons/threePoints'
 
 import NumericInput from '../../common/numericInput'
 
 import MuiInput from '@material-ui/core/Input';
 import MuiButton from '@material-ui/core/Button';
 // import MuiTextField from '@material-ui/core/TextField';
-import FlipDirectionLeft from "../../../assets/images/flipDirectionLeft";
-import FlipDirectionRight from "../../../assets/images/flipDirectionRight";
+import FlipDirectionLeft from "../../../components/icons/flipDirectionLeft";
+import FlipDirectionRight from "../../../components/icons/flipDirectionRight";
 
 import { editPlane } from '../../../store/clipSlice';
 import RotateSlider from './rotateSlider'
@@ -299,7 +299,7 @@ export default function ClipPlanes(props : any){
         edited = true;
 
       return (
-        <div style={{marginBottom:"10px"}} >
+        <div style={{marginBottom:"10px", marginTop:"10px"}} >
         {edited === false ? <Grid container spacing={3} >
         <Grid item xs={12} sm={4}  style={{marginLeft:"60px"}}>
           <MuiButton disabled style={{backgroundColor:"#8C8BFF"}} variant="contained" color="primary" onClick={onHandleSave}>

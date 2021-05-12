@@ -1,7 +1,7 @@
 import MuiIconButton from '@material-ui/core/IconButton';
 import MuiTypography from '@material-ui/core/Typography';
 import SideBarContainer from '../../layout/sideBar/sideBarContainer';
-import BackButton from '../../../assets/images/back';
+import BackButton from '../../../components/icons/back';
 import styles from './style';
 import { sideBarContentTypes } from '../../../config';
 import { setSidebarActiveContent } from '../../../store/appSlice';
@@ -18,7 +18,7 @@ import MuiPaste from '@material-ui/icons/AssignmentOutlined';
 import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
 import MuiErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined';
 
-import AddIcon from "../../../assets/images/plus";
+import AddIcon from "../../../components/icons/plus";
 
 import DialogBox from "../../../components/common/dialogBox"
 
@@ -34,19 +34,6 @@ import ClipPlane from "./clipPlane"
 import {editEnabled} from "../../../store/clipSlice";
 import {createPlane, editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlaneName} from "../../../store/clipSlice";
 
-import MuiButton from '@material-ui/core/Button';
-import MuiDialog from '@material-ui/core/Dialog';
-import MuiDialogActions from '@material-ui/core/DialogActions';
-import MuiDialogContent from '@material-ui/core/DialogContent';
-import MuiDialogContentText from '@material-ui/core/DialogContentText';
-// import MuiDialogTitle from '@material-ui/core/DialogTitle';
-import MuiSnackbar from '@material-ui/core/Snackbar';
-// import MuiCloseIcon from '@material-ui/icons/Close';
-// import { spawn } from 'node:child_process';
-import MuiIcon from '@material-ui/core/Icon';
-
-import MuiAlert from '@material-ui/lab/Alert';
-// import { isNonNullExpression } from 'typescript';
 
 export default function ClipPlanes(){
 
@@ -267,11 +254,11 @@ export default function ClipPlanes(){
 
   const getFooter = () => {
     return (
-      <div className={classes.footerCard}>
+      <div>
         {
           clickedVal 
           ? 
-            <div style={{ position:"absolute",left:"8%",right:"10%"}}>
+            <div style={{marginLeft:"10px", marginRight:"10px"}}>
               <div style={{display: "flex",alignItems: "center",justifyContent: "space-between",}}>
               <MuiIconButton style={{}}> 
                 <MuiEditIcon onClick={() => onHandleEdit()}/>
@@ -306,7 +293,7 @@ export default function ClipPlanes(){
               </div>
             </div>
           : 
-          <div style={{ position:"absolute",left:"8%",right:"10%"}}>
+          <div style={{marginLeft:"10px", marginRight:"10px"}}>
           <div style={{display: "flex",alignItems: "center",justifyContent: "space-between",}}>
           <MuiIconButton disabled style={{}}> 
             <MuiEditIcon onClick={() => onHandleEdit()}/>

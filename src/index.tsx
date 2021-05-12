@@ -7,7 +7,7 @@ import reportWebVitals from './reportWebVitals';
 import store from './store';
 import { Provider } from 'react-redux';
 
-import CustomThemeProvider from './components/common/CustomThemeProvider';
+import CustomThemeProvider from './components/shared/customThemeProvider';
 
 ReactDOM.render(
   <React.StrictMode>  

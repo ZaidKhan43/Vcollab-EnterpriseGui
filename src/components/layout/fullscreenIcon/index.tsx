@@ -1,9 +1,8 @@
-import MuiFab from '@material-ui/core/Fab';
-import Fullscreen from '../../../assets/images/fullscreen';
-import FullscreenClose from '../../../assets/images/fullscreen_exit';
+import IconButton from '@material-ui/core/IconButton'
+import Fullscreen from '../../icons/fullscreen';
+import FullscreenClose from '../../icons/fullscreen_exit';
 import styles from './style';
 import { selectFullscreenStatus, setFullscreenState } from '../../../store/appSlice';
-
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
 
 export default function FullscreenIcon(props : any) {
@@ -17,11 +16,13 @@ export default function FullscreenIcon(props : any) {
     }
 
     return (
-        <MuiFab size = 'small' className = {classes.iconPosition} {...props} onClick={ OnClickFullscreen }>
-            {(isFullscreenEnabled ?
-                <FullscreenClose/>:
-                <Fullscreen />
-            )}
-        </MuiFab>
+        <div className = {classes.divFullscreen}>
+            <IconButton  onClick={ OnClickFullscreen }>
+                {(isFullscreenEnabled ?
+                    <FullscreenClose/>:
+                    <Fullscreen />
+                )}
+            </IconButton>
+        </div>
     );
 }

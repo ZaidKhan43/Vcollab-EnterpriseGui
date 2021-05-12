@@ -79,22 +79,6 @@ export default makeStyles((theme) => (
     // right: "-100%",     
   },
 
-  footerCard:{
-    height:"45px",
-    position: 'absolute',
-    background:'transparent',
-    left: 0,
-    bottom: 0,
-    textAlign: 'center',
-    width : '100%',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    boxShadow: theme.shadows[20],
-    borderRadius:"10px 10px 0 0",
-    right: -20,
-    padding: "5px -20px 0px 20px",
-  },
-
   listSub: {
     display: "flex",
     alignItems: "center",

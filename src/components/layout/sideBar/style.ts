@@ -5,6 +5,9 @@ export default makeStyles((theme) => ({
   drawer: {
     width: drawerWidth,
     flexShrink: 0,
+    [theme.breakpoints.down("sm")]: {
+      opacity:0.8,
+    },
   },
   drawerPaper: {
     width: drawerWidth,

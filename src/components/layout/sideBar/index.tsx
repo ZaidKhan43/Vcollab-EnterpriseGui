@@ -17,7 +17,7 @@ import ClipPlanes from '../../sideBarContents/clipPlanes';
 import Views from '../../sideBarContents/views';
 import Annotations from '../../sideBarContents/annotations';
 import Settings from '../../sideBarContents/settings';
-import Notifications from '../../sideBarContents/notifications';
+import Notifications from '../../shared/notifications';
 
 export default function Sidebar(){
     
@@ -68,8 +68,13 @@ export default function Sidebar(){
       touchEvent="onTouchStart"
       onClickAway={handleClickAway}>
         <MuiDrawer
-        className={classes.drawer}
-        variant="persistent"
+        className={ classes.drawer}
+        variant= { smMatches ? "temporary" : "persistent"}
+        ModalProps={{
+          hideBackdrop : true,
+          disablePortal : true
+        }}
+        transitionDuration = {{ appear: 0, enter: 0, exit: 250 }}
         anchor="left"
         open={ isSidebarVisible }
         classes={{

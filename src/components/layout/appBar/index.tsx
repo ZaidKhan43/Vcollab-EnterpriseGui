@@ -2,20 +2,24 @@ import MuiAppBar from '@material-ui/core/AppBar';
 import MuiToolbar from '@material-ui/core/Toolbar';
 import MuiTypography from '@material-ui/core/Typography';
 import clsx from 'clsx';
-// import MuiIconButton from '../../common/iconbutton';
-import React, { useState, useEffect } from "react";
 import MuiIconButton from '@material-ui/core/IconButton';
+import MuiTooltip from '@material-ui/core/Tooltip';
 
-import Displaymodes from '../../../assets/images/displaymodes';
-import Fitview from '../../../assets/images/fitview';
-import Fullscreen from '../../../assets/images/fullscreen';
-import FullscreenClose from '../../../assets/images/fullscreen_exit';
-import Hamburger from '../../../assets/images/hamburger';
-import More from '../../../assets/images/more';
+import Displaymodes from '../../icons/displaymodes';
+import Fitview from '../../icons/fitview';
+import Fullscreen from '../../icons/fullscreen';
+import FullscreenClose from '../../icons/fullscreen_exit';
+import Hamburger from '../../icons/hamburger';
+import More from '../../icons/more';
 
-import {selectFullscreenStatus,selectSidebarVisibility,selectDarkModeEnable, selectActiveViewerID,setFullscreenState, setSidebarVisibility , setDarkModeEnable} from '../../../store/appSlice';
+import { selectModelName, selectFullscreenStatus,selectSidebarVisibility,selectDarkModeEnable, selectActiveViewerID,setFullscreenState, setSidebarVisibility , setDarkModeEnable, setPopupMenuActiveContent} from '../../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
+import { popupMenuContentTypes } from '../../../config';
 
+//toggle button
+import Switch from "@material-ui/core/Switch";
+
+import * as viewerAPIProxy from '../../../backend/viewerAPIProxy';
 import Shaded from "../../../assets/views/shaded";
 import ShadedMesh from "../../../assets/views/shadedMesh";
 import BoundingBox from "../../../assets/views/boundingBox";
@@ -36,7 +40,8 @@ import DropDown from '../../../components/common/dropDown';
 //toggle button
 import MuiSwitch from "@material-ui/core/Switch";
 
-import * as viewerAPIProxy from '../../../backend/viewerAPIProxy';
+import {useState} from "react";
+
 
 import  styles from './style';
 
@@ -47,35 +52,39 @@ function AppBar() {
     const isSidebarVisible = useAppSelector(selectSidebarVisibility);
     const isDarkModeEnable = useAppSelector(selectDarkModeEnable);
     const activeViewerID = useAppSelector(selectActiveViewerID);
+    const modelName = useAppSelector(selectModelName);
     const dispatch = useAppDispatch();  
 
     const [moreAnchorEl, setMoreAnchorEl] = useState(null);
-  const [displayAnchorEl, setDisplayAnchorEl] = useState(null);
-  const [clickedMenu, setClickedMenu] = useState<any>(null);
+    const [displayAnchorEl, setDisplayAnchorEl] = useState(null);
+    const [clickedMenu, setClickedMenu] = useState<any>(null);
 
-  const displayMenuItems = [
-    { title: "Bounding Box", icon: BoundingBox,id:"DM_1", disabled : false },
-    { title: "Feature Edge", icon: Shaded,id:"DM_8", disabled : true},
-    { title: "Simplified Mesh", icon: Shaded,id:"DM_9", disabled : true},
-    { title: "Shaded", icon: Shaded,id:"DM_5", disabled : false},
-    { title: "Wireframe", icon: Wireframe,id:"DM_3", disabled : false},
-    { title: "Shaded Mesh", icon: ShadedMesh,id:"DM_6", disabled : false},  
-    { title: "Hidden Line", icon: HiddenLine,id:"DM_4", disabled : false},
-    { title: "Transparant", icon: Transparent,id:"DM_7", disabled : false},
-    { title: "Point", icon: Point,id:"DM_2", disabled : false},   
-  ];
+    const displayMenuItems = [
+      { title: "Bounding Box", icon: BoundingBox,id:"DM_1", disabled : false },
+      { title: "Feature Edge", icon: Shaded,id:"DM_8", disabled : true},
+      { title: "Simplified Mesh", icon: Shaded,id:"DM_9", disabled : true},
+      { title: "Shaded", icon: Shaded,id:"DM_5", disabled : false},
+      { title: "Wireframe", icon: Wireframe,id:"DM_3", disabled : false},
+      { title: "Shaded Mesh", icon: ShadedMesh,id:"DM_6", disabled : false},  
+      { title: "Hidden Line", icon: HiddenLine,id:"DM_4", disabled : false},
+      { title: "Transparant", icon: Transparent,id:"DM_7", disabled : false},
+      { title: "Point", icon: Point,id:"DM_2", disabled : false},   
+    ];
 
-  const moreMenuItems = [
-    { title: "Status", icon: MuiUpdateOutlinedIcon },
-    { title: "Capture", icon: MuiCameraAltOutlinedIcon },
-  ];
+    const moreMenuItems = [
+      { title: "Status", icon: MuiUpdateOutlinedIcon },
+      { title: "Capture", icon: MuiCameraAltOutlinedIcon },
+    ];
 
     const OnClickFullscreen = function(){
       dispatch(setFullscreenState(!isFullscreenEnabled));
     }
 
-    const OnClickCapture = function(){
-      viewerAPIProxy.captureScreen(activeViewerID);
+    const OnClickDisplaymode = function(){
+      dispatch(setPopupMenuActiveContent(popupMenuContentTypes.displayModes));
+    }
+    const OnClickMore= function(){
+      dispatch(setPopupMenuActiveContent(popupMenuContentTypes.more));
     }
 
     const OnClickFitview = function(){
@@ -108,8 +117,6 @@ function AppBar() {
       
     }
 
-    // const id = open ? 'spring-popper' : undefined;
-
     return (
         <MuiAppBar 
           className = { clsx( classes.appBar , {[classes.appBarwithSideBar]: isSidebarVisible}) }
@@ -124,14 +131,14 @@ function AppBar() {
             </div>
             
             <div className={clsx( classes.leftTitle, { [classes.leftTitleHidden]: isSidebarVisible })}>
-              <MuiTypography variant='h1' noWrap>
-                ModelName 
-              </MuiTypography>
+              <MuiTooltip title={ modelName } aria-label="ModelName">
+                <MuiTypography variant='h1' style ={{ width : '150px', display: 'inline-block' }} noWrap>
+                  { modelName } 
+                </MuiTypography>         
+              </MuiTooltip>
             </div>
-
           </div>
      
-         
           <div className={classes.toolBarRightContent}>
           
           <div className={classes.divIcon}  >
