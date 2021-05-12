@@ -44,7 +44,7 @@ function Viewer(){
         viewerAPIProxy
           .showModel(activeViewerID)
           .then((response1 : string) => {
-            console.log("Showing Model : " + response1);  
+           //("Showing Model : " + response1);  
             tree.current = viewerAPIProxy.getProductTree(activeViewerID) as any; 
             if(tree.current)
             {
@@ -62,7 +62,7 @@ function Viewer(){
             dispatch(fetchSearchHints());
             }
 
-           // console.log("Showing Model : " + response1);   
+           //console.log("Showing Model : " + response1);   
             /*       
             setTimeout(() => {
               viewerAPIProxy.fitView(activeViewerID);
@@ -124,7 +124,7 @@ function Viewer(){
               eventDispatcher?.addEventListener(
                 events.viewerEvents.MODEL_PART_HIGHLIGHTED,
                 (event: any) => {
-                  console.log(event);
+                  //console.log(event);
                   const toHighlight = event.data.isHighlighted;
                   const nodeIds = event.data.nodeIds
                   if(nodeIds.length > 0)

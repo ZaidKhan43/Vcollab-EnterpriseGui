@@ -77,7 +77,7 @@ function DisplayModesBody() {
             }
           });
         }
-      // console.log(panelsData);
+      //console.log(panelsData);
     };
 
     const handleDownload = (menuIndex:number, pannelIndex:number) => {

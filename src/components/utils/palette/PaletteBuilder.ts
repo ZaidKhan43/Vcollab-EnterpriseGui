@@ -121,7 +121,7 @@ export class Palette {
         this.ticks = LegendTicsType.OUTSIDE
     }
     draw(ctx:CanvasRenderingContext2D) {
-        console.log("drawn")
+        //console.log("drawn")
         ctx.font = this.font;
         ctx.textAlign = this.textAlign as any;
         ctx.textBaseline = this.baseline as any;

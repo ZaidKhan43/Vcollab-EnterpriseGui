@@ -12,31 +12,25 @@ import FullscreenClose from '../../icons/fullscreen_exit';
 import Hamburger from '../../icons/hamburger';
 import More from '../../icons/more';
 
-import { selectModelName, selectFullscreenStatus,selectSidebarVisibility,selectDarkModeEnable, selectActiveViewerID,setFullscreenState, setSidebarVisibility , setDarkModeEnable, setPopupMenuActiveContent} from '../../../store/appSlice';
+import { selectModelName, selectFullscreenStatus,selectSidebarVisibility,selectDarkModeEnable, selectActiveViewerID,setFullscreenState, setSidebarVisibility , setDarkModeEnable} from '../../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
-import { popupMenuContentTypes } from '../../../config';
-
-//toggle button
-import Switch from "@material-ui/core/Switch";
+//import { popupMenuContentTypes } from '../../../config';
 
 import * as viewerAPIProxy from '../../../backend/viewerAPIProxy';
-import Shaded from "../../../assets/views/shaded";
-import ShadedMesh from "../../../assets/views/shadedMesh";
-import BoundingBox from "../../../assets/views/boundingBox";
-import HiddenLine from "../../../assets/views/hiddenLine";
-import Wireframe from "../../../assets/views/wireframe";
-import Point from "../../../assets/views/point";
-import Transparent from "../../../assets/views/transparent";
+
+import Shaded from "../../icons/shaded";
+import ShadedMesh from "../../icons/shadedMesh";
+import BoundingBox from "../../icons/boundingBox";
+import HiddenLine from "../../icons/hiddenLine";
+import Wireframe from "../../icons/wireframe";
+import Point from "../../icons/point";
+import Transparent from "../../icons/transparent";
 
 import MuiCameraAltOutlinedIcon from '@material-ui/icons/CameraAltOutlined';
 import MuiUpdateOutlinedIcon from '@material-ui/icons/UpdateOutlined';
 
-import MuiMenuItem from "@material-ui/core/MenuItem";
-import MuiMenuList from "@material-ui/core/MenuList";
-import { Popover,Popper } from "@material-ui/core";
-
 import MuiClickAwayListener from '@material-ui/core/ClickAwayListener';
-import DropDown from '../../../components/common/dropDown';
+import DropDown from '../../../components/shared/dropDown';
 //toggle button
 import MuiSwitch from "@material-ui/core/Switch";
 
@@ -79,14 +73,14 @@ function AppBar() {
     const OnClickFullscreen = function(){
       dispatch(setFullscreenState(!isFullscreenEnabled));
     }
-
+    /*
     const OnClickDisplaymode = function(){
       dispatch(setPopupMenuActiveContent(popupMenuContentTypes.displayModes));
     }
     const OnClickMore= function(){
       dispatch(setPopupMenuActiveContent(popupMenuContentTypes.more));
     }
-
+    */
     const OnClickFitview = function(){
       viewerAPIProxy.fitView(activeViewerID);
     }
