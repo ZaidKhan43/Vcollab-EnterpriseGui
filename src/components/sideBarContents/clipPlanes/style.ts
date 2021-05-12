@@ -26,14 +26,13 @@ export default makeStyles((theme) => (
       
   list:{
     position: "absolute",
-    left: "5%",
-    right: "-40%",
+    width:"100%",
   },
     
   listItem: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "flex-start",
+    // justifyContent: "flex-start",
     width: "100%",
     padding: 1,
     color: theme.palette.text.primary,
@@ -50,7 +49,7 @@ export default makeStyles((theme) => (
   listItemClicked: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "flex-start",
+    // justifyContent: "flex-start",
     width: "100%",
     padding: 1,
     background: theme.palette.action.selected,
@@ -61,7 +60,19 @@ export default makeStyles((theme) => (
   
   listItemText: {
     color: theme.palette.text.primary,
+    whiteSpace: "nowrap",
+    overflow:"hidden",
+    textOverflow:"ellipsis",
     fontSize: "18px",
+  },
+
+  listItemAsHeading: {
+    color: theme.palette.text.primary,
+    width:"120px",
+    whiteSpace: "nowrap",
+    overflow:"hidden",
+    textOverflow:"ellipsis",
+    fontSize: "17px",
   },
   
   displayOption: {

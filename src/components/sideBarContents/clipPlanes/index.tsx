@@ -215,14 +215,14 @@ export default function ClipPlanes(){
                                       classes.listItem 
                                     : classes.listItem} 
                   >
+                     <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/>
                     <MuiTypography className={classes.listItemText}>
-                      <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/>
                       {item.name}
                    </MuiTypography>
                   </div>
                 :
                   <div className={classes.listItemClicked}>
-                 <MuiTypography className={classes.listItemText} >
+                 <MuiTypography >
                   <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/>
                   <MuiInput value={editName}
                   onChange={onHandlePlateNameEdit}

@@ -125,7 +125,7 @@ export default function ClipPlanes(props : any){
             </MuiTypography>
           </Grid>
           <Grid item xs>
-            <MuiTypography variant="h2" noWrap style={{marginLeft :"-10px"}}> 
+            <MuiTypography variant="h2" noWrap className={classes.listItemAsHeading}> 
               {props.clicked.name}
             </MuiTypography>
           </Grid>
