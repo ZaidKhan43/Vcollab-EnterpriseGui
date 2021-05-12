@@ -3,10 +3,13 @@ import appSlice from './appSlice';
 import productTreeSlice from './sideBar/productTreeSlice';
 import displayModesSlice from './sideBar/displayModesSlice';
 import toastSlice from "./toastSlice";
+import clipSlice from './clipSlice';
+
 const store = configureStore({
     reducer:
       combineReducers({
         app: appSlice,
+        clip: clipSlice,
         productTree: productTreeSlice,
         displayModes: displayModesSlice,
         toast: toastSlice

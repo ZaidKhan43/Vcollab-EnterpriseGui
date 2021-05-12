@@ -20,6 +20,28 @@ import { popupMenuContentTypes } from '../../../config';
 import Switch from "@material-ui/core/Switch";
 
 import * as viewerAPIProxy from '../../../backend/viewerAPIProxy';
+import Shaded from "../../../assets/views/shaded";
+import ShadedMesh from "../../../assets/views/shadedMesh";
+import BoundingBox from "../../../assets/views/boundingBox";
+import HiddenLine from "../../../assets/views/hiddenLine";
+import Wireframe from "../../../assets/views/wireframe";
+import Point from "../../../assets/views/point";
+import Transparent from "../../../assets/views/transparent";
+
+import MuiCameraAltOutlinedIcon from '@material-ui/icons/CameraAltOutlined';
+import MuiUpdateOutlinedIcon from '@material-ui/icons/UpdateOutlined';
+
+import MuiMenuItem from "@material-ui/core/MenuItem";
+import MuiMenuList from "@material-ui/core/MenuList";
+import { Popover,Popper } from "@material-ui/core";
+
+import MuiClickAwayListener from '@material-ui/core/ClickAwayListener';
+import DropDown from '../../../components/common/dropDown';
+//toggle button
+import MuiSwitch from "@material-ui/core/Switch";
+
+import {useState} from "react";
+
 
 import  styles from './style';
 
@@ -32,6 +54,27 @@ function AppBar() {
     const activeViewerID = useAppSelector(selectActiveViewerID);
     const modelName = useAppSelector(selectModelName);
     const dispatch = useAppDispatch();  
+
+    const [moreAnchorEl, setMoreAnchorEl] = useState(null);
+    const [displayAnchorEl, setDisplayAnchorEl] = useState(null);
+    const [clickedMenu, setClickedMenu] = useState<any>(null);
+
+    const displayMenuItems = [
+      { title: "Bounding Box", icon: BoundingBox,id:"DM_1", disabled : false },
+      { title: "Feature Edge", icon: Shaded,id:"DM_8", disabled : true},
+      { title: "Simplified Mesh", icon: Shaded,id:"DM_9", disabled : true},
+      { title: "Shaded", icon: Shaded,id:"DM_5", disabled : false},
+      { title: "Wireframe", icon: Wireframe,id:"DM_3", disabled : false},
+      { title: "Shaded Mesh", icon: ShadedMesh,id:"DM_6", disabled : false},  
+      { title: "Hidden Line", icon: HiddenLine,id:"DM_4", disabled : false},
+      { title: "Transparant", icon: Transparent,id:"DM_7", disabled : false},
+      { title: "Point", icon: Point,id:"DM_2", disabled : false},   
+    ];
+
+    const moreMenuItems = [
+      { title: "Status", icon: MuiUpdateOutlinedIcon },
+      { title: "Capture", icon: MuiCameraAltOutlinedIcon },
+    ];
 
     const OnClickFullscreen = function(){
       dispatch(setFullscreenState(!isFullscreenEnabled));
@@ -56,6 +99,22 @@ function AppBar() {
 
     const handleThemeChange = function() {
       dispatch(setDarkModeEnable (!isDarkModeEnable));
+    }
+
+    const handleClick = (e: any, name : any) => {
+      if(name === "display"){
+        setClickedMenu("display");
+      setDisplayAnchorEl(displayAnchorEl ? null : e.currentTarget)
+      setMoreAnchorEl(null);
+      
+      }
+      
+      else if (name === "more"){
+        setClickedMenu("more");
+        setMoreAnchorEl(moreAnchorEl ? null : e.currentTarget)
+        setDisplayAnchorEl(null);
+      }
+      
     }
 
     return (
@@ -83,26 +142,41 @@ function AppBar() {
           <div className={classes.toolBarRightContent}>
           
           <div className={classes.divIcon}  >
-               <MuiIconButton> <Switch checked={isDarkModeEnable} onChange={handleThemeChange} /> </MuiIconButton>
+               <MuiIconButton> <MuiSwitch checked={isDarkModeEnable} onChange={handleThemeChange} /> </MuiIconButton>
           </div>
-              <div className={classes.divIcon} onClick={ OnClickDisplaymode } >
-                    <MuiIconButton><Displaymodes /></MuiIconButton> 
+              <div className={classes.divIcon}  >
+                    <MuiIconButton onClick={(e) => handleClick(e,"display") }><Displaymodes /></MuiIconButton> 
               </div>
               <div className={classes.divIcon} onClick={ OnClickFitview }>
                  <MuiIconButton><Fitview/></MuiIconButton>
               </div>
-              <div className={classes.divIcon} onClick={ OnClickMore }>
-                  <MuiIconButton><More /></MuiIconButton>
+              <div className={classes.divIcon} >
+                  <MuiIconButton onClick={(e) => handleClick(e,"more") }><More /></MuiIconButton>
               </div>
              
               <div className={classes.divIcon} onClick={ OnClickFullscreen }>
                 {(isFullscreenEnabled ?
                   <MuiIconButton><FullscreenClose  /></MuiIconButton>  :
-                  <MuiIconButton><Fullscreen /> </MuiIconButton> 
+                 <MuiIconButton><Fullscreen /> </MuiIconButton> 
                 )}
               </div>
+              <MuiClickAwayListener onClickAway={() => {  
+                if(clickedMenu === "more" || clickedMenu === "display")
+                  setClickedMenu(null);
+                else{
+                  setDisplayAnchorEl(null);
+                  setMoreAnchorEl(null);
+                }
+              }}>
+                <div>
+                  <DropDown  open={Boolean(displayAnchorEl)} ancgorEl={displayAnchorEl} items={displayMenuItems}  size={true}/>
+                  <DropDown open={Boolean(moreAnchorEl)} ancgorEl={moreAnchorEl} items={moreMenuItems}  style={{backgroundColor: "#171727",opacity:"70%", borderRadius: "0px",marginTop: "58px",marginLeft:"85%",boxShadow: "none",}} size={false}/>
+                </div>
+         </MuiClickAwayListener>
           </div>
+          
         
+         
         </MuiToolbar>     
       </MuiAppBar>
     );
