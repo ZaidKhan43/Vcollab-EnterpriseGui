@@ -150,7 +150,7 @@ export default function ClipPlanes(){
   const displayClicked = () => {
     const displayClick :any = planes.find((item : any )=> item.id === clickedVal.id);
     return(
-      <div  className={classes.displayList}>
+      <div  className={classes.displayList}> 
         <MuiTypography className={classes.listItem} noWrap onClick={() =>onHandleClip(clickedVal, "showClip")}>
           <MuiCheckbox color="default" checked ={displayClick.showClip} />
           Show Clip Plate
