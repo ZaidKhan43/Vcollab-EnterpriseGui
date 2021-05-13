@@ -50,7 +50,7 @@ export default function RotateSlider( props : any ){
                 onChange={onChangeHandle}
                 renderLabelValue ={
                     <div className={classes.circularSlider}>
-                        <div onClick={() => onChangeHandle(value+1)}><MuiPlusIcon style={{fontSize:"10px"}}/></div>
+                        <div onClick={() => onChangeHandle(value+1)}><MuiPlusIcon className={classes.circularSliderButton}/></div>
                         <NumericInput
                         noStyle
                         className={classes.cicularSliderInput}
@@ -62,7 +62,7 @@ export default function RotateSlider( props : any ){
                         mobile={false}
                         onChange={props.functionTwo}
                         />
-                         <div onClick={() => onChangeHandle(value - 1)}><MuiMinusIcon style={{fontSize:"10px"}}/></div>
+                         <div onClick={() => onChangeHandle(value - 1)}><MuiMinusIcon className={classes.circularSliderButton}/></div>
                     </div>
                 }
             />
