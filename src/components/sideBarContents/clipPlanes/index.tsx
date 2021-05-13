@@ -150,7 +150,7 @@ export default function ClipPlanes(){
   const displayClicked = () => {
     const displayClick :any = planes.find((item : any )=> item.id === clickedVal.id);
     return(
-      <div  className={classes.displayList} style={{top:"55%", marginTop:"20px",}}>
+      <div  className={classes.displayList}>
         <MuiTypography className={classes.listItem} noWrap onClick={() =>onHandleClip(clickedVal, "showClip")}>
           <MuiCheckbox color="default" checked ={displayClick.showClip} />
           Show Clip Plate
@@ -202,7 +202,7 @@ export default function ClipPlanes(){
           <MuiIconButton style={{right: "6.5%",}} onClick={() => onClickAddItem()}><AddIcon/></MuiIconButton>
 
         </div> */}
-        <div className={classes.list}>
+        <div className={clickedVal ? classes.listClick : classes.listClickNo}>
           {
             planes.map((item : any, index : number) =>
               <div key={ 'divRoot_' + index }>
@@ -242,7 +242,7 @@ export default function ClipPlanes(){
         </div>
         <div>
           {clickedVal ? 
-            <div style={{position:"absolute",top:"50%",width:"100%",paddingTop:"5px"}}>
+            <div style={{position:"fixed",top:"50%",marginTop:"10px",width:"100%"}}>
               <MuiTypography className={classes.heading} variant='h1' noWrap>
                 Display Options
               </MuiTypography>

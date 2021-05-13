@@ -15,7 +15,11 @@ import Slider from '@material-ui/core/Slider';
 import Triangle from '../../../components/icons/triangle'
 import ThreePoints from '../../../components/icons/threePoints'
 
-import NumericInput from '../../shared/numericInput'
+
+// import NumericInput from '../../shared/numericInput'
+
+import NumericInput from 'react-numeric-input';
+
 
 import MuiInput from '@material-ui/core/Input';
 import MuiButton from '@material-ui/core/Button';
@@ -140,7 +144,7 @@ export default function ClipPlanes(props : any){
     return (
       <div 
       className={classes.scrollBar}
-      style={{position:"absolute",top:"40px",bottom:"10px", }}
+      style={{position:"relative"}}
       >
         <MuiTypography className={classes.listSub} noWrap>
           Plane Equation
@@ -156,10 +160,7 @@ export default function ClipPlanes(props : any){
               button={"no"}
               format={() => clipCordX + "X"}
               margin="dense"
-              inputProps={{
-                'aria-labelledby': 'input-slider', 
-                type: 'number',
-              }}
+              noStyle
               onChange={(value : any) => OnHandleEquation(value,"clipCordX")} 
               />
               <MuiTypography className={classes.buttonIcon}>
@@ -171,10 +172,7 @@ export default function ClipPlanes(props : any){
               button={"no"}
               format={() => clipCordY + "Y"}
               margin="dense"
-              inputProps={{
-                'aria-labelledby': 'input-slider', 
-                type: 'number',
-              }}
+              noStyle
               onChange={(value : any) => OnHandleEquation(value,"clipCordY")} 
             />
             <MuiTypography className={classes.buttonIcon}>
@@ -186,10 +184,7 @@ export default function ClipPlanes(props : any){
               button={"no"}
               format={() => clipCordZ + "Z"}
               margin="dense"
-              inputProps={{
-                'aria-labelledby': 'input-slider',
-                type: 'number', 
-              }}
+              noStyle
               onChange={(value : any) => OnHandleEquation(value, "clipCordZ")} 
             />
             <MuiTypography className={classes.buttonIcon}>
@@ -200,10 +195,7 @@ export default function ClipPlanes(props : any){
               value={clipConstD}
               button={"no"}
               margin="dense"
-              inputProps={{
-                'aria-labelledby': 'input-slider', 
-                type: 'number',
-              }}
+              noStyle
               onChange={(value : any) => OnHandleEquation(value, "clipConstD")} 
             />
           </div>
@@ -260,7 +252,7 @@ export default function ClipPlanes(props : any){
             </Grid>
           <Grid item style={{marginRight:"5%"}}>
             <MuiInput
-              className={classes.inputOne}
+              className={classes.inputTranslate}
               value={translate}
               margin="dense"
               inputProps={{

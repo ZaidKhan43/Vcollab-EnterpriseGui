@@ -1,10 +1,13 @@
 // import MuiInput from '@material-ui/core/Input';
-import NumericInput from '../../shared/numericInput'
+import NumericInput from 'react-numeric-input';
 // import NumericInput from 'react-numeric-input';
 import CircularSlider from '@fseehawer/react-circular-slider';
 import MuiTypgraphy from '@material-ui/core/Typography';
 import styles from './style';
 import React, { useState, useEffect } from "react";
+
+import MuiPlusIcon from '@material-ui/icons/Add';
+import MuiMinusIcon from '@material-ui/icons/Remove';
 
 export default function RotateSlider( props : any ){
 
@@ -47,8 +50,10 @@ export default function RotateSlider( props : any ){
                 onChange={onChangeHandle}
                 renderLabelValue ={
                     <div className={classes.circularSlider}>
-                        <NumericInput style={{input:{ fontSize:"12px",},}}
-                        className={classes.clicularSliderInputOne}
+                        <div onClick={() => onChangeHandle(value+1)}><MuiPlusIcon style={{fontSize:"10px"}}/></div>
+                        <NumericInput
+                        noStyle
+                        className={classes.cicularSliderInput}
                         format={() => props.value + "°"}
                         value={props.value}
                         precision={4}
@@ -56,9 +61,8 @@ export default function RotateSlider( props : any ){
                         max={359.9}
                         mobile={false}
                         onChange={props.functionTwo}
-                        // classes={classes.button}
                         />
-                        {/* <div onClick={() => onHandleClick("Sub")}>-</div> */}
+                         <div onClick={() => onChangeHandle(value - 1)}><MuiMinusIcon style={{fontSize:"10px"}}/></div>
                     </div>
                 }
             />

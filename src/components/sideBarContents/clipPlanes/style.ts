@@ -21,17 +21,33 @@ export default makeStyles((theme) => (
   },
   buttonNil: {
   },
-  // headerIcon:{
-  //   width : 48,
-  //   height: 48,
-  // },
       
-  list:{
+  listClick:{
     position: "absolute",
     overflowY: "auto",
     overflowX:"hidden",
     listStyle: "none",
     height: "42%",
+    width:"100%",
+    '&::-webkit-scrollbar': {
+      width: '0.4em'
+    },
+    '&::-webkit-scrollbar-track': {
+      boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+      webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'rgba(0,0,0,.1)',
+      outline: '1px solid slategrey'
+    },
+  },
+
+  listClickNo:{
+    position: "absolute",
+    overflowY: "auto",
+    overflowX:"hidden",
+    listStyle: "none",
+    height: "70%",
     width:"100%",
     '&::-webkit-scrollbar': {
       width: '0.4em'
@@ -97,24 +113,12 @@ export default makeStyles((theme) => (
     fontSize: "17px",
   },
   
-  // displayOption: {
-  //   display: "flex",
-  //   alignItems: "center",
-  //   justifyContent: "flex-start",
-  //   padding: 12,
-  //   marginTop:"%",
-  //   color: theme.palette.text.primary,
-  // },
-  
-  displayList:{
-    // position:"absolute",
-    // paddingLeft: "5%",
-    // right: "-100%", 
+  displayList:{ 
     position: "fixed",
       overflowY: "auto",
     overflowX:"hidden",
     listStyle: "none",
-    height: "25%",
+    height: "22%",
     width:"27%",
     '&::-webkit-scrollbar': {
       width: '0.4em'
@@ -170,21 +174,22 @@ export default makeStyles((theme) => (
     
   },
 
-  clicularSliderInputOne: {
+  cicularSliderInput: {
     color:theme.palette.text.primary,
     background:"none",
     border: "1px solid",
     borderColor: theme.palette.text.primary ,
-    marginTop:"-50%",
-    // paddingLeft:"20%",
-    paddingTop:"10%",
-    width:"100%",
-    // left:"70%",
-    // top:"10%",
-    right:"10%",
-    fontSize:"4px",
+    marginTop:"-60%",
+    textAlign:"center",
+    width:"80%",
+    fontSize:"14px",
     zIndex: 10,
     size: 4,
+  },
+
+  circularSliderButton:{
+    color:theme.palette.text.primary,
+    fontSize:"10px",
   },
 
   input :{
@@ -194,7 +199,7 @@ export default makeStyles((theme) => (
   paddingLeft:"10%",
 },
 
-inputOne :{
+inputTranslate :{
   color: theme.palette.text.primary, 
   paddingLeft: "30%",
   textAlign: "center",
@@ -203,16 +208,16 @@ inputOne :{
 },
 
 inputEquation:{
-  // width:"40px",
-  color: theme.palette.text.primary, 
-  textAlign:"center",
-  border: "1px solid",
-  boderColor: theme.palette.text.primary,
-  paddingLeft:"10px",
+  color:theme.palette.text.primary,
   background:"none",
+  border: "1px solid",
   borderColor: theme.palette.text.primary ,
-  fontSize:"4px",
-  width:"100%",
+  marginTop:"-60%",
+  textAlign:"center",
+  width:"80%",
+  fontSize:"16px",
+  zIndex: 10,
+  size: 4,
 },
 
   caption: {
@@ -237,30 +242,13 @@ inputEquation:{
     fontSize: "3em"
   },
   
-  footerCard:{
-    // height:"45px",
-    // position: 'absolute',
-    // background:'transparent',
-    // left: 0,
-    // bottom: 0,
-    // textAlign: 'center',
-    // width : '100%',
-    // borderTopLeftRadius: 10,
-    // borderTopRightRadius: 10,
-    // boxShadow: theme.shadows[20],
-    // borderRadius:"10px 10px 0 0",
-    // right: -20,
-    // padding: "5px -20px 0px 20px",
-
-  },
-
   scrollBar: {
     overflowY: "auto",
     overflowX:"hidden",
     // margin: 0,
     // padding: 0,
     listStyle: "none",
-    height: "85%",
+    height: "99%",
     width:"100%",
     '&::-webkit-scrollbar': {
       width: '0.4em'
@@ -275,4 +263,21 @@ inputEquation:{
     },
   },
   
+  footerCard:{
+    // height:"45px",
+    // position: 'absolute',
+    // background:theme.palette.text.secondary,
+    // left: 0,
+    // bottom: 0,
+    // textAlign: 'center',
+    // width : '100%',
+    // borderTopLeftRadius: 10,
+    // borderTopRightRadius: 10,
+    // boxShadow: theme.shadows[20],
+    // borderRadius:"10px 10px 0 0",
+    // right: -20,
+    // padding: "5px -20px 0px 20px",
+
+  },
+
 }));
