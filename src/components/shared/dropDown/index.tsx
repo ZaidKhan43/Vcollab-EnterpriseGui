@@ -34,13 +34,11 @@ export default function DropDown (props : any) {
       <MuiPopper className={classes.popper} disablePortal id="display-menu" open={props.open} anchorEl={props.anchorEl} >
         <MuiMenuList id="simple-menu"  >
           {props.items.map((item :any,index : any)=>(
-            <div>
               <MuiMenuItem className={classes.icon}  key={index} onClick={() => showAlert(item)} disabled = {item.disabled === true}>
                 <MuiIcon><item.icon/></MuiIcon>
                 <MuiTypography  className={classes.listItem} variant="h2">{item.title} </MuiTypography>
                 {props.size ?  <MuiTypography  className={classes.listItemSize} variant="subtitle1">0 B</MuiTypography> : null}
               </MuiMenuItem>
-            </div> 
           ))}
         </MuiMenuList>
       </MuiPopper>   

@@ -1,5 +1,5 @@
 // import MuiInput from '@material-ui/core/Input';
-import NumericInput from '../../common/numericInput'
+import NumericInput from '../../shared/numericInput'
 // import NumericInput from 'react-numeric-input';
 import CircularSlider from '@fseehawer/react-circular-slider';
 import MuiTypgraphy from '@material-ui/core/Typography';
@@ -24,7 +24,7 @@ export default function RotateSlider( props : any ){
        
     }
     
-console.log(value)
+//console.log(value)
     return(
         <div className={classes.rotate}>
             <CircularSlider 

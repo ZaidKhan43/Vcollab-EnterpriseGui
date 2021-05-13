@@ -20,7 +20,7 @@ import MuiErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined
 
 import AddIcon from "../../../components/icons/plus";
 
-import DialogBox from "../../../components/common/dialogBox"
+import DialogBox from "../../../components/shared/dialogBox"
 
 // import Edit from "../../../assets/images/edit.svg";
 // import Copy from "../../../assets/images/copy.svg";
@@ -31,8 +31,8 @@ import DialogBox from "../../../components/common/dialogBox"
 
 import ClipPlane from "./clipPlane"
 
-import {editEnabled} from "../../../store/clipSlice";
-import {createPlane, editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlaneName} from "../../../store/clipSlice";
+import {editEnabled} from "../../../store/sideBar/clipSlice";
+import {createPlane, editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlaneName} from "../../../store/sideBar/clipSlice";
 
 
 export default function ClipPlanes(){
@@ -131,22 +131,26 @@ export default function ClipPlanes(){
   }
 
   const onHandlePlateKey = (e : any, item : any) => {
-      if (e.key === 'Enter') {
+    if (e.key === 'Enter') {
+      setEditPlane(null)
+      console.log(item, editName)
+      if(editName === "")
         setEditPlane(null)
-        console.log(item, editName)
-        const hello = {id : item.id, editName : editName}
-        dispatch(editPlaneName(hello))
+      else{
+      const hello = {id : item.id, editName : editName}
+      dispatch(editPlaneName(hello))
       }
-      if (e.keyCode === 27) {
-        e.preventDefault();
-        setEditPlane(null)
-      }
-  }
+    }
+    if (e.keyCode === 27) {
+      e.preventDefault();
+      setEditPlane(null)
+    }
+}
 
   const displayClicked = () => {
     const displayClick :any = planes.find((item : any )=> item.id === clickedVal.id);
     return(
-      <div  className={classes.displayList}>
+      <div  className={classes.displayList} style={{top:"55%", marginTop:"20px",}}>
         <MuiTypography className={classes.listItem} noWrap onClick={() =>onHandleClip(clickedVal, "showClip")}>
           <MuiCheckbox color="default" checked ={displayClick.showClip} />
           Show Clip Plate
@@ -200,11 +204,11 @@ export default function ClipPlanes(){
         </div> */}
         <div className={classes.list}>
           {
-            planes.map((item : any) =>
-              <div>
+            planes.map((item : any, index : number) =>
+              <div key={ 'divRoot_' + index }>
                 { editPlane !== item.id 
                   ?
-                  <div  onClick={() => onHandleClick(item)}
+                  <div key={ 'divChild_' + index }  onClick={() => onHandleClick(item)}
                     onDoubleClick={() => {setEditPlane(item.id);setClickedVal(null); SetEditName(item.name)}} 
                     className={clickedVal 
                                 ? 
@@ -215,14 +219,14 @@ export default function ClipPlanes(){
                                       classes.listItem 
                                     : classes.listItem} 
                   >
-                     <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/>
                     <MuiTypography className={classes.listItemText}>
+                      <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/>
                       {item.name}
                    </MuiTypography>
                   </div>
                 :
-                  <div className={classes.listItemClicked}>
-                 <MuiTypography >
+                  <div key={ 'divChild_' + index } className={classes.listItemClicked}>
+                 <MuiTypography className={classes.listItemText} >
                   <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/>
                   <MuiInput value={editName}
                   onChange={onHandlePlateNameEdit}
@@ -236,9 +240,9 @@ export default function ClipPlanes(){
             )
           }
         </div>
-        <div style={{paddingTop:"110%"}}>
+        <div>
           {clickedVal ? 
-            <div>
+            <div style={{position:"absolute",top:"50%",width:"100%",paddingTop:"5px"}}>
               <MuiTypography className={classes.heading} variant='h1' noWrap>
                 Display Options
               </MuiTypography>
@@ -260,24 +264,24 @@ export default function ClipPlanes(){
           ? 
             <div style={{marginLeft:"10px", marginRight:"10px"}}>
               <div style={{display: "flex",alignItems: "center",justifyContent: "space-between",}}>
-              <MuiIconButton style={{}}> 
-                <MuiEditIcon onClick={() => onHandleEdit()}/>
+              <MuiIconButton  onClick={() => onHandleEdit()} style={{}}> 
+                <MuiEditIcon/>
               </MuiIconButton>
-              <MuiIconButton style={{ }}> 
-              <MuiFileCopyOutlinedIcon onClick={() => onHandleCopy(planes.find((item : any )=> 
-                item.id === clickedVal.id))}/>
+              <MuiIconButton style={{ }} onClick={() => onHandleCopy(planes.find((item : any )=> 
+                item.id === clickedVal.id))}> 
+              <MuiFileCopyOutlinedIcon />
               </MuiIconButton>
               {copied 
                 ? 
                 <div>
                   { planes.length === limit 
                     ?
-                      <MuiIconButton disabled style={{ }}>
-                        <MuiPaste onClick={() => onHandlePaste(copy)}/>
+                      <MuiIconButton disabled style={{ }} onClick={() => onHandlePaste(copy)}>
+                        <MuiPaste />
                       </MuiIconButton>  
                     :
-                      <MuiIconButton style={{ }}>
-                        <MuiPaste onClick={() => onHandlePaste(copy)}/>
+                      <MuiIconButton style={{ }} onClick={() => onHandlePaste(copy)}>
+                        <MuiPaste/>
                       </MuiIconButton>  
                   }
                  </div>
@@ -287,32 +291,32 @@ export default function ClipPlanes(){
                   </MuiIconButton>
               }
               
-              <MuiIconButton style={{ }}> 
-                <MuiDeleteForeverOutlinedIcon onClick={() => setOpenDialog(!openDialog)} />
+              <MuiIconButton  onClick={() => setOpenDialog(!openDialog)}  style={{ }}> 
+                <MuiDeleteForeverOutlinedIcon/>
               </MuiIconButton>  
               </div>
             </div>
           : 
           <div style={{marginLeft:"10px", marginRight:"10px"}}>
           <div style={{display: "flex",alignItems: "center",justifyContent: "space-between",}}>
-          <MuiIconButton disabled style={{}}> 
-            <MuiEditIcon onClick={() => onHandleEdit()}/>
+          <MuiIconButton disabled style={{}} onClick={() => onHandleEdit()} > 
+            <MuiEditIcon />
           </MuiIconButton>
-          <MuiIconButton disabled style={{ }}> 
-          <MuiFileCopyOutlinedIcon onClick={() => onHandleCopy(planes.find((item : any )=> 
-            item.id === clickedVal.id))}/>
+          <MuiIconButton disabled style={{ }} onClick={() => onHandleCopy(planes.find((item : any )=> 
+            item.id === clickedVal.id))}> 
+          <MuiFileCopyOutlinedIcon />
           </MuiIconButton>
           {copied 
                 ? 
                 <div>
                 { planes.length === limit 
                   ?
-                    <MuiIconButton disabled style={{ }}>
-                      <MuiPaste onClick={() => onHandlePaste(copy)}/>
+                    <MuiIconButton disabled style={{ }} onClick={() => onHandlePaste(copy)}>
+                      <MuiPaste />
                     </MuiIconButton>  
                   :
-                    <MuiIconButton style={{ }}>
-                      <MuiPaste onClick={() => onHandlePaste(copy)}/>
+                    <MuiIconButton style={{ }} onClick={() => onHandlePaste(copy)}>
+                      <MuiPaste />
                     </MuiIconButton>  
                 }
                </div>
@@ -321,8 +325,8 @@ export default function ClipPlanes(){
                      <MuiPaste/>
                   </MuiIconButton>
               }
-          <MuiIconButton disabled style={{ }}> 
-                <MuiDeleteForeverOutlinedIcon onClick={() => setOpenDialog(!openDialog)} />
+          <MuiIconButton disabled style={{ }}  onClick={() => setOpenDialog(!openDialog)} > 
+                <MuiDeleteForeverOutlinedIcon/>
               </MuiIconButton>  
           </div>
           </div>

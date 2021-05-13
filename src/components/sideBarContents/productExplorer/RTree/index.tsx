@@ -1,5 +1,4 @@
-import React, {useState} from 'react'
-import useLoadCss from "../../../../customHooks/useLoadCss";
+import React, {useCallback, useEffect, useRef, useState} from 'react'
 import useContainer from '../../../../customHooks/useContainer';
 import { Table ,Column, ColumnGroup, HeaderCell, Cell, } from 'rsuite-table';
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
@@ -22,55 +21,61 @@ const useRTreeOverrideStyles = makeStyles((theme) => ({
         position: 'absolute',
         background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.5)':'rgba(25, 25, 25, 0.5)',
         borderRadius: '4px'
-      },
-      '':{
-
       }
   },
   rightColumn: {
       '& .rs-table-cell-group-fixed-right': {
-        background: 'transparent',
-        
+        background:'transparent'
       }
+    },
+    invertCell: {
+      zIndex: '10!important' as any,
+      left: '10px!important'
     }
 })) 
 
 function RTree(props:any) {
-    // need for future use
-    // eslint-disable-next-line 
-    const updateCssPath = useLoadCss('./globalStyles/RTreeStylesOverrideDark.css');
-    const {containerRef, containerHeight} = useContainer();
-    const treeData = useAppSelector(selectProductTreeData);
-    const dispatch = useAppDispatch()
-    const expandedNodes:string[] = [];
-    
-    const getNode = (id:string) => treeData[id];
-    const createTreeNode = (id:string,data:Map<string,ITreeNode>) => {
-      let node = getNode(id);
-      if(node) {
-        if(node.state.expanded) {
-          expandedNodes.push(node.id);
-        }
-        let children:any[] = [];
-        if(node.children.length > 0)
-        {
-          children = node.children.map((c:string) => createTreeNode(c,data));
-        }
-        return {
-          id: node.id,
-          pid: node.pid,
-          title: node.title,
-          children
-        }
-      }
 
-    }
-    const convertListToTree = (data:Map<string,ITreeNode>,rootIds:string[]) => {
-      let root = [createTreeNode(rootIds[0],data)];
-      return root;
-    }
+    const containerRef = useRef(null);
+    const treeData = useAppSelector(selectProductTreeData);
+    const treeDataRef = useRef(treeData);
+    // eslint-disable-next-line
+    const [containerWidth, containerHeight] = useContainer(containerRef,[treeData]);
     const rootIds = useAppSelector(selectRootIds);
-    const [data] = useState(convertListToTree(treeData,rootIds));
+    const dispatch = useAppDispatch()
+    const [data,setData] = useState<any[]>([]);
+    // eslint-disable-next-line
+    const [expandedNodes,setExpandedNodes] = useState<string[]>([]);
+    
+    const getNode = useCallback((id:string) => treeData[id],[treeData]);
+    useEffect(() => {
+      const createTreeNode = (id:string,data:Map<string,ITreeNode>) => {
+        let node = treeDataRef.current[id];
+        if(node) {
+          if(node.state.expanded) {
+            expandedNodes.push(node.id);
+          }
+          let children:any[] = [];
+          if(node.children.length > 0)
+          {
+            children = node.children.map((c:string) => createTreeNode(c,data));
+          }
+          return {
+            id: node.id,
+            pid: node.pid,
+            title: node.title,
+            children
+          }
+        }
+  
+      }
+      const convertListToTree = (data:Map<string,ITreeNode>,rootIds:string[]) => {
+        let root = [createTreeNode(rootIds[0],data)];
+        return root;
+      }
+      if(treeDataRef.current)
+      setData(convertListToTree(treeDataRef.current,rootIds));
+    },[rootIds,expandedNodes])
     const handleExpand = (toOpen:boolean,nodeId:string) => {
       dispatch(expandNode({toOpen,nodeId}));
     }
@@ -83,7 +88,9 @@ function RTree(props:any) {
     const overrideClasses = useRTreeOverrideStyles();
       return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
-          {/*
+          {
+            
+          /*
 // @ts-ignore */}
           <Table
             className = {overrideClasses.tree}
@@ -91,20 +98,21 @@ function RTree(props:any) {
             defaultExpandedRowKeys = {expandedNodes}
             rowKey="id"
             rowHeight = {(rowData:any) => 40}
+            rowExpandedHeight = { 40}
             width={300}
-            height={containerHeight-5}
+            height={containerHeight? containerHeight - 5 : 0}
             data={data as any}
             virtualized={true}
             showHeader={false}
             onExpandChange={(isOpen:boolean, rowData:any) => {
-              handleExpand(isOpen, rowData.index);
+              handleExpand(isOpen, rowData.id);
             }}
             rowClassName={overrideClasses.rightColumn}
             renderTreeToggle={(icon, rowData:any) => {
               if (rowData.children && rowData.children.length === 0) {
                 return <div></div>;
               }
-              return icon;
+              return <div>{icon}</div>;
             }}
             affixHorizontalScrollbar
           >
@@ -125,14 +133,14 @@ function RTree(props:any) {
               }
             </Cell>
             </Column>
-            <ColumnGroup fixed= { 'right'} header="Actions" align='left' verticalAlign='middle' >
+            <ColumnGroup fixed= { 'right'} header="Actions" align='right' verticalAlign='middle' >
             <Column fixed={'right'} width={30} verticalAlign='middle' align='left'>
               {/*
  // @ts-ignore */}
               <HeaderCell>Invert</HeaderCell>
               {/*
  // @ts-ignore */}
-              <Cell align='left' verticalAlign='middle' >
+              <Cell className={overrideClasses.invertCell} align='right' verticalAlign='middle' >
                 {
                   rowData => {
                     let node = getNode(rowData.id);
@@ -143,13 +151,13 @@ function RTree(props:any) {
                 }
               </Cell>
             </Column>
-            <Column fixed={'right'} width={30} verticalAlign='middle' align='left'>
+            <Column fixed={'right'} width={40} verticalAlign='middle' align='left'>
               {/*
  // @ts-ignore */}
               <HeaderCell>ShowHide</HeaderCell>
               {/*
  // @ts-ignore */}
-              <Cell align='left' verticalAlign='middle'>
+              <Cell  align='right' verticalAlign='middle'>
                 {
                   rowData => {
                     let node = getNode(rowData.id);

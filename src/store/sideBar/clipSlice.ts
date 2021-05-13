@@ -176,8 +176,8 @@ export const clipSlice = createSlice({
         clone.name = `${clone.name} (Copy)`
         clone.checkbox= false;
         state.planes=[...state.planes, clone];
-        console.log("clone",clone)
-        console.log("After", state.planes)
+        //console.log("clone",clone)
+        //console.log("After", state.planes)
       }
     },
 

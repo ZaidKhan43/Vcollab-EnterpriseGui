@@ -1,16 +1,7 @@
-import {useState,useEffect,useRef} from 'react'
-
-function useContainer() {
-    const [containerHeight, setContainerHeight] = useState(0);
-    const containerRef = useRef<HTMLDivElement>(null);
-    useEffect(() => {
-        if(containerRef?.current)
-        {
-            setContainerHeight(containerRef.current.clientHeight);
-        }
-      }, [containerRef.current?.clientHeight])
-
-    return {containerRef, containerHeight };
+import { useResizeDetector } from 'react-resize-detector';
+function useContainer(targetRef:React.MutableRefObject<null>, deps:any[] ) {
+  const { width, height } = useResizeDetector({ targetRef });
+  return [width,height];
 }
 
 export default useContainer

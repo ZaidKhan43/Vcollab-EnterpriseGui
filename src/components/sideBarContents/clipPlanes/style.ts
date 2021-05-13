@@ -19,6 +19,8 @@ export default makeStyles((theme) => (
   button: {
     background: theme.palette.action.selected,
   },
+  buttonNil: {
+  },
   // headerIcon:{
   //   width : 48,
   //   height: 48,
@@ -26,16 +28,35 @@ export default makeStyles((theme) => (
       
   list:{
     position: "absolute",
+    overflowY: "auto",
+    overflowX:"hidden",
+    listStyle: "none",
+    height: "42%",
     width:"100%",
+    '&::-webkit-scrollbar': {
+      width: '0.4em'
+    },
+    '&::-webkit-scrollbar-track': {
+      boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+      webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'rgba(0,0,0,.1)',
+      outline: '1px solid slategrey'
+    },
+    
   },
+    
     
   listItem: {
     display: "flex",
     alignItems: "center",
+    paddingLeft:"15px",
     // justifyContent: "flex-start",
     width: "100%",
     padding: 1,
     color: theme.palette.text.primary,
+    
     '&:hover': {
       background: theme.palette.action.hover,
     },
@@ -51,6 +72,7 @@ export default makeStyles((theme) => (
     alignItems: "center",
     // justifyContent: "flex-start",
     width: "100%",
+    paddingLeft:"15px",
     padding: 1,
     background: theme.palette.action.selected,
     [theme.breakpoints.down('sm')]: {
@@ -75,19 +97,38 @@ export default makeStyles((theme) => (
     fontSize: "17px",
   },
   
-  displayOption: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    padding: 12,
-    marginTop:"%",
-    color: theme.palette.text.primary,
-  },
+  // displayOption: {
+  //   display: "flex",
+  //   alignItems: "center",
+  //   justifyContent: "flex-start",
+  //   padding: 12,
+  //   marginTop:"%",
+  //   color: theme.palette.text.primary,
+  // },
   
   displayList:{
     // position:"absolute",
-    paddingLeft: "5%",
-    // right: "-100%",     
+    // paddingLeft: "5%",
+    // right: "-100%", 
+    position: "fixed",
+      overflowY: "auto",
+    overflowX:"hidden",
+    listStyle: "none",
+    height: "25%",
+    width:"27%",
+    '&::-webkit-scrollbar': {
+      width: '0.4em'
+    },
+    '&::-webkit-scrollbar-track': {
+      boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+      webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'rgba(0,0,0,.1)',
+      outline: '1px solid slategrey'
+    },    
+    
+    
   },
 
   listSub: {
@@ -194,6 +235,44 @@ inputEquation:{
 
   largeIcon: {
     fontSize: "3em"
+  },
+  
+  footerCard:{
+    // height:"45px",
+    // position: 'absolute',
+    // background:'transparent',
+    // left: 0,
+    // bottom: 0,
+    // textAlign: 'center',
+    // width : '100%',
+    // borderTopLeftRadius: 10,
+    // borderTopRightRadius: 10,
+    // boxShadow: theme.shadows[20],
+    // borderRadius:"10px 10px 0 0",
+    // right: -20,
+    // padding: "5px -20px 0px 20px",
+
+  },
+
+  scrollBar: {
+    overflowY: "auto",
+    overflowX:"hidden",
+    // margin: 0,
+    // padding: 0,
+    listStyle: "none",
+    height: "85%",
+    width:"100%",
+    '&::-webkit-scrollbar': {
+      width: '0.4em'
+    },
+    '&::-webkit-scrollbar-track': {
+      boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+      webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'rgba(0,0,0,.1)',
+      outline: '1px solid slategrey'
+    },
   },
   
 }));

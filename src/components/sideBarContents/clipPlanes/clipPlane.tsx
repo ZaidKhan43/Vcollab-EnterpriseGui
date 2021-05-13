@@ -1,5 +1,6 @@
-import React, { useState} from "react";
+import { useState} from "react";
 import styles from './style';
+import clsx from 'clsx';
 
 import SideBarContainer from '../../layout/sideBar/sideBarContainer';
 import MuiTypography from '@material-ui/core/Typography';
@@ -14,7 +15,7 @@ import Slider from '@material-ui/core/Slider';
 import Triangle from '../../../components/icons/triangle'
 import ThreePoints from '../../../components/icons/threePoints'
 
-import NumericInput from '../../common/numericInput'
+import NumericInput from '../../shared/numericInput'
 
 import MuiInput from '@material-ui/core/Input';
 import MuiButton from '@material-ui/core/Button';
@@ -22,7 +23,7 @@ import MuiButton from '@material-ui/core/Button';
 import FlipDirectionLeft from "../../../components/icons/flipDirectionLeft";
 import FlipDirectionRight from "../../../components/icons/flipDirectionRight";
 
-import { editPlane } from '../../../store/clipSlice';
+import { editPlane } from '../../../store/sideBar/clipSlice';
 import RotateSlider from './rotateSlider'
 
 
@@ -97,7 +98,7 @@ export default function ClipPlanes(props : any){
     setClipNormalInverted(props.clicked.clipNormalInverted);
     setTranslate(props.clicked.translate);
     setRotate(props.clicked.rotate);
-    console.log("handleReset props", props.clicked.rotate)
+    //console.log("handleReset props", props.clicked.rotate)
     setXAxis(props.clicked.axisX);
     setAxisY(props.clicked.axisY);
     
@@ -135,9 +136,12 @@ export default function ClipPlanes(props : any){
   }
     
   const getBody = () => {
-    console.log("getBody",rotate)
+    //console.log("getBody",rotate)
     return (
-      <div>
+      <div 
+      className={classes.scrollBar}
+      style={{position:"absolute",top:"40px",bottom:"10px", }}
+      >
         <MuiTypography className={classes.listSub} noWrap>
           Plane Equation
         </MuiTypography>
@@ -205,7 +209,7 @@ export default function ClipPlanes(props : any){
           </div>
           <Grid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
         <Grid item xs={12} sm={6} >
-          <MuiButton className={clipPlaneMode==="Surface" ? classes.button : null} size="small"  startIcon={<Triangle />}  onClick={() => {setClipPlaneMode("Surface")}}>
+          <MuiButton className={clsx({ [classes.button]: clipPlaneMode==="Surface" })} size="small"  startIcon={<Triangle />}  onClick={() => {setClipPlaneMode("Surface")}}>
             <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
             Select Surface
             </MuiTypography>
@@ -213,7 +217,7 @@ export default function ClipPlanes(props : any){
           </MuiButton>
         </Grid>
         <Grid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
-          <MuiButton className={clipPlaneMode==="Points" ? classes.button : null} size="small" startIcon={<ThreePoints/>}   onClick={() => {setClipPlaneMode("Points")}}>
+          <MuiButton className={clsx({ [classes.button]: clipPlaneMode==="Points" })} size="small" startIcon={<ThreePoints/>}   onClick={() => {setClipPlaneMode("Points")}}>
           <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
            Select Points
             </MuiTypography>
@@ -299,27 +303,30 @@ export default function ClipPlanes(props : any){
         edited = true;
 
       return (
-        <div style={{marginBottom:"10px", marginTop:"10px"}} >
+        <div
+        // className={classes.footerCard} 
+        style={{marginBottom:"5px", marginTop:"5px",}} 
+         >
         {edited === false ? <Grid container spacing={3} >
         <Grid item xs={12} sm={4}  style={{marginLeft:"60px"}}>
-          <MuiButton disabled style={{backgroundColor:"#8C8BFF"}} variant="contained" color="primary" onClick={onHandleSave}>
+          <MuiButton disabled style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={onHandleSave}>
             Save
           </MuiButton>
         </Grid>
         <Grid item xs={12} sm={6} style={{position:"absolute",left: "50%",}}>
-          <MuiButton disabled style={{color:"#8C8BFF",}} color="primary" onClick={onHandleReset} >Reset</MuiButton>
+          <MuiButton disabled style={{color:"#8C8BFF", zIndex:10}} color="primary" onClick={onHandleReset} >Reset</MuiButton>
         </Grid>
       </Grid> 
       
       :
        <Grid container spacing={3} >
         <Grid item xs={12} sm={4} style={{marginLeft:"60px"}}>
-          <MuiButton  style={{backgroundColor:"#8C8BFF"}} variant="contained" color="primary" onClick={onHandleSave}>
+          <MuiButton  style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={onHandleSave}>
             Save
           </MuiButton>
         </Grid>
         <Grid item xs={12} sm={6} style={{position:"absolute",left: "50%",}}>
-          <MuiButton  style={{color:"#8C8BFF",}} color="primary" onClick={onHandleReset} >Reset</MuiButton>
+          <MuiButton  style={{color:"#8C8BFF", zIndex:10}} color="primary" onClick={onHandleReset} >Reset</MuiButton>
         </Grid>
       </Grid>} 
       </div>  

@@ -4,7 +4,7 @@ import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
 import { setModelInfo, setModelLoadedState, setModelLoadingStatus } from '../../store/appSlice';
 import { useAppDispatch } from '../../store/storeHooks';
-import { saveTree, setHightLightedNodesAsync } from "../../store/sideBar/productTreeSlice";
+import {saveTree, fetchSearchHints,setHightLightedNodesAsync } from "../../store/sideBar/productTreeSlice";
 import { addViewer } from '../../store/appSlice';
 
 function Viewer(){
@@ -44,7 +44,7 @@ function Viewer(){
         viewerAPIProxy
           .showModel(activeViewerID)
           .then((response1 : string) => {
-            console.log("Showing Model : " + response1);  
+           //("Showing Model : " + response1);  
             tree.current = viewerAPIProxy.getProductTree(activeViewerID) as any; 
             if(tree.current)
             {
@@ -59,9 +59,10 @@ function Viewer(){
                   }
             })
             dispatch(saveTree({tree:treeData.models,rootIds:treeData.rootNodeIds}));
+            dispatch(fetchSearchHints());
             }
 
-           // console.log("Showing Model : " + response1);   
+           //console.log("Showing Model : " + response1);   
             /*       
             setTimeout(() => {
               viewerAPIProxy.fitView(activeViewerID);
@@ -90,7 +91,8 @@ function Viewer(){
             //let url = "file://samples/merged.cax";
             let url = "file://samples/F30_model.cax";
             //let url = "file%3A%2F%2FC%3A%5CWORK%5Centerprise-1.1-win64%5Csamples%5Cbracket.cax";
-            //let url = "file%3A%2F%2FC%3A%5CWORK%5Centerprise-1.1-win64%5Csamples%5CF30_model.cax";   
+            //let url = "file%3A%2F%2FD%3A%5Ccaxserver%5CF30_model.cax";
+      
             //let api = "http://100.26.229.30:8181/api/1.0/model";
             //let url = "file%3A%2F%2FC%3A%5CUsers%5CAdministrator%5CDownloads%5Centerprise-1.1-win64%5Csamples%5CF30_model.cax";
             
@@ -122,7 +124,7 @@ function Viewer(){
               eventDispatcher?.addEventListener(
                 events.viewerEvents.MODEL_PART_HIGHLIGHTED,
                 (event: any) => {
-                  console.log(event);
+                  //console.log(event);
                   const toHighlight = event.data.isHighlighted;
                   const nodeIds = event.data.nodeIds
                   if(nodeIds.length > 0)

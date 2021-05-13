@@ -1,9 +1,9 @@
 import { configureStore,combineReducers } from '@reduxjs/toolkit';
 import appSlice from './appSlice';
+import toastSlice from "./toastSlice";
 import productTreeSlice from './sideBar/productTreeSlice';
 import displayModesSlice from './sideBar/displayModesSlice';
-import toastSlice from "./toastSlice";
-import clipSlice from './clipSlice';
+import clipSlice from './sideBar/clipSlice';
 
 const store = configureStore({
     reducer:
