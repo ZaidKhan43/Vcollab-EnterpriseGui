@@ -17,7 +17,7 @@ import ClipPlanes from '../../sideBarContents/clipPlanes';
 import Views from '../../sideBarContents/views';
 import Annotations from '../../sideBarContents/annotations';
 import Settings from '../../sideBarContents/settings';
-import Notifications from '../../shared/notifications';
+import Notifications from '../../sideBarContents/notifications';
 
 export default function Sidebar(){
     

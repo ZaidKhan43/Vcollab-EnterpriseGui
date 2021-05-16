@@ -31,7 +31,7 @@ export default function Annotations(){
     const getHeaderContent = () => {
         return (
         <MuiTypography className={classes.heading} variant='h1' noWrap>
-            Settings
+            Notifications
         </MuiTypography>)  
     }
   

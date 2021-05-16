@@ -12,7 +12,7 @@ import { useAppSelector, useAppDispatch } from '../store/storeHooks';
 import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
         setAppBarVisibility, setFullscreenState ,selectModelLoadedState } from '../store/appSlice';
 import { appBarMinHeight } from '../config';
-import SnackBar from "./shared/notifications/SnackBar";
+import SnackBar from "./sideBarContents/notifications/SnackBar";
 
 import Viewer from './viewer';
 
