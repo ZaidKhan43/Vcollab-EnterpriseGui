@@ -89,8 +89,6 @@ function AppBar() {
       dispatch(setSidebarVisibility(!isSidebarVisible));
     }  
   
-// Toggleing theme
-
     const handleThemeChange = function() {
       dispatch(setDarkModeEnable (!isDarkModeEnable));
     }
@@ -135,42 +133,44 @@ function AppBar() {
      
           <div className={classes.toolBarRightContent}>
           
-          <div className={classes.divIcon}  >
-               <MuiIconButton> <MuiSwitch checked={isDarkModeEnable} onChange={handleThemeChange} /> </MuiIconButton>
-          </div>
-              <div className={classes.divIcon}  >
-                    <MuiIconButton onClick={(e) => handleClick(e,"display") }><Displaymodes /></MuiIconButton> 
-              </div>
-              <div className={classes.divIcon} onClick={ OnClickFitview }>
-                 <MuiIconButton><Fitview/></MuiIconButton>
-              </div>
-              <div className={classes.divIcon} >
-                  <MuiIconButton onClick={(e) => handleClick(e,"more") }><More /></MuiIconButton>
-              </div>
+            <div className={classes.divIcon}  >
+              <MuiIconButton> <MuiSwitch checked={isDarkModeEnable} onChange={handleThemeChange} /> </MuiIconButton>
+            </div>
+            
+            <div className={classes.divIcon}  onClick={(e) => handleClick(e,"display") }>
+              <MuiIconButton><Displaymodes /></MuiIconButton> 
+            </div>
+            
+            <div className={classes.divIcon} onClick={ OnClickFitview }>
+              <MuiIconButton><Fitview/></MuiIconButton>
+            </div>
+            
+            <div className={classes.divIcon} onClick={(e) => handleClick(e,"more") }>
+              <MuiIconButton><More /></MuiIconButton>
+            </div>
              
-              <div className={classes.divIcon} onClick={ OnClickFullscreen }>
-                {(isFullscreenEnabled ?
-                  <MuiIconButton><FullscreenClose  /></MuiIconButton>  :
-                 <MuiIconButton><Fullscreen /> </MuiIconButton> 
-                )}
-              </div>
-              <MuiClickAwayListener onClickAway={() => {  
-                if(clickedMenu === "more" || clickedMenu === "display")
-                  setClickedMenu(null);
-                else{
-                  setDisplayAnchorEl(null);
-                  setMoreAnchorEl(null);
-                }
+            <div className={classes.divIcon} onClick={ OnClickFullscreen }>
+              {(isFullscreenEnabled ?
+                <MuiIconButton><FullscreenClose  /></MuiIconButton>  :
+                <MuiIconButton><Fullscreen /> </MuiIconButton> 
+              )}
+            </div>
+            
+            <MuiClickAwayListener onClickAway={() => {  
+              if(clickedMenu === "more" || clickedMenu === "display")
+                setClickedMenu(null);
+              else{
+                setDisplayAnchorEl(null);
+                setMoreAnchorEl(null);
+              }
               }}>
-                <div>
-                  <DropDown  open={Boolean(displayAnchorEl)} ancgorEl={displayAnchorEl} items={displayMenuItems}  size={true}/>
-                  <DropDown open={Boolean(moreAnchorEl)} ancgorEl={moreAnchorEl} items={moreMenuItems}  style={{backgroundColor: "#171727",opacity:"70%", borderRadius: "0px",marginTop: "58px",marginLeft:"85%",boxShadow: "none",}} size={false}/>
-                </div>
-         </MuiClickAwayListener>
+              <div>
+                <DropDown  open={Boolean(displayAnchorEl)} ancgorEl={displayAnchorEl} items={displayMenuItems}  size={true}/>
+                <DropDown open={Boolean(moreAnchorEl)} ancgorEl={moreAnchorEl} items={moreMenuItems}  style={{backgroundColor: "#171727",opacity:"70%", borderRadius: "0px",marginTop: "58px",marginLeft:"85%",boxShadow: "none",}} size={false}/>
+              </div>
+            </MuiClickAwayListener>
           </div>
           
-        
-         
         </MuiToolbar>     
       </MuiAppBar>
     );
