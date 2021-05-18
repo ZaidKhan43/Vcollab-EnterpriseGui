@@ -51,6 +51,8 @@ export default function ClipPlanes(){
   const [editPlane, setEditPlane] = useState(null)
   const [editName, SetEditName] = useState(null);
 
+  
+
   const onClickBackIcon = () =>{
     dispatch(setSidebarActiveContent(sideBarContentTypes.mainMenu))
   }
@@ -137,8 +139,8 @@ export default function ClipPlanes(){
       if(editName === "")
         setEditPlane(null)
       else{
-      const hello = {id : item.id, editName : editName}
-      dispatch(editPlaneName(hello))
+      const editPlane = {id : item.id, editName : editName}
+      dispatch(editPlaneName(editPlane))
       }
     }
     if (e.keyCode === 27) {

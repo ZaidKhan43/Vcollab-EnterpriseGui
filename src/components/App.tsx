@@ -14,7 +14,10 @@ import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
 import { appBarMinHeight } from '../config';
 import SnackBar from "./shared/notifications/SnackBar";
 
+import PropsLabel from './propsLabel'
 import Viewer from './viewer';
+
+import { positionUpdate } from '../store/propsSlice';
 
 function App() {
 
@@ -48,6 +51,12 @@ function App() {
       dispatch(setFullscreenState(isFullscreenEnabled));
   }
 
+  const getPostion = (e : any) => {
+    const positions = {x : e.clientX, y : e.clientY}
+    console.log(positions)
+    dispatch(positionUpdate(positions));
+}
+
   return (    
     <FullScreen
     enabled={ isFullscreenOn }
@@ -67,8 +76,9 @@ function App() {
         <><AppBar /><Sidebar /></>
         : null ) }
         <main  className={ clsx(classes.content , {[classes.contentWithSideBar]: isSidebarVisible} , {[classes.contentWithTopBar]: isAppBarVisible}) }>
-          <div className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
+          <div onMouseMove={ getPostion} className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
             <Viewer />
+            <PropsLabel />
           </div>     
         </main>
         <SnackBar/>
