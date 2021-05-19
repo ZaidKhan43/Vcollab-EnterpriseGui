@@ -149,7 +149,6 @@ export default function ClipPlanes(props : any){
         <MuiTypography className={classes.listSub} noWrap>
           Plane Equation
         </MuiTypography>
-        <form noValidate autoComplete="off">
           <div style={{ display: "flex",alignItems: "center",
             justifyContent: "flex-start", marginLeft:"5%", marginRight:"5%",
             marginTop:"5px", }}
@@ -275,7 +274,6 @@ export default function ClipPlanes(props : any){
             <RotateSlider value={axisY} functionOne={onHandleRotate} functionTwo={onHandleRotateYType}  setFunction={setAxisY} label={"Y-Axis"}/>
             </Grid>
           </Grid>         
-        </form>
        
         
       </div>
