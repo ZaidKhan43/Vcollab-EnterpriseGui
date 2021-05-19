@@ -77,6 +77,25 @@ const getHiddenChildCount =(nodes:any[]) => {
   });
   return hiddenCount;
 }
+const getHighlightChildCount = (nodes:any[]) => {
+  let highlightedCount =0;
+  nodes.forEach(node => {
+    if(node.state.highlighted){
+      highlightedCount++;
+    }
+  });
+  return highlightedCount;
+}
+
+const updateHighlightState = (parent:any,state:ProductTreeState) => {
+  let highlighted = getHighlightChildCount(parent.children.map((c:any) => getNode(c,state)));
+    if(highlighted === parent.children.length && parent.children.length >0){
+      parent.state.highlighted = true;
+    }
+    else{
+      parent.state.highlighted = false;
+    }
+}
 
 const updateVisiblityState = (parent:any,state:ProductTreeState) =>{
   let hide= getHiddenChildCount(parent.children.map((c:any) => getNode(c,state)));
@@ -109,6 +128,7 @@ const updateParent = (node:TreeNode, state:ProductTreeState) => {
     if(parent){
       updateCheckedState(parent,state);
       updateVisiblityState(parent,state);
+      updateHighlightState(parent,state);
       let grandParent = parent.pid ? getParent(parent.pid,state): null;
       if(grandParent !== null && grandParent !== undefined){
           updateParent(parent, state);

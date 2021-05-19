@@ -211,6 +211,10 @@ function __spread() {
         NodeType[NodeType["SHAPE"] = 2] = "SHAPE";
         NodeType[NodeType["CAMERA"] = 3] = "CAMERA";
     })(AppConstants.NodeType || (AppConstants.NodeType = {}));
+    (function (NodeSubType) {
+        NodeSubType[NodeSubType["NONE"] = 0] = "NONE";
+        NodeSubType[NodeSubType["HIGHLIGHT"] = 1] = "HIGHLIGHT";
+    })(AppConstants.NodeSubType || (AppConstants.NodeSubType = {}));
     (function (DisplayMode) {
         DisplayMode[DisplayMode["SHADED"] = 1] = "SHADED";
         DisplayMode[DisplayMode["SHADEDMESH"] = 2] = "SHADEDMESH";
@@ -792,648 +796,7 @@ var WEBGLCOMPONENTTYPES = {
         return _this;
     }
     return WebGLArrayBuffer;
-}(WEBGLBuffer));var Utility;
-(function (Utility) {
-    /**
-     * Create a Random UUID/GUID.
-     * {@link http://codingrepo.com/regular-expression/2015/11/23/javascript-generate-uuidguid-for-rfc-4122-version-4-compliant-with-regular-expression/ | (Reference Links)}
-     * @return {string} A 16 digit UUID/GUID string.
-     */
-    Utility.getGUID = function getGUID() {
-        var cryptoObj = window.crypto;
-        if (cryptoObj && cryptoObj.getRandomValues) {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-                var r = cryptoObj.getRandomValues(new Uint8Array(1))[0] % 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        }
-        else {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-                var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
-        }
-    };
-    /**
-     * Check the given item is JSON object or not .
-     * @param  {object} item - item to be tested.
-     * @return {boolean} Returns true/false.
-     */
-    Utility.isJson = function isJson(item) {
-        item = typeof item !== 'string' ? JSON.stringify(item) : item;
-        try {
-            item = JSON.parse(item);
-        }
-        catch (e) {
-            return false;
-        }
-        if (typeof item === 'object' && item !== null) {
-            return true;
-        }
-        return false;
-    };
-    /**
-     * Check the given item is JSON object or not .
-     * @param  {object} object - object.
-     * @param  {Function} callback - Callbach function.
-     * @param  {object}  [thisObj] - This object of the calling function.
-     * @return {Promise} Returns promise object.
-     */
-    Utility.each = function each(object, callback, thisObj) {
-        if (!object) {
-            return Promise.resolve();
-        }
-        var results;
-        var fns = [];
-        if (Object.prototype.toString.call(object) === '[object Array]') {
-            results = [];
-            var length_1 = object.length;
-            for (var idx = 0; idx < length_1; idx++) {
-                var value = callback.call(thisObj || this, object[idx], idx);
-                if (value) {
-                    fns.push(value);
-                    if (value instanceof Promise) {
-                        value.then(function (key, value) {
-                            results[key] = value;
-                        }.bind(this, idx));
-                    }
-                    else {
-                        results[idx] = value;
-                    }
-                }
-            }
-        }
-        else {
-            results = {};
-            for (var key in object) {
-                if (object.hasOwnProperty(key)) {
-                    var value = callback.call(thisObj || this, object[key], key);
-                    if (value) {
-                        fns.push(value);
-                        if (value instanceof Promise) {
-                            value.then(function (key, value) {
-                                results[key] = value;
-                            }.bind(this, key));
-                        }
-                        else {
-                            results[key] = value;
-                        }
-                    }
-                }
-            }
-        }
-        return Promise.all(fns).then(function () {
-            return results;
-        });
-    };
-    /**
-     * Convert Uint8Array to string .
-     * @param  {Uint8Array} array - Uint8Array.
-     * @return {string} Returns string value.
-     */
-    Utility.convertUint8ArrayToString = function convertUint8ArrayToString(array) {
-        // Avoid the String.fromCharCode.apply(null, array) shortcut, which
-        // throws a 'maximum call stack size exceeded' error for large arrays.
-        var s = '';
-        for (var i = 0, il = array.length; i < il; i++) {
-            s += String.fromCharCode(array[i]);
-        }
-        return s;
-    };
-    Utility.CopyToClipboard = function CopyToClipboard(dataURL) {
-        try {
-            var img = document.createElement('img');
-            img.id = 'imgCap';
-            img.src = dataURL;
-            document.body.appendChild(img);
-            var selection = null;
-            var range = null;
-            if (window.getSelection) {
-                selection = window.getSelection();
-                selection.removeAllRanges();
-                range = document.createRange();
-                range.selectNode(img);
-                selection.addRange(range);
-            }
-            var successStatus = document.execCommand('copy');
-            selection.removeAllRanges();
-            range = null;
-            selection = null;
-            document.body.removeChild(img);
-            return successStatus;
-        }
-        catch (err) {
-            console.warn('Clipboard copying failed ', err);
-        }
-        return false;
-    };
-    Utility.SaveToDisk = function SaveToDisk(fileURL, fileName, mimetype, bmpBlob) {
-        var ua = window.navigator.userAgent;
-        var msie = ua.indexOf('MSIE ');
-        var edge = ua.indexOf('Edge');
-        if (!mimetype)
-            mimetype = 'application/octet-stream'; //'image/png';
-        if (msie > 0 || edge > 0 || 'msExitFullscreen' in document) {
-            //alert( 'ie ' );
-            if (bmpBlob === null) {
-                var replaceText = 'data:' + mimetype + ';base64,';
-                var data = atob(fileURL.substring(replaceText.length)), asArray = new Uint8Array(data.length);
-                for (var i = 0, len = data.length; i < len; ++i) {
-                    asArray[i] = data.charCodeAt(i);
-                }
-                var blobObject = new Blob([asArray.buffer], { type: mimetype });
-                window.navigator.msSaveBlob(blobObject, fileName);
-            }
-            else
-                window.navigator.msSaveBlob(bmpBlob, fileName);
-            //window.navigator.msSaveOrOpenBlob(blobObject, fileName);
-        }
-        else {
-            var save = document.createElement('a');
-            save.href = fileURL;
-            save.target = '_blank';
-            save.download = fileName || fileURL;
-            var evt = document.createEvent('MouseEvents');
-            evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
-            save.dispatchEvent(evt);
-            (window.URL).revokeObjectURL(save.href);
-            //(window.URL || window.webkitURL).revokeObjectURL(save.href); //  window.webkitURL error in typescript typedoc generation
-        }
-    };
-    Utility.getElementInsideContainer = function (containerID, childID) {
-        var elm = null;
-        var topContainer = document.getElementById(containerID);
-        if (topContainer) {
-            var elms = topContainer.getElementsByTagName("*");
-            for (var i = 0; i < elms.length; i++) {
-                if (elms[i].id === childID) {
-                    elm = elms[i];
-                    break;
-                }
-            }
-        }
-        return elm;
-    };
-    var CanvasToBMP = /** @class */ (function () {
-        function CanvasToBMP() {
-        }
-        /**
-         * Convert a canvas element to ArrayBuffer containing a BMP file
-         * with support for 32-bit (alpha).
-         *
-         * Note that CORS requirement must be fulfilled.
-         *
-         * @param {HTMLCanvasElement} canvas - the canvas element to convert
-         * @return {ArrayBuffer}
-         */
-        CanvasToBMP.toArrayBuffer = function (canvas) {
-            var w = canvas.width, h = canvas.height, w4 = w * 4, idata = canvas.getContext('2d').getImageData(0, 0, w, h), data32 = new Uint32Array(idata.data.buffer), // 32-bit representation of canvas
-            stride = Math.floor((32 * w + 31) / 32) * 4, // row length incl. padding
-            pixelArraySize = stride * h, // total bitmap size
-            fileLength = 122 + pixelArraySize, // header size is known + bitmap
-            file = new ArrayBuffer(fileLength), // raw byte buffer (returned)
-            view = new DataView(file), // handle endian, reg. width etc.
-            pos = 0, x, y = 0, p, s = 0, a, v;
-            // write file header
-            setU16(0x4d42); // BM
-            setU32(fileLength); // total length
-            pos += 4; // skip unused fields
-            setU32(0x7a); // offset to pixels
-            // DIB header
-            setU32(108); // header size
-            setU32(w);
-            setU32(-h >>> 0); // negative = top-to-bottom
-            setU16(1); // 1 plane
-            setU16(32); // 32-bits (RGBA)
-            setU32(3); // no compression (BI_BITFIELDS, 3)
-            setU32(pixelArraySize); // bitmap size incl. padding (stride x height)
-            setU32(2835); // pixels/meter h (~72 DPI x 39.3701 inch/m)
-            setU32(2835); // pixels/meter v
-            pos += 8; // skip color/important colors
-            setU32(0xff0000); // red channel mask
-            setU32(0xff00); // green channel mask
-            setU32(0xff); // blue channel mask
-            setU32(0xff000000); // alpha channel mask
-            setU32(0x57696e20); // ' win' color space
-            // bitmap data, change order of ABGR to BGRA
-            while (y < h) {
-                p = 0x7a + y * stride; // offset + stride x height
-                x = 0;
-                while (x < w4) {
-                    v = data32[s++]; // get ABGR
-                    a = v >>> 24; // alpha channel
-                    view.setUint32(p + x, (v << 8) | a); // set BGRA
-                    x += 4;
-                }
-                y++;
-            }
-            return file;
-            // helper method to move current buffer position
-            function setU16(data) { view.setUint16(pos, data, true); pos += 2; }
-            function setU32(data) { view.setUint32(pos, data, true); pos += 4; }
-        };
-        /**
-         * Converts a canvas to BMP file, returns a Blob representing the
-         * file. This can be used with URL.createObjectURL().
-         * Note that CORS requirement must be fulfilled.
-         *
-         * @param {HTMLCanvasElement} canvas - the canvas element to convert
-         * @return {Blob}
-         */
-        CanvasToBMP.toBlob = function (canvas) {
-            return new Blob([this.toArrayBuffer(canvas)], {
-                type: 'image/bmp'
-            });
-        };
-        /**
-         * Converts the canvas to a data-URI representing a BMP file.
-         * Note that CORS requirement must be fulfilled.
-         *
-         * @param canvas
-         * @return {string}
-         */
-        CanvasToBMP.toDataURL = function (canvas) {
-            var buffer = new Uint8Array(this.toArrayBuffer(canvas)), bs = '', i = 0, l = buffer.length;
-            while (i < l)
-                bs += String.fromCharCode(buffer[i++]);
-            return 'data:image/bmp;base64,' + btoa(bs);
-        };
-        return CanvasToBMP;
-    }());
-    Utility.CanvasToBMP = CanvasToBMP;
-    /**
-     * Encode and decode the base64-string.
-     * {@link https://github.com/niklasvh/base64-arraybuffer| (Reference Links)}
-     * Licensed under the MIT license.
-     */
-    var base64 = /** @class */ (function () {
-        function base64() {
-        }
-        /**
-         * Encode the arraybuffer to base64 encode string.
-         * @param {ArrayBuffer} arraybuffer - Arraybuffer data.
-         * @return {string} Base64 encode string.
-         */
-        base64.encode = function (arraybuffer) {
-            var bytes = new Uint8Array(arraybuffer), i, len = bytes.length, base64 = '';
-            for (i = 0; i < len; i += 3) {
-                base64 += this.chars[bytes[i] >> 2];
-                base64 += this.chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
-                base64 += this.chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
-                base64 += this.chars[bytes[i + 2] & 63];
-            }
-            if ((len % 3) === 2) {
-                base64 = base64.substring(0, base64.length - 1) + '=';
-            }
-            else if (len % 3 === 1) {
-                base64 = base64.substring(0, base64.length - 2) + '==';
-            }
-            return base64;
-        };
-        /**
-         * Decode the base64 encode string to arraybuffer.
-         * @param {string} base64 - Base64 encode string.
-         * @return {ArrayBuffer} Arraybuffer data.
-         */
-        base64.decode = function (base64) {
-            var lookup = new Uint8Array(256);
-            for (var i_1 = 0; i_1 < this.chars.length; i_1++) {
-                lookup[this.chars.charCodeAt(i_1)] = i_1;
-            }
-            var bufferLength = base64.length * 0.75, len = base64.length, i, p = 0, encoded1, encoded2, encoded3, encoded4;
-            if (base64[base64.length - 1] === '=') {
-                bufferLength--;
-                if (base64[base64.length - 2] === '=') {
-                    bufferLength--;
-                }
-            }
-            var arraybuffer = new ArrayBuffer(bufferLength);
-            var bytes = new Uint8Array(arraybuffer);
-            for (i = 0; i < len; i += 4) {
-                encoded1 = lookup[base64.charCodeAt(i)];
-                encoded2 = lookup[base64.charCodeAt(i + 1)];
-                encoded3 = lookup[base64.charCodeAt(i + 2)];
-                encoded4 = lookup[base64.charCodeAt(i + 3)];
-                bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
-                bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
-                bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
-            }
-            return arraybuffer;
-        };
-        base64.chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-        return base64;
-    }());
-    Utility.base64 = base64;
-    var Registry = /** @class */ (function () {
-        function Registry() {
-            this.objects = {};
-        }
-        Registry.prototype.get = function (key) {
-            return this.objects[key];
-        };
-        Registry.prototype.add = function (key, object) {
-            this.objects[key] = object;
-        };
-        Registry.prototype.remove = function (key) {
-            delete this.objects[key];
-        };
-        Registry.prototype.removeAll = function () {
-            this.objects = {};
-        };
-        return Registry;
-    }());
-    Utility.Registry = Registry;
-    Utility.resolveURL = function resolveURL(url, path) {
-        // Invalid URL
-        if (typeof url !== 'string' || url === '')
-            return '';
-        // Host Relative URL
-        if (/^https?:\/\//i.test(path) && /^\//.test(url)) {
-            path = path.replace(/(^https?:\/\/[^\/]+).*/i, '$1');
-        }
-        // Absolute URL http://,https://,//
-        if (/^(https?:)?\/\//i.test(url))
-            return url;
-        // Data URI
-        if (/^data:.*,.*$/i.test(url))
-            return url;
-        // Blob URL
-        if (/^blob:.*$/i.test(url))
-            return url;
-        // Relative URL
-        return path + url;
-    };
-    Utility.getAllLeafNode = function (tree) {
-        var leafNodes = [];
-        if (tree.children) {
-            tree.children.forEach(function (element) {
-                var nodes = Utility.getAllLeafNode(element);
-                leafNodes = __spread(leafNodes, nodes);
-            });
-        }
-        else {
-            leafNodes = __spread(leafNodes, tree);
-        }
-        return leafNodes;
-    };
-})(Utility || (Utility = {}));var Texture = /** @class */ (function () {
-    function Texture(name, textureType) {
-        this.name = name;
-        if (AppState.GLContext) {
-            this.texture = AppState.GLContext.createTexture();
-            this.textureType = textureType | TextureType.TEXTURE_2D;
-            this.level = 0;
-            this.internalformat = AppState.GLContext.RGB;
-            this.width = 0;
-            this.height = 0;
-            this.border = 0;
-            this.format = AppState.GLContext.RGB;
-            this.type = AppState.GLContext.UNSIGNED_BYTE;
-            this.textureData = null;
-            this.index = Texture.textureCounter++;
-            this.isBind = false;
-            this.texCoordIndex = 0;
-        }
-    }
-    Texture.prototype.setTextureType = function (textureType) {
-        if (AppState.GLContext) {
-            this.textureType = textureType;
-            return true;
-        }
-        return false;
-    };
-    Texture.prototype.bind = function () {
-        if (AppState.GLContext && this.isBind == false) {
-            var textureSlot = AppState.GLContext.TEXTURE0 + this.index;
-            AppState.GLContext.activeTexture(textureSlot);
-            AppState.GLContext.bindTexture(this.textureType, this.texture);
-            this.isBind = true;
-        }
-    };
-    Texture.prototype.unBind = function () {
-        if (AppState.GLContext && this.isBind == true) {
-            AppState.GLContext.bindTexture(this.textureType, null);
-            this.isBind = false;
-        }
-    };
-    Texture.prototype.setTextureData = function (txtData) {
-        this.textureData = txtData;
-    };
-    Texture.prototype.setTextureDataFromImage = function (img) {
-        if (AppState.GLContext) {
-            this.setTextureData(img);
-            //AppState.GLContext.bindTexture(this.textureType, this.texture);
-            this.bind();
-            AppState.GLContext.texImage2D(this.textureType, this.level, this.internalformat, this.format, this.type, img);
-        }
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MAG_FILTER, AppState.GLContext.NEAREST);
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MIN_FILTER, AppState.GLContext.NEAREST);
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_S, AppState.GLContext.CLAMP_TO_EDGE);
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_T, AppState.GLContext.CLAMP_TO_EDGE);
-        //AppState.GLContext.bindTexture(AppState.GLContext.TEXTURE_2D, null);
-        this.unBind();
-    };
-    Texture.prototype.setTextureDataFromArrayBuffer = function (arrayBuffer) {
-        if (AppState.GLContext) {
-            var textureData = arrayBuffer;
-            this.width = textureData.length / 3;
-            this.height = 1;
-            this.setTextureData(arrayBuffer);
-            this.bind();
-            AppState.GLContext.texImage2D(this.textureType, this.level, this.internalformat, this.width, this.height, this.border, this.format, this.type, arrayBuffer);
-            AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MAG_FILTER, AppState.GLContext.NEAREST);
-            AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MIN_FILTER, AppState.GLContext.NEAREST);
-            AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_S, AppState.GLContext.CLAMP_TO_EDGE);
-            AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_T, AppState.GLContext.CLAMP_TO_EDGE);
-            //AppState.GLContext.bindTexture(AppState.GLContext.TEXTURE_2D, null);
-            this.unBind();
-        }
-    };
-    Texture.prototype.isPowerOf2 = function (value) {
-        return (value & (value - 1)) == 0;
-    };
-    Texture.prototype.setEmptyTexture = function () {
-        AppState.GLContext.texImage2D(this.textureType, this.level, this.internalformat, this.width, this.height, this.border, this.format, this.type, null);
-    };
-    Texture.prototype.setFilterOptions = function (options) {
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MAG_FILTER, options.magFilter);
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MIN_FILTER, options.minFilter);
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_S, options.wrap_s);
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_T, options.wrap_t);
-    };
-    Texture.prototype.isDataAvailable = function () {
-        if (this.textureData)
-            return true;
-        return false;
-    };
-    Texture.prototype.getData = function () {
-    };
-    Texture.textureCounter = 0;
-    return Texture;
-}());
-var TextureManager = /** @class */ (function () {
-    function TextureManager() {
-    }
-    TextureManager.getTextureByName = function (name) {
-        var texture = this.textureCache.get(name);
-        if (texture)
-            return texture;
-        return null;
-    };
-    TextureManager.parseServerJSON = function (textureJson) {
-        if (textureJson && textureJson.texture) {
-            if (textureJson.texture.source !== null && textureJson.texture.source !== undefined) {
-                var textureName = 'texture_' + textureJson.texture.source;
-                var texture_1 = this.textureCache.get(textureName);
-                if (texture_1 === undefined || texture_1 === null) {
-                    texture_1 = new Texture(textureName);
-                    texture_1.texCoordIndex = textureJson.texCoord;
-                    var image_1 = new Image();
-                    image_1.onload = function (event) {
-                        texture_1.setTextureDataFromImage(image_1);
-                    };
-                    if (textureJson.texture.data)
-                        image_1.src = textureJson.texture.data;
-                    else if (textureJson.texture.bufferViewLoader) {
-                        var promise = textureJson.texture.bufferViewLoader.getData();
-                        promise.then(function (arrayBuffer) {
-                            var stringData = Utility.convertUint8ArrayToString(new Uint8Array(arrayBuffer));
-                            image_1.src = 'data:' + textureJson.texture.mimeType + ';base64,' + btoa(stringData);
-                        })
-                            .catch(function (error) {
-                            throw new Error(error);
-                            //store the   textureJson.texture.bufferViewData.deferredBufferViewLoader in local variable to load later using getdata fn
-                        });
-                    }
-                    else {
-                        throw new Error("Texture data missing");
-                    }
-                    this.textureCache.add(textureName, texture_1);
-                }
-                return texture_1;
-            }
-        }
-        return null;
-    };
-    TextureManager.textureCache = new Utility.Registry();
-    return TextureManager;
-}());var Material = /** @class */ (function () {
-    function Material(name) {
-        this.name = name;
-        this.shader = null;
-        this.diffuseColor = new Array(1.0, 1.0, 1.0);
-        this.specularColor = new Array(0.2, 0.2, 0.2);
-        this.ambientColor = new Array(0.5, 0.5, 0.5);
-        this.emissiveColor = new Array(0.0, 0.0, 0.0);
-        this.shininess = 128;
-        this.transparency = 0.0;
-        this.ambientIntensity = 0.5;
-        this.isColorMaskEnabled = true;
-        this.useTexture = false;
-        this.isTextureAvailable = false;
-        this.texture = null;
-        this.useUserDefinedColor = false;
-        this.userDefinedColor = new Array(0.0, 0.0, 0.0);
-    }
-    Material.prototype.parseServerJSON = function (materialJson) {
-        //console.log(materialJson)
-        if (materialJson.emissiveFactor) {
-            this.emissiveColor = materialJson.emissiveFactor;
-        }
-        if (materialJson.pbrMetallicRoughness) {
-            if (materialJson.pbrMetallicRoughness.baseColorFactor)
-                this.diffuseColor = materialJson.pbrMetallicRoughness.baseColorFactor;
-            if (materialJson.pbrMetallicRoughness.baseColorTexture) {
-                this.texture = TextureManager.parseServerJSON(materialJson.pbrMetallicRoughness.baseColorTexture);
-                this.isTextureAvailable = true;
-            }
-        }
-    };
-    Material.prototype.setTransparency = function (value) {
-        this.transparency = value;
-    };
-    Material.prototype.setColorMask = function (value) {
-        this.isColorMaskEnabled = value;
-    };
-    Material.prototype.setUseTexture = function (value) {
-        this.useTexture = value;
-    };
-    Material.prototype.setTextureData = function (textureData) {
-        if (this.texture) {
-            this.texture.setTextureDataFromArrayBuffer(new Uint8Array(textureData));
-        }
-    };
-    Material.prototype.setUserDefinedColor = function (value) {
-        if (value.length >= 3) {
-            this.userDefinedColor[0] = value[0];
-            this.userDefinedColor[1] = value[1];
-            this.userDefinedColor[2] = value[2];
-        }
-        else {
-            throw new Error("Invalide number of color values");
-        }
-    };
-    Material.prototype.setUseUserDefinedColor = function (value) {
-        this.useUserDefinedColor = value;
-    };
-    Material.prototype.clone = function () {
-        var m = Object.create(this);
-        m.diffuseColor = __spread(this.diffuseColor);
-        m.specularColor = __spread(this.specularColor);
-        m.ambientColor = __spread(this.ambientColor);
-        m.emissiveColor = __spread(this.emissiveColor);
-        m.userDefinedColor = __spread(this.userDefinedColor);
-        return m;
-    };
-    return Material;
-}());
-var MaterialManager = /** @class */ (function () {
-    function MaterialManager() {
-    }
-    MaterialManager.getMaterailByName = function (name) {
-        var material = this.materialCache.get(name);
-        if (material)
-            return material;
-        return null;
-    };
-    MaterialManager.parseServerJSON = function (materialJson) {
-        if (materialJson) {
-            if (materialJson.id) {
-                var material_name = materialJson.id;
-                var material = this.materialCache.get(material_name);
-                if (material === undefined || material === null) {
-                    material = new Material(material_name);
-                    material.parseServerJSON(materialJson);
-                    this.materialCache.add(material_name, material);
-                }
-                return material;
-            }
-        }
-        return null;
-    };
-    MaterialManager.materialCache = new Utility.Registry();
-    return MaterialManager;
-}());var WEBGLBufferCache = /** @class */ (function () {
-    function WEBGLBufferCache() {
-    }
-    WEBGLBufferCache.get = function (key) {
-        return WEBGLBufferCache.cache.get(key);
-    };
-    WEBGLBufferCache.add = function (key, object) {
-        WEBGLBufferCache.cache.add(key, object);
-    };
-    WEBGLBufferCache.remove = function (key) {
-        WEBGLBufferCache.cache.remove(key);
-    };
-    WEBGLBufferCache.removeAll = function () {
-        WEBGLBufferCache.cache.removeAll();
-    };
-    WEBGLBufferCache.getAll = function () {
-        return Object.values(WEBGLBufferCache.cache.objects);
-    };
-    WEBGLBufferCache.cache = new Utility.Registry();
-    return WEBGLBufferCache;
-}());/**
+}(WEBGLBuffer));/**
  * Common utilities
  * @module glMatrix
  */
@@ -2037,6 +1400,37 @@ function rotateZ(out, a, rad) {
   return out;
 }
 /**
+ * Creates a matrix from a vector scaling
+ * This is equivalent to (but much faster than):
+ *
+ *     mat4.identity(dest);
+ *     mat4.scale(dest, dest, vec);
+ *
+ * @param {mat4} out mat4 receiving operation result
+ * @param {ReadonlyVec3} v Scaling vector
+ * @returns {mat4} out
+ */
+
+function fromScaling(out, v) {
+  out[0] = v[0];
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = 0;
+  out[4] = 0;
+  out[5] = v[1];
+  out[6] = 0;
+  out[7] = 0;
+  out[8] = 0;
+  out[9] = 0;
+  out[10] = v[2];
+  out[11] = 0;
+  out[12] = 0;
+  out[13] = 0;
+  out[14] = 0;
+  out[15] = 1;
+  return out;
+}
+/**
  * Returns the translation vector component of a transformation
  *  matrix. If a matrix is built with fromRotationTranslation,
  *  the returned vector will be the same as the translation vector
@@ -2192,6 +1586,50 @@ function fromRotationTranslationScale(out, q, v, s) {
   return out;
 }
 /**
+ * Calculates a 4x4 matrix from the given quaternion
+ *
+ * @param {mat4} out mat4 receiving operation result
+ * @param {ReadonlyQuat} q Quaternion to create matrix from
+ *
+ * @returns {mat4} out
+ */
+
+function fromQuat(out, q) {
+  var x = q[0],
+      y = q[1],
+      z = q[2],
+      w = q[3];
+  var x2 = x + x;
+  var y2 = y + y;
+  var z2 = z + z;
+  var xx = x * x2;
+  var yx = y * x2;
+  var yy = y * y2;
+  var zx = z * x2;
+  var zy = z * y2;
+  var zz = z * z2;
+  var wx = w * x2;
+  var wy = w * y2;
+  var wz = w * z2;
+  out[0] = 1 - yy - zz;
+  out[1] = yx + wz;
+  out[2] = zx - wy;
+  out[3] = 0;
+  out[4] = yx - wz;
+  out[5] = 1 - xx - zz;
+  out[6] = zy + wx;
+  out[7] = 0;
+  out[8] = zx + wy;
+  out[9] = zy - wx;
+  out[10] = 1 - xx - yy;
+  out[11] = 0;
+  out[12] = 0;
+  out[13] = 0;
+  out[14] = 0;
+  out[15] = 1;
+  return out;
+}
+/**
  * Generates a orthogonal projection matrix with the given bounds
  *
  * @param {mat4} out mat4 frustum matrix will be written into
@@ -2225,7 +1663,13 @@ function ortho(out, left, right, bottom, top, near, far) {
   out[14] = (far + near) * nf;
   out[15] = 1;
   return out;
-}/**
+}
+/**
+ * Alias for {@link mat4.multiply}
+ * @function
+ */
+
+var mul = multiply;/**
  * 3 Dimensional Vector
  * @module vec3
  */
@@ -3026,7 +2470,7 @@ var fromValues$2 = fromValues$1;
  * @function
  */
 
-var mul = multiply$1;
+var mul$1 = multiply$1;
 /**
  * Normalize a quat
  *
@@ -3202,6 +2646,669 @@ function fromValues$3(x, y) {
 
     return a;
   };
+}());var Utility;
+(function (Utility) {
+    /**
+     * Create a Random UUID/GUID.
+     * {@link http://codingrepo.com/regular-expression/2015/11/23/javascript-generate-uuidguid-for-rfc-4122-version-4-compliant-with-regular-expression/ | (Reference Links)}
+     * @return {string} A 16 digit UUID/GUID string.
+     */
+    Utility.getGUID = function getGUID() {
+        var cryptoObj = window.crypto;
+        if (cryptoObj && cryptoObj.getRandomValues) {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = cryptoObj.getRandomValues(new Uint8Array(1))[0] % 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+        else {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+    };
+    /**
+     * Check the given item is JSON object or not .
+     * @param  {object} item - item to be tested.
+     * @return {boolean} Returns true/false.
+     */
+    Utility.isJson = function isJson(item) {
+        item = typeof item !== 'string' ? JSON.stringify(item) : item;
+        try {
+            item = JSON.parse(item);
+        }
+        catch (e) {
+            return false;
+        }
+        if (typeof item === 'object' && item !== null) {
+            return true;
+        }
+        return false;
+    };
+    /**
+     * Check the given item is JSON object or not .
+     * @param  {object} object - object.
+     * @param  {Function} callback - Callbach function.
+     * @param  {object}  [thisObj] - This object of the calling function.
+     * @return {Promise} Returns promise object.
+     */
+    Utility.each = function each(object, callback, thisObj) {
+        if (!object) {
+            return Promise.resolve();
+        }
+        var results;
+        var fns = [];
+        if (Object.prototype.toString.call(object) === '[object Array]') {
+            results = [];
+            var length_1 = object.length;
+            for (var idx = 0; idx < length_1; idx++) {
+                var value = callback.call(thisObj || this, object[idx], idx);
+                if (value) {
+                    fns.push(value);
+                    if (value instanceof Promise) {
+                        value.then(function (key, value) {
+                            results[key] = value;
+                        }.bind(this, idx));
+                    }
+                    else {
+                        results[idx] = value;
+                    }
+                }
+            }
+        }
+        else {
+            results = {};
+            for (var key in object) {
+                if (object.hasOwnProperty(key)) {
+                    var value = callback.call(thisObj || this, object[key], key);
+                    if (value) {
+                        fns.push(value);
+                        if (value instanceof Promise) {
+                            value.then(function (key, value) {
+                                results[key] = value;
+                            }.bind(this, key));
+                        }
+                        else {
+                            results[key] = value;
+                        }
+                    }
+                }
+            }
+        }
+        return Promise.all(fns).then(function () {
+            return results;
+        });
+    };
+    /**
+     * Convert Uint8Array to string .
+     * @param  {Uint8Array} array - Uint8Array.
+     * @return {string} Returns string value.
+     */
+    Utility.convertUint8ArrayToString = function convertUint8ArrayToString(array) {
+        // Avoid the String.fromCharCode.apply(null, array) shortcut, which
+        // throws a 'maximum call stack size exceeded' error for large arrays.
+        var s = '';
+        for (var i = 0, il = array.length; i < il; i++) {
+            s += String.fromCharCode(array[i]);
+        }
+        return s;
+    };
+    Utility.CopyToClipboard = function CopyToClipboard(dataURL) {
+        try {
+            var img = document.createElement('img');
+            img.id = 'imgCap';
+            img.src = dataURL;
+            document.body.appendChild(img);
+            var selection = null;
+            var range = null;
+            if (window.getSelection) {
+                selection = window.getSelection();
+                selection.removeAllRanges();
+                range = document.createRange();
+                range.selectNode(img);
+                selection.addRange(range);
+            }
+            var successStatus = document.execCommand('copy');
+            selection.removeAllRanges();
+            range = null;
+            selection = null;
+            document.body.removeChild(img);
+            return successStatus;
+        }
+        catch (err) {
+            console.warn('Clipboard copying failed ', err);
+        }
+        return false;
+    };
+    Utility.SaveToDisk = function SaveToDisk(fileURL, fileName, mimetype, bmpBlob) {
+        var ua = window.navigator.userAgent;
+        var msie = ua.indexOf('MSIE ');
+        var edge = ua.indexOf('Edge');
+        if (!mimetype)
+            mimetype = 'application/octet-stream'; //'image/png';
+        if (msie > 0 || edge > 0 || 'msExitFullscreen' in document) {
+            //alert( 'ie ' );
+            if (bmpBlob === null) {
+                var replaceText = 'data:' + mimetype + ';base64,';
+                var data = atob(fileURL.substring(replaceText.length)), asArray = new Uint8Array(data.length);
+                for (var i = 0, len = data.length; i < len; ++i) {
+                    asArray[i] = data.charCodeAt(i);
+                }
+                var blobObject = new Blob([asArray.buffer], { type: mimetype });
+                window.navigator.msSaveBlob(blobObject, fileName);
+            }
+            else
+                window.navigator.msSaveBlob(bmpBlob, fileName);
+            //window.navigator.msSaveOrOpenBlob(blobObject, fileName);
+        }
+        else {
+            var save = document.createElement('a');
+            save.href = fileURL;
+            save.target = '_blank';
+            save.download = fileName || fileURL;
+            var evt = document.createEvent('MouseEvents');
+            evt.initMouseEvent('click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+            save.dispatchEvent(evt);
+            (window.URL).revokeObjectURL(save.href);
+            //(window.URL || window.webkitURL).revokeObjectURL(save.href); //  window.webkitURL error in typescript typedoc generation
+        }
+    };
+    Utility.getElementInsideContainer = function (containerID, childID) {
+        var elm = null;
+        var topContainer = document.getElementById(containerID);
+        if (topContainer) {
+            var elms = topContainer.getElementsByTagName("*");
+            for (var i = 0; i < elms.length; i++) {
+                if (elms[i].id === childID) {
+                    elm = elms[i];
+                    break;
+                }
+            }
+        }
+        return elm;
+    };
+    var CanvasToBMP = /** @class */ (function () {
+        function CanvasToBMP() {
+        }
+        /**
+         * Convert a canvas element to ArrayBuffer containing a BMP file
+         * with support for 32-bit (alpha).
+         *
+         * Note that CORS requirement must be fulfilled.
+         *
+         * @param {HTMLCanvasElement} canvas - the canvas element to convert
+         * @return {ArrayBuffer}
+         */
+        CanvasToBMP.toArrayBuffer = function (canvas) {
+            var w = canvas.width, h = canvas.height, w4 = w * 4, idata = canvas.getContext('2d').getImageData(0, 0, w, h), data32 = new Uint32Array(idata.data.buffer), // 32-bit representation of canvas
+            stride = Math.floor((32 * w + 31) / 32) * 4, // row length incl. padding
+            pixelArraySize = stride * h, // total bitmap size
+            fileLength = 122 + pixelArraySize, // header size is known + bitmap
+            file = new ArrayBuffer(fileLength), // raw byte buffer (returned)
+            view = new DataView(file), // handle endian, reg. width etc.
+            pos = 0, x, y = 0, p, s = 0, a, v;
+            // write file header
+            setU16(0x4d42); // BM
+            setU32(fileLength); // total length
+            pos += 4; // skip unused fields
+            setU32(0x7a); // offset to pixels
+            // DIB header
+            setU32(108); // header size
+            setU32(w);
+            setU32(-h >>> 0); // negative = top-to-bottom
+            setU16(1); // 1 plane
+            setU16(32); // 32-bits (RGBA)
+            setU32(3); // no compression (BI_BITFIELDS, 3)
+            setU32(pixelArraySize); // bitmap size incl. padding (stride x height)
+            setU32(2835); // pixels/meter h (~72 DPI x 39.3701 inch/m)
+            setU32(2835); // pixels/meter v
+            pos += 8; // skip color/important colors
+            setU32(0xff0000); // red channel mask
+            setU32(0xff00); // green channel mask
+            setU32(0xff); // blue channel mask
+            setU32(0xff000000); // alpha channel mask
+            setU32(0x57696e20); // ' win' color space
+            // bitmap data, change order of ABGR to BGRA
+            while (y < h) {
+                p = 0x7a + y * stride; // offset + stride x height
+                x = 0;
+                while (x < w4) {
+                    v = data32[s++]; // get ABGR
+                    a = v >>> 24; // alpha channel
+                    view.setUint32(p + x, (v << 8) | a); // set BGRA
+                    x += 4;
+                }
+                y++;
+            }
+            return file;
+            // helper method to move current buffer position
+            function setU16(data) { view.setUint16(pos, data, true); pos += 2; }
+            function setU32(data) { view.setUint32(pos, data, true); pos += 4; }
+        };
+        /**
+         * Converts a canvas to BMP file, returns a Blob representing the
+         * file. This can be used with URL.createObjectURL().
+         * Note that CORS requirement must be fulfilled.
+         *
+         * @param {HTMLCanvasElement} canvas - the canvas element to convert
+         * @return {Blob}
+         */
+        CanvasToBMP.toBlob = function (canvas) {
+            return new Blob([this.toArrayBuffer(canvas)], {
+                type: 'image/bmp'
+            });
+        };
+        /**
+         * Converts the canvas to a data-URI representing a BMP file.
+         * Note that CORS requirement must be fulfilled.
+         *
+         * @param canvas
+         * @return {string}
+         */
+        CanvasToBMP.toDataURL = function (canvas) {
+            var buffer = new Uint8Array(this.toArrayBuffer(canvas)), bs = '', i = 0, l = buffer.length;
+            while (i < l)
+                bs += String.fromCharCode(buffer[i++]);
+            return 'data:image/bmp;base64,' + btoa(bs);
+        };
+        return CanvasToBMP;
+    }());
+    Utility.CanvasToBMP = CanvasToBMP;
+    /**
+     * Encode and decode the base64-string.
+     * {@link https://github.com/niklasvh/base64-arraybuffer| (Reference Links)}
+     * Licensed under the MIT license.
+     */
+    var base64 = /** @class */ (function () {
+        function base64() {
+        }
+        /**
+         * Encode the arraybuffer to base64 encode string.
+         * @param {ArrayBuffer} arraybuffer - Arraybuffer data.
+         * @return {string} Base64 encode string.
+         */
+        base64.encode = function (arraybuffer) {
+            var bytes = new Uint8Array(arraybuffer), i, len = bytes.length, base64 = '';
+            for (i = 0; i < len; i += 3) {
+                base64 += this.chars[bytes[i] >> 2];
+                base64 += this.chars[((bytes[i] & 3) << 4) | (bytes[i + 1] >> 4)];
+                base64 += this.chars[((bytes[i + 1] & 15) << 2) | (bytes[i + 2] >> 6)];
+                base64 += this.chars[bytes[i + 2] & 63];
+            }
+            if ((len % 3) === 2) {
+                base64 = base64.substring(0, base64.length - 1) + '=';
+            }
+            else if (len % 3 === 1) {
+                base64 = base64.substring(0, base64.length - 2) + '==';
+            }
+            return base64;
+        };
+        /**
+         * Decode the base64 encode string to arraybuffer.
+         * @param {string} base64 - Base64 encode string.
+         * @return {ArrayBuffer} Arraybuffer data.
+         */
+        base64.decode = function (base64) {
+            var lookup = new Uint8Array(256);
+            for (var i_1 = 0; i_1 < this.chars.length; i_1++) {
+                lookup[this.chars.charCodeAt(i_1)] = i_1;
+            }
+            var bufferLength = base64.length * 0.75, len = base64.length, i, p = 0, encoded1, encoded2, encoded3, encoded4;
+            if (base64[base64.length - 1] === '=') {
+                bufferLength--;
+                if (base64[base64.length - 2] === '=') {
+                    bufferLength--;
+                }
+            }
+            var arraybuffer = new ArrayBuffer(bufferLength);
+            var bytes = new Uint8Array(arraybuffer);
+            for (i = 0; i < len; i += 4) {
+                encoded1 = lookup[base64.charCodeAt(i)];
+                encoded2 = lookup[base64.charCodeAt(i + 1)];
+                encoded3 = lookup[base64.charCodeAt(i + 2)];
+                encoded4 = lookup[base64.charCodeAt(i + 3)];
+                bytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
+                bytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+                bytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
+            }
+            return arraybuffer;
+        };
+        base64.chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+        return base64;
+    }());
+    Utility.base64 = base64;
+    var Registry = /** @class */ (function () {
+        function Registry() {
+            this.objects = {};
+        }
+        Registry.prototype.get = function (key) {
+            return this.objects[key];
+        };
+        Registry.prototype.add = function (key, object) {
+            this.objects[key] = object;
+        };
+        Registry.prototype.remove = function (key) {
+            delete this.objects[key];
+        };
+        Registry.prototype.removeAll = function () {
+            this.objects = {};
+        };
+        return Registry;
+    }());
+    Utility.Registry = Registry;
+    Utility.resolveURL = function resolveURL(url, path) {
+        // Invalid URL
+        if (typeof url !== 'string' || url === '')
+            return '';
+        // Host Relative URL
+        if (/^https?:\/\//i.test(path) && /^\//.test(url)) {
+            path = path.replace(/(^https?:\/\/[^\/]+).*/i, '$1');
+        }
+        // Absolute URL http://,https://,//
+        if (/^(https?:)?\/\//i.test(url))
+            return url;
+        // Data URI
+        if (/^data:.*,.*$/i.test(url))
+            return url;
+        // Blob URL
+        if (/^blob:.*$/i.test(url))
+            return url;
+        // Relative URL
+        return path + url;
+    };
+    Utility.getAllLeafNode = function (tree) {
+        var leafNodes = [];
+        if (tree.children) {
+            tree.children.forEach(function (element) {
+                var nodes = Utility.getAllLeafNode(element);
+                leafNodes = __spread(leafNodes, nodes);
+            });
+        }
+        else {
+            leafNodes = __spread(leafNodes, tree);
+        }
+        return leafNodes;
+    };
+    Utility.getAvgRot = function (matrices) {
+        var out = create$1();
+        if (matrices.length > 0) {
+            var q_1 = null;
+            matrices.forEach(function (mat) {
+                var curQ = create$4();
+                getRotation(curQ, mat);
+                if (q_1) {
+                    slerp(q_1, q_1, curQ, 0.5);
+                }
+                else {
+                    q_1 = curQ;
+                }
+            });
+            fromQuat(out, q_1);
+            return out;
+        }
+        else {
+            console.warn("Utility.ts line 518 : matices are empty");
+            return null;
+        }
+    };
+})(Utility || (Utility = {}));var Texture = /** @class */ (function () {
+    function Texture(name, textureType) {
+        this.name = name;
+        if (AppState.GLContext) {
+            this.texture = AppState.GLContext.createTexture();
+            this.textureType = textureType | TextureType.TEXTURE_2D;
+            this.level = 0;
+            this.internalformat = AppState.GLContext.RGB;
+            this.width = 0;
+            this.height = 0;
+            this.border = 0;
+            this.format = AppState.GLContext.RGB;
+            this.type = AppState.GLContext.UNSIGNED_BYTE;
+            this.textureData = null;
+            this.index = Texture.textureCounter++;
+            this.isBind = false;
+            this.texCoordIndex = 0;
+        }
+    }
+    Texture.prototype.setTextureType = function (textureType) {
+        if (AppState.GLContext) {
+            this.textureType = textureType;
+            return true;
+        }
+        return false;
+    };
+    Texture.prototype.bind = function () {
+        if (AppState.GLContext && this.isBind == false) {
+            var textureSlot = AppState.GLContext.TEXTURE0 + this.index;
+            AppState.GLContext.activeTexture(textureSlot);
+            AppState.GLContext.bindTexture(this.textureType, this.texture);
+            this.isBind = true;
+        }
+    };
+    Texture.prototype.unBind = function () {
+        if (AppState.GLContext && this.isBind == true) {
+            AppState.GLContext.bindTexture(this.textureType, null);
+            this.isBind = false;
+        }
+    };
+    Texture.prototype.setTextureData = function (txtData) {
+        this.textureData = txtData;
+    };
+    Texture.prototype.setTextureDataFromImage = function (img) {
+        if (AppState.GLContext) {
+            this.setTextureData(img);
+            //AppState.GLContext.bindTexture(this.textureType, this.texture);
+            this.bind();
+            AppState.GLContext.texImage2D(this.textureType, this.level, this.internalformat, this.format, this.type, img);
+        }
+        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MAG_FILTER, AppState.GLContext.NEAREST);
+        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MIN_FILTER, AppState.GLContext.NEAREST);
+        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_S, AppState.GLContext.CLAMP_TO_EDGE);
+        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_T, AppState.GLContext.CLAMP_TO_EDGE);
+        //AppState.GLContext.bindTexture(AppState.GLContext.TEXTURE_2D, null);
+        this.unBind();
+    };
+    Texture.prototype.setTextureDataFromArrayBuffer = function (arrayBuffer) {
+        if (AppState.GLContext) {
+            var textureData = arrayBuffer;
+            this.width = textureData.length / 3;
+            this.height = 1;
+            this.setTextureData(arrayBuffer);
+            this.bind();
+            AppState.GLContext.texImage2D(this.textureType, this.level, this.internalformat, this.width, this.height, this.border, this.format, this.type, arrayBuffer);
+            AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MAG_FILTER, AppState.GLContext.NEAREST);
+            AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MIN_FILTER, AppState.GLContext.NEAREST);
+            AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_S, AppState.GLContext.CLAMP_TO_EDGE);
+            AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_T, AppState.GLContext.CLAMP_TO_EDGE);
+            //AppState.GLContext.bindTexture(AppState.GLContext.TEXTURE_2D, null);
+            this.unBind();
+        }
+    };
+    Texture.prototype.isPowerOf2 = function (value) {
+        return (value & (value - 1)) == 0;
+    };
+    Texture.prototype.setEmptyTexture = function () {
+        AppState.GLContext.texImage2D(this.textureType, this.level, this.internalformat, this.width, this.height, this.border, this.format, this.type, null);
+    };
+    Texture.prototype.setFilterOptions = function (options) {
+        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MAG_FILTER, options.magFilter);
+        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MIN_FILTER, options.minFilter);
+        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_S, options.wrap_s);
+        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_T, options.wrap_t);
+    };
+    Texture.prototype.isDataAvailable = function () {
+        if (this.textureData)
+            return true;
+        return false;
+    };
+    Texture.prototype.getData = function () {
+    };
+    Texture.textureCounter = 0;
+    return Texture;
+}());
+var TextureManager = /** @class */ (function () {
+    function TextureManager() {
+    }
+    TextureManager.getTextureByName = function (name) {
+        var texture = this.textureCache.get(name);
+        if (texture)
+            return texture;
+        return null;
+    };
+    TextureManager.parseServerJSON = function (textureJson) {
+        if (textureJson && textureJson.texture) {
+            if (textureJson.texture.source !== null && textureJson.texture.source !== undefined) {
+                var textureName = 'texture_' + textureJson.texture.source;
+                var texture_1 = this.textureCache.get(textureName);
+                if (texture_1 === undefined || texture_1 === null) {
+                    texture_1 = new Texture(textureName);
+                    texture_1.texCoordIndex = textureJson.texCoord;
+                    var image_1 = new Image();
+                    image_1.onload = function (event) {
+                        texture_1.setTextureDataFromImage(image_1);
+                    };
+                    if (textureJson.texture.data)
+                        image_1.src = textureJson.texture.data;
+                    else if (textureJson.texture.bufferViewLoader) {
+                        var promise = textureJson.texture.bufferViewLoader.getData();
+                        promise.then(function (arrayBuffer) {
+                            var stringData = Utility.convertUint8ArrayToString(new Uint8Array(arrayBuffer));
+                            image_1.src = 'data:' + textureJson.texture.mimeType + ';base64,' + btoa(stringData);
+                        })
+                            .catch(function (error) {
+                            throw new Error(error);
+                            //store the   textureJson.texture.bufferViewData.deferredBufferViewLoader in local variable to load later using getdata fn
+                        });
+                    }
+                    else {
+                        throw new Error("Texture data missing");
+                    }
+                    this.textureCache.add(textureName, texture_1);
+                }
+                return texture_1;
+            }
+        }
+        return null;
+    };
+    TextureManager.textureCache = new Utility.Registry();
+    return TextureManager;
+}());var Material = /** @class */ (function () {
+    function Material(name) {
+        this.name = name;
+        this.shader = null;
+        this.diffuseColor = new Array(1.0, 1.0, 1.0);
+        this.specularColor = new Array(0.2, 0.2, 0.2);
+        this.ambientColor = new Array(0.5, 0.5, 0.5);
+        this.emissiveColor = new Array(0.0, 0.0, 0.0);
+        this.shininess = 128;
+        this.transparency = 0.0;
+        this.ambientIntensity = 0.5;
+        this.isColorMaskEnabled = true;
+        this.useTexture = false;
+        this.isTextureAvailable = false;
+        this.texture = null;
+        this.useUserDefinedColor = false;
+        this.userDefinedColor = new Array(0.0, 0.0, 0.0);
+    }
+    Material.prototype.parseServerJSON = function (materialJson) {
+        //console.log(materialJson)
+        if (materialJson.emissiveFactor) {
+            this.emissiveColor = materialJson.emissiveFactor;
+        }
+        if (materialJson.pbrMetallicRoughness) {
+            if (materialJson.pbrMetallicRoughness.baseColorFactor)
+                this.diffuseColor = materialJson.pbrMetallicRoughness.baseColorFactor;
+            if (materialJson.pbrMetallicRoughness.baseColorTexture) {
+                this.texture = TextureManager.parseServerJSON(materialJson.pbrMetallicRoughness.baseColorTexture);
+                this.isTextureAvailable = true;
+            }
+        }
+    };
+    Material.prototype.setTransparency = function (value) {
+        this.transparency = value;
+    };
+    Material.prototype.setColorMask = function (value) {
+        this.isColorMaskEnabled = value;
+    };
+    Material.prototype.setUseTexture = function (value) {
+        this.useTexture = value;
+    };
+    Material.prototype.setTextureData = function (textureData) {
+        if (this.texture) {
+            this.texture.setTextureDataFromArrayBuffer(new Uint8Array(textureData));
+        }
+    };
+    Material.prototype.setUserDefinedColor = function (value) {
+        if (value.length >= 3) {
+            this.userDefinedColor[0] = value[0];
+            this.userDefinedColor[1] = value[1];
+            this.userDefinedColor[2] = value[2];
+        }
+        else {
+            throw new Error("Invalide number of color values");
+        }
+    };
+    Material.prototype.setUseUserDefinedColor = function (value) {
+        this.useUserDefinedColor = value;
+    };
+    Material.prototype.clone = function () {
+        var m = Object.create(this);
+        m.diffuseColor = __spread(this.diffuseColor);
+        m.specularColor = __spread(this.specularColor);
+        m.ambientColor = __spread(this.ambientColor);
+        m.emissiveColor = __spread(this.emissiveColor);
+        m.userDefinedColor = __spread(this.userDefinedColor);
+        return m;
+    };
+    return Material;
+}());
+var MaterialManager = /** @class */ (function () {
+    function MaterialManager() {
+    }
+    MaterialManager.getMaterailByName = function (name) {
+        var material = this.materialCache.get(name);
+        if (material)
+            return material;
+        return null;
+    };
+    MaterialManager.parseServerJSON = function (materialJson) {
+        if (materialJson) {
+            if (materialJson.id) {
+                var material_name = materialJson.id;
+                var material = this.materialCache.get(material_name);
+                if (material === undefined || material === null) {
+                    material = new Material(material_name);
+                    material.parseServerJSON(materialJson);
+                    this.materialCache.add(material_name, material);
+                }
+                return material;
+            }
+        }
+        return null;
+    };
+    MaterialManager.materialCache = new Utility.Registry();
+    return MaterialManager;
+}());var WEBGLBufferCache = /** @class */ (function () {
+    function WEBGLBufferCache() {
+    }
+    WEBGLBufferCache.get = function (key) {
+        return WEBGLBufferCache.cache.get(key);
+    };
+    WEBGLBufferCache.add = function (key, object) {
+        WEBGLBufferCache.cache.add(key, object);
+    };
+    WEBGLBufferCache.remove = function (key) {
+        WEBGLBufferCache.cache.remove(key);
+    };
+    WEBGLBufferCache.removeAll = function () {
+        WEBGLBufferCache.cache.removeAll();
+    };
+    WEBGLBufferCache.getAll = function () {
+        return Object.values(WEBGLBufferCache.cache.objects);
+    };
+    WEBGLBufferCache.cache = new Utility.Registry();
+    return WEBGLBufferCache;
 }());var BoundingBox = /** @class */ (function () {
     function BoundingBox() {
         this.Min = {
@@ -3575,6 +3682,7 @@ var Mesh = /** @class */ (function () {
         this.name = _name;
         this.children = [];
         this.type = AppConstants.NodeType.NONE;
+        this.subType = AppConstants.NodeSubType.NONE;
         this.localMatrix = create$1();
         this.worldMatrix = create$1();
         this.parent = null;
@@ -3639,7 +3747,7 @@ var Mesh = /** @class */ (function () {
         setAxisAngle(_quat, axis, angleInRad);
         var quat = create$4();
         getRotation(quat, this.worldMatrix);
-        mul(quat, _quat, quat);
+        mul$1(quat, _quat, quat);
         fromRotationTranslationScale(this.worldMatrix, quat, translation, scale);
     };
     SceneNode.prototype.translate = function (x, y, z) {
@@ -3720,8 +3828,8 @@ var ShapeNode = /** @class */ (function (_super) {
     };
     ShapeNode.prototype.getBBoxCenter = function (worldSpace) {
         if (worldSpace === void 0) { worldSpace = true; }
-        if (this.mesh.subMeshes['bbox']) {
-            var bbox = this.mesh.subMeshes['bbox'];
+        if (this.mesh.subMeshes['primitive_0']) {
+            var bbox = this.mesh.subMeshes['primitive_0']["BBox"];
             var center = bbox.getCenter();
             return (worldSpace) ? transformMat4(center, center, this.worldMatrix) : center;
         }
@@ -5508,7 +5616,7 @@ var MathUtils;
         setAxisAngle(_quat, axis, angleInRad);
         var quat = create$4();
         getRotation(quat, worldMatrix);
-        mul(quat, _quat, quat);
+        mul$1(quat, _quat, quat);
         fromRotationTranslationScale(worldMatrix, quat, translation, scale);
     }
     MathUtils.rotateOnWorldAxis = rotateOnWorldAxis;
@@ -6628,7 +6736,159 @@ var Renderer2D = /** @class */ (function () {
         }
     };
     return Renderer2D;
-}());var WebGLRenderTarget = /** @class */ (function () {
+}());var ArrowMesh = /** @class */ (function (_super) {
+    __extends(ArrowMesh, _super);
+    function ArrowMesh(name, color) {
+        if (color === void 0) { color = [0, 0, 0, 1]; }
+        var _this = _super.call(this, name) || this;
+        _this.uid = Utility.getGUID();
+        _this.rendingMode = RenderMode.TRIANGLES;
+        _this.createArrowMesh();
+        _this.material = new Material(name);
+        _this.material.diffuseColor = [color[0], color[1], color[2]];
+        return _this;
+    }
+    ArrowMesh.prototype.createArrowMesh = function () {
+        var vertices = new Float32Array([
+            -0.076537, 1.841130, 0.184776,
+            -0.184776, 1.841130, 0.076537,
+            -0.196157, 1.841130, -0.039018,
+            -0.111114, 1.841130, -0.166294,
+            0.000000, 1.841130, -0.200000,
+            0.141421, 1.841130, -0.141421,
+            0.196157, 1.841130, -0.039018,
+            0.166294, 1.841130, 0.111114,
+            0.076537, 1.841130, 0.184776,
+            0.000000, 2.341130, 0.000000,
+            -0.092388, 2.000000, 0.038268,
+            -0.092388, -0.000000, 0.038268,
+            -0.038268, -0.000000, 0.092388,
+            -0.038268, 2.000000, 0.092388,
+            0.083147, -0.000000, 0.055557,
+            0.098079, -0.000000, 0.019509,
+            0.098079, 2.000000, 0.019509,
+            0.083147, 2.000000, 0.055557,
+            0.070711, 2.000000, 0.070711,
+            0.038268, 2.000000, 0.092388,
+            0.038268, -0.000000, 0.092388,
+            0.070711, -0.000000, 0.070711,
+            0.000000, 2.000000, -0.100000,
+            -0.038268, 2.000000, -0.092388,
+            -0.098079, 2.000000, -0.019509,
+            0.092388, 2.000000, -0.038268,
+            0.038268, 2.000000, -0.092388,
+            0.019509, 2.000000, -0.098079,
+            0.092388, 0.000000, -0.038268,
+            -0.038268, 0.000000, -0.092388,
+            -0.098079, 0.000000, -0.019509,
+            0.000000, 0.000000, -0.100000,
+            0.019509, 0.000000, -0.098079,
+            0.038268, 0.000000, -0.092388
+        ]);
+        var indices = new Uint32Array([
+            9, 2, 6,
+            10, 5, 4,
+            12, 14, 11,
+            22, 15, 18,
+            11, 20, 18,
+            26, 16, 29,
+            31, 24, 30,
+            10, 6, 5,
+            34, 16, 13,
+            9, 10, 1,
+            3, 2, 10,
+            11, 31, 12,
+            23, 28, 33,
+            10, 4, 3,
+            7, 10, 8,
+            8, 10, 9,
+            10, 2, 1,
+            29, 27, 26,
+            10, 7, 6,
+            20, 13, 21,
+            9, 1, 2,
+            2, 3, 6,
+            3, 4, 6,
+            4, 5, 6,
+            6, 7, 8,
+            8, 9, 6,
+            12, 13, 14,
+            15, 16, 17,
+            18, 19, 22,
+            19, 20, 22,
+            15, 17, 18,
+            20, 21, 22,
+            28, 23, 24,
+            24, 25, 11,
+            11, 14, 20,
+            20, 19, 18,
+            18, 17, 26,
+            26, 27, 18,
+            27, 28, 18,
+            28, 24, 18,
+            24, 11, 18,
+            26, 17, 16,
+            31, 25, 24,
+            13, 12, 32,
+            12, 31, 32,
+            31, 30, 32,
+            32, 33, 34,
+            34, 29, 16,
+            16, 15, 13,
+            15, 22, 13,
+            22, 21, 13,
+            32, 34, 13,
+            11, 25, 31,
+            28, 27, 34,
+            33, 32, 23,
+            32, 30, 23,
+            28, 34, 33,
+            30, 24, 23,
+            29, 34, 27,
+            20, 14, 13
+        ]);
+        this.setattribs(this.generateAttribute(vertices));
+        this.setIndex(this.generateIndices(indices));
+    };
+    ArrowMesh.prototype.generateAttribute = function (vertices) {
+        var attrib = new WebGLArrayBufferAttribute();
+        attrib.position = new WebGLArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, vertices);
+        return attrib;
+    };
+    ArrowMesh.prototype.generateIndices = function (indices) {
+        var index = new WebGLElementArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, indices);
+        return index;
+    };
+    return ArrowMesh;
+}(CoreMesh));var Arrow3D = /** @class */ (function (_super) {
+    __extends(Arrow3D, _super);
+    function Arrow3D(name, color) {
+        if (color === void 0) { color = [0, 0, 0, 1]; }
+        var _this = _super.call(this, name) || this;
+        _this.mesh = new Mesh("axisMesh");
+        _this.mesh.mainMesh = new ArrowMesh("axis", fromValues$1(color[0], color[1], color[2], color[3]));
+        _this.visible = false;
+        return _this;
+    }
+    return Arrow3D;
+}(ShapeNode));var Axes3DHelper = /** @class */ (function (_super) {
+    __extends(Axes3DHelper, _super);
+    function Axes3DHelper(name) {
+        var _this = _super.call(this, name) || this;
+        _this.x = new Arrow3D("x " + name, [1, 0, 0, 1]);
+        _this.y = new Arrow3D("y" + name, [0, 1, 0, 1]);
+        _this.z = new Arrow3D("z" + name, [0, 0, 1, 1]);
+        _this.x.rotateOnWorldAxis(-90 * Math.PI / 180, fromValues(0, 0, 1));
+        _this.addChild(_this.x);
+        _this.addChild(_this.y);
+        _this.z.rotateOnWorldAxis(90 * Math.PI / 180, fromValues(1, 0, 0));
+        _this.addChild(_this.z);
+        _this.visible = false;
+        _this.scale(0.5, 0.5, 0.5);
+        return _this;
+    }
+    return Axes3DHelper;
+}(TransFormNode));var WebGLRenderTarget = /** @class */ (function () {
     function WebGLRenderTarget(width, height, options) {
         this.buffer = AppState.GLContext.createFramebuffer();
         this.width = width;
@@ -6695,6 +6955,7 @@ var Renderer2D = /** @class */ (function () {
         this.container = document.getElementById(_containerId);
         this.times = [];
         this.customRenderNodes = new Map();
+        this.axis3DHelper = null;
         this.fps = 0;
         if (this.container !== null) {
             var canvas3d = Utility.getElementInsideContainer(this.container.id, '3dcanvas_' + this.container.id);
@@ -6787,9 +7048,8 @@ var Renderer2D = /** @class */ (function () {
             //render custom shapeNodes
             if (this.customRenderNodes.size > 0) {
                 this.customRenderNodes.forEach(function (node, key) {
-                    if (node.visible) {
-                        var customShader = node.mesh.mainMesh.material.shader ? node.mesh.mainMesh.material.shader : _this.mainShader;
-                        _this.renderBufferDirect(node.mesh.mainMesh, node.worldMatrix, customShader, node.mesh.mainMesh.material.diffuseColor);
+                    if (node.visible && node.subType === AppConstants.NodeSubType.NONE) {
+                        _this.renderBufferDirect(node.mesh.mainMesh, node.worldMatrix, node.mesh.mainMesh.material.shader, node.mesh.mainMesh.material.diffuseColor);
                     }
                 });
             }
@@ -6810,6 +7070,10 @@ var Renderer2D = /** @class */ (function () {
             if (AppObjects.labelManager) {
                 AppObjects.labelManager.render();
             }
+            //render gizmos
+            var nodes = this.sceneManager.getRenderNodes();
+            if (nodes.length > 0)
+                this.renderGizmos(nodes);
         }
     };
     Renderer.prototype.renderBufferDirect = function (mesh, worldMatrix, shader, color) {
@@ -6842,6 +7106,52 @@ var Renderer2D = /** @class */ (function () {
         }
         else {
             AppState.GLContext.drawArrays(mesh.rendingMode, 0, mesh.attribs.position.getDataArrayCount() / vertexSize);
+        }
+    };
+    Renderer.prototype.renderGizmos = function (nodes) {
+        var _this = this;
+        this.GLContext.clear(this.GLContext.DEPTH_BUFFER_BIT);
+        var highlightedNodes = [];
+        var center = create$2();
+        nodes.forEach(function (node) {
+            if (node.subType === AppConstants.NodeSubType.HIGHLIGHT && node.visible) {
+                highlightedNodes.push(node);
+                var c = node.getBBoxCenter();
+                if (c) {
+                    add(center, center, c);
+                }
+                else {
+                    return;
+                }
+            }
+        });
+        scale$1(center, center, 1 / highlightedNodes.length);
+        if (this.axis3DHelper === null && this.GLContext) {
+            this.axis3DHelper = new Axes3DHelper("axis");
+        }
+        if (highlightedNodes.length > 0 && this.axis3DHelper && center) {
+            var camPos = this.camControl.getPosition();
+            var objPos = center;
+            var scaleToFit = dist(camPos, objPos) * Math.tan(this.camControl.perspParams.fov / 2) * 0.5; // some constant to fit to proper size
+            var scale = create$1();
+            var trans = create$1();
+            trans[12] = objPos[0];
+            trans[13] = objPos[1];
+            trans[14] = objPos[2];
+            var rot = Utility.getAvgRot(highlightedNodes.map(function (node) { return node.worldMatrix; }));
+            fromScaling(scale, fromValues(scaleToFit, scaleToFit, scaleToFit));
+            var shader_1 = this.mainShader;
+            var model_1 = create$1();
+            mul(model_1, model_1, trans);
+            mul(model_1, model_1, rot);
+            mul(model_1, model_1, scale);
+            mul(model_1, model_1, this.axis3DHelper.worldMatrix);
+            //render axes
+            this.axis3DHelper.children.forEach(function (node) {
+                var nodeMatrix = create$1();
+                mul(nodeMatrix, model_1, node.worldMatrix);
+                _this.renderBufferDirect(node.mesh.mainMesh, nodeMatrix, shader_1, node.mesh.mainMesh.material.diffuseColor);
+            });
         }
     };
     Renderer.prototype.readPixels = function (x, y) {
@@ -10053,6 +10363,7 @@ var MouseControl = /** @class */ (function (_super) {
                 var pointOfRotation = this.camControls.getRotationPoint();
                 if (!this.rotationPointNode) {
                     this.rotationPointNode = this.getPointMesh('rotationPoint', pointOfRotation);
+                    this.rotationPointNode.visible = true;
                     AppObjects.renderer.addCustomRenderNode(this.rotationPointNode);
                 }
             }
@@ -12502,6 +12813,7 @@ var LabelManager = /** @class */ (function () {
         this.setNodeVisibility(nodeIds, visibility);
         var nodes = this.getRenderNodesFromId(nodeIds);
         nodes.forEach(function (node) {
+            node.subType = AppConstants.NodeSubType.HIGHLIGHT;
             console.log(node.mesh.subMeshes['primitive_0'].material.diffuseColor = visibility ? [1, 1, 0] : [0, 0, 0]);
         });
     };
@@ -15298,6 +15610,7 @@ var getEventObject = function (type, viewerID, data) {
                         //update in local tree;
                         this.productTree.setVisibility(nodes, visibility);
                         reps = this.productTree.getRepresentationsFromParts(nodes);
+                        reps = reps.filter(function (rep) { return rep.customData.type !== RepresentationType.HIGHLIGHT; });
                         repIds = reps.map(function (rep) { return rep.customData.node; });
                         if (!(repIds.length > 0 && (visibility === false))) return [3 /*break*/, 1];
                         this.renderApp.setNodeVisibility(repIds, false);
@@ -15535,22 +15848,24 @@ var getEventObject = function (type, viewerID, data) {
         nodes.forEach(function (node) {
             node.customData.displayProps.isHighlighted = visiblity;
             var reps = _this.productTree.getRepresentationsFromParts([node]);
-            var hRep = reps.find(function (rep) { return rep.customData.type === RepresentationType.HIGHLIGHT; });
-            if (!hRep) {
-                var boxRep = reps.find(function (rep) { return rep.customData.type === RepresentationType.BBOX; });
-                var highlightRep = Utility.deepCopy(boxRep);
-                highlightRep.customData.type = RepresentationType.HIGHLIGHT;
-                var uid = RepresentationType.HIGHLIGHT;
-                highlightRep.id += uid;
-                highlightRep.name += uid;
-                highlightRep.customData.type = RepresentationType.HIGHLIGHT;
-                highlightRep.customData.node += uid;
-                highlightRep.customData.name += uid;
-                hRep = highlightRep;
-                node.customData.geometries[0].customData.representations.push(hRep);
-                _this.renderApp.cloneRenderNode(boxRep, hRep, false);
+            var hRep = reps.filter(function (rep) { return rep.customData.type === RepresentationType.HIGHLIGHT; });
+            if (hRep.length === 0) {
+                var boxReps = reps.filter(function (rep) { return rep.customData.type === RepresentationType.BBOX; });
+                boxReps.forEach(function (boxRep) {
+                    var highlightRep = Utility.deepCopy(boxRep);
+                    highlightRep.customData.type = RepresentationType.HIGHLIGHT;
+                    var uid = RepresentationType.HIGHLIGHT;
+                    highlightRep.id += uid;
+                    highlightRep.name += uid;
+                    highlightRep.customData.type = RepresentationType.HIGHLIGHT;
+                    highlightRep.customData.node += uid;
+                    highlightRep.customData.name += uid;
+                    hRep.push(highlightRep);
+                    node.customData.geometries[0].customData.representations.push(highlightRep);
+                    _this.renderApp.cloneRenderNode(boxRep, highlightRep, false);
+                });
             }
-            hreps.push(hRep);
+            hreps.push.apply(hreps, __spread(hRep));
         });
         var repIds = hreps.map(function (rep) { return rep.customData.node; });
         this.renderApp.setHighlightedNodes(repIds, visiblity);
