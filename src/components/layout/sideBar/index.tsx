@@ -19,6 +19,8 @@ import Annotations from '../../sideBarContents/annotations';
 import Settings from '../../sideBarContents/settings';
 import Notifications from '../../shared/notifications';
 
+import Scene from '../../sideBarContents/scene';
+
 export default function Sidebar(){
     
     const classes = styles();
@@ -52,7 +54,9 @@ export default function Sidebar(){
         case sideBarContentTypes.settings:
           return <Settings />;
         case sideBarContentTypes.notifications:
-          return <Notifications />;       
+          return <Notifications />;
+        case sideBarContentTypes.scene:
+          return <Scene />;       
         default:
           return null;
       }

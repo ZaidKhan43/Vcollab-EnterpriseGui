@@ -15,7 +15,7 @@ const initialState : props = {
         y: 0,
     },
     text : "Position of the Point",
-    showFlag : false,
+    showFlag : true,
 }
 
 export const propsSlice = createSlice ({

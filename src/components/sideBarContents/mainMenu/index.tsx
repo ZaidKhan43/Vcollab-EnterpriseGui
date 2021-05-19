@@ -12,6 +12,9 @@ import Views from '../../icons/views';
 import Annotations from '../../icons/annotation';
 import Settings from '../../icons/settings';
 import Notifications from '../../icons/notification';
+
+import MuiPhotoSizeSelectActualOutlinedIcon from '@material-ui/icons/PhotoSizeSelectActualOutlined';
+
 import Logo from '../../../assets/images/LogoBig.svg';
 import styles from './style';
 import { setSidebarActiveContent } from '../../../store/appSlice';
@@ -31,6 +34,12 @@ export default function MainMenu(){
           icon: <BranchIcon />,
           disabled : false,
           onClick: () => dispatch(setSidebarActiveContent(sideBarContentTypes.productExplorer)),
+        },
+        {
+          title: 'Scene',
+          icon: <MuiPhotoSizeSelectActualOutlinedIcon />,
+          disabled : false,
+          onClick: () => dispatch(setSidebarActiveContent(sideBarContentTypes.scene)),
         },
         {
           title: 'Color Maps',
