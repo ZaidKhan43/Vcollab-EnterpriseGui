@@ -1,4 +1,3 @@
-/* eslint-disable */
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
 
@@ -96,9 +95,7 @@ function __spread() {
     for (var ar = [], i = 0; i < arguments.length; i++)
         ar = ar.concat(__read(arguments[i]));
     return ar;
-}var version = "0.0.7";var vctViewer = function(_containerID, _connectorObject)
-{
-/*! *****************************************************************************
+}var version = "0.0.7";/*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
 
 Permission to use, copy, modify, and/or distribute this software for any
@@ -127,7 +124,7 @@ function __extends(d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 }
 
-function __awaiter(thisArg, _arguments, P, generator) {
+function __awaiter$1(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -137,7 +134,7 @@ function __awaiter(thisArg, _arguments, P, generator) {
     });
 }
 
-function __generator(thisArg, body) {
+function __generator$1(thisArg, body) {
     var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
     return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
@@ -165,7 +162,7 @@ function __generator(thisArg, body) {
     }
 }
 
-function __values(o) {
+function __values$1(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
     if (m) return m.call(o);
     if (o && typeof o.length === "number") return {
@@ -177,7 +174,7 @@ function __values(o) {
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 }
 
-function __read(o, n) {
+function __read$1(o, n) {
     var m = typeof Symbol === "function" && o[Symbol.iterator];
     if (!m) return o;
     var i = m.call(o), r, ar = [], e;
@@ -194,9 +191,9 @@ function __read(o, n) {
     return ar;
 }
 
-function __spread() {
+function __spread$1() {
     for (var ar = [], i = 0; i < arguments.length; i++)
-        ar = ar.concat(__read(arguments[i]));
+        ar = ar.concat(__read$1(arguments[i]));
     return ar;
 }var AppConstants;
 (function (AppConstants) {
@@ -3022,11 +3019,11 @@ function fromValues$3(x, y) {
         if (tree.children) {
             tree.children.forEach(function (element) {
                 var nodes = Utility.getAllLeafNode(element);
-                leafNodes = __spread(leafNodes, nodes);
+                leafNodes = __spread$1(leafNodes, nodes);
             });
         }
         else {
-            leafNodes = __spread(leafNodes, tree);
+            leafNodes = __spread$1(leafNodes, tree);
         }
         return leafNodes;
     };
@@ -3046,6 +3043,21 @@ function fromValues$3(x, y) {
             });
             fromQuat(out, q_1);
             return out;
+        }
+        else {
+            console.warn("Utility.ts line 518 : matices are empty");
+            return null;
+        }
+    };
+    Utility.getAvgTrans = function (matrices) {
+        var out = create$2();
+        if (matrices.length > 0) {
+            var trans_1 = create$2();
+            matrices.forEach(function (m) {
+                getTranslation(trans_1, m);
+                add(out, out, trans_1);
+            });
+            return scale$1(out, out, 1 / matrices.length);
         }
         else {
             console.warn("Utility.ts line 518 : matices are empty");
@@ -3254,11 +3266,11 @@ var TextureManager = /** @class */ (function () {
     };
     Material.prototype.clone = function () {
         var m = Object.create(this);
-        m.diffuseColor = __spread(this.diffuseColor);
-        m.specularColor = __spread(this.specularColor);
-        m.ambientColor = __spread(this.ambientColor);
-        m.emissiveColor = __spread(this.emissiveColor);
-        m.userDefinedColor = __spread(this.userDefinedColor);
+        m.diffuseColor = __spread$1(this.diffuseColor);
+        m.specularColor = __spread$1(this.specularColor);
+        m.ambientColor = __spread$1(this.ambientColor);
+        m.emissiveColor = __spread$1(this.emissiveColor);
+        m.userDefinedColor = __spread$1(this.userDefinedColor);
         return m;
     };
     return Material;
@@ -3422,7 +3434,7 @@ var MaterialManager = /** @class */ (function () {
         var bufferViewIndexes = [];
         if (this.attribs) {
             var indexes = this.attribs.getBufferViewIndex(this.material ? this.material.useTexture : false);
-            bufferViewIndexes = __spread(indexes);
+            bufferViewIndexes = __spread$1(indexes);
         }
         if (this.indices && this.indices.isDataAvailable() === false) {
             var index = this.indices.getBufferViewIndex();
@@ -3773,6 +3785,9 @@ var TransFormNode = /** @class */ (function (_super) {
         var _this = _super.call(this, _name) || this;
         _this.type = AppConstants.NodeType.TRANSFORM;
         _this.children = [];
+        _this.explodeTranslation = create$2();
+        _this.pickAndMoveMatrix = create$1();
+        _this.initialMatrix = null;
         return _this;
     }
     TransFormNode.prototype.addChild = function (node) {
@@ -3909,8 +3924,10 @@ var ShapeNode = /** @class */ (function (_super) {
                 if (sceneRoot.children) {
                     for (var i = 0; i < sceneRoot.children.length; i++) {
                         var child = this.getNode(sceneRoot.children[i]);
-                        if (child !== null)
+                        if (child !== null) {
+                            child.parent = rootNode;
                             rootNode.addChild(child);
+                        }
                     }
                 }
                 this.root = rootNode;
@@ -3954,8 +3971,10 @@ var ShapeNode = /** @class */ (function (_super) {
                 if (node.children) {
                     for (var i = 0; i < node.children.length; i++) {
                         var child = this.getNode(node.children[i]);
-                        if (child !== null)
+                        if (child !== null) {
+                            child.parent = TNode;
                             TNode.addChild(child);
+                        }
                     }
                 }
                 return TNode;
@@ -3996,8 +4015,13 @@ var ShapeNode = /** @class */ (function (_super) {
             transform = new Float32Array(transformation);
         }
         if (topNode["type"] === AppConstants.NodeType.TRANSFORM) {
-            if (topNode["localMatrix"]) {
-                multiply(transform, transform, topNode["localMatrix"]);
+            var transformNode = topNode;
+            var temp = create$1();
+            if (topNode.localMatrix) {
+                if (transformNode.pickAndMoveMatrix) {
+                    mul(temp, transformNode.pickAndMoveMatrix, topNode["localMatrix"]);
+                }
+                multiply(transform, transform, temp);
             }
         }
         //var newNode= {};
@@ -4048,10 +4072,21 @@ var ShapeNode = /** @class */ (function (_super) {
         }
         if (topNode["children"]) {
             for (var i = 0; i < topNode["children"].length; i++) {
-                nodes = __spread(nodes, this.getSortedRenderableObjects(topNode["children"][i], transform));
+                nodes = __spread$1(nodes, this.getSortedRenderableObjects(topNode["children"][i], transform));
             }
         }
-        return nodes = __spread(nodes, opaque, transparent.reverse());
+        return nodes = __spread$1(nodes, opaque, transparent.reverse());
+    };
+    SceneGraph.prototype.traverse = function (cbk, parent, node) {
+        var _this = this;
+        if (parent === void 0) { parent = null; }
+        if (node === void 0) { node = this.root; }
+        cbk(parent, node);
+        if (node.children) {
+            node.children.forEach(function (child) {
+                _this.traverse(cbk, node, child);
+            });
+        }
     };
     return SceneGraph;
 }());var WebGLState = /** @class */ (function () {
@@ -4667,6 +4702,9 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         }
         return false;
     };
+    Scene.prototype.traverse = function (cbk) {
+        this.sceneGraph.traverse(cbk);
+    };
     Scene.prototype.getRenderableObjects = function () {
         if (this.renderableNodes) {
             return this.renderableNodes;
@@ -4677,10 +4715,19 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         }
         return null;
     };
-    Scene.prototype.addRenderNodes = function (nodes) {
-        var _a;
-        (_a = this.renderableNodes).push.apply(_a, __spread(nodes));
-        //this.updateRenderableObjects();
+    Scene.prototype.addRenderNodes = function (adjacentNodeId, nodes) {
+        this.traverse(function (parent, child) {
+            var _a;
+            if (child.type === AppConstants.NodeType.SHAPE && child.index === adjacentNodeId) {
+                if (parent) {
+                    (_a = parent.children).push.apply(_a, __spread$1(nodes));
+                }
+                else {
+                    console.warn("cannot add node to parent of null");
+                }
+            }
+        });
+        this.updateRenderableObjects();
     };
     Scene.prototype.updateRenderableObjects = function () {
         this.renderableNodes = (this.sceneGraph) ? this.sceneGraph.getRenderableNode() : null;
@@ -5015,7 +5062,7 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
                     if (node.attributes && node.attributes.bbox) {
                         var nodeMin = void 0;
                         var nodeMax = void 0;
-                        _a = __read(node.getBBoxMinMax(), 2), nodeMin = _a[0], nodeMax = _a[1];
+                        _a = __read$1(node.getBBoxMinMax(), 2), nodeMin = _a[0], nodeMax = _a[1];
                         if (bbox.isDefault == true) {
                             bbox.Min.x = nodeMin[0];
                             bbox.Min.y = nodeMin[1];
@@ -5115,10 +5162,10 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         for (var i = 1; i < newNodeList.length; i++) {
             var node = newNodeList[i];
             if (node.type && node.type === AppConstants.NodeType.SHAPE) {
-                var SceneNode = this.getNodeByName(sceneNodelist, node.name);
-                console.log(SceneNode);
-                if (SceneNode) {
-                    if (SceneNode.type === AppConstants.NodeType.SHAPE) {
+                var SceneNode_1 = this.getNodeByName(sceneNodelist, node.name);
+                console.log(SceneNode_1);
+                if (SceneNode_1) {
+                    if (SceneNode_1.type === AppConstants.NodeType.SHAPE) {
                         if (node.mesh !== undefined) {
                             if (node.attributes !== undefined &&
                                 node.attributes.bbox !== undefined)
@@ -5127,9 +5174,9 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
                                         var primitive = node.mesh.primitives[ji];
                                         var mesh = null;
                                         var meshName = node.name + '_' + primitive.name;
-                                        var keys = Object.keys(SceneNode.mesh.subMeshes);
+                                        var keys = Object.keys(SceneNode_1.mesh.subMeshes);
                                         for (var z = 0; z < keys.length; z++) {
-                                            var item = SceneNode.mesh.subMeshes[keys[z]];
+                                            var item = SceneNode_1.mesh.subMeshes[keys[z]];
                                             if (node.name + '_' + item.name === meshName) {
                                                 mesh = item;
                                                 break;
@@ -5244,7 +5291,7 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
                                 node.attributes.bbox !== undefined) {
                                 var bboxmax = node.attributes.bbox.max;
                                 var bboxmin = node.attributes.bbox.min;
-                                var box = SceneNode.mesh.subMeshes['bbox'];
+                                var box = SceneNode_1.mesh.subMeshes['bbox'];
                                 if (box === undefined || null) {
                                     box = new BoxMesh(node.name + '_boundingbox', fromValues(bboxmin[0], bboxmin[1], bboxmin[2]), fromValues(bboxmax[0], bboxmax[1], bboxmax[2]), 0.5);
                                 }
@@ -5257,10 +5304,6 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
                 }
             }
         }
-    };
-    Scene.prototype.update = function () {
-        this.renderableNodes = null;
-        WebGLState.clear();
     };
     //Private methods
     Scene.prototype.getNodeByName = function (nodeList, name) {
@@ -5476,18 +5519,34 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
     SceneManager.prototype.applyResult = function (scene) {
         this.scenes[0].applyResult(scene);
     };
+    SceneManager.prototype.getPartNodes = function () {
+        var out = [];
+        this.scenes.forEach(function (scene) {
+            scene.traverse(function (parent, node) {
+                if (node.children.length > 0 && node.children[0].type === AppConstants.NodeType.SHAPE) {
+                    out.push(node);
+                }
+            });
+        });
+        return out;
+    };
     SceneManager.prototype.getRenderNodes = function () {
         var nodes = [];
         if (this.scenes instanceof Array)
             this.scenes.forEach(function (scene) {
                 //nodes.push(scene.getRenderableObjects());
-                nodes = nodes.concat.apply(nodes, __spread(scene.getRenderableObjects()));
+                nodes = nodes.concat.apply(nodes, __spread$1(scene.getRenderableObjects()));
             });
         return nodes;
     };
-    SceneManager.prototype.addRenderNodes = function (nodes) {
+    SceneManager.prototype.traverse = function (cbk) {
+        this.scenes.forEach(function (scene) {
+            scene.traverse(cbk);
+        });
+    };
+    SceneManager.prototype.addRenderNodes = function (adjacentNodeId, nodes) {
         if (this.scenes instanceof Array) {
-            this.scenes[0].addRenderNodes(nodes);
+            this.scenes[0].addRenderNodes(adjacentNodeId, nodes);
         }
     };
     SceneManager.prototype.updateRenderNodes = function () {
@@ -5514,7 +5573,7 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
             if (root.children) {
                 for (var index = 0; index < root.children.length; index++) {
                     var e = root.children[index];
-                    (_a = sceneGraph.children).push.apply(_a, __spread(this.getSceneGraphJSON(e)));
+                    (_a = sceneGraph.children).push.apply(_a, __spread$1(this.getSceneGraphJSON(e)));
                 }
             }
             else {
@@ -5525,7 +5584,7 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
                 nodeArray.push(this);
                 if (this.children && this.children.length > 0) {
                     this.children.forEach(function (element) {
-                        nodeArray.push.apply(nodeArray, __spread(element.getAllNodes()));
+                        nodeArray.push.apply(nodeArray, __spread$1(element.getAllNodes()));
                     });
                 }
                 return nodeArray;
@@ -5535,6 +5594,7 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         }
     };
     SceneManager.prototype.update = function () {
+        WebGLState.clear();
         this.updateRenderNodes();
         this.updateBBox();
     };
@@ -6955,6 +7015,7 @@ var Renderer2D = /** @class */ (function () {
         this.container = document.getElementById(_containerId);
         this.times = [];
         this.customRenderNodes = new Map();
+        this.highlightedNodes = new Map();
         this.axis3DHelper = null;
         this.fps = 0;
         if (this.container !== null) {
@@ -7071,9 +7132,8 @@ var Renderer2D = /** @class */ (function () {
                 AppObjects.labelManager.render();
             }
             //render gizmos
-            var nodes = this.sceneManager.getRenderNodes();
-            if (nodes.length > 0)
-                this.renderGizmos(nodes);
+            this.sceneManager.getRenderNodes();
+            this.renderGizmos();
         }
     };
     Renderer.prototype.renderBufferDirect = function (mesh, worldMatrix, shader, color) {
@@ -7108,14 +7168,47 @@ var Renderer2D = /** @class */ (function () {
             AppState.GLContext.drawArrays(mesh.rendingMode, 0, mesh.attribs.position.getDataArrayCount() / vertexSize);
         }
     };
-    Renderer.prototype.renderGizmos = function (nodes) {
-        var _this = this;
+    Renderer.prototype.renderBufferAsGizmo = function (mesh, worldMatrix, shader, color) {
+        if (shader === void 0) { shader = this.mainShader; }
+        if (color === void 0) { color = [0, 0, 0, 1]; }
+        if (mesh.isDataAvailable() === false) {
+            return;
+        }
+        shader.bind();
+        shader.setMat4f(uniforms.uProjectionMatrix, this.camControl.perspCamera.projectionViewMatrix);
+        shader.setMat4f(uniforms.uModelViewMatrix, worldMatrix);
+        shader.setVector3f(uniforms.uColor, new Float32Array(color));
+        if (mesh.attribs.position) {
+            shader.enablePosition();
+            shader.setPosition(mesh.attribs.position);
+        }
+        else
+            return false;
+        if (mesh.attribs.color) {
+            shader.enableColor();
+            shader.setColor(mesh.attribs.color);
+        }
+        else
+            shader.disableColor();
+        var vertexSize = 3;
+        if (mesh.indices) {
+            var GLDrawType = mesh.indices.getType();
+            mesh.indices.bind();
+            AppState.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
+        }
+        else {
+            AppState.GLContext.drawArrays(mesh.rendingMode, 0, mesh.attribs.position.getDataArrayCount() / vertexSize);
+        }
+    };
+    Renderer.prototype.renderGizmos = function () {
         this.GLContext.clear(this.GLContext.DEPTH_BUFFER_BIT);
-        var highlightedNodes = [];
+        this.renderAxisHelper();
+    };
+    Renderer.prototype.renderAxisHelper = function () {
+        var _this = this;
         var center = create$2();
-        nodes.forEach(function (node) {
+        this.highlightedNodes.forEach(function (node) {
             if (node.subType === AppConstants.NodeSubType.HIGHLIGHT && node.visible) {
-                highlightedNodes.push(node);
                 var c = node.getBBoxCenter();
                 if (c) {
                     add(center, center, c);
@@ -7125,11 +7218,11 @@ var Renderer2D = /** @class */ (function () {
                 }
             }
         });
-        scale$1(center, center, 1 / highlightedNodes.length);
+        scale$1(center, center, 1 / this.highlightedNodes.size);
         if (this.axis3DHelper === null && this.GLContext) {
             this.axis3DHelper = new Axes3DHelper("axis");
         }
-        if (highlightedNodes.length > 0 && this.axis3DHelper && center) {
+        if (this.highlightedNodes.size > 0 && this.axis3DHelper && center) {
             var camPos = this.camControl.getPosition();
             var objPos = center;
             var scaleToFit = dist(camPos, objPos) * Math.tan(this.camControl.perspParams.fov / 2) * 0.5; // some constant to fit to proper size
@@ -7138,7 +7231,7 @@ var Renderer2D = /** @class */ (function () {
             trans[12] = objPos[0];
             trans[13] = objPos[1];
             trans[14] = objPos[2];
-            var rot = Utility.getAvgRot(highlightedNodes.map(function (node) { return node.worldMatrix; }));
+            var rot = Utility.getAvgRot(__spread$1(this.highlightedNodes.values()).map(function (node) { return node.worldMatrix; }));
             fromScaling(scale, fromValues(scaleToFit, scaleToFit, scaleToFit));
             var shader_1 = this.mainShader;
             var model_1 = create$1();
@@ -7150,7 +7243,7 @@ var Renderer2D = /** @class */ (function () {
             this.axis3DHelper.children.forEach(function (node) {
                 var nodeMatrix = create$1();
                 mul(nodeMatrix, model_1, node.worldMatrix);
-                _this.renderBufferDirect(node.mesh.mainMesh, nodeMatrix, shader_1, node.mesh.mainMesh.material.diffuseColor);
+                _this.renderBufferAsGizmo(node.mesh.mainMesh, nodeMatrix, shader_1, node.mesh.mainMesh.material.diffuseColor);
             });
         }
     };
@@ -10475,7 +10568,7 @@ var Triangle = /** @class */ (function () {
         this.v3 = v3;
     }
     Triangle.prototype.data = function () {
-        return new Float32Array(__spread(this.v1.values(), this.v2.values(), this.v3.values()));
+        return new Float32Array(__spread$1(this.v1.values(), this.v2.values(), this.v3.values()));
     };
     Triangle.prototype.transformCopy = function (data) {
         var a = create$2();
@@ -10494,7 +10587,7 @@ var Line = /** @class */ (function () {
         this.v2 = v2;
     }
     Line.prototype.data = function () {
-        return new Float32Array(__spread(this.v1.values(), this.v2.values()));
+        return new Float32Array(__spread$1(this.v1.values(), this.v2.values()));
     };
     Line.prototype.transformCopy = function (data) {
         var a = create$2();
@@ -10510,7 +10603,7 @@ var Point = /** @class */ (function () {
         this.v1 = v1;
     }
     Point.prototype.data = function () {
-        return new Float32Array(__spread(this.v1.values()));
+        return new Float32Array(__spread$1(this.v1.values()));
     };
     Point.prototype.transformCopy = function (data) {
         var a = create$2();
@@ -10558,7 +10651,7 @@ var Point = /** @class */ (function () {
         return index;
     };
     LineMesh.prototype.update = function (p1, p2) {
-        this.attribs.position.updateData(new Float32Array(__spread(p1, p2)).buffer);
+        this.attribs.position.updateData(new Float32Array(__spread$1(p1, p2)).buffer);
     };
     return LineMesh;
 }(CoreMesh));var Picker = /** @class */ (function () {
@@ -10641,7 +10734,7 @@ var Point = /** @class */ (function () {
             for (var i = 0; i < vertexSize; i++) {
                 newPosition.push(positionArray[index * vertexSize + i]);
             }
-            newColor.push.apply(newColor, __spread(_this.getColorFromIndex(Math.floor((vertexCount++) / primitiveSize) + 1)));
+            newColor.push.apply(newColor, __spread$1(_this.getColorFromIndex(Math.floor((vertexCount++) / primitiveSize) + 1)));
         });
         attribs.position = new WebGLArrayBuffer('probePos', BufferUsage.STATIC_DRAW, new Float32Array(newPosition));
         attribs.color = new WebGLArrayBuffer('probeColor', BufferUsage.STATIC_DRAW, new Float32Array(newColor));
@@ -10678,8 +10771,8 @@ var Point = /** @class */ (function () {
         var v1Index = indices[indicesId];
         //get ray from camera
         var cam = AppObjects.mouseControl.camControls;
-        var nearPoint = cam.unproject(__spread(mouseData.xyFromTop, [0]), create$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
-        var farPoint = cam.unproject(__spread(mouseData.xyFromTop, [1]), create$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
+        var nearPoint = cam.unproject(__spread$1(mouseData.xyFromTop, [0]), create$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
+        var farPoint = cam.unproject(__spread$1(mouseData.xyFromTop, [1]), create$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
         var transPrimitive = null;
         if (primitiveSize == 3) {
             primitivePos = new Triangle(fromValues(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]), fromValues(newPosition[primitiveId * vertexSize * primitiveSize + 3], newPosition[primitiveId * vertexSize * primitiveSize + 4], newPosition[primitiveId * vertexSize * primitiveSize + 5]), fromValues(newPosition[primitiveId * vertexSize * primitiveSize + 6], newPosition[primitiveId * vertexSize * primitiveSize + 7], newPosition[primitiveId * vertexSize * primitiveSize + 8]));
@@ -10816,7 +10909,7 @@ var Point = /** @class */ (function () {
             console.log("original point", intersection);
             console.log("Projected point", nearPointWorld);
             out = [nearPointWorld[0], nearPointWorld[1], nearPointWorld[2]];
-            out = __spread(intersection);
+            out = __spread$1(intersection);
         }
         var nearPt = this.findNearPoint(triangle.v1, triangle.v2, triangle.v3, fromValues(out[0], out[1], out[2]));
         var obj = {
@@ -11397,7 +11490,7 @@ var Plane = /** @class */ (function () {
         return plane;
     };
     SectionManager.prototype.createDebugPts = function (plane, planeGroup) {
-        var _a = __read(plane.getPoints(), 4), a = _a[0], b = _a[1], c = _a[2], d = _a[3];
+        var _a = __read$1(plane.getPoints(), 4), a = _a[0], b = _a[1], c = _a[2], d = _a[3];
         plane.getCenter();
         var dir = plane.getFrontDir();
         var scale = 2.0;
@@ -11419,7 +11512,7 @@ var Plane = /** @class */ (function () {
         planeGroup.addChild(p4Cyl);
     };
     SectionManager.prototype.createPlaneAxis = function (plane, planeGroup) {
-        var _a = __read(plane.getPoints(), 4); _a[0]; _a[1]; _a[2]; _a[3];
+        var _a = __read$1(plane.getPoints(), 4); _a[0]; _a[1]; _a[2]; _a[3];
         var center = plane.getCenter();
         var uAxis = plane.getRightDir();
         var vAxis = plane.getTopDir();
@@ -11444,7 +11537,7 @@ var Plane = /** @class */ (function () {
         this.createDebugPts(plane, planeGroup);
     };
     SectionManager.prototype.createPrimaryPlane = function (planeIndex, color) {
-        var plane = this.createPrimaryPlaneFromEqn(planeIndex, __spread(color));
+        var plane = this.createPrimaryPlaneFromEqn(planeIndex, __spread$1(color));
         if (this.primaryPlanes[planeIndex])
             this.primaryPlanes[planeIndex].delete();
         var planeGroup = new TransFormNode('planeGroup' + planeIndex);
@@ -11508,13 +11601,13 @@ var Plane = /** @class */ (function () {
         return out;
     };
     SectionManager.prototype.createPrimaryPlaneFromEqn = function (planeIndex, color) {
-        var _a = __read(this.getPlaneCoordsFromEqn(this.primaryPlaneEqns[planeIndex]), 4), a = _a[0], b = _a[1], c = _a[2], d = _a[3];
+        var _a = __read$1(this.getPlaneCoordsFromEqn(this.primaryPlaneEqns[planeIndex]), 4), a = _a[0], b = _a[1], c = _a[2], d = _a[3];
         var plane = this.createPlane(planeIndex.toString(), a, b, c, d, color);
         plane.visible = (this.planeStates[planeIndex].isPlaneEnabled && this.primaryPlanes[planeIndex] !== undefined) ? this.primaryPlanes[planeIndex].visible : false;
         return plane;
     };
     SectionManager.prototype.createSlicePlane = function (planeIndex, color) {
-        var plane = this.createPrimaryPlaneFromEqn(planeIndex, __spread(color));
+        var plane = this.createPrimaryPlaneFromEqn(planeIndex, __spread$1(color));
         if (this.slicePlanes[planeIndex])
             this.slicePlanes[planeIndex].delete();
         var slicePlaneGroup = new TransFormNode('slicePlaneGroup' + planeIndex);
@@ -11844,7 +11937,7 @@ var Plane = /** @class */ (function () {
         var minDist = Infinity;
         var intersectPlane;
         try {
-            for (var _c = __values(this.primaryPlanes), _d = _c.next(); !_d.done; _d = _c.next()) {
+            for (var _c = __values$1(this.primaryPlanes), _d = _c.next(); !_d.done; _d = _c.next()) {
                 var plane = _d.value;
                 if (plane.visible == false)
                     continue;
@@ -11864,7 +11957,7 @@ var Plane = /** @class */ (function () {
             finally { if (e_1) throw e_1.error; }
         }
         try {
-            for (var _e = __values(this.slicePlanes), _f = _e.next(); !_f.done; _f = _e.next()) {
+            for (var _e = __values$1(this.slicePlanes), _f = _e.next(); !_f.done; _f = _e.next()) {
                 var plane = _f.value;
                 if (plane.visible == false)
                     continue;
@@ -11937,7 +12030,7 @@ var Plane = /** @class */ (function () {
         var currentEqn = this.primaryPlaneEqns[planeIndex];
         var planeNode = this.primaryPlanes[planeIndex].children[0];
         var planeMesh = planeNode.mesh;
-        var _a = __read(planeMesh.getPoints(), 4), p1 = _a[0], p2 = _a[1], p3 = _a[2], p4 = _a[3];
+        var _a = __read$1(planeMesh.getPoints(), 4), p1 = _a[0], p2 = _a[1], p3 = _a[2], p4 = _a[3];
         if (currentEqn == undefined)
             return;
         var translation = create$1();
@@ -11966,7 +12059,7 @@ var Plane = /** @class */ (function () {
         var currentEqn = this.primaryPlaneEqns[planeIndex];
         var planeNode = this.primaryPlanes[planeIndex].children[0];
         var planeMesh = planeNode.mesh;
-        var _a = __read(planeMesh.getPoints(), 4), p1 = _a[0], p2 = _a[1], p3 = _a[2], p4 = _a[3];
+        var _a = __read$1(planeMesh.getPoints(), 4), p1 = _a[0], p2 = _a[1], p3 = _a[2], p4 = _a[3];
         if (currentEqn == undefined)
             return;
         var planeCenter = MathUtils.getMidPoint(p1, p3);
@@ -12044,132 +12137,155 @@ var Plane = /** @class */ (function () {
         this.isPartMoveEnabled = false;
     }
     PartManipulator.prototype.explodeParts = function (percent, center, constraint) {
-        this.parts = AppObjects.sceneManager.getRenderNodes();
-        if (this.parts) {
-            this.resetPickAndMove();
-            var overallCenter_1 = AppObjects.sceneManager.getBoundingBox().getCenter();
-            var constrain_1 = fromValues(constraint[0], constraint[1], constraint[2]);
-            if (center) {
-                overallCenter_1 = fromValues(center[0], center[1], center[2]);
-            }
-            this.parts.forEach(function (part) {
-                var partCenter = part.getBBoxCenter();
-                console.log("part center", partCenter);
-                var transDir = create$2();
-                subtract(transDir, partCenter, overallCenter_1);
-                var distance = length(transDir);
-                normalize(transDir, transDir);
-                transDir[0] *= constrain_1[0];
-                transDir[1] *= constrain_1[1];
-                transDir[2] *= constrain_1[2];
-                var newPos = create$2();
-                var oldPos = create$2();
-                copy(oldPos, partCenter);
-                scaleAndAdd(newPos, oldPos, transDir, distance * percent);
-                //store explode translation
-                sub(part.explodeTranslation, newPos, oldPos);
-                AppObjects.sceneManager.update();
-            });
-        }
+        //return;
+        // this.parts = AppObjects.sceneManager.getPartNodes();
+        // if(this.parts){
+        //     this.resetPickAndMove();
+        //     let overallCenter = AppObjects.sceneManager.getBoundingBox().getCenter();
+        //     let constrain = glmatrix.vec3.fromValues(constraint[0],constraint[1],constraint[2]);
+        //     if(center)
+        //     {
+        //         overallCenter = glmatrix.vec3.fromValues(center[0],center[1],center[2]);
+        //     }
+        //     this.parts.forEach(part => {
+        //         let partCenter = part.getBBoxCenter();
+        //         console.log("part center",partCenter);
+        //         let transDir = glmatrix.vec3.create();
+        //         glmatrix.vec3.subtract(transDir,partCenter,overallCenter);
+        //         let distance = glmatrix.vec3.length(transDir);
+        //         glmatrix.vec3.normalize(transDir,transDir);
+        //         transDir[0] *= constrain[0];
+        //         transDir[1] *= constrain[1];
+        //         transDir[2] *= constrain[2];
+        //         let newPos = glmatrix.vec3.create();
+        //         let oldPos = glmatrix.vec3.create();
+        //         glmatrix.vec3.copy(oldPos,partCenter);
+        //         glmatrix.vec3.scaleAndAdd(newPos,oldPos,transDir,distance*percent);
+        //        //store explode translation
+        //        glmatrix.vec3.sub(part.explodeTranslation,newPos,oldPos);
+        //        AppObjects.sceneManager.update();
+        //     });
     };
     PartManipulator.prototype.translatePart = function (newMouseX, newMouseY, lastMouseX, lastMouseY) {
-        var selectNode = AppObjects.picker.selectNode;
+        var selectedNodes = AppObjects.renderer.highlightedNodes;
         var camControl = AppObjects.renderer.camControl;
-        if (selectNode) {
-            if (newMouseX != lastMouseX || newMouseY != lastMouseY) {
-                var deltaX = newMouseX - lastMouseX;
-                var deltaY = newMouseY - lastMouseY;
-                var mvMatrix = create$1();
-                var camMatrix = camControl.getCameraMatrix2(CameraType.Perspective);
-                var point3d1 = camControl.unproject([lastMouseX, lastMouseY, 0], mvMatrix, [camControl.canvas.width, camControl.canvas.height], camMatrix); // 0 means near plane
-                var point3d2 = camControl.unproject([newMouseX, newMouseY, 0], mvMatrix, [camControl.canvas.width, camControl.canvas.height], camMatrix); // 0 means near plane
-                if (point3d1 == null || point3d2 == null)
-                    return;
-                var point3d11 = camControl.unproject([lastMouseX, lastMouseY, 1], mvMatrix, [camControl.canvas.width, camControl.canvas.height], camMatrix); // 1 means far plane
-                var point3d22 = camControl.unproject([newMouseX, newMouseY, 1], mvMatrix, [camControl.canvas.width, camControl.canvas.height], camMatrix); // 1 means far plane
-                if (point3d11 == null || point3d22 == null)
-                    return;
-                var cameraPosition = fromValues$1(0, 0, 0, 1);
-                var CameraMatrix = camControl.getCameraMatrix(CameraType.Perspective);
-                invert(CameraMatrix, CameraMatrix);
-                transformMat4$1(cameraPosition, cameraPosition, CameraMatrix);
-                var ray1 = create$2();
-                subtract(ray1, point3d1, point3d11);
-                var ray2 = create$2();
-                subtract(ray2, point3d2, point3d22);
-                normalize(ray1, ray1);
-                normalize(ray2, ray2);
-                var angle = Math.acos(Math.min(1.0, dot(ray1, ray2)));
-                var right = fromValues(CameraMatrix[0], CameraMatrix[1], CameraMatrix[2]);
-                var up = fromValues(CameraMatrix[4], CameraMatrix[5], CameraMatrix[6]);
-                normalize(up, up);
-                normalize(right, right);
-                var v1 = create$2();
-                scale$1(v1, right, deltaY);
-                var v2 = create$2();
-                scale$1(v2, up, deltaX);
-                var axis_in_camera_coord = create$2();
-                add(axis_in_camera_coord, v1, v2);
-                negate(axis_in_camera_coord, axis_in_camera_coord);
-                normalize(axis_in_camera_coord, axis_in_camera_coord);
-                var pickAndMoveInv = create$1();
-                invert(pickAndMoveInv, selectNode.pickAndMoveMatrix);
-                var rotationPointInModelSpace = create$3();
-                transformMat4$1(rotationPointInModelSpace, fromValues$1(cameraPosition[0], cameraPosition[1], cameraPosition[2], 1), pickAndMoveInv);
-                var rotationPoint = fromValues(rotationPointInModelSpace[0], rotationPointInModelSpace[1], rotationPointInModelSpace[2]);
-                translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, rotationPoint);
-                MathUtils.rotateOnWorldAxis(selectNode.pickAndMoveMatrix, angle, fromValues(axis_in_camera_coord[0], axis_in_camera_coord[1], axis_in_camera_coord[2]));
-                translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, negate(rotationPoint, rotationPoint));
-            }
+        if (selectedNodes.size > 0 && (newMouseX != lastMouseX || newMouseY != lastMouseY)) {
+            var deltaX = newMouseX - lastMouseX;
+            var deltaY = newMouseY - lastMouseY;
+            var mvMatrix = create$1();
+            var camMatrix = camControl.getCameraMatrix2(CameraType.Perspective);
+            var point3d1 = camControl.unproject([lastMouseX, lastMouseY, 0], mvMatrix, [camControl.canvas.width, camControl.canvas.height], camMatrix); // 0 means near plane
+            var point3d2 = camControl.unproject([newMouseX, newMouseY, 0], mvMatrix, [camControl.canvas.width, camControl.canvas.height], camMatrix); // 0 means near plane
+            if (point3d1 == null || point3d2 == null)
+                return;
+            var point3d11 = camControl.unproject([lastMouseX, lastMouseY, 1], mvMatrix, [camControl.canvas.width, camControl.canvas.height], camMatrix); // 1 means far plane
+            var point3d22 = camControl.unproject([newMouseX, newMouseY, 1], mvMatrix, [camControl.canvas.width, camControl.canvas.height], camMatrix); // 1 means far plane
+            if (point3d11 == null || point3d22 == null)
+                return;
+            var cameraPosition_1 = fromValues$1(0, 0, 0, 1);
+            var CameraMatrix = camControl.getCameraMatrix(CameraType.Perspective);
+            invert(CameraMatrix, CameraMatrix);
+            transformMat4$1(cameraPosition_1, cameraPosition_1, CameraMatrix);
+            var ray1 = create$2();
+            subtract(ray1, point3d1, point3d11);
+            var ray2 = create$2();
+            subtract(ray2, point3d2, point3d22);
+            normalize(ray1, ray1);
+            normalize(ray2, ray2);
+            var angle_1 = Math.acos(Math.min(1.0, dot(ray1, ray2)));
+            var right = fromValues(CameraMatrix[0], CameraMatrix[1], CameraMatrix[2]);
+            var up = fromValues(CameraMatrix[4], CameraMatrix[5], CameraMatrix[6]);
+            normalize(up, up);
+            normalize(right, right);
+            var v1 = create$2();
+            scale$1(v1, right, deltaY);
+            var v2 = create$2();
+            scale$1(v2, up, deltaX);
+            var axis_in_camera_coord_1 = create$2();
+            add(axis_in_camera_coord_1, v1, v2);
+            negate(axis_in_camera_coord_1, axis_in_camera_coord_1);
+            normalize(axis_in_camera_coord_1, axis_in_camera_coord_1);
+            selectedNodes.forEach(function (node) {
+                var selectNode = node.parent;
+                if (selectNode) {
+                    var pickAndMoveInv = create$1();
+                    invert(pickAndMoveInv, selectNode.pickAndMoveMatrix);
+                    var rotationPointInModelSpace = create$3();
+                    transformMat4$1(rotationPointInModelSpace, fromValues$1(cameraPosition_1[0], cameraPosition_1[1], cameraPosition_1[2], 1), pickAndMoveInv);
+                    var rotationPoint = fromValues(rotationPointInModelSpace[0], rotationPointInModelSpace[1], rotationPointInModelSpace[2]);
+                    translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, rotationPoint);
+                    MathUtils.rotateOnWorldAxis(selectNode.pickAndMoveMatrix, angle_1, fromValues(axis_in_camera_coord_1[0], axis_in_camera_coord_1[1], axis_in_camera_coord_1[2]));
+                    translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, negate(rotationPoint, rotationPoint));
+                }
+            });
             AppObjects.sceneManager.update();
         }
     };
     PartManipulator.prototype.rotatePart = function (newX, newY, lastMouseX, lastMouseY) {
-        var selectNode = AppObjects.picker.selectNode;
-        if (selectNode) {
-            var angleAxis = this.getRotAngleAndNormalizedAxis(newX, newY, lastMouseX, lastMouseY);
-            var partCenter = selectNode.getBBoxCenter(false);
-            if (!angleAxis)
+        var selectedNodes = AppObjects.renderer.highlightedNodes;
+        if (selectedNodes.size > 0) {
+            var partCenter_1 = create$2();
+            selectedNodes.forEach(function (node) { return add(partCenter_1, partCenter_1, node.getBBoxCenter(true)); });
+            scale$1(partCenter_1, partCenter_1, 1 / selectedNodes.size);
+            var angleAxis_1 = this.getRotAngleAndNormalizedAxis(newX, newY, lastMouseX, lastMouseY);
+            if (!angleAxis_1)
                 return;
-            var axis_in_camera_coord = fromValues$1(angleAxis.axis_in_camera_coord[0], angleAxis.axis_in_camera_coord[1], angleAxis.axis_in_camera_coord[2], 0);
-            var axis_in_obj_coord = create$3();
+            var axis_in_camera_coord = fromValues$1(angleAxis_1.axis_in_camera_coord[0], angleAxis_1.axis_in_camera_coord[1], angleAxis_1.axis_in_camera_coord[2], 0);
+            var axis_in_obj_coord_1 = create$3();
             normalize$1(axis_in_camera_coord, axis_in_camera_coord);
             var camControl = AppObjects.renderer.camControl;
             var camMat = (camControl.camType == CameraType.Perspective) ? camControl.perspCamera.camMatrix : camControl.orthCamera.camMatrix;
             var cam2object = create$1();
             invert(cam2object, camMat);
-            transformMat4$1(axis_in_obj_coord, axis_in_camera_coord, cam2object);
-            normalize$1(axis_in_obj_coord, axis_in_obj_coord);
-            translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, partCenter);
-            MathUtils.rotateOnWorldAxis(selectNode.pickAndMoveMatrix, angleAxis.angle, fromValues(axis_in_obj_coord[0], axis_in_obj_coord[1], axis_in_obj_coord[2]));
-            translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, negate(partCenter, partCenter));
+            transformMat4$1(axis_in_obj_coord_1, axis_in_camera_coord, cam2object);
+            normalize$1(axis_in_obj_coord_1, axis_in_obj_coord_1);
+            selectedNodes.forEach(function (node) {
+                var selectNode = node.parent;
+                if (selectNode) {
+                    var world_center = clone$1(partCenter_1);
+                    var local_center = create$2();
+                    var world_inverse = create$1();
+                    invert(world_inverse, selectNode.worldMatrix);
+                    transformMat4(local_center, world_center, world_inverse);
+                    translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, local_center);
+                    MathUtils.rotateOnWorldAxis(selectNode.pickAndMoveMatrix, angleAxis_1.angle, fromValues(axis_in_obj_coord_1[0], axis_in_obj_coord_1[1], axis_in_obj_coord_1[2]));
+                    translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, negate(local_center, local_center));
+                }
+            });
             AppObjects.sceneManager.update();
         }
     };
     PartManipulator.prototype.translateZ = function (scale) {
-        var selectNode = AppObjects.picker.selectNode;
+        var _this = this;
+        var selectedNodes = AppObjects.renderer.highlightedNodes;
         var camControl = AppObjects.renderer.camControl;
-        if (selectNode) {
-            var pickAndMoveInv = create$1();
-            invert(pickAndMoveInv, selectNode.pickAndMoveMatrix);
-            var CameraMatrix = camControl.getCameraMatrix(CameraType.Perspective);
-            invert(CameraMatrix, CameraMatrix);
-            var cameraPosition = fromValues$1(0, 0, 0, 1);
-            transformMat4$1(cameraPosition, cameraPosition, CameraMatrix);
-            var camDir = create$2();
-            sub(camDir, fromValues(cameraPosition[0], cameraPosition[1], cameraPosition[2]), selectNode.getBBoxCenter(true));
-            var dist2Cam = len(camDir);
-            var front = MathUtils.getDirVector(CameraMatrix);
-            var frontInModelSpace = create$3();
-            transformMat4$1(frontInModelSpace, fromValues$1(front[0], front[1], front[2], 0), pickAndMoveInv);
-            normalize$1(frontInModelSpace, frontInModelSpace);
-            scale$2(frontInModelSpace, frontInModelSpace, scale * dist2Cam * this.zoomFactor);
-            translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, fromValues(frontInModelSpace[0], frontInModelSpace[1], frontInModelSpace[2]));
-            AppObjects.sceneManager.update();
-        }
+        var partCenter = create$2();
+        selectedNodes.forEach(function (node) { return add(partCenter, partCenter, node.getBBoxCenter(true)); });
+        scale$1(partCenter, partCenter, 1 / selectedNodes.size);
+        var CameraMatrix = camControl.getCameraMatrix(CameraType.Perspective);
+        invert(CameraMatrix, CameraMatrix);
+        var cameraPosition = fromValues$1(0, 0, 0, 1);
+        transformMat4$1(cameraPosition, cameraPosition, CameraMatrix);
+        var camDir = create$2();
+        sub(camDir, fromValues(cameraPosition[0], cameraPosition[1], cameraPosition[2]), partCenter);
+        selectedNodes.forEach(function (node) {
+            var selectNode = node.parent;
+            if (selectNode) {
+                var pickAndMoveInv = create$1();
+                invert(pickAndMoveInv, selectNode.pickAndMoveMatrix);
+                var dist2Cam = len(camDir);
+                var front = MathUtils.getDirVector(CameraMatrix);
+                var frontInModelSpace = create$3();
+                transformMat4$1(frontInModelSpace, fromValues$1(front[0], front[1], front[2], 0), pickAndMoveInv);
+                normalize$1(frontInModelSpace, frontInModelSpace);
+                scale$2(frontInModelSpace, frontInModelSpace, scale * dist2Cam * _this.zoomFactor);
+                translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, fromValues(frontInModelSpace[0], frontInModelSpace[1], frontInModelSpace[2]));
+            }
+        });
+        AppObjects.sceneManager.update();
     };
     PartManipulator.prototype.resetExplode = function () {
-        this.parts = AppObjects.sceneManager.getRenderNodes();
+        this.parts = AppObjects.sceneManager.getPartNodes();
         if (this.parts) {
             this.parts.forEach(function (part) {
                 part.explodeTranslation = create$2();
@@ -12178,7 +12294,7 @@ var Plane = /** @class */ (function () {
         }
     };
     PartManipulator.prototype.resetPickAndMove = function () {
-        this.parts = AppObjects.sceneManager.getRenderNodes();
+        this.parts = AppObjects.sceneManager.getPartNodes();
         if (this.parts) {
             this.parts.forEach(function (part) {
                 part.pickAndMoveMatrix = create$1();
@@ -12370,13 +12486,13 @@ var LabelState;
         var PositionArray = [];
         PositionArray[0] = parseInt(this.htmlDiv.style.left);
         PositionArray[1] = parseInt(this.htmlDiv.style.top);
-        this.position = __spread(PositionArray);
+        this.position = __spread$1(PositionArray);
         return PositionArray;
     };
     Label.prototype.setCanvasPosition = function (labelPos) {
         this.htmlDiv.style.left = labelPos[0] + "px";
         this.htmlDiv.style.top = labelPos[1] + "px";
-        this.position = __spread(labelPos);
+        this.position = __spread$1(labelPos);
     };
     Label.prototype.isVisible = function () {
         return this.visible;
@@ -12499,7 +12615,7 @@ var Label3D = /** @class */ (function () {
         return this.label.getCanvasPosition();
     };
     Label3D.prototype.setCanvasPosition = function (labelPos) {
-        this.label.setCanvasPosition(__spread(labelPos));
+        this.label.setCanvasPosition(__spread$1(labelPos));
     };
     Label3D.prototype.render = function () {
         var _a;
@@ -12532,14 +12648,14 @@ var Label3D = /** @class */ (function () {
                 normalize(lineDir, lineDir);
                 scaleAndAdd(this.lineEndPos, this.lineStartPos, lineDir, bbox.getRadius());
                 if (this.is3DPointVisible(this.lineEndPos)) {
-                    var point2d = this.renderer.camControl.project(__spread(this.lineEndPos), mvMatrix, [canvas.width, canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
+                    var point2d = this.renderer.camControl.project(__spread$1(this.lineEndPos), mvMatrix, [canvas.width, canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
                     x = point2d[0];
                     y = point2d[1];
                     point2d[2];
                     this.setCanvasPosition([x, y]);
                 }
                 else {
-                    _a = __read(this.label.getCanvasPosition(), 2), x = _a[0], y = _a[1];
+                    _a = __read$1(this.label.getCanvasPosition(), 2), x = _a[0], y = _a[1];
                 }
                 // }
                 var lineEndOnNearPlane = this.renderer.camControl.unproject([x, y, 0], mvMatrix, [canvas.width, canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
@@ -12617,8 +12733,8 @@ var LabelManager = /** @class */ (function () {
         var _this = this;
         this.GLTFJson = json;
         return new Promise(function (resolve) {
-            _this.dataManager.loadGLTF(json).then(function (scene) { return __awaiter(_this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
+            _this.dataManager.loadGLTF(json).then(function (scene) { return __awaiter$1(_this, void 0, void 0, function () {
+                return __generator$1(this, function (_a) {
                     switch (_a.label) {
                         case 0:
                             console.log(scene);
@@ -12649,9 +12765,9 @@ var LabelManager = /** @class */ (function () {
         }
     };
     App.prototype.loadScene = function (GLTFJson) {
-        return __awaiter(this, void 0, void 0, function () {
+        return __awaiter$1(this, void 0, void 0, function () {
             var data, name, scene, resultSet, type_1;
-            return __generator(this, function (_a) {
+            return __generator$1(this, function (_a) {
                 data = GLTFJson;
                 name = "Root";
                 try {
@@ -12814,14 +12930,20 @@ var LabelManager = /** @class */ (function () {
         var nodes = this.getRenderNodesFromId(nodeIds);
         nodes.forEach(function (node) {
             node.subType = AppConstants.NodeSubType.HIGHLIGHT;
+            if (visibility) {
+                AppObjects.renderer.highlightedNodes.set(node.index, node);
+            }
+            else {
+                AppObjects.renderer.highlightedNodes.delete(node.index);
+            }
             console.log(node.mesh.subMeshes['primitive_0'].material.diffuseColor = visibility ? [1, 1, 0] : [0, 0, 0]);
         });
     };
-    App.prototype.cloneRenderNode = function (sourceRep, targetRep, isDeep) {
-        var sourceNode = this.getRenderNodesFromId([sourceRep.customData.node]);
+    App.prototype.cloneRenderNode = function (sourceRenderNodeId, targetRenderNodeId, isDeep) {
+        var sourceNode = this.getRenderNodesFromId([sourceRenderNodeId]);
         var targetNode = sourceNode[0].clone();
-        targetNode.index = targetRep.customData.node;
-        this.sceneManager.addRenderNodes([targetNode]);
+        targetNode.index = targetRenderNodeId;
+        this.sceneManager.addRenderNodes(sourceRenderNodeId, [targetNode]);
     };
     App.prototype.applyResultByURL = function (filePath) {
         var _this = this;
@@ -13058,12 +13180,12 @@ var LabelManager = /** @class */ (function () {
                         if (node.mesh) {
                             if (node.mesh.mainMesh) {
                                 var indexes = node.mesh.mainMesh.getBufferViewIndex();
-                                bufferViewIndex = __spread(bufferViewIndex, indexes);
+                                bufferViewIndex = __spread$1(bufferViewIndex, indexes);
                             }
                             for (var key in node.mesh.subMeshes) {
                                 var submesh = node.mesh.subMeshes[key];
                                 var indexes = submesh.getBufferViewIndex();
-                                bufferViewIndex = __spread(bufferViewIndex, indexes);
+                                bufferViewIndex = __spread$1(bufferViewIndex, indexes);
                             }
                         }
                     }
@@ -13559,11 +13681,8 @@ var LabelManager = /** @class */ (function () {
     vctViewer.prototype.addLabel = function (id, hitpt, message) {
         this.appli.addLabel(id, hitpt, message);
     };
-        return vctViewer;
-}());
-
-return new vctViewer(_containerID, _connectorObject);
-};var Utility = /** @class */ (function () {
+    return vctViewer;
+}());var Utility$1 = /** @class */ (function () {
     function Utility() {
     }
     Utility.create_UUID = function () {
@@ -13798,7 +13917,7 @@ var ModelTreeBuilder = /** @class */ (function () {
         this.tree = new Map();
     }
     ModelTreeBuilder.prototype.build = function () {
-        var rootNodeIds = this.processModels(Utility.deepCopy(this.mcax.models));
+        var rootNodeIds = this.processModels(Utility$1.deepCopy(this.mcax.models));
         return new ModelTree(this.tree, rootNodeIds);
     };
     ModelTreeBuilder.prototype.processModels = function (models) {
@@ -14324,7 +14443,7 @@ var Logger = /** @class */ (function () {
     };
     ProgressiveLoader.prototype.splitandUpdateBuffer = function (URLobj, arrayBuffer) {
         var _this = this;
-        var chunkstring = Utility.getURLParameterByName(URLobj.url, "chunks");
+        var chunkstring = Utility$1.getURLParameterByName(URLobj.url, "chunks");
         var chunks = chunkstring.split(",");
         var offset = 0;
         chunks.forEach(function (chunk, index) {
@@ -14495,7 +14614,7 @@ var abstractType = Object.freeze({
  * Common utilities
  * @module glMatrix
  */
-var ARRAY_TYPE = typeof Float32Array !== 'undefined' ? Float32Array : Array;
+var ARRAY_TYPE$1 = typeof Float32Array !== 'undefined' ? Float32Array : Array;
 if (!Math.hypot) Math.hypot = function () {
   var y = 0,
       i = arguments.length;
@@ -14516,10 +14635,10 @@ if (!Math.hypot) Math.hypot = function () {
  * @returns {vec3} a new 3D vector
  */
 
-function create() {
-  var out = new ARRAY_TYPE(3);
+function create$6() {
+  var out = new ARRAY_TYPE$1(3);
 
-  if (ARRAY_TYPE != Float32Array) {
+  if (ARRAY_TYPE$1 != Float32Array) {
     out[0] = 0;
     out[1] = 0;
     out[2] = 0;
@@ -14536,8 +14655,8 @@ function create() {
  * @returns {vec3} a new 3D vector
  */
 
-function fromValues(x, y, z) {
-  var out = new ARRAY_TYPE(3);
+function fromValues$4(x, y, z) {
+  var out = new ARRAY_TYPE$1(3);
   out[0] = x;
   out[1] = y;
   out[2] = z;
@@ -14552,7 +14671,7 @@ function fromValues(x, y, z) {
  * @returns {vec3} out
  */
 
-function subtract(out, a, b) {
+function subtract$1(out, a, b) {
   out[0] = a[0] - b[0];
   out[1] = a[1] - b[1];
   out[2] = a[2] - b[2];
@@ -14565,7 +14684,7 @@ function subtract(out, a, b) {
  * @returns {Number} squared length of a
  */
 
-function squaredLength(a) {
+function squaredLength$1(a) {
   var x = a[0];
   var y = a[1];
   var z = a[2];
@@ -14579,7 +14698,7 @@ function squaredLength(a) {
  * @returns {vec3} out
  */
 
-function normalize(out, a) {
+function normalize$3(out, a) {
   var x = a[0];
   var y = a[1];
   var z = a[2];
@@ -14603,7 +14722,7 @@ function normalize(out, a) {
  * @returns {Number} dot product of a and b
  */
 
-function dot(a, b) {
+function dot$1(a, b) {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 /**
@@ -14615,7 +14734,7 @@ function dot(a, b) {
  * @returns {vec3} out
  */
 
-function cross(out, a, b) {
+function cross$1(out, a, b) {
   var ax = a[0],
       ay = a[1],
       az = a[2];
@@ -14632,13 +14751,13 @@ function cross(out, a, b) {
  * @function
  */
 
-var sub = subtract;
+var sub$1 = subtract$1;
 /**
  * Alias for {@link vec3.squaredLength}
  * @function
  */
 
-var sqrLen = squaredLength;
+var sqrLen$1 = squaredLength$1;
 /**
  * Perform some operation over an array of vec3s.
  *
@@ -14653,7 +14772,7 @@ var sqrLen = squaredLength;
  */
 
 (function () {
-  var vec = create();
+  var vec = create$6();
   return function (a, stride, offset, count, fn, arg) {
     var i, l;
 
@@ -14725,7 +14844,7 @@ var sqrLen = squaredLength;
         if (newSize == 1) {
             if (inColorArray.length % 2 == 0) {
                 var idxStart = inColorArray.length / 2 - 1;
-                var color = create();
+                var color = create$6();
                 color[0] = (inColorArray[idxStart][0] + inColorArray[idxStart + 1][0]) * 0.5;
                 color[1] = (inColorArray[idxStart][1] + inColorArray[idxStart + 1][1]) * 0.5;
                 color[2] = (inColorArray[idxStart][2] + inColorArray[idxStart + 1][2]) * 0.5;
@@ -14746,15 +14865,15 @@ var sqrLen = squaredLength;
             var intPart = parseInt(position.toString());
             var fracPart = position - intPart;
             var color1 = inColorArray[intPart];
-            var color2 = create();
+            var color2 = create$6();
             if (intPart < iOldColorSize - 1)
                 color2 = inColorArray[intPart + 1];
             else
-                color2 = fromValues(0, 0, 0);
+                color2 = fromValues$4(0, 0, 0);
             var rIncr = (color2[0] - color1[0]) * fracPart;
             var gIncr = (color2[1] - color1[1]) * fracPart;
             var bIncr = (color2[2] - color1[2]) * fracPart;
-            var color = create();
+            var color = create$6();
             color[0] = color1[0] + rIncr;
             color[1] = color1[1] + gIncr;
             color[2] = color1[2] + bIncr;
@@ -14813,7 +14932,7 @@ var sqrLen = squaredLength;
         this.defaultLegendsID = null;
     }
     LegendManager.prototype.createLegend = function () {
-        var id = Utility.create_UUID();
+        var id = Utility$1.create_UUID();
         var legend = new Legend(id);
         this.Legends.set(id, legend);
         if (this.defaultLegendsID === null)
@@ -15275,15 +15394,15 @@ var Section = /** @class */ (function () {
         this.setSectionPlaneEquation(planeId, __spread(invNormal, [-currentEqn[3]]));
     };
     Section.prototype.planeFrom3pts = function (planeId, p1, p2, p3) {
-        var kEdge1 = create();
-        var kEdge2 = create();
-        sub(kEdge1, p2, p1);
-        sub(kEdge2, p3, p1);
-        var n = create();
-        cross(n, kEdge1, kEdge2);
-        normalize(n, n);
-        var d = -dot(n, p1);
-        if (sqrLen(n) > 0.0001) {
+        var kEdge1 = create$6();
+        var kEdge2 = create$6();
+        sub$1(kEdge1, p2, p1);
+        sub$1(kEdge2, p3, p1);
+        var n = create$6();
+        cross$1(n, kEdge1, kEdge2);
+        normalize$3(n, n);
+        var d = -dot$1(n, p1);
+        if (sqrLen$1(n) > 0.0001) {
             var eqn = [n[0], n[1], n[2], d];
             this.setSectionPlaneEquation(planeId, eqn);
             console.log('plane eqn from 3pts', eqn);
@@ -15318,7 +15437,7 @@ var Section = /** @class */ (function () {
         this.renderApp.resetSection();
     };
     return Section;
-}());var LabelManager = /** @class */ (function () {
+}());var LabelManager$1 = /** @class */ (function () {
     function LabelManager(_renderApp, appState) {
         this.renderApp = _renderApp;
         this.appState = appState;
@@ -15409,7 +15528,7 @@ var Section = /** @class */ (function () {
             return RepresentationType[curr_rep.type];
     };
     return MCAXFilter;
-}());var AppState = /** @class */ (function () {
+}());var AppState$1 = /** @class */ (function () {
     function AppState() {
         this.probeMode = probeMode.LABEL;
     }
@@ -15438,7 +15557,7 @@ var getEventObject = function (type, viewerID, data) {
         this.containerID = _containerID;
         this.connector = _connector;
         this.eventDispatcher = _eventDispacther;
-        this.state = new AppState();
+        this.state = new AppState$1();
         this.renderApp = new vctViewer(_containerID);
         this.renderApp.init(_UUID);
         this.externalEventDispatcher = this.renderApp.getEventDispatcher();
@@ -15488,12 +15607,12 @@ var getEventObject = function (type, viewerID, data) {
                         obj_1 = getEventObject(viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, this.UUID, "Processing data");
                         this.eventDispatcher.dispatchEvent(obj_1);
                         //logger.setStatusBar("Processing data");
-                        this.mcax = Utility.deepCopy(model);
+                        this.mcax = Utility$1.deepCopy(model);
                         //console.log(this.mcax);          
                         this.productTree = new ModelTreeBuilder(this.mcax).build();
                         this.legendManager = new LegendManager();
-                        this.caeResult = new CAEResult(Utility.deepCopy(this.mcax), this.renderApp, this.connector, this.legendManager);
-                        gltf = Utility.deepCopy(model.gltf);
+                        this.caeResult = new CAEResult(Utility$1.deepCopy(this.mcax), this.renderApp, this.connector, this.legendManager);
+                        gltf = Utility$1.deepCopy(model.gltf);
                         return [4 /*yield*/, this.renderApp.loadGLTF(gltf)];
                     case 4:
                         _a.sent();
@@ -15528,7 +15647,7 @@ var getEventObject = function (type, viewerID, data) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        this.progressiveLoader = new ProgressiveLoader(Utility.deepCopy(this.mcax), this.renderApp, this.connector);
+                        this.progressiveLoader = new ProgressiveLoader(Utility$1.deepCopy(this.mcax), this.renderApp, this.connector);
                         return [4 /*yield*/, this.progressiveLoader.showDefaultDisplay()];
                     case 1:
                         _a.sent();
@@ -15577,7 +15696,7 @@ var getEventObject = function (type, viewerID, data) {
         }
     };
     Viewer.prototype.handleModelLoad = function (e) {
-        this.labelManager = new LabelManager(this.renderApp, this.state);
+        this.labelManager = new LabelManager$1(this.renderApp, this.state);
     };
     Viewer.prototype.getSearchHints = function () {
         return Promise.resolve([]);
@@ -15587,8 +15706,8 @@ var getEventObject = function (type, viewerID, data) {
     Viewer.prototype.getProductTree = function () {
         if (this.productTree)
             return {
-                models: Utility.deepCopy(Object.fromEntries(this.productTree.models)),
-                rootNodeIds: Utility.deepCopy(this.productTree.rootNodeIds)
+                models: Utility$1.deepCopy(Object.fromEntries(this.productTree.models)),
+                rootNodeIds: Utility$1.deepCopy(this.productTree.rootNodeIds)
             };
         return "No model is loaded";
     };
@@ -15852,7 +15971,7 @@ var getEventObject = function (type, viewerID, data) {
             if (hRep.length === 0) {
                 var boxReps = reps.filter(function (rep) { return rep.customData.type === RepresentationType.BBOX; });
                 boxReps.forEach(function (boxRep) {
-                    var highlightRep = Utility.deepCopy(boxRep);
+                    var highlightRep = Utility$1.deepCopy(boxRep);
                     highlightRep.customData.type = RepresentationType.HIGHLIGHT;
                     var uid = RepresentationType.HIGHLIGHT;
                     highlightRep.id += uid;
@@ -15862,7 +15981,7 @@ var getEventObject = function (type, viewerID, data) {
                     highlightRep.customData.name += uid;
                     hRep.push(highlightRep);
                     node.customData.geometries[0].customData.representations.push(highlightRep);
-                    _this.renderApp.cloneRenderNode(boxRep, highlightRep, false);
+                    _this.renderApp.cloneRenderNode(boxRep.customData.node, highlightRep.customData.node, false);
                 });
             }
             hreps.push.apply(hreps, __spread(hRep));
@@ -16020,6 +16139,11 @@ var getEventObject = function (type, viewerID, data) {
         this.sectionManager.resetSection();
     };
     //#endregion
+    //#region PartManipulation
+    Viewer.prototype.enablePickAndMove = function (toEnable) {
+        this.renderApp.enablePickAndMove(toEnable);
+    };
+    //#endregion
     //#region Quick Tools
     Viewer.prototype.fitView = function (selectedNodes) {
         if (selectedNodes.length == 0) {
@@ -16037,11 +16161,11 @@ var getEventObject = function (type, viewerID, data) {
         return 'SUCCESS';
     };
     return Viewer;
-}());var ServerConnectionType = {
+}());var ServerConnectionType$1 = {
     XHR: 1,
     AXIOS: 2
 };
-var serverURLs = {
+var serverURLs$1 = {
     getLicense: '/api/1.0/license/acquire',
     releaseLicense: '/api/1.0/license/release',
     ping: '/api/1.0/ping',
@@ -16051,11 +16175,11 @@ var serverURLs = {
     disconnect: '/api/1.0/disconnect',
     taskState: '/api/1.0/task'
 };
-var ResponseType = {
+var ResponseType$1 = {
     JSON: 'json',
     BUFFER: 'arraybuffer'
 };
-var errorCode = {
+var errorCode$2 = {
     noerror: '',
     connectionError: 'Not connected. Please verify your network connection.',
     error404: 'The requested page not found [404].',
@@ -16067,11 +16191,11 @@ var errorCode = {
     noresponseError: 'No response from server',
     invalidDataError: 'Invalid data received from server'
 };
-var range = [" seconds ", " minutes ", " hours ", " days ", " weeks "];
-var SizeRange = ["Bytes", "KB", "MB", "GB", "TB"];
-var SpeedRange = ["B/s", "KB/s", "MB/s", "GB/s", "TB/s"];
+var range$1 = [" seconds ", " minutes ", " hours ", " days ", " weeks "];
+var SizeRange$1 = ["Bytes", "KB", "MB", "GB", "TB"];
+var SpeedRange$1 = ["B/s", "KB/s", "MB/s", "GB/s", "TB/s"];
 //Convert number of seconds to structure string E.g. 65 as input returns 1minutes 5seconds
-var SecondsToStructuredString = function (time) {
+var SecondsToStructuredString$1 = function (time) {
     var min;
     var sec;
     var hr;
@@ -16085,13 +16209,13 @@ var SecondsToStructuredString = function (time) {
         time = time / 1000;
     if (time < 60) //Seconds
      {
-        return Math.floor(time) + range[0];
+        return Math.floor(time) + range$1[0];
     }
     else if ((time / 60) < 60) //Minutes
      {
         min = Math.floor(time / 60);
         sec = Math.floor(time - (min * 60));
-        return min + range[1] + (sec > 0 ? sec + range[0] : "");
+        return min + range$1[1] + (sec > 0 ? sec + range$1[0] : "");
     }
     else if ((time / (60 * 60)) >= 1 && (time / (60 * 60)) < 24) //Hours
      {
@@ -16099,7 +16223,7 @@ var SecondsToStructuredString = function (time) {
         min = time - (hr * (60 * 60));
         min = Math.floor(min / 60);
         sec = Math.floor(time - ((hr * (60 * 60)) + (min * 60)));
-        return hr + range[2] + (min > 0 ? min + range[1] : "") + (sec > 0 ? Math.floor(sec) + range[0] : "");
+        return hr + range$1[2] + (min > 0 ? min + range$1[1] : "") + (sec > 0 ? Math.floor(sec) + range$1[0] : "");
     }
     else if ((time / (60 * 60)) >= 24 && (time / (60 * 60 * 24)) < 7) //Days
      {
@@ -16109,7 +16233,7 @@ var SecondsToStructuredString = function (time) {
         min = time - ((days * 60 * 60 * 24) + (hr * 60 * 60));
         min = Math.floor(min / 60);
         sec = Math.floor(time - ((days * 60 * 60 * 24) + (hr * 60 * 60) + (min * 60)));
-        return days + range[3] + (hr > 0 ? hr + range[2] : "") + (min > 0 ? min + range[1] : "") + (sec > 0 ? sec + range[0] : "");
+        return days + range$1[3] + (hr > 0 ? hr + range$1[2] : "") + (min > 0 ? min + range$1[1] : "") + (sec > 0 ? sec + range$1[0] : "");
     }
     else //if((time / (60*60*24)) >= 7) //Weeks
      {
@@ -16121,29 +16245,29 @@ var SecondsToStructuredString = function (time) {
         min = time - (((wks * (60 * 60 * 24 * 7)) + (days * 60 * 60 * 24) + (hr * 60 * 60)));
         min = Math.floor(min / 60);
         sec = Math.floor(time - ((wks * (60 * 60 * 24 * 7)) + (days * 60 * 60 * 24) + (hr * 60 * 60) + (min * 60)));
-        return wks + range[4] + (days > 0 ? days + range[3] : "") + (hr > 0 ? hr + range[2] : "") + (min > 0 ? min + range[1] : "") + (sec > 0 ? sec + range[0] : "");
+        return wks + range$1[4] + (days > 0 ? days + range$1[3] : "") + (hr > 0 ? hr + range$1[2] : "") + (min > 0 ? min + range$1[1] : "") + (sec > 0 ? sec + range$1[0] : "");
     }
 };
 //Returns number of bytes as structure string E.g. 1076 as input returns 1.05KB  
-var BytesToStructuredString = function (bytes) {
+var BytesToStructuredString$1 = function (bytes) {
     if (bytes < 1)
         return "0 Byte";
     var i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return (bytes / Math.pow(1024, i)).toFixed(2) + " " + SizeRange[i];
+    return (bytes / Math.pow(1024, i)).toFixed(2) + " " + SizeRange$1[i];
 };
 //Returns number of bytes/sec as structure string E.g. 1076 as input returns 1.05KB/s
-var SpeedToStructuredString = function (speed) {
+var SpeedToStructuredString$1 = function (speed) {
     if (speed < 1)
         return "0 B/s";
     var i = Math.floor(Math.log(speed) / Math.log(1024));
-    return (speed / Math.pow(1024, i)).toFixed(2) + " " + SpeedRange[i];
-};var AjaxConnector = /** @class */ (function () {
+    return (speed / Math.pow(1024, i)).toFixed(2) + " " + SpeedRange$1[i];
+};var AjaxConnector$1 = /** @class */ (function () {
     function AjaxConnector() {
     }
     AjaxConnector.xhr2 = function (_url, _data, _callback, _method, _async, responseType) {
         var asyncRequest = true;
         var resultData = {};
-        var errorMsgCode = errorCode.noerror;
+        var errorMsgCode = errorCode$2.noerror;
         if (_async === false)
             asyncRequest = false;
         //if(this.xhrRequest === undefined)
@@ -16160,16 +16284,16 @@ var SpeedToStructuredString = function (speed) {
                 resultData = this.response;
             else {
                 if (oReq.status === 0) {
-                    errorMsgCode = errorCode.connectionError;
+                    errorMsgCode = errorCode$2.connectionError;
                 }
                 else if (oReq.status === 404) {
-                    errorMsgCode = errorCode.error404;
+                    errorMsgCode = errorCode$2.error404;
                 }
                 else if (oReq.status === 500) {
-                    errorMsgCode = errorCode.serverError;
+                    errorMsgCode = errorCode$2.serverError;
                 }
                 else {
-                    errorMsgCode = errorCode.unknownError;
+                    errorMsgCode = errorCode$2.unknownError;
                 }
             }
             if (_callback)
@@ -16179,9 +16303,9 @@ var SpeedToStructuredString = function (speed) {
         //oReq.withCredentials = true; //Access-Control-Allow-Origin = * will not work if withCredentials = true;
         oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
         //oReq.setRequestHeader('Range', 'bytes=0-47');
-        if (responseType === ResponseType.BUFFER)
+        if (responseType === ResponseType$1.BUFFER)
             oReq.responseType = 'arraybuffer';
-        else if (responseType === ResponseType.JSON)
+        else if (responseType === ResponseType$1.JSON)
             oReq.responseType = 'json';
         else
             oReq.responseType = 'text';
@@ -16202,15 +16326,15 @@ var SpeedToStructuredString = function (speed) {
                 throw new Error('Invalid request parameters');
             }
             var _callbackFn = function (resultData, errorMsgCode) {
-                if (errorMsgCode !== errorCode.noerror)
+                if (errorMsgCode !== errorCode$2.noerror)
                     reject(errorMsgCode);
-                if (errorMsgCode === errorCode.noerror && resultData)
+                if (errorMsgCode === errorCode$2.noerror && resultData)
                     resolve(resultData);
-                resolve(errorCode.unknownError);
+                resolve(errorCode$2.unknownError);
             };
             var syncCallResult = null;
-            var responseType = _reponseType || ResponseType.JSON;
-            if (responseType === ResponseType.JSON || responseType === ResponseType.BUFFER)
+            var responseType = _reponseType || ResponseType$1.JSON;
+            if (responseType === ResponseType$1.JSON || responseType === ResponseType$1.BUFFER)
                 syncCallResult = AjaxConnector.xhr2(_url, _data, _callbackFn, _method, _async, responseType);
             else
                 throw new Error('Invalid Response Type');
@@ -16219,12 +16343,12 @@ var SpeedToStructuredString = function (speed) {
                     reject(syncCallResult.errorMsgCode);
                 if (parseInt(syncCallResult.errorMsgCode) === -1 && syncCallResult.Data)
                     resolve(syncCallResult.Data);
-                resolve(errorCode.unknownError);
+                resolve(errorCode$2.unknownError);
             }
         });
     };
     return AjaxConnector;
-}());var RequestMeter = /** @class */ (function () {
+}());var RequestMeter$1 = /** @class */ (function () {
     function RequestMeter(url) {
         this._url = url,
             this._requestInitaitedOn = null,
@@ -16306,12 +16430,12 @@ var SpeedToStructuredString = function (speed) {
         var metricsString = "";
         if (this._isSuccess === true && this._isErrorOccurred === false) {
             var transferSpeed = this.getTransferSpeed();
-            var size = BytesToStructuredString(this.size);
-            var timeForFirstResponse = SecondsToStructuredString(this.timeForFirstResponse);
-            var timeToDownload = SecondsToStructuredString(this.timeForDownload);
-            var minSpeed = SpeedToStructuredString(transferSpeed.minSpeed);
-            var maxSpeed = SpeedToStructuredString(transferSpeed.maxSpeed);
-            var avgSpeed = SpeedToStructuredString(transferSpeed.avgSpeed);
+            var size = BytesToStructuredString$1(this.size);
+            var timeForFirstResponse = SecondsToStructuredString$1(this.timeForFirstResponse);
+            var timeToDownload = SecondsToStructuredString$1(this.timeForDownload);
+            var minSpeed = SpeedToStructuredString$1(transferSpeed.minSpeed);
+            var maxSpeed = SpeedToStructuredString$1(transferSpeed.maxSpeed);
+            var avgSpeed = SpeedToStructuredString$1(transferSpeed.avgSpeed);
             metricsString =
                 "URL :  " + this._url + "\nSize :  " + size + "\nWaiting (TTFB) :  " + timeForFirstResponse + "\nTimeToDownload :  " + timeToDownload + "\nMIN Speed :  " + minSpeed + "\nMAX Speed :  " + maxSpeed + "\nAVG Speed :  " + avgSpeed + "\nChunk Count :  " + this._progessList.length;
         }
@@ -16326,11 +16450,11 @@ var SpeedToStructuredString = function (speed) {
         return metricsString;
     };
     return RequestMeter;
-}());var NetworkMetrics = /** @class */ (function () {
+}());var NetworkMetrics$1 = /** @class */ (function () {
     function NetworkMetrics() {
     }
     NetworkMetrics.addURL = function (url) {
-        var reqObj = new RequestMeter(url);
+        var reqObj = new RequestMeter$1(url);
         NetworkMetrics.URLMap.set(url, reqObj);
         return reqObj;
     };
@@ -16352,7 +16476,7 @@ var SpeedToStructuredString = function (speed) {
     };
     NetworkMetrics.URLMap = new Map();
     return NetworkMetrics;
-}());var bind = function bind(fn, thisArg) {
+}());var bind$1 = function bind(fn, thisArg) {
   return function wrap() {
     var args = new Array(arguments.length);
     for (var i = 0; i < args.length; i++) {
@@ -16364,7 +16488,7 @@ var SpeedToStructuredString = function (speed) {
 
 // utils is a library of generic helper functions non-specific to axios
 
-var toString = Object.prototype.toString;
+var toString$1 = Object.prototype.toString;
 
 /**
  * Determine if a value is an Array
@@ -16372,8 +16496,8 @@ var toString = Object.prototype.toString;
  * @param {Object} val The value to test
  * @returns {boolean} True if value is an Array, otherwise false
  */
-function isArray(val) {
-  return toString.call(val) === '[object Array]';
+function isArray$1(val) {
+  return toString$1.call(val) === '[object Array]';
 }
 
 /**
@@ -16382,7 +16506,7 @@ function isArray(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if the value is undefined, otherwise false
  */
-function isUndefined(val) {
+function isUndefined$1(val) {
   return typeof val === 'undefined';
 }
 
@@ -16392,8 +16516,8 @@ function isUndefined(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a Buffer, otherwise false
  */
-function isBuffer(val) {
-  return val !== null && !isUndefined(val) && val.constructor !== null && !isUndefined(val.constructor)
+function isBuffer$1(val) {
+  return val !== null && !isUndefined$1(val) && val.constructor !== null && !isUndefined$1(val.constructor)
     && typeof val.constructor.isBuffer === 'function' && val.constructor.isBuffer(val);
 }
 
@@ -16403,8 +16527,8 @@ function isBuffer(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is an ArrayBuffer, otherwise false
  */
-function isArrayBuffer(val) {
-  return toString.call(val) === '[object ArrayBuffer]';
+function isArrayBuffer$1(val) {
+  return toString$1.call(val) === '[object ArrayBuffer]';
 }
 
 /**
@@ -16413,7 +16537,7 @@ function isArrayBuffer(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is an FormData, otherwise false
  */
-function isFormData(val) {
+function isFormData$1(val) {
   return (typeof FormData !== 'undefined') && (val instanceof FormData);
 }
 
@@ -16423,7 +16547,7 @@ function isFormData(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
  */
-function isArrayBufferView(val) {
+function isArrayBufferView$1(val) {
   var result;
   if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
     result = ArrayBuffer.isView(val);
@@ -16439,7 +16563,7 @@ function isArrayBufferView(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a String, otherwise false
  */
-function isString(val) {
+function isString$1(val) {
   return typeof val === 'string';
 }
 
@@ -16449,7 +16573,7 @@ function isString(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a Number, otherwise false
  */
-function isNumber(val) {
+function isNumber$1(val) {
   return typeof val === 'number';
 }
 
@@ -16459,7 +16583,7 @@ function isNumber(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is an Object, otherwise false
  */
-function isObject(val) {
+function isObject$1(val) {
   return val !== null && typeof val === 'object';
 }
 
@@ -16469,8 +16593,8 @@ function isObject(val) {
  * @param {Object} val The value to test
  * @return {boolean} True if value is a plain Object, otherwise false
  */
-function isPlainObject(val) {
-  if (toString.call(val) !== '[object Object]') {
+function isPlainObject$1(val) {
+  if (toString$1.call(val) !== '[object Object]') {
     return false;
   }
 
@@ -16484,8 +16608,8 @@ function isPlainObject(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a Date, otherwise false
  */
-function isDate(val) {
-  return toString.call(val) === '[object Date]';
+function isDate$1(val) {
+  return toString$1.call(val) === '[object Date]';
 }
 
 /**
@@ -16494,8 +16618,8 @@ function isDate(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a File, otherwise false
  */
-function isFile(val) {
-  return toString.call(val) === '[object File]';
+function isFile$1(val) {
+  return toString$1.call(val) === '[object File]';
 }
 
 /**
@@ -16504,8 +16628,8 @@ function isFile(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a Blob, otherwise false
  */
-function isBlob(val) {
-  return toString.call(val) === '[object Blob]';
+function isBlob$1(val) {
+  return toString$1.call(val) === '[object Blob]';
 }
 
 /**
@@ -16514,8 +16638,8 @@ function isBlob(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a Function, otherwise false
  */
-function isFunction(val) {
-  return toString.call(val) === '[object Function]';
+function isFunction$1(val) {
+  return toString$1.call(val) === '[object Function]';
 }
 
 /**
@@ -16524,8 +16648,8 @@ function isFunction(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a Stream, otherwise false
  */
-function isStream(val) {
-  return isObject(val) && isFunction(val.pipe);
+function isStream$1(val) {
+  return isObject$1(val) && isFunction$1(val.pipe);
 }
 
 /**
@@ -16534,7 +16658,7 @@ function isStream(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a URLSearchParams object, otherwise false
  */
-function isURLSearchParams(val) {
+function isURLSearchParams$1(val) {
   return typeof URLSearchParams !== 'undefined' && val instanceof URLSearchParams;
 }
 
@@ -16544,7 +16668,7 @@ function isURLSearchParams(val) {
  * @param {String} str The String to trim
  * @returns {String} The String freed of excess whitespace
  */
-function trim(str) {
+function trim$1(str) {
   return str.replace(/^\s*/, '').replace(/\s*$/, '');
 }
 
@@ -16563,7 +16687,7 @@ function trim(str) {
  * nativescript
  *  navigator.product -> 'NativeScript' or 'NS'
  */
-function isStandardBrowserEnv() {
+function isStandardBrowserEnv$1() {
   if (typeof navigator !== 'undefined' && (navigator.product === 'ReactNative' ||
                                            navigator.product === 'NativeScript' ||
                                            navigator.product === 'NS')) {
@@ -16599,7 +16723,7 @@ function forEach(obj, fn) {
     obj = [obj];
   }
 
-  if (isArray(obj)) {
+  if (isArray$1(obj)) {
     // Iterate over array values
     for (var i = 0, l = obj.length; i < l; i++) {
       fn.call(null, obj[i], i, obj);
@@ -16631,14 +16755,14 @@ function forEach(obj, fn) {
  * @param {Object} obj1 Object to merge
  * @returns {Object} Result of all merge properties
  */
-function merge(/* obj1, obj2, obj3, ... */) {
+function merge$1(/* obj1, obj2, obj3, ... */) {
   var result = {};
   function assignValue(val, key) {
-    if (isPlainObject(result[key]) && isPlainObject(val)) {
-      result[key] = merge(result[key], val);
-    } else if (isPlainObject(val)) {
-      result[key] = merge({}, val);
-    } else if (isArray(val)) {
+    if (isPlainObject$1(result[key]) && isPlainObject$1(val)) {
+      result[key] = merge$1(result[key], val);
+    } else if (isPlainObject$1(val)) {
+      result[key] = merge$1({}, val);
+    } else if (isArray$1(val)) {
       result[key] = val.slice();
     } else {
       result[key] = val;
@@ -16659,10 +16783,10 @@ function merge(/* obj1, obj2, obj3, ... */) {
  * @param {Object} thisArg The object to bind function to
  * @return {Object} The resulting value of object a
  */
-function extend(a, b, thisArg) {
+function extend$1(a, b, thisArg) {
   forEach(b, function assignValue(val, key) {
     if (thisArg && typeof val === 'function') {
-      a[key] = bind(val, thisArg);
+      a[key] = bind$1(val, thisArg);
     } else {
       a[key] = val;
     }
@@ -16676,37 +16800,37 @@ function extend(a, b, thisArg) {
  * @param {string} content with BOM
  * @return {string} content value without BOM
  */
-function stripBOM(content) {
+function stripBOM$1(content) {
   if (content.charCodeAt(0) === 0xFEFF) {
     content = content.slice(1);
   }
   return content;
 }
 
-var utils = {
-  isArray: isArray,
-  isArrayBuffer: isArrayBuffer,
-  isBuffer: isBuffer,
-  isFormData: isFormData,
-  isArrayBufferView: isArrayBufferView,
-  isString: isString,
-  isNumber: isNumber,
-  isObject: isObject,
-  isPlainObject: isPlainObject,
-  isUndefined: isUndefined,
-  isDate: isDate,
-  isFile: isFile,
-  isBlob: isBlob,
-  isFunction: isFunction,
-  isStream: isStream,
-  isURLSearchParams: isURLSearchParams,
-  isStandardBrowserEnv: isStandardBrowserEnv,
+var utils$1 = {
+  isArray: isArray$1,
+  isArrayBuffer: isArrayBuffer$1,
+  isBuffer: isBuffer$1,
+  isFormData: isFormData$1,
+  isArrayBufferView: isArrayBufferView$1,
+  isString: isString$1,
+  isNumber: isNumber$1,
+  isObject: isObject$1,
+  isPlainObject: isPlainObject$1,
+  isUndefined: isUndefined$1,
+  isDate: isDate$1,
+  isFile: isFile$1,
+  isBlob: isBlob$1,
+  isFunction: isFunction$1,
+  isStream: isStream$1,
+  isURLSearchParams: isURLSearchParams$1,
+  isStandardBrowserEnv: isStandardBrowserEnv$1,
   forEach: forEach,
-  merge: merge,
-  extend: extend,
-  trim: trim,
-  stripBOM: stripBOM
-};function encode(val) {
+  merge: merge$1,
+  extend: extend$1,
+  trim: trim$1,
+  stripBOM: stripBOM$1
+};function encode$1(val) {
   return encodeURIComponent(val).
     replace(/%3A/gi, ':').
     replace(/%24/g, '$').
@@ -16723,7 +16847,7 @@ var utils = {
  * @param {object} [params] The params to be appended
  * @returns {string} The formatted url
  */
-var buildURL = function buildURL(url, params, paramsSerializer) {
+var buildURL$1 = function buildURL(url, params, paramsSerializer) {
   /*eslint no-param-reassign:0*/
   if (!params) {
     return url;
@@ -16732,29 +16856,29 @@ var buildURL = function buildURL(url, params, paramsSerializer) {
   var serializedParams;
   if (paramsSerializer) {
     serializedParams = paramsSerializer(params);
-  } else if (utils.isURLSearchParams(params)) {
+  } else if (utils$1.isURLSearchParams(params)) {
     serializedParams = params.toString();
   } else {
     var parts = [];
 
-    utils.forEach(params, function serialize(val, key) {
+    utils$1.forEach(params, function serialize(val, key) {
       if (val === null || typeof val === 'undefined') {
         return;
       }
 
-      if (utils.isArray(val)) {
+      if (utils$1.isArray(val)) {
         key = key + '[]';
       } else {
         val = [val];
       }
 
-      utils.forEach(val, function parseValue(v) {
-        if (utils.isDate(v)) {
+      utils$1.forEach(val, function parseValue(v) {
+        if (utils$1.isDate(v)) {
           v = v.toISOString();
-        } else if (utils.isObject(v)) {
+        } else if (utils$1.isObject(v)) {
           v = JSON.stringify(v);
         }
-        parts.push(encode(key) + '=' + encode(v));
+        parts.push(encode$1(key) + '=' + encode$1(v));
       });
     });
 
@@ -16771,7 +16895,7 @@ var buildURL = function buildURL(url, params, paramsSerializer) {
   }
 
   return url;
-};function InterceptorManager() {
+};function InterceptorManager$1() {
   this.handlers = [];
 }
 
@@ -16783,7 +16907,7 @@ var buildURL = function buildURL(url, params, paramsSerializer) {
  *
  * @return {Number} An ID used to remove interceptor later
  */
-InterceptorManager.prototype.use = function use(fulfilled, rejected) {
+InterceptorManager$1.prototype.use = function use(fulfilled, rejected) {
   this.handlers.push({
     fulfilled: fulfilled,
     rejected: rejected
@@ -16796,7 +16920,7 @@ InterceptorManager.prototype.use = function use(fulfilled, rejected) {
  *
  * @param {Number} id The ID that was returned by `use`
  */
-InterceptorManager.prototype.eject = function eject(id) {
+InterceptorManager$1.prototype.eject = function eject(id) {
   if (this.handlers[id]) {
     this.handlers[id] = null;
   }
@@ -16810,15 +16934,15 @@ InterceptorManager.prototype.eject = function eject(id) {
  *
  * @param {Function} fn The function to call for each interceptor
  */
-InterceptorManager.prototype.forEach = function forEach(fn) {
-  utils.forEach(this.handlers, function forEachHandler(h) {
+InterceptorManager$1.prototype.forEach = function forEach(fn) {
+  utils$1.forEach(this.handlers, function forEachHandler(h) {
     if (h !== null) {
       fn(h);
     }
   });
 };
 
-var InterceptorManager_1 = InterceptorManager;/**
+var InterceptorManager_1$1 = InterceptorManager$1;/**
  * Transform the data for a request or a response
  *
  * @param {Object|String} data The data to be transformed
@@ -16826,17 +16950,17 @@ var InterceptorManager_1 = InterceptorManager;/**
  * @param {Array|Function} fns A single function or Array of functions
  * @returns {*} The resulting transformed data
  */
-var transformData = function transformData(data, headers, fns) {
+var transformData$1 = function transformData(data, headers, fns) {
   /*eslint no-param-reassign:0*/
-  utils.forEach(fns, function transform(fn) {
+  utils$1.forEach(fns, function transform(fn) {
     data = fn(data, headers);
   });
 
   return data;
-};var isCancel = function isCancel(value) {
+};var isCancel$1 = function isCancel(value) {
   return !!(value && value.__CANCEL__);
-};var normalizeHeaderName = function normalizeHeaderName(headers, normalizedName) {
-  utils.forEach(headers, function processHeader(value, name) {
+};var normalizeHeaderName$1 = function normalizeHeaderName(headers, normalizedName) {
+  utils$1.forEach(headers, function processHeader(value, name) {
     if (name !== normalizedName && name.toUpperCase() === normalizedName.toUpperCase()) {
       headers[normalizedName] = value;
       delete headers[name];
@@ -16852,7 +16976,7 @@ var transformData = function transformData(data, headers, fns) {
  * @param {Object} [response] The response.
  * @returns {Error} The error.
  */
-var enhanceError = function enhanceError(error, config, code, request, response) {
+var enhanceError$1 = function enhanceError(error, config, code, request, response) {
   error.config = config;
   if (code) {
     error.code = code;
@@ -16891,9 +17015,9 @@ var enhanceError = function enhanceError(error, config, code, request, response)
  * @param {Object} [response] The response.
  * @returns {Error} The created error.
  */
-var createError = function createError(message, config, code, request, response) {
+var createError$1 = function createError(message, config, code, request, response) {
   var error = new Error(message);
-  return enhanceError(error, config, code, request, response);
+  return enhanceError$1(error, config, code, request, response);
 };/**
  * Resolve or reject a Promise based on response status.
  *
@@ -16901,12 +17025,12 @@ var createError = function createError(message, config, code, request, response)
  * @param {Function} reject A function that rejects the promise.
  * @param {object} response The response.
  */
-var settle = function settle(resolve, reject, response) {
+var settle$1 = function settle(resolve, reject, response) {
   var validateStatus = response.config.validateStatus;
   if (!response.status || !validateStatus || validateStatus(response.status)) {
     resolve(response);
   } else {
-    reject(createError(
+    reject(createError$1(
       'Request failed with status code ' + response.status,
       response.config,
       null,
@@ -16914,8 +17038,8 @@ var settle = function settle(resolve, reject, response) {
       response
     ));
   }
-};var cookies = (
-  utils.isStandardBrowserEnv() ?
+};var cookies$1 = (
+  utils$1.isStandardBrowserEnv() ?
 
   // Standard browser envs support document.cookie
     (function standardBrowserEnv() {
@@ -16924,15 +17048,15 @@ var settle = function settle(resolve, reject, response) {
           var cookie = [];
           cookie.push(name + '=' + encodeURIComponent(value));
 
-          if (utils.isNumber(expires)) {
+          if (utils$1.isNumber(expires)) {
             cookie.push('expires=' + new Date(expires).toGMTString());
           }
 
-          if (utils.isString(path)) {
+          if (utils$1.isString(path)) {
             cookie.push('path=' + path);
           }
 
-          if (utils.isString(domain)) {
+          if (utils$1.isString(domain)) {
             cookie.push('domain=' + domain);
           }
 
@@ -16968,7 +17092,7 @@ var settle = function settle(resolve, reject, response) {
  * @param {string} url The URL to test
  * @returns {boolean} True if the specified URL is absolute, otherwise false
  */
-var isAbsoluteURL = function isAbsoluteURL(url) {
+var isAbsoluteURL$1 = function isAbsoluteURL(url) {
   // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
   // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
   // by any combination of letters, digits, plus, period, or hyphen.
@@ -16980,7 +17104,7 @@ var isAbsoluteURL = function isAbsoluteURL(url) {
  * @param {string} relativeURL The relative URL
  * @returns {string} The combined URL
  */
-var combineURLs = function combineURLs(baseURL, relativeURL) {
+var combineURLs$1 = function combineURLs(baseURL, relativeURL) {
   return relativeURL
     ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
     : baseURL;
@@ -16993,14 +17117,14 @@ var combineURLs = function combineURLs(baseURL, relativeURL) {
  * @param {string} requestedURL Absolute or relative URL to combine
  * @returns {string} The combined full path
  */
-var buildFullPath = function buildFullPath(baseURL, requestedURL) {
-  if (baseURL && !isAbsoluteURL(requestedURL)) {
-    return combineURLs(baseURL, requestedURL);
+var buildFullPath$1 = function buildFullPath(baseURL, requestedURL) {
+  if (baseURL && !isAbsoluteURL$1(requestedURL)) {
+    return combineURLs$1(baseURL, requestedURL);
   }
   return requestedURL;
 };// Headers whose duplicates are ignored by node
 // c.f. https://nodejs.org/api/http.html#http_message_headers
-var ignoreDuplicateOf = [
+var ignoreDuplicateOf$1 = [
   'age', 'authorization', 'content-length', 'content-type', 'etag',
   'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
   'last-modified', 'location', 'max-forwards', 'proxy-authorization',
@@ -17020,7 +17144,7 @@ var ignoreDuplicateOf = [
  * @param {String} headers Headers needing to be parsed
  * @returns {Object} Headers parsed into an object
  */
-var parseHeaders = function parseHeaders(headers) {
+var parseHeaders$1 = function parseHeaders(headers) {
   var parsed = {};
   var key;
   var val;
@@ -17028,13 +17152,13 @@ var parseHeaders = function parseHeaders(headers) {
 
   if (!headers) { return parsed; }
 
-  utils.forEach(headers.split('\n'), function parser(line) {
+  utils$1.forEach(headers.split('\n'), function parser(line) {
     i = line.indexOf(':');
-    key = utils.trim(line.substr(0, i)).toLowerCase();
-    val = utils.trim(line.substr(i + 1));
+    key = utils$1.trim(line.substr(0, i)).toLowerCase();
+    val = utils$1.trim(line.substr(i + 1));
 
     if (key) {
-      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+      if (parsed[key] && ignoreDuplicateOf$1.indexOf(key) >= 0) {
         return;
       }
       if (key === 'set-cookie') {
@@ -17046,8 +17170,8 @@ var parseHeaders = function parseHeaders(headers) {
   });
 
   return parsed;
-};var isURLSameOrigin = (
-  utils.isStandardBrowserEnv() ?
+};var isURLSameOrigin$1 = (
+  utils$1.isStandardBrowserEnv() ?
 
   // Standard browser envs have full support of the APIs needed to test
   // whether the request URL is of the same origin as current location.
@@ -17097,7 +17221,7 @@ var parseHeaders = function parseHeaders(headers) {
     * @returns {boolean} True if URL shares the same origin, otherwise false
     */
       return function isURLSameOrigin(requestURL) {
-        var parsed = (utils.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
+        var parsed = (utils$1.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
         return (parsed.protocol === originURL.protocol &&
             parsed.host === originURL.host);
       };
@@ -17109,12 +17233,12 @@ var parseHeaders = function parseHeaders(headers) {
         return true;
       };
     })()
-);var xhr = function xhrAdapter(config) {
+);var xhr$1 = function xhrAdapter(config) {
   return new Promise(function dispatchXhrRequest(resolve, reject) {
     var requestData = config.data;
     var requestHeaders = config.headers;
 
-    if (utils.isFormData(requestData)) {
+    if (utils$1.isFormData(requestData)) {
       delete requestHeaders['Content-Type']; // Let the browser set it
     }
 
@@ -17127,8 +17251,8 @@ var parseHeaders = function parseHeaders(headers) {
       requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
     }
 
-    var fullPath = buildFullPath(config.baseURL, config.url);
-    request.open(config.method.toUpperCase(), buildURL(fullPath, config.params, config.paramsSerializer), true);
+    var fullPath = buildFullPath$1(config.baseURL, config.url);
+    request.open(config.method.toUpperCase(), buildURL$1(fullPath, config.params, config.paramsSerializer), true);
 
     // Set the request timeout in MS
     request.timeout = config.timeout;
@@ -17148,7 +17272,7 @@ var parseHeaders = function parseHeaders(headers) {
       }
 
       // Prepare the response
-      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
+      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders$1(request.getAllResponseHeaders()) : null;
       var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
       var response = {
         data: responseData,
@@ -17159,7 +17283,7 @@ var parseHeaders = function parseHeaders(headers) {
         request: request
       };
 
-      settle(resolve, reject, response);
+      settle$1(resolve, reject, response);
 
       // Clean up request
       request = null;
@@ -17171,7 +17295,7 @@ var parseHeaders = function parseHeaders(headers) {
         return;
       }
 
-      reject(createError('Request aborted', config, 'ECONNABORTED', request));
+      reject(createError$1('Request aborted', config, 'ECONNABORTED', request));
 
       // Clean up request
       request = null;
@@ -17181,7 +17305,7 @@ var parseHeaders = function parseHeaders(headers) {
     request.onerror = function handleError() {
       // Real errors are hidden from us by the browser
       // onerror should only fire if it's a network error
-      reject(createError('Network Error', config, null, request));
+      reject(createError$1('Network Error', config, null, request));
 
       // Clean up request
       request = null;
@@ -17193,7 +17317,7 @@ var parseHeaders = function parseHeaders(headers) {
       if (config.timeoutErrorMessage) {
         timeoutErrorMessage = config.timeoutErrorMessage;
       }
-      reject(createError(timeoutErrorMessage, config, 'ECONNABORTED',
+      reject(createError$1(timeoutErrorMessage, config, 'ECONNABORTED',
         request));
 
       // Clean up request
@@ -17203,10 +17327,10 @@ var parseHeaders = function parseHeaders(headers) {
     // Add xsrf header
     // This is only done if running in a standard browser environment.
     // Specifically not if we're in a web worker, or react-native.
-    if (utils.isStandardBrowserEnv()) {
+    if (utils$1.isStandardBrowserEnv()) {
       // Add xsrf header
-      var xsrfValue = (config.withCredentials || isURLSameOrigin(fullPath)) && config.xsrfCookieName ?
-        cookies.read(config.xsrfCookieName) :
+      var xsrfValue = (config.withCredentials || isURLSameOrigin$1(fullPath)) && config.xsrfCookieName ?
+        cookies$1.read(config.xsrfCookieName) :
         undefined;
 
       if (xsrfValue) {
@@ -17216,7 +17340,7 @@ var parseHeaders = function parseHeaders(headers) {
 
     // Add headers to the request
     if ('setRequestHeader' in request) {
-      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+      utils$1.forEach(requestHeaders, function setRequestHeader(val, key) {
         if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
           // Remove Content-Type if data is undefined
           delete requestHeaders[key];
@@ -17228,7 +17352,7 @@ var parseHeaders = function parseHeaders(headers) {
     }
 
     // Add withCredentials to request if needed
-    if (!utils.isUndefined(config.withCredentials)) {
+    if (!utils$1.isUndefined(config.withCredentials)) {
       request.withCredentials = !!config.withCredentials;
     }
 
@@ -17276,52 +17400,52 @@ var parseHeaders = function parseHeaders(headers) {
     // Send the request
     request.send(requestData);
   });
-};var DEFAULT_CONTENT_TYPE = {
+};var DEFAULT_CONTENT_TYPE$1 = {
   'Content-Type': 'application/x-www-form-urlencoded'
 };
 
-function setContentTypeIfUnset(headers, value) {
-  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
+function setContentTypeIfUnset$1(headers, value) {
+  if (!utils$1.isUndefined(headers) && utils$1.isUndefined(headers['Content-Type'])) {
     headers['Content-Type'] = value;
   }
 }
 
-function getDefaultAdapter() {
+function getDefaultAdapter$1() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
-    adapter = xhr;
+    adapter = xhr$1;
   } else if (typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]') {
     // For node use HTTP adapter
-    adapter = xhr;
+    adapter = xhr$1;
   }
   return adapter;
 }
 
-var defaults = {
-  adapter: getDefaultAdapter(),
+var defaults$1 = {
+  adapter: getDefaultAdapter$1(),
 
   transformRequest: [function transformRequest(data, headers) {
-    normalizeHeaderName(headers, 'Accept');
-    normalizeHeaderName(headers, 'Content-Type');
-    if (utils.isFormData(data) ||
-      utils.isArrayBuffer(data) ||
-      utils.isBuffer(data) ||
-      utils.isStream(data) ||
-      utils.isFile(data) ||
-      utils.isBlob(data)
+    normalizeHeaderName$1(headers, 'Accept');
+    normalizeHeaderName$1(headers, 'Content-Type');
+    if (utils$1.isFormData(data) ||
+      utils$1.isArrayBuffer(data) ||
+      utils$1.isBuffer(data) ||
+      utils$1.isStream(data) ||
+      utils$1.isFile(data) ||
+      utils$1.isBlob(data)
     ) {
       return data;
     }
-    if (utils.isArrayBufferView(data)) {
+    if (utils$1.isArrayBufferView(data)) {
       return data.buffer;
     }
-    if (utils.isURLSearchParams(data)) {
-      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
+    if (utils$1.isURLSearchParams(data)) {
+      setContentTypeIfUnset$1(headers, 'application/x-www-form-urlencoded;charset=utf-8');
       return data.toString();
     }
-    if (utils.isObject(data)) {
-      setContentTypeIfUnset(headers, 'application/json;charset=utf-8');
+    if (utils$1.isObject(data)) {
+      setContentTypeIfUnset$1(headers, 'application/json;charset=utf-8');
       return JSON.stringify(data);
     }
     return data;
@@ -17354,24 +17478,24 @@ var defaults = {
   }
 };
 
-defaults.headers = {
+defaults$1.headers = {
   common: {
     'Accept': 'application/json, text/plain, */*'
   }
 };
 
-utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
-  defaults.headers[method] = {};
+utils$1.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
+  defaults$1.headers[method] = {};
 });
 
-utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-  defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
+utils$1.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+  defaults$1.headers[method] = utils$1.merge(DEFAULT_CONTENT_TYPE$1);
 });
 
-var defaults_1 = defaults;/**
+var defaults_1$1 = defaults$1;/**
  * Throws a `Cancel` if cancellation has been requested.
  */
-function throwIfCancellationRequested(config) {
+function throwIfCancellationRequested$1(config) {
   if (config.cancelToken) {
     config.cancelToken.throwIfRequested();
   }
@@ -17383,40 +17507,40 @@ function throwIfCancellationRequested(config) {
  * @param {object} config The config that is to be used for the request
  * @returns {Promise} The Promise to be fulfilled
  */
-var dispatchRequest = function dispatchRequest(config) {
-  throwIfCancellationRequested(config);
+var dispatchRequest$1 = function dispatchRequest(config) {
+  throwIfCancellationRequested$1(config);
 
   // Ensure headers exist
   config.headers = config.headers || {};
 
   // Transform request data
-  config.data = transformData(
+  config.data = transformData$1(
     config.data,
     config.headers,
     config.transformRequest
   );
 
   // Flatten headers
-  config.headers = utils.merge(
+  config.headers = utils$1.merge(
     config.headers.common || {},
     config.headers[config.method] || {},
     config.headers
   );
 
-  utils.forEach(
+  utils$1.forEach(
     ['delete', 'get', 'head', 'post', 'put', 'patch', 'common'],
     function cleanHeaderConfig(method) {
       delete config.headers[method];
     }
   );
 
-  var adapter = config.adapter || defaults_1.adapter;
+  var adapter = config.adapter || defaults_1$1.adapter;
 
   return adapter(config).then(function onAdapterResolution(response) {
-    throwIfCancellationRequested(config);
+    throwIfCancellationRequested$1(config);
 
     // Transform response data
-    response.data = transformData(
+    response.data = transformData$1(
       response.data,
       response.headers,
       config.transformResponse
@@ -17424,12 +17548,12 @@ var dispatchRequest = function dispatchRequest(config) {
 
     return response;
   }, function onAdapterRejection(reason) {
-    if (!isCancel(reason)) {
-      throwIfCancellationRequested(config);
+    if (!isCancel$1(reason)) {
+      throwIfCancellationRequested$1(config);
 
       // Transform response data
       if (reason && reason.response) {
-        reason.response.data = transformData(
+        reason.response.data = transformData$1(
           reason.response.data,
           reason.response.headers,
           config.transformResponse
@@ -17447,7 +17571,7 @@ var dispatchRequest = function dispatchRequest(config) {
  * @param {Object} config2
  * @returns {Object} New object resulting from merging config2 to config1
  */
-var mergeConfig = function mergeConfig(config1, config2) {
+var mergeConfig$1 = function mergeConfig(config1, config2) {
   // eslint-disable-next-line no-param-reassign
   config2 = config2 || {};
   var config = {};
@@ -17464,41 +17588,41 @@ var mergeConfig = function mergeConfig(config1, config2) {
   var directMergeKeys = ['validateStatus'];
 
   function getMergedValue(target, source) {
-    if (utils.isPlainObject(target) && utils.isPlainObject(source)) {
-      return utils.merge(target, source);
-    } else if (utils.isPlainObject(source)) {
-      return utils.merge({}, source);
-    } else if (utils.isArray(source)) {
+    if (utils$1.isPlainObject(target) && utils$1.isPlainObject(source)) {
+      return utils$1.merge(target, source);
+    } else if (utils$1.isPlainObject(source)) {
+      return utils$1.merge({}, source);
+    } else if (utils$1.isArray(source)) {
       return source.slice();
     }
     return source;
   }
 
   function mergeDeepProperties(prop) {
-    if (!utils.isUndefined(config2[prop])) {
+    if (!utils$1.isUndefined(config2[prop])) {
       config[prop] = getMergedValue(config1[prop], config2[prop]);
-    } else if (!utils.isUndefined(config1[prop])) {
+    } else if (!utils$1.isUndefined(config1[prop])) {
       config[prop] = getMergedValue(undefined, config1[prop]);
     }
   }
 
-  utils.forEach(valueFromConfig2Keys, function valueFromConfig2(prop) {
-    if (!utils.isUndefined(config2[prop])) {
+  utils$1.forEach(valueFromConfig2Keys, function valueFromConfig2(prop) {
+    if (!utils$1.isUndefined(config2[prop])) {
       config[prop] = getMergedValue(undefined, config2[prop]);
     }
   });
 
-  utils.forEach(mergeDeepPropertiesKeys, mergeDeepProperties);
+  utils$1.forEach(mergeDeepPropertiesKeys, mergeDeepProperties);
 
-  utils.forEach(defaultToConfig2Keys, function defaultToConfig2(prop) {
-    if (!utils.isUndefined(config2[prop])) {
+  utils$1.forEach(defaultToConfig2Keys, function defaultToConfig2(prop) {
+    if (!utils$1.isUndefined(config2[prop])) {
       config[prop] = getMergedValue(undefined, config2[prop]);
-    } else if (!utils.isUndefined(config1[prop])) {
+    } else if (!utils$1.isUndefined(config1[prop])) {
       config[prop] = getMergedValue(undefined, config1[prop]);
     }
   });
 
-  utils.forEach(directMergeKeys, function merge(prop) {
+  utils$1.forEach(directMergeKeys, function merge(prop) {
     if (prop in config2) {
       config[prop] = getMergedValue(config1[prop], config2[prop]);
     } else if (prop in config1) {
@@ -17518,7 +17642,7 @@ var mergeConfig = function mergeConfig(config1, config2) {
       return axiosKeys.indexOf(key) === -1;
     });
 
-  utils.forEach(otherKeys, mergeDeepProperties);
+  utils$1.forEach(otherKeys, mergeDeepProperties);
 
   return config;
 };/**
@@ -17526,11 +17650,11 @@ var mergeConfig = function mergeConfig(config1, config2) {
  *
  * @param {Object} instanceConfig The default config for the instance
  */
-function Axios(instanceConfig) {
+function Axios$1(instanceConfig) {
   this.defaults = instanceConfig;
   this.interceptors = {
-    request: new InterceptorManager_1(),
-    response: new InterceptorManager_1()
+    request: new InterceptorManager_1$1(),
+    response: new InterceptorManager_1$1()
   };
 }
 
@@ -17539,7 +17663,7 @@ function Axios(instanceConfig) {
  *
  * @param {Object} config The config specific for this request (merged with this.defaults)
  */
-Axios.prototype.request = function request(config) {
+Axios$1.prototype.request = function request(config) {
   /*eslint no-param-reassign:0*/
   // Allow for axios('example/url'[, config]) a la fetch API
   if (typeof config === 'string') {
@@ -17549,7 +17673,7 @@ Axios.prototype.request = function request(config) {
     config = config || {};
   }
 
-  config = mergeConfig(this.defaults, config);
+  config = mergeConfig$1(this.defaults, config);
 
   // Set config.method
   if (config.method) {
@@ -17561,7 +17685,7 @@ Axios.prototype.request = function request(config) {
   }
 
   // Hook up interceptors middleware
-  var chain = [dispatchRequest, undefined];
+  var chain = [dispatchRequest$1, undefined];
   var promise = Promise.resolve(config);
 
   this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
@@ -17579,16 +17703,16 @@ Axios.prototype.request = function request(config) {
   return promise;
 };
 
-Axios.prototype.getUri = function getUri(config) {
-  config = mergeConfig(this.defaults, config);
-  return buildURL(config.url, config.params, config.paramsSerializer).replace(/^\?/, '');
+Axios$1.prototype.getUri = function getUri(config) {
+  config = mergeConfig$1(this.defaults, config);
+  return buildURL$1(config.url, config.params, config.paramsSerializer).replace(/^\?/, '');
 };
 
 // Provide aliases for supported request methods
-utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
+utils$1.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
   /*eslint func-names:0*/
-  Axios.prototype[method] = function(url, config) {
-    return this.request(mergeConfig(config || {}, {
+  Axios$1.prototype[method] = function(url, config) {
+    return this.request(mergeConfig$1(config || {}, {
       method: method,
       url: url,
       data: (config || {}).data
@@ -17596,10 +17720,10 @@ utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData
   };
 });
 
-utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+utils$1.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
   /*eslint func-names:0*/
-  Axios.prototype[method] = function(url, data, config) {
-    return this.request(mergeConfig(config || {}, {
+  Axios$1.prototype[method] = function(url, data, config) {
+    return this.request(mergeConfig$1(config || {}, {
       method: method,
       url: url,
       data: data
@@ -17607,29 +17731,29 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
   };
 });
 
-var Axios_1 = Axios;/**
+var Axios_1$1 = Axios$1;/**
  * A `Cancel` is an object that is thrown when an operation is canceled.
  *
  * @class
  * @param {string=} message The message.
  */
-function Cancel(message) {
+function Cancel$1(message) {
   this.message = message;
 }
 
-Cancel.prototype.toString = function toString() {
+Cancel$1.prototype.toString = function toString() {
   return 'Cancel' + (this.message ? ': ' + this.message : '');
 };
 
-Cancel.prototype.__CANCEL__ = true;
+Cancel$1.prototype.__CANCEL__ = true;
 
-var Cancel_1 = Cancel;/**
+var Cancel_1$1 = Cancel$1;/**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
  *
  * @class
  * @param {Function} executor The executor function.
  */
-function CancelToken(executor) {
+function CancelToken$1(executor) {
   if (typeof executor !== 'function') {
     throw new TypeError('executor must be a function.');
   }
@@ -17646,7 +17770,7 @@ function CancelToken(executor) {
       return;
     }
 
-    token.reason = new Cancel_1(message);
+    token.reason = new Cancel_1$1(message);
     resolvePromise(token.reason);
   });
 }
@@ -17654,7 +17778,7 @@ function CancelToken(executor) {
 /**
  * Throws a `Cancel` if cancellation has been requested.
  */
-CancelToken.prototype.throwIfRequested = function throwIfRequested() {
+CancelToken$1.prototype.throwIfRequested = function throwIfRequested() {
   if (this.reason) {
     throw this.reason;
   }
@@ -17664,9 +17788,9 @@ CancelToken.prototype.throwIfRequested = function throwIfRequested() {
  * Returns an object that contains a new `CancelToken` and a function that, when called,
  * cancels the `CancelToken`.
  */
-CancelToken.source = function source() {
+CancelToken$1.source = function source() {
   var cancel;
-  var token = new CancelToken(function executor(c) {
+  var token = new CancelToken$1(function executor(c) {
     cancel = c;
   });
   return {
@@ -17675,7 +17799,7 @@ CancelToken.source = function source() {
   };
 };
 
-var CancelToken_1 = CancelToken;/**
+var CancelToken_1$1 = CancelToken$1;/**
  * Syntactic sugar for invoking a function and expanding an array for arguments.
  *
  * Common use case would be to use `Function.prototype.apply`.
@@ -17695,7 +17819,7 @@ var CancelToken_1 = CancelToken;/**
  * @param {Function} callback
  * @returns {Function}
  */
-var spread = function spread(callback) {
+var spread$1 = function spread(callback) {
   return function wrap(arr) {
     return callback.apply(null, arr);
   };
@@ -17705,7 +17829,7 @@ var spread = function spread(callback) {
  * @param {*} payload The value to test
  * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
  */
-var isAxiosError = function isAxiosError(payload) {
+var isAxiosError$1 = function isAxiosError(payload) {
   return (typeof payload === 'object') && (payload.isAxiosError === true);
 };/**
  * Create an instance of Axios
@@ -17713,60 +17837,60 @@ var isAxiosError = function isAxiosError(payload) {
  * @param {Object} defaultConfig The default config for the instance
  * @return {Axios} A new instance of Axios
  */
-function createInstance(defaultConfig) {
-  var context = new Axios_1(defaultConfig);
-  var instance = bind(Axios_1.prototype.request, context);
+function createInstance$1(defaultConfig) {
+  var context = new Axios_1$1(defaultConfig);
+  var instance = bind$1(Axios_1$1.prototype.request, context);
 
   // Copy axios.prototype to instance
-  utils.extend(instance, Axios_1.prototype, context);
+  utils$1.extend(instance, Axios_1$1.prototype, context);
 
   // Copy context to instance
-  utils.extend(instance, context);
+  utils$1.extend(instance, context);
 
   return instance;
 }
 
 // Create the default instance to be exported
-var axios = createInstance(defaults_1);
+var axios$2 = createInstance$1(defaults_1$1);
 
 // Expose Axios class to allow class inheritance
-axios.Axios = Axios_1;
+axios$2.Axios = Axios_1$1;
 
 // Factory for creating new instances
-axios.create = function create(instanceConfig) {
-  return createInstance(mergeConfig(axios.defaults, instanceConfig));
+axios$2.create = function create(instanceConfig) {
+  return createInstance$1(mergeConfig$1(axios$2.defaults, instanceConfig));
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = Cancel_1;
-axios.CancelToken = CancelToken_1;
-axios.isCancel = isCancel;
+axios$2.Cancel = Cancel_1$1;
+axios$2.CancelToken = CancelToken_1$1;
+axios$2.isCancel = isCancel$1;
 
 // Expose all/spread
-axios.all = function all(promises) {
+axios$2.all = function all(promises) {
   return Promise.all(promises);
 };
-axios.spread = spread;
+axios$2.spread = spread$1;
 
 // Expose isAxiosError
-axios.isAxiosError = isAxiosError;
+axios$2.isAxiosError = isAxiosError$1;
 
-var axios_1 = axios;
+var axios_1$1 = axios$2;
 
 // Allow use of default import syntax in TypeScript
-var _default = axios;
-axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class */ (function () {
+var _default = axios$2;
+axios_1$1.default = _default;var axios$3 = axios_1$1;var AxiosConnector$1 = /** @class */ (function () {
     function AxiosConnector() {
     }
     AxiosConnector.send = function (_url, _data, _method, _reponseType) {
         if (!_url)
             throw new Error('Invalid request parameters');
-        var responseType = _reponseType || ResponseType.JSON;
-        if (responseType === ResponseType.JSON || responseType === ResponseType.BUFFER) {
+        var responseType = _reponseType || ResponseType$1.JSON;
+        if (responseType === ResponseType$1.JSON || responseType === ResponseType$1.BUFFER) {
             return new Promise(function (resolve, reject) {
-                var requestObject = NetworkMetrics.addURL(_url);
+                var requestObject = NetworkMetrics$1.addURL(_url);
                 requestObject.requestInitaited();
-                axios$1({
+                axios$3({
                     method: _method,
                     url: _url,
                     data: _data,
@@ -17781,31 +17905,31 @@ axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class
                         resolve(response.data);
                     }
                     else {
-                        requestObject.errorOccurred(errorCode.invalidDataError);
-                        reject(errorCode.invalidDataError);
+                        requestObject.errorOccurred(errorCode$2.invalidDataError);
+                        reject(errorCode$2.invalidDataError);
                     }
                 })
                     .catch(function (error) {
-                    var errorMsgCode = errorCode.noerror;
+                    var errorMsgCode = errorCode$2.noerror;
                     if (error.response) {
                         if (error.response.status === 0) {
-                            errorMsgCode = errorCode.connectionError;
+                            errorMsgCode = errorCode$2.connectionError;
                         }
                         else if (error.response.status === 404) {
-                            errorMsgCode = errorCode.error404;
+                            errorMsgCode = errorCode$2.error404;
                         }
                         else if (error.response.status === 500) {
-                            errorMsgCode = errorCode.serverError;
+                            errorMsgCode = errorCode$2.serverError;
                         }
                         else {
-                            errorMsgCode = errorCode.unknownError;
+                            errorMsgCode = errorCode$2.unknownError;
                         }
                     }
                     else if (error.request) {
-                        errorMsgCode = errorCode.noresponseError;
+                        errorMsgCode = errorCode$2.noresponseError;
                     }
                     else {
-                        errorMsgCode = errorCode.unknownError;
+                        errorMsgCode = errorCode$2.unknownError;
                     }
                     requestObject.errorOccurred(errorMsgCode);
                     reject(errorMsgCode);
@@ -17816,39 +17940,39 @@ axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class
             throw new Error('Invalid Response Type');
     };
     return AxiosConnector;
-}());var ServerConnector = /** @class */ (function () {
+}());var ServerConnector$1 = /** @class */ (function () {
     function ServerConnector(connectionType) {
-        this.connectionType = connectionType || ServerConnectionType.AXIOS;
+        this.connectionType = connectionType || ServerConnectionType$1.AXIOS;
     }
     ServerConnector.prototype.getJsonData = function (url) {
-        if (this.connectionType === ServerConnectionType.XHR) {
-            return AjaxConnector.send(url, null, 'GET', true, ResponseType.JSON);
+        if (this.connectionType === ServerConnectionType$1.XHR) {
+            return AjaxConnector$1.send(url, null, 'GET', true, ResponseType$1.JSON);
         }
-        else if (this.connectionType === ServerConnectionType.AXIOS) {
-            return AxiosConnector.send(url, null, 'GET', ResponseType.JSON);
+        else if (this.connectionType === ServerConnectionType$1.AXIOS) {
+            return AxiosConnector$1.send(url, null, 'GET', ResponseType$1.JSON);
         }
         else {
             throw new Error('Invalid server connection type');
         }
     };
     ServerConnector.prototype.getArrayBuffer = function (url) {
-        if (this.connectionType === ServerConnectionType.XHR) {
-            return AjaxConnector.send(url, null, 'GET', true, ResponseType.BUFFER);
+        if (this.connectionType === ServerConnectionType$1.XHR) {
+            return AjaxConnector$1.send(url, null, 'GET', true, ResponseType$1.BUFFER);
         }
-        else if (this.connectionType === ServerConnectionType.AXIOS) {
-            return AxiosConnector.send(url, null, 'GET', ResponseType.BUFFER);
+        else if (this.connectionType === ServerConnectionType$1.AXIOS) {
+            return AxiosConnector$1.send(url, null, 'GET', ResponseType$1.BUFFER);
         }
         else {
             throw new Error('Invalid server connection type');
         }
     };
     ServerConnector.prototype.getNetworkMetrics = function () {
-        return NetworkMetrics.getAllMetrics();
+        return NetworkMetrics$1.getAllMetrics();
     };
     return ServerConnector;
 }());var AppConnector = /** @class */ (function () {
     function AppConnector(_eventDispacther) {
-        this.connector = new ServerConnector(ServerConnectionType.AXIOS);
+        this.connector = new ServerConnector$1(ServerConnectionType$1.AXIOS);
         this.eventDispacther = _eventDispacther;
     }
     AppConnector.prototype.getArrayBuffer = function (url) {
@@ -17899,26 +18023,26 @@ axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class
                     }
                     else {
                         //console.log(errorCode.jsonError);
-                        Logger.setStatusBar(errorCode.jsonError, statusIconType.ERROR);
-                        reject(errorCode.jsonError);
+                        Logger.setStatusBar(errorCode$2.jsonError, statusIconType.ERROR);
+                        reject(errorCode$2.jsonError);
                     }
                 }
                 else {
                     //console.log(errorCode.jsonError);
-                    Logger.setStatusBar(errorCode.jsonError, statusIconType.ERROR);
-                    reject(errorCode.jsonError);
+                    Logger.setStatusBar(errorCode$2.jsonError, statusIconType.ERROR);
+                    reject(errorCode$2.jsonError);
                 }
             })
                 .catch(function (errorMsgCode) {
-                if (errorMsgCode !== errorCode.noerror) {
+                if (errorMsgCode !== errorCode$2.noerror) {
                     //console.log(errorMsgCode);
                     Logger.setStatusBar(errorMsgCode, statusIconType.ERROR);
                     reject(errorMsgCode);
                 }
                 else {
                     //console.log(errorCode.unknownError);
-                    Logger.setStatusBar(errorCode.unknownError, statusIconType.ERROR);
-                    reject(errorCode.unknownError);
+                    Logger.setStatusBar(errorCode$2.unknownError, statusIconType.ERROR);
+                    reject(errorCode$2.unknownError);
                 }
             });
         });
@@ -17928,7 +18052,7 @@ axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class
         var _this = this;
         var scope = this;
         if ((taskId || taskURL) && onCompleteCallbackFn) {
-            var url = this.baseUrl + serverURLs["taskState"] + "/" + taskId;
+            var url = this.baseUrl + serverURLs$1["taskState"] + "/" + taskId;
             if (taskURL)
                 url = taskURL;
             this.getJsonData(url)
@@ -17958,23 +18082,23 @@ axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class
                 }
                 else {
                     //console.log(errorCode.jsonError);
-                    Logger.setStatusBar(errorCode.jsonError, statusIconType.ERROR);
+                    Logger.setStatusBar(errorCode$2.jsonError, statusIconType.ERROR);
                 }
             })
                 .catch(function (errorMsgCode) {
-                if (errorMsgCode !== errorCode.noerror) {
+                if (errorMsgCode !== errorCode$2.noerror) {
                     //console.log(errorMsgCode);
-                    Logger.setStatusBar(errorCode.jsonError, statusIconType.ERROR);
+                    Logger.setStatusBar(errorCode$2.jsonError, statusIconType.ERROR);
                 }
                 else {
                     //console.log(errorCode.unknownError);
-                    Logger.setStatusBar(errorCode.jsonError, statusIconType.ERROR);
+                    Logger.setStatusBar(errorCode$2.jsonError, statusIconType.ERROR);
                 }
             });
         }
         else {
             //console.log("checkTaskStatus :: Incorrect number of arguments.");
-            Logger.setStatusBar(errorCode.jsonError, statusIconType.ERROR);
+            Logger.setStatusBar(errorCode$2.jsonError, statusIconType.ERROR);
         }
     };
     AppConnector.prototype.isJson = function (item) {
@@ -17991,7 +18115,7 @@ axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class
         return false;
     };
     return AppConnector;
-}());var EventDispatcher = /** @class */ (function () {
+}());var EventDispatcher$1 = /** @class */ (function () {
     function EventDispatcher() {
         this._listeners = {};
     }
@@ -18059,7 +18183,7 @@ if ( globalThis && globalThis.process.env.NODE_ENV.toString() !== 'production') 
 var ViewerManager = /** @class */ (function () {
     function ViewerManager() {
         this.viewerMap = new Map();
-        this.eventDispacther = new EventDispatcher();
+        this.eventDispacther = new EventDispatcher$1();
         this.connector = new AppConnector(this.eventDispacther);
         this.defaultViewerID = null;
     }
@@ -18068,7 +18192,7 @@ var ViewerManager = /** @class */ (function () {
         return version;
     };
     ViewerManager.prototype.createViewer = function (_containerID) {
-        var viewerUUID = Utility.create_UUID();
+        var viewerUUID = Utility$1.create_UUID();
         var viewer = new Viewer(viewerUUID, _containerID, this.connector, this.eventDispacther);
         if (this.defaultViewerID === null) {
             this.defaultViewerID = viewerUUID;
@@ -18282,6 +18406,14 @@ var ViewerManager = /** @class */ (function () {
     ViewerManager.prototype.resetSection = function (viewerUUID) {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
         viewer.resetSection();
+    };
+    //#endregion
+    //#region PartManipulation
+    ViewerManager.prototype.enablePickAndMove = function (toEnable, viewerUUID) {
+        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if (viewer) {
+            return viewer.enablePickAndMove(toEnable);
+        }
     };
     //#endregion
     //#region Quick tools

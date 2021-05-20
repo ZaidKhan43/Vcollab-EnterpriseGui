@@ -4,10 +4,12 @@ import MuiTypography from '@material-ui/core/Typography';
 import clsx from 'clsx';
 import MuiIconButton from '@material-ui/core/IconButton';
 import MuiTooltip from '@material-ui/core/Tooltip';
+import ToggleButton from '@material-ui/lab/ToggleButton';
 
 import Displaymodes from '../../icons/displaymodes';
 import Fitview from '../../icons/fitview';
 import Fullscreen from '../../icons/fullscreen';
+import PickAndMoveIcon from '@material-ui/icons/ThreeDRotation';
 import FullscreenClose from '../../icons/fullscreen_exit';
 import Hamburger from '../../icons/hamburger';
 import More from '../../icons/more';
@@ -22,6 +24,7 @@ import Switch from "@material-ui/core/Switch";
 import * as viewerAPIProxy from '../../../backend/viewerAPIProxy';
 
 import  styles from './style';
+import { useState } from 'react';
 
 function AppBar() {
     
@@ -29,6 +32,7 @@ function AppBar() {
     const isFullscreenEnabled = useAppSelector(selectFullscreenStatus);
     const isSidebarVisible = useAppSelector(selectSidebarVisibility);
     const isDarkModeEnable = useAppSelector(selectDarkModeEnable);
+    let [isPickAndMoveEnabled,setIsPickAndMoveEnabled] = useState(false);
     const activeViewerID = useAppSelector(selectActiveViewerID);
     const modelName = useAppSelector(selectModelName);
     const dispatch = useAppDispatch();  
@@ -37,6 +41,10 @@ function AppBar() {
       dispatch(setFullscreenState(!isFullscreenEnabled));
     }
 
+    const OnClickPickAndMove = function(){
+        viewerAPIProxy.enablePickAndMove(activeViewerID,!isPickAndMoveEnabled)
+        setIsPickAndMoveEnabled(!isPickAndMoveEnabled);
+    }
     const OnClickDisplaymode = function(){
       dispatch(setPopupMenuActiveContent(popupMenuContentTypes.displayModes));
     }
@@ -85,6 +93,9 @@ function AppBar() {
           <div className={classes.divIcon}  >
                <MuiIconButton> <Switch checked={isDarkModeEnable} onChange={handleThemeChange} /> </MuiIconButton>
           </div>
+              <div className={classes.divIcon} onClick={ OnClickPickAndMove } >
+                    <ToggleButton value='rotate move' selected={isPickAndMoveEnabled} onChange={() => OnClickPickAndMove}><PickAndMoveIcon /></ToggleButton> 
+              </div>
               <div className={classes.divIcon} onClick={ OnClickDisplaymode } >
                     <MuiIconButton><Displaymodes /></MuiIconButton> 
               </div>
