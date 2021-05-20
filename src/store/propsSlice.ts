@@ -15,7 +15,7 @@ const initialState : props = {
         y: 0,
     },
     text : "Position of the Point",
-    showFlag : true,
+    showFlag : false,
 }
 
 export const propsSlice = createSlice ({
@@ -23,7 +23,6 @@ export const propsSlice = createSlice ({
     initialState : initialState,
     reducers : {
         positionUpdate: (state,action) => {
-            console.log("x", action.payload.x)
             state.position.x = Number(action.payload.x);
             state.position.y = Number(action.payload.y);
         },

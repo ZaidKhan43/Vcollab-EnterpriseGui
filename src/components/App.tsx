@@ -30,6 +30,8 @@ function App() {
   const dispatch = useAppDispatch();  
   const targetRef = useRef(null);
 
+  const showFlag = useAppSelector((state) => state.props.showFlag)
+
   //===========================================================================
   const onResize = useCallback((width ?:number, height ?: number) => {
     if(height && height > appBarMinHeight)
@@ -52,10 +54,11 @@ function App() {
   }
 
   const getPostion = (e : any) => {
-    const positions = {x : e.clientX, y : e.clientY}
-    console.log(positions)
-    dispatch(positionUpdate(positions));
-}
+    if(showFlag){
+      const positions = {x : e.clientX, y : e.clientY}
+      dispatch(positionUpdate(positions));
+    }
+  }
 
   return (    
     <FullScreen

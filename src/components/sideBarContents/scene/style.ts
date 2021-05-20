@@ -82,5 +82,19 @@ export default makeStyles((theme) => (
             zIndex: 10,
             size: 4,
         },
-    }
+    appTap:{
+      marginRight:"20px",  
+      marginLeft:"-20px",
+      backgroundColor:"none",
+    },
+    tab:{
+        backgroundColor: "none",
+        },
+        
+    circularSliderButton:{
+        color:theme.palette.text.primary,
+        fontSize:"20px",
+    },
+    
+}
 ));
