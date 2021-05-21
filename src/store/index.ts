@@ -4,15 +4,17 @@ import toastSlice from "./toastSlice";
 import productTreeSlice from './sideBar/productTreeSlice';
 import displayModesSlice from './sideBar/displayModesSlice';
 import clipSlice from './sideBar/clipSlice';
+import colormapSlice from './colormapSlice';
 
 const store = configureStore({
     reducer:
       combineReducers({
         app: appSlice,
-        clip: clipSlice,
+        clipPlane: clipSlice,
         productTree: productTreeSlice,
         displayModes: displayModesSlice,
-        toast: toastSlice
+        toast: toastSlice,
+        colormaps: colormapSlice
       })
 });
 

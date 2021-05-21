@@ -38,12 +38,12 @@ type settings= {
   idGenerator: number
 }
 
-type planes = {
+type planeState = {
   planes : plane[],
   settings : settings
 };
 
-const initialState : planes = {
+const initialState : planeState = {
   planes:[
     {
       id : 1,

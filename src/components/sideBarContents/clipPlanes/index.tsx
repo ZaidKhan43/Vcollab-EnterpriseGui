@@ -39,8 +39,8 @@ export default function ClipPlanes(){
 
   const dispatch = useAppDispatch();  
   const classes = styles();
-  const planes = useAppSelector((state) => state.clip.planes);
-  const limit = useAppSelector((state) => state.clip.settings.maxAllowedPlanes);
+  const planes = useAppSelector((state) => state.clipPlane.planes);
+  const limit = useAppSelector((state) => state.clipPlane.settings.maxAllowedPlanes);
   const [clickedVal, setClickedVal] = useState<any>(null); 
   const [copied, setCopied] = useState<any>(false); 
   const [copy, setCopy] = useState(null);

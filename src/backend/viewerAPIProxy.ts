@@ -54,3 +54,7 @@ export function getSearchHints(activeViewerID:string) {
 export function getModelInfo(activeViewerID:string) {
     return viewerMgr.getModelInfo(activeViewerID);
 }
+
+export function getDisplayResult(activeViewerID:string) {
+    return viewerMgr.getDisplayResult(activeViewerID);
+}
