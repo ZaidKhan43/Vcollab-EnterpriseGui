@@ -13075,7 +13075,6 @@ var LabelManager = /** @class */ (function () {
                 for (var i = 0; i < nodes.length; i++)
                     if (index === nodes[i].index) {
                         nodes[i].visible = visibility;
-                        nodes[i].setColorMask(true);
                         break;
                     }
             });
@@ -13083,7 +13082,6 @@ var LabelManager = /** @class */ (function () {
         else {
             nodes.forEach(function (node) {
                 node.visible = visibility;
-                node.setColorMask(true);
             });
         }
         var bbox = this.sceneManager.updateBBox();
@@ -13108,6 +13106,15 @@ var LabelManager = /** @class */ (function () {
                     }
             });
         }
+    };
+    App.prototype.setColorMask = function (nodes, value) {
+        var renderNodes = this.sceneManager.getRenderNodes();
+        nodes.forEach(function (node) {
+            var matched = renderNodes.find(function (renderNode) { return renderNode.index === node; });
+            if (matched) {
+                matched.setColorMask(value);
+            }
+        });
     };
     App.prototype.setUseUserDefinedColor = function (nodeList, useUserDefinedColor) {
         var nodes = this.sceneManager.getRenderNodes();
@@ -13550,6 +13557,9 @@ var LabelManager = /** @class */ (function () {
     };
     vctViewer.prototype.showHiddenLines = function (meshNodes, lineNodes) {
         this.appli.showHiddenLines(meshNodes, lineNodes);
+    };
+    vctViewer.prototype.setColorMask = function (nodes, value) {
+        this.appli.setColorMask(nodes, value);
     };
     vctViewer.prototype.setUseUserDefinedColor = function (nodeList, useUserDefinedColor) {
         this.appli.setUseUserDefinedColor(nodeList, useUserDefinedColor);
@@ -16037,6 +16047,9 @@ var getEventObject = function (type, viewerID, data) {
                         var meshNodes = meshRepresentation_1.map(function (items) { return items.customData.node; });
                         var lineNodes = lineRepresentation_1.map(function (items) { return items.customData.node; });
                         _this.renderApp.showHiddenLines(meshNodes, lineNodes);
+                    }
+                    else {
+                        _this.renderApp.setColorMask(nodes, true);
                     }
                     _this.renderApp.setNodeTransparency(nodes, selectionInfo.transparency);
                     _this.renderApp.setUseTexture(nodes, selectionInfo.useTexture);

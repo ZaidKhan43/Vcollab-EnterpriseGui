@@ -1,1 +1,1 @@
-import './RTreeStylesOverrideDark.css'
+import './RsuiteTreeTable.css'
