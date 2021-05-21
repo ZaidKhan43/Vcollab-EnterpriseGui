@@ -93,8 +93,17 @@ export default makeStyles((theme) => (
         
     circularSliderButton:{
         color:theme.palette.text.primary,
-        fontSize:"20px",
+        fontSize:"20px", 
     },
+
+    colorPicker:{
+        zIndex: 10,
+    },
+
+    active : {
+        outline:"2px solid",
+        outlineColor:theme.palette.text.primary,
+      },
     
 }
 ));

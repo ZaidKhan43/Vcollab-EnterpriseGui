@@ -29,6 +29,8 @@ import MuiTab from '@material-ui/core/Tab';
 import MuiPlusIcon from '@material-ui/icons/Add';
 import MuiMinusIcon from '@material-ui/icons/Remove';
 
+import MuiButton from '@material-ui/core/Button';
+
 import { SketchPicker } from 'react-color';
 
 export default function Views(){
@@ -38,7 +40,7 @@ export default function Views(){
     const [selectedView, setSelectedView] = useState<null | string>(null);
     const [openViewAlert, setOpenViewAlert] = useState(false)
 
-    const [valueOne, setValueOne] = useState<number | null>(null);
+    const [valueOne, setValueOne] = useState<number | null>(0);
 
     const [projection, setProjection] = useState<string>("perspective")
 
@@ -57,7 +59,12 @@ export default function Views(){
                                                     {id:6, name:"Near Plane", value:1000},
                                                 ])
     
-    const [colour, setColour] = useState("#ffffff")                                            
+    const colourList = { id:1, color:"#ffffff"};                                      
+    const [colourSet, setColourSet] = useState([
+                                            colourList,
+                                        ]);
+                                        
+    const [selectedColor, setSelectedColor] = useState(colourSet[0])
                                                         
     const classes = styles();
 
@@ -112,7 +119,49 @@ export default function Views(){
     }
 
     const handleChangeComplete = (color : any) => {
-        setColour(color.hex);
+        const index = colourSet.findIndex((item) => item.id === selectedColor.id);
+        const newArray=[...colourSet];
+        newArray[index].color= color.hex;
+        setColourSet(newArray);
+    }
+
+    const handleAddColor = () => {
+            if(colourSet.length < 3){
+                const idNew = colourSet.length + 1;
+                const newArray : any = [...colourSet, {id: idNew , color:"#ffffff"}];
+                setColourSet(newArray);
+                setSelectedColor(newArray[newArray.length - 1])
+            }
+           
+    }
+
+    const handleRemoveColor = () => {
+        if ( colourSet.length > 1){
+            const newArray = colourSet.filter((item) => item.id !== colourSet.length)
+            setColourSet(newArray)
+            setSelectedColor(newArray[newArray.length - 1])
+        }
+        
+    }
+
+    const handleColorSelector : (item : any) => any = (item) => {
+        setSelectedColor(item)
+    }
+
+    const handleReset = () => {
+        if (colourSet.length > 1){
+            setColourSet([colourList]);
+            setSelectedColor(colourList);
+        }            
+        if(colourSet[0] !== colourList){
+            setColourSet([colourList]);
+            setSelectedColor(colourList);
+        }       
+    }
+
+    const handleSave = () => {
+        setSelectedView("Background Applied");
+        setOpenViewAlert(true);
     }
 
     const onClickBackIcon = () =>{
@@ -150,7 +199,7 @@ export default function Views(){
                 <MuiAccordionDetails>
                     <div className={classes.listClick}>
                         { stdView.map((item : any, index : number) =>
-                            <div key={ 'divChild_' + index } className={item === selectedView ?classes.listItemClicked :classes.listItem} onClick={() => onHadleView(item)}>
+                            <div key={ 'divParent_' + index } className={item === selectedView ?classes.listItemClicked :classes.listItem} onClick={() => onHadleView(item)}>
                                 <MuiTypography>
                                     {item}
                                 </MuiTypography>
@@ -181,19 +230,45 @@ export default function Views(){
                         </MuiTabs>
                         {   valueOne === 0 &&
                             <div >
+                                <div ><MuiPlusIcon onClick={handleAddColor} style={{marginLeft:"-240px", marginBottom:"-20px"}} className={classes.circularSliderButton }/></div>
                                 <MuiGrid container spacing={3} style={{marginLeft:"10px",marginTop:"10px"}}>
-                                    <MuiGrid item xs={12} sm={2}>
-                                        <div ><MuiPlusIcon className={classes.circularSliderButton}/></div>
-                                        <div className={classes.circularSliderButton} style={{height:250, width:"40px",backgroundColor:colour }}></div>
-                                        <div ><MuiMinusIcon className={classes.circularSliderButton}/></div>
+                                    <MuiGrid item xs={12} sm={1}>
+                                        {   colourSet.map((item : any, index : number) => 
+                                                <div 
+                                                    key={ 'divParent_' + index } 
+                                                    className={item.id !== selectedColor.id ? classes.colorPicker : classes.active} 
+                                                    style={{height:226/colourSet.length, 
+                                                        width:"30px",
+                                                        backgroundColor:item.color ,
+                                                    }}
+                                                    onClick={() => handleColorSelector(item)}
+                                                >
+                                                </div>
+                                        )}
                                     </MuiGrid>
-                                    <MuiGrid item xs={12} sm={2}>
+
+                                    <MuiGrid item xs={12} sm={2} style={{marginLeft:"5px"}}>
                                         <SketchPicker  
-                                            color={colour}
+                                            color={selectedColor.color}
                                             onChangeComplete={ handleChangeComplete }
+                                            presetColors={[]}
+                                            disableAlpha ={true}
                                         />
                                     </MuiGrid>
                                 </MuiGrid> 
+                                <div ><MuiMinusIcon onClick={handleRemoveColor} style={{marginLeft:"-240px", marginTop:"5px"}} className={classes.circularSliderButton}/></div>
+                                <div style={{marginBottom:"5px", marginTop:"5px",}} >
+                                    <MuiGrid container spacing={3} >
+                                        <MuiGrid item xs={12} sm={2} style={{marginLeft:"60px"}}>
+                                            <MuiButton  style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={handleSave}>
+                                                Save
+                                            </MuiButton>
+                                        </MuiGrid>
+                                        <MuiGrid item xs={12} sm={6} >
+                                            <MuiButton  style={{color:"#8C8BFF", zIndex:10}} color="primary" onClick={handleReset}>Reset</MuiButton>
+                                        </MuiGrid>
+                                    </MuiGrid>
+                                </div>  
                             </div>
                         }
                         {   valueOne === 1 &&
@@ -214,6 +289,7 @@ export default function Views(){
                     <MuiTypography>{list[1].name}</MuiTypography>
                 </MuiAccordionSummary >
                 <MuiAccordionDetails>
+                <form>
                     <MuiTypography className={classes.listHead} noWrap>
                         Projection
                     </MuiTypography>
@@ -258,7 +334,8 @@ export default function Views(){
                                     />
                                 </MuiGrid>
                         )}
-                    </MuiGrid>        
+                    </MuiGrid>  
+                    </form>      
                 </MuiAccordionDetails>
             </MuiAccordion>
         </div>
