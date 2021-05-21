@@ -13887,7 +13887,7 @@ var downloadMetricTypes = {
         });
         return out;
     };
-    ModelTree.prototype.getRenderNodeIdsFromIds = function (nodeIds) {
+    ModelTree.prototype.getRenderNodeIdsFromNodeIds = function (nodeIds) {
         var nodes = this.getPartNodeFromNodeIds(nodeIds);
         var reps = this.getRepresentationsFromParts(nodes);
         return reps.map(function (rep) { return rep.customData.node; });
@@ -15966,6 +15966,13 @@ var getEventObject = function (type, viewerID, data) {
             });
         });
     };
+    Viewer.prototype.setUseUserDefinedColor = function (nodeIds, value) {
+        if (nodeIds.length === 0) {
+            nodeIds = this.productTree.getAllPartNodes().map(function (node) { return node.id; });
+        }
+        var rNodeIds = this.productTree.getRenderNodeIdsFromNodeIds(nodeIds);
+        this.renderApp.setUseUserDefinedColor(rNodeIds, value);
+    };
     Viewer.prototype.setHighlightedNodes = function (selectedNodes, visiblity) {
         var _this = this;
         //selectedNodes = [{id:"component_17"},{id:"component_18"},{id:"component_19"}];
@@ -16033,14 +16040,14 @@ var getEventObject = function (type, viewerID, data) {
                         });
                     }
                 });
-                // if(selectionInfo.visibility === false)
-                // {
-                //     let nodes = representations.map(items => items.customData.node);
-                //     if (nodes.length > 0)
-                //         this.renderApp.setNodeVisibility(nodes, selectionInfo.visibility);   
-                //     resolve(true);          
-                // }
-                //else{         
+                if (selectionInfo.displayId === displayModes.DM_6.ID) {
+                    var rNodeIds = lineRepresentation_1.map(function (rep) { return rep.customData.node; });
+                    _this.renderApp.setUseUserDefinedColor(rNodeIds, true);
+                }
+                else {
+                    var rNodeIds = lineRepresentation_1.map(function (rep) { return rep.customData.node; });
+                    _this.renderApp.setUseUserDefinedColor(rNodeIds, false);
+                }
                 _this.progressiveLoader.loadSelectedRepresentations(representations_1).then(function () {
                     var nodes = representations_1.map(function (items) { return items.customData.node; });
                     if (selectionInfo.hiddenlineEnabled) {
@@ -16061,7 +16068,6 @@ var getEventObject = function (type, viewerID, data) {
                     Logger.setStatusBar("Error occurred while downloading buffers.", statusIconType.ERROR);
                     throw new Error("Error occurred while downloading buffers.");
                 });
-                //}          
             }
             else {
                 throw new Error("Invalid selection info.");
@@ -16163,7 +16169,7 @@ var getEventObject = function (type, viewerID, data) {
             this.renderApp.fitView();
         }
         else {
-            var repIds = this.productTree.getRenderNodeIdsFromIds(selectedNodes);
+            var repIds = this.productTree.getRenderNodeIdsFromNodeIds(selectedNodes);
             this.renderApp.fitView(repIds);
             console.log("fitView for", repIds);
         }
