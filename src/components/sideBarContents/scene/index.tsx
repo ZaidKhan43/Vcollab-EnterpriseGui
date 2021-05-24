@@ -11,8 +11,7 @@ import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
 import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
 import MuiExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-import {useAppDispatch } from '../../../store/storeHooks';
-import React, { useState} from "react";
+import React, {useEffect, useState} from "react";
 
 import NumericInput from 'react-numeric-input';
 import styles from './style';
@@ -35,83 +34,59 @@ import { SketchPicker } from 'react-color';
 
 import Dropzone from 'react-dropzone'
 
+import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
+
+import {perspectiveUpdate , orthographicUpdate , updateBackGroundColor } from "../../../store/sideBar/sceneSlice";
+
 export default function Views(){
 
     const dispatch = useAppDispatch(); 
-    const list = [{name:"Std View",}, {name: "Camera",}, {name:"Background"}]
-    const [selectedView, setSelectedView] = useState<null | string>(null);
-    const [openViewAlert, setOpenViewAlert] = useState(false)
-
-    const [valueOne, setValueOne] = useState<number | null>(0);
-
-    const [projection, setProjection] = useState<string>("perspective")
-
-    const [valuePerspective, setValuePerspective] = useState([
-                                                    {id:1, name:"Y-Field of View", value:100},
-                                                    {id:2, name:"Aspect Ratio", value:1000},
-                                                    {id:3, name:"Far Plane", value:100},
-                                                    {id:4, name:"Near Plane", value:1000},
-                                                ])
-    const [valueOrthographic, setValueOrthographic] = useState([
-                                                    {id:1, name:"Left", value:100},
-                                                    {id:2, name:"Right", value:1000},
-                                                    {id:3, name:"Top", value:100},
-                                                    {id:4, name:"Bottom", value:100},
-                                                    {id:5, name:"Far Plane", value:100},
-                                                    {id:6, name:"Near Plane", value:1000},
-                                                ])
     
-    const colourList = { id:1, color:"#ffffff"};                                      
-    const [colourSet, setColourSet] = useState([
-                                            colourList,
-                                        ]);
-                                        
-    const [selectedColor, setSelectedColor] = useState(colourSet[0])
+    const list = ["Std View", "Camera" , "Background" ];
+    const stdView = useAppSelector((state) => state.scene.stdView);
 
-    const [file, setFile] = useState<any>();
+    const [backgroundMenu, setBackgroundMenu] = useState<number | null>(0);
+    const colourList = useAppSelector((state) => state.scene.colorList);                                      
+    const [colourSet, setColourSet] = useState( colourList.map(object => ({...object})));
+    
+    useEffect(() => {setColourSet(colourList.map(object => ({...object})))},[colourList]);
+
+    const [selectedColor, setSelectedColor] = useState<any>();
+
+    
+
+    const fileRedux = useAppSelector((state) => state.scene.file);
+    const [file, setFile] = useState<any>(fileRedux);
+
+    const [projection, setProjection] = useState<string>("perspective");
+    const valuePerspective = useAppSelector((state) => state.scene.valuePerspective);
+    const valueOrthographic = useAppSelector((state) => state.scene.valueOrthographic);
+
+    const [snackbarContent, setSnackbarContent] = useState<null | string>(null);
+    const [snackbarBoolean, setSnackbarBoolean] = useState(false)
+
+    
                                                         
     const classes = styles();
 
-    const stdView = [
-        "Front",
-        "Back",
-        "Left",
-        "Right",
-        "Top",
-        "Bottom",
-        "Isometric",
-    ]
+    
 
     const onHadleView = (item : string) => {
-        setSelectedView(item);
-        setOpenViewAlert(true);
+        setSnackbarContent(item);
+        setSnackbarBoolean(true);
     };
 
     const onHandleTextBox = (value : number,name : string, projection : string) => {
-        let newArray;
-        let index : number;
+        const updateValue = {name : name, value : value}
         switch (projection){
             case "perspective" :
-                newArray=[...valuePerspective]
-                index = newArray.findIndex((item) => item.name === name);
-                if ( index >= 0) {
-                    let changeItem : any = newArray[index];
-                    changeItem.value = value;
-                    setValuePerspective(newArray);
-                }     
+                dispatch(perspectiveUpdate(updateValue))   
             break;
             
             case "orthographic" :
-                newArray=[...valueOrthographic]
-                index = newArray.findIndex((item) => item.name === name);
-                if ( index >= 0) {
-                    let changeItem : any = newArray[index];
-                    changeItem.value = value;
-                    setValueOrthographic(newArray);
-                }
+                dispatch(orthographicUpdate(updateValue))
             break;        
         }      
-       
     }
    
     const handleProjection = (e: any) => {
@@ -119,7 +94,7 @@ export default function Views(){
     }
 
     const handleChangeTab= (e : any, value : any) => {
-        setValueOne(value)
+        setBackgroundMenu(value)
     }
 
     const handleChangeComplete = (color : any) => {
@@ -152,27 +127,35 @@ export default function Views(){
         setSelectedColor(item)
     }
 
-    const handleReset = () => {
-        if(valueOne === 0){
-            if (colourSet.length > 1){
-                setColourSet([colourList]);
-                setSelectedColor(colourList);
-            }            
-            if(colourSet[0] !== colourList){
-                setColourSet([colourList]);
-                setSelectedColor(colourList);
-            }       
+    const handleReset = () => { 
+            const resetValue = colourList.map(object => ({...object}));
+            setColourSet(resetValue)
+            setSelectedColor(null);
+
+        if(file !== fileRedux){
+            setFile(fileRedux)
         }
+
+        // if(backgroundMenu === 0){
+        //     if (colourSet.length > 1){
+        //         setColourSet([colourList]);
+        //         setSelectedColor(colourList);
+        //     }            
+        //     if(colourSet[0] !== colourList){
+        //         setColourSet([colourList]);
+        //         setSelectedColor(colourList);
+        //     }       
+        // }
         
-        if(valueOne === 1)
-            setFile(null);
+        // if(backgroundMenu === 1)
+        //     setFile(null);
     }
 
     const onDrop = (acceptedFiles : any , rejected : any) => {
         
         if (Object.keys(rejected).length !== 0) {
-            setOpenViewAlert(true)
-            setSelectedView("Please select an image file")
+            setSnackbarBoolean(true)
+            setSnackbarContent("Please select an image file")
           }
         
         else{
@@ -184,15 +167,17 @@ export default function Views(){
 
     const handleSave = () => {
         
-        if(valueOne === 1 && file === null){
-            setOpenViewAlert(true);
-            setSelectedView("No background image selected.");
-        }
+       if (backgroundMenu === 0) {
+            dispatch(updateBackGroundColor(colourSet));
+            setSnackbarContent("Background Colour Applied");
+            setSnackbarBoolean(true);
+            setSelectedColor(null);
+       }
 
-        if( valueOne === 0 || file !== null){
-            setSelectedView("Background Applied");
-            setOpenViewAlert(true);
-        }
+        // if( backgroundMenu === 0 || file !== null){
+        //     setSnackbarContent("Background Applied");
+        //     setSnackbarBoolean(true);
+        // }
     }
 
     const onClickBackIcon = () =>{
@@ -217,7 +202,18 @@ export default function Views(){
 
     
     const getBody = () => {
-        console.log(file)
+        let backgroundColorChange = false;
+        if ( colourSet.length !== colourList.length )
+            backgroundColorChange = true;
+        else {
+            for (let i = 0; i < colourSet.length; i++) {
+                if(colourList[i].color !== colourSet[i].color){
+                    backgroundColorChange = true;
+                    break;
+                }
+            }
+        }
+
         return (
             <div className={classes.scene}>
                 <MuiAccordion>
@@ -226,12 +222,12 @@ export default function Views(){
                         aria-controls="panel1a-content"
                         id="panel1a-header"
                     >
-                    <MuiTypography>{list[0].name}</MuiTypography>
+                    <MuiTypography>{list[0]}</MuiTypography>
                 </MuiAccordionSummary>
                 <MuiAccordionDetails>
                     <div className={classes.listClick}>
                         { stdView.map((item : any, index : number) =>
-                            <div key={ 'divParent_' + index } className={item === selectedView ?classes.listItemClicked :classes.listItem} onClick={() => onHadleView(item)}>
+                            <div key={ 'divParent_' + index } className={item === snackbarContent ?classes.listItemClicked :classes.listItem} onClick={() => onHadleView(item)}>
                                 <MuiTypography>
                                     {item}
                                 </MuiTypography>
@@ -247,12 +243,12 @@ export default function Views(){
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                 >
-                    <MuiTypography>{list[2].name}</MuiTypography>
+                    <MuiTypography>{list[2]}</MuiTypography>
                 </MuiAccordionSummary >
                 <MuiAccordionDetails>
                     <div className={classes.appTap}>
                         <MuiTabs  
-                            value={valueOne}
+                            value={backgroundMenu}
                             className={classes.tab}
                             aria-label="simple tabs example" onChange={handleChangeTab}
                             TabIndicatorProps={{style:{backgroundColor:"currentColor"}}}
@@ -260,7 +256,7 @@ export default function Views(){
                             <MuiTab style={{textTransform:"none"}} label="Colour"/>
                             <MuiTab style={{textTransform:"none"}} label="Image"/>
                         </MuiTabs>
-                        {   valueOne === 0 &&
+                        {   backgroundMenu === 0 &&
                             <div >
                                 <div ><MuiPlusIcon onClick={handleAddColor} style={{marginLeft:"-240px", marginBottom:"-20px"}} className={classes.circularSliderButton }/></div>
                                 <MuiGrid container spacing={3} style={{marginLeft:"10px",marginTop:"10px"}}>
@@ -268,7 +264,7 @@ export default function Views(){
                                         {   colourSet.map((item : any, index : number) => 
                                                 <div 
                                                     key={ 'divParent_' + index } 
-                                                    className={item.id !== selectedColor.id ? classes.colorPicker : classes.active} 
+                                                    className={selectedColor ? item.id !== selectedColor.id ? classes.colorPicker : classes.active : classes.colorPicker} 
                                                     style={{height:226/colourSet.length, 
                                                         width:"30px",
                                                         backgroundColor:item.color ,
@@ -281,8 +277,8 @@ export default function Views(){
 
                                     <MuiGrid item xs={12} sm={2} style={{marginLeft:"5px"}}>
                                         <SketchPicker  
-                                            color={selectedColor.color}
-                                            onChangeComplete={ handleChangeComplete }
+                                            color={selectedColor ? selectedColor.color : "#ffffff"}
+                                            onChangeComplete={selectedColor && handleChangeComplete }
                                             presetColors={[]}
                                             disableAlpha ={true}
                                         />
@@ -292,18 +288,31 @@ export default function Views(){
                                 <div style={{marginBottom:"5px", marginTop:"5px",}} >
                                     <MuiGrid container spacing={3} >
                                         <MuiGrid item xs={12} sm={2} style={{marginLeft:"60px"}}>
-                                            <MuiButton  style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={handleSave}>
-                                                Save
-                                            </MuiButton>
+                                            {backgroundColorChange
+                                                ?
+                                                    <MuiButton  style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={handleSave}>
+                                                        Save
+                                                    </MuiButton>
+                                                :
+                                                    <MuiButton disabled  style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary">
+                                                        Save
+                                                    </MuiButton>  
+                                            }
+                                            
                                         </MuiGrid>
                                         <MuiGrid item xs={12} sm={6} >
-                                            <MuiButton  style={{color:"#8C8BFF", zIndex:10}} color="primary" onClick={handleReset}>Reset</MuiButton>
+                                            {backgroundColorChange 
+                                                ?
+                                                    <MuiButton  style={{color:"#8C8BFF", zIndex:10}} color="primary" onClick={handleReset}>Reset</MuiButton>
+                                                :
+                                                    <MuiButton disabled style={{color:"#8C8BFF", zIndex:10}} color="primary">Reset</MuiButton>
+                                            }
                                         </MuiGrid>
                                     </MuiGrid>
                                 </div>  
                             </div>
                         }
-                        {   valueOne === 1 &&
+                        {   backgroundMenu === 1 &&
                                 <div style={{marginTop:"40px", marginLeft:"25px"}}>
                                     <Dropzone onDrop={(acceptedFiles, rejected )=> onDrop(acceptedFiles,rejected)}
                                         multiple={false}
@@ -353,7 +362,13 @@ export default function Views(){
                                             </MuiButton>
                                         </MuiGrid>
                                         <MuiGrid item xs={12} sm={6} >
-                                            <MuiButton  style={{color:"#8C8BFF", zIndex:10}} color="primary" onClick={handleReset}>Reset</MuiButton>
+                                            {backgroundColorChange ?
+                                                <MuiButton  style={{color:"#8C8BFF", zIndex:10}} color="primary" onClick={handleReset}>Reset</MuiButton>
+                                                :
+                                                <MuiButton disabled style={{color:"#8C8BFF", zIndex:10}} color="primary" onClick={handleReset}>Reset</MuiButton>
+
+                                            }
+                                            
                                         </MuiGrid>
                                     </MuiGrid>
                                 </div>  
@@ -369,7 +384,7 @@ export default function Views(){
                     aria-controls="panel1a-content"
                     id="panel1a-header"
                 >
-                    <MuiTypography>{list[1].name}</MuiTypography>
+                    <MuiTypography>{list[1]}</MuiTypography>
                 </MuiAccordionSummary >
                 <MuiAccordionDetails>
                 <form>
@@ -442,15 +457,15 @@ export default function Views(){
                 // className={props.snackBar}
                 anchorOrigin={{vertical:"top", horizontal:'center'}}
                 autoHideDuration={1000}
-                open={openViewAlert}
-                onClose={() => setOpenViewAlert(false)}
+                open={snackbarBoolean}
+                onClose={() => setSnackbarBoolean(false)}
             >
                 <MuiAlert icon={false}>
                     <div style={{display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",}}
                     >
-                        <MuiTypography color="inherit">{selectedView}</MuiTypography>
+                        <MuiTypography color="inherit">{snackbarContent}</MuiTypography>
                     </div>
                 </MuiAlert>
             </MuiSnackbar> 
