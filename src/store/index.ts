@@ -5,6 +5,7 @@ import productTreeSlice from './sideBar/productTreeSlice';
 import displayModesSlice from './sideBar/displayModesSlice';
 import clipSlice from './sideBar/clipSlice';
 import propsSlice from './propsSlice';
+import sceneSlice  from './sideBar/scene';
 
 const store = configureStore({
     reducer:
@@ -15,6 +16,7 @@ const store = configureStore({
         displayModes: displayModesSlice,
         toast: toastSlice,
         props: propsSlice,
+        scene: sceneSlice,
       })
 });
 

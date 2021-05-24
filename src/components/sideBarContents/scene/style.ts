@@ -104,6 +104,26 @@ export default makeStyles((theme) => (
         outline:"2px solid",
         outlineColor:theme.palette.text.primary,
       },
+
+      scene : {
+      position: "absolute",
+      overflowY: "auto",
+      overflowX:"hidden",
+      listStyle: "none",
+      height: "90%",
+      width:"100%",
+      '&::-webkit-scrollbar': {
+        width: '0.4em'
+      },
+      '&::-webkit-scrollbar-track': {
+        boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+        webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+      },
+      '&::-webkit-scrollbar-thumb': {
+        backgroundColor: 'rgba(0,0,0,.1)',
+        outline: '1px solid slategrey'
+      },
+    },
     
 }
 ));

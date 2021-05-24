@@ -33,6 +33,8 @@ import MuiButton from '@material-ui/core/Button';
 
 import { SketchPicker } from 'react-color';
 
+import Dropzone from 'react-dropzone'
+
 export default function Views(){
 
     const dispatch = useAppDispatch(); 
@@ -65,6 +67,8 @@ export default function Views(){
                                         ]);
                                         
     const [selectedColor, setSelectedColor] = useState(colourSet[0])
+
+    const [file, setFile] = useState<any>();
                                                         
     const classes = styles();
 
@@ -75,7 +79,7 @@ export default function Views(){
         "Right",
         "Top",
         "Bottom",
-        "Isomaniac",
+        "Isometric",
     ]
 
     const onHadleView = (item : string) => {
@@ -149,19 +153,46 @@ export default function Views(){
     }
 
     const handleReset = () => {
-        if (colourSet.length > 1){
-            setColourSet([colourList]);
-            setSelectedColor(colourList);
-        }            
-        if(colourSet[0] !== colourList){
-            setColourSet([colourList]);
-            setSelectedColor(colourList);
-        }       
+        if(valueOne === 0){
+            if (colourSet.length > 1){
+                setColourSet([colourList]);
+                setSelectedColor(colourList);
+            }            
+            if(colourSet[0] !== colourList){
+                setColourSet([colourList]);
+                setSelectedColor(colourList);
+            }       
+        }
+        
+        if(valueOne === 1)
+            setFile(null);
+    }
+
+    const onDrop = (acceptedFiles : any , rejected : any) => {
+        
+        if (Object.keys(rejected).length !== 0) {
+            setOpenViewAlert(true)
+            setSelectedView("Please select an image file")
+          }
+        
+        else{
+            setFile(Object.assign(acceptedFiles[0], {
+                preview: URL.createObjectURL(acceptedFiles[0])
+              }));
+        }
     }
 
     const handleSave = () => {
-        setSelectedView("Background Applied");
-        setOpenViewAlert(true);
+        
+        if(valueOne === 1 && file === null){
+            setOpenViewAlert(true);
+            setSelectedView("No background image selected.");
+        }
+
+        if( valueOne === 0 || file !== null){
+            setSelectedView("Background Applied");
+            setOpenViewAlert(true);
+        }
     }
 
     const onClickBackIcon = () =>{
@@ -186,8 +217,9 @@ export default function Views(){
 
     
     const getBody = () => {
+        console.log(file)
         return (
-            <div>
+            <div className={classes.scene}>
                 <MuiAccordion>
                     <MuiAccordionSummary
                         expandIcon={<MuiExpandMoreIcon />}
@@ -272,10 +304,61 @@ export default function Views(){
                             </div>
                         }
                         {   valueOne === 1 &&
-                                <div>
-                                    - Add Image Component -
+                                <div style={{marginTop:"40px", marginLeft:"25px"}}>
+                                    <Dropzone onDrop={(acceptedFiles, rejected )=> onDrop(acceptedFiles,rejected)}
+                                        multiple={false}
+                                        accept="image/*"
+                                     >
+                                        {({getRootProps, getInputProps}) => (
+                                            <section>
+                                                <div {...getRootProps()}  style={{
+                                                    width: "250px",
+                                                    height: "150px",
+                                                    borderRadius: "5%",
+                                                    objectFit: "cover",
+                                                    objectPosition: "center",
+                                                    border: " 1px dashed"
+                                                }}>
+                                                <input {...getInputProps()} />
+                                                    {   file 
+                                                        ?
+                                                            <div>
+                                                                <img 
+                                                                    style={{
+                                                                        width: "250px",
+                                                                        height: "150px",
+                                                                        borderRadius: "5%",
+                                                                        objectFit: "cover",
+                                                                        objectPosition: "center"
+                                                                        }} 
+                                                                    src={file.preview} alt="profile" 
+                                                                />
+                                                            </div>
+                                                        :
+                                                            <div>
+                                                                <MuiTypography style={{marginTop:"85px"}}>Drop your image here or</MuiTypography>
+                                                                <MuiTypography style={{marginTop:"3px", color:"#8C8BFF"}}>Browse</MuiTypography>
+                                                            </div>
+                                                        }
+                                                   
+                                                </div>
+                                            </section>
+                                        )}
+                                    </Dropzone>
+                                    <div style={{marginBottom:"5px", marginTop:"45px",}} >
+                                    <MuiGrid container spacing={3} >
+                                        <MuiGrid item xs={12} sm={2} style={{marginLeft:"60px"}}>
+                                            <MuiButton  style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={handleSave}>
+                                                Save
+                                            </MuiButton>
+                                        </MuiGrid>
+                                        <MuiGrid item xs={12} sm={6} >
+                                            <MuiButton  style={{color:"#8C8BFF", zIndex:10}} color="primary" onClick={handleReset}>Reset</MuiButton>
+                                        </MuiGrid>
+                                    </MuiGrid>
+                                </div>  
                                 </div>
-                        }
+                        } 
                     </div>
                 </MuiAccordionDetails>
             </MuiAccordion>
