@@ -1,11 +1,14 @@
+import { useState } from "react";
 import MuiAppBar from '@material-ui/core/AppBar';
 import MuiToolbar from '@material-ui/core/Toolbar';
 import MuiTypography from '@material-ui/core/Typography';
-import clsx from 'clsx';
 import MuiIconButton from '@material-ui/core/IconButton';
 import MuiTooltip from '@material-ui/core/Tooltip';
-import ToggleButton from '@material-ui/lab/ToggleButton';
+import MuiClickAwayListener from '@material-ui/core/ClickAwayListener';
+import MuiToggleButton from '@material-ui/lab/ToggleButton';
+import MuiSwitch from "@material-ui/core/Switch";
 
+import clsx from 'clsx';
 import Displaymodes from '../../icons/displaymodes';
 import Fitview from '../../icons/fitview';
 import Fullscreen from '../../icons/fullscreen';
@@ -14,17 +17,16 @@ import FullscreenClose from '../../icons/fullscreen_exit';
 import Hamburger from '../../icons/hamburger';
 import More from '../../icons/more';
 
-import { selectModelName, selectFullscreenStatus,selectSidebarVisibility,selectDarkModeEnable, selectActiveViewerID,setFullscreenState, setSidebarVisibility , setDarkModeEnable, setPopupMenuActiveContent} from '../../../store/appSlice';
+import { selectModelName, selectFullscreenStatus,selectSidebarVisibility,selectDarkModeEnable, 
+  selectActiveViewerID,setFullscreenState, setSidebarVisibility , setDarkModeEnable, 
+  setPopupMenuActiveContent, setPopupMenuDisplayMode } from '../../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
-import { popupMenuContentTypes } from '../../../config';
 
-//toggle button
-import Switch from "@material-ui/core/Switch";
 
 import * as viewerAPIProxy from '../../../backend/viewerAPIProxy';
-
+import { popupMenuContentTypes } from '../../../config';
+import PopupMenu from '../popupMenu';
 import  styles from './style';
-import { useState } from 'react';
 
 function AppBar() {
     
@@ -37,6 +39,9 @@ function AppBar() {
     const modelName = useAppSelector(selectModelName);
     const dispatch = useAppDispatch();  
 
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [clickedMenu, setClickedMenu] = useState<string>(popupMenuContentTypes.none);
+    
     const OnClickFullscreen = function(){
       dispatch(setFullscreenState(!isFullscreenEnabled));
     }
@@ -44,12 +49,6 @@ function AppBar() {
     const OnClickPickAndMove = function(){
         viewerAPIProxy.enablePickAndMove(activeViewerID,!isPickAndMoveEnabled)
         setIsPickAndMoveEnabled(!isPickAndMoveEnabled);
-    }
-    const OnClickDisplaymode = function(){
-      dispatch(setPopupMenuActiveContent(popupMenuContentTypes.displayModes));
-    }
-    const OnClickMore= function(){
-      dispatch(setPopupMenuActiveContent(popupMenuContentTypes.more));
     }
 
     const OnClickFitview = function(){
@@ -60,12 +59,31 @@ function AppBar() {
       dispatch(setSidebarVisibility(!isSidebarVisible));
     }  
   
-// Toggleing theme
-
-    const handleThemeChange = function() {
+    const OnChangeTheme = function() {
       dispatch(setDarkModeEnable (!isDarkModeEnable));
     }
 
+    const OnClickAwayMenuPopup = function(){
+      if(clickedMenu === popupMenuContentTypes.displayModes || clickedMenu === popupMenuContentTypes.more)
+        setClickedMenu(popupMenuContentTypes.none);
+      else{
+        dispatch(setPopupMenuActiveContent(popupMenuContentTypes.none)); 
+      }
+    }
+
+    const OnClickMenuIcon= (evt: any, selectedMode : string) => {
+      if(selectedMode === popupMenuContentTypes.displayModes)
+      {
+        viewerAPIProxy.getDisplayModes(activeViewerID, []) 
+          .then((response : any)=>{
+            dispatch(setPopupMenuDisplayMode(response));
+          });         
+      }
+      setClickedMenu(selectedMode);
+      setAnchorEl( evt.currentTarget );
+      dispatch(setPopupMenuActiveContent(selectedMode)); 
+    }
+  
     return (
         <MuiAppBar 
           className = { clsx( classes.appBar , {[classes.appBarwithSideBar]: isSidebarVisible}) }
@@ -90,31 +108,42 @@ function AppBar() {
      
           <div className={classes.toolBarRightContent}>
           
-          <div className={classes.divIcon}  >
-               <MuiIconButton> <Switch checked={isDarkModeEnable} onChange={handleThemeChange} /> </MuiIconButton>
-          </div>
-              <div className={classes.divIcon} onClick={ OnClickPickAndMove } >
-                    <ToggleButton value='rotate move' selected={isPickAndMoveEnabled} onChange={() => OnClickPickAndMove}><PickAndMoveIcon /></ToggleButton> 
-              </div>
-              <div className={classes.divIcon} onClick={ OnClickDisplaymode } >
-                    <MuiIconButton><Displaymodes /></MuiIconButton> 
-              </div>
-              <div className={classes.divIcon} onClick={ OnClickFitview }>
-                 <MuiIconButton><Fitview/></MuiIconButton>
-              </div>
-              <div className={classes.divIcon} onClick={ OnClickMore }>
-                  <MuiIconButton><More /></MuiIconButton>
-              </div>
+            <div className={classes.divIcon}  >
+                <MuiIconButton> <MuiSwitch checked={isDarkModeEnable} onChange={OnChangeTheme} /> </MuiIconButton>
+            </div>
+
+            <div className={classes.divIcon} onClick={ OnClickPickAndMove } >
+                  <MuiToggleButton value='rotate move' selected={ isPickAndMoveEnabled } onChange={() => OnClickPickAndMove}><PickAndMoveIcon /></MuiToggleButton> 
+            </div>
+            
+            <div className={classes.divIcon}  onClick={(evt) => OnClickMenuIcon(evt, popupMenuContentTypes.displayModes) }>
+              <MuiIconButton><Displaymodes /></MuiIconButton> 
+            </div>
+            
+            <div className={classes.divIcon} onClick={ OnClickFitview }>
+              <MuiIconButton><Fitview/></MuiIconButton>
+            </div>
+            
+            <div className={classes.divIcon} onClick={(evt) => OnClickMenuIcon(evt,  popupMenuContentTypes.more) }>
+              <MuiIconButton><More /></MuiIconButton>
+            </div>
              
-              <div className={classes.divIcon} onClick={ OnClickFullscreen }>
-                {(isFullscreenEnabled ?
-                  <MuiIconButton><FullscreenClose  /></MuiIconButton>  :
-                  <MuiIconButton><Fullscreen /> </MuiIconButton> 
-                )}
-              </div>
+            <div className={classes.divIcon} onClick={ OnClickFullscreen }>
+              {(isFullscreenEnabled ?
+                <MuiIconButton><FullscreenClose  /></MuiIconButton>  :
+                <MuiIconButton><Fullscreen /> </MuiIconButton> 
+              )}
+            </div>
+
           </div>
         
         </MuiToolbar>     
+
+        <MuiClickAwayListener onClickAway= {() => OnClickAwayMenuPopup() }>
+            <div>
+              <PopupMenu anchorEl={ anchorEl }/>
+            </div> 
+        </MuiClickAwayListener>
       </MuiAppBar>
     );
 }

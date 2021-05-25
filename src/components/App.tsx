@@ -1,4 +1,4 @@
-import { useRef,  useCallback } from 'react';
+import { useRef,  useCallback, useEffect } from 'react';
 import clsx from 'clsx';
 import { useResizeDetector } from 'react-resize-detector';
 import FullScreen from 'react-fullscreen-crossbrowser';
@@ -10,8 +10,8 @@ import AppBar from './layout/appBar';
 import FullscreenIcon from './layout/fullscreenIcon';
 import { useAppSelector, useAppDispatch } from '../store/storeHooks';
 import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
-        setAppBarVisibility, setFullscreenState ,selectModelLoadedState } from '../store/appSlice';
-import { appBarMinHeight } from '../config';
+        setAppBarVisibility, setFullscreenState ,selectModelLoadedState, setPopupMenuActiveContent } from '../store/appSlice';
+import { appBarMinHeight, popupMenuContentTypes } from '../config';
 import SnackBar from "./sideBarContents/notifications/SnackBar";
 
 import Viewer from './viewer';
@@ -47,6 +47,11 @@ function App() {
     if(isFullscreenEnabled !== isFullscreenOn) // To avoid unnecessary dispatch and handle exit fullscreen by pressing esc key
       dispatch(setFullscreenState(isFullscreenEnabled));
   }
+
+  useEffect(() => {
+    if(isAppBarVisible === false)
+      dispatch(setPopupMenuActiveContent(popupMenuContentTypes.none)); 
+  },[isAppBarVisible, dispatch]);
 
   return (    
     <FullScreen

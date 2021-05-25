@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from './index';
-import { sideBarContentTypes, popupMenuContentTypes } from '../config';
+import { sideBarContentTypes, popupMenuContentTypes, displayMenuItems } from '../config';
 
 type Viewer  = {
     name :string,
@@ -15,6 +15,8 @@ type AppState = {
     sideBarActiveContent : string,
     isDarkModeEnable : boolean,
     popupMenuActiveContent :string,
+    popupMenuDisplayMode : any | null,
+
 
     isModelLoaded:boolean,
     modelLoadingStatus : string ,
@@ -31,6 +33,7 @@ const initialState: AppState = {
     sideBarActiveContent : sideBarContentTypes.mainMenu,
     isDarkModeEnable: true,
     popupMenuActiveContent : popupMenuContentTypes.none,
+    popupMenuDisplayMode : null,
 
     isModelLoaded:false,
     modelLoadingStatus : '' ,
@@ -77,6 +80,9 @@ export const appSlice = createSlice({
     },
     setActiveViewer: (state,action : PayloadAction<string>) => {
         state.activeViewer = action.payload;
+    },
+    setPopupMenuDisplayMode :  (state,action : PayloadAction<any>) => {
+        state.popupMenuDisplayMode = action.payload;
     }
   },
 });
@@ -93,6 +99,7 @@ export const { setAppBarVisibility,
                 setModelInfo,
                 addViewer,
                 setActiveViewer,
+                setPopupMenuDisplayMode,
                 
             } = appSlice.actions;
 
@@ -112,5 +119,18 @@ export const selectModelName= (state : RootState) => {
     return "";
 };
 export const selectActiveViewerID = (state : RootState) => state.app.viewers[state.app.activeViewer  || ''];
+export const selectPopupMenuDisplayMode= (state : RootState) => {
+    const data = [...displayMenuItems];
+    if(state.app.popupMenuDisplayMode){
+        data.forEach( (item, index) =>{
+            state.app.popupMenuDisplayMode.forEach((displayMode : any) =>{ 
+                if(item.id === displayMode.id){
+                    data[index] = {...item, ...displayMode}
+                }
+            });
+        });
+    }
+    return data;
+}
 
 export default appSlice.reducer;

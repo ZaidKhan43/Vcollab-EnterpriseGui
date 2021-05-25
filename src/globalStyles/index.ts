@@ -1,1 +1,2 @@
-import './RsuiteTreeTable.css'
+import './RsuiteTreeTable.css';
+import './RsuiteTreePicker.css';
