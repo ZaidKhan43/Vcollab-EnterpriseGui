@@ -22,10 +22,8 @@ type scene = {
 const initialState : scene = {
     stdView : [ "Front" , "Back" , "Left" , "Right" , "Top" , "Bottom" , "Isometric" ,],
     valuePerspective :  [ 
-                            {name:"Left", value:100},
-                            {name:"Right", value:1000},
-                            {name:"Top", value:100},
-                            {name:"Bottom", value:100},
+                            {name:"Y-Field of View", value:100},
+                            {name:"Aspect Ratio", value:1000},
                             {name:"Far Plane", value:100},
                             {name:"Near Plane", value:1000},
                         ],
