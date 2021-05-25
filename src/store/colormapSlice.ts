@@ -1,22 +1,23 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice} from '@reduxjs/toolkit';
 import type { RootState } from './index';
 
 type colormapState = {
-    variable:string|null,
-    step:string|null,
-    palette:{},
     selectedVariable:string|null,
     selectedStep:string|null,
-    selectedPalette:string[],
+    caeResult:any | null,
+    variableId:string|null
+    derivedTypeID:string|null
 }
 
 const initialState: colormapState ={
-    variable:null,
-    step:null,
-    palette:[],
+
     selectedVariable:'',
     selectedStep:'',
-    selectedPalette:[],
+    caeResult:null,
+    variableId:'',
+    derivedTypeID:''
+
+
 }
 
 export const colormapSlice =createSlice({
@@ -24,19 +25,21 @@ export const colormapSlice =createSlice({
     initialState,
     reducers: {
         insertData:(state,action)=>{
-          state.variable = action.payload.variable;
-          state.step = action.payload.step;
+          state.caeResult=action.payload.caeResult
         },
         setData:(state,action) =>{
           state.selectedVariable =action.payload.selectedVariable
           state.selectedStep = action.payload.selectedStep
+          state.variableId = action.payload.variableId
+          state.derivedTypeID=action.payload.derivedTypeID
         },
 
     }
 });
 
 export const { insertData, setData } =colormapSlice.actions;
-export const insertVariableData =(state:RootState) => state.colormaps;
+
+export const insertCaeData = (state:RootState) => { return state.colormaps.caeResult;};
 
 
 export default colormapSlice.reducer

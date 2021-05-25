@@ -1,1 +1,2 @@
-import './RTreeStylesOverrideDark.css'
+import './RTreeStylesOverrideDark.css';
+import './treepicker.css'
