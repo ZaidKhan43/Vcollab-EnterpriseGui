@@ -1,42 +1,34 @@
+import  {useEffect, useState} from "react";
+
 import MuiIconButton from '@material-ui/core/IconButton';
 import MuiTypography from '@material-ui/core/Typography';
+import MuiAccordion from '@material-ui/core/Accordion';
+import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
+import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
+import MuiExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import MuiGrid from '@material-ui/core/Grid';
+import MuiSnackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
+import MuiToggleButton from '@material-ui/lab/ToggleButton';
+import MuiToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import MuiTabs from '@material-ui/core/Tabs';
+import MuiTab from '@material-ui/core/Tab';
+import MuiPlusIcon from '@material-ui/icons/Add';
+import MuiMinusIcon from '@material-ui/icons/Remove';
+import MuiButton from '@material-ui/core/Button';
+
+import { SketchPicker } from 'react-color';
+import Dropzone from 'react-dropzone';
+import NumericInput from 'react-numeric-input';
+import styles from './style';
 
 import BackButton from '../../../components/icons/back';
 import { sideBarContentTypes } from '../../../config';
 import SideBarContainer from '../../layout/sideBar/sideBarContainer';
 import { setSidebarActiveContent } from '../../../store/appSlice';
 
-import MuiAccordion from '@material-ui/core/Accordion';
-import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
-import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
-import MuiExpandMoreIcon from '@material-ui/icons/ExpandMore';
-
-import React, {useEffect, useState} from "react";
-
-import NumericInput from 'react-numeric-input';
-import styles from './style';
-import MuiGrid from '@material-ui/core/Grid';
-
-import MuiSnackbar from '@material-ui/core/Snackbar';
-import MuiAlert from '@material-ui/lab/Alert';
-import MuiToggleButton from '@material-ui/lab/ToggleButton';
-import MuiToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
-
-import MuiTabs from '@material-ui/core/Tabs';
-import MuiTab from '@material-ui/core/Tab';
-
-import MuiPlusIcon from '@material-ui/icons/Add';
-import MuiMinusIcon from '@material-ui/icons/Remove';
-
-import MuiButton from '@material-ui/core/Button';
-
-import { SketchPicker } from 'react-color';
-
-import Dropzone from 'react-dropzone'
-
 import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
-
-import {perspectiveUpdate , orthographicUpdate , updateBackGroundColor } from "../../../store/sideBar/sceneSlice";
+import {perspectiveUpdate , orthographicUpdate , updateBackgroundColor , updateBackgroundImage } from "../../../store/sideBar/sceneSlice";
 
 export default function Views(){
 
@@ -53,11 +45,11 @@ export default function Views(){
 
     const [selectedColor, setSelectedColor] = useState<any>();
 
-    
-
-    const fileRedux = useAppSelector((state) => state.scene.file);
+    const fileRedux = useAppSelector((state) => state.scene.file );
     const [file, setFile] = useState<any>(fileRedux);
 
+    useEffect(() => {setFile(fileRedux)},[fileRedux])
+    
     const [projection, setProjection] = useState<string>("perspective");
     const valuePerspective = useAppSelector((state) => state.scene.valuePerspective);
     const valueOrthographic = useAppSelector((state) => state.scene.valueOrthographic);
@@ -124,7 +116,10 @@ export default function Views(){
     }
 
     const handleColorSelector : (item : any) => any = (item) => {
-        setSelectedColor(item)
+        if( selectedColor === item)
+            setSelectedColor(null)
+        else
+            setSelectedColor(item)
     }
 
     const handleReset = () => { 
@@ -135,20 +130,6 @@ export default function Views(){
         if(file !== fileRedux){
             setFile(fileRedux)
         }
-
-        // if(backgroundMenu === 0){
-        //     if (colourSet.length > 1){
-        //         setColourSet([colourList]);
-        //         setSelectedColor(colourList);
-        //     }            
-        //     if(colourSet[0] !== colourList){
-        //         setColourSet([colourList]);
-        //         setSelectedColor(colourList);
-        //     }       
-        // }
-        
-        // if(backgroundMenu === 1)
-        //     setFile(null);
     }
 
     const onDrop = (acceptedFiles : any , rejected : any) => {
@@ -159,25 +140,22 @@ export default function Views(){
           }
         
         else{
-            setFile(Object.assign(acceptedFiles[0], {
-                preview: URL.createObjectURL(acceptedFiles[0])
-              }));
+            setFile(URL.createObjectURL(acceptedFiles[0]));
         }
     }
 
     const handleSave = () => {
         
        if (backgroundMenu === 0) {
-            dispatch(updateBackGroundColor(colourSet));
+            dispatch(updateBackgroundColor(colourSet));
             setSnackbarContent("Background Colour Applied");
             setSnackbarBoolean(true);
             setSelectedColor(null);
        }
 
-        // if( backgroundMenu === 0 || file !== null){
-        //     setSnackbarContent("Background Applied");
-        //     setSnackbarBoolean(true);
-        // }
+       if (backgroundMenu === 1) {{
+           dispatch(updateBackgroundImage(file));
+       }}
     }
 
     const onClickBackIcon = () =>{
@@ -213,6 +191,10 @@ export default function Views(){
                 }
             }
         }
+
+        let backgroundImageChange = false;
+        if(fileRedux !== file)
+            backgroundImageChange = true;
 
         return (
             <div className={classes.scene}>
@@ -340,7 +322,7 @@ export default function Views(){
                                                                         objectFit: "cover",
                                                                         objectPosition: "center"
                                                                         }} 
-                                                                    src={file.preview} alt="profile" 
+                                                                    src={file} alt="profile" 
                                                                 />
                                                             </div>
                                                         :
@@ -357,16 +339,23 @@ export default function Views(){
                                     <div style={{marginBottom:"5px", marginTop:"45px",}} >
                                     <MuiGrid container spacing={3} >
                                         <MuiGrid item xs={12} sm={2} style={{marginLeft:"60px"}}>
-                                            <MuiButton  style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={handleSave}>
-                                                Save
-                                            </MuiButton>
+                                            {   backgroundImageChange 
+                                                ?
+                                                    <MuiButton  style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={handleSave}>
+                                                        Save
+                                                    </MuiButton>
+                                                :
+
+                                                    <MuiButton disabled style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={handleSave}>
+                                                        Save
+                                                    </MuiButton>
+                                            }
                                         </MuiGrid>
                                         <MuiGrid item xs={12} sm={6} >
-                                            {backgroundColorChange ?
+                                            {backgroundImageChange ?
                                                 <MuiButton  style={{color:"#8C8BFF", zIndex:10}} color="primary" onClick={handleReset}>Reset</MuiButton>
                                                 :
                                                 <MuiButton disabled style={{color:"#8C8BFF", zIndex:10}} color="primary" onClick={handleReset}>Reset</MuiButton>
-
                                             }
                                             
                                         </MuiGrid>

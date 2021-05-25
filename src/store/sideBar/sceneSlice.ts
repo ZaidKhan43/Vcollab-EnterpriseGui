@@ -63,11 +63,15 @@ export const sceneSlice = createSlice ({
                 state.valueOrthographic[index] = changeItem;
             }
         },
-        updateBackGroundColor : (state, action) => {
+        updateBackgroundColor : (state, action) => {
             state.colorList = action.payload;
+        },
+
+        updateBackgroundImage : (state, action) => {
+            state.file = action.payload;
         }
     }
 })
 
-export const {perspectiveUpdate , orthographicUpdate , updateBackGroundColor } = sceneSlice.actions;
+export const {perspectiveUpdate , orthographicUpdate , updateBackgroundColor , updateBackgroundImage } = sceneSlice.actions;
 export default sceneSlice.reducer;
