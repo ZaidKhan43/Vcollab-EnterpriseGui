@@ -3,7 +3,7 @@ import { createRef } from 'react';
 import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
 import { setModelInfo, setModelLoadedState, setModelLoadingStatus } from '../../store/appSlice';
-import { insertData } from '../../store/colormapSlice';
+import { setCAEResult } from '../../store/colormapSlice';
 import { useAppDispatch } from '../../store/storeHooks';
 import {saveTree, fetchSearchHints,setHightLightedNodesAsync } from "../../store/sideBar/productTreeSlice";
 import { addViewer } from '../../store/appSlice';
@@ -38,7 +38,7 @@ function Viewer(){
           dispatch(setModelInfo(modelInfo));
 
           let caeResult = viewerAPIProxy.getDisplayResult(activeViewerID) as any;
-          dispatch(insertData({caeResult:caeResult}));     
+          dispatch(setCAEResult({caeResult:caeResult}));     
 
 
         }

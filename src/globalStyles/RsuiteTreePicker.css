@@ -18,7 +18,7 @@
             box-sizing: border-box;
   }
   
-  @-webkit-keyframes fadeIn {
+ @-webkit-keyframes fadeIn {
     0% {
       opacity: 0;
     }
@@ -34,7 +34,10 @@
       opacity: 1;
     }
   }
-
+  
+  
+ 
+  
   @font-face {
     font-family: 'rsuite-icon-font';
     src: url('//cdn.jsdelivr.net/npm/rsuite/dist/styles/fonts/rsuite-icon-font.eot');
@@ -986,7 +989,7 @@
   .rs-dropdown-menu > .rs-dropdown-item > .rs-dropdown-item-content:focus {
     text-decoration: none;
     color: #575757;
-    background-color: #f2faff;
+    background-color:none !important;
   }
   .rs-dropdown-menu > .rs-dropdown-menu-item-focus > .rs-dropdown-item-content,
   .rs-dropdown-menu > .rs-dropdown-item-active > .rs-dropdown-item-content {
@@ -2218,10 +2221,10 @@
     margin-left: -24px;
   }
   .rs-tree-node > .rs-tree-node-label:hover {
-    background-color: #f2faff;
+    background-color:none !important;
   }
   .rs-tree-node > .rs-tree-node-label:focus {
-    background-color: #f2faff;
+    background-color:none !important;
   }
   .rs-tree-node-disabled {
     color: #c5c6c7;

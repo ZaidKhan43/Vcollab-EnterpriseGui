@@ -1,45 +1,38 @@
 import { createSlice} from '@reduxjs/toolkit';
 import type { RootState } from './index';
 
-type colormapState = {
-    selectedVariable:string|null,
-    selectedStep:string|null,
-    caeResult:any | null,
-    variableId:string|null
-    derivedTypeID:string|null
+type colormapState = { 
+    caeResult : any | null,
+    selectedVariableId : string|null,
+    selectedDerivedTypeId : string|null,
+    selectedStepId : string|null
 }
 
-const initialState: colormapState ={
-
-    selectedVariable:'',
-    selectedStep:'',
+const initialState: colormapState = {
     caeResult:null,
-    variableId:'',
-    derivedTypeID:''
-
-
+    selectedVariableId:'',
+    selectedDerivedTypeId:'',
+    selectedStepId:''
 }
 
 export const colormapSlice =createSlice({
     name: 'colormaps',
     initialState,
     reducers: {
-        insertData:(state,action)=>{
+        setCAEResult:(state,action)=>{
           state.caeResult=action.payload.caeResult
         },
-        setData:(state,action) =>{
-          state.selectedVariable =action.payload.selectedVariable
-          state.selectedStep = action.payload.selectedStep
-          state.variableId = action.payload.variableId
-          state.derivedTypeID=action.payload.derivedTypeID
+        setSelectedData:(state,action) =>{        
+          state.selectedVariableId = action.payload.selectedVariableId
+          state.selectedDerivedTypeId=action.payload.selectedDerivedTypeId
+          state.selectedStepId=action.payload.selectedStepId
         },
 
     }
 });
 
-export const { insertData, setData } =colormapSlice.actions;
+export const { setCAEResult, setSelectedData } = colormapSlice.actions;
 
-export const insertCaeData = (state:RootState) => { return state.colormaps.caeResult;};
-
+export const SelectCAEResult = ( state : RootState ) => { return state.colormaps.caeResult;};
 
 export default colormapSlice.reducer

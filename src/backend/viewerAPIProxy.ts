@@ -62,3 +62,7 @@ export function getModelInfo(activeViewerID:string) {
 export function getDisplayResult(activeViewerID:string) {
     return viewerMgr.getDisplayResult(activeViewerID);
 }
+
+export function applyResult(resultId:string, stepId:string, derivedTypeId:string, activeViewerID:string) {
+    return viewerMgr.applyResult(resultId,stepId,derivedTypeId, activeViewerID);
+}
