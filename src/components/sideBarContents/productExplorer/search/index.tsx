@@ -134,17 +134,17 @@ function Search(props:any) {
     return (
         <div ref = {containerRef} style={{height:'100%', overflow:'hidden'}} >
           <div ref = {headerRef} >
-            <Grid container alignItems='center' spacing={1}>
-              <Grid item xs={10}>
+            <Grid container alignItems='center' justify='center' spacing={1}>
+              <Grid item xs={11}>
               <Autocomplete
-                style={{paddingLeft: 10}}
+                style={{marginTop:-10}}
                 size = 'small'
                 color = 'inherit'
                 disableClearable
                 clearOnBlur = {false}
                 open = {false}
                 forcePopupIcon = {false}
-                fullWidth = {false}
+                fullWidth = {true}
                 onOpen = {(e:any) => {handleAutoCompleteOpenState(true)}}
                 onClose = {(e:any) => {handleAutoCompleteOpenState(false)}}
                 onKeyPress = {(e:any) => {
@@ -174,17 +174,16 @@ function Search(props:any) {
                 renderInput={(params:any) => (
                 <TextField
                     {...params}
-                    label="Search input"
+                    label="Search"
                     margin="normal"
-                    variant='outlined'
-                    InputProps={{ ...params.InputProps, type: 'search' }}
+                    InputProps={{ ...params.InputProps, type: 'search', endAdornment:  <IconButtom size='small' onClick={() => dispatch(updatePrevSearches())}> <AddIcon/></IconButtom> }}
                     
                 />
                 )}
             />
               </Grid>
               <Grid item>
-              <IconButtom size='small' style={{marginTop:7}} onClick={() => dispatch(updatePrevSearches())}> <AddIcon/></IconButtom>
+             
               </Grid>
             </Grid>
 

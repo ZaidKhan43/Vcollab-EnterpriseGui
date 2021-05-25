@@ -13,6 +13,7 @@ type DisplayMenuItem = {
     displayId:string,
     title: string,
     selected: boolean,
+    order:number,
     size: number,
     status: DownloadStates
 }
@@ -49,11 +50,13 @@ export const fetchDisplayModes = createAsyncThunk(
           displayId: item.id,
           title: item.displayName,
           selected: false,
+          order: item.displayOrder,
           size: item.downloadMetricValue,
           status: item.isDataAvailable ? DownloadStates.DOWNLOADED : DownloadStates.NOT_DOWNLOADED
         } as DisplayMenuItem
       )
     })
+    menuData.sort((a,b) => a.order-b.order);
     dispatch(displayModesSlice.actions.setMenuData({panelId:0,menuData}));
   }
 )

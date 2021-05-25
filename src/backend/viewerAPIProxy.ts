@@ -39,6 +39,10 @@ export function setDisplayMode(activeViewerID:string, displayModeId:string, node
 export function setHighlightedNodes(activeViewerID:string, toShow: boolean, nodeIds:string[]) {
     return viewerMgr.setHighlightedNodes(nodeIds,toShow,activeViewerID);
 }
+// part Manipulation
+export function enablePickAndMove(activeViewerID:string, toEnable:boolean) {
+    return viewerMgr.enablePickAndMove(toEnable,activeViewerID);
+}
 export function fitView(activeViewerID: string, nodeIds:string[] = []){
     return viewerMgr.fitView(nodeIds,activeViewerID);
 }
