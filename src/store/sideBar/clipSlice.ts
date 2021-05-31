@@ -13,6 +13,8 @@ type plane = {
 	  clipConstD: number,
     clipNormalInverted: boolean,
     translate: number,
+    translateMin: number,
+    translateMax: number,
     rotate: number,
     axisX: number,
 	  axisY: number,	
@@ -30,12 +32,15 @@ type settings= {
 	  clipConstD: number,
     clipNormalInverted: boolean,
     translate: number,
+    translateMin: number,
+    translateMax: number,
     rotate: number,
     axisX: number,
 	  axisY: number,
   },
   maxAllowedPlanes : number,
-  idGenerator: number
+  idGenerator: number,
+  clickedVal : plane | null,
 }
 
 type planes = {
@@ -58,6 +63,8 @@ const initialState : planes = {
       clipConstD:10,
       clipNormalInverted: false,
       translate: 50,
+      translateMin: -200,
+      translateMax: 200,
       rotate: 0,
       axisX: 0,
       axisY: 90,
@@ -75,6 +82,8 @@ const initialState : planes = {
       clipConstD:10,
       clipNormalInverted: true,
       translate: -50,
+      translateMin: -300,
+      translateMax: 300,
       rotate: 60,
       axisX: 180,
       axisY: 90,
@@ -84,6 +93,7 @@ const initialState : planes = {
   settings :{
     maxAllowedPlanes : 6,
     idGenerator :2,
+    clickedVal : null,
     defaultPlaneParameters : {
       enabled: true,
       showClip: true,
@@ -95,6 +105,8 @@ const initialState : planes = {
       clipConstD:10,
       clipNormalInverted: false,
       translate: 50,
+      translateMin:-200,
+      translateMax:200,
       rotate: 0,
       axisX: 0,
       axisY: 90,
@@ -121,6 +133,8 @@ export const clipSlice = createSlice({
                                           clipConstD:state.settings.defaultPlaneParameters.clipConstD,
                                           clipNormalInverted: state.settings.defaultPlaneParameters.clipNormalInverted,
                                           translate: state.settings.defaultPlaneParameters.translate,
+                                          translateMin: state.settings.defaultPlaneParameters.translateMin,
+                                          translateMax: state.settings.defaultPlaneParameters.translateMax,
                                           rotate: state.settings.defaultPlaneParameters.rotate,
                                           axisX: state.settings.defaultPlaneParameters.axisX,
                                           axisY: state.settings.defaultPlaneParameters.axisY,
@@ -132,8 +146,12 @@ export const clipSlice = createSlice({
       const index= state.planes.findIndex((item) => item.id === action.payload);
       if ( index >= 0 ) {
         let changeItem : any = state.planes[index];
-        const val = changeItem&& changeItem?.enabled
-        changeItem = {...changeItem, enabled:!val}
+        if(changeItem.enabled === true && changeItem.showClip === true)
+          changeItem.showClip = !changeItem.showClip
+        if(changeItem.enabled === false && changeItem.showClip === false)
+          changeItem.showClip = !changeItem.showClip   
+        changeItem.enabled = !changeItem.enabled
+        
         state.planes[index] = changeItem;
       }
     },
@@ -203,6 +221,75 @@ export const clipSlice = createSlice({
       }      
     },
 
+    editEquation: (state, action) => {
+      const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
+      if ( index >= 0) {
+        let changeItem : any = state.planes[index];
+        if(changeItem.clipCordX !== action.payload.clipCordX || changeItem.clipCordY !== action.payload.clipCordY || changeItem.clipCordZ !== action.payload.clipCordZ)
+          {
+            changeItem.rotate = 0;
+            changeItem.axisX = 0;
+            changeItem.axisY = 0;
+          }
+        changeItem.clipCordX = action.payload.clipCordX;
+        changeItem.clipCordY = action.payload.clipCordY;
+        changeItem.clipCordZ = action.payload.clipCordZ;
+        changeItem.clipConstD = action.payload.clipConstD;
+        
+        state.planes[index] = changeItem;
+      }
+    },
+
+    editNormalInverted: (state, action) => {
+      const index : any = state.planes.findIndex((item) => item.id === action.payload);
+      if ( index >= 0) {
+        let changeItem : any = state.planes[index];
+        changeItem.clipNormalInverted = !changeItem.clipNormalInverted;
+        changeItem.clipCordX = (changeItem.clipCordX < 0) ? Math.abs(changeItem.clipCordX) : - Math.abs(changeItem.clipCordX);
+        changeItem.clipCordY = (changeItem.clipCordY < 0) ? Math.abs(changeItem.clipCordY) : - Math.abs(changeItem.clipCordY);
+        changeItem.clipCordZ = (changeItem.clipCordZ < 0) ? Math.abs(changeItem.clipCordZ) :  - Math.abs(changeItem.clipCordZ);
+        changeItem.clipConstD = (changeItem.clipConstD < 0) ? Math.abs(changeItem.clipConstD) : - Math.abs(changeItem.clipConstD);
+        changeItem.translate = (changeItem.translate < 0) ? Math.abs(changeItem.translate) : - Math.abs(changeItem.translate);
+        state.planes[index] = changeItem;
+      }
+    },
+
+    editTranslate: (state, action) => {
+      const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
+      if ( index >= 0) {
+        let changeItem : any = state.planes[index];
+        changeItem.translate= action.payload.translate;
+        // state.planes[index] = changeItem;
+      }
+    },
+
+    editRotate: (state, action) => {
+      const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
+      if ( index >= 0) {
+        let changeItem : any = state.planes[index];
+        changeItem.rotate= action.payload.rotate;
+        state.planes[index] = changeItem;
+      }
+    },
+
+    editAxisX: (state, action) => {
+      const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
+      if ( index >= 0) {
+        let changeItem : any = state.planes[index];
+        changeItem.axisX= action.payload.axisX;
+        state.planes[index] = changeItem;
+      }
+    },
+
+    editAxisY: (state, action) => {
+      const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
+      if ( index >= 0) {
+        let changeItem : any = state.planes[index];
+        changeItem.axisY= action.payload.axisY;
+        state.planes[index] = changeItem;
+      }
+    },
+
     editPlaneName: (state, action) => {
       const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
       if ( index >= 0) {
@@ -211,9 +298,13 @@ export const clipSlice = createSlice({
         state.planes[index] = changeItem;
       }
     },
+
+    saveClickedVal: (state, action) => {
+      state.settings.clickedVal= action.payload;
+    },
   }
 })
 
-export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlane, editPlaneName } = clipSlice.actions;
+export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlane, editEquation, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, saveClickedVal} = clipSlice.actions;
 
 export default clipSlice.reducer;

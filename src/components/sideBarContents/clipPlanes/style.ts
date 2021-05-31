@@ -144,7 +144,8 @@ export default makeStyles((theme) => (
     marginTop:"15px",
     color: theme.palette.text.primary,
     fontSize: "14px",
-    marginLeft:"2%"
+    marginLeft:"2%",
+    marginBottom:"10px"
   },
 
   dialogBox: {
@@ -169,7 +170,7 @@ export default makeStyles((theme) => (
     position:"absolute",
     left:"20%",
     right:"20%",
-    top:"15%",
+    top:"10%",
     zIndex: 10,
     
   },
@@ -192,6 +193,13 @@ export default makeStyles((theme) => (
     fontSize:"10px",
   },
 
+  translateButton:{
+    // marginLeft:"10px",
+    // marginBottom:"-5px",
+    color:theme.palette.text.primary,
+    fontSize:"20px",
+  },
+
   input :{
     // width: "160px",
   height: "20px",
@@ -200,11 +208,15 @@ export default makeStyles((theme) => (
 },
 
 inputTranslate :{
-  color: theme.palette.text.primary, 
-  paddingLeft: "30%",
-  textAlign: "center",
+  color:theme.palette.text.primary,
+  background:"none",
   border: "1px solid",
-  boderColor: theme.palette.text.primary, 
+  borderColor: theme.palette.text.primary ,
+  textAlign:"center",
+  width:"70px",
+  fontSize:"16px",
+  zIndex: 10,
+  size: 4,
 },
 
 inputEquation:{
@@ -218,6 +230,16 @@ inputEquation:{
   fontSize:"16px",
   zIndex: 10,
   size: 4,
+},
+
+disabled: {
+background: theme.palette.text.disabled,
+opacity:0.6,
+},
+
+disabledButton:{
+color: theme.palette.text.disabled,
+opacity:0.6,
 },
 
   caption: {
@@ -261,6 +283,19 @@ inputEquation:{
       backgroundColor: 'rgba(0,0,0,.1)',
       outline: '1px solid slategrey'
     },
+  },
+
+  editButton:{
+    background: theme.palette.action.selected,
+    borderRadius:"15px",
+    width:40,
+    height:10,
+    marginLeft:"30px",
+  },
+  
+  editButtonActive:{
+    background:theme.palette.action.selected,
+    opacity:0.7,
   },
   
   footerCard:{
