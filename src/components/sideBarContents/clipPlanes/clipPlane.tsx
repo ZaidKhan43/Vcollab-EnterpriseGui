@@ -39,7 +39,6 @@ import MuiEditIcon from '@material-ui/icons/Edit';
 
 import MuiToggleButton from '@material-ui/lab/ToggleButton';
 
-
 export default function ClipPlanes(props : any){
 
   const classes = styles();
@@ -60,6 +59,8 @@ export default function ClipPlanes(props : any){
   const [clipCordZ, setClipCordZ] = useState(planes[index].clipCordZ);
   const [clipConstD, setClipConstD] = useState(planes[index].clipConstD);
 
+  const userInputEquation = planes[index].userInputEquation
+
   const [editMode, setEditMode] = useState(false)
 
   const [clipPlaneMode, setClipPlaneMode] = useState<string | null>(null);
@@ -71,7 +72,22 @@ export default function ClipPlanes(props : any){
     setClipConstD(planes[index].clipConstD)
   },[planes])
 
-  const OnHandleEquation:(value : number, variable: string) => any = (value,variable) => {
+  const OnHandleEquation:(value : any, variable: string) => any = (value,variable) => {
+    // switch(variable){
+    //   case "clipCordX" :
+    //     setClipCordX(Number(e.target.value));
+    //   break;
+    //   case "clipCordY" :
+    //     setClipCordY(Number(e.target.value));
+    //   break;
+    //   case "clipCordZ" :
+    //     setClipCordZ(Number(e.target.value));
+    //   break;
+    //   case "clipConstD" :
+    //     setClipConstD(Number(e.target.value));
+    //   break;
+    // }
+
     switch(variable){
       case "clipCordX" :
         setClipCordX(Number(value));
@@ -215,6 +231,14 @@ export default function ClipPlanes(props : any){
       >
         <MuiTypography className={classes.listSub} noWrap>
           Plane Equation
+        </MuiTypography>
+        <MuiTypography className={classes.listSub} noWrap>
+          UserInput :
+        </MuiTypography>
+        { editMode !== true 
+          ?
+          <div>
+          <MuiInput style={{marginLeft:"-20px",marginTop:"10px",border: "1px solid", width:"190px", paddingLeft:"5px", paddingRight:"5px" }} disabled value={`${userInputEquation[0]}X + ${userInputEquation[1]}Y + ${userInputEquation[2]}Z = ${userInputEquation[3]}`}/> 
           <MuiToggleButton
             className={classes.editButton}
             value="check"
@@ -222,81 +246,105 @@ export default function ClipPlanes(props : any){
             onChange={handleEditShow}>
           <MuiEditIcon style={{fontSize:"15px"}}/>
       </MuiToggleButton>
-        </MuiTypography>
-        
-          <div style={{ display: "flex",alignItems: "center",
-            justifyContent: "flex-start", marginLeft:"5%", marginRight:"5%",
-            marginTop:"5px", }}
-            // onBlur={handleValidation}
-          >
-            <NumericInput
-              className={`${classes.inputEquation} + ${editMode=== false && classes.disabled}`}
-              disabled={editMode ? false : true}
-              value={clipCordX}
-              button={"no"}
-              format={() => clipCordX + "X"}
-              margin="dense"
-              noStyle
-              onChange={(value : any) => OnHandleEquation(value,"clipCordX")} 
-              
-              />
-              <MuiTypography className={classes.buttonIcon}>
-                +
-              </MuiTypography>
-             <NumericInput
-              className={`${classes.inputEquation} + ${editMode=== false && classes.disabled}`}
-              readOnly={editMode ? false : true}
-              value={clipCordY}
-              button={"no"}
-              format={() => clipCordY + "Y"}
-              margin="dense"
-              noStyle
-              onChange={(value : any) => OnHandleEquation(value,"clipCordY")} 
-            />
-            <MuiTypography className={classes.buttonIcon}>
-              +
-            </MuiTypography>
-            <NumericInput
-              className={`${classes.inputEquation} + ${editMode=== false && classes.disabled}`}
-              readOnly={editMode ? false : true}
-              value={clipCordZ}
-              button={"no"}
-              format={() => clipCordZ + "Z"}
-              margin="dense"
-              noStyle
-              onChange={(value : any) => OnHandleEquation(value, "clipCordZ")} 
-            />
-            <MuiTypography className={classes.buttonIcon}>
-              =
-            </MuiTypography>
-            <NumericInput
-              className={`${classes.inputEquation} + ${editMode=== false && classes.disabled}`}
-              readOnly={editMode ? false : true}
-              value={clipConstD}
-              button={"no"}
-              margin="dense"
-              noStyle
-              onChange={(value : any) => OnHandleEquation(value, "clipConstD")} 
-            />
           </div>
-          <Grid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
-        <Grid item xs={12} sm={6} >
-          <MuiButton className={clsx({ [classes.button]: clipPlaneMode==="Surface" })} size="small"  startIcon={<Triangle />}  onClick={() => {clipPlaneMode==="Surface" ? setClipPlaneMode(null) : setClipPlaneMode("Surface")}}>
-            <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
-            Select Surface
-            </MuiTypography>
-           
-          </MuiButton>
-        </Grid>
-        <Grid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
-          <MuiButton className={clsx({ [classes.button]: clipPlaneMode==="Points" })} size="small" startIcon={<ThreePoints/>}   onClick={() => {clipPlaneMode==="Points" ? setClipPlaneMode(null) : setClipPlaneMode("Points")}}>
-          <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
-           Select Points
-            </MuiTypography>
-           
-            </MuiButton>
-        </Grid>
-      </Grid>
+          :
+          <div style={{ display: "flex",alignItems: "center",
+          justifyContent: "flex-start", marginLeft:"5%", marginRight:"5%",
+          marginTop:"5px", }}
+          // onBlur={handleValidation}
+        >
+          {/* <div className={classes.inputEqnBorder}>
+          <MuiInput className={classes.inputEqn}  style={{width: "30px"}} type="number" value={clipCordX} onChange={(e : any) => OnHandleEquation(e,"clipCordX")}/> X +
+          <MuiInput className={classes.inputEqn} style={{width: "30px"}} type="number" value={clipCordY} onChange={(e : any) => OnHandleEquation(e,"clipCordY")} />Y +
+          <MuiInput className={classes.inputEqn} style={{width: "30px"}} type="number" value={clipCordZ} onChange={(e : any) => OnHandleEquation(e,"clipCordZ")} />Z =
+          <MuiInput className={classes.inputEqn} style={{width: "30px"}} type="number" value={clipConstD} onChange={(e : any) => OnHandleEquation(e,"clipConstD")} />
+          </div>
+          <MuiToggleButton
+            className={classes.editButton}
+            value="check"
+            selected={!editMode}
+            onChange={handleEditShow}>
+          <MuiEditIcon style={{fontSize:"15px"}}/>
+      </MuiToggleButton> */}
+           <div className={classes.inputEqnBorder}>
+          <NumericInput
+            className={classes.inputEquation}
+            disabled={editMode ? false : true}
+            value={clipCordX}
+            format={() => clipCordX + "X"}
+            button={"no"}
+            // format={() => clipCordX + "X"}
+            margin="dense"
+            noStyle
+            onChange={(value : any) => OnHandleEquation(value,"clipCordX")} 
+            />+
+           <NumericInput
+            className={`${classes.inputEquation} + ${classes.inputEquation}`}
+            readOnly={editMode ? false : true}
+            value={clipCordY}
+            button={"no"}
+            format={() => clipCordY + "Y"}
+            margin="dense"
+            noStyle
+            onChange={(value : any) => OnHandleEquation(value,"clipCordY")} 
+          />+
+          <NumericInput
+            className={`${classes.inputEquation} + ${editMode=== false && classes.disabled}`}
+            readOnly={editMode ? false : true}
+            value={clipCordZ}
+            button={"no"}
+            format={() => clipCordZ + "Z"}
+            margin="dense"
+            noStyle
+            onChange={(value : any) => OnHandleEquation(value, "clipCordZ")} 
+          />=
+          <NumericInput
+            className={`${classes.inputEquation} + ${editMode=== false && classes.disabled}`}
+            readOnly={editMode ? false : true}
+            value={clipConstD}
+            button={"no"}
+            margin="dense"
+            noStyle
+            onChange={(value : any) => OnHandleEquation(value, "clipConstD")} 
+          />
+          </div>
+          <MuiToggleButton
+            className={classes.editButton}
+            value="check"
+            selected={!editMode}
+            onChange={handleEditShow}>
+          <MuiEditIcon style={{fontSize:"15px"}}/>
+      </MuiToggleButton>
+        </div>
+        }
+        
+        
+          {editMode 
+            ?
+            <Grid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
+            <Grid item xs={12} sm={6} >
+              <MuiButton className={clsx({ [classes.button]: clipPlaneMode==="Surface" })} size="small"  startIcon={<Triangle />}  onClick={() => {clipPlaneMode==="Surface" ? setClipPlaneMode(null) : setClipPlaneMode("Surface")}}>
+                <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
+                Select Surface
+                </MuiTypography>
+               
+              </MuiButton>
+            </Grid>
+            <Grid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
+              <MuiButton className={clsx({ [classes.button]: clipPlaneMode==="Points" })} size="small" startIcon={<ThreePoints/>}   onClick={() => {clipPlaneMode==="Points" ? setClipPlaneMode(null) : setClipPlaneMode("Points")}}>
+              <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
+               Select Points
+                </MuiTypography>
+               
+                </MuiButton>
+            </Grid>
+          </Grid>
+        :
+        <div>
+        <MuiInput disabled style={{marginLeft:"20px",marginTop:"10px",border: "1px solid",}} value={`${clipCordX}X + ${clipCordY}Y + ${clipCordZ}Z = ${clipConstD}`}/>
+         </div> 
+          }
+         
 
           <MuiTypography className={classes.listSub}  style={{marginTop:"10%"}} noWrap>
             Coordinate System

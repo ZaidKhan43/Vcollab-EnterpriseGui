@@ -17,7 +17,8 @@ type plane = {
     translateMax: number,
     rotate: number,
     axisX: number,
-	  axisY: number,	
+	  axisY: number,
+    userInputEquation:number[],	
 }
 
 type settings= {
@@ -68,6 +69,7 @@ const initialState : planes = {
       rotate: 0,
       axisX: 0,
       axisY: 90,
+      userInputEquation:[5,4,6,10 ]
     },
     {
       id : 2,
@@ -87,6 +89,7 @@ const initialState : planes = {
       rotate: 60,
       axisX: 180,
       axisY: 90,
+      userInputEquation:[3,2,4,10],
     },
   ],
 
@@ -138,6 +141,11 @@ export const clipSlice = createSlice({
                                           rotate: state.settings.defaultPlaneParameters.rotate,
                                           axisX: state.settings.defaultPlaneParameters.axisX,
                                           axisY: state.settings.defaultPlaneParameters.axisY,
+                                          userInputEquation: [state.settings.defaultPlaneParameters.clipCordX,
+                                                              state.settings.defaultPlaneParameters.clipCordY ,
+                                                              state.settings.defaultPlaneParameters.clipCordZ, 
+                                                              state.settings.defaultPlaneParameters.clipConstD             
+                                                            ],
                                         }]
       }
     },
@@ -235,6 +243,11 @@ export const clipSlice = createSlice({
         changeItem.clipCordY = action.payload.clipCordY;
         changeItem.clipCordZ = action.payload.clipCordZ;
         changeItem.clipConstD = action.payload.clipConstD;
+
+        changeItem.userInputEquation[0] = action.payload.clipCordX;
+        changeItem.userInputEquation[1] = action.payload.clipCordY;
+        changeItem.userInputEquation[2] = action.payload.clipCordZ;
+        changeItem.userInputEquation[3] = action.payload.clipConstD;
         
         state.planes[index] = changeItem;
       }

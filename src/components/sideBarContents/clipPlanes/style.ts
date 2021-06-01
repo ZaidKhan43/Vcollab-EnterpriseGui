@@ -222,11 +222,11 @@ inputTranslate :{
 inputEquation:{
   color:theme.palette.text.primary,
   background:"none",
-  border: "1px solid",
+  border: "none",
   borderColor: theme.palette.text.primary ,
   marginTop:"-60%",
   textAlign:"center",
-  width:"80%",
+  width:"17%",
   fontSize:"16px",
   zIndex: 10,
   size: 4,
@@ -287,10 +287,10 @@ opacity:0.6,
 
   editButton:{
     background: theme.palette.action.selected,
-    borderRadius:"15px",
+    borderRadius:"5px",
     width:40,
     height:10,
-    marginLeft:"30px",
+    marginLeft:"20px",
   },
   
   editButtonActive:{
@@ -315,4 +315,16 @@ opacity:0.6,
 
   },
 
+  inputEqnBorder:{
+    border: "1px solid",
+    width:"240px",
+    borderColor: theme.palette.text.primary ,
+  },
+
+  inputEqn: {
+    textAlign:"center",
+      "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
+        "-webkit-appearance": "none",
+        margin: 0
+  }},
 }));
