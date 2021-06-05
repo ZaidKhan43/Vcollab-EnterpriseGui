@@ -91,24 +91,25 @@ function Viewer(){
             //this.props.saveModelLoadingStatus("");
             let viewerDivID = viewerRefs.current?.id || '';
             let api = "http://localhost:8181/api/1.0/model";
-            let url = "file://samples/bracket.cax";
+            //let url = "file://samples/bracket.cax";
             //let url = "file://samples/airbag.cax";
             //let url = "file://samples/heater.cax";
             //let url = "file://samples/merged.cax";
             //let url = "file://samples/F30_model.cax";
+            let url = "file%3A%2F%2FC%3A%5CWORK%5Centerprise-1.1-win64%5Csamples%5Cheater.cax";
             //let url = "file%3A%2F%2FC%3A%5CWORK%5Centerprise-1.1-win64%5Csamples%5Cbracket.cax";
             //let url = "file%3A%2F%2FC%3A%5CWORK%5Centerprise-1.1-win64%5Csamples%5CF30_model.cax";   
             //let api = "http://100.26.229.30:8181/api/1.0/model";
             //let url = "file%3A%2F%2FC%3A%5CUsers%5CAdministrator%5CDownloads%5Centerprise-1.1-win64%5Csamples%5CF30_model.cax";           
             
             /*
-            let url = this.getParameterByName("url");
+            let url = getParameterByName("url");
             if (url === "") {
               alert("URL querystring is missing.");
               return;
             }
       
-            let api = this.getParameterByName("api");
+            let api = getParameterByName("api");
             if (api === "") {
               alert("API querystring is missing.");
               return;

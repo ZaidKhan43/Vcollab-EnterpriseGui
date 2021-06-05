@@ -12,9 +12,9 @@ function PopupMenu(props : any)
     const renderSwitch = () => {
         switch(popupMenuActiveContent) {
             case popupMenuContentTypes.displayModes:
-                return (<DisplayMode open= { popupMenuActiveContent === popupMenuContentTypes.displayModes && props.anchorEl } anchorEl={ props.anchorEl }/>);
+                return (<DisplayMode open= { popupMenuActiveContent === popupMenuContentTypes.displayModes && props.anchorEl !== null } anchorEl={ props.anchorEl }/>);
             case popupMenuContentTypes.more:
-                return (<More open= { popupMenuActiveContent === popupMenuContentTypes.more && props.anchorEl } anchorEl={ props.anchorEl }/>);
+                return (<More open= { popupMenuActiveContent === popupMenuContentTypes.more && props.anchorEl !== null  } anchorEl={ props.anchorEl }/>);
             default:
                 return <></>;
         }

@@ -11,7 +11,8 @@ const useStylesDark = makeStyles((theme) => ({
     display:'flex',
     flexDirection:'column',
     width:'300px',
-    fontSize:'1rem'
+    fontSize:'1rem',
+    zIndex:9999
   },
   custom_button_group:{
     display: 'flex',

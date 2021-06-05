@@ -1,5 +1,5 @@
 import MuiButton from '@material-ui/core/Button';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import TreePicker   from 'rsuite/lib/TreePicker';
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks';
 import {  setSelectedData, SelectCAEResult  } from '../../../../store/colormapSlice';
@@ -12,6 +12,8 @@ function Colormap() {
     const activeViewerID = useAppSelector(selectActiveViewerID);
     const CAEResult = useAppSelector(SelectCAEResult);
     const dispatchAction = useAppDispatch();
+    
+    let treePickerContainer = useRef<HTMLDivElement>(null);
 
     const classes = useStylesDark({});
 
@@ -180,11 +182,13 @@ function Colormap() {
   if(stepfromredux)
     getDisableValues(stepfromredux, disableChildrenForStep);
   
+  
+
     return(
-        <div className={classes.container}>     
+        <div ref ={ treePickerContainer }  className={classes.container}>     
             <div className={isDarkMode ? "somedark":"somelight"}>
             <p className={classes.divp}> Variable</p>
-            { varfromredux && <TreePicker menuClassName={isDarkMode ? "dark":"light"} disabledItemValues={disableChildrenForVar}  name="variable" onChange={(value)=>setVariable(value)} value={variable} defaultExpandAll data={varfromredux} style={{ width: 246, zIndex:9999 }} searchable={false} renderValue={(value, item : any, selectedElement) => {
+            { varfromredux && <TreePicker  container={ ()=>{ return treePickerContainer?.current } }  menuClassName={isDarkMode ? "dark":"light"} disabledItemValues={disableChildrenForVar}  name="variable" onChange={(value)=>setVariable(value)} value={variable} defaultExpandAll data={varfromredux} style={{ width: 246, zIndex:9999 }} searchable={false} renderValue={(value, item : any, selectedElement) => {
               let details;
               if(item.value)
                 details = getParentLabel(varfromredux, item.value);
@@ -198,7 +202,7 @@ function Colormap() {
             </div>
             <div className={isDarkMode ? "somedark":"somelight"}>
             <p className={classes.divp}>Step</p>
-            { stepfromredux && <TreePicker  menuClassName={isDarkMode ? "dark":"light"} value={step} disabledItemValues={disableChildrenForStep} onChange={(value)=>{setStep(value)}} defaultExpandAll data={stepfromredux} style={{ width: 246,  zIndex:9999 }} searchable={false}  />}
+            { stepfromredux && <TreePicker container={ ()=>{ return treePickerContainer?.current } }  menuClassName={isDarkMode ? "dark":"light"} value={step} disabledItemValues={disableChildrenForStep} onChange={(value)=>{setStep(value)}} defaultExpandAll data={stepfromredux} style={{ width: 246,  zIndex:9999 }} searchable={false}  />}
             </div>
             <div className={classes.button}>
               {isButtonEnabled?null:
