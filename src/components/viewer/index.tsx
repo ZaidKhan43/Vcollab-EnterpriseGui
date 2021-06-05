@@ -6,6 +6,7 @@ import { setModelInfo, setModelLoadedState, setModelLoadingStatus } from '../../
 import { setCAEResult } from '../../store/colormapSlice';
 import { useAppDispatch } from '../../store/storeHooks';
 import {saveTree, fetchSearchHints,setHightLightedNodesAsync } from "../../store/sideBar/productTreeSlice";
+import {fetchSectionPlaneData} from "../../store/sideBar/clipSlice";
 import { addViewer } from '../../store/appSlice';
 
 function Viewer(){
@@ -68,6 +69,11 @@ function Viewer(){
             dispatch(fetchSearchHints());
             }
 
+           // fetch section data
+           setTimeout(() => {
+            dispatch(fetchSectionPlaneData());
+           },3000)
+           
            //console.log("Showing Model : " + response1);   
             /*       
             setTimeout(() => {

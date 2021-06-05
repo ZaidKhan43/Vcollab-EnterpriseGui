@@ -1,34 +1,42 @@
 // import MuiInput from '@material-ui/core/Input';
-import NumericInput from '../../shared/numericInput'
+import NumericInput from 'react-numeric-input';
 // import NumericInput from 'react-numeric-input';
 import CircularSlider from '@fseehawer/react-circular-slider';
 import MuiTypgraphy from '@material-ui/core/Typography';
 import styles from './style';
-import React, { useState, useEffect } from "react";
+//import React, { useState, useEffect } from "react";
+
+import MuiPlusIcon from '@material-ui/icons/Add';
+import MuiMinusIcon from '@material-ui/icons/Remove';
+
+import MuiIconButton from '@material-ui/core/IconButton';
+//import { ClassRounded } from '@material-ui/icons';
 
 export default function RotateSlider( props : any ){
 
-    const [value, setValue] = useState(props.value)
+    // const [value, setValue] = useState(props.value)
 
     const classes = styles();
 
-    useEffect(() => {
-        setValue(props.value)
-      },[props.value]);
+    // useEffect(() => {
+    //     setValue(props.value)
+    //   },[props.value]);
 
     const onChangeHandle = (value: any) => {
-       setValue(value)
-
-       if(Math.round(props.value) !== value)
-        props.functionOne(props.setFunction, value)
-       
+       const valueOne = value;
+       if(Math.round(props.value) !== valueOne)
+        props.handleChange(value)
     }
-    
+
+    const onChangeHandleOne = (value: any) => {
+        props.handleChange(value)
+    }
 //console.log(value)
     return(
         <div className={classes.rotate}>
             <CircularSlider 
-                dataIndex={Math.round(value)}
+                knobDraggable={props.disable === false  && true}
+                dataIndex={Math.round(props.value)}
                 width={90}
                 knobRadius={10}
                 progressWidth={20}
@@ -47,18 +55,20 @@ export default function RotateSlider( props : any ){
                 onChange={onChangeHandle}
                 renderLabelValue ={
                     <div className={classes.circularSlider}>
-                        <NumericInput style={{input:{ fontSize:"12px",},}}
-                        className={classes.clicularSliderInputOne}
+                        <MuiIconButton disabled={props.disable} style={{ width: 10, height: 10}} onClick={() => props.value < 359 ? onChangeHandle(props.value + 1) : onChangeHandle(0)} ><MuiPlusIcon className={`${classes.circularSliderButton} + ${props.disable && classes.disabledButton}`}/></MuiIconButton>
+                        <NumericInput
+                        readOnly={props.disable}
+                        noStyle
+                        className={`${classes.cicularSliderInput} + ${props.disable && classes.disabled}`}
                         format={() => props.value + "°"}
                         value={props.value}
                         precision={4}
                         min={0.0}
                         max={359.9}
                         mobile={false}
-                        onChange={props.functionTwo}
-                        // classes={classes.button}
+                        onChange={onChangeHandleOne}
                         />
-                        {/* <div onClick={() => onHandleClick("Sub")}>-</div> */}
+                         <MuiIconButton disabled={props.disable} style={{ width: 10, height: 10}} onClick={() => props.value > 0 ? onChangeHandle(props.value - 1) : onChangeHandle(359)}><MuiMinusIcon   className={`${classes.circularSliderButton} + ${props.disable && classes.disabledButton }`}/></MuiIconButton>
                     </div>
                 }
             />

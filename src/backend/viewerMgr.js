@@ -1,3 +1,4 @@
+
 /* eslint-disable */ 
 
 /*! *****************************************************************************
@@ -97,9 +98,7 @@ function __spread() {
     for (var ar = [], i = 0; i < arguments.length; i++)
         ar = ar.concat(__read(arguments[i]));
     return ar;
-}var version = "0.0.10";var vctViewer = function(_containerID, _connectorObject)
-{
-/*! *****************************************************************************
+}var version = "0.0.7";/*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
 
 Permission to use, copy, modify, and/or distribute this software for any
@@ -128,7 +127,7 @@ function __extends(d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 }
 
-function __awaiter(thisArg, _arguments, P, generator) {
+function __awaiter$1(thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -138,7 +137,7 @@ function __awaiter(thisArg, _arguments, P, generator) {
     });
 }
 
-function __generator(thisArg, body) {
+function __generator$1(thisArg, body) {
     var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
     return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
@@ -166,19 +165,7 @@ function __generator(thisArg, body) {
     }
 }
 
-function __values(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-}
-
-function __read(o, n) {
+function __read$1(o, n) {
     var m = typeof Symbol === "function" && o[Symbol.iterator];
     if (!m) return o;
     var i = m.call(o), r, ar = [], e;
@@ -195,9 +182,9 @@ function __read(o, n) {
     return ar;
 }
 
-function __spread() {
+function __spread$1() {
     for (var ar = [], i = 0; i < arguments.length; i++)
-        ar = ar.concat(__read(arguments[i]));
+        ar = ar.concat(__read$1(arguments[i]));
     return ar;
 }var AppConstants;
 (function (AppConstants) {
@@ -900,6 +887,48 @@ function clone(a) {
   out[13] = a[13];
   out[14] = a[14];
   out[15] = a[15];
+  return out;
+}
+/**
+ * Create a new mat4 with the given values
+ *
+ * @param {Number} m00 Component in column 0, row 0 position (index 0)
+ * @param {Number} m01 Component in column 0, row 1 position (index 1)
+ * @param {Number} m02 Component in column 0, row 2 position (index 2)
+ * @param {Number} m03 Component in column 0, row 3 position (index 3)
+ * @param {Number} m10 Component in column 1, row 0 position (index 4)
+ * @param {Number} m11 Component in column 1, row 1 position (index 5)
+ * @param {Number} m12 Component in column 1, row 2 position (index 6)
+ * @param {Number} m13 Component in column 1, row 3 position (index 7)
+ * @param {Number} m20 Component in column 2, row 0 position (index 8)
+ * @param {Number} m21 Component in column 2, row 1 position (index 9)
+ * @param {Number} m22 Component in column 2, row 2 position (index 10)
+ * @param {Number} m23 Component in column 2, row 3 position (index 11)
+ * @param {Number} m30 Component in column 3, row 0 position (index 12)
+ * @param {Number} m31 Component in column 3, row 1 position (index 13)
+ * @param {Number} m32 Component in column 3, row 2 position (index 14)
+ * @param {Number} m33 Component in column 3, row 3 position (index 15)
+ * @returns {mat4} A new mat4
+ */
+
+function fromValues(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
+  var out = new ARRAY_TYPE(16);
+  out[0] = m00;
+  out[1] = m01;
+  out[2] = m02;
+  out[3] = m03;
+  out[4] = m10;
+  out[5] = m11;
+  out[6] = m12;
+  out[7] = m13;
+  out[8] = m20;
+  out[9] = m21;
+  out[10] = m22;
+  out[11] = m23;
+  out[12] = m30;
+  out[13] = m31;
+  out[14] = m32;
+  out[15] = m33;
   return out;
 }
 /**
@@ -1728,7 +1757,7 @@ function length(a) {
  * @returns {vec3} a new 3D vector
  */
 
-function fromValues(x, y, z) {
+function fromValues$1(x, y, z) {
   var out = new ARRAY_TYPE(3);
   out[0] = x;
   out[1] = y;
@@ -2000,43 +2029,6 @@ function transformQuat(out, a, q) {
   return out;
 }
 /**
- * Get the angle between two 3D vectors
- * @param {ReadonlyVec3} a The first operand
- * @param {ReadonlyVec3} b The second operand
- * @returns {Number} The angle in radians
- */
-
-function angle(a, b) {
-  var ax = a[0],
-      ay = a[1],
-      az = a[2],
-      bx = b[0],
-      by = b[1],
-      bz = b[2],
-      mag1 = Math.sqrt(ax * ax + ay * ay + az * az),
-      mag2 = Math.sqrt(bx * bx + by * by + bz * bz),
-      mag = mag1 * mag2,
-      cosine = mag && dot(a, b) / mag;
-  return Math.acos(Math.min(Math.max(cosine, -1), 1));
-}
-/**
- * Returns whether or not the vectors have approximately the same elements in the same position.
- *
- * @param {ReadonlyVec3} a The first vector.
- * @param {ReadonlyVec3} b The second vector.
- * @returns {Boolean} True if the vectors are equal, false otherwise.
- */
-
-function equals(a, b) {
-  var a0 = a[0],
-      a1 = a[1],
-      a2 = a[2];
-  var b0 = b[0],
-      b1 = b[1],
-      b2 = b[2];
-  return Math.abs(a0 - b0) <= EPSILON * Math.max(1.0, Math.abs(a0), Math.abs(b0)) && Math.abs(a1 - b1) <= EPSILON * Math.max(1.0, Math.abs(a1), Math.abs(b1)) && Math.abs(a2 - b2) <= EPSILON * Math.max(1.0, Math.abs(a2), Math.abs(b2));
-}
-/**
  * Alias for {@link vec3.subtract}
  * @function
  */
@@ -2143,7 +2135,7 @@ function create$3() {
  * @returns {vec4} a new 4D vector
  */
 
-function fromValues$1(x, y, z, w) {
+function fromValues$2(x, y, z, w) {
   var out = new ARRAY_TYPE(4);
   out[0] = x;
   out[1] = y;
@@ -2465,7 +2457,7 @@ function fromMat3(out, m) {
  * @function
  */
 
-var fromValues$2 = fromValues$1;
+var fromValues$3 = fromValues$2;
 /**
  * Alias for {@link quat.multiply}
  * @function
@@ -2496,8 +2488,8 @@ var normalize$2 = normalize$1;
 
 (function () {
   var tmpvec3 = create$2();
-  var xUnitVec3 = fromValues(1, 0, 0);
-  var yUnitVec3 = fromValues(0, 1, 0);
+  var xUnitVec3 = fromValues$1(1, 0, 0);
+  var yUnitVec3 = fromValues$1(0, 1, 0);
   return function (out, a, b) {
     var dot$1 = dot(a, b);
 
@@ -2599,7 +2591,7 @@ function create$5() {
  * @returns {vec2} a new 2D vector
  */
 
-function fromValues$3(x, y) {
+function fromValues$4(x, y) {
   var out = new ARRAY_TYPE(2);
   out[0] = x;
   out[1] = y;
@@ -3023,11 +3015,11 @@ function fromValues$3(x, y) {
         if (tree.children) {
             tree.children.forEach(function (element) {
                 var nodes = Utility.getAllLeafNode(element);
-                leafNodes = __spread(leafNodes, nodes);
+                leafNodes = __spread$1(leafNodes, nodes);
             });
         }
         else {
-            leafNodes = __spread(leafNodes, tree);
+            leafNodes = __spread$1(leafNodes, tree);
         }
         return leafNodes;
     };
@@ -3067,6 +3059,66 @@ function fromValues$3(x, y) {
             console.warn("Utility.ts line 518 : matices are empty");
             return null;
         }
+    };
+    Utility.getPerpendicular = function (input) {
+        var n = create$2();
+        normalize(n, input);
+        var X = fromValues$1(1, 0, 0);
+        var Y = fromValues$1(0, 1, 0);
+        var Z = fromValues$1(0, 0, 1);
+        var dots = [dot(input, X), dot(input, Y), dot(input, Z)];
+        var minIndex = Utility.getMinIndex(dots);
+        var i = create$2();
+        var n1 = n[0];
+        var n2 = n[1];
+        var n3 = n[2];
+        switch (minIndex) {
+            case 0:
+                i = fromValues$1(1 - n1 * n1, -n1 * n2, -n1 * n3);
+                break;
+            case 1:
+                i = fromValues$1(-n1 * n2, 1 - n2 * n2, -n2 * n3);
+                break;
+            case 2:
+                i = fromValues$1(-n1 * n3, -n2 * n3, 1 - n3 * n3);
+                break;
+        }
+        return i;
+    };
+    Utility.getMinIndex = function (arr) {
+        return arr.indexOf(Math.min.apply(Math, __spread$1(arr)));
+    };
+    Utility.getOrthoAxes = function (input) {
+        var i = Utility.getPerpendicular(input);
+        var n = create$2();
+        var j = create$2();
+        normalize(n, input);
+        cross(j, n, i);
+        return {
+            x: i,
+            y: j
+        };
+    };
+    Utility.formMat4 = function (x, y, z, t) {
+        var out = create$1();
+        out[0] = x[0];
+        out[1] = x[1];
+        out[2] = x[2];
+        out[4] = y[0];
+        out[5] = y[1];
+        out[6] = y[2];
+        out[8] = z[0];
+        out[9] = z[1];
+        out[10] = z[2];
+        out[12] = t[0];
+        out[13] = t[1];
+        out[14] = t[2];
+        return out;
+    };
+    Utility.getPlaneEqnFromTransfromMat = function (transform) {
+        var n = fromValues$1(transform[8], transform[9], transform[10]);
+        var d = dot(n, fromValues$1(transform[12], transform[13], transform[14]));
+        return [n[0], n[1], n[2], -d];
     };
 })(Utility || (Utility = {}));var Texture = /** @class */ (function () {
     function Texture(name, textureType) {
@@ -3270,11 +3322,11 @@ var TextureManager = /** @class */ (function () {
     };
     Material.prototype.clone = function () {
         var m = Object.create(this);
-        m.diffuseColor = __spread(this.diffuseColor);
-        m.specularColor = __spread(this.specularColor);
-        m.ambientColor = __spread(this.ambientColor);
-        m.emissiveColor = __spread(this.emissiveColor);
-        m.userDefinedColor = __spread(this.userDefinedColor);
+        m.diffuseColor = __spread$1(this.diffuseColor);
+        m.specularColor = __spread$1(this.specularColor);
+        m.ambientColor = __spread$1(this.ambientColor);
+        m.emissiveColor = __spread$1(this.emissiveColor);
+        m.userDefinedColor = __spread$1(this.userDefinedColor);
         return m;
     };
     return Material;
@@ -3438,7 +3490,7 @@ var MaterialManager = /** @class */ (function () {
         var bufferViewIndexes = [];
         if (this.attribs) {
             var indexes = this.attribs.getBufferViewIndex(this.material ? this.material.useTexture : false);
-            bufferViewIndexes = __spread(indexes);
+            bufferViewIndexes = __spread$1(indexes);
         }
         if (this.indices && this.indices.isDataAvailable() === false) {
             var index = this.indices.getBufferViewIndex();
@@ -3732,16 +3784,16 @@ var Mesh = /** @class */ (function () {
         configurable: true
     });
     SceneNode.prototype.getUpDir = function () {
-        return fromValues(this.worldMatrix[4], this.worldMatrix[5], this.worldMatrix[6]);
+        return fromValues$1(this.worldMatrix[4], this.worldMatrix[5], this.worldMatrix[6]);
     };
     SceneNode.prototype.getFrontDir = function () {
-        return fromValues(this.worldMatrix[8], this.worldMatrix[9], this.worldMatrix[10]);
+        return fromValues$1(this.worldMatrix[8], this.worldMatrix[9], this.worldMatrix[10]);
     };
     SceneNode.prototype.getLeftDir = function () {
-        return fromValues(this.worldMatrix[0], this.worldMatrix[1], this.worldMatrix[2]);
+        return fromValues$1(this.worldMatrix[0], this.worldMatrix[1], this.worldMatrix[2]);
     };
     SceneNode.prototype.getPosition = function () {
-        return fromValues(this.worldMatrix[12], this.worldMatrix[13], this.worldMatrix[14]);
+        return fromValues$1(this.worldMatrix[12], this.worldMatrix[13], this.worldMatrix[14]);
     };
     SceneNode.prototype.rotateX = function (angle) {
         rotateX(this.worldMatrix, this.worldMatrix, angle * 3.142 / 180);
@@ -3767,10 +3819,10 @@ var Mesh = /** @class */ (function () {
         fromRotationTranslationScale(this.worldMatrix, quat, translation, scale);
     };
     SceneNode.prototype.translate = function (x, y, z) {
-        translate(this.worldMatrix, this.worldMatrix, fromValues(x, y, z));
+        translate(this.worldMatrix, this.worldMatrix, fromValues$1(x, y, z));
     };
     SceneNode.prototype.scale = function (x, y, z) {
-        scale(this.worldMatrix, this.worldMatrix, fromValues(x, y, z));
+        scale(this.worldMatrix, this.worldMatrix, fromValues$1(x, y, z));
     };
     SceneNode.prototype.setPosition = function (vec) {
         this.worldMatrix[12] = vec[0];
@@ -3961,7 +4013,7 @@ var ShapeNode = /** @class */ (function (_super) {
                 if (node.translation)
                     translate(localMatrix, localMatrix, [node.translation[0], node.translation[1], node.translation[2]]);
                 if (node.rotation) {
-                    var quad = fromValues$2(node.rotation[0], node.rotation[1], node.rotation[2], node.rotation[3]);
+                    var quad = fromValues$3(node.rotation[0], node.rotation[1], node.rotation[2], node.rotation[3]);
                     //let quad = glmatrix.quat.fromValues(0,0,0,1);
                     var axis = create$2();
                     var angleInRad = getAxisAngle(axis, quad);
@@ -4076,10 +4128,10 @@ var ShapeNode = /** @class */ (function (_super) {
         }
         if (topNode["children"]) {
             for (var i = 0; i < topNode["children"].length; i++) {
-                nodes = __spread(nodes, this.getSortedRenderableObjects(topNode["children"][i], transform));
+                nodes = __spread$1(nodes, this.getSortedRenderableObjects(topNode["children"][i], transform));
             }
         }
-        return nodes = __spread(nodes, opaque, transparent.reverse());
+        return nodes = __spread$1(nodes, opaque, transparent.reverse());
     };
     SceneGraph.prototype.traverse = function (cbk, parent, node) {
         var _this = this;
@@ -4128,18 +4180,18 @@ var ShapeNode = /** @class */ (function (_super) {
     "uUseTransparency": "uUseTransparency",
     "uTransparencyFactor": "uTransparencyFactor",
     //section unifroms
-    "uClipPlaneX": "uClipPlaneX",
-    "uClipPlaneXState": "uClipPlaneXState",
-    "uClipPlaneY": "uClipPlaneY",
-    "uClipPlaneYState": "uClipPlaneYState",
-    "uClipPlaneZ": "uClipPlaneZ",
-    "uClipPlaneZState": "uClipPlaneZState",
-    "uClipSlicePlaneX": "uClipSlicePlaneX",
-    "uClipSlicePlaneXState": "uClipSlicePlaneXState",
-    "uClipSlicePlaneY": "uClipSlicePlaneY",
-    "uClipSlicePlaneYState": "uClipSlicePlaneYState",
-    "uClipSlicePlaneZ": "uClipSlicePlaneZ",
-    "uClipSlicePlaneZState": "uClipSlicePlaneZState",
+    "uClipPlane0": "uClipPlane0",
+    "uClipPlane1": "uClipPlane1",
+    "uClipPlane2": "uClipPlane2",
+    "uClipPlane3": "uClipPlane3",
+    "uClipPlane4": "uClipPlane4",
+    "uClipPlane5": "uClipPlane5",
+    "uClipPlane0State": "uClipPlane0State",
+    "uClipPlane1State": "uClipPlane1State",
+    "uClipPlane2State": "uClipPlane2State",
+    "uClipPlane3State": "uClipPlane3State",
+    "uClipPlane4State": "uClipPlane4State",
+    "uClipPlane5State": "uClipPlane5State",
 };
 var attributes = {
     "aPosition": "aPosition",
@@ -4440,20 +4492,15 @@ var Shader = /** @class */ (function () {
         WebGLState.uniforms.set(s, data);
     };
     Shader.prototype.updateClipPlaneUniforms = function () {
-        if (AppObjects.sectionManager.primaryPlaneEqns[0] == undefined)
-            return;
-        this.setBool(uniforms.uClipPlaneXState, AppObjects.sectionManager.planeStates[0].isPlaneEnabled);
-        this.setVector4f(uniforms.uClipPlaneX, AppObjects.sectionManager.primaryPlaneEqns[0].getClipEquation());
-        this.setBool(uniforms.uClipPlaneYState, AppObjects.sectionManager.planeStates[1].isPlaneEnabled);
-        this.setVector4f(uniforms.uClipPlaneY, AppObjects.sectionManager.primaryPlaneEqns[1].getClipEquation());
-        this.setBool(uniforms.uClipPlaneZState, AppObjects.sectionManager.planeStates[2].isPlaneEnabled);
-        this.setVector4f(uniforms.uClipPlaneZ, AppObjects.sectionManager.primaryPlaneEqns[2].getClipEquation());
-        this.setBool(uniforms.uClipSlicePlaneXState, AppObjects.sectionManager.planeStates[0].isSlicePlaneEnabled);
-        this.setVector4f(uniforms.uClipSlicePlaneX, AppObjects.sectionManager.slicePlaneEqns[0].getClipEquation());
-        this.setBool(uniforms.uClipSlicePlaneYState, AppObjects.sectionManager.planeStates[1].isSlicePlaneEnabled);
-        this.setVector4f(uniforms.uClipSlicePlaneY, AppObjects.sectionManager.slicePlaneEqns[1].getClipEquation());
-        this.setBool(uniforms.uClipSlicePlaneZState, AppObjects.sectionManager.planeStates[2].isSlicePlaneEnabled);
-        this.setVector4f(uniforms.uClipSlicePlaneZ, AppObjects.sectionManager.slicePlaneEqns[2].getClipEquation());
+        var _this = this;
+        if (AppObjects.sectionManager.planeStates.size > 0) {
+            var counter_1 = 0;
+            AppObjects.sectionManager.planeStates.forEach(function (planeState) {
+                _this.setBool(uniforms['uClipPlane' + counter_1 + 'State'], planeState.isPlaneEnabled);
+                _this.setVector4f(uniforms['uClipPlane' + counter_1], planeState.eqn.getClipEquation());
+                counter_1 += 1;
+            });
+        }
     };
     //#endregion
     Shader.prototype.compileShader = function (type, shaderSource) {
@@ -4538,8 +4585,8 @@ var Shader = /** @class */ (function () {
         //Set offset
         var percent = precentOffset / 100;
         var offset = squaredDistance(min, max) * percent * percent;
-        sub(min, min, fromValues(offset, offset, offset));
-        add(max, max, fromValues(offset, offset, offset));
+        sub(min, min, fromValues$1(offset, offset, offset));
+        add(max, max, fromValues$1(offset, offset, offset));
         var vertices = new Float32Array([
             //back vertices
             min[0], min[1], min[2],
@@ -4583,8 +4630,8 @@ var Shader = /** @class */ (function () {
         this.max = max;
         var percent = precentOffset / 100;
         var offset = squaredDistance(min, max) * percent * percent;
-        sub(min, min, fromValues(offset, offset, offset));
-        add(max, max, fromValues(offset, offset, offset));
+        sub(min, min, fromValues$1(offset, offset, offset));
+        add(max, max, fromValues$1(offset, offset, offset));
         var vertices = new Float32Array([
             //back vertices
             min[0], min[1], min[2],
@@ -4724,7 +4771,7 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
             var _a;
             if (child.type === AppConstants.NodeType.SHAPE && child.index === adjacentNodeId) {
                 if (parent) {
-                    (_a = parent.children).push.apply(_a, __spread(nodes));
+                    (_a = parent.children).push.apply(_a, __spread$1(nodes));
                 }
                 else {
                     console.warn("cannot add node to parent of null");
@@ -5046,27 +5093,25 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         else
             AppState.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
     };
-    Scene.prototype.getBoundingBox = function () {
-        if (this.bbox == null) {
-            return this.updateBBox();
-        }
-        else {
-            return this.bbox;
-        }
+    Scene.prototype.getBoundingBox = function (onlyVisible) {
+        if (onlyVisible === void 0) { onlyVisible = true; }
+        return this.updateBBox(onlyVisible);
     };
     Scene.getBoundingBoxFromNodes = function (nodes) {
         var bbox = new BoundingBox();
         return Scene.calculateBBox(nodes, bbox);
     };
-    Scene.calculateBBox = function (nodes, bbox) {
+    Scene.calculateBBox = function (nodes, bbox, onlyVisible) {
+        if (onlyVisible === void 0) { onlyVisible = true; }
         if (nodes) {
             nodes.forEach(function (node) {
                 var _a;
-                if (node.visible === true) {
+                var goInside = onlyVisible ? node.visible : true;
+                if (goInside) {
                     if (node.attributes && node.attributes.bbox) {
                         var nodeMin = void 0;
                         var nodeMax = void 0;
-                        _a = __read(node.getBBoxMinMax(), 2), nodeMin = _a[0], nodeMax = _a[1];
+                        _a = __read$1(node.getBBoxMinMax(), 2), nodeMin = _a[0], nodeMax = _a[1];
                         if (bbox.isDefault == true) {
                             bbox.Min.x = nodeMin[0];
                             bbox.Min.y = nodeMin[1];
@@ -5153,10 +5198,11 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         }
         return bbox;
     };
-    Scene.prototype.updateBBox = function () {
+    Scene.prototype.updateBBox = function (onlyVisible) {
+        if (onlyVisible === void 0) { onlyVisible = true; }
         var bbox = new BoundingBox();
         var nodes = this.renderableNodes;
-        this.bbox = Scene.calculateBBox(nodes, bbox);
+        this.bbox = Scene.calculateBBox(nodes, bbox, onlyVisible);
         return this.bbox;
     };
     Scene.prototype.applyResult = function (scene) {
@@ -5297,10 +5343,10 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
                                 var bboxmin = node.attributes.bbox.min;
                                 var box = SceneNode_1.mesh.subMeshes['bbox'];
                                 if (box === undefined || null) {
-                                    box = new BoxMesh(node.name + '_boundingbox', fromValues(bboxmin[0], bboxmin[1], bboxmin[2]), fromValues(bboxmax[0], bboxmax[1], bboxmax[2]), 0.5);
+                                    box = new BoxMesh(node.name + '_boundingbox', fromValues$1(bboxmin[0], bboxmin[1], bboxmin[2]), fromValues$1(bboxmax[0], bboxmax[1], bboxmax[2]), 0.5);
                                 }
                                 else {
-                                    box.updateBBox(fromValues(bboxmin[0], bboxmin[1], bboxmin[2]), fromValues(bboxmax[0], bboxmax[1], bboxmax[2]), 0.5);
+                                    box.updateBBox(fromValues$1(bboxmin[0], bboxmin[1], bboxmin[2]), fromValues$1(bboxmax[0], bboxmax[1], bboxmax[2]), 0.5);
                                 }
                             }
                         }
@@ -5472,10 +5518,11 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
     SceneManager.prototype.isReady = function () {
         return true;
     };
-    SceneManager.prototype.getBoundingBox = function () {
+    SceneManager.prototype.getBoundingBox = function (onlyVisible) {
+        if (onlyVisible === void 0) { onlyVisible = true; }
         var BBox = new BoundingBox();
         this.scenes.forEach(function (scene) {
-            var bbox = scene.getBoundingBox();
+            var bbox = scene.getBoundingBox(onlyVisible);
             if (bbox) {
                 if (BBox.isDefault) {
                     BBox = bbox;
@@ -5539,7 +5586,7 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         if (this.scenes instanceof Array)
             this.scenes.forEach(function (scene) {
                 //nodes.push(scene.getRenderableObjects());
-                nodes = nodes.concat.apply(nodes, __spread(scene.getRenderableObjects()));
+                nodes = nodes.concat.apply(nodes, __spread$1(scene.getRenderableObjects()));
             });
         return nodes;
     };
@@ -5577,7 +5624,7 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
             if (root.children) {
                 for (var index = 0; index < root.children.length; index++) {
                     var e = root.children[index];
-                    (_a = sceneGraph.children).push.apply(_a, __spread(this.getSceneGraphJSON(e)));
+                    (_a = sceneGraph.children).push.apply(_a, __spread$1(this.getSceneGraphJSON(e)));
                 }
             }
             else {
@@ -5588,7 +5635,7 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
                 nodeArray.push(this);
                 if (this.children && this.children.length > 0) {
                     this.children.forEach(function (element) {
-                        nodeArray.push.apply(nodeArray, __spread(element.getAllNodes()));
+                        nodeArray.push.apply(nodeArray, __spread$1(element.getAllNodes()));
                     });
                 }
                 return nodeArray;
@@ -5604,7 +5651,7 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
     };
     return SceneManager;
 }());var MainVertexShader = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 aPosition;in vec3 aNormal;in vec2 aUV;in vec3 aColor;uniform mat4 uProjectionMatrix;uniform mat4 uModelViewMatrix;uniform mat4 uNormalMatrix;uniform vec3 uColor;out highp vec2 vUV;out highp vec4 vPositionWorldSpace;out highp vec3 vNormal;void main(void){gl_PointSize=3.0;vUV=aUV;vec4 positionWorldSpace=uModelViewMatrix*vec4(aPosition,1.0);vPositionWorldSpace=positionWorldSpace;vNormal=(uNormalMatrix*vec4(aNormal,0.0)).xyz;gl_Position=uProjectionMatrix*positionWorldSpace;}"; // eslint-disable-line
-var MainFragmentShader = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nuniform highp mat4 uProjectionMatrix;uniform highp mat4 uModelViewMatrix;uniform highp mat4 uNormalMatrix;uniform highp vec3 uCameraPosition;uniform vec3 uColor;uniform sampler2D uTexture_0;uniform highp float uUseTexture;uniform highp vec3 uLightDirection;uniform highp float uUnlit;uniform highp float uDisplayMode;uniform highp float uUseTransparency;uniform highp float uTransparencyFactor;uniform highp vec4 uClipPlaneX;uniform highp float uClipPlaneXState;uniform highp vec4 uClipPlaneY;uniform highp float uClipPlaneYState;uniform highp vec4 uClipPlaneZ;uniform highp float uClipPlaneZState;uniform highp vec4 uClipSlicePlaneX;uniform highp float uClipSlicePlaneXState;uniform highp vec4 uClipSlicePlaneY;uniform highp float uClipSlicePlaneYState;uniform highp vec4 uClipSlicePlaneZ;uniform highp float uClipSlicePlaneZState;uniform highp float uBoundRadius;in highp vec2 vUV;in highp vec4 vPositionWorldSpace;in highp vec3 vNormal;out highp vec4 outColor;void updateClipPlane(float planeState,float slicePlaneState,vec4 clipPlane,vec4 slicePlane,float OutlinePercent){if(planeState==1.0){if(slicePlaneState==1.0){if(dot(vPositionWorldSpace,slicePlane)<0.0||dot(vPositionWorldSpace,clipPlane)<0.0){discard;}else if(abs(dot(vPositionWorldSpace,slicePlane))<uBoundRadius*OutlinePercent||abs(dot(vPositionWorldSpace,clipPlane))<uBoundRadius*OutlinePercent){outColor=vec4(1.0,0.0,0.0,1.0);}}else{if(dot(vPositionWorldSpace,clipPlane)<0.0){discard;}else if(abs(dot(vPositionWorldSpace,clipPlane))<uBoundRadius*OutlinePercent){outColor=vec4(1.0,0.0,0.0,1.0);}}}}void updateClipPlanes(float OutlinePercent){updateClipPlane(uClipPlaneXState,uClipSlicePlaneXState,uClipPlaneX,uClipSlicePlaneX,OutlinePercent);updateClipPlane(uClipPlaneYState,uClipSlicePlaneYState,uClipPlaneY,uClipSlicePlaneY,OutlinePercent);updateClipPlane(uClipPlaneZState,uClipSlicePlaneZState,uClipPlaneZ,uClipSlicePlaneZ,OutlinePercent);}void main(void){highp float diffuseFactor=1.0;highp vec3 diffuseColor=(1.0-uUseTexture)*uColor.xyz+uUseTexture*texture(uTexture_0,vUV).xyz;if(uUnlit!=1.0){highp vec3 fdx=vec3(dFdx(vPositionWorldSpace.x),dFdx(vPositionWorldSpace.y),dFdx(vPositionWorldSpace.z));highp vec3 fdy=vec3(dFdy(vPositionWorldSpace.x),dFdy(vPositionWorldSpace.y),dFdy(vPositionWorldSpace.z));highp vec3 nNormal=normalize(cross(fdx,fdy));highp vec3 nLightDirection=normalize(uLightDirection);diffuseFactor=dot(nLightDirection,nNormal)*0.5;diffuseFactor=max(0.0,diffuseFactor+max(0.0,dot(normalize(uCameraPosition.xyz-vPositionWorldSpace.xyz),nNormal))*1.0);diffuseFactor=clamp(diffuseFactor,0.0,1.0);}else if(uDisplayMode==1.0){diffuseColor-=vec3(0.1);}if(uUseTransparency==1.0){outColor.rgb=diffuseColor.rgb*diffuseFactor*uTransparencyFactor;outColor.w=uTransparencyFactor;}else{outColor=vec4((diffuseColor*diffuseFactor),1.0);}updateClipPlanes(0.008);}"; // eslint-disable-line
+var MainFragmentShader = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nuniform highp mat4 uProjectionMatrix;uniform highp mat4 uModelViewMatrix;uniform highp mat4 uNormalMatrix;uniform highp vec3 uCameraPosition;uniform vec3 uColor;uniform sampler2D uTexture_0;uniform highp float uUseTexture;uniform highp vec3 uLightDirection;uniform highp float uUnlit;uniform highp float uDisplayMode;uniform highp float uUseTransparency;uniform highp float uTransparencyFactor;uniform highp vec4 uClipPlane0;uniform highp vec4 uClipPlane1;uniform highp vec4 uClipPlane2;uniform highp vec4 uClipPlane3;uniform highp vec4 uClipPlane4;uniform highp vec4 uClipPlane5;uniform highp float uClipPlane0State;uniform highp float uClipPlane1State;uniform highp float uClipPlane2State;uniform highp float uClipPlane3State;uniform highp float uClipPlane4State;uniform highp float uClipPlane5State;uniform highp float uBoundRadius;in highp vec2 vUV;in highp vec4 vPositionWorldSpace;in highp vec3 vNormal;out highp vec4 outColor;void updateClipPlane(float planeState,vec4 clipPlane,float OutlinePercent){if(planeState==1.0){if(dot(vPositionWorldSpace,clipPlane)<0.0){discard;}else if(abs(dot(vPositionWorldSpace,clipPlane))<uBoundRadius*OutlinePercent){outColor=vec4(1.0,0.0,0.0,1.0);}}}void updateClipPlanes(float OutlinePercent){updateClipPlane(uClipPlane0State,uClipPlane0,OutlinePercent);updateClipPlane(uClipPlane1State,uClipPlane1,OutlinePercent);updateClipPlane(uClipPlane2State,uClipPlane2,OutlinePercent);updateClipPlane(uClipPlane3State,uClipPlane3,OutlinePercent);updateClipPlane(uClipPlane4State,uClipPlane4,OutlinePercent);updateClipPlane(uClipPlane5State,uClipPlane5,OutlinePercent);}void main(void){highp float diffuseFactor=1.0;highp vec3 diffuseColor=(1.0-uUseTexture)*uColor.xyz+uUseTexture*texture(uTexture_0,vUV).xyz;if(uUnlit!=1.0){highp vec3 fdx=vec3(dFdx(vPositionWorldSpace.x),dFdx(vPositionWorldSpace.y),dFdx(vPositionWorldSpace.z));highp vec3 fdy=vec3(dFdy(vPositionWorldSpace.x),dFdy(vPositionWorldSpace.y),dFdy(vPositionWorldSpace.z));highp vec3 nNormal=normalize(cross(fdx,fdy));highp vec3 nLightDirection=normalize(uLightDirection);diffuseFactor=dot(nLightDirection,nNormal)*0.5;diffuseFactor=max(0.0,diffuseFactor+max(0.0,dot(normalize(uCameraPosition.xyz-vPositionWorldSpace.xyz),nNormal))*1.0);diffuseFactor=clamp(diffuseFactor,0.0,1.0);}else if(uDisplayMode==1.0){diffuseColor-=vec3(0.1);}if(uUseTransparency==1.0){outColor.rgb=diffuseColor.rgb*diffuseFactor*uTransparencyFactor;outColor.w=uTransparencyFactor;}else{outColor=vec4((diffuseColor*diffuseFactor),1.0);}updateClipPlanes(0.008);}"; // eslint-disable-line
 var MathUtils;
 (function (MathUtils) {
     function getArcballVector(x, y, canvas) {
@@ -5690,13 +5737,13 @@ var MathUtils;
         worldMatrix[14] += trans[2];
     }
     MathUtils.translateOnWorld = translateOnWorld;
-    function getUpVector(matrix) { return fromValues(matrix[4], matrix[5], matrix[6]); }
+    function getUpVector(matrix) { return fromValues$1(matrix[4], matrix[5], matrix[6]); }
     MathUtils.getUpVector = getUpVector;
-    function getRightVector(matrix) { return fromValues(matrix[0], matrix[1], matrix[2]); }
+    function getRightVector(matrix) { return fromValues$1(matrix[0], matrix[1], matrix[2]); }
     MathUtils.getRightVector = getRightVector;
-    function getDirVector(matrix) { return fromValues(matrix[8], matrix[9], matrix[10]); }
+    function getDirVector(matrix) { return fromValues$1(matrix[8], matrix[9], matrix[10]); }
     MathUtils.getDirVector = getDirVector;
-    function getPositionVector(matrix) { return fromValues(matrix[12], matrix[13], matrix[14]); }
+    function getPositionVector(matrix) { return fromValues$1(matrix[12], matrix[13], matrix[14]); }
     MathUtils.getPositionVector = getPositionVector;
     function getPerpendicular(v) {
         var perpendicular = create$2();
@@ -5846,19 +5893,19 @@ var CameraControl = /** @class */ (function (_super) {
         };
         _this.perspCamera = new PerspCamera();
         _this.orthCamera = new OrthCamera();
+        AppObjects.externalEventDispatcher.addEventListener('MODEL_LOADED', _this.onSceneLoad.bind(_this));
         _this.update();
         return _this;
     }
     CameraControl.prototype.onSceneLoad = function () {
-        this.sceneBoundingBox = AppObjects.sceneManager.updateBBox();
+        this.sceneBoundingBox = AppObjects.sceneManager.getBoundingBox(false);
         var radius = this.sceneBoundingBox.getRadius();
         this.orthoParams.zDist = (radius / (Math.tan((this.perspParams.fov / 2.0) * 0.01745329251)));
         this.resetPosition();
-        //this.fitView();
     };
     CameraControl.prototype.resetPosition = function () {
         this.moveToCenter();
-        var translate$1 = fromValues(0, 0, 0);
+        var translate$1 = fromValues$1(0, 0, 0);
         var radius = this.sceneBoundingBox.getRadius();
         var zPos = (radius / (Math.tan((this.perspParams.fov / 2.0) * 0.01745329251)));
         translate$1[2] = -zPos;
@@ -5895,7 +5942,7 @@ var CameraControl = /** @class */ (function (_super) {
         /* Map x and y to window coordinates */
         point2D[0] = Math.round((point2D[0] * viewportArray[2]) + viewportArray[0]);
         point2D[1] = Math.round(widthHeight[1] - ((point2D[1] * viewportArray[3]) + viewportArray[1]));
-        return fromValues(point2D[0], point2D[1], point2D[2]);
+        return fromValues$1(point2D[0], point2D[1], point2D[2]);
     };
     CameraControl.prototype.unproject = function (point2DArray, NewMVMatrix, widthHeight, cameraMat) {
         //console.log(point2DArray);  
@@ -5926,7 +5973,7 @@ var CameraControl = /** @class */ (function (_super) {
         point3D[0] = (point3D[0] / point3D[3]);
         point3D[1] = (point3D[1] / point3D[3]);
         point3D[2] = (point3D[2] / point3D[3]);
-        return fromValues(point3D[0], point3D[1], point3D[2]);
+        return fromValues$1(point3D[0], point3D[1], point3D[2]);
     };
     CameraControl.prototype.setRotationPoint = function (v) {
         this.params.pointOfRotation = v;
@@ -5942,10 +5989,10 @@ var CameraControl = /** @class */ (function (_super) {
     CameraControl.prototype.getPosition = function (type) {
         if (type === void 0) { type = this.camType; }
         var cameraMatrix = this.getCameraMatrix(type);
-        var camPos = fromValues$1(0, 0, 0, 1);
+        var camPos = fromValues$2(0, 0, 0, 1);
         invert(cameraMatrix, cameraMatrix);
         transformMat4$1(camPos, camPos, cameraMatrix);
-        return fromValues(camPos[0], camPos[1], camPos[2]);
+        return fromValues$1(camPos[0], camPos[1], camPos[2]);
     };
     CameraControl.prototype.getGLMatrix = function () {
         return (this.camType === CameraType.Perspective) ? this.perspCamera.projectionViewMatrix : this.orthCamera.projectionViewMatrix;
@@ -5958,22 +6005,22 @@ var CameraControl = /** @class */ (function (_super) {
         var angle = rotationObject.angle * this.params.rotationSensitivity;
         var axis_in_object_coord = create$3();
         var axis_in_object_coord_ortho = create$3();
-        var axis_in_camera_coord = fromValues$1(rotationObject.axis_in_camera_coord[0], rotationObject.axis_in_camera_coord[1], rotationObject.axis_in_camera_coord[2], 0);
+        var axis_in_camera_coord = fromValues$2(rotationObject.axis_in_camera_coord[0], rotationObject.axis_in_camera_coord[1], rotationObject.axis_in_camera_coord[2], 0);
         var camera2object = create$1();
         var camera2objectOrtho = create$1();
         multiply(camera2object, camera2object, this.perspCamera.camMatrix);
         multiply(camera2objectOrtho, camera2objectOrtho, this.orthCamera.camMatrix);
         invert(camera2object, camera2object);
         invert(camera2objectOrtho, camera2objectOrtho);
-        var rotationPoint = fromValues(-0, -0, -0);
+        var rotationPoint = fromValues$1(-0, -0, -0);
         rotationPoint = (this.params.pointOfRotation != null ? clone$1(this.params.pointOfRotation) : this.sceneBoundingBox.getCenter());
         transformMat4$1(axis_in_object_coord, axis_in_camera_coord, camera2object);
         transformMat4$1(axis_in_object_coord_ortho, axis_in_camera_coord, camera2objectOrtho);
         translate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, rotationPoint);
-        rotate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, angle, fromValues(axis_in_object_coord[0], axis_in_object_coord[1], axis_in_object_coord[2]));
+        rotate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, angle, fromValues$1(axis_in_object_coord[0], axis_in_object_coord[1], axis_in_object_coord[2]));
         translate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, negate(rotationPoint, rotationPoint));
         translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, negate(rotationPoint, rotationPoint));
-        rotate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, angle, fromValues(axis_in_object_coord_ortho[0], axis_in_object_coord_ortho[1], axis_in_object_coord_ortho[2]));
+        rotate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, angle, fromValues$1(axis_in_object_coord_ortho[0], axis_in_object_coord_ortho[1], axis_in_object_coord_ortho[2]));
         translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, negate(rotationPoint, rotationPoint));
         AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.CAMERA_MOVED, data: { camType: this.camType } });
     };
@@ -5991,7 +6038,7 @@ var CameraControl = /** @class */ (function (_super) {
             var point3d22 = this.unproject([newMouseX, newMouseY, 1], mvMatrix, [this.canvas.width, this.canvas.height], camMatrix); // 1 means far plane
             if (point3d11 == null || point3d22 == null)
                 return;
-            var cameraPosition = fromValues$1(0, 0, 0, 1);
+            var cameraPosition = fromValues$2(0, 0, 0, 1);
             var CameraMatrix = this.getCameraMatrix(CameraType.Perspective);
             invert(CameraMatrix, CameraMatrix);
             transformMat4$1(cameraPosition, cameraPosition, CameraMatrix);
@@ -6002,8 +6049,8 @@ var CameraControl = /** @class */ (function (_super) {
             normalize(ray1, ray1);
             normalize(ray2, ray2);
             var angle = Math.acos(Math.min(1.0, dot(ray1, ray2)));
-            var right = fromValues(CameraMatrix[0], CameraMatrix[1], CameraMatrix[2]);
-            var up = fromValues(CameraMatrix[4], CameraMatrix[5], CameraMatrix[6]);
+            var right = fromValues$1(CameraMatrix[0], CameraMatrix[1], CameraMatrix[2]);
+            var up = fromValues$1(CameraMatrix[4], CameraMatrix[5], CameraMatrix[6]);
             normalize(up, up);
             normalize(right, right);
             var v1 = create$2();
@@ -6014,7 +6061,7 @@ var CameraControl = /** @class */ (function (_super) {
             add(axis_in_camera_coord, v1, v2);
             negate(axis_in_camera_coord, axis_in_camera_coord);
             normalize(axis_in_camera_coord, axis_in_camera_coord);
-            var rotationPoint = fromValues(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+            var rotationPoint = fromValues$1(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
             translate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, rotationPoint);
             rotate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, angle, axis_in_camera_coord);
             translate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, negate(rotationPoint, rotationPoint));
@@ -6029,7 +6076,7 @@ var CameraControl = /** @class */ (function (_super) {
             var _orthoWindowHeight = (x * 2 / this.perspParams.aspect) * this.orthoParams.orthoZoomFactor;
             this.translation[0] = (_orthoWindowWidth * deltaX) / width;
             this.translation[1] = (_orthoWindowHeight * deltaY) / height;
-            var trans = fromValues(this.translation[0], this.translation[1], 0);
+            var trans = fromValues$1(this.translation[0], this.translation[1], 0);
             translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, trans);
             AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.CAMERA_MOVED, data: { camType: this.camType } });
         }
@@ -6128,7 +6175,7 @@ var CameraControl = /** @class */ (function (_super) {
             var fYDelta = -iY * fYStep / iHeight;
             this.translation[0] = -fXDelta;
             this.translation[1] = -fYDelta;
-            translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, fromValues(this.translation[0], this.translation[1], 0));
+            translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, fromValues$1(this.translation[0], this.translation[1], 0));
         }
         if (this.orthoParams.orthoZoomFactor < 0 && this.orthoParams.orthoZoomFactor < 1000)
             this.orthoParams.orthoZoomFactor = orthoZoomFactorOld;
@@ -6180,7 +6227,7 @@ var CameraControl = /** @class */ (function (_super) {
             var fYDelta = -iY * fYStep / iHeight;
             this.translation[0] = -fXDelta;
             this.translation[1] = -fYDelta;
-            translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, fromValues(this.translation[0], this.translation[1], 0));
+            translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, fromValues$1(this.translation[0], this.translation[1], 0));
         }
         if (this.orthoParams.orthoZoomFactor < 0 && this.orthoParams.orthoZoomFactor < 1000)
             this.orthoParams.orthoZoomFactor = orthoZoomFactorOld;
@@ -6358,17 +6405,17 @@ var CameraControl = /** @class */ (function (_super) {
     CameraControl.prototype.getUpDir = function (type) {
         if (type === void 0) { type = this.camType; }
         var invMat = this.getInverseCameraMatrix(type);
-        return fromValues(invMat[4], invMat[5], invMat[6]);
+        return fromValues$1(invMat[4], invMat[5], invMat[6]);
     };
     CameraControl.prototype.getFrontDir = function (type) {
         if (type === void 0) { type = this.camType; }
         var invMat = this.getInverseCameraMatrix(type);
-        return fromValues(invMat[8], invMat[9], invMat[10]);
+        return fromValues$1(invMat[8], invMat[9], invMat[10]);
     };
     CameraControl.prototype.getLeftDir = function (type) {
         if (type === void 0) { type = this.camType; }
         var invMat = this.getInverseCameraMatrix(type);
-        return fromValues(invMat[0], invMat[1], invMat[2]);
+        return fromValues$1(invMat[0], invMat[1], invMat[2]);
     };
     CameraControl.prototype.fitView = function (bbox) {
         if (bbox === void 0) { bbox = null; }
@@ -6397,7 +6444,7 @@ var CameraControl = /** @class */ (function (_super) {
         var distance = create$2();
         distance = sub(distance, boundingBox.getCenter(), MathUtils.getPositionVector(camMatrixPersp));
         translate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, negate(distance, distance));
-        fromValues(0, 0, -zPos);
+        fromValues$1(0, 0, -zPos);
         //glmatrix.mat4.translate(this.perspCamera.camMatrix,this.perspCamera.camMatrix,trans);
         this.perspCamera.camMatrix[14] += -zPos;
         this.orthCamera.camMatrix = clone(this.perspCamera.camMatrix);
@@ -6445,7 +6492,7 @@ var CameraControl = /** @class */ (function (_super) {
             var maxV = -100000000000;
             var maxD = -100000000000;
             for (var i = 0; i < 8; i++) {
-                var pt = fromValues(corners[i][0], corners[i][1], corners[i][2]);
+                var pt = fromValues$1(corners[i][0], corners[i][1], corners[i][2]);
                 sub(pt, pt, bbCenter);
                 var x = dot(right, pt);
                 var y = dot(up, pt);
@@ -6463,7 +6510,7 @@ var CameraControl = /** @class */ (function (_super) {
                 if (maxD < z)
                     maxD = z;
             }
-            var dimension = fromValues(maxH - minH, maxV - minV, maxD - minD);
+            var dimension = fromValues$1(maxH - minH, maxV - minV, maxD - minD);
             return dimension;
         }
         catch (e) {
@@ -6930,7 +6977,7 @@ var Renderer2D = /** @class */ (function () {
         if (color === void 0) { color = [0, 0, 0, 1]; }
         var _this = _super.call(this, name) || this;
         _this.mesh = new Mesh("axisMesh");
-        _this.mesh.mainMesh = new ArrowMesh("axis", fromValues$1(color[0], color[1], color[2], color[3]));
+        _this.mesh.mainMesh = new ArrowMesh("axis", fromValues$2(color[0], color[1], color[2], color[3]));
         _this.visible = false;
         return _this;
     }
@@ -6942,10 +6989,10 @@ var Renderer2D = /** @class */ (function () {
         _this.x = new Arrow3D("x " + name, [1, 0, 0, 1]);
         _this.y = new Arrow3D("y" + name, [0, 1, 0, 1]);
         _this.z = new Arrow3D("z" + name, [0, 0, 1, 1]);
-        _this.x.rotateOnWorldAxis(-90 * Math.PI / 180, fromValues(0, 0, 1));
+        _this.x.rotateOnWorldAxis(-90 * Math.PI / 180, fromValues$1(0, 0, 1));
         _this.addChild(_this.x);
         _this.addChild(_this.y);
-        _this.z.rotateOnWorldAxis(90 * Math.PI / 180, fromValues(1, 0, 0));
+        _this.z.rotateOnWorldAxis(90 * Math.PI / 180, fromValues$1(1, 0, 0));
         _this.addChild(_this.z);
         _this.visible = false;
         _this.scale(0.5, 0.5, 0.5);
@@ -6957,7 +7004,7 @@ var Renderer2D = /** @class */ (function () {
         this.buffer = AppState.GLContext.createFramebuffer();
         this.width = width;
         this.height = height;
-        this.viewport = fromValues$1(0, 0, width, height);
+        this.viewport = fromValues$2(0, 0, width, height);
         this.options = options || {};
         this.texture = new Texture('RenderTargetTexture');
         this.depthTexture = new Texture('RenderTargetDepthTexture');
@@ -7010,7 +7057,7 @@ var Renderer2D = /** @class */ (function () {
             this.height = height;
             //this.dispose();
         }
-        this.viewport = fromValues$1(0, 0, width, height);
+        this.viewport = fromValues$2(0, 0, width, height);
     };
     return WebGLRenderTarget;
 }());var Renderer = /** @class */ (function () {
@@ -7235,8 +7282,8 @@ var Renderer2D = /** @class */ (function () {
             trans[12] = objPos[0];
             trans[13] = objPos[1];
             trans[14] = objPos[2];
-            var rot = Utility.getAvgRot(__spread(this.highlightedNodes.values()).map(function (node) { return node.worldMatrix; }));
-            fromScaling(scale, fromValues(scaleToFit, scaleToFit, scaleToFit));
+            var rot = Utility.getAvgRot(__spread$1(this.highlightedNodes.values()).map(function (node) { return node.worldMatrix; }));
+            fromScaling(scale, fromValues$1(scaleToFit, scaleToFit, scaleToFit));
             var shader_1 = this.mainShader;
             var model_1 = create$1();
             mul(model_1, model_1, trans);
@@ -7254,7 +7301,7 @@ var Renderer2D = /** @class */ (function () {
     Renderer.prototype.readPixels = function (x, y) {
         var data = new Uint8Array(4);
         this.GLContext.readPixels(x, y, 1, 1, this.GLContext.RGBA, this.GLContext.UNSIGNED_BYTE, data);
-        return fromValues(data[0], data[1], data[2]);
+        return fromValues$1(data[0], data[1], data[2]);
     };
     Renderer.prototype.startRenderLoop = function () {
         this.showFps();
@@ -10406,14 +10453,14 @@ var MouseControl = /** @class */ (function (_super) {
         event = event || window.event;
         this.mouseDown = KeyState.DOWN;
         this.mouseButtonPressed = (event.keyCode || event.which);
-        var mouse = fromValues$3(event.clientX, event.clientY);
+        var mouse = fromValues$4(event.clientX, event.clientY);
         var contatinerPos = MathUtils.getContainerBox(this.container);
         var containerTop = contatinerPos[0];
         var containerLeft = contatinerPos[1];
         this.lastMouseX = mouse[0] - containerLeft;
         this.lastMouseY = mouse[1] - containerTop;
         if (this.mouseButtonPressed == 1) {
-            fromValues$3(this.lastMouseX, (contatinerPos[2] - containerTop) - this.lastMouseY);
+            fromValues$4(this.lastMouseX, (contatinerPos[2] - containerTop) - this.lastMouseY);
             AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.DBL_CLICK, message: event });
             //let triangle = AppObjects.picker.probePart();
             //AppObjects.picker.highlightPart();
@@ -10425,7 +10472,7 @@ var MouseControl = /** @class */ (function (_super) {
         event = event || window.event; //window.event for IE
         this.mouseDown = KeyState.DOWN;
         this.mouseButtonPressed = (event.keyCode || event.which);
-        var mouse = fromValues$3(event.clientX, event.clientY);
+        var mouse = fromValues$4(event.clientX, event.clientY);
         var contatinerPos = MathUtils.getContainerBox(this.container);
         var containerTop = contatinerPos[0];
         var containerLeft = contatinerPos[1];
@@ -10449,7 +10496,7 @@ var MouseControl = /** @class */ (function (_super) {
             //  let rotationPoint = (hit && hit['hitPoint'])?hit['hitPoint']:undefined;
             var rotationPoint = undefined;
             if (rotationPoint !== undefined && _altKeyPressed == true) {
-                this.camControls.setRotationPoint(fromValues(rotationPoint[0], rotationPoint[1], rotationPoint[2]));
+                this.camControls.setRotationPoint(fromValues$1(rotationPoint[0], rotationPoint[1], rotationPoint[2]));
                 //visualize point
                 if (!this.rotationPointNode) {
                     this.rotationPointNode = this.getPointMesh('rotationPoint', rotationPoint);
@@ -10572,7 +10619,7 @@ var Triangle = /** @class */ (function () {
         this.v3 = v3;
     }
     Triangle.prototype.data = function () {
-        return new Float32Array(__spread(this.v1.values(), this.v2.values(), this.v3.values()));
+        return new Float32Array(__spread$1(this.v1.values(), this.v2.values(), this.v3.values()));
     };
     Triangle.prototype.transformCopy = function (data) {
         var a = create$2();
@@ -10591,7 +10638,7 @@ var Line = /** @class */ (function () {
         this.v2 = v2;
     }
     Line.prototype.data = function () {
-        return new Float32Array(__spread(this.v1.values(), this.v2.values()));
+        return new Float32Array(__spread$1(this.v1.values(), this.v2.values()));
     };
     Line.prototype.transformCopy = function (data) {
         var a = create$2();
@@ -10607,7 +10654,7 @@ var Point = /** @class */ (function () {
         this.v1 = v1;
     }
     Point.prototype.data = function () {
-        return new Float32Array(__spread(this.v1.values()));
+        return new Float32Array(__spread$1(this.v1.values()));
     };
     Point.prototype.transformCopy = function (data) {
         var a = create$2();
@@ -10633,8 +10680,8 @@ var Point = /** @class */ (function () {
         //Set offset
         var percent = precentOffset / 100;
         var offset = squaredDistance(this.p1, this.p2) * percent * percent;
-        sub(this.p1, this.p1, fromValues(offset, offset, offset));
-        add(this.p2, this.p2, fromValues(offset, offset, offset));
+        sub(this.p1, this.p1, fromValues$1(offset, offset, offset));
+        add(this.p2, this.p2, fromValues$1(offset, offset, offset));
         var vertices = new Float32Array([
             this.p1[0], this.p1[1], this.p1[2],
             this.p2[0], this.p2[1], this.p2[2],
@@ -10655,7 +10702,7 @@ var Point = /** @class */ (function () {
         return index;
     };
     LineMesh.prototype.update = function (p1, p2) {
-        this.attribs.position.updateData(new Float32Array(__spread(p1, p2)).buffer);
+        this.attribs.position.updateData(new Float32Array(__spread$1(p1, p2)).buffer);
     };
     return LineMesh;
 }(CoreMesh));var Picker = /** @class */ (function () {
@@ -10738,7 +10785,7 @@ var Point = /** @class */ (function () {
             for (var i = 0; i < vertexSize; i++) {
                 newPosition.push(positionArray[index * vertexSize + i]);
             }
-            newColor.push.apply(newColor, __spread(_this.getColorFromIndex(Math.floor((vertexCount++) / primitiveSize) + 1)));
+            newColor.push.apply(newColor, __spread$1(_this.getColorFromIndex(Math.floor((vertexCount++) / primitiveSize) + 1)));
         });
         attribs.position = new WebGLArrayBuffer('probePos', BufferUsage.STATIC_DRAW, new Float32Array(newPosition));
         attribs.color = new WebGLArrayBuffer('probeColor', BufferUsage.STATIC_DRAW, new Float32Array(newColor));
@@ -10775,32 +10822,32 @@ var Point = /** @class */ (function () {
         var v1Index = indices[indicesId];
         //get ray from camera
         var cam = AppObjects.mouseControl.camControls;
-        var nearPoint = cam.unproject(__spread(mouseData.xyFromTop, [0]), create$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
-        var farPoint = cam.unproject(__spread(mouseData.xyFromTop, [1]), create$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
+        var nearPoint = cam.unproject(__spread$1(mouseData.xyFromTop, [0]), create$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
+        var farPoint = cam.unproject(__spread$1(mouseData.xyFromTop, [1]), create$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
         var transPrimitive = null;
         if (primitiveSize == 3) {
-            primitivePos = new Triangle(fromValues(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]), fromValues(newPosition[primitiveId * vertexSize * primitiveSize + 3], newPosition[primitiveId * vertexSize * primitiveSize + 4], newPosition[primitiveId * vertexSize * primitiveSize + 5]), fromValues(newPosition[primitiveId * vertexSize * primitiveSize + 6], newPosition[primitiveId * vertexSize * primitiveSize + 7], newPosition[primitiveId * vertexSize * primitiveSize + 8]));
+            primitivePos = new Triangle(fromValues$1(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]), fromValues$1(newPosition[primitiveId * vertexSize * primitiveSize + 3], newPosition[primitiveId * vertexSize * primitiveSize + 4], newPosition[primitiveId * vertexSize * primitiveSize + 5]), fromValues$1(newPosition[primitiveId * vertexSize * primitiveSize + 6], newPosition[primitiveId * vertexSize * primitiveSize + 7], newPosition[primitiveId * vertexSize * primitiveSize + 8]));
             console.log("using vertex ", primitivePos);
             transPrimitive = primitivePos.transformCopy(this.selectNode.worldMatrix);
             out = this.intersectTriangle(nearPoint, farPoint, transPrimitive);
             //For testing only
             var v2Index = indices[indicesId + 1];
             var v3Index = indices[indicesId + 2];
-            var triangleFromIndices = new Triangle(fromValues(positionArray[v1Index * vertexSize], positionArray[v1Index * vertexSize + 1], positionArray[v1Index * vertexSize + 2]), fromValues(positionArray[v2Index * vertexSize], positionArray[v2Index * vertexSize + 1], positionArray[v2Index * vertexSize + 2]), fromValues(positionArray[v3Index * vertexSize], positionArray[v3Index * vertexSize + 1], positionArray[v3Index * vertexSize + 2]));
+            var triangleFromIndices = new Triangle(fromValues$1(positionArray[v1Index * vertexSize], positionArray[v1Index * vertexSize + 1], positionArray[v1Index * vertexSize + 2]), fromValues$1(positionArray[v2Index * vertexSize], positionArray[v2Index * vertexSize + 1], positionArray[v2Index * vertexSize + 2]), fromValues$1(positionArray[v3Index * vertexSize], positionArray[v3Index * vertexSize + 1], positionArray[v3Index * vertexSize + 2]));
             console.log("using indices ", triangleFromIndices);
         }
         else if (primitiveSize == 2) {
-            primitivePos = new Line(fromValues(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]), fromValues(newPosition[primitiveId * vertexSize * primitiveSize + 3], newPosition[primitiveId * vertexSize * primitiveSize + 4], newPosition[primitiveId * vertexSize * primitiveSize + 5]));
+            primitivePos = new Line(fromValues$1(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]), fromValues$1(newPosition[primitiveId * vertexSize * primitiveSize + 3], newPosition[primitiveId * vertexSize * primitiveSize + 4], newPosition[primitiveId * vertexSize * primitiveSize + 5]));
             console.log("using vertex ", primitivePos);
             transPrimitive = primitivePos.transformCopy(this.selectNode.worldMatrix);
             out = this.intersectLine(nearPoint, farPoint, transPrimitive);
             //For testing only
             var v2Index = indices[indicesId + 1];
-            var LineFromIndices = new Line(fromValues(positionArray[v1Index * vertexSize], positionArray[v1Index * vertexSize + 1], positionArray[v1Index * vertexSize + 2]), fromValues(positionArray[v2Index * vertexSize], positionArray[v2Index * vertexSize + 1], positionArray[v2Index * vertexSize + 2]));
+            var LineFromIndices = new Line(fromValues$1(positionArray[v1Index * vertexSize], positionArray[v1Index * vertexSize + 1], positionArray[v1Index * vertexSize + 2]), fromValues$1(positionArray[v2Index * vertexSize], positionArray[v2Index * vertexSize + 1], positionArray[v2Index * vertexSize + 2]));
             console.log("using indices ", LineFromIndices);
         }
         else if (primitiveSize == 1) {
-            primitivePos = new Point(fromValues(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]));
+            primitivePos = new Point(fromValues$1(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]));
             console.log("using vertex ", primitivePos);
             transPrimitive = primitivePos.transformCopy(this.selectNode.worldMatrix);
             out = {
@@ -10808,7 +10855,7 @@ var Point = /** @class */ (function () {
                 nearPoint: transPrimitive.v1
             };
             //For testing only
-            var PointFromIndices = new Point(fromValues(positionArray[v1Index * vertexSize], positionArray[v1Index * vertexSize + 1], positionArray[v1Index * vertexSize + 2]));
+            var PointFromIndices = new Point(fromValues$1(positionArray[v1Index * vertexSize], positionArray[v1Index * vertexSize + 1], positionArray[v1Index * vertexSize + 2]));
             console.log("using indices ", PointFromIndices);
         }
         //draw primitive for visualization
@@ -10906,16 +10953,16 @@ var Point = /** @class */ (function () {
         out[2] = pt[2] + t * dir[2];
         out[3] = 1;
         if (noIntersection) {
-            var intersection = fromValues(out[0], out[1], out[2]);
+            var intersection = fromValues$1(out[0], out[1], out[2]);
             var nearPointWorld = this.projectToEdge(triangle.v1, triangle.v2, triangle.v3, intersection);
             sqrDist(intersection, nearPointWorld);
             //alert("sqred error"+error)
             console.log("original point", intersection);
             console.log("Projected point", nearPointWorld);
             out = [nearPointWorld[0], nearPointWorld[1], nearPointWorld[2]];
-            out = __spread(intersection);
+            out = __spread$1(intersection);
         }
-        var nearPt = this.findNearPoint(triangle.v1, triangle.v2, triangle.v3, fromValues(out[0], out[1], out[2]));
+        var nearPt = this.findNearPoint(triangle.v1, triangle.v2, triangle.v3, fromValues$1(out[0], out[1], out[2]));
         var obj = {
             hitPoint: out,
             nearPoint: nearPt
@@ -11146,7 +11193,7 @@ var Point = /** @class */ (function () {
         var quat = create$4();
         getRotation(quat, transform);
         var normal = create$2();
-        transformQuat(normal, fromValues(0, 0, 1), quat);
+        transformQuat(normal, fromValues$1(0, 0, 1), quat);
         var position = MathUtils.getPositionVector(transform);
         var denom = dot(normal, r.dir);
         if (denom != 0) {
@@ -11204,9 +11251,11 @@ var Point = /** @class */ (function () {
     return SectionPlaneMesh;
 }(Mesh));var PlaneVShader = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 aPosition;uniform mat4 uProjectionMatrix;uniform mat4 uModelViewMatrix;uniform vec3 uColor;out highp vec4 vPositionWorldSpace;void main(void){vec4 positionWorldSpace=uModelViewMatrix*vec4(aPosition,1.0);vPositionWorldSpace=positionWorldSpace;gl_Position=uProjectionMatrix*positionWorldSpace;}"; // eslint-disable-line
 var PlaneFShader = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nuniform highp mat4 uProjectionMatrix;uniform highp mat4 uModelViewMatrix;uniform highp vec3 uLightDirection;uniform highp vec3 uCameraPosition;uniform float uTransparencyFactor;uniform bool uUseTransparency;uniform vec3 uColor;in highp vec4 vPositionWorldSpace;out highp vec4 outColor;void main(void){highp float diffuseFactor=1.0;highp vec3 diffuseColor=uColor.xyz;if(uUseTransparency&&uTransparencyFactor>0.){outColor=vec4((diffuseColor),uTransparencyFactor);}else{outColor=vec4((diffuseColor*diffuseFactor),1.0);}}"; // eslint-disable-line
+var LabelVertex = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 aPosition;in vec3 aColor;out vec3 vColor;uniform mat4 uProjectionMatrix;uniform mat4 uModelViewMatrix;void main(void){gl_PointSize=5.0;vec4 vPosWorldSpace=uModelViewMatrix*vec4(aPosition,1.0);gl_Position=uProjectionMatrix*vPosWorldSpace;vColor=aColor;}"; // eslint-disable-line
+var LabelFrag = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 vColor;uniform highp vec3 uColor;out vec4 outColor;void main(void){vec3 col=uColor;if(col==vec3(0.0))col=vColor;outColor=vec4(col,1);}"; // eslint-disable-line
 var Plane = /** @class */ (function () {
     function Plane(normal, constant) {
-        if (normal === void 0) { normal = fromValues(1, 0, 0); }
+        if (normal === void 0) { normal = fromValues$1(1, 0, 0); }
         if (constant === void 0) { constant = 0; }
         this.normal = normal;
         this.constant = constant;
@@ -11214,12 +11263,12 @@ var Plane = /** @class */ (function () {
     Plane.prototype.applyMatrix4 = function (mat) {
         var quat = create$4();
         getRotation(quat, mat);
-        transformQuat(this.normal, fromValues(0, 0, 1), quat);
+        transformQuat(this.normal, fromValues$1(0, 0, 1), quat);
         var position = MathUtils.getPositionVector(mat);
         this.constant = dot(this.normal, position);
     };
     Plane.prototype.getClipEquation = function () {
-        return fromValues$1(this.normal[0], this.normal[1], this.normal[2], -this.constant);
+        return fromValues$2(this.normal[0], this.normal[1], this.normal[2], -this.constant);
     };
     Plane.prototype.setFromNormalAndCoplanarPoint = function (normal, point) {
         copy(this.normal, normal);
@@ -11246,335 +11295,95 @@ var Plane = /** @class */ (function () {
         return new Plane(n, d);
     };
     return Plane;
-}());var CylinderMesh = /** @class */ (function (_super) {
-    __extends(CylinderMesh, _super);
-    function CylinderMesh(name, radiusTop, radiusBottom, height, radialSegments, heightSegments, openEnded, thetaStart, thetaLength, color) {
-        if (radiusTop === void 0) { radiusTop = 1; }
-        if (radiusBottom === void 0) { radiusBottom = 1; }
-        if (height === void 0) { height = 1; }
-        if (radialSegments === void 0) { radialSegments = 8; }
-        if (heightSegments === void 0) { heightSegments = 1; }
-        if (openEnded === void 0) { openEnded = false; }
-        if (thetaStart === void 0) { thetaStart = 0; }
-        if (thetaLength === void 0) { thetaLength = Math.PI * 2; }
-        if (color === void 0) { color = [0, 0, 0]; }
+}());var AxisMesh = /** @class */ (function (_super) {
+    __extends(AxisMesh, _super);
+    function AxisMesh(name, origin, x, y, z, scale) {
+        if (scale === void 0) { scale = 1; }
         var _this = _super.call(this, name) || this;
-        _this.params = {
-            radiusTop: radiusTop,
-            radiusBottom: radiusBottom,
-            height: height,
-            radialSegments: radialSegments,
-            heightSegments: heightSegments,
-            openEnded: openEnded,
-            thetaStart: thetaStart,
-            thetaLength: thetaLength
-        };
-        _this.uid = Utility.getGUID();
-        _this.rendingMode = RenderMode.TRIANGLES;
-        _this.material = new Material(name);
-        _this.material.diffuseColor = color;
-        var indices = [];
-        var vertices = [];
-        var normals = [];
-        var uvs = [];
-        _this.index = 0;
-        _this.indexArray = [];
-        _this.halfHeight = _this.params.height / 2;
-        radialSegments = Math.floor(radialSegments);
-        heightSegments = Math.floor(heightSegments);
-        // generate geometry
-        _this.generateTorso(vertices, normals, indices, uvs);
-        if (openEnded === false) {
-            if (radiusTop > 0)
-                _this.generateCap(true, vertices, indices, normals, uvs);
-            if (radiusBottom > 0)
-                _this.generateCap(false, vertices, indices, normals, uvs);
-        }
-        // build geometry
-        _this.createMesh(vertices, indices);
+        _this.rendingMode = RenderMode.LINES;
+        _this.createMesh(scale, origin, x, y, z);
         return _this;
     }
-    CylinderMesh.prototype.generateTorso = function (vertices, normals, indices, uvs) {
-        var normal = create$2();
-        var vertex = create$2();
-        // this will be used to calculate the normal
-        var slope = (this.params.radiusBottom - this.params.radiusTop) / this.params.height;
-        // generate vertices, normals and uvs
-        for (var y = 0; y <= this.params.heightSegments; y++) {
-            var indexRow = [];
-            var v = y / this.params.heightSegments;
-            // calculate the radius of the current row
-            var radius = v * (this.params.radiusBottom - this.params.radiusTop) + this.params.radiusTop;
-            for (var x = 0; x <= this.params.radialSegments; x++) {
-                var u = x / this.params.radialSegments;
-                var theta = u * this.params.thetaLength + this.params.thetaStart;
-                var sinTheta = Math.sin(theta);
-                var cosTheta = Math.cos(theta);
-                // vertex
-                vertex[0] = radius * sinTheta;
-                vertex[1] = -v * this.params.height + this.halfHeight;
-                vertex[2] = radius * cosTheta;
-                vertices.push(vertex[0], vertex[1], vertex[2]);
-                // normal
-                normal[0] = sinTheta;
-                normal[1] = slope;
-                normal[2] = cosTheta;
-                normals.push(normal[0], normal[1], normal[2]);
-                // uv
-                uvs.push(u, 1 - v);
-                // save index of vertex in respective row
-                indexRow.push(this.index++);
-            }
-            // now save vertices of the row in our index array
-            this.indexArray.push(indexRow);
-        }
-        // generate indices
-        for (var x = 0; x < this.params.radialSegments; x++) {
-            for (var y = 0; y < this.params.heightSegments; y++) {
-                // we use the index array to access the correct indices
-                var a = this.indexArray[y][x];
-                var b = this.indexArray[y + 1][x];
-                var c = this.indexArray[y + 1][x + 1];
-                var d = this.indexArray[y][x + 1];
-                // faces
-                indices.push(a, b, d);
-                indices.push(b, c, d);
-            }
-        }
+    AxisMesh.prototype.createMesh = function (scale, origin, x, y, z) {
+        //Set offset
+        var vertices = new Float32Array([
+            origin[0], origin[1], origin[2],
+            x[0] * scale, x[1], x[2],
+            origin[0], origin[1], origin[2],
+            y[0], y[1] * scale, y[2],
+            origin[0], origin[1], origin[2],
+            z[0], z[1], z[2] * scale,
+        ]);
+        var color = new Float32Array([
+            1, 0, 0,
+            1, 0, 0,
+            0, 1, 0,
+            0, 1, 0,
+            0, 0, 1,
+            0, 0, 1
+        ]);
+        var indices = new Uint32Array([
+            0, 1,
+            2, 3,
+            4, 5
+        ]);
+        this.setattribs(this.generateAttribute(vertices, color));
+        this.setIndex(this.generateIndices(indices));
     };
-    CylinderMesh.prototype.generateCap = function (top, vertices, indices, normals, uvs) {
-        // save the index of the first center vertex
-        var centerIndexStart = this.index;
-        var uv = create$5();
-        var vertex = create$2();
-        var radius = (top === true) ? this.params.radiusTop : this.params.radiusBottom;
-        var sign = (top === true) ? 1 : -1;
-        // first we generate the center vertex data of the cap.
-        // because the geometry needs one set of uvs per face,
-        // we must generate a center vertex per face/segment
-        for (var x = 1; x <= this.params.radialSegments; x++) {
-            // vertex
-            vertices.push(0, this.halfHeight * sign, 0);
-            // normal
-            normals.push(0, sign, 0);
-            // uv
-            uvs.push(0.5, 0.5);
-            // increase index
-            this.index++;
-        }
-        // save the index of the last center vertex
-        var centerIndexEnd = this.index;
-        // now we generate the surrounding vertices, normals and uvs
-        for (var x = 0; x <= this.params.radialSegments; x++) {
-            var u = x / this.params.radialSegments;
-            var theta = u * this.params.thetaLength + this.params.thetaStart;
-            var cosTheta = Math.cos(theta);
-            var sinTheta = Math.sin(theta);
-            // vertex
-            vertex[0] = radius * sinTheta;
-            vertex[1] = this.halfHeight * sign;
-            vertex[2] = radius * cosTheta;
-            vertices.push(vertex[0], vertex[1], vertex[2]);
-            // normal
-            normals.push(0, sign, 0);
-            // uv
-            uv[0] = (cosTheta * 0.5) + 0.5;
-            uv[1] = (sinTheta * 0.5 * sign) + 0.5;
-            uvs.push(uv[0], uv[1]);
-            // increase index
-            this.index++;
-        }
-        // generate indices
-        for (var x = 0; x < this.params.radialSegments; x++) {
-            var c = centerIndexStart + x;
-            var i = centerIndexEnd + x;
-            if (top === true) {
-                // face top
-                indices.push(i, i + 1, c);
-            }
-            else {
-                // face bottom
-                indices.push(i + 1, i, c);
-            }
-        }
-    };
-    CylinderMesh.prototype.createMesh = function (vertices, indices) {
-        this.setattribs(this.generateAttribute(new Float32Array(vertices)));
-        this.setIndex(this.generateIndices(new Uint32Array(indices)));
-    };
-    CylinderMesh.prototype.generateAttribute = function (vertices) {
+    AxisMesh.prototype.generateAttribute = function (vertices, color) {
         var attrib = new WebGLArrayBufferAttribute();
-        attrib.position = new WebGLArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, vertices);
+        attrib.position = new WebGLArrayBuffer("AxisBuffer", BufferUsage.STATIC_DRAW, vertices);
+        attrib.color = new WebGLArrayBuffer("AxisColorBuffer", BufferUsage.STATIC_DRAW, color);
         return attrib;
     };
-    CylinderMesh.prototype.generateIndices = function (indices) {
-        var index = new WebGLElementArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, indices);
+    AxisMesh.prototype.generateIndices = function (indices) {
+        var index = new WebGLElementArrayBuffer("lineIndexBuffer", BufferUsage.STATIC_DRAW, indices);
         return index;
     };
-    return CylinderMesh;
-}(CoreMesh));var CylinderNode = /** @class */ (function (_super) {
-    __extends(CylinderNode, _super);
-    function CylinderNode(name, start, end, thickness, color) {
-        if (color === void 0) { color = [0, 0, 0, 1]; }
+    return AxisMesh;
+}(CoreMesh));var Axes2DHelper = /** @class */ (function (_super) {
+    __extends(Axes2DHelper, _super);
+    function Axes2DHelper(name, origin, scale) {
         var _this = _super.call(this, name) || this;
-        _this.mesh = new Mesh(name);
-        var height = dist(start, end);
-        _this.mesh.mainMesh = new CylinderMesh(name + 'cymesh', thickness, thickness, height, 10, 1, false);
-        _this.mesh.mainMesh.material = new Material(name + '_material');
-        _this.mesh.mainMesh.material.diffuseColor = [color[0], color[1], color[2]];
-        _this.mesh.mainMesh.material.transparency = 1 - color[3];
-        var dir = create$2();
-        sub(dir, end, start);
-        normalize(dir, dir);
-        var angle$1 = angle(_this.getUpDir(), dir);
-        var axis = create$2();
-        cross(axis, _this.getUpDir(), dir);
-        normalize(axis, axis);
-        var EPSILON = 0.0001;
-        if (sqrLen(axis) > EPSILON) {
-            _this.rotateOnWorldAxis(angle$1, axis);
-        }
-        else {
-            var deg = MathUtils.rad2Deg(angle$1);
-            if (deg > 1 || deg < -1)
-                _this.rotateOnWorldAxis(MathUtils.deg2Rad(-180), fromValues(1, 0, 0));
-        }
-        _this.setPosition(start);
-        _this.translate(0, height / 2, 0);
+        _this.mesh = new Mesh("axisMesh");
+        _this.mesh.mainMesh = new AxisMesh("axis", origin, fromValues$1(scale, 0, 0), fromValues$1(0, scale, 0), fromValues$1(0, 0, scale));
         _this.visible = false;
         return _this;
     }
-    return CylinderNode;
-}(ShapeNode));var LineNode = /** @class */ (function (_super) {
-    __extends(LineNode, _super);
-    function LineNode(name, p1, p2, color) {
-        if (color === void 0) { color = [0, 0, 0, 1]; }
-        var _this = _super.call(this, name) || this;
-        _this.mesh = new Mesh(name);
-        _this.mesh.mainMesh = new LineMesh(name, p1, p2);
-        _this.mesh.mainMesh.material = new Material(name + '_material');
-        _this.mesh.mainMesh.material.diffuseColor = [color[0], color[1], color[2]];
-        _this.mesh.mainMesh.material.transparency = 1 - color[3];
-        _this.visible = true;
-        return _this;
-    }
-    return LineNode;
+    return Axes2DHelper;
 }(ShapeNode));var SectionManager = /** @class */ (function () {
     //Constructor
     function SectionManager(cameraControl) {
         this.initialized = false;
+        this.maxPlanes = 6;
+        this.activePlaneId = -1;
+        this.selectedPlaneColor = [1, 1, 0, 1];
         this.camControl = cameraControl;
-        this.bbox = AppObjects.sceneManager.getBoundingBox();
+        this.bbox = null;
         this.shader = new Shader(PlaneVShader, PlaneFShader);
-        this.planeStates = [
-            { isPlaneEnabled: false, isSlicePlaneEnabled: false },
-            { isPlaneEnabled: false, isSlicePlaneEnabled: false },
-            { isPlaneEnabled: false, isSlicePlaneEnabled: false }
-        ];
-        this.primaryPlanes = [];
-        this.slicePlanes = [];
-        this.primaryPlaneEqns = [];
-        this.slicePlaneEqns = [];
-        this.slicePlaneOffset = [20, 20, 20];
-        this.selectedPlaneColor = [0, 1, 0];
+        this.gizmoShader = new Shader(LabelVertex, LabelFrag);
+        this.planeStates = new Map();
         this.sensitivity = 100;
+        this.axis3DHelper = null;
+        this.refAxis2DHelper = null;
+        AppObjects.externalEventDispatcher.addEventListener('MODEL_LOADED', this.onSceneLoad.bind(this));
     }
-    //Internal functions
-    SectionManager.prototype.init = function () {
-        this.bbox = AppObjects.sceneManager.getBoundingBox();
-        var offset = this.bbox.getRadius() / 4;
-        this.slicePlaneOffset = [offset, offset, offset];
-        this.createAndAddPlanes();
+    SectionManager.prototype.onSceneLoad = function () {
+        this.bbox = AppObjects.sceneManager.getBoundingBox(false);
         this.initialized = true;
     };
     SectionManager.prototype.createPlane = function (name, a, b, c, d, color) {
         var plane = new ShapeNode(name);
         plane.mesh = new SectionPlaneMesh(name, a, b, c, d, color);
-        plane.mesh.mainMesh.material.transparency = 0.1;
+        plane.mesh.mainMesh.material.transparency = color[3];
         return plane;
     };
-    SectionManager.prototype.createDebugPts = function (plane, planeGroup) {
-        var _a = __read(plane.getPoints(), 4), a = _a[0], b = _a[1], c = _a[2], d = _a[3];
-        plane.getCenter();
-        var dir = plane.getFrontDir();
-        var scale = 2.0;
-        var a1 = create$2();
-        var b1 = create$2();
-        var c1 = create$2();
-        var d1 = create$2();
-        scaleAndAdd(a1, a, dir, scale);
-        scaleAndAdd(b1, b, dir, scale);
-        scaleAndAdd(c1, c, dir, scale);
-        scaleAndAdd(d1, d, dir, scale);
-        var p1Cyl = new CylinderNode('p1Debug', a, a1, 2, [1, 0, 0, 1]);
-        var p2Cyl = new CylinderNode('p1Debug', b, b1, 2, [0, 1, 0, 1]);
-        var p3Cyl = new CylinderNode('p1Debug', c, c1, 2, [0, 0, 1, 1]);
-        var p4Cyl = new CylinderNode('p1Debug', d, d1, 2, [0, 0, 0, 1]);
-        planeGroup.addChild(p1Cyl);
-        planeGroup.addChild(p2Cyl);
-        planeGroup.addChild(p3Cyl);
-        planeGroup.addChild(p4Cyl);
-    };
-    SectionManager.prototype.createPlaneAxis = function (plane, planeGroup) {
-        var _a = __read(plane.getPoints(), 4); _a[0]; _a[1]; _a[2]; _a[3];
-        var center = plane.getCenter();
-        var uAxis = plane.getRightDir();
-        var vAxis = plane.getTopDir();
-        var nAxis = plane.getFrontDir();
-        var radius = this.bbox.getRadius();
-        var uend = create$2();
-        var vend = create$2();
-        var nend = create$2();
-        scaleAndAdd(uend, center, uAxis, radius * 0.3);
-        scaleAndAdd(vend, center, vAxis, radius * 0.3);
-        scaleAndAdd(nend, center, nAxis, radius * 0.3);
-        // let uAxisMesh = new Arrow3DNode('u-axis',start,uend,radius*0.03,t,[1,0,0,1]);
-        // let vAxisMesh = new Arrow3DNode('v-axis',start,vend,radius*0.03,t,[0,1,0,1]);
-        // let nAxisMesh = new Arrow3DNode('n-axis',start,nend,radius*0.03,t,[0,0,1,1]);
-        var xLine = new LineNode('u-axis', center, uend, [1, 0, 0, 1]);
-        var yLine = new LineNode('v-axis', center, vend, [0, 1, 0, 1]);
-        var zLine = new LineNode('n-axis', center, nend, [0, 0, 1, 1]);
-        planeGroup.addChild(xLine);
-        planeGroup.addChild(yLine);
-        planeGroup.addChild(zLine);
-        //for debugging
-        this.createDebugPts(plane, planeGroup);
-    };
-    SectionManager.prototype.createPrimaryPlane = function (planeIndex, color) {
-        var plane = this.createPrimaryPlaneFromEqn(planeIndex, __spread(color));
-        if (this.primaryPlanes[planeIndex])
-            this.primaryPlanes[planeIndex].delete();
-        var planeGroup = new TransFormNode('planeGroup' + planeIndex);
-        planeGroup.addChild(plane);
-        this.createPlaneAxis(plane.mesh, planeGroup);
-        planeGroup.visible = plane.visible;
-        if (this.primaryPlanes[planeIndex])
-            this.primaryPlanes.splice(planeIndex, 1, planeGroup);
-        else
-            this.primaryPlanes[planeIndex] = planeGroup;
-    };
-    SectionManager.prototype.createPrimaryPlanes = function () {
-        this.createPrimaryPlane(0, fromValues(1, 0, 0));
-        this.createPrimaryPlane(1, fromValues(0, 1, 0));
-        this.createPrimaryPlane(2, fromValues(0, 0, 1));
-    };
-    SectionManager.prototype.getPlaneCoordsFromEqn = function (virtualPlane) {
+    SectionManager.prototype.getPlaneCoordsFromEqn = function (transform) {
         var radius = this.bbox.getRadius() * 2;
         var out = [];
-        if (virtualPlane) {
-            var normal = virtualPlane.normal;
-            var u = MathUtils.getPerpendicular(normal);
-            normalize(u, u);
-            var v = create$2();
-            cross(v, u, normal);
-            normalize(v, v);
-            var uv = create$2();
-            cross(uv, u, v);
-            if (!equals(normal, uv)) {
-                var temp = clone$1(u);
-                u = clone$1(v);
-                v = temp;
-            }
+        if (transform) {
+            var u = fromValues$1(transform[0], transform[1], transform[2]);
+            var v = fromValues$1(transform[4], transform[5], transform[6]);
             var left = create$2();
             var right = create$2();
             var top_1 = create$2();
@@ -11587,8 +11396,7 @@ var Plane = /** @class */ (function () {
             var lt = create$2();
             var rt = create$2();
             var rb = create$2();
-            var center = this.bbox.getCenter();
-            center = virtualPlane.projectPoint(center);
+            var center = fromValues$1(transform[12], transform[13], transform[14]);
             add(lb, center, left);
             add(lb, lb, bottom);
             add(lt, center, left);
@@ -11604,119 +11412,22 @@ var Plane = /** @class */ (function () {
         }
         return out;
     };
-    SectionManager.prototype.createPrimaryPlaneFromEqn = function (planeIndex, color) {
-        var _a = __read(this.getPlaneCoordsFromEqn(this.primaryPlaneEqns[planeIndex]), 4), a = _a[0], b = _a[1], c = _a[2], d = _a[3];
-        var plane = this.createPlane(planeIndex.toString(), a, b, c, d, color);
-        plane.visible = (this.planeStates[planeIndex].isPlaneEnabled && this.primaryPlanes[planeIndex] !== undefined) ? this.primaryPlanes[planeIndex].visible : false;
+    SectionManager.prototype.createPrimaryPlaneFromEqn = function (id, transform, color) {
+        var _a = __read$1(this.getPlaneCoordsFromEqn(transform), 4), a = _a[0], b = _a[1], c = _a[2], d = _a[3];
+        var plane = this.createPlane(id.toString(), a, b, c, d, color);
         return plane;
     };
-    SectionManager.prototype.createSlicePlane = function (planeIndex, color) {
-        var plane = this.createPrimaryPlaneFromEqn(planeIndex, __spread(color));
-        if (this.slicePlanes[planeIndex])
-            this.slicePlanes[planeIndex].delete();
-        var slicePlaneGroup = new TransFormNode('slicePlaneGroup' + planeIndex);
-        slicePlaneGroup.addChild(plane);
-        this.createPlaneAxis(plane.mesh, slicePlaneGroup);
-        slicePlaneGroup.visible = plane.visible;
-        if (this.slicePlanes[planeIndex])
-            this.slicePlanes.splice(planeIndex, 1, slicePlaneGroup);
-        else
-            this.slicePlanes[planeIndex] = slicePlaneGroup;
-    };
-    SectionManager.prototype.createSlicePlanes = function () {
-        this.createSlicePlane(0, fromValues(0.5, 0, 0));
-        this.createSlicePlane(1, fromValues(0, 0.5, 0));
-        this.createSlicePlane(2, fromValues(0, 0, 0.5));
-    };
-    SectionManager.prototype.setPlaneEqn = function (planeIndex, eqn) {
+    SectionManager.prototype.setPlaneEqn = function (id, eqn) {
         if (eqn === void 0) { eqn = [1, 0, 0, 0]; }
         var planeEqn = new Plane();
-        planeEqn.normal = fromValues(eqn[0], eqn[1], eqn[2]);
+        planeEqn.normal = fromValues$1(eqn[0], eqn[1], eqn[2]);
         normalize(planeEqn.normal, planeEqn.normal);
         planeEqn.constant = -eqn[3];
-        this.primaryPlaneEqns[planeIndex] = planeEqn;
-        this.updateSlicePlaneEqn(planeIndex);
-    };
-    SectionManager.prototype.createPrimaryPlaneEqns = function (index) {
-        if (index === void 0) { index = -1; }
-        var center = this.bbox.getCenter();
-        if (index == -1 || index == 0) {
-            this.setPlaneEqn(0, [1, 0, 0, -center[0]]);
+        var planeState = this.planeStates.get(id);
+        if (planeState) {
+            planeState.eqn = planeEqn;
+            this.planeStates.set(id, planeState);
         }
-        if (index == -1 || index == 1) {
-            this.setPlaneEqn(1, [0, 1, 0, -center[1]]);
-        }
-        if (index == -1 || index == 2) {
-            this.setPlaneEqn(2, [0, 0, 1, -center[2]]);
-        }
-    };
-    SectionManager.prototype.updateSlicePlaneEqn = function (planeId) {
-        if (this.primaryPlaneEqns[planeId] == undefined)
-            return;
-        var slicePlaneEqn = new Plane();
-        negate(slicePlaneEqn.normal, this.primaryPlaneEqns[planeId].normal);
-        slicePlaneEqn.constant = this.primaryPlaneEqns[planeId].constant + this.slicePlaneOffset[planeId];
-        this.slicePlaneEqns[planeId] = slicePlaneEqn;
-    };
-    SectionManager.prototype.createSlicePlaneEqns = function (index) {
-        if (index === void 0) { index = -1; }
-        if (index == -1 || index == 0) {
-            this.updateSlicePlaneEqn(0);
-        }
-        if (index == -1 || index == 1) {
-            this.updateSlicePlaneEqn(1);
-        }
-        if (index == -1 || index == 2) {
-            this.updateSlicePlaneEqn(2);
-        }
-    };
-    SectionManager.prototype.createAndAddPlanes = function () {
-        this.createPrimaryPlaneEqns();
-        this.createSlicePlaneEqns();
-        this.createPrimaryPlanes();
-        this.createSlicePlanes();
-    };
-    SectionManager.prototype.setSelectPlaneEqn = function () {
-        switch (this.selectedPlane.name) {
-            case "PlaneX":
-                this.selectedPlaneEqn = this.primaryPlaneEqns[0];
-                break;
-            case "PlaneY":
-                this.selectedPlaneEqn = this.primaryPlaneEqns[1];
-                break;
-            case "PlaneZ":
-                this.selectedPlaneEqn = this.primaryPlaneEqns[2];
-                break;
-            case "SlicePlaneX":
-                this.selectedPlaneEqn = this.slicePlaneEqns[0];
-                break;
-            case "SlicePlaneY":
-                this.selectedPlaneEqn = this.slicePlaneEqns[1];
-                break;
-            case "SlicePlaneZ":
-                this.selectedPlaneEqn = this.slicePlaneEqns[2];
-                break;
-            default:
-                console.log("Impossible plane seleceted");
-                break;
-        }
-    };
-    SectionManager.prototype.getRotAngleAndNormalizedAxis = function (newMouseX, newMouseY, lastMouseX, lastMouseY) {
-        var rotationObject = {};
-        if (newMouseX != lastMouseX || newMouseY != lastMouseY) {
-            var va = MathUtils.getArcballVector(lastMouseX, lastMouseY, this.camControl.canvas);
-            var vb = MathUtils.getArcballVector(newMouseX, newMouseY, this.camControl.canvas);
-            var angle = Math.acos(Math.min(1.0, dot(va, vb)));
-            var axis_in_camera_coord = create$2();
-            cross(axis_in_camera_coord, va, vb);
-            normalize(axis_in_camera_coord, axis_in_camera_coord);
-            rotationObject.angle = angle;
-            rotationObject.axis_in_camera_coord = axis_in_camera_coord;
-        }
-        else {
-            return null;
-        }
-        return rotationObject;
     };
     SectionManager.prototype.drawElements = function (node, mesh) {
         if (node.visible != true)
@@ -11732,7 +11443,7 @@ var Plane = /** @class */ (function () {
         this.shader.setMat4f(uniforms.uModelViewMatrix, node.worldMatrix);
         if (mesh.material) {
             var color = mesh.material.diffuseColor;
-            this.shader.setVector3f(uniforms.uColor, fromValues(color[0], color[1], color[2]));
+            this.shader.setVector3f(uniforms.uColor, fromValues$1(color[0], color[1], color[2]));
         }
         if (mesh.material.transparency > 0) {
             this.shader.setBool(uniforms.uUseTransparency, true);
@@ -11753,385 +11464,281 @@ var Plane = /** @class */ (function () {
             AppState.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), AppState.GLContext.UNSIGNED_INT, 0);
         }
     };
-    SectionManager.prototype.updateVisualPlane = function (planeIndex) {
-        if (this.primaryPlanes[planeIndex] == undefined || this.slicePlanes[planeIndex] == undefined)
-            return;
-        var color = [0, 0, 0];
-        color[planeIndex] = 1;
-        this.createPrimaryPlane(planeIndex, fromValues(color[0], color[1], color[2]));
-        color[planeIndex] = 0.5;
-        this.createSlicePlane(planeIndex, fromValues(color[0], color[1], color[2]));
+    SectionManager.prototype.renderGizmos = function () {
+        AppState.GLContext.clear(AppState.GLContext.DEPTH_BUFFER_BIT);
+        this.renderAxisHelper();
     };
-    // private translate(newX:number,newY:number,lastX:number,lastY:number){
-    //     // this.rotate(newX,newY,lastX,lastY);
-    //     // return;
-    //     let newPoint = this.camControl.unproject([newX,newY,0],glmatrix.mat4.create(),[this.camControl.canvas.width,this.camControl.canvas.height],this.camControl.getGLMatrix());
-    //     let lastPoint = this.camControl.unproject([lastX,lastY,0],glmatrix.mat4.create(),[this.camControl.canvas.width,this.camControl.canvas.height],this.camControl.getGLMatrix());
-    //     let x = glmatrix.vec3.create();
-    //     let y = glmatrix.vec3.create();
-    //     glmatrix.vec3.scaleAndAdd(x,x,this.selectedPlaneEqn.normal,-100);
-    //     glmatrix.vec3.scaleAndAdd(y,y,this.selectedPlaneEqn.normal,100);
-    //     let linePerpToPlane = new Line(x,y);
-    //     newPoint = MathUtils.projectPointOnLine(newPoint,linePerpToPlane);
-    //     lastPoint = MathUtils.projectPointOnLine(lastPoint,linePerpToPlane);
-    //     let delta = glmatrix.vec3.create();
-    //     glmatrix.vec3.sub(delta,newPoint,lastPoint);
-    //     switch(this.selectedPlane.name){
-    //         case "PlaneX":
-    //                 this.translatePlane((-delta[0]-delta[1]-delta[2])*this.sensitivity,0,0);
-    //                 break;
-    //         case "PlaneY":
-    //                 this.translatePlane((-delta[0]-delta[1]-delta[2])*this.sensitivity,0,1);
-    //                 break;
-    //         case "PlaneZ":
-    //                 this.translatePlane((-delta[0]-delta[1]-delta[2])*this.sensitivity,0,2);
-    //                 break;
-    //         case "SlicePlaneX":
-    //                 this.translatePlane(0,(-delta[0]-delta[1]-delta[2])*this.sensitivity,0);
-    //                 break;
-    //         case "SlicePlaneY":
-    //                 this.translatePlane(0,(-delta[0]-delta[1]-delta[2])*this.sensitivity,1);
-    //                 break;
-    //         case "SlicePlaneZ":
-    //                 this.translatePlane(0,(-delta[0]-delta[1]-delta[2])*this.sensitivity,2);
-    //                 break;
-    //         }
-    // }
-    // private rotate(newX:number,newY:number,lastX:number,lastY:number){
-    //     let rotationObject = this.getRotAngleAndNormalizedAxis(newX,newY,lastX,lastY);
-    //     if(this.selectedPlane){
-    //         let axis_in_object_coord = glmatrix.vec3.create();
-    //         let axis_in_camera_coord = rotationObject.axis_in_camera_coord
-    //         let objectInverseMatrix = glmatrix.mat4.create();
-    //         glmatrix.mat4.invert(objectInverseMatrix,this.selectedPlane.worldMatrix);
-    //         glmatrix.vec3.transformMat4(axis_in_object_coord,rotationObject.axis_in_camera_coord,objectInverseMatrix);
-    //         glmatrix.vec3.negate(axis_in_object_coord,axis_in_object_coord);
-    //         let deltaX = 0;
-    //         let deltaY = 0;
-    //         if(Math.abs(rotationObject.angle*axis_in_camera_coord[0]) > Math.abs(rotationObject.angle*axis_in_camera_coord[1]))
-    //             deltaX = rotationObject.angle*axis_in_camera_coord[0]*this.sensitivity;
-    //         else
-    //             deltaY = rotationObject.angle*axis_in_camera_coord[1]*this.sensitivity;
-    //         switch(this.selectedPlane.name){
-    //             case "PlaneX":
-    //                     this.rotatePlane(deltaX,deltaY,0);
-    //                     break;
-    //             case "PlaneY":
-    //                     this.rotatePlane(deltaX,deltaY,1);
-    //                     break;
-    //             case "PlaneZ":
-    //                     this.rotatePlane(deltaX,deltaY,2);
-    //                     break;
-    //             case "SlicePlaneX":
-    //                     this.rotatePlane(deltaX,deltaY,0);
-    //                     break;
-    //             case "SlicePlaneY":
-    //                     this.rotatePlane(deltaX,deltaY,1);
-    //                     break;
-    //             case "SlicePlaneZ":
-    //                     this.rotatePlane(deltaX,deltaY,2);
-    //                     break;
-    //             }
-    //         // if(this.selectPlane.name.includes("slice"))
-    //         //     return;
-    //         // let axis_in_object_coord = glmatrix.vec3.create();
-    //         // let objectInverseMatrix = glmatrix.mat4.create();
-    //         // glmatrix.mat4.invert(objectInverseMatrix,this.selectPlane.worldMatrix);
-    //         // glmatrix.vec3.transformMat4(axis_in_object_coord,rotationObject.axis_in_camera_coord,objectInverseMatrix);
-    //         // if(Math.abs(rotationObject.angle*axis_in_object_coord[0]) > Math.abs(rotationObject.angle*axis_in_object_coord[1]))
-    //         // glmatrix.mat4.rotateX(this.selectPlane.worldMatrix,
-    //         // this.selectPlane.worldMatrix,rotationObject.angle*axis_in_object_coord[0]);
-    //         // else
-    //         // glmatrix.mat4.rotateY(this.selectPlane.worldMatrix,
-    //         // this.selectPlane.worldMatrix,rotationObject.angle*axis_in_object_coord[1]);
-    //         // this.selectPlaneEqn.applyMatrix4(this.selectPlane.worldMatrix);
-    //     }
-    // }
-    // private translateXPlane(params:any){
-    //     let delta = params.T1-this.guiState.planeXOptions.prevTrans[0];
-    //     let deltaSlice = params.T2-this.guiState.planeXOptions.prevTrans[1];
-    //     this.translatePlane(delta,deltaSlice,0);
-    //     this.guiState.planeXOptions.prevTrans = [params.T1,params.T2];
-    //     console.log("XT1",params.T1);
-    // }
-    // private translateYPlane(params:any){
-    //     let delta = params.T1-this.guiState.planeYOptions.prevTrans[0];
-    //     let deltaSlice = params.T2-this.guiState.planeYOptions.prevTrans[1];
-    //     this.translatePlane(delta,deltaSlice,1);
-    //     this.guiState.planeYOptions.prevTrans = [params.T1,params.T2];
-    //     console.log("YT1",params.T1);
-    // }
-    // private translateZPlane(params:any){
-    //     let delta = params.T1-this.guiState.planeZOptions.prevTrans[0];
-    //     let deltaSlice = params.T2-this.guiState.planeZOptions.prevTrans[1];
-    //     this.translatePlane(delta,deltaSlice,2);
-    //     this.guiState.planeZOptions.prevTrans = [params.T1,params.T2];
-    //     console.log("ZT1",params.T1);
-    // }
-    // private rotateXPlane(params:any){
-    //     let deltaX = params.RX-this.guiState.planeXOptions.prevRot[0];
-    //     let deltaY = params.RY-this.guiState.planeXOptions.prevRot[1];
-    //     this.rotatePlane(deltaX,deltaY,0);
-    //     this.guiState.planeXOptions.prevRot = [params.RX,params.RY];
-    // }
-    // private rotateYPlane(params:any){
-    //     let deltaX = params.RX-this.guiState.planeYOptions.prevRot[0];
-    //     let deltaY = params.RY-this.guiState.planeYOptions.prevRot[1];
-    //     this.rotatePlane(deltaX,deltaY,1);
-    //     this.guiState.planeYOptions.prevRot = [params.RX,params.RY];
-    // }
-    // private rotateZPlane(params:any){
-    //     let deltaX = params.RX-this.guiState.planeZOptions.prevRot[0];
-    //     let deltaY = params.RY-this.guiState.planeZOptions.prevRot[1];
-    //     this.rotatePlane(deltaX,deltaY,2);
-    //     this.guiState.planeZOptions.prevRot = [params.RX,params.RY];
-    // }
-    SectionManager.prototype.resetPlane = function (index) {
-        this.bbox = AppObjects.sceneManager.getBoundingBox();
-        var offset = this.bbox.getRadius() / 4;
-        this.slicePlaneOffset[index] = offset;
-        var center = this.bbox.getCenter();
-        var eqn = null;
-        switch (index) {
-            case 0:
-                eqn = [1, 0, 0, -center[0]];
-                break;
-            case 1:
-                eqn = [0, 1, 0, -center[1]];
-                break;
-            case 2:
-                eqn = [0, 0, 1, -center[2]];
-                break;
+    SectionManager.prototype.renderAxisHelper = function () {
+        var _this = this;
+        if (this.axis3DHelper === null && AppState.GLContext) {
+            this.axis3DHelper = new Axes3DHelper("axis");
+            this.refAxis2DHelper = new Axes2DHelper("axis2d", create$2(), 1);
         }
-        this.setPlaneEquation(index, eqn);
+        if (this.axis3DHelper) {
+            this.planeStates.forEach(function (planeState, key) {
+                var planeGroup = planeState.plane;
+                var eqn = planeState.eqn;
+                if (planeGroup.visible && key === _this.activePlaneId) {
+                    var plane = planeGroup.children[0];
+                    var mesh = plane.mesh;
+                    var camPos = _this.camControl.getPosition();
+                    var objPos = mesh.getCenter();
+                    var scaleToFit = dist(camPos, objPos) * Math.tan(_this.camControl.perspParams.fov / 2) * 0.5; // some constant to fit to proper size
+                    var scale = create$1();
+                    var trans = create$1();
+                    trans[12] = objPos[0];
+                    trans[13] = objPos[1];
+                    trans[14] = objPos[2];
+                    var rot = create$1();
+                    var z = eqn.normal;
+                    var u = mesh.getRightDir();
+                    var v = mesh.getTopDir();
+                    rot[0] = u[0];
+                    rot[1] = u[1];
+                    rot[2] = u[2];
+                    rot[4] = v[0];
+                    rot[5] = v[1];
+                    rot[6] = v[2];
+                    rot[8] = z[0];
+                    rot[9] = z[1];
+                    rot[10] = z[2];
+                    fromScaling(scale, fromValues$1(scaleToFit, scaleToFit, scaleToFit));
+                    var shader_1 = _this.gizmoShader;
+                    var model_1 = create$1();
+                    mul(model_1, model_1, trans);
+                    mul(model_1, model_1, rot);
+                    mul(model_1, model_1, scale);
+                    mul(model_1, model_1, _this.axis3DHelper.worldMatrix);
+                    //render axes
+                    _this.axis3DHelper.children.forEach(function (node) {
+                        var nodeMatrix = create$1();
+                        mul(nodeMatrix, model_1, node.worldMatrix);
+                        _this.renderBufferAsGizmo(node.mesh.mainMesh, nodeMatrix, shader_1, node.mesh.mainMesh.material.diffuseColor);
+                    });
+                    //render reference axis
+                    var initTransform = planeState.initialTransform;
+                    var refObjPos = create$2();
+                    getTranslation(refObjPos, initTransform);
+                    var refScaleToFit = dist(camPos, refObjPos) * Math.tan(_this.camControl.perspParams.fov / 2) * 0.5; // some constant to fit to proper size
+                    var refScale = create$1();
+                    var refModel = create$1();
+                    fromScaling(refScale, fromValues$1(refScaleToFit, refScaleToFit, refScaleToFit));
+                    mul(refModel, initTransform, refScale);
+                    mul(refModel, refModel, _this.refAxis2DHelper.worldMatrix);
+                    var nodeMatrix = create$1();
+                    mul(nodeMatrix, refModel, _this.refAxis2DHelper.worldMatrix);
+                    _this.renderBufferAsGizmo(_this.refAxis2DHelper.mesh.mainMesh, nodeMatrix, shader_1, [0, 0, 0]);
+                }
+            });
+        }
+    };
+    SectionManager.prototype.renderBufferAsGizmo = function (mesh, worldMatrix, shader, color) {
+        if (mesh.isDataAvailable() === false) {
+            return;
+        }
+        shader.bind();
+        shader.setMat4f(uniforms.uProjectionMatrix, this.camControl.perspCamera.projectionViewMatrix);
+        shader.setMat4f(uniforms.uModelViewMatrix, worldMatrix);
+        if (color)
+            shader.setVector3f(uniforms.uColor, new Float32Array(color));
+        if (mesh.attribs.position) {
+            shader.enablePosition();
+            shader.setPosition(mesh.attribs.position);
+        }
+        else
+            return false;
+        if (mesh.attribs.color) {
+            shader.enableColor();
+            shader.setColor(mesh.attribs.color);
+        }
+        else
+            shader.disableColor();
+        var vertexSize = 3;
+        if (mesh.indices) {
+            var GLDrawType = mesh.indices.getType();
+            mesh.indices.bind();
+            AppState.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
+        }
+        else {
+            AppState.GLContext.drawArrays(mesh.rendingMode, 0, mesh.attribs.position.getDataArrayCount() / vertexSize);
+        }
+    };
+    SectionManager.prototype.updateVisualPlane = function (id, transform) {
+        var planeState = this.planeStates.get(id);
+        if (planeState) {
+            var plane = planeState.plane.children[0];
+            var color = __spread$1(plane.mesh.mainMesh.material.diffuseColor, [plane.mesh.mainMesh.material.transparency]);
+            plane.delete();
+            planeState.plane.children[0] = this.createPrimaryPlaneFromEqn(id, transform, color);
+        }
     };
     //API
     SectionManager.prototype.render = function () {
         var _this = this;
-        if (!this.initialized && AppState.isSceneLoaded) {
-            this.init();
-        }
         this.shader.bind();
-        this.primaryPlanes.forEach(function (planeGroup) {
-            planeGroup.children.forEach(function (node) {
-                if (node.type == AppConstants.NodeType.SHAPE) {
-                    var plane = node;
-                    _this.drawElements(plane, plane.mesh.mainMesh);
-                    for (var key in plane.mesh.subMeshes) {
-                        _this.drawElements(plane, plane.mesh.subMeshes[key]);
-                    }
+        this.planeStates.forEach(function (planeState, key) {
+            var planeGroup = planeState.plane;
+            if (planeGroup.visible) {
+                var plane = planeGroup.children[0];
+                plane.visible = planeGroup.visible;
+                if (key === _this.activePlaneId) {
+                    plane.mesh.subMeshes['bbox'].material.diffuseColor = [_this.selectedPlaneColor[0], _this.selectedPlaneColor[1], _this.selectedPlaneColor[2]];
                 }
-            });
-        });
-        this.slicePlanes.forEach(function (planeGroup) {
-            planeGroup.children.forEach(function (node) {
-                if (node.type == AppConstants.NodeType.SHAPE) {
-                    var plane = node;
-                    _this.drawElements(plane, plane.mesh.mainMesh);
-                    for (var key in plane.mesh.subMeshes) {
-                        _this.drawElements(plane, plane.mesh.subMeshes[key]);
-                    }
+                else {
+                    plane.mesh.subMeshes['bbox'].material.diffuseColor = [0, 0, 0];
                 }
-            });
+                planeGroup.children.forEach(function (node) {
+                    if (node.type == AppConstants.NodeType.SHAPE) {
+                        var plane_1 = node;
+                        _this.drawElements(plane_1, plane_1.mesh.mainMesh);
+                        for (var key_1 in plane_1.mesh.subMeshes) {
+                            _this.drawElements(plane_1, plane_1.mesh.subMeshes[key_1]);
+                        }
+                    }
+                });
+            }
         });
+        this.renderGizmos();
+    };
+    SectionManager.prototype.addPlane = function (id, transform, color) {
+        if (this.maxPlanes === this.planeStates.size) {
+            console.warn("Max plane count reached, operation ignored");
+            return;
+        }
+        if (this.planeStates.has(id) === false) {
+            var planeEqn = new Plane();
+            var e = Utility.getPlaneEqnFromTransfromMat(transform);
+            planeEqn.normal = fromValues$1(e[0], e[1], e[2]);
+            normalize(planeEqn.normal, planeEqn.normal);
+            planeEqn.constant = -e[3];
+            var plane = this.createPrimaryPlaneFromEqn(id, transform, __spread$1(color));
+            var planeGroup = new TransFormNode(id + 'group');
+            planeGroup.addChild(plane);
+            var newPlaneState = {
+                uid: id,
+                isPlaneEnabled: false,
+                eqn: planeEqn,
+                plane: planeGroup,
+                initialTransform: clone(transform)
+            };
+            this.planeStates.set(id, newPlaneState);
+        }
+        else {
+            console.warn("Section plane with " + id + " already exists");
+        }
+    };
+    SectionManager.prototype.deletePlane = function (id) {
+        if (this.planeStates.size === 0) {
+            console.warn("No section plane found to delete");
+        }
+        if (this.planeStates.has(id) === true) {
+            var planeState = this.planeStates.get(id);
+            this.disableClipPlane(id);
+            planeState.plane.delete();
+            this.planeStates.delete(id);
+        }
+        else {
+            console.warn("Section plane with " + id + " not found");
+        }
     };
     //not used
-    SectionManager.prototype.intersectPlane = function (raycaster) {
-        var e_1, _a, e_2, _b;
-        var minDist = Infinity;
-        var intersectPlane;
-        try {
-            for (var _c = __values(this.primaryPlanes), _d = _c.next(); !_d.done; _d = _c.next()) {
-                var plane = _d.value;
-                if (plane.visible == false)
-                    continue;
-                var planeNode = plane.children[0];
-                var intersection = planeNode.intersectPlane(raycaster);
-                if (intersection > 0 && intersection < minDist) {
-                    minDist = intersection;
-                    intersectPlane = planeNode;
-                }
-            }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
-            }
-            finally { if (e_1) throw e_1.error; }
-        }
-        try {
-            for (var _e = __values(this.slicePlanes), _f = _e.next(); !_f.done; _f = _e.next()) {
-                var plane = _f.value;
-                if (plane.visible == false)
-                    continue;
-                var planeNode = plane.children[0];
-                var intersection = planeNode.intersectPlane(raycaster);
-                if (intersection > 0 && intersection < minDist) {
-                    minDist = intersection;
-                    intersectPlane = planeNode;
-                }
-            }
-        }
-        catch (e_2_1) { e_2 = { error: e_2_1 }; }
-        finally {
-            try {
-                if (_f && !_f.done && (_b = _e.return)) _b.call(_e);
-            }
-            finally { if (e_2) throw e_2.error; }
-        }
-        if (intersectPlane === undefined)
-            return;
-        this.selectedPlane = intersectPlane;
-        this.setSelectPlaneEqn();
-        this.originalPlaneColor = intersectPlane.mesh.mainMesh.material.diffuseColor;
-        this.selectedPlane.mesh.mainMesh.material.diffuseColor = this.selectedPlaneColor;
-    };
+    // public intersectPlane(raycaster:RayCaster){
+    //     let minDist = Infinity;
+    //     let intersectPlane:ShapeNode;
+    //     for(let plane of this.primaryPlanes){
+    //         if(plane.visible==false)
+    //         continue;
+    //         let planeNode = plane.children[0] as ShapeNode;
+    //         let intersection = planeNode.intersectPlane(raycaster);
+    //         if(intersection>0 && intersection < minDist){
+    //             minDist=intersection;
+    //             intersectPlane = planeNode;
+    //         }
+    //     }
+    //     for(let plane of this.slicePlanes){
+    //         if(plane.visible==false)
+    //         continue;
+    //         let planeNode = plane.children[0] as ShapeNode;
+    //         let intersection = planeNode.intersectPlane(raycaster);
+    //         if(intersection>0 && intersection < minDist){
+    //             minDist=intersection;
+    //             intersectPlane = planeNode;
+    //         }
+    //     }
+    //     if(intersectPlane === undefined )
+    //         return;
+    //     this.selectedPlane = intersectPlane;
+    //     this.setSelectPlaneEqn();
+    //     this.originalPlaneColor = intersectPlane.mesh.mainMesh.material.diffuseColor;
+    //     this.selectedPlane.mesh.mainMesh.material.diffuseColor = this.selectedPlaneColor;
+    // }
     //used
+    SectionManager.prototype.setActivePlane = function (id) {
+        if (this.planeStates.has(id) === false) {
+            throw new Error("invalid section plane id ");
+        }
+        else {
+            this.activePlaneId = id;
+        }
+    };
     SectionManager.prototype.enableClipPlane = function (id) {
-        this.planeStates[id].isPlaneEnabled = true;
+        var planeState = this.planeStates.get(id);
+        if (planeState) {
+            planeState.isPlaneEnabled = true;
+            this.planeStates.set(id, planeState);
+            AppObjects.renderer.mainShader.updateClipPlaneUniforms();
+        }
     };
     SectionManager.prototype.disableClipPlane = function (id) {
-        this.planeStates[id].isPlaneEnabled = false;
-    };
-    SectionManager.prototype.enableSlicePlane = function (id) {
-        this.planeStates[id].isSlicePlaneEnabled = true;
-    };
-    SectionManager.prototype.disableSlicePlane = function (id) {
-        this.planeStates[id].isSlicePlaneEnabled = false;
+        var planeState = this.planeStates.get(id);
+        if (planeState) {
+            planeState.isPlaneEnabled = false;
+            this.planeStates.set(id, planeState);
+            AppObjects.renderer.mainShader.bind();
+            AppObjects.renderer.mainShader.updateClipPlaneUniforms();
+            this.shader.bind();
+        }
     };
     SectionManager.prototype.showClipPlane = function (id) {
-        if (this.primaryPlanes.length == 0)
-            return;
-        this.primaryPlanes[id].visible = true;
+        var planeState = this.planeStates.get(id);
+        if (planeState) {
+            planeState.plane.visible = true;
+            this.planeStates.set(id, planeState);
+        }
     };
     SectionManager.prototype.hideClipPlane = function (id) {
-        if (this.primaryPlanes.length == 0)
-            return;
-        this.primaryPlanes[id].visible = false;
-    };
-    SectionManager.prototype.showSlicePlane = function (id) {
-        if (this.slicePlanes.length == 0)
-            return;
-        this.slicePlanes[id].visible = true;
-    };
-    SectionManager.prototype.hideSlicePlane = function (id) {
-        if (this.slicePlanes.length == 0)
-            return;
-        this.slicePlanes[id].visible = false;
-    };
-    SectionManager.prototype.reset = function () {
-        this.resetPlane(0);
-        this.resetPlane(1);
-        this.resetPlane(2);
-    };
-    SectionManager.prototype.translatePlane = function (delta, deltaSlice, planeIndex) {
-        if (this.primaryPlaneEqns.length == 0 || this.primaryPlanes.length == 0)
-            return;
-        this.primaryPlaneEqns[planeIndex].constant += delta;
-        this.slicePlaneOffset[planeIndex] += deltaSlice;
-        this.updateSlicePlaneEqn(planeIndex);
-        var currentEqn = this.primaryPlaneEqns[planeIndex];
-        var planeNode = this.primaryPlanes[planeIndex].children[0];
-        var planeMesh = planeNode.mesh;
-        var _a = __read(planeMesh.getPoints(), 4), p1 = _a[0], p2 = _a[1], p3 = _a[2], p4 = _a[3];
-        if (currentEqn == undefined)
-            return;
-        var translation = create$1();
-        var dir = planeMesh.getFrontDir();
-        scale$1(dir, dir, delta);
-        translate(translation, translation, dir);
-        transformMat4(p1, p1, translation);
-        transformMat4(p2, p2, translation);
-        transformMat4(p3, p3, translation);
-        transformMat4(p4, p4, translation);
-        this.primaryPlanes[planeIndex].delete();
-        this.slicePlanes[planeIndex].delete();
-        var color = [0, 0, 0];
-        color[planeIndex] = 1;
-        var newPlane = this.createPlane(planeIndex.toString(), p1, p2, p3, p4, color);
-        var planeGroup = new TransFormNode('planeGroup' + planeIndex);
-        planeGroup.addChild(newPlane);
-        this.createPlaneAxis(newPlane.mesh, planeGroup);
-        planeGroup.visible = (this.planeStates[planeIndex].isPlaneEnabled && this.primaryPlanes[planeIndex] !== undefined) ? this.primaryPlanes[planeIndex].visible : false;
-        this.primaryPlanes.splice(planeIndex, 1, planeGroup);
-        //this.updateVisualPlane(planeIndex);
-    };
-    SectionManager.prototype.rotatePlane = function (deltaX, deltaY, deltaZ, planeIndex) {
-        if (this.primaryPlaneEqns.length == 0 || this.primaryPlanes.length == 0)
-            return;
-        var currentEqn = this.primaryPlaneEqns[planeIndex];
-        var planeNode = this.primaryPlanes[planeIndex].children[0];
-        var planeMesh = planeNode.mesh;
-        var _a = __read(planeMesh.getPoints(), 4), p1 = _a[0], p2 = _a[1], p3 = _a[2], p4 = _a[3];
-        if (currentEqn == undefined)
-            return;
-        var planeCenter = MathUtils.getMidPoint(p1, p3);
-        var n = currentEqn.normal;
-        var u = create$2();
-        var cdmid = MathUtils.getMidPoint(p3, p4);
-        sub(u, cdmid, planeCenter);
-        normalize(u, u);
-        var v = create$2();
-        var bcmid = MathUtils.getMidPoint(p2, p3);
-        sub(v, bcmid, planeCenter);
-        normalize(v, v);
-        var uv = create$2();
-        cross(uv, u, v);
-        if (!equals(uv, n)) {
-            var t = clone$1(u);
-            u = clone$1(v);
-            v = t;
+        var planeState = this.planeStates.get(id);
+        if (planeState) {
+            planeState.plane.visible = false;
+            this.planeStates.set(id, planeState);
         }
-        var rotation = create$1();
-        translate(rotation, rotation, planeCenter);
-        rotate(rotation, rotation, MathUtils.deg2Rad(-deltaX), u);
-        rotate(rotation, rotation, MathUtils.deg2Rad(-deltaY), v);
-        rotate(rotation, rotation, MathUtils.deg2Rad(deltaZ), n);
-        translate(rotation, rotation, fromValues(-planeCenter[0], -planeCenter[1], -planeCenter[2]));
-        transformMat4(p1, p1, rotation);
-        transformMat4(p2, p2, rotation);
-        transformMat4(p3, p3, rotation);
-        transformMat4(p4, p4, rotation);
-        planeCenter = MathUtils.getMidPoint(p1, p3);
-        cdmid = MathUtils.getMidPoint(p3, p4);
-        sub(u, cdmid, planeCenter);
-        normalize(u, u);
-        bcmid = MathUtils.getMidPoint(p2, p3);
-        sub(v, bcmid, planeCenter);
-        normalize(v, v);
-        cross(n, u, v);
-        this.primaryPlanes[planeIndex].delete();
-        this.slicePlanes[planeIndex].delete();
-        var color = [0, 0, 0];
-        color[planeIndex] = 1;
-        var newPlane = this.createPlane(planeIndex.toString(), p1, p2, p3, p4, color);
-        var planeGroup = new TransFormNode('planeGroup' + planeIndex);
-        planeGroup.addChild(newPlane);
-        this.createPlaneAxis(newPlane.mesh, planeGroup);
-        planeGroup.visible = (this.planeStates[planeIndex].isPlaneEnabled && this.primaryPlanes[planeIndex] !== undefined) ? this.primaryPlanes[planeIndex].visible : false;
-        this.primaryPlanes.splice(planeIndex, 1, planeGroup);
-        var plane = new Plane();
-        plane.setFromNormalAndCoplanarPoint(n, planeCenter);
-        this.primaryPlaneEqns[planeIndex] = plane;
-        color[planeIndex] = 0.5;
-        // this.slicePlanes.splice(planeIndex,1,this.createSlicePlaneFromEqn(planeIndex,color));
     };
-    SectionManager.prototype.setSlicePlaneOffset = function (value, planeIndex) {
-        this.slicePlaneOffset[planeIndex] = value;
-        this.updateSlicePlaneEqn(planeIndex);
-        this.updateVisualPlane(planeIndex);
+    SectionManager.prototype.setPlaneEquation = function (id, transform, initTransform) {
+        var e = Utility.getPlaneEqnFromTransfromMat(transform);
+        var planeState = this.planeStates.get(id);
+        if (planeState) {
+            if (initTransform) {
+                planeState.initialTransform = initTransform;
+            }
+            this.setPlaneEqn(id, e);
+            this.updateVisualPlane(id, transform);
+        }
     };
-    SectionManager.prototype.setPlaneEquation = function (planeIndex, eqn) {
-        this.setPlaneEqn(planeIndex, eqn);
-        this.updateVisualPlane(planeIndex);
-    };
-    SectionManager.prototype.getPlaneEquation = function (planeIndex) {
-        if (this.primaryPlaneEqns[planeIndex] == undefined)
-            return;
-        var n = this.primaryPlaneEqns[planeIndex].normal;
-        var d = this.primaryPlaneEqns[planeIndex].constant;
-        return [n[0], n[1], n[2], -d];
+    SectionManager.prototype.getPlaneEquation = function (id) {
+        var planeState = this.planeStates.get(id);
+        if (planeState) {
+            var n = planeState.eqn.normal;
+            planeState.eqn.constant;
+            var plane = planeState.plane.children[0];
+            var planeMesh = plane.mesh;
+            var x = planeMesh.getRightDir();
+            var y = planeMesh.getTopDir();
+            var c = planeMesh.getCenter();
+            return {
+                initTransform: planeState.initialTransform,
+                transform: fromValues(x[0], x[1], x[2], 0, y[0], y[1], y[2], 0, n[0], n[1], n[2], 0, c[0], c[1], c[2], 1),
+            };
+        }
     };
     return SectionManager;
 }());var PartManipulator = /** @class */ (function () {
@@ -12186,7 +11793,7 @@ var Plane = /** @class */ (function () {
             var point3d22 = camControl.unproject([newMouseX, newMouseY, 1], mvMatrix, [camControl.canvas.width, camControl.canvas.height], camMatrix); // 1 means far plane
             if (point3d11 == null || point3d22 == null)
                 return;
-            var cameraPosition_1 = fromValues$1(0, 0, 0, 1);
+            var cameraPosition_1 = fromValues$2(0, 0, 0, 1);
             var CameraMatrix = camControl.getCameraMatrix(CameraType.Perspective);
             invert(CameraMatrix, CameraMatrix);
             transformMat4$1(cameraPosition_1, cameraPosition_1, CameraMatrix);
@@ -12197,8 +11804,8 @@ var Plane = /** @class */ (function () {
             normalize(ray1, ray1);
             normalize(ray2, ray2);
             var angle_1 = Math.acos(Math.min(1.0, dot(ray1, ray2)));
-            var right = fromValues(CameraMatrix[0], CameraMatrix[1], CameraMatrix[2]);
-            var up = fromValues(CameraMatrix[4], CameraMatrix[5], CameraMatrix[6]);
+            var right = fromValues$1(CameraMatrix[0], CameraMatrix[1], CameraMatrix[2]);
+            var up = fromValues$1(CameraMatrix[4], CameraMatrix[5], CameraMatrix[6]);
             normalize(up, up);
             normalize(right, right);
             var v1 = create$2();
@@ -12215,10 +11822,10 @@ var Plane = /** @class */ (function () {
                     var pickAndMoveInv = create$1();
                     invert(pickAndMoveInv, selectNode.pickAndMoveMatrix);
                     var rotationPointInModelSpace = create$3();
-                    transformMat4$1(rotationPointInModelSpace, fromValues$1(cameraPosition_1[0], cameraPosition_1[1], cameraPosition_1[2], 1), pickAndMoveInv);
-                    var rotationPoint = fromValues(rotationPointInModelSpace[0], rotationPointInModelSpace[1], rotationPointInModelSpace[2]);
+                    transformMat4$1(rotationPointInModelSpace, fromValues$2(cameraPosition_1[0], cameraPosition_1[1], cameraPosition_1[2], 1), pickAndMoveInv);
+                    var rotationPoint = fromValues$1(rotationPointInModelSpace[0], rotationPointInModelSpace[1], rotationPointInModelSpace[2]);
                     translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, rotationPoint);
-                    MathUtils.rotateOnWorldAxis(selectNode.pickAndMoveMatrix, angle_1, fromValues(axis_in_camera_coord_1[0], axis_in_camera_coord_1[1], axis_in_camera_coord_1[2]));
+                    MathUtils.rotateOnWorldAxis(selectNode.pickAndMoveMatrix, angle_1, fromValues$1(axis_in_camera_coord_1[0], axis_in_camera_coord_1[1], axis_in_camera_coord_1[2]));
                     translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, negate(rotationPoint, rotationPoint));
                 }
             });
@@ -12234,7 +11841,7 @@ var Plane = /** @class */ (function () {
             var angleAxis_1 = this.getRotAngleAndNormalizedAxis(newX, newY, lastMouseX, lastMouseY);
             if (!angleAxis_1)
                 return;
-            var axis_in_camera_coord = fromValues$1(angleAxis_1.axis_in_camera_coord[0], angleAxis_1.axis_in_camera_coord[1], angleAxis_1.axis_in_camera_coord[2], 0);
+            var axis_in_camera_coord = fromValues$2(angleAxis_1.axis_in_camera_coord[0], angleAxis_1.axis_in_camera_coord[1], angleAxis_1.axis_in_camera_coord[2], 0);
             var axis_in_obj_coord_1 = create$3();
             normalize$1(axis_in_camera_coord, axis_in_camera_coord);
             var camControl = AppObjects.renderer.camControl;
@@ -12252,7 +11859,7 @@ var Plane = /** @class */ (function () {
                     invert(world_inverse, selectNode.worldMatrix);
                     transformMat4(local_center, world_center, world_inverse);
                     translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, local_center);
-                    MathUtils.rotateOnWorldAxis(selectNode.pickAndMoveMatrix, angleAxis_1.angle, fromValues(axis_in_obj_coord_1[0], axis_in_obj_coord_1[1], axis_in_obj_coord_1[2]));
+                    MathUtils.rotateOnWorldAxis(selectNode.pickAndMoveMatrix, angleAxis_1.angle, fromValues$1(axis_in_obj_coord_1[0], axis_in_obj_coord_1[1], axis_in_obj_coord_1[2]));
                     translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, negate(local_center, local_center));
                 }
             });
@@ -12268,10 +11875,10 @@ var Plane = /** @class */ (function () {
         scale$1(partCenter, partCenter, 1 / selectedNodes.size);
         var CameraMatrix = camControl.getCameraMatrix(CameraType.Perspective);
         invert(CameraMatrix, CameraMatrix);
-        var cameraPosition = fromValues$1(0, 0, 0, 1);
+        var cameraPosition = fromValues$2(0, 0, 0, 1);
         transformMat4$1(cameraPosition, cameraPosition, CameraMatrix);
         var camDir = create$2();
-        sub(camDir, fromValues(cameraPosition[0], cameraPosition[1], cameraPosition[2]), partCenter);
+        sub(camDir, fromValues$1(cameraPosition[0], cameraPosition[1], cameraPosition[2]), partCenter);
         selectedNodes.forEach(function (node) {
             var selectNode = node.parent;
             if (selectNode) {
@@ -12280,10 +11887,10 @@ var Plane = /** @class */ (function () {
                 var dist2Cam = len(camDir);
                 var front = MathUtils.getDirVector(CameraMatrix);
                 var frontInModelSpace = create$3();
-                transformMat4$1(frontInModelSpace, fromValues$1(front[0], front[1], front[2], 0), pickAndMoveInv);
+                transformMat4$1(frontInModelSpace, fromValues$2(front[0], front[1], front[2], 0), pickAndMoveInv);
                 normalize$1(frontInModelSpace, frontInModelSpace);
                 scale$2(frontInModelSpace, frontInModelSpace, scale * dist2Cam * _this.zoomFactor);
-                translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, fromValues(frontInModelSpace[0], frontInModelSpace[1], frontInModelSpace[2]));
+                translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, fromValues$1(frontInModelSpace[0], frontInModelSpace[1], frontInModelSpace[2]));
             }
         });
         AppObjects.sceneManager.update();
@@ -12387,6 +11994,20 @@ var LabelState;
         return _this;
     }
     return PointNode;
+}(ShapeNode));var LineNode = /** @class */ (function (_super) {
+    __extends(LineNode, _super);
+    function LineNode(name, p1, p2, color) {
+        if (color === void 0) { color = [0, 0, 0, 1]; }
+        var _this = _super.call(this, name) || this;
+        _this.mesh = new Mesh(name);
+        _this.mesh.mainMesh = new LineMesh(name, p1, p2);
+        _this.mesh.mainMesh.material = new Material(name + '_material');
+        _this.mesh.mainMesh.material.diffuseColor = [color[0], color[1], color[2]];
+        _this.mesh.mainMesh.material.transparency = 1 - color[3];
+        _this.visible = true;
+        return _this;
+    }
+    return LineNode;
 }(ShapeNode));var Label = /** @class */ (function () {
     function Label(id) {
         this.id = id;
@@ -12490,13 +12111,13 @@ var LabelState;
         var PositionArray = [];
         PositionArray[0] = parseInt(this.htmlDiv.style.left);
         PositionArray[1] = parseInt(this.htmlDiv.style.top);
-        this.position = __spread(PositionArray);
+        this.position = __spread$1(PositionArray);
         return PositionArray;
     };
     Label.prototype.setCanvasPosition = function (labelPos) {
         this.htmlDiv.style.left = labelPos[0] + "px";
         this.htmlDiv.style.top = labelPos[1] + "px";
-        this.position = __spread(labelPos);
+        this.position = __spread$1(labelPos);
     };
     Label.prototype.isVisible = function () {
         return this.visible;
@@ -12522,8 +12143,8 @@ var Label3D = /** @class */ (function () {
         this.label = null;
         this.shader = null;
         this.visible = true;
-        this.lineStartPos = fromValues(0, 6, 0);
-        this.lineEndPos = fromValues(10, 20, 0);
+        this.lineStartPos = fromValues$1(0, 6, 0);
+        this.lineEndPos = fromValues$1(10, 20, 0);
         this.pointDisplay = new PointNode(id + '_pointDisplay', this.lineStartPos);
         this.lineDisplay = new LineNode(id + '_lineDisplay', this.lineStartPos, this.lineEndPos);
         this.renderer = AppObjects.renderer;
@@ -12619,7 +12240,7 @@ var Label3D = /** @class */ (function () {
         return this.label.getCanvasPosition();
     };
     Label3D.prototype.setCanvasPosition = function (labelPos) {
-        this.label.setCanvasPosition(__spread(labelPos));
+        this.label.setCanvasPosition(__spread$1(labelPos));
     };
     Label3D.prototype.render = function () {
         var _a;
@@ -12652,14 +12273,14 @@ var Label3D = /** @class */ (function () {
                 normalize(lineDir, lineDir);
                 scaleAndAdd(this.lineEndPos, this.lineStartPos, lineDir, bbox.getRadius());
                 if (this.is3DPointVisible(this.lineEndPos)) {
-                    var point2d = this.renderer.camControl.project(__spread(this.lineEndPos), mvMatrix, [canvas.width, canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
+                    var point2d = this.renderer.camControl.project(__spread$1(this.lineEndPos), mvMatrix, [canvas.width, canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
                     x = point2d[0];
                     y = point2d[1];
                     point2d[2];
                     this.setCanvasPosition([x, y]);
                 }
                 else {
-                    _a = __read(this.label.getCanvasPosition(), 2), x = _a[0], y = _a[1];
+                    _a = __read$1(this.label.getCanvasPosition(), 2), x = _a[0], y = _a[1];
                 }
                 // }
                 var lineEndOnNearPlane = this.renderer.camControl.unproject([x, y, 0], mvMatrix, [canvas.width, canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
@@ -12668,9 +12289,7 @@ var Label3D = /** @class */ (function () {
         }
     };
     return Label3D;
-}());var LabelVertex = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 aPosition;in vec3 aColor;out vec3 vColor;uniform mat4 uProjectionMatrix;uniform mat4 uModelViewMatrix;void main(void){gl_PointSize=5.0;vec4 vPosWorldSpace=uModelViewMatrix*vec4(aPosition,1.0);gl_Position=uProjectionMatrix*vPosWorldSpace;vColor=aColor;}"; // eslint-disable-line
-var LabelFrag = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 vColor;uniform highp vec3 uColor;out vec4 outColor;void main(void){vec3 col=uColor;if(col==vec3(0.0))col=vColor;outColor=vec4(col,1);}"; // eslint-disable-line
-var LabelManager = /** @class */ (function () {
+}());var LabelManager = /** @class */ (function () {
     function LabelManager() {
         this.labelArray = [];
         this.shader = new Shader(LabelVertex, LabelFrag);
@@ -12683,7 +12302,7 @@ var LabelManager = /** @class */ (function () {
     };
     LabelManager.prototype.addLabel = function (id, hitpt, message) {
         var label = new Label3D(id + '_' + this.labelArray.length, Label3DType.PROBE);
-        label.setOrigin(fromValues(hitpt[0], hitpt[1], hitpt[2]));
+        label.setOrigin(fromValues$1(hitpt[0], hitpt[1], hitpt[2]));
         label.setMessage(message);
         label.setShader(this.shader);
         this.labelArray.push(label);
@@ -12737,8 +12356,8 @@ var LabelManager = /** @class */ (function () {
         var _this = this;
         this.GLTFJson = json;
         return new Promise(function (resolve) {
-            _this.dataManager.loadGLTF(json).then(function (scene) { return __awaiter(_this, void 0, void 0, function () {
-                return __generator(this, function (_a) {
+            _this.dataManager.loadGLTF(json).then(function (scene) { return __awaiter$1(_this, void 0, void 0, function () {
+                return __generator$1(this, function (_a) {
                     switch (_a.label) {
                         case 0:
                             console.log(scene);
@@ -12769,9 +12388,9 @@ var LabelManager = /** @class */ (function () {
         }
     };
     App.prototype.loadScene = function (GLTFJson) {
-        return __awaiter(this, void 0, void 0, function () {
+        return __awaiter$1(this, void 0, void 0, function () {
             var data, name, scene, resultSet, type_1;
-            return __generator(this, function (_a) {
+            return __generator$1(this, function (_a) {
                 data = GLTFJson;
                 name = "Root";
                 try {
@@ -12857,7 +12476,7 @@ var LabelManager = /** @class */ (function () {
                 }
                 AppState.resultSet = resultSet;
                 //console.log("Result Set :", resultSet); 
-                AppObjects.renderer.camControl.onSceneLoad();
+                //AppObjects.sectionManager.init();
                 AppState.isSceneLoaded = true;
                 if (AppObjects.externalEventDispatcher)
                     AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MODEL_LOADED, data: {} });
@@ -12893,8 +12512,9 @@ var LabelManager = /** @class */ (function () {
             return false;
         }
     };
-    App.prototype.getSceneBoundingBox = function () {
-        return this.sceneManager.getBoundingBox();
+    App.prototype.getSceneBoundingBox = function (onlyVisible) {
+        if (onlyVisible === void 0) { onlyVisible = true; }
+        return this.sceneManager.getBoundingBox(onlyVisible);
     };
     App.prototype.fitView = function (selectedNodeIds) {
         var bbox = this.sceneManager.getBoundingBox();
@@ -13191,12 +12811,12 @@ var LabelManager = /** @class */ (function () {
                         if (node.mesh) {
                             if (node.mesh.mainMesh) {
                                 var indexes = node.mesh.mainMesh.getBufferViewIndex();
-                                bufferViewIndex = __spread(bufferViewIndex, indexes);
+                                bufferViewIndex = __spread$1(bufferViewIndex, indexes);
                             }
                             for (var key in node.mesh.subMeshes) {
                                 var submesh = node.mesh.subMeshes[key];
                                 var indexes = submesh.getBufferViewIndex();
-                                bufferViewIndex = __spread(bufferViewIndex, indexes);
+                                bufferViewIndex = __spread$1(bufferViewIndex, indexes);
                             }
                         }
                     }
@@ -13407,17 +13027,14 @@ var LabelManager = /** @class */ (function () {
     };
     //#endregion
     //#region Section API
+    App.prototype.setActiveSectionPlaneId = function (id) {
+        AppObjects.sectionManager.setActivePlane(id);
+    };
     App.prototype.enableClipPlane = function (id) {
         AppObjects.sectionManager.enableClipPlane(id);
     };
     App.prototype.disableClipPlane = function (id) {
         AppObjects.sectionManager.disableClipPlane(id);
-    };
-    App.prototype.enableSlicePlane = function (id) {
-        AppObjects.sectionManager.enableSlicePlane(id);
-    };
-    App.prototype.disableSlicePlane = function (id) {
-        AppObjects.sectionManager.disableSlicePlane(id);
     };
     App.prototype.showClipPlane = function (id) {
         AppObjects.sectionManager.showClipPlane(id);
@@ -13425,26 +13042,14 @@ var LabelManager = /** @class */ (function () {
     App.prototype.hideClipPlane = function (id) {
         AppObjects.sectionManager.hideClipPlane(id);
     };
-    App.prototype.showSlicePlane = function (id) {
-        AppObjects.sectionManager.showSlicePlane(id);
+    App.prototype.addSectionPlane = function (planeId, transform, color) {
+        AppObjects.sectionManager.addPlane(planeId, transform, color);
     };
-    App.prototype.hideSlicePlane = function (id) {
-        AppObjects.sectionManager.hideSlicePlane(id);
+    App.prototype.deleteSectionPlane = function (planeId) {
+        AppObjects.sectionManager.deletePlane(planeId);
     };
-    App.prototype.resetSection = function () {
-        AppObjects.sectionManager.reset();
-    };
-    App.prototype.translateSectionPlane = function (delta, deltaSlice, planeIndex) {
-        AppObjects.sectionManager.translatePlane(delta, deltaSlice, planeIndex);
-    };
-    App.prototype.rotateSectionPlane = function (deltaX, deltaY, deltaZ, planeIndex) {
-        AppObjects.sectionManager.rotatePlane(deltaX, deltaY, deltaZ, planeIndex);
-    };
-    App.prototype.setSlicePlaneOffset = function (value, planeIndex) {
-        AppObjects.sectionManager.setSlicePlaneOffset(value, planeIndex);
-    };
-    App.prototype.setSectionPlaneEquation = function (planeId, eqn) {
-        AppObjects.sectionManager.setPlaneEquation(planeId, eqn);
+    App.prototype.setSectionPlaneEquation = function (planeId, transform, initTransform) {
+        AppObjects.sectionManager.setPlaneEquation(planeId, transform, initTransform);
     };
     App.prototype.getSectionPlaneEquation = function (planeId) {
         return AppObjects.sectionManager.getPlaneEquation(planeId);
@@ -13497,13 +13102,10 @@ var LabelManager = /** @class */ (function () {
         AppState.showFPS = (value === true ? true : false);
     };
     return App;
-}());var version = "0.0.10";var vctViewer = /** @class */ (function () {
+}());var vctViewer = /** @class */ (function () {
     function vctViewer(_containerID, _connectorObject) {
         this.appli = new App(_containerID, _connectorObject);
     }
-    vctViewer.prototype.getVersion = function () {
-        return version;
-    };
     vctViewer.prototype.init = function (_serverAddress) {
         var serverAddress = _serverAddress || 'http://127.0.0.1:8080';
         this.appli.init(serverAddress);
@@ -13520,8 +13122,9 @@ var LabelManager = /** @class */ (function () {
     vctViewer.prototype.addFile = function (API, filePath) {
         this.appli.addFile(API, filePath);
     };
-    vctViewer.prototype.getSceneBoundingBox = function () {
-        return this.appli.getSceneBoundingBox();
+    vctViewer.prototype.getSceneBoundingBox = function (onlyVisible) {
+        if (onlyVisible === void 0) { onlyVisible = true; }
+        return this.appli.getSceneBoundingBox(onlyVisible);
     };
     vctViewer.prototype.fitView = function (selectedNodeIds) {
         if (selectedNodeIds === void 0) { selectedNodeIds = []; }
@@ -13635,17 +13238,14 @@ var LabelManager = /** @class */ (function () {
         return this.appli.probeFromNodes(nodes, mouseXY);
     };
     //#region section API
+    vctViewer.prototype.setActiveSectionPlaneId = function (id) {
+        this.appli.setActiveSectionPlaneId(id);
+    };
     vctViewer.prototype.enableClipPlane = function (id) {
         this.appli.enableClipPlane(id);
     };
     vctViewer.prototype.disableClipPlane = function (id) {
         this.appli.disableClipPlane(id);
-    };
-    vctViewer.prototype.enableSlicePlane = function (id) {
-        this.appli.enableSlicePlane(id);
-    };
-    vctViewer.prototype.disableSlicePlane = function (id) {
-        this.appli.disableSlicePlane(id);
     };
     vctViewer.prototype.showClipPlane = function (id) {
         this.appli.showClipPlane(id);
@@ -13653,26 +13253,14 @@ var LabelManager = /** @class */ (function () {
     vctViewer.prototype.hideClipPlane = function (id) {
         this.appli.hideClipPlane(id);
     };
-    vctViewer.prototype.showSlicePlane = function (id) {
-        this.appli.showSlicePlane(id);
+    vctViewer.prototype.addSectionPlane = function (planeId, transform, color) {
+        this.appli.addSectionPlane(planeId, transform, color);
     };
-    vctViewer.prototype.hideSlicePlane = function (id) {
-        this.appli.hideSlicePlane(id);
+    vctViewer.prototype.deleteSectionPlane = function (planeId) {
+        this.appli.deleteSectionPlane(planeId);
     };
-    vctViewer.prototype.resetSection = function () {
-        this.appli.resetSection();
-    };
-    vctViewer.prototype.translateSectionPlane = function (delta, deltaSlice, planeIndex) {
-        this.appli.translateSectionPlane(delta, deltaSlice, planeIndex);
-    };
-    vctViewer.prototype.rotateSectionPlane = function (deltaX, deltaY, deltaZ, planeIndex) {
-        this.appli.rotateSectionPlane(deltaX, deltaY, deltaZ, planeIndex);
-    };
-    vctViewer.prototype.setSlicePlaneOffset = function (value, planeIndex) {
-        this.appli.setSlicePlaneOffset(value, planeIndex);
-    };
-    vctViewer.prototype.setSectionPlaneEquation = function (planeId, eqn) {
-        this.appli.setSectionPlaneEquation(planeId, eqn);
+    vctViewer.prototype.setSectionPlaneEquation = function (planeId, transform, initTransform) {
+        this.appli.setSectionPlaneEquation(planeId, transform, initTransform);
     };
     vctViewer.prototype.getSectionPlaneEquation = function (planeId) {
         return this.appli.getSectionPlaneEquation(planeId);
@@ -13698,11 +13286,8 @@ var LabelManager = /** @class */ (function () {
     vctViewer.prototype.addLabel = function (id, hitpt, message) {
         this.appli.addLabel(id, hitpt, message);
     };
-        return vctViewer;
-}());
-
-return new vctViewer(_containerID, _connectorObject);
-};var Utility = /** @class */ (function () {
+    return vctViewer;
+}());var Utility$1 = /** @class */ (function () {
     function Utility() {
     }
     Utility.create_UUID = function () {
@@ -13937,7 +13522,7 @@ var ModelTreeBuilder = /** @class */ (function () {
         this.tree = new Map();
     }
     ModelTreeBuilder.prototype.build = function () {
-        var rootNodeIds = this.processModels(Utility.deepCopy(this.mcax.models));
+        var rootNodeIds = this.processModels(Utility$1.deepCopy(this.mcax.models));
         return new ModelTree(this.tree, rootNodeIds);
     };
     ModelTreeBuilder.prototype.processModels = function (models) {
@@ -14463,7 +14048,7 @@ var Logger = /** @class */ (function () {
     };
     ProgressiveLoader.prototype.splitandUpdateBuffer = function (URLobj, arrayBuffer) {
         var _this = this;
-        var chunkstring = Utility.getURLParameterByName(URLobj.url, "chunks");
+        var chunkstring = Utility$1.getURLParameterByName(URLobj.url, "chunks");
         var chunks = chunkstring.split(",");
         var offset = 0;
         chunks.forEach(function (chunk, index) {
@@ -14629,12 +14214,12 @@ var abstractType = Object.freeze({
     LEGEND_VALUE_PLACEMENT: valuePlacement.EDGE,
     LEGEND_TICS_POSITION: ticsPosition.ACROSS,
     LEGEND_COLOR_VALUE_MODE: colorValueMode.BOUNDED,
-    LEGEND_COLOR_MAP: colorMap.PRESET1
+    LEGEND_COLOR_MAP: colorMap.COLORS_2
 };/**
  * Common utilities
  * @module glMatrix
  */
-var ARRAY_TYPE = typeof Float32Array !== 'undefined' ? Float32Array : Array;
+var ARRAY_TYPE$1 = typeof Float32Array !== 'undefined' ? Float32Array : Array;
 if (!Math.hypot) Math.hypot = function () {
   var y = 0,
       i = arguments.length;
@@ -14645,6 +14230,67 @@ if (!Math.hypot) Math.hypot = function () {
 
   return Math.sqrt(y);
 };/**
+ * 4x4 Matrix<br>Format: column-major, when typed out it looks like row-major<br>The matrices are being post multiplied.
+ * @module mat4
+ */
+
+/**
+ * Creates a new identity mat4
+ *
+ * @returns {mat4} a new 4x4 matrix
+ */
+
+function create$6() {
+  var out = new ARRAY_TYPE$1(16);
+
+  if (ARRAY_TYPE$1 != Float32Array) {
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[11] = 0;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+  }
+
+  out[0] = 1;
+  out[5] = 1;
+  out[10] = 1;
+  out[15] = 1;
+  return out;
+}
+/**
+ * Creates a new mat4 initialized with values from an existing matrix
+ *
+ * @param {ReadonlyMat4} a matrix to clone
+ * @returns {mat4} a new 4x4 matrix
+ */
+
+function clone$2(a) {
+  var out = new ARRAY_TYPE$1(16);
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  out[3] = a[3];
+  out[4] = a[4];
+  out[5] = a[5];
+  out[6] = a[6];
+  out[7] = a[7];
+  out[8] = a[8];
+  out[9] = a[9];
+  out[10] = a[10];
+  out[11] = a[11];
+  out[12] = a[12];
+  out[13] = a[13];
+  out[14] = a[14];
+  out[15] = a[15];
+  return out;
+}/**
  * 3 Dimensional Vector
  * @module vec3
  */
@@ -14655,10 +14301,10 @@ if (!Math.hypot) Math.hypot = function () {
  * @returns {vec3} a new 3D vector
  */
 
-function create() {
-  var out = new ARRAY_TYPE(3);
+function create$7() {
+  var out = new ARRAY_TYPE$1(3);
 
-  if (ARRAY_TYPE != Float32Array) {
+  if (ARRAY_TYPE$1 != Float32Array) {
     out[0] = 0;
     out[1] = 0;
     out[2] = 0;
@@ -14675,8 +14321,8 @@ function create() {
  * @returns {vec3} a new 3D vector
  */
 
-function fromValues(x, y, z) {
-  var out = new ARRAY_TYPE(3);
+function fromValues$5(x, y, z) {
+  var out = new ARRAY_TYPE$1(3);
   out[0] = x;
   out[1] = y;
   out[2] = z;
@@ -14691,7 +14337,7 @@ function fromValues(x, y, z) {
  * @returns {vec3} out
  */
 
-function subtract(out, a, b) {
+function subtract$1(out, a, b) {
   out[0] = a[0] - b[0];
   out[1] = a[1] - b[1];
   out[2] = a[2] - b[2];
@@ -14704,7 +14350,7 @@ function subtract(out, a, b) {
  * @returns {Number} squared length of a
  */
 
-function squaredLength(a) {
+function squaredLength$1(a) {
   var x = a[0];
   var y = a[1];
   var z = a[2];
@@ -14718,7 +14364,7 @@ function squaredLength(a) {
  * @returns {vec3} out
  */
 
-function normalize(out, a) {
+function normalize$3(out, a) {
   var x = a[0];
   var y = a[1];
   var z = a[2];
@@ -14742,7 +14388,7 @@ function normalize(out, a) {
  * @returns {Number} dot product of a and b
  */
 
-function dot(a, b) {
+function dot$1(a, b) {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 /**
@@ -14754,7 +14400,7 @@ function dot(a, b) {
  * @returns {vec3} out
  */
 
-function cross(out, a, b) {
+function cross$1(out, a, b) {
   var ax = a[0],
       ay = a[1],
       az = a[2];
@@ -14771,13 +14417,13 @@ function cross(out, a, b) {
  * @function
  */
 
-var sub = subtract;
+var sub$1 = subtract$1;
 /**
  * Alias for {@link vec3.squaredLength}
  * @function
  */
 
-var sqrLen = squaredLength;
+var sqrLen$1 = squaredLength$1;
 /**
  * Perform some operation over an array of vec3s.
  *
@@ -14792,7 +14438,7 @@ var sqrLen = squaredLength;
  */
 
 (function () {
-  var vec = create();
+  var vec = create$7();
   return function (a, stride, offset, count, fn, arg) {
     var i, l;
 
@@ -14864,7 +14510,7 @@ var sqrLen = squaredLength;
         if (newSize == 1) {
             if (inColorArray.length % 2 == 0) {
                 var idxStart = inColorArray.length / 2 - 1;
-                var color = create();
+                var color = create$7();
                 color[0] = (inColorArray[idxStart][0] + inColorArray[idxStart + 1][0]) * 0.5;
                 color[1] = (inColorArray[idxStart][1] + inColorArray[idxStart + 1][1]) * 0.5;
                 color[2] = (inColorArray[idxStart][2] + inColorArray[idxStart + 1][2]) * 0.5;
@@ -14885,15 +14531,15 @@ var sqrLen = squaredLength;
             var intPart = parseInt(position.toString());
             var fracPart = position - intPart;
             var color1 = inColorArray[intPart];
-            var color2 = create();
+            var color2 = create$7();
             if (intPart < iOldColorSize - 1)
                 color2 = inColorArray[intPart + 1];
             else
-                color2 = fromValues(0, 0, 0);
+                color2 = fromValues$5(0, 0, 0);
             var rIncr = (color2[0] - color1[0]) * fracPart;
             var gIncr = (color2[1] - color1[1]) * fracPart;
             var bIncr = (color2[2] - color1[2]) * fracPart;
-            var color = create();
+            var color = create$7();
             color[0] = color1[0] + rIncr;
             color[1] = color1[1] + gIncr;
             color[2] = color1[2] + bIncr;
@@ -14952,7 +14598,7 @@ var sqrLen = squaredLength;
         this.defaultLegendsID = null;
     }
     LegendManager.prototype.createLegend = function () {
-        var id = Utility.create_UUID();
+        var id = Utility$1.create_UUID();
         var legend = new Legend(id);
         this.Legends.set(id, legend);
         if (this.defaultLegendsID === null)
@@ -15255,11 +14901,7 @@ var sqrLen = squaredLength;
     return CAEResult;
 }());var GUIState = /** @class */ (function () {
     function GUIState() {
-        this.planeOptions = [
-            new PlaneGUIState(),
-            new PlaneGUIState(),
-            new PlaneGUIState()
-        ];
+        this.planeOptions = new Map();
     }
     return GUIState;
 }());
@@ -15274,22 +14916,17 @@ var PlaneGUIState = /** @class */ (function () {
         this.selectionMode = SelectionMode.NONE;
         this.isPlaneEnabled = false;
         this.isPlaneVisible = false;
-        this.isSlicePlaneEnabled = false;
-        this.isSlicePlaneVisible = false;
-        this.prevRot = [0, 0];
-        this.prevTrans = [0, 0];
         this.sliderMinMax = [0, 0];
-        this.sliceSliderMinMax = [0, 0];
         this.primarySliderValue = 0;
-        this.sliceSliderValue = 0;
-        this.rotSliderUValue = 180;
-        this.rotSliderVValue = 180;
-        this.rotSliderNValue = 180;
+        this.rotSliderUValue = 360;
+        this.rotSliderVValue = 360;
+        this.rotSliderNValue = 360;
         this.delta = 0;
-        this.deltaSlice = 0;
         this.deltaRotU = 0;
         this.deltaRotV = 0;
         this.deltaRotN = 0;
+        this.transform = create$6();
+        this.initTransform = create$6();
     }
     return PlaneGUIState;
 }());
@@ -15297,22 +14934,18 @@ var Section = /** @class */ (function () {
     function Section(_renderApp, appState) {
         this.renderApp = _renderApp;
         this.appState = appState;
-        this.activePlaneId = null;
+        this.activePlaneId = -1;
         this.events = this.renderApp.getEvents();
         this.externalEventDispatcher = this.renderApp.getEventDispatcher();
         this.registerEvents();
-        this.bbox = _renderApp.getSceneBoundingBox();
-        var offset = this.bbox.getRadius() / 4;
-        this.slicePlaneOffset = [offset, offset, offset];
+        this.bbox = null;
         this.guiState = new GUIState();
         this.selectedPts = [];
         this.selectionMode = SelectionMode.NONE;
-        this.setBounds(0);
-        this.setBounds(1);
-        this.setBounds(2);
     }
     Section.prototype.registerEvents = function () {
         this.externalEventDispatcher.addEventListener(this.events.PROBE_FINISH, this.handleSelection.bind(this));
+        this.externalEventDispatcher.addEventListener(this.events.MODEL_LOADED, this.handleOnModelLoad.bind(this));
     };
     Section.prototype.handle3ptSelect = function (probeData) {
         if (this.selectedPts.length > 0 && this.selectedPts[this.selectedPts.length - 1] == probeData.nearPoint) {
@@ -15322,7 +14955,8 @@ var Section = /** @class */ (function () {
             this.selectedPts.push(probeData.hitPoint);
         }
         if (this.selectedPts.length == 3) {
-            this.planeFrom3pts(this.activePlaneId, this.selectedPts[0], this.selectedPts[1], this.selectedPts[2]);
+            var activeTrans = clone$2(this.guiState.planeOptions.get(this.activePlaneId).transform);
+            this.planeFrom3pts(this.activePlaneId, this.selectedPts[0], this.selectedPts[1], this.selectedPts[2], activeTrans);
             this.selectedPts = [];
         }
         Logger.setStatusBar("Probing from 3pt section");
@@ -15335,7 +14969,8 @@ var Section = /** @class */ (function () {
                 [data[3], data[4], data[5]],
                 [data[6], data[7], data[8]]
             ];
-            this.planeFrom3pts(this.activePlaneId, this.selectedPts[0], this.selectedPts[1], this.selectedPts[2]);
+            var activeTrans = clone$2(this.guiState.planeOptions.get(this.activePlaneId).transform);
+            this.planeFrom3pts(this.activePlaneId, this.selectedPts[0], this.selectedPts[1], this.selectedPts[2], activeTrans);
             this.selectedPts = [];
             Logger.setStatusBar("Probing from face section");
         }
@@ -15352,43 +14987,56 @@ var Section = /** @class */ (function () {
                 this.handleFaceSelect(probeData);
         }
     };
-    Section.prototype.clearPlaneState = function (data) {
-        new PlaneGUIState();
-    };
-    Section.prototype.resetPlane = function (index) {
-        this.clearPlaneState(this.guiState.planeOptions[index]);
-        this.setBounds(index);
+    Section.prototype.handleOnModelLoad = function (e) {
+        this.bbox = this.renderApp.getSceneBoundingBox(false);
     };
     Section.prototype.getSectionGUIData = function () {
-        return this.guiState;
+        return Utility$1.deepCopy(this.guiState);
     };
     Section.prototype.setSectionGUIData = function (guiState) {
         this.guiState = guiState;
     };
-    Section.prototype.setSectionPlaneEquation = function (planeId, eqn) {
-        this.renderApp.setSectionPlaneEquation(planeId, eqn);
+    Section.prototype.addSectionPlane = function (planeId, transform, color) {
+        var newPlaneState = new PlaneGUIState();
+        newPlaneState.transform = clone$2(transform);
+        newPlaneState.initTransform = clone$2(transform);
+        this.guiState.planeOptions.set(planeId, newPlaneState);
+        this.renderApp.addSectionPlane(planeId, transform, color);
+    };
+    Section.prototype.deleteSectionPlane = function (planeId) {
+        this.guiState.planeOptions.delete(planeId);
+        this.renderApp.deleteSectionPlane(planeId);
+    };
+    Section.prototype.setSectionPlaneEquation = function (planeId, transform, initTransform) {
+        var curPlane = this.guiState.planeOptions.get(planeId);
+        if (curPlane) {
+            curPlane.transform = clone$2(transform);
+            curPlane.initTransform = initTransform ? clone$2(initTransform) : null;
+        }
+        this.renderApp.setSectionPlaneEquation(planeId, transform, initTransform);
     };
     Section.prototype.getSectionPlaneEquation = function (planeId) {
-        return this.renderApp.getSectionPlaneEquation(planeId);
+        var curPlane = this.guiState.planeOptions.get(planeId);
+        var _a = this.renderApp.getSectionPlaneEquation(planeId), transform = _a.transform, initTransform = _a.initTransform;
+        if (curPlane) {
+            curPlane.transform = clone$2(transform);
+            curPlane.initTransform = initTransform ? clone$2(initTransform) : null;
+        }
+        return { transform: transform, initTransform: initTransform };
     };
     Section.prototype.setSelection = function (planeId, mode) {
         this.appState.probeMode = probeMode.SECTION;
         this.activePlaneId = planeId;
         this.selectionMode = mode;
+        this.renderApp.setActiveSectionPlaneId(planeId);
     };
     Section.prototype.setPlaneState = function (planeId, params) {
-        this.setSelection(planeId, params.selectionMode);
+        //this.setSelection(planeId,params.selectionMode);
         if (params.isPlaneEnabled) {
             this.renderApp.enableClipPlane(planeId);
         }
         else {
             this.renderApp.disableClipPlane(planeId);
-        }
-        if (params.isSlicePlaneEnabled) {
-            this.renderApp.enableSlicePlane(planeId);
-        }
-        else {
-            this.renderApp.disableSlicePlane(planeId);
         }
         if (params.isPlaneVisible) {
             this.renderApp.showClipPlane(planeId);
@@ -15396,42 +15044,39 @@ var Section = /** @class */ (function () {
         else {
             this.renderApp.hideClipPlane(planeId);
         }
-        if (params.isSlicePlaneVisible) {
-            this.renderApp.showSlicePlane(planeId);
+        if (this.guiState.planeOptions.has(planeId)) {
+            this.guiState.planeOptions.set(planeId, params);
         }
-        else {
-            this.renderApp.hideSlicePlane(planeId);
-        }
-        this.guiState.planeOptions[planeId] = params;
-        this.translatePlane(params.delta, params.deltaSlice, planeId);
-        this.rotatePlane(params.deltaRotU, params.deltaRotV, params.deltaRotN, planeId);
     };
     Section.prototype.invert = function (planeId) {
-        var currentEqn = this.getSectionPlaneEquation(planeId);
-        if (currentEqn == undefined)
-            return;
-        var invNormal = [-currentEqn[0], -currentEqn[1], -currentEqn[2]];
-        this.setSectionPlaneEquation(planeId, __spread(invNormal, [-currentEqn[3]]));
+        // let currentEqn:{eqn:number[],transform:glmatrix.mat4} = this.getSectionPlaneEquation(planeId);
+        // if(currentEqn == undefined)
+        // return;
+        // let {eqn,transform} = currentEqn;
+        // const invertedAxes = glmatrix.mat4.clone(transform);
+        // invertedAxes[8] = -invertedAxes[8]; invertedAxes[9] = -invertedAxes[9]; invertedAxes[10] = -invertedAxes[10];
+        // const invNormal = [-eqn[0],-eqn[1],-eqn[2]];
+        // this.setSectionPlaneEquation(planeId,[...invNormal ,-eqn[3]] as [number,number,number,number],invertedAxes);
     };
-    Section.prototype.planeFrom3pts = function (planeId, p1, p2, p3) {
-        var kEdge1 = create();
-        var kEdge2 = create();
-        sub(kEdge1, p2, p1);
-        sub(kEdge2, p3, p1);
-        var n = create();
-        cross(n, kEdge1, kEdge2);
-        normalize(n, n);
-        var d = -dot(n, p1);
-        if (sqrLen(n) > 0.0001) {
+    Section.prototype.planeFrom3pts = function (planeId, p1, p2, p3, transform) {
+        var kEdge1 = create$7();
+        var kEdge2 = create$7();
+        sub$1(kEdge1, p2, p1);
+        sub$1(kEdge2, p3, p1);
+        var n = create$7();
+        cross$1(n, kEdge1, kEdge2);
+        normalize$3(n, n);
+        var d = -dot$1(n, p1);
+        if (sqrLen$1(n) > 0.0001) {
             var eqn = [n[0], n[1], n[2], d];
-            this.setSectionPlaneEquation(planeId, eqn);
+            this.setSectionPlaneEquation(planeId, transform);
             console.log('plane eqn from 3pts', eqn);
         }
     };
     Section.prototype.translatePlane = function (delta, deltaSlice, planeId) {
         if (delta == 0 && deltaSlice == 0)
             return;
-        this.slicePlaneOffset[planeId] += deltaSlice;
+        //this.slicePlaneOffset[planeId] +=deltaSlice;
         this.renderApp.translateSectionPlane(delta, deltaSlice, planeId);
         // let currentEqn = this.getSectionPlaneEquation(planeId);
         // if(currentEqn == undefined)
@@ -15445,19 +15090,15 @@ var Section = /** @class */ (function () {
             return;
         this.renderApp.rotateSectionPlane(deltaU, deltaV, deltaN, planeId);
     };
-    Section.prototype.setBounds = function (index) {
-        this.guiState.planeOptions[index].sliderMinMax = [-this.bbox.getRadius(), this.bbox.getRadius()];
-        this.guiState.planeOptions[index].sliceSliderMinMax = [0, this.bbox.getRadius()];
-        this.guiState.planeOptions[index].sliceSliderValue = this.slicePlaneOffset[index];
-    };
-    Section.prototype.resetSection = function () {
-        this.resetPlane(0);
-        this.resetPlane(1);
-        this.resetPlane(2);
-        this.renderApp.resetSection();
+    Section.prototype.setBounds = function (planeId) {
+        var planeState = this.guiState.planeOptions.get(planeId);
+        if (planeState) {
+            planeState.sliderMinMax = [-this.bbox.getRadius(), this.bbox.getRadius()];
+            this.guiState.planeOptions.set(planeId, planeState);
+        }
     };
     return Section;
-}());var LabelManager = /** @class */ (function () {
+}());var LabelManager$1 = /** @class */ (function () {
     function LabelManager(_renderApp, appState) {
         this.renderApp = _renderApp;
         this.appState = appState;
@@ -15548,7 +15189,7 @@ var Section = /** @class */ (function () {
             return RepresentationType[curr_rep.type];
     };
     return MCAXFilter;
-}());var AppState = /** @class */ (function () {
+}());var AppState$1 = /** @class */ (function () {
     function AppState() {
         this.probeMode = probeMode.LABEL;
     }
@@ -15577,7 +15218,7 @@ var getEventObject = function (type, viewerID, data) {
         this.containerID = _containerID;
         this.connector = _connector;
         this.eventDispatcher = _eventDispacther;
-        this.state = new AppState();
+        this.state = new AppState$1();
         this.renderApp = new vctViewer(_containerID);
         this.renderApp.init(_UUID);
         this.externalEventDispatcher = this.renderApp.getEventDispatcher();
@@ -15597,9 +15238,6 @@ var getEventObject = function (type, viewerID, data) {
     Viewer.prototype.delete = function () {
         //console.log('viewer.delete() not implement yet');
         return "SUCCESS";
-    };
-    Viewer.prototype.getRenderVersion = function () {
-        return this.renderApp.getVersion();
     };
     Viewer.prototype.loadModel = function (api, url) {
         var _this = this;
@@ -15630,12 +15268,13 @@ var getEventObject = function (type, viewerID, data) {
                         obj_1 = getEventObject(viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, this.UUID, "Processing data");
                         this.eventDispatcher.dispatchEvent(obj_1);
                         //logger.setStatusBar("Processing data");
-                        this.mcax = Utility.deepCopy(model);
+                        this.mcax = Utility$1.deepCopy(model);
                         //console.log(this.mcax);          
                         this.productTree = new ModelTreeBuilder(this.mcax).build();
+                        this.sectionManager = new Section(this.renderApp, this.state);
                         this.legendManager = new LegendManager();
-                        this.caeResult = new CAEResult(Utility.deepCopy(this.mcax), this.renderApp, this.connector, this.legendManager);
-                        gltf = Utility.deepCopy(model.gltf);
+                        this.caeResult = new CAEResult(Utility$1.deepCopy(this.mcax), this.renderApp, this.connector, this.legendManager);
+                        gltf = Utility$1.deepCopy(model.gltf);
                         return [4 /*yield*/, this.renderApp.loadGLTF(gltf)];
                     case 4:
                         _a.sent();
@@ -15670,7 +15309,7 @@ var getEventObject = function (type, viewerID, data) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        this.progressiveLoader = new ProgressiveLoader(Utility.deepCopy(this.mcax), this.renderApp, this.connector);
+                        this.progressiveLoader = new ProgressiveLoader(Utility$1.deepCopy(this.mcax), this.renderApp, this.connector);
                         return [4 /*yield*/, this.progressiveLoader.showDefaultDisplay()];
                     case 1:
                         _a.sent();
@@ -15719,18 +15358,23 @@ var getEventObject = function (type, viewerID, data) {
         }
     };
     Viewer.prototype.handleModelLoad = function (e) {
-        this.labelManager = new LabelManager(this.renderApp, this.state);
+        this.labelManager = new LabelManager$1(this.renderApp, this.state);
     };
     Viewer.prototype.getSearchHints = function () {
         return Promise.resolve([]);
+    };
+    Viewer.prototype.getSceneBoundingBox = function (onlyVisible) {
+        if (onlyVisible === void 0) { onlyVisible = true; }
+        var bbox = this.renderApp.getSceneBoundingBox(onlyVisible);
+        return bbox.clone();
     };
     //#endregion
     //#region product tree
     Viewer.prototype.getProductTree = function () {
         if (this.productTree)
             return {
-                models: Utility.deepCopy(Object.fromEntries(this.productTree.models)),
-                rootNodeIds: Utility.deepCopy(this.productTree.rootNodeIds)
+                models: Utility$1.deepCopy(Object.fromEntries(this.productTree.models)),
+                rootNodeIds: Utility$1.deepCopy(this.productTree.rootNodeIds)
             };
         return "No model is loaded";
     };
@@ -16001,7 +15645,7 @@ var getEventObject = function (type, viewerID, data) {
             if (hRep.length === 0) {
                 var boxReps = reps.filter(function (rep) { return rep.customData.type === RepresentationType.BBOX; });
                 boxReps.forEach(function (boxRep) {
-                    var highlightRep = Utility.deepCopy(boxRep);
+                    var highlightRep = Utility$1.deepCopy(boxRep);
                     highlightRep.customData.type = RepresentationType.HIGHLIGHT;
                     var uid = RepresentationType.HIGHLIGHT;
                     highlightRep.id += uid;
@@ -16143,32 +15787,38 @@ var getEventObject = function (type, viewerID, data) {
     };
     //#endregion 
     //#region section
-    Viewer.prototype.createSection = function () {
-        this.sectionManager = new Section(this.renderApp, this.state);
-    };
     Viewer.prototype.getSectionGUIData = function () {
         return this.sectionManager.getSectionGUIData();
     };
     Viewer.prototype.setSectionGUIData = function (guiData) {
         this.sectionManager.setSectionGUIData(guiData);
     };
-    Viewer.prototype.setSectionPlaneEquation = function (planeId, eqn) {
-        this.sectionManager.setSectionPlaneEquation(planeId, eqn);
+    Viewer.prototype.setActiveSectionPlane = function (planeId) {
+        this.sectionManager.setSelection(planeId, 0);
+    };
+    Viewer.prototype.setSectionPlaneEquation = function (planeId, transform, initTransform) {
+        this.sectionManager.setSectionPlaneEquation(planeId, transform, initTransform);
     };
     Viewer.prototype.getSectionPlaneEquation = function (planeId) {
         return this.sectionManager.getSectionPlaneEquation(planeId);
     };
-    Viewer.prototype.setPlaneState = function (planeOptions) {
-        this.sectionManager.setPlaneState(planeOptions.id, planeOptions.options);
+    Viewer.prototype.addSectionPlane = function (planeId, transform, color) {
+        return this.sectionManager.addSectionPlane(planeId, transform, color);
+    };
+    Viewer.prototype.deleteSectionPlane = function (planeId) {
+        this.sectionManager.deleteSectionPlane(planeId);
+    };
+    Viewer.prototype.setPlaneState = function (planeId, selectedPlaneOptions) {
+        this.sectionManager.setPlaneState(planeId, selectedPlaneOptions);
     };
     Viewer.prototype.invertSectionPlane = function (planeId) {
         this.sectionManager.invert(planeId);
     };
-    Viewer.prototype.planeFrom3pts = function (planeId, p1, p2, p3) {
-        this.sectionManager.planeFrom3pts(planeId, p1, p2, p3);
-    };
-    Viewer.prototype.resetSection = function () {
-        this.sectionManager.resetSection();
+    Viewer.prototype.planeFrom3pts = function (planeId, p1, p2, p3, transform) {
+        var a = fromValues$5(p1[0], p1[1], p1[2]);
+        var b = fromValues$5(p2[0], p2[1], p2[2]);
+        var c = fromValues$5(p3[0], p3[1], p3[2]);
+        this.sectionManager.planeFrom3pts(planeId, a, b, c, transform);
     };
     //#endregion
     //#region PartManipulation
@@ -16194,11 +15844,11 @@ var getEventObject = function (type, viewerID, data) {
         return 'SUCCESS';
     };
     return Viewer;
-}());var ServerConnectionType = {
+}());var ServerConnectionType$1 = {
     XHR: 1,
     AXIOS: 2
 };
-var serverURLs = {
+var serverURLs$1 = {
     getLicense: '/api/1.0/license/acquire',
     releaseLicense: '/api/1.0/license/release',
     ping: '/api/1.0/ping',
@@ -16208,11 +15858,11 @@ var serverURLs = {
     disconnect: '/api/1.0/disconnect',
     taskState: '/api/1.0/task'
 };
-var ResponseType = {
+var ResponseType$1 = {
     JSON: 'json',
     BUFFER: 'arraybuffer'
 };
-var errorCode = {
+var errorCode$2 = {
     noerror: '',
     connectionError: 'Not connected. Please verify your network connection.',
     error404: 'The requested page not found [404].',
@@ -16224,11 +15874,11 @@ var errorCode = {
     noresponseError: 'No response from server',
     invalidDataError: 'Invalid data received from server'
 };
-var range = [" seconds ", " minutes ", " hours ", " days ", " weeks "];
-var SizeRange = ["Bytes", "KB", "MB", "GB", "TB"];
-var SpeedRange = ["B/s", "KB/s", "MB/s", "GB/s", "TB/s"];
+var range$1 = [" seconds ", " minutes ", " hours ", " days ", " weeks "];
+var SizeRange$1 = ["Bytes", "KB", "MB", "GB", "TB"];
+var SpeedRange$1 = ["B/s", "KB/s", "MB/s", "GB/s", "TB/s"];
 //Convert number of seconds to structure string E.g. 65 as input returns 1minutes 5seconds
-var SecondsToStructuredString = function (time) {
+var SecondsToStructuredString$1 = function (time) {
     var min;
     var sec;
     var hr;
@@ -16242,13 +15892,13 @@ var SecondsToStructuredString = function (time) {
         time = time / 1000;
     if (time < 60) //Seconds
      {
-        return Math.floor(time) + range[0];
+        return Math.floor(time) + range$1[0];
     }
     else if ((time / 60) < 60) //Minutes
      {
         min = Math.floor(time / 60);
         sec = Math.floor(time - (min * 60));
-        return min + range[1] + (sec > 0 ? sec + range[0] : "");
+        return min + range$1[1] + (sec > 0 ? sec + range$1[0] : "");
     }
     else if ((time / (60 * 60)) >= 1 && (time / (60 * 60)) < 24) //Hours
      {
@@ -16256,7 +15906,7 @@ var SecondsToStructuredString = function (time) {
         min = time - (hr * (60 * 60));
         min = Math.floor(min / 60);
         sec = Math.floor(time - ((hr * (60 * 60)) + (min * 60)));
-        return hr + range[2] + (min > 0 ? min + range[1] : "") + (sec > 0 ? Math.floor(sec) + range[0] : "");
+        return hr + range$1[2] + (min > 0 ? min + range$1[1] : "") + (sec > 0 ? Math.floor(sec) + range$1[0] : "");
     }
     else if ((time / (60 * 60)) >= 24 && (time / (60 * 60 * 24)) < 7) //Days
      {
@@ -16266,7 +15916,7 @@ var SecondsToStructuredString = function (time) {
         min = time - ((days * 60 * 60 * 24) + (hr * 60 * 60));
         min = Math.floor(min / 60);
         sec = Math.floor(time - ((days * 60 * 60 * 24) + (hr * 60 * 60) + (min * 60)));
-        return days + range[3] + (hr > 0 ? hr + range[2] : "") + (min > 0 ? min + range[1] : "") + (sec > 0 ? sec + range[0] : "");
+        return days + range$1[3] + (hr > 0 ? hr + range$1[2] : "") + (min > 0 ? min + range$1[1] : "") + (sec > 0 ? sec + range$1[0] : "");
     }
     else //if((time / (60*60*24)) >= 7) //Weeks
      {
@@ -16278,29 +15928,29 @@ var SecondsToStructuredString = function (time) {
         min = time - (((wks * (60 * 60 * 24 * 7)) + (days * 60 * 60 * 24) + (hr * 60 * 60)));
         min = Math.floor(min / 60);
         sec = Math.floor(time - ((wks * (60 * 60 * 24 * 7)) + (days * 60 * 60 * 24) + (hr * 60 * 60) + (min * 60)));
-        return wks + range[4] + (days > 0 ? days + range[3] : "") + (hr > 0 ? hr + range[2] : "") + (min > 0 ? min + range[1] : "") + (sec > 0 ? sec + range[0] : "");
+        return wks + range$1[4] + (days > 0 ? days + range$1[3] : "") + (hr > 0 ? hr + range$1[2] : "") + (min > 0 ? min + range$1[1] : "") + (sec > 0 ? sec + range$1[0] : "");
     }
 };
 //Returns number of bytes as structure string E.g. 1076 as input returns 1.05KB  
-var BytesToStructuredString = function (bytes) {
+var BytesToStructuredString$1 = function (bytes) {
     if (bytes < 1)
         return "0 Byte";
     var i = Math.floor(Math.log(bytes) / Math.log(1024));
-    return (bytes / Math.pow(1024, i)).toFixed(2) + " " + SizeRange[i];
+    return (bytes / Math.pow(1024, i)).toFixed(2) + " " + SizeRange$1[i];
 };
 //Returns number of bytes/sec as structure string E.g. 1076 as input returns 1.05KB/s
-var SpeedToStructuredString = function (speed) {
+var SpeedToStructuredString$1 = function (speed) {
     if (speed < 1)
         return "0 B/s";
     var i = Math.floor(Math.log(speed) / Math.log(1024));
-    return (speed / Math.pow(1024, i)).toFixed(2) + " " + SpeedRange[i];
-};var AjaxConnector = /** @class */ (function () {
+    return (speed / Math.pow(1024, i)).toFixed(2) + " " + SpeedRange$1[i];
+};var AjaxConnector$1 = /** @class */ (function () {
     function AjaxConnector() {
     }
     AjaxConnector.xhr2 = function (_url, _data, _callback, _method, _async, responseType) {
         var asyncRequest = true;
         var resultData = {};
-        var errorMsgCode = errorCode.noerror;
+        var errorMsgCode = errorCode$2.noerror;
         if (_async === false)
             asyncRequest = false;
         //if(this.xhrRequest === undefined)
@@ -16317,16 +15967,16 @@ var SpeedToStructuredString = function (speed) {
                 resultData = this.response;
             else {
                 if (oReq.status === 0) {
-                    errorMsgCode = errorCode.connectionError;
+                    errorMsgCode = errorCode$2.connectionError;
                 }
                 else if (oReq.status === 404) {
-                    errorMsgCode = errorCode.error404;
+                    errorMsgCode = errorCode$2.error404;
                 }
                 else if (oReq.status === 500) {
-                    errorMsgCode = errorCode.serverError;
+                    errorMsgCode = errorCode$2.serverError;
                 }
                 else {
-                    errorMsgCode = errorCode.unknownError;
+                    errorMsgCode = errorCode$2.unknownError;
                 }
             }
             if (_callback)
@@ -16336,9 +15986,9 @@ var SpeedToStructuredString = function (speed) {
         //oReq.withCredentials = true; //Access-Control-Allow-Origin = * will not work if withCredentials = true;
         oReq.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
         //oReq.setRequestHeader('Range', 'bytes=0-47');
-        if (responseType === ResponseType.BUFFER)
+        if (responseType === ResponseType$1.BUFFER)
             oReq.responseType = 'arraybuffer';
-        else if (responseType === ResponseType.JSON)
+        else if (responseType === ResponseType$1.JSON)
             oReq.responseType = 'json';
         else
             oReq.responseType = 'text';
@@ -16359,15 +16009,15 @@ var SpeedToStructuredString = function (speed) {
                 throw new Error('Invalid request parameters');
             }
             var _callbackFn = function (resultData, errorMsgCode) {
-                if (errorMsgCode !== errorCode.noerror)
+                if (errorMsgCode !== errorCode$2.noerror)
                     reject(errorMsgCode);
-                if (errorMsgCode === errorCode.noerror && resultData)
+                if (errorMsgCode === errorCode$2.noerror && resultData)
                     resolve(resultData);
-                resolve(errorCode.unknownError);
+                resolve(errorCode$2.unknownError);
             };
             var syncCallResult = null;
-            var responseType = _reponseType || ResponseType.JSON;
-            if (responseType === ResponseType.JSON || responseType === ResponseType.BUFFER)
+            var responseType = _reponseType || ResponseType$1.JSON;
+            if (responseType === ResponseType$1.JSON || responseType === ResponseType$1.BUFFER)
                 syncCallResult = AjaxConnector.xhr2(_url, _data, _callbackFn, _method, _async, responseType);
             else
                 throw new Error('Invalid Response Type');
@@ -16376,12 +16026,12 @@ var SpeedToStructuredString = function (speed) {
                     reject(syncCallResult.errorMsgCode);
                 if (parseInt(syncCallResult.errorMsgCode) === -1 && syncCallResult.Data)
                     resolve(syncCallResult.Data);
-                resolve(errorCode.unknownError);
+                resolve(errorCode$2.unknownError);
             }
         });
     };
     return AjaxConnector;
-}());var RequestMeter = /** @class */ (function () {
+}());var RequestMeter$1 = /** @class */ (function () {
     function RequestMeter(url) {
         this._url = url,
             this._requestInitaitedOn = null,
@@ -16463,12 +16113,12 @@ var SpeedToStructuredString = function (speed) {
         var metricsString = "";
         if (this._isSuccess === true && this._isErrorOccurred === false) {
             var transferSpeed = this.getTransferSpeed();
-            var size = BytesToStructuredString(this.size);
-            var timeForFirstResponse = SecondsToStructuredString(this.timeForFirstResponse);
-            var timeToDownload = SecondsToStructuredString(this.timeForDownload);
-            var minSpeed = SpeedToStructuredString(transferSpeed.minSpeed);
-            var maxSpeed = SpeedToStructuredString(transferSpeed.maxSpeed);
-            var avgSpeed = SpeedToStructuredString(transferSpeed.avgSpeed);
+            var size = BytesToStructuredString$1(this.size);
+            var timeForFirstResponse = SecondsToStructuredString$1(this.timeForFirstResponse);
+            var timeToDownload = SecondsToStructuredString$1(this.timeForDownload);
+            var minSpeed = SpeedToStructuredString$1(transferSpeed.minSpeed);
+            var maxSpeed = SpeedToStructuredString$1(transferSpeed.maxSpeed);
+            var avgSpeed = SpeedToStructuredString$1(transferSpeed.avgSpeed);
             metricsString =
                 "URL :  " + this._url + "\nSize :  " + size + "\nWaiting (TTFB) :  " + timeForFirstResponse + "\nTimeToDownload :  " + timeToDownload + "\nMIN Speed :  " + minSpeed + "\nMAX Speed :  " + maxSpeed + "\nAVG Speed :  " + avgSpeed + "\nChunk Count :  " + this._progessList.length;
         }
@@ -16483,11 +16133,11 @@ var SpeedToStructuredString = function (speed) {
         return metricsString;
     };
     return RequestMeter;
-}());var NetworkMetrics = /** @class */ (function () {
+}());var NetworkMetrics$1 = /** @class */ (function () {
     function NetworkMetrics() {
     }
     NetworkMetrics.addURL = function (url) {
-        var reqObj = new RequestMeter(url);
+        var reqObj = new RequestMeter$1(url);
         NetworkMetrics.URLMap.set(url, reqObj);
         return reqObj;
     };
@@ -16509,7 +16159,7 @@ var SpeedToStructuredString = function (speed) {
     };
     NetworkMetrics.URLMap = new Map();
     return NetworkMetrics;
-}());var bind = function bind(fn, thisArg) {
+}());var bind$1 = function bind(fn, thisArg) {
   return function wrap() {
     var args = new Array(arguments.length);
     for (var i = 0; i < args.length; i++) {
@@ -16521,7 +16171,7 @@ var SpeedToStructuredString = function (speed) {
 
 // utils is a library of generic helper functions non-specific to axios
 
-var toString = Object.prototype.toString;
+var toString$1 = Object.prototype.toString;
 
 /**
  * Determine if a value is an Array
@@ -16529,8 +16179,8 @@ var toString = Object.prototype.toString;
  * @param {Object} val The value to test
  * @returns {boolean} True if value is an Array, otherwise false
  */
-function isArray(val) {
-  return toString.call(val) === '[object Array]';
+function isArray$1(val) {
+  return toString$1.call(val) === '[object Array]';
 }
 
 /**
@@ -16539,7 +16189,7 @@ function isArray(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if the value is undefined, otherwise false
  */
-function isUndefined(val) {
+function isUndefined$1(val) {
   return typeof val === 'undefined';
 }
 
@@ -16549,8 +16199,8 @@ function isUndefined(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a Buffer, otherwise false
  */
-function isBuffer(val) {
-  return val !== null && !isUndefined(val) && val.constructor !== null && !isUndefined(val.constructor)
+function isBuffer$1(val) {
+  return val !== null && !isUndefined$1(val) && val.constructor !== null && !isUndefined$1(val.constructor)
     && typeof val.constructor.isBuffer === 'function' && val.constructor.isBuffer(val);
 }
 
@@ -16560,8 +16210,8 @@ function isBuffer(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is an ArrayBuffer, otherwise false
  */
-function isArrayBuffer(val) {
-  return toString.call(val) === '[object ArrayBuffer]';
+function isArrayBuffer$1(val) {
+  return toString$1.call(val) === '[object ArrayBuffer]';
 }
 
 /**
@@ -16570,7 +16220,7 @@ function isArrayBuffer(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is an FormData, otherwise false
  */
-function isFormData(val) {
+function isFormData$1(val) {
   return (typeof FormData !== 'undefined') && (val instanceof FormData);
 }
 
@@ -16580,7 +16230,7 @@ function isFormData(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
  */
-function isArrayBufferView(val) {
+function isArrayBufferView$1(val) {
   var result;
   if ((typeof ArrayBuffer !== 'undefined') && (ArrayBuffer.isView)) {
     result = ArrayBuffer.isView(val);
@@ -16596,7 +16246,7 @@ function isArrayBufferView(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a String, otherwise false
  */
-function isString(val) {
+function isString$1(val) {
   return typeof val === 'string';
 }
 
@@ -16606,7 +16256,7 @@ function isString(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a Number, otherwise false
  */
-function isNumber(val) {
+function isNumber$1(val) {
   return typeof val === 'number';
 }
 
@@ -16616,7 +16266,7 @@ function isNumber(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is an Object, otherwise false
  */
-function isObject(val) {
+function isObject$1(val) {
   return val !== null && typeof val === 'object';
 }
 
@@ -16626,8 +16276,8 @@ function isObject(val) {
  * @param {Object} val The value to test
  * @return {boolean} True if value is a plain Object, otherwise false
  */
-function isPlainObject(val) {
-  if (toString.call(val) !== '[object Object]') {
+function isPlainObject$1(val) {
+  if (toString$1.call(val) !== '[object Object]') {
     return false;
   }
 
@@ -16641,8 +16291,8 @@ function isPlainObject(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a Date, otherwise false
  */
-function isDate(val) {
-  return toString.call(val) === '[object Date]';
+function isDate$1(val) {
+  return toString$1.call(val) === '[object Date]';
 }
 
 /**
@@ -16651,8 +16301,8 @@ function isDate(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a File, otherwise false
  */
-function isFile(val) {
-  return toString.call(val) === '[object File]';
+function isFile$1(val) {
+  return toString$1.call(val) === '[object File]';
 }
 
 /**
@@ -16661,8 +16311,8 @@ function isFile(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a Blob, otherwise false
  */
-function isBlob(val) {
-  return toString.call(val) === '[object Blob]';
+function isBlob$1(val) {
+  return toString$1.call(val) === '[object Blob]';
 }
 
 /**
@@ -16671,8 +16321,8 @@ function isBlob(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a Function, otherwise false
  */
-function isFunction(val) {
-  return toString.call(val) === '[object Function]';
+function isFunction$1(val) {
+  return toString$1.call(val) === '[object Function]';
 }
 
 /**
@@ -16681,8 +16331,8 @@ function isFunction(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a Stream, otherwise false
  */
-function isStream(val) {
-  return isObject(val) && isFunction(val.pipe);
+function isStream$1(val) {
+  return isObject$1(val) && isFunction$1(val.pipe);
 }
 
 /**
@@ -16691,7 +16341,7 @@ function isStream(val) {
  * @param {Object} val The value to test
  * @returns {boolean} True if value is a URLSearchParams object, otherwise false
  */
-function isURLSearchParams(val) {
+function isURLSearchParams$1(val) {
   return typeof URLSearchParams !== 'undefined' && val instanceof URLSearchParams;
 }
 
@@ -16701,7 +16351,7 @@ function isURLSearchParams(val) {
  * @param {String} str The String to trim
  * @returns {String} The String freed of excess whitespace
  */
-function trim(str) {
+function trim$1(str) {
   return str.replace(/^\s*/, '').replace(/\s*$/, '');
 }
 
@@ -16720,7 +16370,7 @@ function trim(str) {
  * nativescript
  *  navigator.product -> 'NativeScript' or 'NS'
  */
-function isStandardBrowserEnv() {
+function isStandardBrowserEnv$1() {
   if (typeof navigator !== 'undefined' && (navigator.product === 'ReactNative' ||
                                            navigator.product === 'NativeScript' ||
                                            navigator.product === 'NS')) {
@@ -16756,7 +16406,7 @@ function forEach(obj, fn) {
     obj = [obj];
   }
 
-  if (isArray(obj)) {
+  if (isArray$1(obj)) {
     // Iterate over array values
     for (var i = 0, l = obj.length; i < l; i++) {
       fn.call(null, obj[i], i, obj);
@@ -16788,14 +16438,14 @@ function forEach(obj, fn) {
  * @param {Object} obj1 Object to merge
  * @returns {Object} Result of all merge properties
  */
-function merge(/* obj1, obj2, obj3, ... */) {
+function merge$1(/* obj1, obj2, obj3, ... */) {
   var result = {};
   function assignValue(val, key) {
-    if (isPlainObject(result[key]) && isPlainObject(val)) {
-      result[key] = merge(result[key], val);
-    } else if (isPlainObject(val)) {
-      result[key] = merge({}, val);
-    } else if (isArray(val)) {
+    if (isPlainObject$1(result[key]) && isPlainObject$1(val)) {
+      result[key] = merge$1(result[key], val);
+    } else if (isPlainObject$1(val)) {
+      result[key] = merge$1({}, val);
+    } else if (isArray$1(val)) {
       result[key] = val.slice();
     } else {
       result[key] = val;
@@ -16816,10 +16466,10 @@ function merge(/* obj1, obj2, obj3, ... */) {
  * @param {Object} thisArg The object to bind function to
  * @return {Object} The resulting value of object a
  */
-function extend(a, b, thisArg) {
+function extend$1(a, b, thisArg) {
   forEach(b, function assignValue(val, key) {
     if (thisArg && typeof val === 'function') {
-      a[key] = bind(val, thisArg);
+      a[key] = bind$1(val, thisArg);
     } else {
       a[key] = val;
     }
@@ -16833,37 +16483,37 @@ function extend(a, b, thisArg) {
  * @param {string} content with BOM
  * @return {string} content value without BOM
  */
-function stripBOM(content) {
+function stripBOM$1(content) {
   if (content.charCodeAt(0) === 0xFEFF) {
     content = content.slice(1);
   }
   return content;
 }
 
-var utils = {
-  isArray: isArray,
-  isArrayBuffer: isArrayBuffer,
-  isBuffer: isBuffer,
-  isFormData: isFormData,
-  isArrayBufferView: isArrayBufferView,
-  isString: isString,
-  isNumber: isNumber,
-  isObject: isObject,
-  isPlainObject: isPlainObject,
-  isUndefined: isUndefined,
-  isDate: isDate,
-  isFile: isFile,
-  isBlob: isBlob,
-  isFunction: isFunction,
-  isStream: isStream,
-  isURLSearchParams: isURLSearchParams,
-  isStandardBrowserEnv: isStandardBrowserEnv,
+var utils$1 = {
+  isArray: isArray$1,
+  isArrayBuffer: isArrayBuffer$1,
+  isBuffer: isBuffer$1,
+  isFormData: isFormData$1,
+  isArrayBufferView: isArrayBufferView$1,
+  isString: isString$1,
+  isNumber: isNumber$1,
+  isObject: isObject$1,
+  isPlainObject: isPlainObject$1,
+  isUndefined: isUndefined$1,
+  isDate: isDate$1,
+  isFile: isFile$1,
+  isBlob: isBlob$1,
+  isFunction: isFunction$1,
+  isStream: isStream$1,
+  isURLSearchParams: isURLSearchParams$1,
+  isStandardBrowserEnv: isStandardBrowserEnv$1,
   forEach: forEach,
-  merge: merge,
-  extend: extend,
-  trim: trim,
-  stripBOM: stripBOM
-};function encode(val) {
+  merge: merge$1,
+  extend: extend$1,
+  trim: trim$1,
+  stripBOM: stripBOM$1
+};function encode$1(val) {
   return encodeURIComponent(val).
     replace(/%3A/gi, ':').
     replace(/%24/g, '$').
@@ -16880,7 +16530,7 @@ var utils = {
  * @param {object} [params] The params to be appended
  * @returns {string} The formatted url
  */
-var buildURL = function buildURL(url, params, paramsSerializer) {
+var buildURL$1 = function buildURL(url, params, paramsSerializer) {
   /*eslint no-param-reassign:0*/
   if (!params) {
     return url;
@@ -16889,29 +16539,29 @@ var buildURL = function buildURL(url, params, paramsSerializer) {
   var serializedParams;
   if (paramsSerializer) {
     serializedParams = paramsSerializer(params);
-  } else if (utils.isURLSearchParams(params)) {
+  } else if (utils$1.isURLSearchParams(params)) {
     serializedParams = params.toString();
   } else {
     var parts = [];
 
-    utils.forEach(params, function serialize(val, key) {
+    utils$1.forEach(params, function serialize(val, key) {
       if (val === null || typeof val === 'undefined') {
         return;
       }
 
-      if (utils.isArray(val)) {
+      if (utils$1.isArray(val)) {
         key = key + '[]';
       } else {
         val = [val];
       }
 
-      utils.forEach(val, function parseValue(v) {
-        if (utils.isDate(v)) {
+      utils$1.forEach(val, function parseValue(v) {
+        if (utils$1.isDate(v)) {
           v = v.toISOString();
-        } else if (utils.isObject(v)) {
+        } else if (utils$1.isObject(v)) {
           v = JSON.stringify(v);
         }
-        parts.push(encode(key) + '=' + encode(v));
+        parts.push(encode$1(key) + '=' + encode$1(v));
       });
     });
 
@@ -16928,7 +16578,7 @@ var buildURL = function buildURL(url, params, paramsSerializer) {
   }
 
   return url;
-};function InterceptorManager() {
+};function InterceptorManager$1() {
   this.handlers = [];
 }
 
@@ -16940,7 +16590,7 @@ var buildURL = function buildURL(url, params, paramsSerializer) {
  *
  * @return {Number} An ID used to remove interceptor later
  */
-InterceptorManager.prototype.use = function use(fulfilled, rejected) {
+InterceptorManager$1.prototype.use = function use(fulfilled, rejected) {
   this.handlers.push({
     fulfilled: fulfilled,
     rejected: rejected
@@ -16953,7 +16603,7 @@ InterceptorManager.prototype.use = function use(fulfilled, rejected) {
  *
  * @param {Number} id The ID that was returned by `use`
  */
-InterceptorManager.prototype.eject = function eject(id) {
+InterceptorManager$1.prototype.eject = function eject(id) {
   if (this.handlers[id]) {
     this.handlers[id] = null;
   }
@@ -16967,15 +16617,15 @@ InterceptorManager.prototype.eject = function eject(id) {
  *
  * @param {Function} fn The function to call for each interceptor
  */
-InterceptorManager.prototype.forEach = function forEach(fn) {
-  utils.forEach(this.handlers, function forEachHandler(h) {
+InterceptorManager$1.prototype.forEach = function forEach(fn) {
+  utils$1.forEach(this.handlers, function forEachHandler(h) {
     if (h !== null) {
       fn(h);
     }
   });
 };
 
-var InterceptorManager_1 = InterceptorManager;/**
+var InterceptorManager_1$1 = InterceptorManager$1;/**
  * Transform the data for a request or a response
  *
  * @param {Object|String} data The data to be transformed
@@ -16983,17 +16633,17 @@ var InterceptorManager_1 = InterceptorManager;/**
  * @param {Array|Function} fns A single function or Array of functions
  * @returns {*} The resulting transformed data
  */
-var transformData = function transformData(data, headers, fns) {
+var transformData$1 = function transformData(data, headers, fns) {
   /*eslint no-param-reassign:0*/
-  utils.forEach(fns, function transform(fn) {
+  utils$1.forEach(fns, function transform(fn) {
     data = fn(data, headers);
   });
 
   return data;
-};var isCancel = function isCancel(value) {
+};var isCancel$1 = function isCancel(value) {
   return !!(value && value.__CANCEL__);
-};var normalizeHeaderName = function normalizeHeaderName(headers, normalizedName) {
-  utils.forEach(headers, function processHeader(value, name) {
+};var normalizeHeaderName$1 = function normalizeHeaderName(headers, normalizedName) {
+  utils$1.forEach(headers, function processHeader(value, name) {
     if (name !== normalizedName && name.toUpperCase() === normalizedName.toUpperCase()) {
       headers[normalizedName] = value;
       delete headers[name];
@@ -17009,7 +16659,7 @@ var transformData = function transformData(data, headers, fns) {
  * @param {Object} [response] The response.
  * @returns {Error} The error.
  */
-var enhanceError = function enhanceError(error, config, code, request, response) {
+var enhanceError$1 = function enhanceError(error, config, code, request, response) {
   error.config = config;
   if (code) {
     error.code = code;
@@ -17048,9 +16698,9 @@ var enhanceError = function enhanceError(error, config, code, request, response)
  * @param {Object} [response] The response.
  * @returns {Error} The created error.
  */
-var createError = function createError(message, config, code, request, response) {
+var createError$1 = function createError(message, config, code, request, response) {
   var error = new Error(message);
-  return enhanceError(error, config, code, request, response);
+  return enhanceError$1(error, config, code, request, response);
 };/**
  * Resolve or reject a Promise based on response status.
  *
@@ -17058,12 +16708,12 @@ var createError = function createError(message, config, code, request, response)
  * @param {Function} reject A function that rejects the promise.
  * @param {object} response The response.
  */
-var settle = function settle(resolve, reject, response) {
+var settle$1 = function settle(resolve, reject, response) {
   var validateStatus = response.config.validateStatus;
   if (!response.status || !validateStatus || validateStatus(response.status)) {
     resolve(response);
   } else {
-    reject(createError(
+    reject(createError$1(
       'Request failed with status code ' + response.status,
       response.config,
       null,
@@ -17071,8 +16721,8 @@ var settle = function settle(resolve, reject, response) {
       response
     ));
   }
-};var cookies = (
-  utils.isStandardBrowserEnv() ?
+};var cookies$1 = (
+  utils$1.isStandardBrowserEnv() ?
 
   // Standard browser envs support document.cookie
     (function standardBrowserEnv() {
@@ -17081,15 +16731,15 @@ var settle = function settle(resolve, reject, response) {
           var cookie = [];
           cookie.push(name + '=' + encodeURIComponent(value));
 
-          if (utils.isNumber(expires)) {
+          if (utils$1.isNumber(expires)) {
             cookie.push('expires=' + new Date(expires).toGMTString());
           }
 
-          if (utils.isString(path)) {
+          if (utils$1.isString(path)) {
             cookie.push('path=' + path);
           }
 
-          if (utils.isString(domain)) {
+          if (utils$1.isString(domain)) {
             cookie.push('domain=' + domain);
           }
 
@@ -17125,7 +16775,7 @@ var settle = function settle(resolve, reject, response) {
  * @param {string} url The URL to test
  * @returns {boolean} True if the specified URL is absolute, otherwise false
  */
-var isAbsoluteURL = function isAbsoluteURL(url) {
+var isAbsoluteURL$1 = function isAbsoluteURL(url) {
   // A URL is considered absolute if it begins with "<scheme>://" or "//" (protocol-relative URL).
   // RFC 3986 defines scheme name as a sequence of characters beginning with a letter and followed
   // by any combination of letters, digits, plus, period, or hyphen.
@@ -17137,7 +16787,7 @@ var isAbsoluteURL = function isAbsoluteURL(url) {
  * @param {string} relativeURL The relative URL
  * @returns {string} The combined URL
  */
-var combineURLs = function combineURLs(baseURL, relativeURL) {
+var combineURLs$1 = function combineURLs(baseURL, relativeURL) {
   return relativeURL
     ? baseURL.replace(/\/+$/, '') + '/' + relativeURL.replace(/^\/+/, '')
     : baseURL;
@@ -17150,14 +16800,14 @@ var combineURLs = function combineURLs(baseURL, relativeURL) {
  * @param {string} requestedURL Absolute or relative URL to combine
  * @returns {string} The combined full path
  */
-var buildFullPath = function buildFullPath(baseURL, requestedURL) {
-  if (baseURL && !isAbsoluteURL(requestedURL)) {
-    return combineURLs(baseURL, requestedURL);
+var buildFullPath$1 = function buildFullPath(baseURL, requestedURL) {
+  if (baseURL && !isAbsoluteURL$1(requestedURL)) {
+    return combineURLs$1(baseURL, requestedURL);
   }
   return requestedURL;
 };// Headers whose duplicates are ignored by node
 // c.f. https://nodejs.org/api/http.html#http_message_headers
-var ignoreDuplicateOf = [
+var ignoreDuplicateOf$1 = [
   'age', 'authorization', 'content-length', 'content-type', 'etag',
   'expires', 'from', 'host', 'if-modified-since', 'if-unmodified-since',
   'last-modified', 'location', 'max-forwards', 'proxy-authorization',
@@ -17177,7 +16827,7 @@ var ignoreDuplicateOf = [
  * @param {String} headers Headers needing to be parsed
  * @returns {Object} Headers parsed into an object
  */
-var parseHeaders = function parseHeaders(headers) {
+var parseHeaders$1 = function parseHeaders(headers) {
   var parsed = {};
   var key;
   var val;
@@ -17185,13 +16835,13 @@ var parseHeaders = function parseHeaders(headers) {
 
   if (!headers) { return parsed; }
 
-  utils.forEach(headers.split('\n'), function parser(line) {
+  utils$1.forEach(headers.split('\n'), function parser(line) {
     i = line.indexOf(':');
-    key = utils.trim(line.substr(0, i)).toLowerCase();
-    val = utils.trim(line.substr(i + 1));
+    key = utils$1.trim(line.substr(0, i)).toLowerCase();
+    val = utils$1.trim(line.substr(i + 1));
 
     if (key) {
-      if (parsed[key] && ignoreDuplicateOf.indexOf(key) >= 0) {
+      if (parsed[key] && ignoreDuplicateOf$1.indexOf(key) >= 0) {
         return;
       }
       if (key === 'set-cookie') {
@@ -17203,8 +16853,8 @@ var parseHeaders = function parseHeaders(headers) {
   });
 
   return parsed;
-};var isURLSameOrigin = (
-  utils.isStandardBrowserEnv() ?
+};var isURLSameOrigin$1 = (
+  utils$1.isStandardBrowserEnv() ?
 
   // Standard browser envs have full support of the APIs needed to test
   // whether the request URL is of the same origin as current location.
@@ -17254,7 +16904,7 @@ var parseHeaders = function parseHeaders(headers) {
     * @returns {boolean} True if URL shares the same origin, otherwise false
     */
       return function isURLSameOrigin(requestURL) {
-        var parsed = (utils.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
+        var parsed = (utils$1.isString(requestURL)) ? resolveURL(requestURL) : requestURL;
         return (parsed.protocol === originURL.protocol &&
             parsed.host === originURL.host);
       };
@@ -17266,12 +16916,12 @@ var parseHeaders = function parseHeaders(headers) {
         return true;
       };
     })()
-);var xhr = function xhrAdapter(config) {
+);var xhr$1 = function xhrAdapter(config) {
   return new Promise(function dispatchXhrRequest(resolve, reject) {
     var requestData = config.data;
     var requestHeaders = config.headers;
 
-    if (utils.isFormData(requestData)) {
+    if (utils$1.isFormData(requestData)) {
       delete requestHeaders['Content-Type']; // Let the browser set it
     }
 
@@ -17284,8 +16934,8 @@ var parseHeaders = function parseHeaders(headers) {
       requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
     }
 
-    var fullPath = buildFullPath(config.baseURL, config.url);
-    request.open(config.method.toUpperCase(), buildURL(fullPath, config.params, config.paramsSerializer), true);
+    var fullPath = buildFullPath$1(config.baseURL, config.url);
+    request.open(config.method.toUpperCase(), buildURL$1(fullPath, config.params, config.paramsSerializer), true);
 
     // Set the request timeout in MS
     request.timeout = config.timeout;
@@ -17305,7 +16955,7 @@ var parseHeaders = function parseHeaders(headers) {
       }
 
       // Prepare the response
-      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
+      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders$1(request.getAllResponseHeaders()) : null;
       var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
       var response = {
         data: responseData,
@@ -17316,7 +16966,7 @@ var parseHeaders = function parseHeaders(headers) {
         request: request
       };
 
-      settle(resolve, reject, response);
+      settle$1(resolve, reject, response);
 
       // Clean up request
       request = null;
@@ -17328,7 +16978,7 @@ var parseHeaders = function parseHeaders(headers) {
         return;
       }
 
-      reject(createError('Request aborted', config, 'ECONNABORTED', request));
+      reject(createError$1('Request aborted', config, 'ECONNABORTED', request));
 
       // Clean up request
       request = null;
@@ -17338,7 +16988,7 @@ var parseHeaders = function parseHeaders(headers) {
     request.onerror = function handleError() {
       // Real errors are hidden from us by the browser
       // onerror should only fire if it's a network error
-      reject(createError('Network Error', config, null, request));
+      reject(createError$1('Network Error', config, null, request));
 
       // Clean up request
       request = null;
@@ -17350,7 +17000,7 @@ var parseHeaders = function parseHeaders(headers) {
       if (config.timeoutErrorMessage) {
         timeoutErrorMessage = config.timeoutErrorMessage;
       }
-      reject(createError(timeoutErrorMessage, config, 'ECONNABORTED',
+      reject(createError$1(timeoutErrorMessage, config, 'ECONNABORTED',
         request));
 
       // Clean up request
@@ -17360,10 +17010,10 @@ var parseHeaders = function parseHeaders(headers) {
     // Add xsrf header
     // This is only done if running in a standard browser environment.
     // Specifically not if we're in a web worker, or react-native.
-    if (utils.isStandardBrowserEnv()) {
+    if (utils$1.isStandardBrowserEnv()) {
       // Add xsrf header
-      var xsrfValue = (config.withCredentials || isURLSameOrigin(fullPath)) && config.xsrfCookieName ?
-        cookies.read(config.xsrfCookieName) :
+      var xsrfValue = (config.withCredentials || isURLSameOrigin$1(fullPath)) && config.xsrfCookieName ?
+        cookies$1.read(config.xsrfCookieName) :
         undefined;
 
       if (xsrfValue) {
@@ -17373,7 +17023,7 @@ var parseHeaders = function parseHeaders(headers) {
 
     // Add headers to the request
     if ('setRequestHeader' in request) {
-      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+      utils$1.forEach(requestHeaders, function setRequestHeader(val, key) {
         if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
           // Remove Content-Type if data is undefined
           delete requestHeaders[key];
@@ -17385,7 +17035,7 @@ var parseHeaders = function parseHeaders(headers) {
     }
 
     // Add withCredentials to request if needed
-    if (!utils.isUndefined(config.withCredentials)) {
+    if (!utils$1.isUndefined(config.withCredentials)) {
       request.withCredentials = !!config.withCredentials;
     }
 
@@ -17433,52 +17083,52 @@ var parseHeaders = function parseHeaders(headers) {
     // Send the request
     request.send(requestData);
   });
-};var DEFAULT_CONTENT_TYPE = {
+};var DEFAULT_CONTENT_TYPE$1 = {
   'Content-Type': 'application/x-www-form-urlencoded'
 };
 
-function setContentTypeIfUnset(headers, value) {
-  if (!utils.isUndefined(headers) && utils.isUndefined(headers['Content-Type'])) {
+function setContentTypeIfUnset$1(headers, value) {
+  if (!utils$1.isUndefined(headers) && utils$1.isUndefined(headers['Content-Type'])) {
     headers['Content-Type'] = value;
   }
 }
 
-function getDefaultAdapter() {
+function getDefaultAdapter$1() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
-    adapter = xhr;
+    adapter = xhr$1;
   } else if (typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]') {
     // For node use HTTP adapter
-    adapter = xhr;
+    adapter = xhr$1;
   }
   return adapter;
 }
 
-var defaults = {
-  adapter: getDefaultAdapter(),
+var defaults$1 = {
+  adapter: getDefaultAdapter$1(),
 
   transformRequest: [function transformRequest(data, headers) {
-    normalizeHeaderName(headers, 'Accept');
-    normalizeHeaderName(headers, 'Content-Type');
-    if (utils.isFormData(data) ||
-      utils.isArrayBuffer(data) ||
-      utils.isBuffer(data) ||
-      utils.isStream(data) ||
-      utils.isFile(data) ||
-      utils.isBlob(data)
+    normalizeHeaderName$1(headers, 'Accept');
+    normalizeHeaderName$1(headers, 'Content-Type');
+    if (utils$1.isFormData(data) ||
+      utils$1.isArrayBuffer(data) ||
+      utils$1.isBuffer(data) ||
+      utils$1.isStream(data) ||
+      utils$1.isFile(data) ||
+      utils$1.isBlob(data)
     ) {
       return data;
     }
-    if (utils.isArrayBufferView(data)) {
+    if (utils$1.isArrayBufferView(data)) {
       return data.buffer;
     }
-    if (utils.isURLSearchParams(data)) {
-      setContentTypeIfUnset(headers, 'application/x-www-form-urlencoded;charset=utf-8');
+    if (utils$1.isURLSearchParams(data)) {
+      setContentTypeIfUnset$1(headers, 'application/x-www-form-urlencoded;charset=utf-8');
       return data.toString();
     }
-    if (utils.isObject(data)) {
-      setContentTypeIfUnset(headers, 'application/json;charset=utf-8');
+    if (utils$1.isObject(data)) {
+      setContentTypeIfUnset$1(headers, 'application/json;charset=utf-8');
       return JSON.stringify(data);
     }
     return data;
@@ -17511,24 +17161,24 @@ var defaults = {
   }
 };
 
-defaults.headers = {
+defaults$1.headers = {
   common: {
     'Accept': 'application/json, text/plain, */*'
   }
 };
 
-utils.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
-  defaults.headers[method] = {};
+utils$1.forEach(['delete', 'get', 'head'], function forEachMethodNoData(method) {
+  defaults$1.headers[method] = {};
 });
 
-utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
-  defaults.headers[method] = utils.merge(DEFAULT_CONTENT_TYPE);
+utils$1.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+  defaults$1.headers[method] = utils$1.merge(DEFAULT_CONTENT_TYPE$1);
 });
 
-var defaults_1 = defaults;/**
+var defaults_1$1 = defaults$1;/**
  * Throws a `Cancel` if cancellation has been requested.
  */
-function throwIfCancellationRequested(config) {
+function throwIfCancellationRequested$1(config) {
   if (config.cancelToken) {
     config.cancelToken.throwIfRequested();
   }
@@ -17540,40 +17190,40 @@ function throwIfCancellationRequested(config) {
  * @param {object} config The config that is to be used for the request
  * @returns {Promise} The Promise to be fulfilled
  */
-var dispatchRequest = function dispatchRequest(config) {
-  throwIfCancellationRequested(config);
+var dispatchRequest$1 = function dispatchRequest(config) {
+  throwIfCancellationRequested$1(config);
 
   // Ensure headers exist
   config.headers = config.headers || {};
 
   // Transform request data
-  config.data = transformData(
+  config.data = transformData$1(
     config.data,
     config.headers,
     config.transformRequest
   );
 
   // Flatten headers
-  config.headers = utils.merge(
+  config.headers = utils$1.merge(
     config.headers.common || {},
     config.headers[config.method] || {},
     config.headers
   );
 
-  utils.forEach(
+  utils$1.forEach(
     ['delete', 'get', 'head', 'post', 'put', 'patch', 'common'],
     function cleanHeaderConfig(method) {
       delete config.headers[method];
     }
   );
 
-  var adapter = config.adapter || defaults_1.adapter;
+  var adapter = config.adapter || defaults_1$1.adapter;
 
   return adapter(config).then(function onAdapterResolution(response) {
-    throwIfCancellationRequested(config);
+    throwIfCancellationRequested$1(config);
 
     // Transform response data
-    response.data = transformData(
+    response.data = transformData$1(
       response.data,
       response.headers,
       config.transformResponse
@@ -17581,12 +17231,12 @@ var dispatchRequest = function dispatchRequest(config) {
 
     return response;
   }, function onAdapterRejection(reason) {
-    if (!isCancel(reason)) {
-      throwIfCancellationRequested(config);
+    if (!isCancel$1(reason)) {
+      throwIfCancellationRequested$1(config);
 
       // Transform response data
       if (reason && reason.response) {
-        reason.response.data = transformData(
+        reason.response.data = transformData$1(
           reason.response.data,
           reason.response.headers,
           config.transformResponse
@@ -17604,7 +17254,7 @@ var dispatchRequest = function dispatchRequest(config) {
  * @param {Object} config2
  * @returns {Object} New object resulting from merging config2 to config1
  */
-var mergeConfig = function mergeConfig(config1, config2) {
+var mergeConfig$1 = function mergeConfig(config1, config2) {
   // eslint-disable-next-line no-param-reassign
   config2 = config2 || {};
   var config = {};
@@ -17621,41 +17271,41 @@ var mergeConfig = function mergeConfig(config1, config2) {
   var directMergeKeys = ['validateStatus'];
 
   function getMergedValue(target, source) {
-    if (utils.isPlainObject(target) && utils.isPlainObject(source)) {
-      return utils.merge(target, source);
-    } else if (utils.isPlainObject(source)) {
-      return utils.merge({}, source);
-    } else if (utils.isArray(source)) {
+    if (utils$1.isPlainObject(target) && utils$1.isPlainObject(source)) {
+      return utils$1.merge(target, source);
+    } else if (utils$1.isPlainObject(source)) {
+      return utils$1.merge({}, source);
+    } else if (utils$1.isArray(source)) {
       return source.slice();
     }
     return source;
   }
 
   function mergeDeepProperties(prop) {
-    if (!utils.isUndefined(config2[prop])) {
+    if (!utils$1.isUndefined(config2[prop])) {
       config[prop] = getMergedValue(config1[prop], config2[prop]);
-    } else if (!utils.isUndefined(config1[prop])) {
+    } else if (!utils$1.isUndefined(config1[prop])) {
       config[prop] = getMergedValue(undefined, config1[prop]);
     }
   }
 
-  utils.forEach(valueFromConfig2Keys, function valueFromConfig2(prop) {
-    if (!utils.isUndefined(config2[prop])) {
+  utils$1.forEach(valueFromConfig2Keys, function valueFromConfig2(prop) {
+    if (!utils$1.isUndefined(config2[prop])) {
       config[prop] = getMergedValue(undefined, config2[prop]);
     }
   });
 
-  utils.forEach(mergeDeepPropertiesKeys, mergeDeepProperties);
+  utils$1.forEach(mergeDeepPropertiesKeys, mergeDeepProperties);
 
-  utils.forEach(defaultToConfig2Keys, function defaultToConfig2(prop) {
-    if (!utils.isUndefined(config2[prop])) {
+  utils$1.forEach(defaultToConfig2Keys, function defaultToConfig2(prop) {
+    if (!utils$1.isUndefined(config2[prop])) {
       config[prop] = getMergedValue(undefined, config2[prop]);
-    } else if (!utils.isUndefined(config1[prop])) {
+    } else if (!utils$1.isUndefined(config1[prop])) {
       config[prop] = getMergedValue(undefined, config1[prop]);
     }
   });
 
-  utils.forEach(directMergeKeys, function merge(prop) {
+  utils$1.forEach(directMergeKeys, function merge(prop) {
     if (prop in config2) {
       config[prop] = getMergedValue(config1[prop], config2[prop]);
     } else if (prop in config1) {
@@ -17675,7 +17325,7 @@ var mergeConfig = function mergeConfig(config1, config2) {
       return axiosKeys.indexOf(key) === -1;
     });
 
-  utils.forEach(otherKeys, mergeDeepProperties);
+  utils$1.forEach(otherKeys, mergeDeepProperties);
 
   return config;
 };/**
@@ -17683,11 +17333,11 @@ var mergeConfig = function mergeConfig(config1, config2) {
  *
  * @param {Object} instanceConfig The default config for the instance
  */
-function Axios(instanceConfig) {
+function Axios$1(instanceConfig) {
   this.defaults = instanceConfig;
   this.interceptors = {
-    request: new InterceptorManager_1(),
-    response: new InterceptorManager_1()
+    request: new InterceptorManager_1$1(),
+    response: new InterceptorManager_1$1()
   };
 }
 
@@ -17696,7 +17346,7 @@ function Axios(instanceConfig) {
  *
  * @param {Object} config The config specific for this request (merged with this.defaults)
  */
-Axios.prototype.request = function request(config) {
+Axios$1.prototype.request = function request(config) {
   /*eslint no-param-reassign:0*/
   // Allow for axios('example/url'[, config]) a la fetch API
   if (typeof config === 'string') {
@@ -17706,7 +17356,7 @@ Axios.prototype.request = function request(config) {
     config = config || {};
   }
 
-  config = mergeConfig(this.defaults, config);
+  config = mergeConfig$1(this.defaults, config);
 
   // Set config.method
   if (config.method) {
@@ -17718,7 +17368,7 @@ Axios.prototype.request = function request(config) {
   }
 
   // Hook up interceptors middleware
-  var chain = [dispatchRequest, undefined];
+  var chain = [dispatchRequest$1, undefined];
   var promise = Promise.resolve(config);
 
   this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
@@ -17736,16 +17386,16 @@ Axios.prototype.request = function request(config) {
   return promise;
 };
 
-Axios.prototype.getUri = function getUri(config) {
-  config = mergeConfig(this.defaults, config);
-  return buildURL(config.url, config.params, config.paramsSerializer).replace(/^\?/, '');
+Axios$1.prototype.getUri = function getUri(config) {
+  config = mergeConfig$1(this.defaults, config);
+  return buildURL$1(config.url, config.params, config.paramsSerializer).replace(/^\?/, '');
 };
 
 // Provide aliases for supported request methods
-utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
+utils$1.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData(method) {
   /*eslint func-names:0*/
-  Axios.prototype[method] = function(url, config) {
-    return this.request(mergeConfig(config || {}, {
+  Axios$1.prototype[method] = function(url, config) {
+    return this.request(mergeConfig$1(config || {}, {
       method: method,
       url: url,
       data: (config || {}).data
@@ -17753,10 +17403,10 @@ utils.forEach(['delete', 'get', 'head', 'options'], function forEachMethodNoData
   };
 });
 
-utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
+utils$1.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
   /*eslint func-names:0*/
-  Axios.prototype[method] = function(url, data, config) {
-    return this.request(mergeConfig(config || {}, {
+  Axios$1.prototype[method] = function(url, data, config) {
+    return this.request(mergeConfig$1(config || {}, {
       method: method,
       url: url,
       data: data
@@ -17764,29 +17414,29 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
   };
 });
 
-var Axios_1 = Axios;/**
+var Axios_1$1 = Axios$1;/**
  * A `Cancel` is an object that is thrown when an operation is canceled.
  *
  * @class
  * @param {string=} message The message.
  */
-function Cancel(message) {
+function Cancel$1(message) {
   this.message = message;
 }
 
-Cancel.prototype.toString = function toString() {
+Cancel$1.prototype.toString = function toString() {
   return 'Cancel' + (this.message ? ': ' + this.message : '');
 };
 
-Cancel.prototype.__CANCEL__ = true;
+Cancel$1.prototype.__CANCEL__ = true;
 
-var Cancel_1 = Cancel;/**
+var Cancel_1$1 = Cancel$1;/**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
  *
  * @class
  * @param {Function} executor The executor function.
  */
-function CancelToken(executor) {
+function CancelToken$1(executor) {
   if (typeof executor !== 'function') {
     throw new TypeError('executor must be a function.');
   }
@@ -17803,7 +17453,7 @@ function CancelToken(executor) {
       return;
     }
 
-    token.reason = new Cancel_1(message);
+    token.reason = new Cancel_1$1(message);
     resolvePromise(token.reason);
   });
 }
@@ -17811,7 +17461,7 @@ function CancelToken(executor) {
 /**
  * Throws a `Cancel` if cancellation has been requested.
  */
-CancelToken.prototype.throwIfRequested = function throwIfRequested() {
+CancelToken$1.prototype.throwIfRequested = function throwIfRequested() {
   if (this.reason) {
     throw this.reason;
   }
@@ -17821,9 +17471,9 @@ CancelToken.prototype.throwIfRequested = function throwIfRequested() {
  * Returns an object that contains a new `CancelToken` and a function that, when called,
  * cancels the `CancelToken`.
  */
-CancelToken.source = function source() {
+CancelToken$1.source = function source() {
   var cancel;
-  var token = new CancelToken(function executor(c) {
+  var token = new CancelToken$1(function executor(c) {
     cancel = c;
   });
   return {
@@ -17832,7 +17482,7 @@ CancelToken.source = function source() {
   };
 };
 
-var CancelToken_1 = CancelToken;/**
+var CancelToken_1$1 = CancelToken$1;/**
  * Syntactic sugar for invoking a function and expanding an array for arguments.
  *
  * Common use case would be to use `Function.prototype.apply`.
@@ -17852,7 +17502,7 @@ var CancelToken_1 = CancelToken;/**
  * @param {Function} callback
  * @returns {Function}
  */
-var spread = function spread(callback) {
+var spread$1 = function spread(callback) {
   return function wrap(arr) {
     return callback.apply(null, arr);
   };
@@ -17862,7 +17512,7 @@ var spread = function spread(callback) {
  * @param {*} payload The value to test
  * @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
  */
-var isAxiosError = function isAxiosError(payload) {
+var isAxiosError$1 = function isAxiosError(payload) {
   return (typeof payload === 'object') && (payload.isAxiosError === true);
 };/**
  * Create an instance of Axios
@@ -17870,60 +17520,60 @@ var isAxiosError = function isAxiosError(payload) {
  * @param {Object} defaultConfig The default config for the instance
  * @return {Axios} A new instance of Axios
  */
-function createInstance(defaultConfig) {
-  var context = new Axios_1(defaultConfig);
-  var instance = bind(Axios_1.prototype.request, context);
+function createInstance$1(defaultConfig) {
+  var context = new Axios_1$1(defaultConfig);
+  var instance = bind$1(Axios_1$1.prototype.request, context);
 
   // Copy axios.prototype to instance
-  utils.extend(instance, Axios_1.prototype, context);
+  utils$1.extend(instance, Axios_1$1.prototype, context);
 
   // Copy context to instance
-  utils.extend(instance, context);
+  utils$1.extend(instance, context);
 
   return instance;
 }
 
 // Create the default instance to be exported
-var axios = createInstance(defaults_1);
+var axios$2 = createInstance$1(defaults_1$1);
 
 // Expose Axios class to allow class inheritance
-axios.Axios = Axios_1;
+axios$2.Axios = Axios_1$1;
 
 // Factory for creating new instances
-axios.create = function create(instanceConfig) {
-  return createInstance(mergeConfig(axios.defaults, instanceConfig));
+axios$2.create = function create(instanceConfig) {
+  return createInstance$1(mergeConfig$1(axios$2.defaults, instanceConfig));
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = Cancel_1;
-axios.CancelToken = CancelToken_1;
-axios.isCancel = isCancel;
+axios$2.Cancel = Cancel_1$1;
+axios$2.CancelToken = CancelToken_1$1;
+axios$2.isCancel = isCancel$1;
 
 // Expose all/spread
-axios.all = function all(promises) {
+axios$2.all = function all(promises) {
   return Promise.all(promises);
 };
-axios.spread = spread;
+axios$2.spread = spread$1;
 
 // Expose isAxiosError
-axios.isAxiosError = isAxiosError;
+axios$2.isAxiosError = isAxiosError$1;
 
-var axios_1 = axios;
+var axios_1$1 = axios$2;
 
 // Allow use of default import syntax in TypeScript
-var _default = axios;
-axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class */ (function () {
+var _default = axios$2;
+axios_1$1.default = _default;var axios$3 = axios_1$1;var AxiosConnector$1 = /** @class */ (function () {
     function AxiosConnector() {
     }
     AxiosConnector.send = function (_url, _data, _method, _reponseType) {
         if (!_url)
             throw new Error('Invalid request parameters');
-        var responseType = _reponseType || ResponseType.JSON;
-        if (responseType === ResponseType.JSON || responseType === ResponseType.BUFFER) {
+        var responseType = _reponseType || ResponseType$1.JSON;
+        if (responseType === ResponseType$1.JSON || responseType === ResponseType$1.BUFFER) {
             return new Promise(function (resolve, reject) {
-                var requestObject = NetworkMetrics.addURL(_url);
+                var requestObject = NetworkMetrics$1.addURL(_url);
                 requestObject.requestInitaited();
-                axios$1({
+                axios$3({
                     method: _method,
                     url: _url,
                     data: _data,
@@ -17938,31 +17588,31 @@ axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class
                         resolve(response.data);
                     }
                     else {
-                        requestObject.errorOccurred(errorCode.invalidDataError);
-                        reject(errorCode.invalidDataError);
+                        requestObject.errorOccurred(errorCode$2.invalidDataError);
+                        reject(errorCode$2.invalidDataError);
                     }
                 })
                     .catch(function (error) {
-                    var errorMsgCode = errorCode.noerror;
+                    var errorMsgCode = errorCode$2.noerror;
                     if (error.response) {
                         if (error.response.status === 0) {
-                            errorMsgCode = errorCode.connectionError;
+                            errorMsgCode = errorCode$2.connectionError;
                         }
                         else if (error.response.status === 404) {
-                            errorMsgCode = errorCode.error404;
+                            errorMsgCode = errorCode$2.error404;
                         }
                         else if (error.response.status === 500) {
-                            errorMsgCode = errorCode.serverError;
+                            errorMsgCode = errorCode$2.serverError;
                         }
                         else {
-                            errorMsgCode = errorCode.unknownError;
+                            errorMsgCode = errorCode$2.unknownError;
                         }
                     }
                     else if (error.request) {
-                        errorMsgCode = errorCode.noresponseError;
+                        errorMsgCode = errorCode$2.noresponseError;
                     }
                     else {
-                        errorMsgCode = errorCode.unknownError;
+                        errorMsgCode = errorCode$2.unknownError;
                     }
                     requestObject.errorOccurred(errorMsgCode);
                     reject(errorMsgCode);
@@ -17973,39 +17623,39 @@ axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class
             throw new Error('Invalid Response Type');
     };
     return AxiosConnector;
-}());var ServerConnector = /** @class */ (function () {
+}());var ServerConnector$1 = /** @class */ (function () {
     function ServerConnector(connectionType) {
-        this.connectionType = connectionType || ServerConnectionType.AXIOS;
+        this.connectionType = connectionType || ServerConnectionType$1.AXIOS;
     }
     ServerConnector.prototype.getJsonData = function (url) {
-        if (this.connectionType === ServerConnectionType.XHR) {
-            return AjaxConnector.send(url, null, 'GET', true, ResponseType.JSON);
+        if (this.connectionType === ServerConnectionType$1.XHR) {
+            return AjaxConnector$1.send(url, null, 'GET', true, ResponseType$1.JSON);
         }
-        else if (this.connectionType === ServerConnectionType.AXIOS) {
-            return AxiosConnector.send(url, null, 'GET', ResponseType.JSON);
+        else if (this.connectionType === ServerConnectionType$1.AXIOS) {
+            return AxiosConnector$1.send(url, null, 'GET', ResponseType$1.JSON);
         }
         else {
             throw new Error('Invalid server connection type');
         }
     };
     ServerConnector.prototype.getArrayBuffer = function (url) {
-        if (this.connectionType === ServerConnectionType.XHR) {
-            return AjaxConnector.send(url, null, 'GET', true, ResponseType.BUFFER);
+        if (this.connectionType === ServerConnectionType$1.XHR) {
+            return AjaxConnector$1.send(url, null, 'GET', true, ResponseType$1.BUFFER);
         }
-        else if (this.connectionType === ServerConnectionType.AXIOS) {
-            return AxiosConnector.send(url, null, 'GET', ResponseType.BUFFER);
+        else if (this.connectionType === ServerConnectionType$1.AXIOS) {
+            return AxiosConnector$1.send(url, null, 'GET', ResponseType$1.BUFFER);
         }
         else {
             throw new Error('Invalid server connection type');
         }
     };
     ServerConnector.prototype.getNetworkMetrics = function () {
-        return NetworkMetrics.getAllMetrics();
+        return NetworkMetrics$1.getAllMetrics();
     };
     return ServerConnector;
 }());var AppConnector = /** @class */ (function () {
     function AppConnector(_eventDispacther) {
-        this.connector = new ServerConnector(ServerConnectionType.AXIOS);
+        this.connector = new ServerConnector$1(ServerConnectionType$1.AXIOS);
         this.eventDispacther = _eventDispacther;
     }
     AppConnector.prototype.getArrayBuffer = function (url) {
@@ -18056,26 +17706,26 @@ axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class
                     }
                     else {
                         //console.log(errorCode.jsonError);
-                        Logger.setStatusBar(errorCode.jsonError, statusIconType.ERROR);
-                        reject(errorCode.jsonError);
+                        Logger.setStatusBar(errorCode$2.jsonError, statusIconType.ERROR);
+                        reject(errorCode$2.jsonError);
                     }
                 }
                 else {
                     //console.log(errorCode.jsonError);
-                    Logger.setStatusBar(errorCode.jsonError, statusIconType.ERROR);
-                    reject(errorCode.jsonError);
+                    Logger.setStatusBar(errorCode$2.jsonError, statusIconType.ERROR);
+                    reject(errorCode$2.jsonError);
                 }
             })
                 .catch(function (errorMsgCode) {
-                if (errorMsgCode !== errorCode.noerror) {
+                if (errorMsgCode !== errorCode$2.noerror) {
                     //console.log(errorMsgCode);
                     Logger.setStatusBar(errorMsgCode, statusIconType.ERROR);
                     reject(errorMsgCode);
                 }
                 else {
                     //console.log(errorCode.unknownError);
-                    Logger.setStatusBar(errorCode.unknownError, statusIconType.ERROR);
-                    reject(errorCode.unknownError);
+                    Logger.setStatusBar(errorCode$2.unknownError, statusIconType.ERROR);
+                    reject(errorCode$2.unknownError);
                 }
             });
         });
@@ -18085,7 +17735,7 @@ axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class
         var _this = this;
         var scope = this;
         if ((taskId || taskURL) && onCompleteCallbackFn) {
-            var url = this.baseUrl + serverURLs["taskState"] + "/" + taskId;
+            var url = this.baseUrl + serverURLs$1["taskState"] + "/" + taskId;
             if (taskURL)
                 url = taskURL;
             this.getJsonData(url)
@@ -18115,23 +17765,23 @@ axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class
                 }
                 else {
                     //console.log(errorCode.jsonError);
-                    Logger.setStatusBar(errorCode.jsonError, statusIconType.ERROR);
+                    Logger.setStatusBar(errorCode$2.jsonError, statusIconType.ERROR);
                 }
             })
                 .catch(function (errorMsgCode) {
-                if (errorMsgCode !== errorCode.noerror) {
+                if (errorMsgCode !== errorCode$2.noerror) {
                     //console.log(errorMsgCode);
-                    Logger.setStatusBar(errorCode.jsonError, statusIconType.ERROR);
+                    Logger.setStatusBar(errorCode$2.jsonError, statusIconType.ERROR);
                 }
                 else {
                     //console.log(errorCode.unknownError);
-                    Logger.setStatusBar(errorCode.jsonError, statusIconType.ERROR);
+                    Logger.setStatusBar(errorCode$2.jsonError, statusIconType.ERROR);
                 }
             });
         }
         else {
             //console.log("checkTaskStatus :: Incorrect number of arguments.");
-            Logger.setStatusBar(errorCode.jsonError, statusIconType.ERROR);
+            Logger.setStatusBar(errorCode$2.jsonError, statusIconType.ERROR);
         }
     };
     AppConnector.prototype.isJson = function (item) {
@@ -18148,7 +17798,7 @@ axios_1.default = _default;var axios$1 = axios_1;var AxiosConnector = /** @class
         return false;
     };
     return AppConnector;
-}());var EventDispatcher = /** @class */ (function () {
+}());var EventDispatcher$1 = /** @class */ (function () {
     function EventDispatcher() {
         this._listeners = {};
     }
@@ -18216,7 +17866,7 @@ if ( globalThis && globalThis.process.env.NODE_ENV.toString() !== 'production') 
 var ViewerManager = /** @class */ (function () {
     function ViewerManager() {
         this.viewerMap = new Map();
-        this.eventDispacther = new EventDispatcher();
+        this.eventDispacther = new EventDispatcher$1();
         this.connector = new AppConnector(this.eventDispacther);
         this.defaultViewerID = null;
     }
@@ -18224,15 +17874,8 @@ var ViewerManager = /** @class */ (function () {
     ViewerManager.prototype.getVersion = function () {
         return version;
     };
-    ViewerManager.prototype.getRenderVersion = function (viewerUUID) {
-        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
-        if (viewer) {
-            return viewer.getRenderVersion();
-        }
-        return "Invalid viewer ID";
-    };
     ViewerManager.prototype.createViewer = function (_containerID) {
-        var viewerUUID = Utility.create_UUID();
+        var viewerUUID = Utility$1.create_UUID();
         var viewer = new Viewer(viewerUUID, _containerID, this.connector, this.eventDispacther);
         if (this.defaultViewerID === null) {
             this.defaultViewerID = viewerUUID;
@@ -18271,6 +17914,14 @@ var ViewerManager = /** @class */ (function () {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
         if (viewer) {
             return viewer.getModelInfo();
+        }
+        return "Invalid viewer ID";
+    };
+    ViewerManager.prototype.getSceneBoundingBox = function (viewerUUID, onlyVisible) {
+        if (onlyVisible === void 0) { onlyVisible = true; }
+        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if (viewer) {
+            return viewer.getSceneBoundingBox(onlyVisible);
         }
         return "Invalid viewer ID";
     };
@@ -18414,39 +18065,76 @@ var ViewerManager = /** @class */ (function () {
     };
     //#endregion
     //#region Section
-    ViewerManager.prototype.createSection = function (viewerUUID) {
-        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
-        return viewer.createSection();
-    };
     ViewerManager.prototype.getSectionGUIData = function (viewerUUID) {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
-        return viewer.getSectionGUIData();
+        if (viewer)
+            return viewer.getSectionGUIData();
+        else
+            return "Invalid viewer id";
     };
-    ViewerManager.prototype.setSectionPlaneEquation = function (_a, viewerUUID) {
-        var planeId = _a.planeId, eqn = _a.eqn;
+    ViewerManager.prototype.setActiveSectionPlane = function (planeId, viewerUUID) {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
-        viewer.setSectionPlaneEquation(planeId, eqn);
+        if (viewer)
+            viewer.setActiveSectionPlane(planeId);
+        else
+            return "Invalid viewer id";
+    };
+    ViewerManager.prototype.setSectionPlaneEquation = function (planeId, transform, viewerUUID, initTransform) {
+        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if (viewer)
+            viewer.setSectionPlaneEquation(planeId, transform, initTransform);
+        else
+            return "Invalid viewer id";
     };
     ViewerManager.prototype.getSectionPlaneEquation = function (planeId, viewerUUID) {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
-        return viewer.getSectionPlaneEquation(planeId);
+        if (viewer)
+            return viewer.getSectionPlaneEquation(planeId);
+        else
+            return "Invalid viewer id";
     };
-    ViewerManager.prototype.setPlaneState = function (planeOptions, viewerUUID) {
+    ViewerManager.prototype.addSectionPlane = function (planeId, transform, color, viewerUUID) {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
-        viewer.setPlaneState(planeOptions);
+        if (viewer)
+            return viewer.addSectionPlane(planeId, transform, color);
+        else
+            return "Invalid viewer id";
+    };
+    ViewerManager.prototype.deleteSectionPlane = function (planeId, viewerUUID) {
+        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if (viewer)
+            return viewer.deleteSectionPlane(planeId);
+        else
+            return "Invalid viewer id";
+    };
+    ViewerManager.prototype.setPlaneState = function (planeId, selectedPlaneOptions, viewerUUID) {
+        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if (viewer)
+            viewer.setPlaneState(planeId, selectedPlaneOptions);
+        else
+            return "Invalid viewer id";
     };
     ViewerManager.prototype.invertSectionPlane = function (planeId, viewerUUID) {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
-        viewer.invertSectionPlane(planeId);
+        if (viewer)
+            viewer.invertSectionPlane(planeId);
+        else
+            return "Invalid viewer id";
     };
-    ViewerManager.prototype.planeFrom3pts = function (planeId, p1, p2, p3, viewerUUID) {
+    ViewerManager.prototype.planeFrom3pts = function (planeId, p1, p2, p3, transform, viewerUUID) {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
-        viewer.planeFrom3pts(planeId, p1, p2, p3);
+        if (viewer)
+            viewer.planeFrom3pts(planeId, p1, p2, p3, transform);
+        else
+            return "Invalid viewer id";
     };
-    ViewerManager.prototype.resetSection = function (viewerUUID) {
-        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
-        viewer.resetSection();
-    };
+    // resetSection(viewerUUID:any){
+    //     let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+    //     if(viewer)
+    //     viewer.resetSection();
+    //     else
+    //     return "Invalid viewer id";
+    // }
     //#endregion
     //#region PartManipulation
     ViewerManager.prototype.enablePickAndMove = function (toEnable, viewerUUID) {
