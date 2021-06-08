@@ -6,7 +6,7 @@ import styles from './style';
 import { sideBarContentTypes } from '../../../config';
 import { setSidebarActiveContent } from '../../../store/appSlice';
 import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
-import React, { useState} from "react";
+import { useState} from "react";
 
 import MuiInput from '@material-ui/core/Input';
 
@@ -30,9 +30,7 @@ import DialogBox from "../../../components/shared/dialogBox"
 // import { PlayCircleOutlineSharp } from '@material-ui/icons';
 
 import ClipPlane from "./clipPlane"
-
-import {editEnabled} from "../../../store/sideBar/clipSlice";
-import {createPlane, editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlaneName} from "../../../store/sideBar/clipSlice";
+import {setSectionPlaneData, addPlane, editEnabled, setActive, editShowClip, editEdgeClip, editShowCap, pastePlane, editPlaneName, saveClickedVal, removePlane, duplicatePlane} from "../../../store/sideBar/clipSlice";
 
 
 export default function ClipPlanes(){
@@ -41,7 +39,7 @@ export default function ClipPlanes(){
   const classes = styles();
   const planes = useAppSelector((state) => state.clipPlane.planes);
   const limit = useAppSelector((state) => state.clipPlane.settings.maxAllowedPlanes);
-  const [clickedVal, setClickedVal] = useState<any>(null); 
+  const clickedVal = useAppSelector<any>((state) => state.clipPlane.settings.clickedVal);
   const [copied, setCopied] = useState<any>(false); 
   const [copy, setCopy] = useState(null);
   const [edit, setEdit] = useState<any>(false);
@@ -56,26 +54,35 @@ export default function ClipPlanes(){
   }
 
   const onHandleClick :(click: any) => any = (click)=> {
-    if ( clickedVal) {
-      if (clickedVal.id === click.id)
-        setClickedVal(null)
+    if(clickedVal){
+      if(click.id === clickedVal.id)
+      {
+        dispatch(saveClickedVal(null))
+        dispatch(setActive({id:-1}))
+      }
       else
-        setClickedVal(click)
+      {
+        dispatch(saveClickedVal(click))
+        dispatch(setActive({id:click.id}))
+      }
     }
-    else{
-      setClickedVal(click);
+    else 
+    {
+      dispatch(saveClickedVal(click))
+      dispatch(setActive({id:click.id}))
+    }
+
     if(click.id !== editPlane)
       setEditPlane(null)
-    }
-    
   }
 
   const onClickAddItem = () => {
-    dispatch(createPlane());
+    dispatch(addPlane());
   }
 
   const onHandleCheck: (item: any) => any = (item) => {
     dispatch(editEnabled(item.id))
+    dispatch(setSectionPlaneData({id:item.id}));
   }
 
   const onHandleClip: (item: any, functionName: any) => any = (item, functionName) => {
@@ -90,6 +97,7 @@ export default function ClipPlanes(){
         dispatch(editShowCap(item.id));
       break;
     } 
+    dispatch(setSectionPlaneData({id:item.id}));
   }
 
   const onHandleCopy: (item: any) => any = (item) => {
@@ -98,14 +106,21 @@ export default function ClipPlanes(){
   }
 
   const onHandlePaste:(item: any)=> any = (item) => {
-    dispatch(pastePlane(item))
+    if(planes.length < limit)
+    {
+      dispatch(pastePlane(item))
+      dispatch(duplicatePlane({id:item.id}));
+    }
   }
 
   const onHandleDelete = () => {
     setOpenDialog(false);
     setOpenDeleteConfirm(true);
-    dispatch(deletePlane(clickedVal.id))
-    setClickedVal(null);
+
+    dispatch(editEnabled(clickedVal.id))
+
+    dispatch(removePlane({id:clickedVal.id}))
+    dispatch(saveClickedVal(null))
   }
 
   const onHandleEdit = () => {
@@ -114,7 +129,7 @@ export default function ClipPlanes(){
   
   const onHandleSave = () => {
     setEdit(!edit);
-    setClickedVal(null);
+    // setClickedVal(null);
   }
 
   const handleCloseDialog = () => {
@@ -131,22 +146,25 @@ export default function ClipPlanes(){
   }
 
   const onHandlePlateKey = (e : any, item : any) => {
-      if (e.key === 'Enter') {
+    if (e.key === 'Enter') {
+      setEditPlane(null)
+      if(editName === "")
         setEditPlane(null)
-        //console.log(item, editName)
-        const hello = {id : item.id, editName : editName}
-        dispatch(editPlaneName(hello))
+      else{
+      const editPlane = {id : item.id, editName : editName}
+      dispatch(editPlaneName(editPlane))
       }
-      if (e.keyCode === 27) {
-        e.preventDefault();
-        setEditPlane(null)
-      }
-  }
+    }
+    if (e.keyCode === 27) {
+      e.preventDefault();
+      setEditPlane(null)
+    }
+}
 
   const displayClicked = () => {
     const displayClick :any = planes.find((item : any )=> item.id === clickedVal.id);
     return(
-      <div  className={classes.displayList}>
+      <div  className={classes.displayList}> 
         <MuiTypography className={classes.listItem} noWrap onClick={() =>onHandleClip(clickedVal, "showClip")}>
           <MuiCheckbox color="default" checked ={displayClick.showClip} />
           Show Clip Plate
@@ -198,14 +216,13 @@ export default function ClipPlanes(){
           <MuiIconButton style={{right: "6.5%",}} onClick={() => onClickAddItem()}><AddIcon/></MuiIconButton>
 
         </div> */}
-        <div className={classes.list}>
+        <div className={clickedVal ? classes.listClick : classes.listClickNo}>
           {
             planes.map((item : any, index : number) =>
               <div key={ 'divRoot_' + index }>
                 { editPlane !== item.id 
                   ?
-                  <div key={ 'divChild_' + index }  onClick={() => onHandleClick(item)}
-                    onDoubleClick={() => {setEditPlane(item.id);setClickedVal(null); SetEditName(item.name)}} 
+                  <div key={ 'divChild_' + index }  
                     className={clickedVal 
                                 ? 
                                   item.id === clickedVal.id 
@@ -215,10 +232,12 @@ export default function ClipPlanes(){
                                       classes.listItem 
                                     : classes.listItem} 
                   >
-                    <MuiTypography className={classes.listItemText}>
-                      <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/>
+                    <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/>
+                    <span>
+                      <MuiTypography className={classes.listItemText} onClick={() => onHandleClick(item)} onDoubleClick={() => {setEditPlane(item.id);dispatch(saveClickedVal(null)); SetEditName(item.name)}} >
                       {item.name}
                    </MuiTypography>
+                    </span>    
                   </div>
                 :
                   <div key={ 'divChild_' + index } className={classes.listItemClicked}>
@@ -236,9 +255,9 @@ export default function ClipPlanes(){
             )
           }
         </div>
-        <div style={{paddingTop:"110%"}}>
+        <div>
           {clickedVal ? 
-            <div>
+            <div style={{position:"fixed",top:"50%",marginTop:"10px",}}>
               <MuiTypography className={classes.heading} variant='h1' noWrap>
                 Display Options
               </MuiTypography>

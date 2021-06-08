@@ -1,3 +1,4 @@
+import { mat4 } from 'gl-matrix';
 import viewerMgr from './viewerMgr';
 
 export function createViewer(viewerDivID : string){
@@ -20,6 +21,10 @@ export function loadModel(api: string, url: string, activeViewerID: string){
 
 export function showModel(activeViewerID: string){
     return viewerMgr.showModel(activeViewerID);
+}
+
+export function getSceneBoundingBox(activeViewerID:string, onlyVisible:boolean = true) {
+    return viewerMgr.getSceneBoundingBox(activeViewerID,onlyVisible);
 }
 
 export function setPartVisibility(activeViewerID:string,nodeIds:string[], toShow:boolean){
@@ -66,3 +71,33 @@ export function getDisplayResult(activeViewerID:string) {
 export function applyResult(resultId:string, stepId:string, derivedTypeId:string, activeViewerID:string) {
     return viewerMgr.applyResult(resultId,stepId,derivedTypeId, activeViewerID);
 }
+
+//#region Section
+export function getSectionGUIData(activeViewerID:string) {
+    return viewerMgr.getSectionGUIData(activeViewerID);
+}
+
+export function setActiveSectionPlane(planeId:number, activeViewerID:string) {
+    return viewerMgr.setActiveSectionPlane(planeId,activeViewerID);
+}
+
+export function addSectionPlane(planeId:number, transform:mat4, color:[number,number,number,number],activeViewerID:string){
+    return viewerMgr.addSectionPlane(planeId,transform,color,activeViewerID);
+}
+
+export function deleteSectionPlane(planeId:number,activeViewerID:string) {
+    return viewerMgr.deleteSectionPlane(planeId,activeViewerID);
+}
+export function getSectionPlaneEquation(planeId:number, activeViewerID:string) {
+    return viewerMgr.getSectionPlaneEquation(planeId,activeViewerID);
+}
+
+export function setSectionPlaneEquation(planeId:number, transform:mat4,activeViewerID:string, initTransform?:mat4) {
+    return viewerMgr.setSectionPlaneEquation(planeId,transform, activeViewerID, initTransform);
+}
+
+export function setPlaneState(planeId:number,selectedPlaneOptions:any, activeViewerID:any){
+    viewerMgr.setPlaneState(planeId,selectedPlaneOptions,activeViewerID);
+    return 'SUCCESS'
+}
+//#endregion

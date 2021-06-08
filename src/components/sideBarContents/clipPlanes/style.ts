@@ -19,24 +19,60 @@ export default makeStyles((theme) => (
   button: {
     background: theme.palette.action.selected,
   },
-  // headerIcon:{
-  //   width : 48,
-  //   height: 48,
-  // },
-      
-  list:{
-    position: "absolute",
-    left: "5%",
-    right: "-40%",
+  buttonNil: {
   },
+      
+  listClick:{
+    position: "absolute",
+    overflowY: "auto",
+    overflowX:"hidden",
+    listStyle: "none",
+    height: "42%",
+    width:"100%",
+    '&::-webkit-scrollbar': {
+      width: '0.4em'
+    },
+    '&::-webkit-scrollbar-track': {
+      boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+      webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'rgba(0,0,0,.1)',
+      outline: '1px solid slategrey'
+    },
+  },
+
+  listClickNo:{
+    position: "absolute",
+    overflowY: "auto",
+    overflowX:"hidden",
+    listStyle: "none",
+    height: "70%",
+    width:"100%",
+    '&::-webkit-scrollbar': {
+      width: '0.4em'
+    },
+    '&::-webkit-scrollbar-track': {
+      boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+      webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'rgba(0,0,0,.1)',
+      outline: '1px solid slategrey'
+    },
+    
+  },
+    
     
   listItem: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "flex-start",
+    paddingLeft:"15px",
+    // justifyContent: "flex-start",
     width: "100%",
     padding: 1,
     color: theme.palette.text.primary,
+    
     '&:hover': {
       background: theme.palette.action.hover,
     },
@@ -50,8 +86,9 @@ export default makeStyles((theme) => (
   listItemClicked: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "flex-start",
+    // justifyContent: "flex-start",
     width: "100%",
+    paddingLeft:"15px",
     padding: 1,
     background: theme.palette.action.selected,
     [theme.breakpoints.down('sm')]: {
@@ -61,22 +98,41 @@ export default makeStyles((theme) => (
   
   listItemText: {
     color: theme.palette.text.primary,
+    whiteSpace: "nowrap",
+    overflow:"hidden",
+    textOverflow:"ellipsis",
     fontSize: "18px",
   },
-  
-  displayOption: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    padding: 12,
-    marginTop:"%",
+
+  listItemAsHeading: {
     color: theme.palette.text.primary,
+    width:"120px",
+    whiteSpace: "nowrap",
+    overflow:"hidden",
+    textOverflow:"ellipsis",
+    fontSize: "17px",
   },
   
-  displayList:{
-    // position:"absolute",
-    paddingLeft: "5%",
-    // right: "-100%",     
+  displayList:{ 
+    position: "fixed",
+      overflowY: "auto",
+    overflowX:"hidden",
+    listStyle: "none",
+    height: "22%",
+    width:"300px",
+    '&::-webkit-scrollbar': {
+      width: '0.4em'
+    },
+    '&::-webkit-scrollbar-track': {
+      boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+      webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'rgba(0,0,0,.1)',
+      outline: '1px solid slategrey'
+    },    
+    
+    
   },
 
   listSub: {
@@ -88,7 +144,8 @@ export default makeStyles((theme) => (
     marginTop:"15px",
     color: theme.palette.text.primary,
     fontSize: "14px",
-    marginLeft:"2%"
+    marginLeft:"2%",
+    marginBottom:"10px"
   },
 
   dialogBox: {
@@ -113,26 +170,34 @@ export default makeStyles((theme) => (
     position:"absolute",
     left:"20%",
     right:"20%",
-    top:"15%",
+    top:"10%",
     zIndex: 10,
     
   },
 
-  clicularSliderInputOne: {
+  cicularSliderInput: {
     color:theme.palette.text.primary,
     background:"none",
     border: "1px solid",
     borderColor: theme.palette.text.primary ,
-    marginTop:"-50%",
-    // paddingLeft:"20%",
-    paddingTop:"10%",
-    width:"100%",
-    // left:"70%",
-    // top:"10%",
-    right:"10%",
-    fontSize:"4px",
+    marginTop:"-60%",
+    textAlign:"center",
+    width:"80%",
+    fontSize:"14px",
     zIndex: 10,
     size: 4,
+  },
+
+  circularSliderButton:{
+    color:theme.palette.text.primary,
+    fontSize:"10px",
+  },
+
+  translateButton:{
+    // marginLeft:"10px",
+    // marginBottom:"-5px",
+    color:theme.palette.text.primary,
+    fontSize:"20px",
   },
 
   input :{
@@ -142,25 +207,39 @@ export default makeStyles((theme) => (
   paddingLeft:"10%",
 },
 
-inputOne :{
-  color: theme.palette.text.primary, 
-  paddingLeft: "30%",
-  textAlign: "center",
+inputTranslate :{
+  color:theme.palette.text.primary,
+  background:"none",
   border: "1px solid",
-  boderColor: theme.palette.text.primary, 
+  borderColor: theme.palette.text.primary ,
+  textAlign:"center",
+  width:"70px",
+  fontSize:"16px",
+  zIndex: 10,
+  size: 4,
 },
 
 inputEquation:{
-  // width:"40px",
-  color: theme.palette.text.primary, 
-  textAlign:"center",
   border: "1px solid",
-  boderColor: theme.palette.text.primary,
-  paddingLeft:"10px",
+  color:theme.palette.text.primary,
   background:"none",
   borderColor: theme.palette.text.primary ,
-  fontSize:"4px",
-  width:"100%",
+  marginTop:"-60%",
+  textAlign:"center",
+  width:"90%",
+  fontSize:"16px",
+  zIndex: 10,
+  size: 4,
+},
+
+disabled: {
+background: theme.palette.text.disabled,
+opacity:0.6,
+},
+
+disabledButton:{
+color: theme.palette.text.disabled,
+opacity:0.6,
 },
 
   caption: {
@@ -185,4 +264,72 @@ inputEquation:{
     fontSize: "3em"
   },
   
+  scrollBar: {
+    overflowY: "auto",
+    overflowX:"hidden",
+    // margin: 0,
+    // padding: 0,
+    listStyle: "none",
+    height: "99%",
+    width:"100%",
+    '&::-webkit-scrollbar': {
+      width: '0.4em'
+    },
+    '&::-webkit-scrollbar-track': {
+      boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+      webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'rgba(0,0,0,.1)',
+      outline: '1px solid slategrey'
+    },
+  },
+
+  editButton:{
+    background: theme.palette.action.selected,
+    borderRadius:"5px",
+    width:40,
+    height:10,
+    marginLeft:"120px",
+  },
+  
+  editButtonActive:{
+    background:theme.palette.action.selected,
+    opacity:0.7,
+  },
+  
+  footerCard:{
+    // height:"45px",
+    // position: 'absolute',
+    // background:theme.palette.text.secondary,
+    // left: 0,
+    // bottom: 0,
+    // textAlign: 'center',
+    // width : '100%',
+    // borderTopLeftRadius: 10,
+    // borderTopRightRadius: 10,
+    // boxShadow: theme.shadows[20],
+    // borderRadius:"10px 10px 0 0",
+    // right: -20,
+    // padding: "5px -20px 0px 20px",
+
+  },
+
+  inputEqnBorder:{
+    border: "1px solid",
+    width:"240px",
+    borderColor: theme.palette.text.primary ,
+  },
+
+  inputEqn: {
+    textAlign:"center",
+      "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
+        "-webkit-appearance": "none",
+        margin: 0
+  }},
+
+  disabledTextBox: {
+    marginLeft:"-20px", width:"90%",marginTop:"10px",border: "1px solid",paddingLeft:"5px",paddingRight:"5px",
+  },
+
 }));
