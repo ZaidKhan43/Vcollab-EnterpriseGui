@@ -220,13 +220,13 @@ inputTranslate :{
 },
 
 inputEquation:{
+  border: "1px solid",
   color:theme.palette.text.primary,
   background:"none",
-  border: "none",
   borderColor: theme.palette.text.primary ,
   marginTop:"-60%",
   textAlign:"center",
-  width:"17%",
+  width:"90%",
   fontSize:"16px",
   zIndex: 10,
   size: 4,
@@ -290,7 +290,7 @@ opacity:0.6,
     borderRadius:"5px",
     width:40,
     height:10,
-    marginLeft:"20px",
+    marginLeft:"120px",
   },
   
   editButtonActive:{
@@ -327,4 +327,9 @@ opacity:0.6,
         "-webkit-appearance": "none",
         margin: 0
   }},
+
+  disabledTextBox: {
+    marginLeft:"-40px", width:"240px",marginTop:"10px",border: "1px solid",
+  },
+
 }));

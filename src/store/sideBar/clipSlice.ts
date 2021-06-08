@@ -194,9 +194,10 @@ export const clipSlice = createSlice({
     pastePlane : (state, action) => {
       if (state.planes.length < 6){
         let clone : any = {}; 
-        for (let key in action.payload) {
-          clone[key] = action.payload[key];
-        }
+        // for (let key in action.payload) {
+        //   clone[key] = action.payload[key];
+        // }
+        clone = JSON.parse(JSON.stringify(action.payload))
         state.settings.idGenerator+=1;
         clone.id=state.settings.idGenerator;
         clone.name = `${clone.name} (Copy)`
@@ -233,21 +234,21 @@ export const clipSlice = createSlice({
       const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
       if ( index >= 0) {
         let changeItem : any = state.planes[index];
-        if(changeItem.clipCordX !== action.payload.clipCordX || changeItem.clipCordY !== action.payload.clipCordY || changeItem.clipCordZ !== action.payload.clipCordZ)
+        if(changeItem.clipCordX !== action.payload.clipInputX || changeItem.clipCordY !== action.payload.clipInputY || changeItem.clipCordZ !== action.payload.clipCordZ)
           {
             changeItem.rotate = 0;
             changeItem.axisX = 0;
             changeItem.axisY = 0;
           }
-        changeItem.clipCordX = action.payload.clipCordX;
-        changeItem.clipCordY = action.payload.clipCordY;
-        changeItem.clipCordZ = action.payload.clipCordZ;
-        changeItem.clipConstD = action.payload.clipConstD;
+        changeItem.clipCordX = action.payload.clipInputX;
+        changeItem.clipCordY = action.payload.clipInputY;
+        changeItem.clipCordZ = action.payload.clipInputZ;
+        changeItem.clipConstD = action.payload.clipInputD;
 
-        changeItem.userInputEquation[0] = action.payload.clipCordX;
-        changeItem.userInputEquation[1] = action.payload.clipCordY;
-        changeItem.userInputEquation[2] = action.payload.clipCordZ;
-        changeItem.userInputEquation[3] = action.payload.clipConstD;
+        changeItem.userInputEquation[0] = action.payload.clipInputX;
+        changeItem.userInputEquation[1] = action.payload.clipInputY;
+        changeItem.userInputEquation[2] = action.payload.clipInputZ;
+        changeItem.userInputEquation[3] = action.payload.clipInputD;
         
         state.planes[index] = changeItem;
       }

@@ -53,23 +53,27 @@ export default function ClipPlanes(props : any){
   const translateMax = planes[index].translateMax;
   const rotate = planes[index].rotate;
   const axisX = planes[index].axisX;
-  const axisY = planes[index].axisY; 
-  const [clipCordX, setClipCordX] = useState(planes[index].clipCordX);
-  const [clipCordY, setClipCordY] = useState(planes[index].clipCordY);
-  const [clipCordZ, setClipCordZ] = useState(planes[index].clipCordZ);
-  const [clipConstD, setClipConstD] = useState(planes[index].clipConstD);
-
-  const userInputEquation = planes[index].userInputEquation
+  const axisY = planes[index].axisY;
+  
+  const clipCordX = planes[index].clipCordX;
+  const clipCordY = planes[index].clipCordY;
+  const clipCordZ = planes[index].clipCordZ;
+  const clipConstD = planes[index].clipConstD;
+  
+  const [clipInputX, setClipInputX] = useState(planes[index].userInputEquation[0]);
+  const [clipInputY, setClipInputY] = useState(planes[index].userInputEquation[1]);
+  const [clipInputZ, setClipInputZ] = useState(planes[index].userInputEquation[2]);
+  const [clipInputD, setClipInputD] = useState(planes[index].userInputEquation[3]);
 
   const [editMode, setEditMode] = useState(false)
 
   const [clipPlaneMode, setClipPlaneMode] = useState<string | null>(null);
 
   useEffect(() => {
-    setClipCordX(planes[index].clipCordX)
-    setClipCordY(planes[index].clipCordY)
-    setClipCordZ(planes[index].clipCordZ)
-    setClipConstD(planes[index].clipConstD)
+    setClipInputX(planes[index].userInputEquation[0])
+    setClipInputY(planes[index].userInputEquation[1])
+    setClipInputZ(planes[index].userInputEquation[2])
+    setClipInputD(planes[index].userInputEquation[3])
   },[planes])
 
   const OnHandleEquation:(value : any, variable: string) => any = (value,variable) => {
@@ -90,16 +94,16 @@ export default function ClipPlanes(props : any){
 
     switch(variable){
       case "clipCordX" :
-        setClipCordX(Number(value));
+        setClipInputX(Number(value));
       break;
       case "clipCordY" :
-        setClipCordY(Number(value));
+        setClipInputY(Number(value));
       break;
       case "clipCordZ" :
-        setClipCordZ(Number(value));
+        setClipInputZ(Number(value));
       break;
       case "clipConstD" :
-        setClipConstD(Number(value));
+        setClipInputD(Number(value));
       break;
     }
   }
@@ -107,15 +111,15 @@ export default function ClipPlanes(props : any){
   const handleEditShow = () => {
     if(editMode === true){
       setEditMode(false)
-      if (clipCordX === 0 && clipCordY === 0 && clipCordZ === 0){
-        setClipCordX(planes[index].clipCordX)
-        setClipCordY(planes[index].clipCordY)
-        setClipCordZ(planes[index].clipCordZ)
+      if (clipInputX === 0 && clipInputY === 0 && clipInputZ === 0){
+        setClipInputX(planes[index].userInputEquation[0])
+        setClipInputY(planes[index].userInputEquation[1])
+        setClipInputZ(planes[index].userInputEquation[2])
       }
   
       else {
         const id= props.clicked.id
-        const clip = {id, clipCordX, clipCordY, clipCordZ, clipConstD}
+        const clip = {id, clipInputX,clipInputY, clipInputZ, clipInputD}
         dispatch(editEquation(clip));
       }
     }
@@ -146,9 +150,11 @@ export default function ClipPlanes(props : any){
   }
 
   const onHandleTranslate= (e: any, newValue : any) => {
-    console.log(newValue)
+    if(translate !== newValue){
+    console.log("sa",newValue)
     const update= {id : props.clicked.id, translate : newValue};
     dispatch(editTranslate(update))
+    }
   }
 
   const onHandleTranslateType= (e: any ) => {
@@ -158,6 +164,7 @@ export default function ClipPlanes(props : any){
 
   const onHandleTranslateButton = (newValue : any) => {
     const update= {id : props.clicked.id, translate : Number(newValue)};
+    
     dispatch(editTranslate(update))
   }
 
@@ -231,14 +238,81 @@ export default function ClipPlanes(props : any){
       >
         <MuiTypography className={classes.listSub} noWrap>
           Plane Equation
+          <MuiToggleButton
+            className={classes.editButton}
+            value="check"
+            selected={!editMode}
+            onChange={handleEditShow}>
+          <MuiEditIcon style={{fontSize:"15px"}}/>
+      </MuiToggleButton>
         </MuiTypography>
-        <MuiTypography className={classes.listSub} noWrap>
-          UserInput :
-        </MuiTypography>
-        { editMode !== true 
+        <div style={{ display: "flex",alignItems: "center",
+          justifyContent: "flex-start",marginLeft:"5px", marginRight:"5%",
+          marginTop:"5px", }}
+          // onBlur={handleValidation}
+        >
+          {editMode === false 
+          ?
+          <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px", marginTop:"-5px"}} className={`${classes.disabledTextBox} + ${classes.disabled}`} value={`${clipCordX}X ${Math.sign(clipCordY)===1 || Math.sign(clipCordY) === 0 ? "+" : "-"} ${Math.abs(clipCordY)}Y ${Math.sign(clipCordZ) === 1 || Math.sign(clipCordZ) === 0 ? "+" : "-"} ${Math.abs(clipCordZ)}Z = ${clipConstD}`}/>
+        :
+        <div className={classes.inputEqnBorder}>
+          <MuiInput inputProps={{style: { textAlign: 'center' },}} className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputX} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordX")}/>X+
+          <MuiInput inputProps={{style: { textAlign: 'center' },}} className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputY} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordY")}/>Y+
+          <MuiInput inputProps={{style: { textAlign: 'center' },}} className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputZ} onChange={(e : any) => OnHandleEquation(e.target.value, "clipCordZ")}/>Z =
+          <MuiInput inputProps={{style: { textAlign: 'center' },}} className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputD}  onChange={(e : any) => OnHandleEquation(e.target.value, "clipConstD")} />
+        </div>
+        }
+
+
+        {/* <NumericInput
+            className={`${classes.inputEquation} + ${editMode=== false && classes.disabled}`}
+            disabled={editMode ? false : true}
+            value={clipInputX}
+            format={() => clipInputX + "X"}
+            button={"no"}
+            // format={() => clipCordX + "X"}
+            margin="dense"
+            noStyle
+            onChange={(value : any) => OnHandleEquation(value,"clipCordX")} 
+            />+
+           <NumericInput
+            className={`${classes.inputEquation} + ${editMode=== false && classes.disabled}`}
+            readOnly={editMode ? false : true}
+            value={clipInputY}
+            button={"no"}
+            format={() => clipInputY + "Y"}
+            margin="dense"
+            noStyle
+            onChange={(value : any) => OnHandleEquation(value,"clipCordY")} 
+          />+
+          <NumericInput
+            className={`${classes.inputEquation} + ${editMode=== false && classes.disabled}`}
+            readOnly={editMode ? false : true}
+            value={clipInputZ}
+            button={"no"}
+            format={() => clipInputZ + "Z"}
+            margin="dense"
+            noStyle
+            onChange={(value : any) => OnHandleEquation(value, "clipCordZ")} 
+          />=
+          <NumericInput
+            className={`${classes.inputEquation} + ${editMode=== false && classes.disabled}`}
+            readOnly={editMode ? false : true}
+            value={clipInputD}
+            button={"no"}
+            format={() => clipInputD + " "}
+            margin="dense"
+            noStyle
+            onChange={(value : any) => OnHandleEquation(value, "clipConstD")} 
+          /> */}
+          </div>
+          <div>
+          
+            
+        {/* { editMode !== true 
           ?
           <div>
-          <MuiInput style={{marginLeft:"-20px",marginTop:"10px",border: "1px solid", width:"190px", paddingLeft:"5px", paddingRight:"5px" }} disabled value={`${userInputEquation[0]}X + ${userInputEquation[1]}Y + ${userInputEquation[2]}Z = ${userInputEquation[3]}`}/> 
+          <MuiInput style={{marginLeft:"-20px",marginRight:"10px",border: "1px solid", width:"160px", paddingLeft:"5px", paddingRight:"5px" }} disabled value={`${userInputEquation[0]}X + ${userInputEquation[1]}Y + ${userInputEquation[2]}Z = ${userInputEquation[3]}`}/> 
           <MuiToggleButton
             className={classes.editButton}
             value="check"
@@ -249,7 +323,7 @@ export default function ClipPlanes(props : any){
           </div>
           :
           <div style={{ display: "flex",alignItems: "center",
-          justifyContent: "flex-start", marginLeft:"5%", marginRight:"5%",
+          justifyContent: "flex-start",marginLeft:"5px", marginRight:"5%",
           marginTop:"5px", }}
           // onBlur={handleValidation}
         >
@@ -266,57 +340,9 @@ export default function ClipPlanes(props : any){
             onChange={handleEditShow}>
           <MuiEditIcon style={{fontSize:"15px"}}/>
       </MuiToggleButton> */}
-           <div className={classes.inputEqnBorder}>
-          <NumericInput
-            className={classes.inputEquation}
-            disabled={editMode ? false : true}
-            value={clipCordX}
-            format={() => clipCordX + "X"}
-            button={"no"}
-            // format={() => clipCordX + "X"}
-            margin="dense"
-            noStyle
-            onChange={(value : any) => OnHandleEquation(value,"clipCordX")} 
-            />+
-           <NumericInput
-            className={`${classes.inputEquation} + ${classes.inputEquation}`}
-            readOnly={editMode ? false : true}
-            value={clipCordY}
-            button={"no"}
-            format={() => clipCordY + "Y"}
-            margin="dense"
-            noStyle
-            onChange={(value : any) => OnHandleEquation(value,"clipCordY")} 
-          />+
-          <NumericInput
-            className={`${classes.inputEquation} + ${editMode=== false && classes.disabled}`}
-            readOnly={editMode ? false : true}
-            value={clipCordZ}
-            button={"no"}
-            format={() => clipCordZ + "Z"}
-            margin="dense"
-            noStyle
-            onChange={(value : any) => OnHandleEquation(value, "clipCordZ")} 
-          />=
-          <NumericInput
-            className={`${classes.inputEquation} + ${editMode=== false && classes.disabled}`}
-            readOnly={editMode ? false : true}
-            value={clipConstD}
-            button={"no"}
-            margin="dense"
-            noStyle
-            onChange={(value : any) => OnHandleEquation(value, "clipConstD")} 
-          />
-          </div>
-          <MuiToggleButton
-            className={classes.editButton}
-            value="check"
-            selected={!editMode}
-            onChange={handleEditShow}>
-          <MuiEditIcon style={{fontSize:"15px"}}/>
-      </MuiToggleButton>
+           
         </div>
-        }
+        
         
         
           {editMode 
@@ -341,7 +367,7 @@ export default function ClipPlanes(props : any){
           </Grid>
         :
         <div>
-        <MuiInput disabled style={{marginLeft:"20px",marginTop:"10px",border: "1px solid",}} value={`${clipCordX}X + ${clipCordY}Y + ${clipCordZ}Z = ${clipConstD}`}/>
+        <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} className={classes.disabledTextBox} value={`${Math.round(clipCordX*1000)/1000}X ${Math.sign(clipCordY)===1 || Math.sign(clipCordY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordY*1000)/1000)}Y ${Math.sign(clipCordZ) === 1 || Math.sign(clipCordZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordZ*1000)/1000)}Z = ${Math.round(clipConstD*1000)/1000}`}/>
          </div> 
           }
          
