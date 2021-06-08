@@ -13,6 +13,7 @@ import Displaymodes from '../../icons/displaymodes';
 import Fitview from '../../icons/fitview';
 import Fullscreen from '../../icons/fullscreen';
 import PickAndMoveIcon from '@material-ui/icons/ThreeDRotation';
+import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import FullscreenClose from '../../icons/fullscreen_exit';
 import Hamburger from '../../icons/hamburger';
 import More from '../../icons/more';
@@ -49,6 +50,10 @@ function AppBar() {
     const OnClickPickAndMove = function(){
         viewerAPIProxy.enablePickAndMove(activeViewerID,!isPickAndMoveEnabled)
         setIsPickAndMoveEnabled(!isPickAndMoveEnabled);
+    }
+
+    const resetPickAndMove = () => {
+        viewerAPIProxy.resetPickAndMove(activeViewerID);
     }
 
     const OnClickFitview = function(){
@@ -116,6 +121,10 @@ function AppBar() {
                   <MuiToggleButton value='rotate move' selected={ isPickAndMoveEnabled } onChange={() => OnClickPickAndMove}><PickAndMoveIcon /></MuiToggleButton> 
             </div>
             
+            <div className={classes.divIcon} onClick={ resetPickAndMove } >
+                  <MuiIconButton><RotateLeftIcon /></MuiIconButton> 
+            </div>
+
             <div className={classes.divIcon}  onClick={(evt) => OnClickMenuIcon(evt, popupMenuContentTypes.displayModes) }>
               <MuiIconButton><Displaymodes /></MuiIconButton> 
             </div>

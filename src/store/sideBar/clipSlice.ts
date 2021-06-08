@@ -309,37 +309,45 @@ export const clipSlice = createSlice({
       }      
     },
 
-    editEquation: (state, action) => {
-      const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
+    editEquation: (state, action:PayloadAction<{planeData:any,viewerId:any}>) => {
+      let planeData = action.payload.planeData;
+      const index : any = state.planes.findIndex((item) => item.id === planeData.id);
       if ( index >= 0) {
         let changeItem = state.planes[index];
-        if(changeItem.clipCordX !== action.payload.clipCordX || changeItem.clipCordY !== action.payload.clipCordY || changeItem.clipCordZ !== action.payload.clipCordZ)
-          {
-            changeItem.rotate = 0;
-            changeItem.translate = 0;
-            changeItem.axisX = 0;
-            changeItem.axisY = 0;
-          }
-        let curTransform = changeItem.transform;
-        let curCenter = vec3.fromValues(curTransform[12],curTransform[13],curTransform[14]);
+        let bbox = getSceneBoundingBox(action.payload.viewerId,false);
+        let curCenter = bbox.getCenter() as vec3;
+        let radius = bbox.getRadius();
         let eqn = getNormalizedEqn([
-          action.payload.clipInputX,
-          action.payload.clipInputY,
-          action.payload.clipInputZ,
-          action.payload.clipInputD
+          planeData.clipInputX,
+          planeData.clipInputY,
+          planeData.clipInputZ,
+          planeData.clipInputD
         ]);
-        let newTransform = getWorldTransformFromPlaneEqn(eqn,curCenter);
-        changeItem.clipCordX = action.payload.clipInputX;
-        changeItem.clipCordY = action.payload.clipInputY;
-        changeItem.clipCordZ = action.payload.clipInputZ;
-        changeItem.clipConstD = action.payload.clipInputD;
 
-        changeItem.userInputEquation[0] = action.payload.clipInputX;
-        changeItem.userInputEquation[1] = action.payload.clipInputY;
-        changeItem.userInputEquation[2] = action.payload.clipInputZ;
-        changeItem.userInputEquation[3] = action.payload.clipInputD;
+        if(changeItem.clipCordX !== planeData.clipCordX || changeItem.clipCordY !== planeData.clipCordY || changeItem.clipCordZ !== planeData.clipCordZ)
+        {
+          changeItem.rotate = 0;
+          changeItem.translate = 0;
+          changeItem.translateMin = -radius;
+          changeItem.translateMax = radius;
+          changeItem.axisX = 0;
+          changeItem.axisY = 0;
+        }
+
+        let newTransform = getWorldTransformFromPlaneEqn(eqn,curCenter);
+        changeItem.clipCordX = planeData.clipInputX;
+        changeItem.clipCordY = planeData.clipInputY;
+        changeItem.clipCordZ = planeData.clipInputZ;
+        changeItem.clipConstD = planeData.clipInputD;
+
+        changeItem.userInputEquation[0] = planeData.clipInputX;
+        changeItem.userInputEquation[1] = planeData.clipInputY;
+        changeItem.userInputEquation[2] = planeData.clipInputZ;
+        changeItem.userInputEquation[3] = planeData.clipInputD;
         changeItem.transform = Array.from(newTransform);
         changeItem.initTransform = Array.from(newTransform);
+
+        
         state.planes[index] = changeItem;
       }
     },
@@ -366,10 +374,10 @@ export const clipSlice = createSlice({
     editTranslate: (state, action) => {
       const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
       if ( index >= 0) {
-        let changeItem : any = state.planes[index];
+        let changeItem : plane = state.planes[index];
         let data = {id:index,delta:action.payload.translate - changeItem.translate};
-        clipSlice.caseReducers.translate(state,{payload:data,type:"clipslice/translate"})
         changeItem.translate= action.payload.translate;
+        clipSlice.caseReducers.translate(state,{payload:data,type:"clipslice/translate"})
         // state.planes[index] = changeItem;
       }
     },
@@ -428,9 +436,31 @@ export const clipSlice = createSlice({
           plane.clipCordZ = eqn[2];
           plane.clipConstD = eqn[3];
       },
+      updateMinMax: (state, action:PayloadAction<{id:number|string}>) => {
+        const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
+        if(index < 0)
+        return;
+
+        let curPlane = state.planes[index];
+        let delta = (curPlane.translateMax - curPlane.translateMin)*0.5;
+        if(curPlane.translateMin >= curPlane.translate) {
+          curPlane.translateMin = curPlane.translateMin - delta;
+          curPlane.translateMax = curPlane.translateMax - delta;
+          
+        }
+        else if(curPlane.translateMax <= curPlane.translate) {
+          curPlane.translateMin = curPlane.translateMin + delta;
+          curPlane.translateMax = curPlane.translateMax + delta;
+          
+        }
+      },
+
       translate: (state, action) => {
+
+
         let {id,delta} = action.payload;
         let curPlane = state.planes[id];
+
         let normal = vec3.fromValues(curPlane.clipCordX,curPlane.clipCordY,curPlane.clipCordZ);
         let l = vec3.len(normal);
         vec3.normalize(normal,normal);
@@ -443,10 +473,10 @@ export const clipSlice = createSlice({
         let translation = mat4.create();
         let dir = vec3.clone(normal);
         let pos = vec3.fromValues(transform[12] , transform[13] , transform[14]);
-        curPlane.clipConstD = curPlane.clipConstD + delta;
-        vec3.scale(dir,dir,delta/l);
+        vec3.scale(dir,dir,delta);
         mat4.translate(translation,translation,dir);
         vec3.transformMat4(pos,pos,translation)
+        curPlane.clipConstD = vec3.dot(normal,pos)*l;
         transform[12] = pos[0] ; transform[13] = pos[1] ; transform[14] = pos[2];
         curPlane.transform = Array.from(transform);
       },
@@ -531,6 +561,6 @@ extraReducers: (builder) => {
 }
 })
 
-export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlane, editEquation, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, saveClickedVal,rotateX, rotateY, rotateZ, translate} = clipSlice.actions;
+export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlane, editEquation, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, saveClickedVal,rotateX, rotateY, rotateZ, translate, updateMinMax} = clipSlice.actions;
 
 export default clipSlice.reducer;

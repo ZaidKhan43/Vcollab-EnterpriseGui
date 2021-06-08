@@ -1,6 +1,3 @@
-
-/* eslint-disable */ 
-
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
 
@@ -98,7 +95,7 @@ function __spread() {
     for (var ar = [], i = 0; i < arguments.length; i++)
         ar = ar.concat(__read(arguments[i]));
     return ar;
-}var version = "0.0.7";/*! *****************************************************************************
+}var version = "0.0.11";/*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
 
 Permission to use, copy, modify, and/or distribute this software for any
@@ -5574,7 +5571,8 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         var out = [];
         this.scenes.forEach(function (scene) {
             scene.traverse(function (parent, node) {
-                if (node.children.length > 0 && node.children[0].type === AppConstants.NodeType.SHAPE) {
+                var _a;
+                if (((_a = node.children) === null || _a === void 0 ? void 0 : _a.length) > 0 && node.children[0].type === AppConstants.NodeType.SHAPE) {
                     out.push(node);
                 }
             });
@@ -7060,6 +7058,34 @@ var Renderer2D = /** @class */ (function () {
         this.viewport = fromValues$2(0, 0, width, height);
     };
     return WebGLRenderTarget;
+}());var ShaderCache = /** @class */ (function () {
+    function ShaderCache() {
+    }
+    Object.defineProperty(ShaderCache, "mainShader", {
+        get: function () {
+            return this._mainShader;
+        },
+        set: function (shader) {
+            if (!this._mainShader) {
+                this._mainShader = shader;
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(ShaderCache, "labelShader", {
+        get: function () {
+            return this._labelShader;
+        },
+        set: function (shader) {
+            if (!this._labelShader) {
+                this._labelShader = shader;
+            }
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return ShaderCache;
 }());var Renderer = /** @class */ (function () {
     function Renderer(_sceneMGR, _containerId) {
         this.sceneManager = _sceneMGR;
@@ -7183,7 +7209,6 @@ var Renderer2D = /** @class */ (function () {
                 AppObjects.labelManager.render();
             }
             //render gizmos
-            this.sceneManager.getRenderNodes();
             this.renderGizmos();
         }
     };
@@ -7284,7 +7309,9 @@ var Renderer2D = /** @class */ (function () {
             trans[14] = objPos[2];
             var rot = Utility.getAvgRot(__spread$1(this.highlightedNodes.values()).map(function (node) { return node.worldMatrix; }));
             fromScaling(scale, fromValues$1(scaleToFit, scaleToFit, scaleToFit));
-            var shader_1 = this.mainShader;
+            var shader_1 = ShaderCache.labelShader;
+            if (!shader_1)
+                return;
             var model_1 = create$1();
             mul(model_1, model_1, trans);
             mul(model_1, model_1, rot);
@@ -11674,12 +11701,7 @@ var Plane = /** @class */ (function () {
     // }
     //used
     SectionManager.prototype.setActivePlane = function (id) {
-        if (this.planeStates.has(id) === false) {
-            throw new Error("invalid section plane id ");
-        }
-        else {
-            this.activePlaneId = id;
-        }
+        this.activePlaneId = id;
     };
     SectionManager.prototype.enableClipPlane = function (id) {
         var planeState = this.planeStates.get(id);
@@ -11911,6 +11933,8 @@ var Plane = /** @class */ (function () {
                 part.pickAndMoveMatrix = create$1();
             });
             AppObjects.sceneManager.update();
+            var bbox = AppObjects.sceneManager.getBoundingBox(true);
+            AppObjects.renderer.camControl.setRotationPoint(bbox.getCenter());
         }
     };
     PartManipulator.prototype.enablePickAndMove = function (value) {
@@ -12293,6 +12317,7 @@ var Label3D = /** @class */ (function () {
     function LabelManager() {
         this.labelArray = [];
         this.shader = new Shader(LabelVertex, LabelFrag);
+        ShaderCache.labelShader = this.shader;
         this.eventListener = AppObjects.externalEventDispatcher;
     }
     LabelManager.prototype.render = function () {
@@ -13102,10 +13127,13 @@ var Label3D = /** @class */ (function () {
         AppState.showFPS = (value === true ? true : false);
     };
     return App;
-}());var vctViewer = /** @class */ (function () {
+}());var version$1 = "0.0.10";var vctViewer = /** @class */ (function () {
     function vctViewer(_containerID, _connectorObject) {
         this.appli = new App(_containerID, _connectorObject);
     }
+    vctViewer.prototype.getVersion = function () {
+        return version$1;
+    };
     vctViewer.prototype.init = function (_serverAddress) {
         var serverAddress = _serverAddress || 'http://127.0.0.1:8080';
         this.appli.init(serverAddress);
@@ -14214,7 +14242,7 @@ var abstractType = Object.freeze({
     LEGEND_VALUE_PLACEMENT: valuePlacement.EDGE,
     LEGEND_TICS_POSITION: ticsPosition.ACROSS,
     LEGEND_COLOR_VALUE_MODE: colorValueMode.BOUNDED,
-    LEGEND_COLOR_MAP: colorMap.COLORS_2
+    LEGEND_COLOR_MAP: colorMap.PRESET1
 };/**
  * Common utilities
  * @module glMatrix
@@ -14843,10 +14871,10 @@ var sqrLen$1 = squaredLength$1;
             throw new Error(error);
         }
     };
-    CAEResult.prototype.applyResult = function (variableId, stepId, derivedTypeId) {
+    CAEResult.prototype.applyResult = function (variableId, stepId, derivedTypeId, productTree) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var resultName, stepName, derivedGenerator, textureCoordsURL, uri, uri_meta_info, textureArrayBuffer, textureMetaData, legend, min, max, error_1;
+            var parts, resultName, stepName, derivedGenerator, textureCoordsURL, uri, uri_meta_info, textureArrayBuffer, textureMetaData, legend, min, max, error_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -14855,6 +14883,10 @@ var sqrLen$1 = squaredLength$1;
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 6, , 7]);
+                        parts = productTree.getAllPartNodes();
+                        parts.map(function (part) {
+                            part.customData.displayProps.useTexture = true;
+                        });
                         resultName = this.result.variables[variableId].name;
                         stepName = this.result.stepVariables[stepId].name;
                         derivedGenerator = this.result.derivedTypes[derivedTypeId].generator;
@@ -15239,6 +15271,9 @@ var getEventObject = function (type, viewerID, data) {
         //console.log('viewer.delete() not implement yet');
         return "SUCCESS";
     };
+    Viewer.prototype.getRenderVersion = function () {
+        return this.renderApp.getVersion();
+    };
     Viewer.prototype.loadModel = function (api, url) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
@@ -15544,7 +15579,7 @@ var getEventObject = function (type, viewerID, data) {
                             hiddenlineEnabled: false,
                             isHighlighted: node.customData.displayProps.isHighlighted,
                             transparency: 0.0,
-                            useTexture: false,
+                            useTexture: node.customData.displayProps.useTexture,
                             visibility: node.customData.displayProps.visibility
                         };
                         switch (displayModeId) {
@@ -15777,7 +15812,7 @@ var getEventObject = function (type, viewerID, data) {
     };
     Viewer.prototype.applyResult = function (resultIndex, stepIndex, derivedTypeIndex) {
         if (this.caeResult)
-            return this.caeResult.applyResult(resultIndex, stepIndex, derivedTypeIndex);
+            return this.caeResult.applyResult(resultIndex, stepIndex, derivedTypeIndex, this.productTree);
         return null;
     };
     Viewer.prototype.getLegendData = function () {
@@ -15824,6 +15859,10 @@ var getEventObject = function (type, viewerID, data) {
     //#region PartManipulation
     Viewer.prototype.enablePickAndMove = function (toEnable) {
         this.renderApp.enablePickAndMove(toEnable);
+        return 'SUCCESS';
+    };
+    Viewer.prototype.resetPickAndMove = function () {
+        this.renderApp.resetPickAndMove();
         return 'SUCCESS';
     };
     //#endregion
@@ -17874,6 +17913,13 @@ var ViewerManager = /** @class */ (function () {
     ViewerManager.prototype.getVersion = function () {
         return version;
     };
+    ViewerManager.prototype.getRenderVersion = function (viewerUUID) {
+        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if (viewer) {
+            return viewer.getRenderVersion();
+        }
+        return "Invalid viewer ID";
+    };
     ViewerManager.prototype.createViewer = function (_containerID) {
         var viewerUUID = Utility$1.create_UUID();
         var viewer = new Viewer(viewerUUID, _containerID, this.connector, this.eventDispacther);
@@ -18141,6 +18187,13 @@ var ViewerManager = /** @class */ (function () {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
         if (viewer) {
             return viewer.enablePickAndMove(toEnable);
+        }
+        return "Invalid viewer id";
+    };
+    ViewerManager.prototype.resetPickAndMove = function (viewerUUID) {
+        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if (viewer) {
+            return viewer.resetPickAndMove();
         }
         return "Invalid viewer id";
     };

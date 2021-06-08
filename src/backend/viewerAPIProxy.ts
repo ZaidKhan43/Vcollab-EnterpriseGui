@@ -48,6 +48,10 @@ export function setHighlightedNodes(activeViewerID:string, toShow: boolean, node
 export function enablePickAndMove(activeViewerID:string, toEnable:boolean) {
     return viewerMgr.enablePickAndMove(toEnable,activeViewerID);
 }
+export function resetPickAndMove(activeViewerID:string) {
+    return viewerMgr.resetPickAndMove(activeViewerID);
+}
+
 export function fitView(activeViewerID: string, nodeIds:string[] = []){
     return viewerMgr.fitView(nodeIds,activeViewerID);
 }
