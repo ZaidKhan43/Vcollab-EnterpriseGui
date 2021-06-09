@@ -100,8 +100,8 @@ export function setSectionPlaneEquation(planeId:number, transform:mat4,activeVie
     return viewerMgr.setSectionPlaneEquation(planeId,transform, activeViewerID, initTransform);
 }
 
-export function setPlaneState(planeId:number,selectedPlaneOptions:any, activeViewerID:any){
-    viewerMgr.setPlaneState(planeId,selectedPlaneOptions,activeViewerID);
+export function setSectionPlaneGUIData(planeId:number,selectedPlaneOptions:any, activeViewerID:any){
+    viewerMgr.setSectionPlaneGUIData(planeId,selectedPlaneOptions,activeViewerID);
     return 'SUCCESS'
 }
 //#endregion

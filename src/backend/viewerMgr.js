@@ -15827,24 +15827,30 @@ var getEventObject = function (type, viewerID, data) {
     };
     Viewer.prototype.setSectionGUIData = function (guiData) {
         this.sectionManager.setSectionGUIData(guiData);
+        return 'SUCCESS';
     };
     Viewer.prototype.setActiveSectionPlane = function (planeId) {
         this.sectionManager.setSelection(planeId, 0);
+        return 'SUCCESS';
     };
     Viewer.prototype.setSectionPlaneEquation = function (planeId, transform, initTransform) {
         this.sectionManager.setSectionPlaneEquation(planeId, transform, initTransform);
+        return 'SUCCESS';
     };
     Viewer.prototype.getSectionPlaneEquation = function (planeId) {
         return this.sectionManager.getSectionPlaneEquation(planeId);
     };
     Viewer.prototype.addSectionPlane = function (planeId, transform, color) {
-        return this.sectionManager.addSectionPlane(planeId, transform, color);
+        this.sectionManager.addSectionPlane(planeId, transform, color);
+        return 'SUCCESS';
     };
     Viewer.prototype.deleteSectionPlane = function (planeId) {
         this.sectionManager.deleteSectionPlane(planeId);
+        return 'SUCCESS';
     };
     Viewer.prototype.setPlaneState = function (planeId, selectedPlaneOptions) {
         this.sectionManager.setPlaneState(planeId, selectedPlaneOptions);
+        return 'SUCCESS';
     };
     Viewer.prototype.invertSectionPlane = function (planeId) {
         this.sectionManager.invert(planeId);
@@ -18121,14 +18127,14 @@ var ViewerManager = /** @class */ (function () {
     ViewerManager.prototype.setActiveSectionPlane = function (planeId, viewerUUID) {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
         if (viewer)
-            viewer.setActiveSectionPlane(planeId);
+            return viewer.setActiveSectionPlane(planeId);
         else
             return "Invalid viewer id";
     };
     ViewerManager.prototype.setSectionPlaneEquation = function (planeId, transform, viewerUUID, initTransform) {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
         if (viewer)
-            viewer.setSectionPlaneEquation(planeId, transform, initTransform);
+            return viewer.setSectionPlaneEquation(planeId, transform, initTransform);
         else
             return "Invalid viewer id";
     };
@@ -18153,27 +18159,27 @@ var ViewerManager = /** @class */ (function () {
         else
             return "Invalid viewer id";
     };
-    ViewerManager.prototype.setPlaneState = function (planeId, selectedPlaneOptions, viewerUUID) {
+    ViewerManager.prototype.setSectionPlaneGUIData = function (planeId, selectedPlaneOptions, viewerUUID) {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
         if (viewer)
-            viewer.setPlaneState(planeId, selectedPlaneOptions);
+            return viewer.setPlaneState(planeId, selectedPlaneOptions);
         else
             return "Invalid viewer id";
     };
-    ViewerManager.prototype.invertSectionPlane = function (planeId, viewerUUID) {
-        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
-        if (viewer)
-            viewer.invertSectionPlane(planeId);
-        else
-            return "Invalid viewer id";
-    };
-    ViewerManager.prototype.planeFrom3pts = function (planeId, p1, p2, p3, transform, viewerUUID) {
-        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
-        if (viewer)
-            viewer.planeFrom3pts(planeId, p1, p2, p3, transform);
-        else
-            return "Invalid viewer id";
-    };
+    // invertSectionPlane(planeId:PlaneId,viewerUUID:any){
+    //     let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+    //     if(viewer)
+    //     viewer.invertSectionPlane(planeId);
+    //     else
+    //     return "Invalid viewer id";
+    // }
+    // planeFrom3pts(planeId:PlaneId,p1:number[],p2:number[],p3:number[],transform:mat4,viewerUUID:any){
+    //     let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+    //     if(viewer)
+    //     viewer.planeFrom3pts(planeId,p1,p2,p3,transform);
+    //     else
+    //     return "Invalid viewer id";
+    // }
     // resetSection(viewerUUID:any){
     //     let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
     //     if(viewer)

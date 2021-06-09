@@ -1,6 +1,6 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import { mat4, vec3 } from 'gl-matrix';
-import {getSectionGUIData, setPlaneState, setSectionPlaneEquation, setActiveSectionPlane, addSectionPlane, deleteSectionPlane, getSceneBoundingBox} from "../../backend/viewerAPIProxy"
+import {getSectionGUIData, setSectionPlaneGUIData, setSectionPlaneEquation, setActiveSectionPlane, addSectionPlane, deleteSectionPlane, getSceneBoundingBox} from "../../backend/viewerAPIProxy"
 import {getNormalizedEqn, getWorldTransformFromPlaneEqn} from "../../components/utils/Math"
 import type { RootState } from '../index';
 type plane = {
@@ -123,7 +123,7 @@ export const setSectionPlaneData = createAsyncThunk(
        rotSliderVValue:curPlane.axisY,
      }
      
-     setPlaneState(data.id,options,viewerId);
+     setSectionPlaneGUIData(data.id,options,viewerId);
      //let eq:[number,number,number,number] = [curPlane.clipCordX,curPlane.clipCordY,curPlane.clipCordZ,-curPlane.clipConstD];
 
      setSectionPlaneEquation(data.id,new Float32Array(curPlane.transform),viewerId,new Float32Array(curPlane.initTransform));
