@@ -16,8 +16,8 @@ import Slider from '@material-ui/core/Slider';
 import Triangle from '../../../components/icons/triangle'
 import ThreePoints from '../../../components/icons/threePoints'
 
-import MuiFormControlLabel from '@material-ui/core/FormControlLabel';
-import MuiSwitch from '@material-ui/core/Switch';
+//import MuiFormControlLabel from '@material-ui/core/FormControlLabel';
+//import MuiSwitch from '@material-ui/core/Switch';
 // import NumericInput from '../../shared/numericInput'
 
 import NumericInput from 'react-numeric-input';
@@ -29,7 +29,8 @@ import MuiButton from '@material-ui/core/Button';
 import FlipDirectionLeft from "../../../components/icons/flipDirectionLeft";
 import FlipDirectionRight from "../../../components/icons/flipDirectionRight";
 
-import { editPlane, editEquation , editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY} from '../../../store/sideBar/clipSlice';
+import {selectActiveViewerID} from "../../../store/appSlice";
+import { setSectionPlaneData, editEquation , editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMax} from '../../../store/sideBar/clipSlice';
 import RotateSlider from './rotateSlider'
 
 import MuiExpandLessIcon from '@material-ui/icons/ExpandLess';
@@ -44,7 +45,8 @@ export default function ClipPlanes(props : any){
   const classes = styles();
   const dispatch = useAppDispatch();  
 
-  const planes = useAppSelector((state) => state.clip.planes);
+  const viewerId = useAppSelector(selectActiveViewerID);
+  const planes = useAppSelector((state) => state.clipPlane.planes);
   const index : any = planes.findIndex((item) => item.id === props.clicked.id);
   const clipNormalInverted = planes[index].clipNormalInverted;
 
@@ -74,7 +76,7 @@ export default function ClipPlanes(props : any){
     setClipInputY(planes[index].userInputEquation[1])
     setClipInputZ(planes[index].userInputEquation[2])
     setClipInputD(planes[index].userInputEquation[3])
-  },[planes])
+  },[planes, index])
 
   const OnHandleEquation:(value : any, variable: string) => any = (value,variable) => {
     // switch(variable){
@@ -120,7 +122,8 @@ export default function ClipPlanes(props : any){
       else {
         const id= props.clicked.id
         const clip = {id, clipInputX,clipInputY, clipInputZ, clipInputD}
-        dispatch(editEquation(clip));
+        dispatch(editEquation({planeData:clip, viewerId}));
+        dispatch(setSectionPlaneData({id}));
       }
     }
       
@@ -146,64 +149,87 @@ export default function ClipPlanes(props : any){
   const onHandleDirection = () => {
     const id= props.clicked.id
     dispatch(editNormalInverted(id))
+    dispatch(setSectionPlaneData({id}));
    
   }
 
+  const onHandleTranslateCommitted= (e:any,newValue:any) => {
+    const id = props.clicked.id;
+    dispatch(updateMinMax({id}));
+  }
+
   const onHandleTranslate= (e: any, newValue : any) => {
-    if(translate !== newValue){
-    console.log("sa",newValue)
+    if (translate === newValue)
+    {
+      console.log("event",e);
+      return;
+    }
+
+    console.log(newValue)
     const update= {id : props.clicked.id, translate : newValue};
     dispatch(editTranslate(update))
-    }
+    dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
 
   const onHandleTranslateType= (e: any ) => {
     const update= {id : props.clicked.id, translate : Number(e.target.value)};
     dispatch(editTranslate(update))
+    if(update.translate >= translateMax || update.translate <= translateMin) {
+      dispatch(updateMinMax({id:props.clicked.id}));
+    }
+    dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
 
   const onHandleTranslateButton = (newValue : any) => {
     const update= {id : props.clicked.id, translate : Number(newValue)};
-    
     dispatch(editTranslate(update))
+    if(update.translate >= translateMax || update.translate <= translateMin) {
+      dispatch(updateMinMax({id:props.clicked.id}));
+    }
+    dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
 
   const onHandleRotate = (value : any) => {
     const update= {id : props.clicked.id, rotate : value};
     dispatch(editRotate(update))
+    dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
   
   const onHandleRotateX = (value : any) => {
     const update= {id : props.clicked.id, axisX : value };
     dispatch(editAxisX(update));
+    dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
 
   const onHandleRotateY = (value : any) => {
     const update= {id : props.clicked.id, axisY : value};
     dispatch(editAxisY(update));
+    dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
 
 
-  const onHandleReset = () => {
-    // setClipCordX(props.clicked.clipCordX)
-    // setClipCordY(props.clicked.clipCordY)
-    // setClipCordZ(props.clicked.clipCordZ)
-    // setClipConstD(props.clicked.clipConstD)
-    // setClipNormalInverted(props.clicked.clipNormalInverted);
-    // setTranslate(props.clicked.translate);
-    // setRotate(props.clicked.rotate);
-    // console.log("handleReset props", props.clicked.rotate)
-    // setXAxis(props.clicked.axisX);
-    // setAxisY(props.clicked.axisY);
+  // const onHandleReset = () => {
+  //   // setClipCordX(props.clicked.clipCordX)
+  //   // setClipCordY(props.clicked.clipCordY)
+  //   // setClipCordZ(props.clicked.clipCordZ)
+  //   // setClipConstD(props.clicked.clipConstD)
+  //   // setClipNormalInverted(props.clicked.clipNormalInverted);
+  //   // setTranslate(props.clicked.translate);
+  //   // setRotate(props.clicked.rotate);
+  //   // console.log("handleReset props", props.clicked.rotate)
+  //   // setXAxis(props.clicked.axisX);
+  //   // setAxisY(props.clicked.axisY);
     
-  }
+  // }
 
-  const onHandleSave = () => {
-    const id= props.clicked.id
-    const clip = {id, clipCordX, clipCordY, clipCordZ, clipConstD, clipNormalInverted, translate, rotate, axisX, axisY}
-    // dispatch(editPlane(clip));
-    // props.editSave();
-  }
+ 
+
+  // const onHandleSave = () => {
+  //   const id= props.clicked.id
+  //   const clip = {id, clipCordX, clipCordY, clipCordZ, clipConstD, clipNormalInverted, translate, rotate, axisX, axisY}
+  //   // dispatch(editPlane(clip));
+  //   // props.editSave();
+  // }
 
   const getHeaderLeftIcon= () => {
     return (
@@ -402,6 +428,7 @@ export default function ClipPlanes(props : any){
                 min={translateMin}
                 max={translateMax}
                 onChange={onHandleTranslate}
+                onChangeCommitted={onHandleTranslateCommitted}
                 aria-labelledby="input-slider"
               />
             </Grid>

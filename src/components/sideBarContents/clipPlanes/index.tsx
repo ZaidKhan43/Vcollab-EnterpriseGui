@@ -6,7 +6,7 @@ import styles from './style';
 import { sideBarContentTypes } from '../../../config';
 import { setSidebarActiveContent } from '../../../store/appSlice';
 import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
-import React, { useEffect, useState} from "react";
+import { useState} from "react";
 
 import MuiInput from '@material-ui/core/Input';
 
@@ -32,18 +32,16 @@ import DialogBox from "../../../components/shared/dialogBox"
 // import { PlayCircleOutlineSharp } from '@material-ui/icons';
 
 import ClipPlane from "./clipPlane"
-
-import {editEnabled} from "../../../store/sideBar/clipSlice";
-import {createPlane, editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlaneName, saveClickedVal} from "../../../store/sideBar/clipSlice";
+import {setSectionPlaneData, addPlane, editEnabled, setActive, editShowClip, editEdgeClip, editShowCap, pastePlane, editPlaneName, saveClickedVal, removePlane, duplicatePlane} from "../../../store/sideBar/clipSlice";
 
 
 export default function ClipPlanes(){
 
   const dispatch = useAppDispatch();  
   const classes = styles();
-  const planes = useAppSelector((state) => state.clip.planes);
-  const limit = useAppSelector((state) => state.clip.settings.maxAllowedPlanes);
-  const clickedVal = useAppSelector<any>((state) => state.clip.settings.clickedVal);
+  const planes = useAppSelector((state) => state.clipPlane.planes);
+  const limit = useAppSelector((state) => state.clipPlane.settings.maxAllowedPlanes);
+  const clickedVal = useAppSelector<any>((state) => state.clipPlane.settings.clickedVal);
   const [copied, setCopied] = useState<any>(false); 
   const [copy, setCopy] = useState(null);
   const [edit, setEdit] = useState<any>(false);
@@ -61,36 +59,39 @@ export default function ClipPlanes(){
   }
 
   const onHandleClick :(e: any, click: any) => any = (e, click)=> {
-    console.log(click)
     if(clickedVal){
       if(click.id === clickedVal.id)
+      {
         dispatch(saveClickedVal(null))
-      else{
+        dispatch(setActive({id:-1}))
+      }
+    else{
         setEnabledOption(click.enabled)
         dispatch(saveClickedVal(click))
       }
     }
-
-    else {
+    else 
+    {
       setEnabledOption(click.enabled)
       dispatch(saveClickedVal(click))
+      dispatch(setActive({id:click.id}))
     }
 
     if(click.id !== editPlane)
       setEditPlane(null)
 
-    const vsar= e.ctrlKey && true
-    console.log(vsar)
+    // const vsar= e.ctrlKey && true
   }
 
   const onClickAddItem = () => {
-    dispatch(createPlane());
+    dispatch(addPlane());
   }
 
   const onHandleCheck: (item: any) => any = (item) => {
     if(clickedVal && clickedVal.id === item.id)
     setEnabledOption(!item.enabled)
     dispatch(editEnabled(item.id))
+    dispatch(setSectionPlaneData({id:item.id}));
   }
 
   const onHandleClip: (item: any, functionName: any) => any = (item, functionName) => {
@@ -105,6 +106,7 @@ export default function ClipPlanes(){
         dispatch(editShowCap(item.id));
       break;
     } 
+    dispatch(setSectionPlaneData({id:item.id}));
   }
 
   const onHandleCopy: (item: any) => any = (item) => {
@@ -113,7 +115,11 @@ export default function ClipPlanes(){
   }
 
   const onHandlePaste:(item: any)=> any = (item) => {
-    dispatch(pastePlane(item))
+    if(planes.length < limit)
+    {
+      dispatch(pastePlane(item))
+      dispatch(duplicatePlane({id:item.id}));
+    }
   }
 
   const onHandleDelete = () => {
@@ -122,7 +128,7 @@ export default function ClipPlanes(){
 
     dispatch(editEnabled(clickedVal.id))
     SetDeleted(clickedVal.name);
-    dispatch(deletePlane(clickedVal.id))
+    dispatch(removePlane({id:clickedVal.id}))
     dispatch(saveClickedVal(null))
   }
 

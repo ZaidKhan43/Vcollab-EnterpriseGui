@@ -11,7 +11,7 @@ const store = configureStore({
     reducer:
       combineReducers({
         app: appSlice,
-        clip: clipSlice,
+        clipPlane: clipSlice,
         productTree: productTreeSlice,
         displayModes: displayModesSlice,
         toast: toastSlice,

@@ -6,6 +6,7 @@ import { setModelInfo, setModelLoadedState, setModelLoadingStatus } from '../../
 import { useAppDispatch } from '../../store/storeHooks';
 import {saveTree, fetchSearchHints,setHightLightedNodesAsync } from "../../store/sideBar/productTreeSlice";
 import { addViewer } from '../../store/appSlice';
+import {fetchSectionPlaneData} from "../../store/sideBar/clipSlice";
 
 function Viewer(){
     
@@ -62,6 +63,10 @@ function Viewer(){
             dispatch(fetchSearchHints());
             }
 
+            setTimeout(() => {
+              dispatch(fetchSectionPlaneData());
+             },3000)
+
            //console.log("Showing Model : " + response1);   
             /*       
             setTimeout(() => {
@@ -74,6 +79,9 @@ function Viewer(){
             console.error("Error in showing model : ", error);
           });
       })  
+
+      
+
       .catch((error : string) => {
         console.error("Error in loading model : ", error);
       });;
@@ -85,11 +93,11 @@ function Viewer(){
             //this.props.saveModelLoadingStatus("");
             let viewerDivID = viewerRefs.current?.id || '';
             let api = "http://localhost:8181/api/1.0/model";
-            //let url = "file://samples/bracket.cax";
+            let url = "file://samples/bracket.cax";
             //let url = "file://samples/airbag.cax";
             //let url = "file://samples/heater.cax";
             //let url = "file://samples/merged.cax";
-            let url = "file://samples/F30_model.cax";
+            // let url = "file://samples/F30_model.cax";
             //let url = "file%3A%2F%2FC%3A%5CWORK%5Centerprise-1.1-win64%5Csamples%5Cbracket.cax";
             //let url = "file%3A%2F%2FD%3A%5Ccaxserver%5CF30_model.cax";
       

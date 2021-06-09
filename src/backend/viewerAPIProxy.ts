@@ -1,3 +1,4 @@
+import { mat4 } from 'gl-matrix';
 import viewerMgr from './viewerMgr';
 
 export function createViewer(viewerDivID : string){
@@ -22,6 +23,10 @@ export function showModel(activeViewerID: string){
     return viewerMgr.showModel(activeViewerID);
 }
 
+export function getSceneBoundingBox(activeViewerID:string, onlyVisible:boolean = true) {
+    return viewerMgr.getSceneBoundingBox(activeViewerID,onlyVisible);
+}
+
 export function setPartVisibility(activeViewerID:string,nodeIds:string[], toShow:boolean){
     return viewerMgr.setPartsVisibility(nodeIds,toShow,activeViewerID);
 }
@@ -39,6 +44,14 @@ export function setDisplayMode(activeViewerID:string, displayModeId:string, node
 export function setHighlightedNodes(activeViewerID:string, toShow: boolean, nodeIds:string[]) {
     return viewerMgr.setHighlightedNodes(nodeIds,toShow,activeViewerID);
 }
+// part Manipulation
+export function enablePickAndMove(activeViewerID:string, toEnable:boolean) {
+    return viewerMgr.enablePickAndMove(toEnable,activeViewerID);
+}
+export function resetPickAndMove(activeViewerID:string) {
+    return viewerMgr.resetPickAndMove(activeViewerID);
+}
+
 export function fitView(activeViewerID: string, nodeIds:string[] = []){
     return viewerMgr.fitView(nodeIds,activeViewerID);
 }
@@ -54,3 +67,41 @@ export function getSearchHints(activeViewerID:string) {
 export function getModelInfo(activeViewerID:string) {
     return viewerMgr.getModelInfo(activeViewerID);
 }
+
+export function getDisplayResult(activeViewerID:string) {
+    return viewerMgr.getDisplayResult(activeViewerID);
+}
+
+export function applyResult(resultId:string, stepId:string, derivedTypeId:string, activeViewerID:string) {
+    return viewerMgr.applyResult(resultId,stepId,derivedTypeId, activeViewerID);
+}
+
+//#region Section
+export function getSectionGUIData(activeViewerID:string) {
+    return viewerMgr.getSectionGUIData(activeViewerID);
+}
+
+export function setActiveSectionPlane(planeId:number, activeViewerID:string) {
+    return viewerMgr.setActiveSectionPlane(planeId,activeViewerID);
+}
+
+export function addSectionPlane(planeId:number, transform:mat4, color:[number,number,number,number],activeViewerID:string){
+    return viewerMgr.addSectionPlane(planeId,transform,color,activeViewerID);
+}
+
+export function deleteSectionPlane(planeId:number,activeViewerID:string) {
+    return viewerMgr.deleteSectionPlane(planeId,activeViewerID);
+}
+export function getSectionPlaneEquation(planeId:number, activeViewerID:string) {
+    return viewerMgr.getSectionPlaneEquation(planeId,activeViewerID);
+}
+
+export function setSectionPlaneEquation(planeId:number, transform:mat4,activeViewerID:string, initTransform?:mat4) {
+    return viewerMgr.setSectionPlaneEquation(planeId,transform, activeViewerID, initTransform);
+}
+
+export function setSectionPlaneGUIData(planeId:number,selectedPlaneOptions:any, activeViewerID:any){
+    viewerMgr.setSectionPlaneGUIData(planeId,selectedPlaneOptions,activeViewerID);
+    return 'SUCCESS'
+}
+//#endregion

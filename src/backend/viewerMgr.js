@@ -1,6 +1,6 @@
 /* eslint-disable */ 
 
-const version = "0.0.9";
+const version = "0.0.12";
 
 const DB = [
 	{
@@ -790,6 +790,14 @@ const DB = [
 		  "stepId": "L1M1",
 		  "derivedTypeId": "sixdof_tmag"
 		}
+	  },
+	  "section": {
+		  "guiData" : {
+			"planeOptions" : {
+
+			}
+		  },
+		  "active" : -1
 	  }
 	},
 	{
@@ -123191,6 +123199,17 @@ class ViewerManager {
         return Promise.reject("Invalid viewer ID");
     }
 
+    getSceneBoundingBox(viewerUUID, onlyVisible=true) {
+        let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if(viewer){
+            return {
+                getCenter: () => new Float32Array([0,0,0]),
+                getRadius: () => 5
+            }
+        }
+        return "Invalid viewer ID";
+    }
+
     fitView(selectedNodes, viewerUUID){
         let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
         if(viewer){
@@ -123373,6 +123392,128 @@ class ViewerManager {
                 return Promise.reject("No model is loaded"); 
         }
         return Promise.reject("Invalid viewer ID");
+    }
+
+    //#region Part Manipulator
+
+    getSectionGUIData(viewerUUID){
+        let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if(viewer)
+        {
+            if(viewer.url) {
+                let viewObj = Utility.getURLObject(viewer.url);	
+                return viewObj.section.guiData
+            }
+        }
+        else
+        return "Invalid viewer id";
+
+    }
+    setActiveSectionPlane(planeId, viewerUUID){
+        let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if(viewer)
+        {
+            if(viewer.url) {
+                let viewObj = Utility.getURLObject(viewer.url);	
+                viewObj.section.active = planeId;
+                return "SUCCESS"
+            }
+        }
+        else
+        return "Invalid viewer id";
+    }
+    setSectionPlaneEquation(planeId,transform,viewerUUID,initTransform=undefined){
+        let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if(viewer)
+        {
+            if(viewer.url) {
+                let viewObj = Utility.getURLObject(viewer.url);	
+                viewObj.section.guiData.planeOptions[planeId] = {
+                    id: planeId,
+                    transform,
+                    initTransform
+                };
+                return "SUCCESS"
+            }
+        }
+        else
+        return "Invalid viewer id";
+    }
+    
+    getSectionPlaneEquation(planeId, viewerUUID) {
+        let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if(viewer.url) {
+            let viewObj = Utility.getURLObject(viewer.url);	
+            return viewObj.section.guiData.planeOptions[planeId]
+        }
+        else
+        return "Invalid viewer id";
+    }
+    addSectionPlane(planeId, transform, color, viewerUUID) {
+        let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if(viewer.url) {
+            let viewObj = Utility.getURLObject(viewer.url);	
+            viewObj.section.guiData.planeOptions[planeId] = {
+                id: planeId,
+                transform: new Float32Array(transform),
+                initTransform: new Float32Array(transform),
+                color: [...color]
+            };
+            return "SUCCESS"
+        }
+        else
+        return "Invalid viewer id";
+    }
+    deleteSectionPlane(planeId, viewerUUID) {
+        let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if(viewer.url) {
+            let viewObj = Utility.getURLObject(viewer.url);	
+            delete viewObj.section.guiData.planeOptions[planeId];
+            return "SUCCESS"
+        }
+        else
+        return "Invalid viewer id";
+    }
+    setSectionPlaneGUIData(planeId,selectedPlaneOptions, viewerUUID){
+        let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if(viewer.url) {
+            let viewObj = Utility.getURLObject(viewer.url);	
+            viewObj.section.planes[planeId] = {
+                ...viewObj.section.guiData.planeOptions[planeId],
+                ...selectedPlaneOptions
+            };
+            return "SUCCESS"
+        }
+        else
+        return "Invalid viewer id";
+    }
+    //#endregion
+
+    enablePickAndMove(toEnable,viewerUUID) {
+        let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if(viewer){
+            if(viewer.url){
+                let viewObj = Utility.getURLObject(viewer.url);		
+                viewObj['isPickAndMoveEnabled'] = toEnable;	
+                return "SUCCESS"		
+            }				
+            else	
+                return "No model is loaded"; 
+        }
+        return "Invalid viewer ID";
+    }
+
+    resetPickAndMove(viewerUUID) {
+        let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if(viewer){
+            if(viewer.url){
+                Utility.getURLObject(viewer.url);
+                return "SUCCESS"		
+            }				
+            else	
+                return "No model is loaded"; 
+        }
+        return "Invalid viewer ID";
     }
 }
 var viewerMgr = (new ViewerManager);
