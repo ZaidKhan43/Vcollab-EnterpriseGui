@@ -51,6 +51,8 @@ export default function ClipPlanes(){
   const [deleted,SetDeleted] = useState<any>(null);
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState<any>(false);
   
+  const [enabledOption, setEnabledOption] = useState(false)
+
   const [editPlane, setEditPlane] = useState(null)
   const [editName, SetEditName] = useState(null);
 
@@ -62,11 +64,16 @@ export default function ClipPlanes(){
     if(clickedVal){
       if(click.id === clickedVal.id)
         dispatch(saveClickedVal(null))
-      else
+      else{
+        setEnabledOption(click.enabled)
         dispatch(saveClickedVal(click))
+      }
     }
-    else 
+
+    else {
+      setEnabledOption(click.enabled)
       dispatch(saveClickedVal(click))
+    }
 
     if(click.id !== editPlane)
       setEditPlane(null)
@@ -77,6 +84,8 @@ export default function ClipPlanes(){
   }
 
   const onHandleCheck: (item: any) => any = (item) => {
+    if(clickedVal.id === item.id)
+    setEnabledOption(!item.enabled)
     dispatch(editEnabled(item.id))
   }
 
@@ -261,7 +270,7 @@ export default function ClipPlanes(){
           }
         </div>
         <div>
-          {clickedVal ? 
+          {clickedVal && enabledOption ? 
             <div style={{position:"fixed",top:"55%",marginTop:"10px",}}>
               <MuiTypography className={classes.heading} variant='h1' noWrap>
                 Options
@@ -284,9 +293,17 @@ export default function ClipPlanes(){
           ? 
             <div style={{marginLeft:"10px", marginRight:"10px"}}>
               <div style={{display: "flex",alignItems: "center",justifyContent: "space-between",}}>
-              <MuiIconButton  onClick={() => onHandleEdit()} style={{}}> 
-                <MuiEditIcon/>
-              </MuiIconButton>
+                { enabledOption 
+                  ?
+                    <MuiIconButton  onClick={() => onHandleEdit()} style={{}}> 
+                      <MuiEditIcon/>
+                    </MuiIconButton>
+                  :
+                    <MuiIconButton disabled  onClick={() => onHandleEdit()} style={{}}> 
+                      <MuiEditIcon/>
+                    </MuiIconButton>
+                }
+                
               <MuiIconButton style={{ }} onClick={() => onHandleCopy(planes.find((item : any )=> 
                 item.id === clickedVal.id))}> 
               <MuiFileCopyOutlinedIcon />
