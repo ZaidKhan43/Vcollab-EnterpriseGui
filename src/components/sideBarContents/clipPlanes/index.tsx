@@ -60,7 +60,8 @@ export default function ClipPlanes(){
     dispatch(setSidebarActiveContent(sideBarContentTypes.mainMenu))
   }
 
-  const onHandleClick :(click: any) => any = (click)=> {
+  const onHandleClick :(e: any, click: any) => any = (e, click)=> {
+    console.log(click)
     if(clickedVal){
       if(click.id === clickedVal.id)
         dispatch(saveClickedVal(null))
@@ -77,6 +78,9 @@ export default function ClipPlanes(){
 
     if(click.id !== editPlane)
       setEditPlane(null)
+
+    const vsar= e.ctrlKey && true
+    console.log(vsar)
   }
 
   const onClickAddItem = () => {
@@ -84,7 +88,7 @@ export default function ClipPlanes(){
   }
 
   const onHandleCheck: (item: any) => any = (item) => {
-    if(clickedVal.id === item.id)
+    if(clickedVal && clickedVal.id === item.id)
     setEnabledOption(!item.enabled)
     dispatch(editEnabled(item.id))
   }
@@ -231,7 +235,7 @@ export default function ClipPlanes(){
                                     : classes.listItem} 
                   >
                     {/* <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/> */}
-                    <div style={{ display: "flex", alignItems: "left", width:"65%"}} onClick={() => onHandleClick(item)}>
+                    <div style={{ display: "flex", alignItems: "left", width:"65%"}} onClick={(event)=> onHandleClick(event,item)}>
                       <MuiTypography className={classes.listItemText} onDoubleClick={() => {setEditPlane(item.id);dispatch(saveClickedVal(null)); SetEditName(item.name)}} >
                         {item.name}
                       </MuiTypography>
@@ -247,9 +251,9 @@ export default function ClipPlanes(){
                       height={25}
                       width={70}
                       checked={item.enabled} onChange={() => onHandleCheck(item)}
-                      uncheckedIcon={<div style={{display: "flex",justifyContent: "center",alignItems: "center"}}>On</div>}
+                      uncheckedIcon={<div style={{display: "flex",justifyContent: "center",alignItems: "center",color:"grey"}}>On</div>}
                       uncheckedHandleIcon={<div style={{ display: "flex",justifyContent: "center",alignItems: "center",color:"white",marginLeft:"10px"}}>Off</div>}
-                      checkedIcon={<div style={{display: "flex",justifyContent: "center",alignItems: "center"}}>Off</div>}
+                      checkedIcon={<div style={{display: "flex",justifyContent: "center",alignItems: "center",color:"grey"}}>Off</div>}
                       checkedHandleIcon={<div style={{ display: "flex",justifyContent: "center",alignItems: "center",color:"white",marginLeft:"-10px"}}>On</div>}
                     />
                   </div>
