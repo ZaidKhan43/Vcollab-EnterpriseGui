@@ -1,8 +1,20 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import { mat4, vec3 } from 'gl-matrix';
 import {getSectionGUIData, setSectionPlaneGUIData, setSectionPlaneEquation, setActiveSectionPlane, addSectionPlane, deleteSectionPlane, getSceneBoundingBox} from "../../backend/viewerAPIProxy"
-import {getNormalizedEqn, getWorldTransformFromPlaneEqn} from "../../components/utils/Math"
+import {getNormalizedEqn, getPerpendicular, getWorldTransformFromPlaneEqn} from "../../components/utils/Math"
 import type { RootState } from '../index';
+
+interface slicePlane {
+  id:number,
+  enabled: boolean,
+  showClip: boolean,
+  transform: number[],
+  translate: number,
+  translateMin: number,
+  translateMax:number,
+  color: Color
+} 
+
 type plane = {
     id: number,
     name: string,
@@ -25,6 +37,7 @@ type plane = {
     initTransform: number[],
     userInputEquation:number[],		
     color: [number,number,number,number]
+    slicePlane: slicePlane | null,
 }
 
 type settings= {
@@ -55,7 +68,7 @@ const initialState : planes = {
   ],
 
   settings :{
-    maxAllowedPlanes : 6,
+    maxAllowedPlanes : 3,
     idGenerator :-1,
     planesData: [],
     clickedVal : null,
@@ -80,7 +93,8 @@ const initialState : planes = {
       transform: Array.from(mat4.create()),
       initTransform: Array.from(mat4.create()),
       userInputEquation: [1,0,0,0],
-      color: [1,0,0,0.3]
+      color: [1,0,0,0.3],
+      slicePlane: null,
     }
   }
 }
@@ -94,7 +108,7 @@ export const fetchSectionPlaneData = createAsyncThunk(
      const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
      let result:any = [];
      if(viewerId)
-     result =  getSectionGUIData(viewerId);
+      result =  getSectionGUIData(viewerId);
      if(result.planeOptions instanceof Array){
        return Promise.resolve(result.planeOptions);
      }
@@ -122,15 +136,113 @@ export const setSectionPlaneData = createAsyncThunk(
        rotSliderUValue: curPlane.axisX,
        rotSliderVValue:curPlane.axisY,
      }
+     let sliceOptions = {
+        ...rootState.clipPlane.settings.planesData[index],
+       isPlaneEnabled: curPlane.slicePlane?.enabled,
+       isPlaneVisible: curPlane.slicePlane?.showClip,
+       primarySliderValue: curPlane.slicePlane?.translate,
+       sliderMinMax: [curPlane.slicePlane?.translateMin,curPlane.slicePlane?.translateMax],
+     }
      
+     //primary plane
      setSectionPlaneGUIData(data.id,options,viewerId);
-     //let eq:[number,number,number,number] = [curPlane.clipCordX,curPlane.clipCordY,curPlane.clipCordZ,-curPlane.clipConstD];
-
      setSectionPlaneEquation(data.id,new Float32Array(curPlane.transform),viewerId,new Float32Array(curPlane.initTransform));
+     
+     //slice plane
+     if(curPlane.slicePlane)
+     {
+      let slicePlane = curPlane.slicePlane;
+      const sliceId = slicePlane.id;
+      setSectionPlaneGUIData(sliceId,sliceOptions,viewerId);
+      setSectionPlaneEquation(sliceId,new Float32Array(slicePlane.transform),viewerId);
+     }
      dispatch(fetchSectionPlaneData());
+     
      return Promise.resolve('SUCCESS')
   }
 )
+
+const generatePlane = (id:number, transform:number[], eqn:number[], color:Color, radius:number) => {
+  const plane:plane = {  id,name:`Plane ${id}`, 
+    enabled: false, 
+    showClip: false, 
+    showEdge: false,
+    showCap: false,
+    clipCordX:eqn[0],
+    clipCordY:eqn[1], 
+    clipCordZ:eqn[2],
+    clipConstD:-eqn[3],
+    clipNormalInverted: false,
+    translate: 0,
+    translateMin: -radius,
+    translateMax: radius,
+    rotate: 0,
+    axisX:0,
+    axisY: 0,
+    transform,
+    initTransform: Array.from(transform),
+    userInputEquation: [eqn[0],eqn[1],eqn[2],-eqn[3]],
+    color,
+    slicePlane: null
+  }
+return plane
+}
+
+const generateSlicePlane = (parent:plane, id:number, color:Color, radius:number) => {
+  const eqn = [parent.clipCordX,parent.clipCordY,parent.clipCordZ,-parent.clipConstD];
+  const plane:plane = generatePlane(id, Array.from(parent.transform), eqn, color, radius);
+  let t = new Float32Array(plane.transform) as mat4;
+  //t[8] = -t[8]; t[9] = -t[9]; t[10] = -t[10];
+  //mat4.translate(t,t,vec3.fromValues(0,0,-radius*0.25));
+  plane.enabled = false;
+  plane.showClip = false;
+  plane.translateMax = 2*radius;
+  plane.translateMin = 0;
+  plane.translate = radius;
+  plane.transform = Array.from(t);
+  plane.initTransform = Array.from(t);
+  return plane as slicePlane;
+}
+
+const generateEqn = (planes:plane[],bbox:any):[number,number,number,number] => {
+  
+  let c = bbox.getCenter() as vec3;
+  if(planes.length === 0) {
+    let n = vec3.fromValues(1,0,0);
+
+    return getNormalizedEqn([
+      n[0],
+      n[1],
+      n[2],
+      vec3.dot(n,c) 
+    ]);
+  }
+  else if(planes.length === 1) {
+    const plane1 = planes[0];
+    let n1 = vec3.fromValues(plane1.transform[8],plane1.transform[9],plane1.transform[10]);
+    let n2 = getPerpendicular(n1);
+    return getNormalizedEqn([
+      n2[0],
+      n2[1],
+      n2[2],
+      vec3.dot(n2,c)
+    ]);
+  }
+  else {
+    const plane1 = planes[0];
+    const plane2 = planes[1];
+    let n1 = vec3.fromValues(plane1.transform[8],plane1.transform[9],plane1.transform[10]);
+    let n2 = vec3.fromValues(plane2.transform[8],plane2.transform[9],plane2.transform[10]);
+    let n3 = vec3.create();
+    vec3.cross(n3,n1,n2);
+    return getNormalizedEqn([
+      n3[0],
+      n3[1],
+      n3[2],
+      vec3.dot(n3,c)
+    ]);
+  }
+}
 
 export const addPlane = createAsyncThunk(
   "clipSlice/addSectionPlane",
@@ -138,28 +250,37 @@ export const addPlane = createAsyncThunk(
     const rootState = getState() as RootState;
     const state = rootState.clipPlane;
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
-    let eqn = getNormalizedEqn([
-      state.settings.defaultPlaneParameters.clipCordX,
-      state.settings.defaultPlaneParameters.clipCordY,
-      state.settings.defaultPlaneParameters.clipCordZ,
-      -state.settings.defaultPlaneParameters.clipConstD
-    ]);
+
     let bbox = getSceneBoundingBox(viewerId,false);
     let center = bbox.getCenter() as vec3;
-    let n = vec3.fromValues(eqn[0],eqn[1],eqn[2]);
-    eqn[3] = -vec3.dot(n,center);
+    let eqn = generateEqn(state.planes,bbox);
+    
     let newTransform = getWorldTransformFromPlaneEqn(eqn,center);
-    let id = rootState.clipPlane.settings.idGenerator + 1;
+
+    dispatch(clipSlice.actions.incrementId())
+    let id = (getState() as RootState).clipPlane.settings.idGenerator;
     let randColorIdx = id % state.colors.length;
     let color = state.colors[randColorIdx];
     addSectionPlane(id, newTransform, color ,viewerId);
-    dispatch(createPlane({newTransform: Array.from(newTransform), eqn, color, radius: bbox.getRadius()}));
+    let radius = bbox.getRadius();
+    let plane = generatePlane(id, Array.from(newTransform), eqn, color,radius);
+    dispatch(clipSlice.actions.incrementId());
+
+    //slice plane
+    let sliceId = (getState() as RootState).clipPlane.settings.idGenerator;;
+    let sliceColor = state.colors[sliceId % state.colors.length];
+    plane.slicePlane = generateSlicePlane(plane, sliceId, sliceColor,radius );
+    addSectionPlane(sliceId, new Float32Array(plane.slicePlane.transform), sliceColor, viewerId);
+
+    dispatch(createPlane({plane}));
+    dispatch(clipSlice.actions.updateSlicePlane({pid:id}));
     dispatch(setSectionPlaneData({id}))
   }
 )
 export const duplicatePlane = createAsyncThunk(
   "clipSlice/duplicatePlane",
-  async (data:{id:number},{dispatch,getState}) => {
+  async (data:{pastedPlane:plane},{dispatch,getState}) => {
+    dispatch(pastePlane(data.pastedPlane))
     const rootState = getState() as RootState;
     const state = rootState.clipPlane;
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
@@ -178,7 +299,7 @@ export const removePlane = createAsyncThunk(
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
     dispatch(setSectionPlaneData({id:data.id}))
     deleteSectionPlane(data.id,viewerId);
-    dispatch(deletePlane(data.id));
+    dispatch(clipSlice.actions.deletePlane(data.id));
   }
 )
 
@@ -200,36 +321,15 @@ export const clipSlice = createSlice({
       state.settings.planesData = action.payload;
       state.settings.maxAllowedPlanes = action.payload.length;
     },
-    createPlane: (state, action:PayloadAction<{newTransform:number[],color:Color,eqn:number[],radius:number}>) => {
+
+    incrementId: (state) => {
+      state.settings.idGenerator = state.settings.idGenerator + 1 ;
+    },
+
+    createPlane: (state, action:PayloadAction<{plane:plane}>) => {
       if (state.planes.length < state.settings.maxAllowedPlanes){
-        state.settings.idGenerator +=1 ;
-        const newId = state.settings.idGenerator;
-        const plane = {  id: newId,name:`Plane ${newId}`, 
-        enabled: state.settings.defaultPlaneParameters.enabled, 
-        showClip: state.settings.defaultPlaneParameters.showClip, 
-        showEdge: state.settings.defaultPlaneParameters.showEdge,
-        showCap: state.settings.defaultPlaneParameters.showCap,
-        clipCordX:action.payload.eqn[0],
-        clipCordY:action.payload.eqn[1], 
-        clipCordZ:action.payload.eqn[2],
-        clipConstD:-action.payload.eqn[3],
-        clipNormalInverted: state.settings.defaultPlaneParameters.clipNormalInverted,
-        translate: 0,
-        translateMin: -action.payload.radius,
-        translateMax: action.payload.radius,
-        rotate: 0,
-        axisX:0,
-        axisY: 0,
-        transform: action.payload.newTransform,
-        initTransform: action.payload.newTransform,
-       userInputEquation: [action.payload.eqn[0],
-                           action.payload.eqn[1],
-                            action.payload.eqn[2], 
-                            -action.payload.eqn[3]            
-      ],
-        color: action.payload.color
+        state.planes= [...state.planes,action.payload.plane];      
       }
-        state.planes= [...state.planes,plane];      }
     },
 
     editEnabled: (state, action) => {
@@ -276,7 +376,7 @@ export const clipSlice = createSlice({
     pastePlane : (state, action) => {
       if (state.planes.length < state.settings.maxAllowedPlanes){
         let clone = JSON.parse(JSON.stringify(action.payload));
-        state.settings.idGenerator+=1;
+        clipSlice.caseReducers.incrementId(state);
         clone.id=state.settings.idGenerator;
         clone.name = `${clone.name} (Copy)`
         clone.checkbox= false;
@@ -352,7 +452,7 @@ export const clipSlice = createSlice({
       }
     },
 
-    editNormalInverted: (state, action) => {
+    editNormalInverted: (state, action:PayloadAction<number>) => {
       const index : any = state.planes.findIndex((item) => item.id === action.payload);
       if ( index >= 0) {
         let changeItem : any = state.planes[index];
@@ -368,6 +468,7 @@ export const clipSlice = createSlice({
         transform[10] = -changeItem.transform[10];
         changeItem.transform = transform;
         state.planes[index] = changeItem;
+        clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:action.payload}, type:"clipSlice/updateSlicePlane"})
       }
     },
 
@@ -375,7 +476,7 @@ export const clipSlice = createSlice({
       const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
       if ( index >= 0) {
         let changeItem : plane = state.planes[index];
-        let data = {id:index,delta:action.payload.translate - changeItem.translate};
+        let data = {id:action.payload.id,delta:action.payload.translate - changeItem.translate};
         changeItem.translate= action.payload.translate;
         clipSlice.caseReducers.translate(state,{payload:data,type:"clipslice/translate"})
         // state.planes[index] = changeItem;
@@ -385,8 +486,8 @@ export const clipSlice = createSlice({
     editRotate: (state, action) => {
       const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
       if ( index >= 0) {
-        let changeItem : any = state.planes[index];
-        let data = {id:index,delta:action.payload.rotate - changeItem.rotate};
+        let changeItem : plane = state.planes[index];
+        let data = {id:action.payload.id,delta:action.payload.rotate - changeItem.rotate};
         clipSlice.caseReducers.rotateZ(state,{payload:data,type:"clipslice/rotateZ"})
         changeItem.rotate= action.payload.rotate;
         state.planes[index] = changeItem;
@@ -397,7 +498,7 @@ export const clipSlice = createSlice({
       const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
       if ( index >= 0) {
         let changeItem : any = state.planes[index];
-        let data = {id:index,delta:action.payload.axisX - changeItem.axisX};
+        let data = {id:action.payload.id,delta:action.payload.axisX - changeItem.axisX};
 
         clipSlice.caseReducers.rotateX(state,{payload:data,type:"clipslice/rotateX"})
         changeItem.axisX= action.payload.axisX;
@@ -409,7 +510,7 @@ export const clipSlice = createSlice({
       const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
       if ( index >= 0) {
         let changeItem : any = state.planes[index];
-        let data = {id:index,delta:action.payload.axisY - changeItem.axisY};
+        let data = {id:action.payload.id,delta:action.payload.axisY - changeItem.axisY};
         clipSlice.caseReducers.rotateY(state,{payload:data,type:"clipslice/rotateY"})
         changeItem.axisY= action.payload.axisY;
         state.planes[index] = changeItem;
@@ -455,11 +556,11 @@ export const clipSlice = createSlice({
         }
       },
 
-      translate: (state, action) => {
-
+      translate: (state, action:PayloadAction<{id:number,delta:number}>) => {
 
         let {id,delta} = action.payload;
-        let curPlane = state.planes[id];
+        let index = state.planes.findIndex((item) => item.id === id);
+        let curPlane = state.planes[index];
 
         let normal = vec3.fromValues(curPlane.clipCordX,curPlane.clipCordY,curPlane.clipCordZ);
         let l = vec3.len(normal);
@@ -479,11 +580,30 @@ export const clipSlice = createSlice({
         curPlane.clipConstD = vec3.dot(normal,pos)*l;
         transform[12] = pos[0] ; transform[13] = pos[1] ; transform[14] = pos[2];
         curPlane.transform = Array.from(transform);
+        clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:id},type:"clipPlanes/updateSlicePlane"})
+      },
+
+      updateSlicePlane: (state, action:PayloadAction<{pid:number}>) => {
+        let {pid} = action.payload;
+        let index = state.planes.findIndex((item) => item.id === pid);
+          let curPlane = state.planes[index];
+          if(curPlane.slicePlane) {
+            const slicePlane = curPlane.slicePlane;
+            let t = new Float32Array(curPlane.transform) as mat4;
+            // flip master plane normal to create slice plane mat
+            let n = vec3.fromValues( -t[8], -t[9], -t[10])
+            t[8] = n[0]; t[9] = n[1]; t[10] = n[2]; 
+            // master plane center
+            mat4.translate(t,t,vec3.fromValues(0,0,-slicePlane.translate));
+            slicePlane.transform = Array.from(t);
+          }
+
       },
     
-      rotateX: (state, action) => {
+      rotateX: (state, action:PayloadAction<{id:number,delta:number}>) => {
           let {id,delta} = action.payload;
-          let curPlane = state.planes[id];
+          let index = state.planes.findIndex((item) => item.id === id);
+          let curPlane = state.planes[index];
           let normal = vec3.fromValues(curPlane.clipCordX,curPlane.clipCordY,curPlane.clipCordZ);
           let rad = Math.PI/180 * delta;
           let l = vec3.len(normal);
@@ -501,12 +621,14 @@ export const clipSlice = createSlice({
           curPlane.clipCordY = l*newNormal[1];
           curPlane.clipCordZ = l*newNormal[2];
           curPlane.transform = Array.from(transform);
+          clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:id},type:"clipPlanes/updateSlicePlane"})
     
       },
     
-      rotateY: (state,action) => {
+      rotateY: (state,action:PayloadAction<{id:number,delta:number}>) => {
         let {id,delta} = action.payload;
-        let curPlane = state.planes[id];
+        let index = state.planes.findIndex((item) => item.id === id);
+        let curPlane = state.planes[index];
         let normal = vec3.fromValues(curPlane.clipCordX,curPlane.clipCordY,curPlane.clipCordZ);
         let rad = Math.PI/180 * delta;
         let l = vec3.len(normal);
@@ -524,14 +646,16 @@ export const clipSlice = createSlice({
         curPlane.clipCordY = l*newNormal[1];
         curPlane.clipCordZ = l*newNormal[2];
         curPlane.transform = Array.from(transform);
+        clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:id},type:"clipPlanes/updateSlicePlane"})
         //let eqn = [newNormal,curPlane.clipConstD];
         //console.log("count", count+=1);
         //console.log("totalDelta",totalDelta+=delta);
       },
     
-      rotateZ: (state,action) => {
+      rotateZ: (state,action:PayloadAction<{id:number,delta:number}>) => {
         let {id,delta} = action.payload;
-        let curPlane = state.planes[id];
+        let index = state.planes.findIndex((item) => item.id === id);
+        let curPlane = state.planes[index];
         let normal = vec3.fromValues(curPlane.clipCordX,curPlane.clipCordY,curPlane.clipCordZ);
         let rad = Math.PI/180 * delta;
         let l = vec3.len(normal);
@@ -549,10 +673,36 @@ export const clipSlice = createSlice({
         curPlane.clipCordY = l*newNormal[1];
         curPlane.clipCordZ = l*newNormal[2];
         curPlane.transform = Array.from(transform);
+        clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:id},type:"clipPlanes/updateSlicePlane"})
         //let eqn = [newNormal,curPlane.clipConstD];
         //console.log("count", count+=1);
         //console.log("totalDelta",totalDelta+=delta);
-      }
+      },
+
+      sliceEditEnable: (state, action) => {
+        const index : any = state.planes.findIndex((item) => item.id === action.payload);
+        if ( index >= 0) {
+          let changeItem : plane = state.planes[index];
+          if(changeItem.slicePlane)
+          {
+            changeItem.slicePlane.enabled = !changeItem.slicePlane.enabled;
+            changeItem.slicePlane.showClip = changeItem.showClip;
+          }
+          state.planes[index] = changeItem;
+        }
+      },
+
+      editSliceTranslate: (state, action) => {
+        const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
+        if ( index >= 0) {
+          let changeItem : plane = state.planes[index];
+          if (changeItem.slicePlane){
+            changeItem.slicePlane.translate= action.payload.translate;
+          }
+          state.planes[index] = changeItem;
+          clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:changeItem.id}, type:"clipSlice/updateSlicePlane"})
+        }
+      },
   },
 extraReducers: (builder) => {
   builder.addCase(fetchSectionPlaneData.fulfilled, (state,{payload}) => {
@@ -561,6 +711,6 @@ extraReducers: (builder) => {
 }
 })
 
-export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlane, editEquation, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, saveClickedVal,rotateX, rotateY, rotateZ, translate, updateMinMax} = clipSlice.actions;
+export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlane, editEquation, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, saveClickedVal,rotateX, rotateY, rotateZ, translate, updateMinMax, sliceEditEnable, editSliceTranslate} = clipSlice.actions;
 
 export default clipSlice.reducer;
