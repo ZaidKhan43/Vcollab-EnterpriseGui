@@ -10,8 +10,8 @@ import BackButton from '../../../components/icons/back';
 import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
 
 
-import Grid from '@material-ui/core/Grid';
-import Slider from '@material-ui/core/Slider';
+import MuiGrid from '@material-ui/core/Grid';
+import MuiSlider from '@material-ui/core/Slider';
 
 import Triangle from '../../../components/icons/triangle'
 import ThreePoints from '../../../components/icons/threePoints'
@@ -22,6 +22,7 @@ import ThreePoints from '../../../components/icons/threePoints'
 
 import NumericInput from 'react-numeric-input';
 
+import MuiCheckbox from '@material-ui/core/Checkbox';
 
 import MuiInput from '@material-ui/core/Input';
 import MuiButton from '@material-ui/core/Button';
@@ -30,8 +31,9 @@ import FlipDirectionLeft from "../../../components/icons/flipDirectionLeft";
 import FlipDirectionRight from "../../../components/icons/flipDirectionRight";
 
 import {selectActiveViewerID} from "../../../store/appSlice";
-import { setSectionPlaneData, editEquation , editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMax} from '../../../store/sideBar/clipSlice';
-import RotateSlider from './rotateSlider'
+import { setSectionPlaneData, editEquation , editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMax, sliceEditEnable, editSliceTranslate} from '../../../store/sideBar/clipSlice';
+import RotateSlider from './rotateSlider';
+import TranslateSlider from './translateSlider';
 
 import MuiExpandLessIcon from '@material-ui/icons/ExpandLess';
 import MuiExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -62,6 +64,11 @@ export default function ClipPlanes(props : any){
   const clipCordZ = planes[index].clipCordZ;
   const clipConstD = planes[index].clipConstD;
   
+  const slicePlaneEnabled = planes[index].slicePlane?.enabled;
+  const sliceTranslate = planes[index].slicePlane?.translate;
+  const sliceTranslateMin = planes[index].slicePlane?.translateMin;
+  const sliceTranslateMax = planes[index].slicePlane?.translateMax;
+
   const [clipInputX, setClipInputX] = useState(planes[index].userInputEquation[0]);
   const [clipInputY, setClipInputY] = useState(planes[index].userInputEquation[1]);
   const [clipInputZ, setClipInputZ] = useState(planes[index].userInputEquation[2]);
@@ -207,6 +214,33 @@ export default function ClipPlanes(props : any){
     dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
 
+  const onHandleSliceCheck = () => {
+    dispatch(sliceEditEnable(props.clicked.id))
+    dispatch(setSectionPlaneData({id:props.clicked.id}))
+  }
+
+  const onHandleSliceTranslate= (e: any, newValue : any) => {
+    if (sliceTranslate === newValue)
+    {
+      return;
+    }
+    const update= {id : props.clicked.id, translate : newValue};
+    dispatch(editSliceTranslate(update))
+    dispatch(setSectionPlaneData({id:props.clicked.id}))
+  }
+
+  const onHandleSliceTranslateType= (e: any ) => {
+    const update= {id : props.clicked.id, translate : Number(e.target.value)};
+    dispatch(editSliceTranslate(update))
+    dispatch(setSectionPlaneData({id:props.clicked.id}))
+  }
+
+  const onHandleSliceTranslateButton = (newValue : any) => {
+    const update= {id : props.clicked.id, translate : Number(newValue)};
+    dispatch(editSliceTranslate(update))
+    dispatch(setSectionPlaneData({id:props.clicked.id}))
+  }
+
 
   // const onHandleReset = () => {
   //   // setClipCordX(props.clicked.clipCordX)
@@ -239,18 +273,18 @@ export default function ClipPlanes(props : any){
   const getHeaderContent = () => {
     return (
       <div className={classes.heading}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item >
+        <MuiGrid container spacing={2} alignItems="center">
+          <MuiGrid item >
             <MuiTypography  variant="h1" noWrap>
               Clip Plates -
             </MuiTypography>
-          </Grid>
-          <Grid item xs>
+          </MuiGrid>
+          <MuiGrid item xs>
             <MuiTypography variant="h2" noWrap className={classes.listItemAsHeading}> 
               {props.clicked.name}
             </MuiTypography>
-          </Grid>
-        </Grid>
+          </MuiGrid>
+        </MuiGrid>
       </div>
     )
   }
@@ -333,76 +367,57 @@ export default function ClipPlanes(props : any){
           /> */}
           </div>
           <div>
-          
-            
-        {/* { editMode !== true 
-          ?
-          <div>
-          <MuiInput style={{marginLeft:"-20px",marginRight:"10px",border: "1px solid", width:"160px", paddingLeft:"5px", paddingRight:"5px" }} disabled value={`${userInputEquation[0]}X + ${userInputEquation[1]}Y + ${userInputEquation[2]}Z = ${userInputEquation[3]}`}/> 
-          <MuiToggleButton
-            className={classes.editButton}
-            value="check"
-            selected={!editMode}
-            onChange={handleEditShow}>
-          <MuiEditIcon style={{fontSize:"15px"}}/>
-      </MuiToggleButton>
-          </div>
-          :
-          <div style={{ display: "flex",alignItems: "center",
-          justifyContent: "flex-start",marginLeft:"5px", marginRight:"5%",
-          marginTop:"5px", }}
-          // onBlur={handleValidation}
-        >
-          {/* <div className={classes.inputEqnBorder}>
-          <MuiInput className={classes.inputEqn}  style={{width: "30px"}} type="number" value={clipCordX} onChange={(e : any) => OnHandleEquation(e,"clipCordX")}/> X +
-          <MuiInput className={classes.inputEqn} style={{width: "30px"}} type="number" value={clipCordY} onChange={(e : any) => OnHandleEquation(e,"clipCordY")} />Y +
-          <MuiInput className={classes.inputEqn} style={{width: "30px"}} type="number" value={clipCordZ} onChange={(e : any) => OnHandleEquation(e,"clipCordZ")} />Z =
-          <MuiInput className={classes.inputEqn} style={{width: "30px"}} type="number" value={clipConstD} onChange={(e : any) => OnHandleEquation(e,"clipConstD")} />
-          </div>
-          <MuiToggleButton
-            className={classes.editButton}
-            value="check"
-            selected={!editMode}
-            onChange={handleEditShow}>
-          <MuiEditIcon style={{fontSize:"15px"}}/>
-      </MuiToggleButton> */}
-           
         </div>
         
         
         
           {editMode 
             ?
-            <Grid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
-            <Grid item xs={12} sm={6} >
+            <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
+            <MuiGrid item xs={12} sm={6} >
               <MuiButton className={clsx({ [classes.button]: clipPlaneMode==="Surface" })} size="small"  startIcon={<Triangle />}  onClick={() => {clipPlaneMode==="Surface" ? setClipPlaneMode(null) : setClipPlaneMode("Surface")}}>
                 <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
                 Select Surface
                 </MuiTypography>
                
               </MuiButton>
-            </Grid>
-            <Grid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
+            </MuiGrid>
+            <MuiGrid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
               <MuiButton className={clsx({ [classes.button]: clipPlaneMode==="Points" })} size="small" startIcon={<ThreePoints/>}   onClick={() => {clipPlaneMode==="Points" ? setClipPlaneMode(null) : setClipPlaneMode("Points")}}>
               <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
                Select Points
                 </MuiTypography>
                
                 </MuiButton>
-            </Grid>
-          </Grid>
+            </MuiGrid>
+          </MuiGrid>
         :
         <div>
         <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} className={classes.disabledTextBox} value={`${Math.round(clipCordX*1000)/1000}X ${Math.sign(clipCordY)===1 || Math.sign(clipCordY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordY*1000)/1000)}Y ${Math.sign(clipCordZ) === 1 || Math.sign(clipCordZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordZ*1000)/1000)}Z = ${Math.round(clipConstD*1000)/1000}`}/>
          </div> 
           }
-         
+
+          <MuiTypography style={{marginLeft:"-170px", marginTop:"10px"}}  noWrap>
+            <MuiCheckbox color="default" onClick={onHandleSliceCheck}  checked={slicePlaneEnabled} />
+              Slice Plane
+          </MuiTypography>
+
+          {slicePlaneEnabled 
+            &&
+                  <TranslateSlider 
+                    name={"Slice translate"} editMode={editMode}
+                    value={sliceTranslate} valueMin={sliceTranslateMin} 
+                    valueMax={sliceTranslateMax} onHandleChange={onHandleSliceTranslate}
+                    onHandleType={onHandleSliceTranslateType} onHandleCommited={null}
+                    onHandleButton={onHandleSliceTranslateButton}
+                  />
+          }
 
           <MuiTypography className={classes.listSub}  style={{marginTop:"10%"}} noWrap>
             Coordinate System
           </MuiTypography>
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
+          <MuiGrid container spacing={3}>
+            <MuiGrid item xs={12} sm={6}>
               <MuiIconButton disabled={editMode && true} style={{width:"60px",height: "90px", }}   onClick={() => onHandleDirection()}>
                {clipNormalInverted === false 
                ? 
@@ -412,51 +427,29 @@ export default function ClipPlanes(props : any){
                 }
               </MuiIconButton>
               <MuiTypography className={classes.caption}  noWrap>Flip Direction</MuiTypography>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </MuiGrid>
+            <MuiGrid item xs={12} sm={6}>
               <RotateSlider disable={editMode} value={rotate} handleChange={onHandleRotate} label={"Rotate"}/>
-            </Grid>
-          </Grid>
-          <MuiTypography className={classes.listSub} style={{marginTop:"10%"}} >
-            Translate
-          </MuiTypography>
-          <Grid container spacing={1} >
-            <Grid item xs={12} sm={7} className={classes.translate}>
-              <Slider className={classes.translate} style={ editMode ? {color:"cuttentColor", opacity:"50%"} : {color:"currentColor",}}
-                disabled={editMode}
-                value={translate}
-                min={translateMin}
-                max={translateMax}
-                onChange={onHandleTranslate}
-                onChangeCommitted={onHandleTranslateCommitted}
-                aria-labelledby="input-slider"
-              />
-            </Grid>
-          <Grid item xs={12} sm={3} style={{marginTop:"-17px"}} >
-          <MuiIconButton disabled={editMode} style={{height:10, width:10, marginLeft:"5px"}}><MuiExpandLessIcon  onClick={() => translate < translateMax && onHandleTranslateButton( translate + 1)} className={`${classes.translateButton} + ${editMode && classes.disabledButton}`}/></MuiIconButton>
-            <NumericInput
-              readOnly={editMode}
-              className={`${classes.inputTranslate} + ${editMode && classes.disabled}`}
-              value={translate}
-              margin="dense"
-                min= {translateMin}
-                max= {translateMax}
-              noStyle
-              // onChange={onHandleTranslateType}
-              onBlur={onHandleTranslateType}
+            </MuiGrid>
+          </MuiGrid>
+          <div style={{marginTop:"10%"}}>
+            <TranslateSlider 
+              name={"Translate"} editMode={editMode}
+              value={translate} valueMin={translateMin} 
+              valueMax={translateMax} onHandleChange={onHandleTranslate}
+              onHandleType={onHandleTranslateType} onHandleCommited={onHandleTranslateCommitted}
+              onHandleButton={onHandleTranslateButton}
             />
-             <MuiIconButton disabled={editMode} style={{height:10, width:10,marginLeft:"5px"}}><MuiExpandMoreIcon  onClick={() =>  translate > translateMin && onHandleTranslateButton(translate - 1)} className={`${classes.translateButton} + ${editMode && classes.disabledButton}`}/></MuiIconButton>
-          </Grid>
-        </Grid>
+          </div>
         <MuiTypography className={classes.listSub} noWrap>Rotate</MuiTypography>
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
+          <MuiGrid container spacing={3}>
+            <MuiGrid item xs={12} sm={6}>
             <RotateSlider disable={editMode} value={axisX} handleChange={onHandleRotateX}  label={"X-Axis"}/>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </MuiGrid>
+            <MuiGrid item xs={12} sm={6}>
             <RotateSlider disable={editMode} value={axisY} handleChange={onHandleRotateY}  label={"Y-Axis"}/>
-            </Grid>
-          </Grid>         
+            </MuiGrid>
+          </MuiGrid>         
        
         
       </div>
@@ -480,28 +473,28 @@ export default function ClipPlanes(props : any){
       //   // className={classes.footerCard} 
       //   style={{marginBottom:"5px", marginTop:"5px",}} 
       //    >
-      //   {edited === false ? <Grid container spacing={3} >
-      //   <Grid item xs={12} sm={4}  style={{marginLeft:"60px"}}>
+      //   {edited === false ? <MuiGrid container spacing={3} >
+      //   <MuiGrid item xs={12} sm={4}  style={{marginLeft:"60px"}}>
       //     <MuiButton disabled style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={onHandleSave}>
       //       Save
       //     </MuiButton>
-      //   </Grid>
-      //   <Grid item xs={12} sm={6} style={{position:"absolute",left: "50%",}}>
+      //   </MuiGrid>
+      //   <MuiGrid item xs={12} sm={6} style={{position:"absolute",left: "50%",}}>
       //     <MuiButton disabled style={{color:"#8C8BFF", zIndex:10}} color="primary" onClick={onHandleReset} >Reset</MuiButton>
-      //   </Grid>
-      // </Grid> 
+      //   </MuiGrid>
+      // </MuiGrid> 
       
       // :
-      //  <Grid container spacing={3} >
-      //   <Grid item xs={12} sm={4} style={{marginLeft:"60px"}}>
+      //  <MuiGrid container spacing={3} >
+      //   <MuiGrid item xs={12} sm={4} style={{marginLeft:"60px"}}>
       //     <MuiButton  style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={onHandleSave}>
       //       Save
       //     </MuiButton>
-      //   </Grid>
-      //   <Grid item xs={12} sm={6} style={{position:"absolute",left: "50%",}}>
+      //   </MuiGrid>
+      //   <MuiGrid item xs={12} sm={6} style={{position:"absolute",left: "50%",}}>
       //     <MuiButton  style={{color:"#8C8BFF", zIndex:10}} color="primary" onClick={onHandleReset} >Reset</MuiButton>
-      //   </Grid>
-      // </Grid>} 
+      //   </MuiGrid>
+      // </MuiGrid>} 
       // </div>  
       // )
     }

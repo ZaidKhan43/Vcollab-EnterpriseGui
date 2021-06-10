@@ -193,7 +193,7 @@ const generateSlicePlane = (parent:plane, id:number, color:Color, radius:number)
   const plane:plane = generatePlane(id, Array.from(parent.transform), eqn, color, radius);
   let t = new Float32Array(plane.transform) as mat4;
   mat4.translate(t,t,vec3.fromValues(0,0,-radius));
-  plane.enabled = true;
+  plane.enabled = false;
   plane.showClip = true;
   plane.translateMax = 2*radius;
   plane.translateMin = 0;
@@ -650,7 +650,25 @@ export const clipSlice = createSlice({
         //let eqn = [newNormal,curPlane.clipConstD];
         //console.log("count", count+=1);
         //console.log("totalDelta",totalDelta+=delta);
-      }
+      },
+
+      sliceEditEnable: (state, action) => {
+        const index : any = state.planes.findIndex((item) => item.id === action.payload);
+        if ( index >= 0) {
+          let changeItem : any = state.planes[index];
+          changeItem.slicePlane.enabled = !changeItem.slicePlane.enabled
+          state.planes[index] = changeItem;
+        }
+      },
+
+      editSliceTranslate: (state, action) => {
+        const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
+        if ( index >= 0) {
+          let changeItem : plane = state.planes[index];
+          changeItem.slicePlane.translate= action.payload.translate;
+          state.planes[index] = changeItem;
+        }
+      },
   },
 extraReducers: (builder) => {
   builder.addCase(fetchSectionPlaneData.fulfilled, (state,{payload}) => {
@@ -659,6 +677,6 @@ extraReducers: (builder) => {
 }
 })
 
-export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlane, editEquation, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, saveClickedVal,rotateX, rotateY, rotateZ, translate, updateMinMax} = clipSlice.actions;
+export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlane, editEquation, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, saveClickedVal,rotateX, rotateY, rotateZ, translate, updateMinMax, sliceEditEnable, editSliceTranslate} = clipSlice.actions;
 
 export default clipSlice.reducer;
