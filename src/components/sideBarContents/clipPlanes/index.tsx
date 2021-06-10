@@ -117,8 +117,8 @@ export default function ClipPlanes(){
   const onHandlePaste:(item: any)=> any = (item) => {
     if(planes.length < limit)
     {
-      dispatch(pastePlane(item))
-      dispatch(duplicatePlane({id:item.id}));
+      // dispatch(pastePlane(item))
+      dispatch(duplicatePlane({pastedPlane: item}));
     }
   }
 
