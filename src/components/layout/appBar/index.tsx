@@ -36,6 +36,9 @@ import MuiSwitch from "@material-ui/core/Switch";
 
 import {useState} from "react";
 
+import MuiToggleButton from '@material-ui/lab/ToggleButton';
+import MuiRoomOutlinedIcon from '@material-ui/icons/RoomOutlined';
+import { flagUpdate } from '../../../store/probeSlice';
 
 import  styles from './style';
 
@@ -52,6 +55,8 @@ function AppBar() {
     const [moreAnchorEl, setMoreAnchorEl] = useState(null);
     const [displayAnchorEl, setDisplayAnchorEl] = useState(null);
     const [clickedMenu, setClickedMenu] = useState<any>(null);
+    
+    const showProbeFlag = useAppSelector((state) => state.probe.showFlag)
 
     const displayMenuItems = [
       { title: "Bounding Box", icon: BoundingBox,id:"DM_1", disabled : false },
@@ -111,6 +116,10 @@ function AppBar() {
       
     }
 
+    const handleProbeFlag = function(){
+      dispatch(flagUpdate());
+    }
+
     return (
         <MuiAppBar 
           className = { clsx( classes.appBar , {[classes.appBarwithSideBar]: isSidebarVisible}) }
@@ -135,9 +144,20 @@ function AppBar() {
      
           <div className={classes.toolBarRightContent}>
           
-          <div className={classes.divIcon}  >
+            <div className={classes.divIcon}  >
                <MuiIconButton> <MuiSwitch checked={isDarkModeEnable} onChange={handleThemeChange} /> </MuiIconButton>
-          </div>
+            </div>
+              <MuiToggleButton
+                className={classes.showProbeFlagButton}
+                value="check"
+                selected={showProbeFlag}
+                onChange={handleProbeFlag}>
+                <MuiRoomOutlinedIcon style={{fontSize:"15px"}}/>
+                </MuiToggleButton>
+            <div>
+
+            </div>
+
               <div className={classes.divIcon}  >
                     <MuiIconButton onClick={(e) => handleClick(e,"display") }><Displaymodes /></MuiIconButton> 
               </div>

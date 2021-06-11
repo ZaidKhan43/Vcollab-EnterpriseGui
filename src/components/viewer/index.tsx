@@ -160,7 +160,8 @@ function Viewer(){
         id={viewerDomID}
         ref={viewerRefs}
         className="viewer"
-      />
+      >
+      </div>
     );
 }
 

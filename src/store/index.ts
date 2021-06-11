@@ -4,7 +4,7 @@ import toastSlice from "./toastSlice";
 import productTreeSlice from './sideBar/productTreeSlice';
 import displayModesSlice from './sideBar/displayModesSlice';
 import clipSlice from './sideBar/clipSlice';
-import propsSlice from './propsSlice';
+import probeSlice from './probeSlice';
 import sceneSlice  from './sideBar/sceneSlice';
 
 const store = configureStore({
@@ -15,7 +15,7 @@ const store = configureStore({
         productTree: productTreeSlice,
         displayModes: displayModesSlice,
         toast: toastSlice,
-        props: propsSlice,
+        probe: probeSlice,
         scene: sceneSlice,
       })
 });

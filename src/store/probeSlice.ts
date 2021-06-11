@@ -18,10 +18,15 @@ const initialState : props = {
     showFlag : false,
 }
 
-export const propsSlice = createSlice ({
-    name: "props",
+export const probeSlice = createSlice ({
+    name: "probe",
     initialState : initialState,
     reducers : {
+        
+        flagUpdate: (state) => {
+            state.showFlag = !state.showFlag;
+        },
+
         positionUpdate: (state,action) => {
             state.position.x = Number(action.payload.x);
             state.position.y = Number(action.payload.y);
@@ -29,5 +34,5 @@ export const propsSlice = createSlice ({
     }
 })
 
-export const {positionUpdate} = propsSlice.actions;
-export default propsSlice.reducer;
+export const {positionUpdate, flagUpdate} = probeSlice.actions;
+export default probeSlice.reducer;

@@ -43,7 +43,7 @@ export default function ClipPlanes(){
   const limit = useAppSelector((state) => state.clipPlane.settings.maxAllowedPlanes);
   const clickedVal = useAppSelector<any>((state) => state.clipPlane.settings.clickedVal);
 
-  // const [clickedValues , setClickedValues] = useState<any>([]); 
+  const [clickedValues , setClickedValues] = useState<any>([]); 
 
   const [copied, setCopied] = useState<any>(false); 
   const [copy, setCopy] = useState(null);
@@ -62,9 +62,15 @@ export default function ClipPlanes(){
   }
 
   const onHandleClick :(e: any, click: any) => any = (e, click)=> {
-    // const newO = [...clickedValues, click];
-    // setClickedValues(newO);
-    // console.log(clickedValues)
+    if(clickedValues.indexOf((item) => item.id === click.id) === -1){
+      const newO = [...clickedValues, click];
+      setClickedValues(newO);
+    }
+    
+
+    console.log(clickedValues)
+
+
     if(clickedVal){
       if(click.id === clickedVal.id)
       {
