@@ -196,9 +196,9 @@ const generateSlicePlane = (parent:plane, id:number, color:Color, radius:number)
   //mat4.translate(t,t,vec3.fromValues(0,0,-radius*0.25));
   plane.enabled = false;
   plane.showClip = false;
-  plane.translateMax = 2*radius;
+  plane.translateMax = radius;
   plane.translateMin = 0;
-  plane.translate = radius;
+  plane.translate = radius*0.5;
   plane.transform = Array.from(t);
   plane.initTransform = Array.from(t);
   return plane as slicePlane;
@@ -449,6 +449,7 @@ export const clipSlice = createSlice({
 
         
         state.planes[index] = changeItem;
+        clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:changeItem.id},type:"clipSlice/updateSlicePlane"});
       }
     },
 
