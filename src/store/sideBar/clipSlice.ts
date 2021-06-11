@@ -284,21 +284,33 @@ export const duplicatePlane = createAsyncThunk(
     const rootState = getState() as RootState;
     const state = rootState.clipPlane;
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
-    let cloneId = state.settings.idGenerator;
-    const index : any = rootState.clipPlane.planes.findIndex((item) => item.id === cloneId);
-    const curPlane = rootState.clipPlane.planes[index];
-    addSectionPlane(cloneId,new Float32Array(curPlane.transform),curPlane.color,viewerId);
-    dispatch(setSectionPlaneData({id:cloneId}))
+    const index : any = rootState.clipPlane.planes.findIndex((item) => item.id === data.pastedPlane.id);
+    const curPlane = rootState.clipPlane.planes[index+1];
+    addSectionPlane(curPlane.id,new Float32Array(curPlane.transform),curPlane.color,viewerId);
+    if(curPlane.slicePlane)
+    addSectionPlane(curPlane.slicePlane.id,new Float32Array(curPlane.slicePlane.transform),curPlane.slicePlane.color,viewerId);
+    dispatch(setSectionPlaneData({id:curPlane.id}))
   }
 )
 export const removePlane = createAsyncThunk(
   "clipSlice/addSectionPlane",
   async (data:{id:number},{dispatch,getState}) => {
     const rootState = getState() as RootState;
+    const index = rootState.clipPlane.planes.findIndex((item) => item.id === data.id);
+    
     //const state = rootState.clipPlane;
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
-    dispatch(setSectionPlaneData({id:data.id}))
+    dispatch(setSectionPlaneData({id:data.id}));
     deleteSectionPlane(data.id,viewerId);
+    
+    let slicePlane = rootState.clipPlane.planes[index].slicePlane;
+    if( slicePlane )
+    {
+      const sliceId = slicePlane.id;
+      dispatch(setSectionPlaneData({id:sliceId}));
+      deleteSectionPlane(sliceId,viewerId);
+   
+    }
     dispatch(clipSlice.actions.deletePlane(data.id));
   }
 )
@@ -375,12 +387,16 @@ export const clipSlice = createSlice({
 
     pastePlane : (state, action) => {
       if (state.planes.length < state.settings.maxAllowedPlanes){
-        let clone = JSON.parse(JSON.stringify(action.payload));
+        let clone:plane = JSON.parse(JSON.stringify(action.payload));
         clipSlice.caseReducers.incrementId(state);
         clone.id=state.settings.idGenerator;
         clone.name = `${clone.name} (Copy)`
-        clone.checkbox= false;
         clone.color = state.colors[clone.id % state.colors.length];
+        if(clone.slicePlane) {
+          clipSlice.caseReducers.incrementId(state);
+          clone.slicePlane.id = state.settings.idGenerator;
+          clone.slicePlane.color = state.colors[clone.slicePlane.id % state.colors.length];
+        }
         state.planes=[...state.planes, clone];
         //console.log("clone",clone)
         //console.log("After", state.planes)
