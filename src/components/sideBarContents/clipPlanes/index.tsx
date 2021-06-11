@@ -32,7 +32,7 @@ import DialogBox from "../../../components/shared/dialogBox"
 // import { PlayCircleOutlineSharp } from '@material-ui/icons';
 
 import ClipPlane from "./clipPlane"
-import {setSectionPlaneData, addPlane, editEnabled, setActive, editShowClip, editEdgeClip, editShowCap, pastePlane, editPlaneName, saveClickedVal, removePlane, duplicatePlane} from "../../../store/sideBar/clipSlice";
+import {setSectionPlaneData, addPlane, editEnabled, setActive, editShowClip, editEdgeClip, editShowCap, pastePlane, editPlaneName, saveClickedVal, removePlane, duplicatePlane,} from "../../../store/sideBar/clipSlice";
 
 
 export default function ClipPlanes(){
@@ -42,6 +42,9 @@ export default function ClipPlanes(){
   const planes = useAppSelector((state) => state.clipPlane.planes);
   const limit = useAppSelector((state) => state.clipPlane.settings.maxAllowedPlanes);
   const clickedVal = useAppSelector<any>((state) => state.clipPlane.settings.clickedVal);
+
+  // const [clickedValues , setClickedValues] = useState<any>([]); 
+
   const [copied, setCopied] = useState<any>(false); 
   const [copy, setCopy] = useState(null);
   const [edit, setEdit] = useState<any>(false);
@@ -59,6 +62,9 @@ export default function ClipPlanes(){
   }
 
   const onHandleClick :(e: any, click: any) => any = (e, click)=> {
+    // const newO = [...clickedValues, click];
+    // setClickedValues(newO);
+    // console.log(clickedValues)
     if(clickedVal){
       if(click.id === clickedVal.id)
       {

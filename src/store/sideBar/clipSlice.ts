@@ -192,14 +192,13 @@ const generateSlicePlane = (parent:plane, id:number, color:Color, radius:number)
   const eqn = [parent.clipCordX,parent.clipCordY,parent.clipCordZ,-parent.clipConstD];
   const plane:plane = generatePlane(id, Array.from(parent.transform), eqn, color, radius);
   let t = new Float32Array(plane.transform) as mat4;
-  mat4.translate(t,t,vec3.fromValues(0,0,-radius));
    //t[8] = -t[8]; t[9] = -t[9]; t[10] = -t[10];
   //mat4.translate(t,t,vec3.fromValues(0,0,-radius*0.25));
   plane.enabled = false;
   plane.showClip = true;
-  plane.translateMax = 2*radius;
+  plane.translateMax = radius;
   plane.translateMin = 0;
-  plane.translate = radius;
+  plane.translate = radius*0.5;
   plane.transform = Array.from(t);
   plane.initTransform = Array.from(t);
   return plane as slicePlane;
@@ -337,10 +336,16 @@ export const clipSlice = createSlice({
       const index= state.planes.findIndex((item) => item.id === action.payload);
       if ( index >= 0 ) {
         let changeItem : any = state.planes[index];
+        
+        if(changeItem.enabled === true && changeItem.slicePlane.enabled === true)
+          changeItem.slicePlane.enabled = false;
+          changeItem.slicePlane.showClip = false;
+
         if(changeItem.enabled === true && changeItem.showClip === true)
-          changeItem.showClip = !changeItem.showClip
+          changeItem.showClip = false
         if(changeItem.enabled === false && changeItem.showClip === false)
-          changeItem.showClip = !changeItem.showClip   
+          changeItem.showClip = true 
+        
         changeItem.enabled = !changeItem.enabled
         
         state.planes[index] = changeItem;
@@ -351,6 +356,11 @@ export const clipSlice = createSlice({
       const index= state.planes.findIndex((item) => item.id === action.payload);
       if ( index >= 0 ) {
         let changeItem : any = state.planes[index];
+        if(changeItem.showClip === true && changeItem.slicePlane.showClip === true)
+          changeItem.slicePlane.showClip = false;
+        if(changeItem.showClip === false && changeItem.slicePlane.enabled === true)
+          changeItem.slicePlane.showClip = true;
+          
         changeItem.showClip = !changeItem.showClip;
         state.planes[index] = changeItem;
       }
@@ -450,10 +460,11 @@ export const clipSlice = createSlice({
 
         
         state.planes[index] = changeItem;
+		clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:changeItem.id},type:"clipSlice/updateSlicePlane"});
       }
     },
 
-editNormalInverted: (state, action:PayloadAction<number>) => {
+ 	editNormalInverted: (state, action:PayloadAction<number>) => {
       const index : any = state.planes.findIndex((item) => item.id === action.payload);
       if ( index >= 0) {
         let changeItem : any = state.planes[index];
@@ -469,7 +480,7 @@ editNormalInverted: (state, action:PayloadAction<number>) => {
         transform[10] = -changeItem.transform[10];
         changeItem.transform = transform;
         state.planes[index] = changeItem;
-clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:action.payload}, type:"clipSlice/updateSlicePlane"})
+ 		clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:action.payload}, type:"clipSlice/updateSlicePlane"})
       }
     },
 
@@ -547,7 +558,8 @@ clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:action.payload}, typ
         let delta = (curPlane.translateMax - curPlane.translateMin)*0.5;
         if(curPlane.translateMin >= curPlane.translate) {
           curPlane.translateMin = curPlane.translateMin - delta;
-          curPlane.translateMax = curPlane.translateMax - delta;    
+          curPlane.translateMax = curPlane.translateMax - delta;
+          
         }
         else if(curPlane.translateMax <= curPlane.translate) {
           curPlane.translateMin = curPlane.translateMin + delta;
@@ -556,7 +568,8 @@ clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:action.payload}, typ
         }
       },
 
-       translate: (state, action:PayloadAction<{id:number,delta:number}>) => {
+      translate: (state, action:PayloadAction<{id:number,delta:number}>) => {
+
         let {id,delta} = action.payload;
         let index = state.planes.findIndex((item) => item.id === id);
         let curPlane = state.planes[index];
@@ -585,7 +598,7 @@ clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:action.payload}, typ
       updateSlicePlane: (state, action:PayloadAction<{pid:number}>) => {
         let {pid} = action.payload;
         let index = state.planes.findIndex((item) => item.id === pid);
-        let curPlane = state.planes[index];
+          let curPlane = state.planes[index];
           if(curPlane.slicePlane) {
             const slicePlane = curPlane.slicePlane;
             let t = new Float32Array(curPlane.transform) as mat4;
@@ -593,12 +606,12 @@ clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:action.payload}, typ
             let n = vec3.fromValues( -t[8], -t[9], -t[10])
             t[8] = n[0]; t[9] = n[1]; t[10] = n[2]; 
             // master plane center
-            mat4.translate(t,t,vec3.fromValues(0,0,slicePlane.translate));
+            mat4.translate(t,t,vec3.fromValues(0,0,-slicePlane.translate));
             slicePlane.transform = Array.from(t);
           }
       },
     
-  rotateX: (state, action:PayloadAction<{id:number,delta:number}>) => {
+	  rotateX: (state, action:PayloadAction<{id:number,delta:number}>) => {
           let {id,delta} = action.payload;
           let index = state.planes.findIndex((item) => item.id === id);
           let curPlane = state.planes[index];
@@ -619,11 +632,11 @@ clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:action.payload}, typ
           curPlane.clipCordY = l*newNormal[1];
           curPlane.clipCordZ = l*newNormal[2];
           curPlane.transform = Array.from(transform);
- clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:id},type:"clipPlanes/updateSlicePlane"})
+ 		  clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:id},type:"clipPlanes/updateSlicePlane"})
     
       },
     
-  rotateY: (state,action:PayloadAction<{id:number,delta:number}>) => {        
+   	  rotateY: (state,action:PayloadAction<{id:number,delta:number}>) => {
         let {id,delta} = action.payload;
         let index = state.planes.findIndex((item) => item.id === id);
         let curPlane = state.planes[index];
@@ -644,13 +657,13 @@ clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:action.payload}, typ
         curPlane.clipCordY = l*newNormal[1];
         curPlane.clipCordZ = l*newNormal[2];
         curPlane.transform = Array.from(transform);
-clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:id},type:"clipPlanes/updateSlicePlane"})
+ 		clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:id},type:"clipPlanes/updateSlicePlane"})
         //let eqn = [newNormal,curPlane.clipConstD];
         //console.log("count", count+=1);
         //console.log("totalDelta",totalDelta+=delta);
       },
     
-rotateZ: (state,action:PayloadAction<{id:number,delta:number}>) => {
+		rotateZ: (state,action:PayloadAction<{id:number,delta:number}>) => {
         let {id,delta} = action.payload;
         let index = state.planes.findIndex((item) => item.id === id);
         let curPlane = state.planes[index];
@@ -671,7 +684,7 @@ rotateZ: (state,action:PayloadAction<{id:number,delta:number}>) => {
         curPlane.clipCordY = l*newNormal[1];
         curPlane.clipCordZ = l*newNormal[2];
         curPlane.transform = Array.from(transform);
-clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:id},type:"clipPlanes/updateSlicePlane"})
+		clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:id},type:"clipPlanes/updateSlicePlane"})
         //let eqn = [newNormal,curPlane.clipConstD];
         //console.log("count", count+=1);
         //console.log("totalDelta",totalDelta+=delta);
@@ -680,8 +693,20 @@ clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:id},type:"clipPlanes
       sliceEditEnable: (state, action) => {
         const index : any = state.planes.findIndex((item) => item.id === action.payload);
         if ( index >= 0) {
-          let changeItem : any = state.planes[index];
-          changeItem.slicePlane.enabled = !changeItem.slicePlane.enabled
+          let changeItem : plane = state.planes[index];
+          if(changeItem.slicePlane)
+          {
+            if(changeItem.slicePlane.enabled === false){
+              changeItem.slicePlane.enabled = true;
+              changeItem.slicePlane.showClip = changeItem.showClip;
+            }
+
+            else{
+              changeItem.slicePlane.enabled = false;
+              changeItem.slicePlane.showClip = false;
+            }
+          } 
+          console.log(changeItem)         
           state.planes[index] = changeItem;
         }
       },
@@ -694,6 +719,7 @@ clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:id},type:"clipPlanes
             changeItem.slicePlane.translate= action.payload.translate;
           }
           state.planes[index] = changeItem;
+		  clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:changeItem.id}, type:"clipSlice/updateSlicePlane"})
         }
       },
   },
