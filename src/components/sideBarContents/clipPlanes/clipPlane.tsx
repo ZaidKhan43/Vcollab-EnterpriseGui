@@ -42,6 +42,11 @@ import MuiEditIcon from '@material-ui/icons/Edit';
 
 import MuiToggleButton from '@material-ui/lab/ToggleButton';
 
+import MuiSelect from '@material-ui/core/Select';
+import MuiInputLabel from '@material-ui/core/InputLabel';
+import MuiMenuItem from '@material-ui/core/MenuItem';
+import MuiFormControl from '@material-ui/core/FormControl';
+
 export default function ClipPlanes(props : any){
 
   const classes = styles();
@@ -51,6 +56,10 @@ export default function ClipPlanes(props : any){
   const planes = useAppSelector((state) => state.clipPlane.planes);
   const index : any = planes.findIndex((item) => item.id === props.clicked.id);
   const clipNormalInverted = planes[index].clipNormalInverted;
+
+  const slicePlaneList = planes.filter((item) => item.id !== props.clicked.id).map(item => item.name)
+  const [clickedSlicePlane, setClickedSlicePlane] = useState<string | null>(null);
+  const planeNames = slicePlaneList.unshift("Global")
 
   const translate = planes[index].translate;
   const translateMin = planes[index].translateMin;
@@ -241,6 +250,9 @@ export default function ClipPlanes(props : any){
     dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
 
+  const onHandleSlicePlane = (name : any) => {
+    setClickedSlicePlane(name);
+  }
 
   // const onHandleReset = () => {
   //   // setClipCordX(props.clicked.clipCordX)
@@ -290,6 +302,8 @@ export default function ClipPlanes(props : any){
   }
     
   const getBody = () => {
+    console.log("planeNames", planeNames)
+    console.log("slicePlaneList", slicePlaneList)
     //console.log("getBody",rotate)
     return (
       <div 
@@ -397,7 +411,7 @@ export default function ClipPlanes(props : any){
          </div> 
           }
 
-          <MuiTypography style={{marginLeft:"-170px", marginTop:"10px"}}  noWrap>
+          {/* <MuiTypography style={{marginLeft:"-170px", marginTop:"10px"}}  noWrap>
             <MuiCheckbox color="default" onClick={onHandleSliceCheck}  checked={slicePlaneEnabled} />
               Slice Plane
           </MuiTypography>
@@ -411,7 +425,34 @@ export default function ClipPlanes(props : any){
                     onHandleType={onHandleSliceTranslateType} onHandleCommited={null}
                     onHandleButton={onHandleSliceTranslateButton}
                   />
-          }
+          } */}
+        
+        <MuiFormControl style={{width:"100%", marginTop:"20px", marginLeft:"10px"}}>
+        
+        <MuiInputLabel id="demo-simple-select-helper-label" style={{color:"currentcolor", marginLeft:"5px"}}>Co-ordinates</MuiInputLabel>
+
+              <MuiSelect MenuProps={{
+                disablePortal: true,
+                anchorOrigin: {
+                  vertical:"bottom",
+                  horizontal:"left",
+                },
+                getContentAnchorEl: null
+              }}
+                style={{width:"90%", marginLeft:"0px", marginTop:"15px",border: "1px solid currentColor",}}
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={clickedSlicePlane}
+                onChange={(e) => onHandleSlicePlane(e.target.value)}
+              >
+              {
+                slicePlaneList.map((item) => 
+                  <MuiMenuItem value={item}>{item}</MuiMenuItem>  
+              )
+              }
+        </MuiSelect>
+        </MuiFormControl>
+
 
           <MuiTypography className={classes.listSub}  style={{marginTop:"10%"}} noWrap>
             Coordinate System

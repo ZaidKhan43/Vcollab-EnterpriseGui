@@ -264,7 +264,7 @@ export const addPlane = createAsyncThunk(
     addSectionPlane(id, newTransform, color ,viewerId);
     let radius = bbox.getRadius();
     let plane = generatePlane(id, Array.from(newTransform), eqn, color,radius);
-    dispatch(clipSlice.actions.incrementId());
+    // dispatch(clipSlice.actions.incrementId());
 
     //slice plane
     let sliceId = (getState() as RootState).clipPlane.settings.idGenerator;;
@@ -337,9 +337,9 @@ export const clipSlice = createSlice({
       if ( index >= 0 ) {
         let changeItem : any = state.planes[index];
         
-        if(changeItem.enabled === true && changeItem.slicePlane.enabled === true)
-          changeItem.slicePlane.enabled = false;
-          changeItem.slicePlane.showClip = false;
+        // if(changeItem.enabled === true && changeItem.slicePlane.enabled === true)
+        //   changeItem.slicePlane.enabled = false;
+        //   changeItem.slicePlane.showClip = false;
 
         if(changeItem.enabled === true && changeItem.showClip === true)
           changeItem.showClip = false
@@ -356,10 +356,10 @@ export const clipSlice = createSlice({
       const index= state.planes.findIndex((item) => item.id === action.payload);
       if ( index >= 0 ) {
         let changeItem : any = state.planes[index];
-        if(changeItem.showClip === true && changeItem.slicePlane.showClip === true)
-          changeItem.slicePlane.showClip = false;
-        if(changeItem.showClip === false && changeItem.slicePlane.enabled === true)
-          changeItem.slicePlane.showClip = true;
+        // if(changeItem.showClip === true && changeItem.slicePlane.showClip === true)
+        //   changeItem.slicePlane.showClip = false;
+        // if(changeItem.showClip === false && changeItem.slicePlane.enabled === true)
+        //   changeItem.slicePlane.showClip = true;
           
         changeItem.showClip = !changeItem.showClip;
         state.planes[index] = changeItem;
@@ -692,23 +692,23 @@ export const clipSlice = createSlice({
 
       sliceEditEnable: (state, action) => {
         const index : any = state.planes.findIndex((item) => item.id === action.payload);
-        if ( index >= 0) {
-          let changeItem : plane = state.planes[index];
-          if(changeItem.slicePlane)
-          {
-            if(changeItem.slicePlane.enabled === false){
-              changeItem.slicePlane.enabled = true;
-              changeItem.slicePlane.showClip = changeItem.showClip;
-            }
+        // if ( index >= 0) {
+        //   let changeItem : plane = state.planes[index];
+        //   if(changeItem.slicePlane)
+        //   {
+        //     if(changeItem.slicePlane.enabled === false){
+        //       changeItem.slicePlane.enabled = true;
+        //       changeItem.slicePlane.showClip = changeItem.showClip;
+        //     }
 
-            else{
-              changeItem.slicePlane.enabled = false;
-              changeItem.slicePlane.showClip = false;
-            }
-          } 
-          console.log(changeItem)         
-          state.planes[index] = changeItem;
-        }
+        //     else{
+        //       changeItem.slicePlane.enabled = false;
+        //       changeItem.slicePlane.showClip = false;
+        //     }
+        //   } 
+        //   console.log(changeItem)         
+        //   state.planes[index] = changeItem;
+        // }
       },
 
       editSliceTranslate: (state, action) => {

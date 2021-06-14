@@ -62,7 +62,7 @@ export default function ClipPlanes(){
   }
 
   const onHandleClick :(e: any, click: any) => any = (e, click)=> {
-    if(clickedValues.indexOf((item) => item.id === click.id) === -1){
+    if((clickedValues.findIndex((item : any) => item.id === click.id)) === -1){
       const newO = [...clickedValues, click];
       setClickedValues(newO);
     }
