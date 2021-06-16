@@ -46,6 +46,7 @@ type settings= {
   maxAllowedPlanes : number,
   idGenerator: number,
   clickedVal : plane | null,
+  selectedPlanes : any,
 }
 
 type Color = [number,number,number,number];
@@ -68,10 +69,11 @@ const initialState : planes = {
   ],
 
   settings :{
-    maxAllowedPlanes : 3,
+    maxAllowedPlanes : 6,
     idGenerator :-1,
     planesData: [],
     clickedVal : null,
+    selectedPlanes : [],
     defaultPlaneParameters : {
       id:-1,
       name:'plane',
@@ -540,6 +542,16 @@ export const clipSlice = createSlice({
     saveClickedVal: (state, action) => {
       state.settings.clickedVal= action.payload;
     },
+
+    saveSelectedPlane: (state, action) => {
+      if((state.settings.selectedPlanes.findIndex((item : any) => item.id === action.payload.id)) === -1)
+        state.settings.selectedPlanes = [...state.settings.selectedPlanes, action.payload];
+      if((state.settings.selectedPlanes.findIndex((item : any) => item.id === action.payload.id)) >= 0){
+        const newArray = state.settings.selectedPlanes.filter((item: any )=> item.id !== action.payload.id);
+        state.settings.selectedPlanes = newArray;
+      }
+
+    },
         //added by pravin
         setPlaneEqn: (state, action) => {
           const {id, eqn} = action.payload;
@@ -730,6 +742,6 @@ extraReducers: (builder) => {
 }
 })
 
-export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlane, editEquation, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, saveClickedVal,rotateX, rotateY, rotateZ, translate, updateMinMax, sliceEditEnable, editSliceTranslate} = clipSlice.actions;
+export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlane, editEquation, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, saveClickedVal,rotateX, rotateY, rotateZ, translate, updateMinMax, sliceEditEnable, editSliceTranslate , saveSelectedPlane} = clipSlice.actions;
 
 export default clipSlice.reducer;

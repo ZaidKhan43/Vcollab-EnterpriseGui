@@ -58,7 +58,7 @@ export default function ClipPlanes(props : any){
   const clipNormalInverted = planes[index].clipNormalInverted;
 
   const slicePlaneList = planes.filter((item) => item.id !== props.clicked.id).map(item => item.name)
-  const [clickedSlicePlane, setClickedSlicePlane] = useState<string | null>(null);
+  const [clickedSlicePlane, setClickedSlicePlane] = useState<string>("Global");
   const planeNames = slicePlaneList.unshift("Global")
 
   const translate = planes[index].translate;

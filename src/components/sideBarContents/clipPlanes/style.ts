@@ -27,7 +27,7 @@ export default makeStyles((theme) => (
     overflowY: "auto",
     overflowX:"hidden",
     listStyle: "none",
-    height: "42%",
+    height: "40%",
     width:"100%",
     '&::-webkit-scrollbar': {
       width: '0.4em'
