@@ -12651,6 +12651,8 @@ var Point = /** @class */ (function () {
     function Picker() {
         this.sceneManager = AppObjects.sceneManager;
         this.isProbingEnabled = false;
+        this.prevSelectedId = -1;
+        this.probeMesh = null;
         this.renderer = AppObjects.renderer;
         this.pickShader = new Shader(PickVertexShader, PickFragmentShader);
     }
@@ -12688,8 +12690,7 @@ var Point = /** @class */ (function () {
         this.renderer.startRenderLoop();
         return selectedPartId;
     };
-    Picker.prototype.performProbing = function (mouseData) {
-        var mouse = [mouseData.xyFromTop[0], mouseData.height - mouseData.xyFromTop[1]];
+    Picker.prototype.getProbeMeshData = function () {
         var submeshName = "primitive_" + 0;
         var vertexSize = 3; // vertex count x,y,z
         var primitiveSize = 3; // triangle vertices 
@@ -12701,38 +12702,88 @@ var Point = /** @class */ (function () {
         }
         var positionArray = this.selectNode.mesh.subMeshes[submeshName].attribs.position.getDataArray;
         var indices = this.selectNode.mesh.subMeshes[submeshName].indices.getDataArray;
-        var probeMesh = new CoreMesh('probeMesh');
-        var attribs = new WebGLArrayBufferAttribute();
-        var newPosition = new Float32Array(indices.length * vertexSize);
-        //let newPosition = [];
-        var newColor = new Float32Array(indices.length * vertexSize);
-        var vertexCount = 0;
-        var counter = 0;
-        var start = performance.now();
-        var maxColors = 256 * 256 * 256;
-        for (var j = 0; j < indices.length; j++) {
-            var index = indices[j];
-            //let color = this.getColorFromIndex(Math.floor((vertexCount++)/primitiveSize) + 1);
-            var colorIndex = Math.floor((vertexCount++) / primitiveSize) + 1;
-            if (colorIndex >= maxColors)
-                colorIndex = 1;
-            var color = [Math.floor((colorIndex / 256 / 256) % 256) / 255, (Math.floor((colorIndex / 256)) % 256) / 255, Math.floor(colorIndex % 256) / 255];
-            for (var i = 0; i < vertexSize; i++) {
-                //newPosition.push(positionArray[index*vertexSize + i]);
-                newPosition[counter] = positionArray[index * vertexSize + i];
-                newColor[counter] = color[i];
-                counter += 1;
+        if (this.probeMesh === null || this.prevSelectedId !== this.selectNode.index) {
+            if (this.probeMesh) {
+                this.probeMesh.delete();
+                this.probeMesh.clearData();
             }
+            var probeMesh = new CoreMesh('probeMesh');
+            var attribs = new WebGLArrayBufferAttribute();
+            var newPosition = new Float32Array(indices.length * vertexSize);
+            //let newPosition = [];
+            var newColor = new Float32Array(indices.length * vertexSize);
+            var vertexCount = 0;
+            var counter = 0;
+            //let start = performance.now();
+            var maxColors = 256 * 256 * 256;
+            for (var j = 0; j < indices.length; j++) {
+                var index = indices[j];
+                //let color = this.getColorFromIndex(Math.floor((vertexCount++)/primitiveSize) + 1);
+                var colorIndex = Math.floor((vertexCount++) / primitiveSize) + 1;
+                if (colorIndex >= maxColors)
+                    colorIndex = 1;
+                var color = [Math.floor((colorIndex / 256 / 256) % 256) / 255, (Math.floor((colorIndex / 256)) % 256) / 255, Math.floor(colorIndex % 256) / 255];
+                for (var i = 0; i < vertexSize; i++) {
+                    //newPosition.push(positionArray[index*vertexSize + i]);
+                    newPosition[counter] = positionArray[index * vertexSize + i];
+                    newColor[counter] = color[i];
+                    counter += 1;
+                }
+            }
+            //let end = performance.now();
+            //let bufferCreationTime = end - start;
+            //start = performance.now();
+            attribs.position = new WebGLArrayBuffer('probePos', BufferUsage.STATIC_DRAW, newPosition);
+            attribs.color = new WebGLArrayBuffer('probeColor', BufferUsage.STATIC_DRAW, newColor);
+            //end = performance.now();
+            //let bufferCopyTime = end - start;
+            probeMesh.attribs = attribs;
+            probeMesh.rendingMode = this.selectNode.mesh.subMeshes[submeshName].rendingMode;
+            this.probeMesh = probeMesh;
+            this.prevSelectedId = this.selectNode.index;
         }
-        var end = performance.now();
-        var bufferCreationTime = end - start;
-        start = performance.now();
-        attribs.position = new WebGLArrayBuffer('probePos', BufferUsage.STATIC_DRAW, newPosition);
-        attribs.color = new WebGLArrayBuffer('probeColor', BufferUsage.STATIC_DRAW, newColor);
-        end = performance.now();
-        var bufferCopyTime = end - start;
-        probeMesh.attribs = attribs;
-        probeMesh.rendingMode = this.selectNode.mesh.subMeshes[submeshName].rendingMode;
+        return { probeMesh: this.probeMesh, primitiveSize: primitiveSize };
+    };
+    Picker.prototype.getHitPrimitiveData = function (mouseData, probeMesh, primitiveId, primitiveSize) {
+        var primitivePos = null;
+        var indicesId = primitiveId * primitiveSize;
+        //get ray from camera
+        var cam = AppObjects.mouseControl.camControls;
+        var nearPoint = cam.unproject(__spread$1(mouseData.xyFromTop, [0]), create$1$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
+        var farPoint = cam.unproject(__spread$1(mouseData.xyFromTop, [1]), create$1$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
+        var transPrimitive = null;
+        var vertexSize = 3;
+        var newPosition = probeMesh.attribs.position.getDataArray;
+        var out = {};
+        if (primitiveSize == 3) {
+            primitivePos = new Triangle(fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]), fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize + 3], newPosition[primitiveId * vertexSize * primitiveSize + 4], newPosition[primitiveId * vertexSize * primitiveSize + 5]), fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize + 6], newPosition[primitiveId * vertexSize * primitiveSize + 7], newPosition[primitiveId * vertexSize * primitiveSize + 8]));
+            transPrimitive = primitivePos.transformCopy(this.selectNode.worldMatrix);
+            out = this.intersectTriangle(nearPoint, farPoint, transPrimitive);
+        }
+        else if (primitiveSize == 2) {
+            primitivePos = new Line(fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]), fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize + 3], newPosition[primitiveId * vertexSize * primitiveSize + 4], newPosition[primitiveId * vertexSize * primitiveSize + 5]));
+            transPrimitive = primitivePos.transformCopy(this.selectNode.worldMatrix);
+            out = this.intersectLine(nearPoint, farPoint, transPrimitive);
+        }
+        else if (primitiveSize == 1) {
+            primitivePos = new Point(fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]));
+            transPrimitive = primitivePos.transformCopy(this.selectNode.worldMatrix);
+            out = {
+                hitPoint: transPrimitive.v1,
+                nearPoint: transPrimitive.v1
+            };
+        }
+        return {
+            hitPoint: out.hitPoint,
+            nearPoint: out.nearPoint,
+            indicesId: indicesId,
+            primitivePos: primitivePos,
+            transPrimitive: transPrimitive
+        };
+    };
+    Picker.prototype.performProbing = function (mouseData) {
+        var mouse = [mouseData.xyFromTop[0], mouseData.height - mouseData.xyFromTop[1]];
+        var _a = this.getProbeMeshData(), probeMesh = _a.probeMesh, primitiveSize = _a.primitiveSize;
         this.renderer.stopRenderLoop();
         WebGLState.clear();
         if (this.renderer.camControl)
@@ -12744,93 +12795,38 @@ var Point = /** @class */ (function () {
         this.renderer.renderBufferDirect(probeMesh, this.selectNode.worldMatrix, this.pickShader);
         var pixelBuffer = this.renderer.readPixels(mouse[0], mouse[1]);
         this.renderer.renderTarget.unbind();
-        console.log("pixel buffer", pixelBuffer);
         var out = {};
         var primitiveId = ((pixelBuffer[0] << 16) | (pixelBuffer[1] << 8) | (pixelBuffer[2])) - 1;
         if (primitiveId < 0) {
-            console.error("Part Selected but prob failed to detect");
             probeMesh.delete();
             probeMesh.clearData();
-            newPosition = null;
-            newColor = null;
             probeMesh = null;
             this.renderer.startRenderLoop();
             return out;
         }
-        var primitivePos = null;
-        var indicesId = primitiveId * primitiveSize;
-        var v1Index = indices[indicesId];
-        //get ray from camera
-        var cam = AppObjects.mouseControl.camControls;
-        var nearPoint = cam.unproject(__spread$1(mouseData.xyFromTop, [0]), create$1$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
-        var farPoint = cam.unproject(__spread$1(mouseData.xyFromTop, [1]), create$1$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
-        var transPrimitive = null;
-        if (primitiveSize == 3) {
-            primitivePos = new Triangle(fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]), fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize + 3], newPosition[primitiveId * vertexSize * primitiveSize + 4], newPosition[primitiveId * vertexSize * primitiveSize + 5]), fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize + 6], newPosition[primitiveId * vertexSize * primitiveSize + 7], newPosition[primitiveId * vertexSize * primitiveSize + 8]));
-            console.log("using vertex ", primitivePos);
-            transPrimitive = primitivePos.transformCopy(this.selectNode.worldMatrix);
-            out = this.intersectTriangle(nearPoint, farPoint, transPrimitive);
-            //For testing only
-            var v2Index = indices[indicesId + 1];
-            var v3Index = indices[indicesId + 2];
-            var triangleFromIndices = new Triangle(fromValues$1$1(positionArray[v1Index * vertexSize], positionArray[v1Index * vertexSize + 1], positionArray[v1Index * vertexSize + 2]), fromValues$1$1(positionArray[v2Index * vertexSize], positionArray[v2Index * vertexSize + 1], positionArray[v2Index * vertexSize + 2]), fromValues$1$1(positionArray[v3Index * vertexSize], positionArray[v3Index * vertexSize + 1], positionArray[v3Index * vertexSize + 2]));
-            console.log("using indices ", triangleFromIndices);
-        }
-        else if (primitiveSize == 2) {
-            primitivePos = new Line(fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]), fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize + 3], newPosition[primitiveId * vertexSize * primitiveSize + 4], newPosition[primitiveId * vertexSize * primitiveSize + 5]));
-            console.log("using vertex ", primitivePos);
-            transPrimitive = primitivePos.transformCopy(this.selectNode.worldMatrix);
-            out = this.intersectLine(nearPoint, farPoint, transPrimitive);
-            //For testing only
-            var v2Index = indices[indicesId + 1];
-            var LineFromIndices = new Line(fromValues$1$1(positionArray[v1Index * vertexSize], positionArray[v1Index * vertexSize + 1], positionArray[v1Index * vertexSize + 2]), fromValues$1$1(positionArray[v2Index * vertexSize], positionArray[v2Index * vertexSize + 1], positionArray[v2Index * vertexSize + 2]));
-            console.log("using indices ", LineFromIndices);
-        }
-        else if (primitiveSize == 1) {
-            primitivePos = new Point(fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]));
-            console.log("using vertex ", primitivePos);
-            transPrimitive = primitivePos.transformCopy(this.selectNode.worldMatrix);
-            out = {
-                hitPoint: transPrimitive.v1,
-                nearPoint: transPrimitive.v1
-            };
-            //For testing only
-            var PointFromIndices = new Point(fromValues$1$1(positionArray[v1Index * vertexSize], positionArray[v1Index * vertexSize + 1], positionArray[v1Index * vertexSize + 2]));
-            console.log("using indices ", PointFromIndices);
-        }
-        //           // for testing
-        //   probeMesh.delete();
-        //   probeMesh.clearData();
-        //   console.log("probing finish")
-        //   return {}
+        var hitData = this.getHitPrimitiveData(mouseData, probeMesh, primitiveId, primitiveSize);
         //draw primitive for visualization
         var selectPrimitive = new CoreMesh('selectedPrimitive');
-        selectPrimitive.rendingMode = this.selectNode.mesh.subMeshes[submeshName].rendingMode;
+        selectPrimitive.rendingMode = this.selectNode.mesh.subMeshes['primitive_0'].rendingMode;
         var primAttrib = new WebGLArrayBufferAttribute();
-        primAttrib.position = new WebGLArrayBuffer('pos', BufferUsage.STATIC_DRAW, primitivePos.data());
+        primAttrib.position = new WebGLArrayBuffer('pos', BufferUsage.STATIC_DRAW, hitData.primitivePos.data());
         selectPrimitive.attribs = primAttrib;
         this.triangle = selectPrimitive;
         // //draw ray for testing
         // this.line= new LineMesh('ray',nearPoint,farPoint);
         this.renderer.startRenderLoop();
         var probeData = {
-            debugInfo: "Buffer creation: " + bufferCreationTime + " ms, BufferCopy: " + bufferCopyTime + " ms",
-            hitPoint: out ? out.hitPoint : null,
-            nearPoint: out ? out.nearPoint : null,
-            connectivityIndex: indicesId,
+            debugInfo: "Buffer ms",
+            hitPoint: hitData ? hitData.hitPoint : null,
+            nearPoint: hitData ? hitData.nearPoint : null,
+            connectivityIndex: hitData.indicesId,
             primitiveSize: primitiveSize,
             renderNodeId: this.selectNode ? this.selectNode.index : -1,
-            primitiveData: transPrimitive.data()
+            primitiveData: hitData.transPrimitive.data()
         };
-        probeMesh.delete();
-        probeMesh.clearData();
-        newPosition = null;
-        newColor = null;
-        probeMesh = null;
         return probeData;
     };
     Picker.prototype.probePart = function (nodes, mouseData) {
-        console.log("probing.........");
         var selectedPartId = this.pickPart(nodes, mouseData);
         this.selectNode = nodes[selectedPartId];
         if (this.triangle) {
@@ -12843,7 +12839,6 @@ var Point = /** @class */ (function () {
         }
         if (this.selectNode == undefined || null)
             return;
-        console.log('select node', this.selectNode);
         this.renderer.stopRenderLoop();
         var probeData = this.performProbing(mouseData);
         //let probeData = {}
@@ -12902,11 +12897,8 @@ var Point = /** @class */ (function () {
             var intersection = fromValues$1$1(out[0], out[1], out[2]);
             var nearPointWorld = this.projectToEdge(triangle.v1, triangle.v2, triangle.v3, intersection);
             sqrDist(intersection, nearPointWorld);
-            //alert("sqred error"+error)
-            console.log("original point", intersection);
-            console.log("Projected point", nearPointWorld);
             out = [nearPointWorld[0], nearPointWorld[1], nearPointWorld[2]];
-            out = __spread$1(intersection);
+            out = [intersection[0], intersection[1], intersection[2]];
         }
         var nearPt = this.findNearPoint(triangle.v1, triangle.v2, triangle.v3, fromValues$1$1(out[0], out[1], out[2]));
         var obj = {
@@ -12946,8 +12938,8 @@ var Point = /** @class */ (function () {
         var v2dist = sqrDist(line.v2, hitPoint);
         nearPoint = (v1dist < v2dist) ? line.v1 : line.v2;
         var obj = {
-            hitPoint: hitPoint,
-            nearPoint: nearPoint
+            hitPoint: [hitPoint[0], hitPoint[1], hitPoint[2]],
+            nearPoint: [nearPoint[0], nearPoint[1], nearPoint[2]]
         };
         return obj;
     };
