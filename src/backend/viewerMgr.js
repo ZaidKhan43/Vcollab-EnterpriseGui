@@ -95,7 +95,1936 @@ function __spread() {
     for (var ar = [], i = 0; i < arguments.length; i++)
         ar = ar.concat(__read(arguments[i]));
     return ar;
-}var version = "0.0.11";/*! *****************************************************************************
+}var version = "0.0.12";var Utility = /** @class */ (function () {
+    function Utility() {
+    }
+    Utility.create_UUID = function () {
+        var dt = new Date().getTime();
+        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = (dt + Math.random() * 16) % 16 | 0;
+            dt = Math.floor(dt / 16);
+            return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+        return uuid;
+    };
+    Utility.deepCopy = function (obj) {
+        var _this = this;
+        if (typeof obj !== 'object' || obj === null) {
+            return obj;
+        }
+        if (obj instanceof Array) {
+            return obj.reduce(function (arr, item, i) {
+                arr[i] = _this.deepCopy(item);
+                return arr;
+            }, []);
+        }
+        if (obj instanceof Object) {
+            return Object.keys(obj).reduce(function (newObj, key) {
+                newObj[key] = _this.deepCopy(obj[key]);
+                return newObj;
+            }, {});
+        }
+    };
+    Utility.downloadDataAsFile = function (data, filename, type) {
+        if (!type)
+            type = 'application/json';
+        // @ts-ignore
+        var blob = new Blob([JSON.stringify(data)], { type: type });
+        // @ts-ignore
+        var url = URL.createObjectURL(blob);
+        // Create a new anchor element
+        // @ts-ignore
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename || 'download';
+        a.click();
+        a.remove();
+    };
+    Utility.getURLParameterByName = function (URL, name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)", 'i'), results = regex.exec(URL);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    };
+    Utility.getPathFromUrl = function (url) {
+        return url.split(/[?#]/)[0];
+    };
+    return Utility;
+}());var orientation = {
+    VERTICAL: 0,
+    HORIZONTAL: 1,
+};
+var paletteType = {
+    CONTINUOUS: 0,
+    DISCRETE: 1
+};
+var valueType = {
+    CONTINUOUS: 0,
+    DISCRETE: 1
+};
+var valuePlacement = {
+    EDGE: 0,
+    MIDDLE: 1
+};
+var ticsPosition = {
+    NONE: 0,
+    INSIDE: 1,
+    OUTSIDE: 2,
+    ACROSS: 3,
+};
+var colorValueMode = {
+    BOUNDED: 0,
+    EXTENDED: 1,
+};
+var colorMap = {
+    PRESET1: [
+        [255, 0, 0],
+        [255, 78, 0],
+        [255, 156, 0],
+        [247, 227, 0],
+        [196, 255, 0],
+        [117, 255, 0],
+        [39, 255, 0],
+        [0, 255, 39],
+        [0, 255, 117],
+        [0, 255, 196],
+        [0, 227, 247],
+        [0, 156, 255],
+        [0, 78, 255],
+        [0, 0, 255],
+    ],
+    COLORS_2: [
+        [255, 0, 0],
+        [0, 0, 255],
+    ]
+};
+var probeMode = {
+    LABEL: 0,
+    SECTION: 1
+};
+var displayModes = {
+    DM_1: {
+        ID: "DM_1",
+        DISPLAYNAME: "Bounding Box",
+        DISPLAYORDER: 1
+    },
+    DM_2: {
+        ID: "DM_2",
+        DISPLAYNAME: "Point",
+        DISPLAYORDER: 2
+    },
+    DM_3: {
+        ID: "DM_3",
+        DISPLAYNAME: "Wireframe",
+        DISPLAYORDER: 3
+    },
+    DM_4: {
+        ID: "DM_4",
+        DISPLAYNAME: "Hidden Line",
+        DISPLAYORDER: 4
+    },
+    DM_5: {
+        ID: "DM_5",
+        DISPLAYNAME: "Shaded",
+        DISPLAYORDER: 5
+    },
+    DM_6: {
+        ID: "DM_6",
+        DISPLAYNAME: "Shaded Mesh",
+        DISPLAYORDER: 6
+    },
+    DM_7: {
+        ID: "DM_7",
+        DISPLAYNAME: "Transparent",
+        DISPLAYORDER: 7
+    }
+};
+var downloadMetricTypes = {
+    NONE: "NONE",
+    SIZE: "SIZE",
+    TIME: "TIME",
+};var ModelTree = /** @class */ (function () {
+    function ModelTree(treeMap, modelIds) {
+        this.models = treeMap;
+        this.rootNodeIds = modelIds;
+    }
+    ModelTree.prototype.getVisibleNodeIds = function () {
+        if (this.models) {
+            var visible = __spread(this.models.values()).filter(function (node) { return (node.children.length === 0 && node.customData.displayProps.visibility == true); });
+            return visible.map(function (node) { return node.id; });
+        }
+    };
+    ModelTree.prototype.getInvisibleNodeIds = function () {
+        if (this.models) {
+            var invisible = __spread(this.models.values()).filter(function (node) { return (node.children.length === 0 && node.customData.displayProps.visibility == false); });
+            return invisible.map(function (node) { return node.id; });
+        }
+    };
+    ModelTree.prototype.getPartNodeFromNodeIds = function (nodeIds) {
+        var _this = this;
+        var out = [];
+        if (this.models) {
+            nodeIds.forEach(function (nodeId) {
+                var selectedNode = _this.models.get(nodeId);
+                if (selectedNode)
+                    out.push(selectedNode);
+            });
+        }
+        //console.log(out);
+        return out;
+    };
+    ModelTree.prototype.getAllPartNodes = function () {
+        if (this.models) {
+            return __spread(this.models.values()).filter(function (node) { return node.children.length === 0; });
+        }
+    };
+    ModelTree.prototype.getRepresentationsFromParts = function (nodes) {
+        var out = [];
+        nodes.forEach(function (part) {
+            if (part.customData && part.customData.geometries) {
+                part.customData.geometries.forEach(function (geometry) {
+                    if (geometry.customData && geometry.customData.representations) {
+                        out.push.apply(out, __spread(geometry.customData.representations));
+                    }
+                });
+            }
+        });
+        return out;
+    };
+    ModelTree.prototype.getRenderNodeIdsFromNodeIds = function (nodeIds) {
+        var nodes = this.getPartNodeFromNodeIds(nodeIds);
+        var reps = this.getRepresentationsFromParts(nodes);
+        return reps.map(function (rep) { return rep.customData.node; });
+    };
+    ModelTree.prototype.getPartIdsFromRenderNodeIds = function (renderIds) {
+        var partIds = [];
+        __spread(this.models.values()).forEach(function (node) {
+            if (node.children.length === 0) {
+                if (node.customData && node.customData.geometries) {
+                    node.customData.geometries.forEach(function (geometry) {
+                        if (geometry.customData && geometry.customData.representations) {
+                            geometry.customData.representations.forEach(function (rep) {
+                                if (renderIds.includes(rep.customData.node)) {
+                                    partIds.push(node.id);
+                                }
+                            });
+                        }
+                    });
+                }
+            }
+        });
+        return partIds;
+    };
+    ModelTree.prototype.setVisibility = function (nodes, toShow) {
+        var _this = this;
+        nodes.forEach(function (node) {
+            var curNode = __assign({}, _this.models.get(node.id));
+            curNode.customData.displayProps.visibility = toShow;
+            _this.models.set(curNode.id, curNode);
+        });
+    };
+    return ModelTree;
+}());
+var ModelTreeBuilder = /** @class */ (function () {
+    function ModelTreeBuilder(_mcax) {
+        this.mcax = _mcax;
+        this.tree = new Map();
+    }
+    ModelTreeBuilder.prototype.build = function () {
+        var rootNodeIds = this.processModels(Utility.deepCopy(this.mcax.models));
+        return new ModelTree(this.tree, rootNodeIds);
+    };
+    ModelTreeBuilder.prototype.processModels = function (models) {
+        var _this = this;
+        var modelIds = [];
+        if (models && models instanceof Array && models.length > 0) {
+            var filteredModels = models.filter(this.filter);
+            for (var j = 0; j < filteredModels.length; j++) {
+                var model = filteredModels[j];
+                var children = [];
+                if (model.components) {
+                    var filteredComponents = model.components.filter(function (item) { return _this.filter(_this.mcax.components[item]); });
+                    for (var i = 0, l = filteredComponents.length; i < l; i++) {
+                        var childID = this.buildComponentsHierachy("model_" + j, filteredComponents[i], this.mcax.components);
+                        children.push(childID);
+                    }
+                }
+                var name = model.name || "model_" + j;
+                var tempModel = {
+                    //name,
+                    id: "model_" + j,
+                    pid: null,
+                    children: children,
+                    customData: model,
+                    title: name,
+                    attributes: model.attributes
+                };
+                this.tree.set(tempModel.id, tempModel);
+                modelIds.push(tempModel.id);
+            }
+        }
+        return modelIds;
+    };
+    ModelTreeBuilder.prototype.buildComponentsHierachy = function (pid, componentId, allComponents) {
+        var _this = this;
+        var component = JSON.parse(JSON.stringify(this.mcax.components[componentId]));
+        var children = [];
+        if (component.geometries) {
+            //children = this.processGeometries(component.geometries);
+            component.geometries = this.processGeometries(component.geometries);
+            component.displayProps = {
+                displayId: displayModes.DM_1.ID,
+                hiddenlineEnabled: false,
+                transparency: 0.0,
+                useTexture: false,
+                isHighlighted: false,
+                visibility: component.display
+            };
+        }
+        if (component.children) {
+            var filteredChildren = component.children.filter(function (item) { return _this.filter(allComponents[item]); });
+            for (var i = 0, l = filteredChildren.length; i < l; i++) {
+                var compo = this.buildComponentsHierachy("component_" + componentId, filteredChildren[i], allComponents);
+                children.push(compo);
+            }
+        }
+        var name = component.name || "component_" + componentId;
+        var tempComponent = {
+            //name,
+            id: "component_" + componentId,
+            pid: pid,
+            children: children,
+            customData: component,
+            title: name,
+            attributes: component.attributes
+        };
+        this.tree.set(tempComponent.id, tempComponent);
+        return tempComponent.id;
+    };
+    ModelTreeBuilder.prototype.buildChildHierachy = function (pid, childId, allmodels, allComponents) {
+        var _this = this;
+        var model = JSON.parse(JSON.stringify(allmodels[childId]));
+        var children = [];
+        if (model.components) {
+            var filteredComponents = model.components.filter(function (item) { return _this.filter(allComponents[item]); });
+            for (var i = 0, l = filteredComponents.length; i < l; i++) {
+                var child = this.buildComponentsHierachy("component_" + childId, filteredComponents[i], allComponents);
+                children.push(child);
+            }
+        }
+        if (model.children) {
+            var filteredChildren = model.children.filter(function (item) { return _this.filter(allmodels[item]); });
+            for (var i = 0, l = filteredChildren.length; i < l; i++) {
+                var child = this.buildChildHierachy("model_" + childId, filteredChildren[i], allmodels, allComponents);
+                children.push(child);
+            }
+        }
+        var name = model.name || "model_" + childId;
+        var tempModel = {
+            //name,
+            id: "model_" + childId,
+            pid: pid,
+            children: children,
+            customData: model,
+            title: name,
+            key: "model_" + childId,
+            attributes: model.attributes
+        };
+        return tempModel;
+    };
+    ModelTreeBuilder.prototype.processGeometries = function (geometryArray) {
+        var geometries = [];
+        if (geometryArray && geometryArray instanceof Array) {
+            for (var i = 0; i < geometryArray.length; i++) {
+                var geometryIndex = geometryArray[i];
+                var geometry = JSON.parse(JSON.stringify(this.mcax.geometries[geometryIndex]));
+                if (geometry.representations)
+                    geometry.representations = this.processRepresentation(geometry.representations, geometryIndex);
+                var name = geometry.name || "geometry_" + geometryIndex;
+                var tempGeometry = {
+                    name: name,
+                    id: "geometry_" + geometryIndex,
+                    customData: geometry
+                };
+                geometries.push(tempGeometry);
+            }
+        }
+        return geometries;
+    };
+    ModelTreeBuilder.prototype.processRepresentation = function (representationArray, geometryIndex) {
+        var representations = [];
+        if (representationArray && representationArray instanceof Array) {
+            for (var i = 0; i < representationArray.length; i++) {
+                var representationIndex = representationArray[i];
+                var representation = JSON.parse(JSON.stringify(this.mcax.representations[representationIndex]));
+                var name = representation.name || "representation_" + representationIndex;
+                var tempRepresentation = {
+                    name: name,
+                    id: "representation_" + representationIndex,
+                    geometryIndex: geometryIndex,
+                    customData: representation
+                };
+                representations.push(tempRepresentation);
+            }
+        }
+        return representations;
+    };
+    ModelTreeBuilder.prototype.filter = function (item) {
+        return item.active;
+    };
+    return ModelTreeBuilder;
+}());var URLObject = /** @class */ (function () {
+    function URLObject(_url) {
+        this.bufferViewLength = 0;
+        this.url = _url;
+        this.bufferViewOffset = 0;
+        this.bufferViewLength = 0;
+        this.bufferIndex = null;
+        this.bufferViewIndex = null;
+        this.accessorIndex = null;
+        this.meshIndex = null;
+        this.nodeIndex = null;
+    }
+    return URLObject;
+}());
+var GltfUrlExtractor = /** @class */ (function () {
+    function GltfUrlExtractor(_glftJSON) {
+        this.glftJSON = _glftJSON;
+    }
+    GltfUrlExtractor.prototype.getNodeURLs = function (nodeIndex) {
+        var urlObjArray = [];
+        if (nodeIndex !== null && nodeIndex !== undefined) {
+            var nodes = this.glftJSON.nodes;
+            if (nodeIndex < nodes.length) {
+                var meshIndex = nodes[nodeIndex].mesh;
+                urlObjArray = this.getMeshURLs(meshIndex);
+                urlObjArray.forEach(function (item) {
+                    item.nodeIndex = nodeIndex;
+                });
+            }
+        }
+        return urlObjArray;
+    };
+    GltfUrlExtractor.prototype.getMeshURLs = function (meshIndex) {
+        var _this = this;
+        var urlObjArray = [];
+        if (meshIndex !== null && meshIndex !== undefined) {
+            var meshes = this.glftJSON.meshes;
+            if (meshIndex < meshes.length) {
+                var mesh = meshes[meshIndex];
+                var accesstorIndices_1 = [];
+                mesh.primitives.forEach(function (primitive) {
+                    accesstorIndices_1.push(primitive.attributes.POSITION);
+                    accesstorIndices_1.push(primitive.indices);
+                });
+                accesstorIndices_1.forEach(function (accessorIndex) {
+                    var urlObj = _this.getAccessorURLs(accessorIndex);
+                    if (urlObj) {
+                        urlObj.meshIndex = meshIndex;
+                        urlObjArray.push(urlObj);
+                    }
+                });
+            }
+        }
+        return urlObjArray;
+    };
+    GltfUrlExtractor.prototype.getAccessorURLs = function (accessorIndex) {
+        var urlObj = null;
+        if (accessorIndex !== null && accessorIndex !== undefined) {
+            var accessors = this.glftJSON.accessors;
+            if (accessorIndex < accessors.length) {
+                var bufferViewIndex = accessors[accessorIndex].bufferView;
+                urlObj = this.getBufferViewURLs(bufferViewIndex);
+                urlObj.accessorIndex = accessorIndex;
+            }
+        }
+        return urlObj;
+    };
+    GltfUrlExtractor.prototype.getBufferViewURLs = function (bufferViewIndex) {
+        var urlObj = null;
+        if (bufferViewIndex !== null && bufferViewIndex !== undefined) {
+            var bufferViews = this.glftJSON.bufferViews;
+            if (bufferViewIndex < bufferViews.length) {
+                var bufferIndex = bufferViews[bufferViewIndex].buffer;
+                var offset = bufferViews[bufferViewIndex].byteOffset;
+                var length = bufferViews[bufferViewIndex].byteLength;
+                var url = this.getBufferURLs(bufferIndex);
+                if (url) {
+                    urlObj = new URLObject(url);
+                    urlObj.bufferViewOffset = offset || 0;
+                    urlObj.bufferViewLength = length || 0;
+                    urlObj.bufferViewIndex = bufferViewIndex;
+                    urlObj.bufferIndex = bufferIndex;
+                }
+            }
+        }
+        return urlObj;
+    };
+    GltfUrlExtractor.prototype.getBufferURLs = function (bufferIndex) {
+        var uri = null;
+        if (bufferIndex !== null && bufferIndex !== undefined) {
+            var buffers = this.glftJSON.buffers;
+            if (bufferIndex < buffers.length) {
+                var buffer = buffers[bufferIndex];
+                uri = buffer.uri;
+            }
+        }
+        return uri;
+    };
+    return GltfUrlExtractor;
+}());var statusIconType;
+(function (statusIconType) {
+    statusIconType[statusIconType["NONE"] = 0] = "NONE";
+    statusIconType[statusIconType["ERROR"] = 1] = "ERROR";
+    statusIconType[statusIconType["WARN"] = 2] = "WARN";
+    statusIconType[statusIconType["INFO"] = 3] = "INFO";
+    statusIconType[statusIconType["SUCCESS"] = 4] = "SUCCESS";
+})(statusIconType || (statusIconType = {}));
+var Logger = /** @class */ (function () {
+    function Logger() {
+    }
+    Logger.setExternalLogger = function (externalLogger) {
+        this.externalLogger = externalLogger;
+    };
+    Logger.setStatusBar = function (text, iconType) {
+        if (iconType === void 0) { iconType = statusIconType.INFO; }
+        if (this.externalLogger) {
+            this.externalLogger.setStatusBar(text, iconType);
+        }
+        else {
+            console.log(text);
+        }
+    };
+    Logger.clearStatusBar = function () {
+        if (this.externalLogger)
+            this.externalLogger.clearStatusBar();
+    };
+    Logger.externalLogger = null;
+    return Logger;
+}());var ProgressiveLoader = /** @class */ (function () {
+    function ProgressiveLoader(_mcax, _renderApp, _connector) {
+        this.mcax = _mcax;
+        this.renderApp = _renderApp;
+        this.connector = _connector;
+        this.gltfurlExtractor = new GltfUrlExtractor(_mcax.gltf);
+    }
+    //########################################################
+    ProgressiveLoader.prototype.showDefaultDisplay = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var representations_1, geometries;
+            var _this = this;
+            return __generator(this, function (_a) {
+                if (this.mcax && this.renderApp) {
+                    Logger.setStatusBar("Downloading mesh data...");
+                    representations_1 = [];
+                    geometries = this.getRenderableGeometries();
+                    geometries.forEach(function (e, gIndex) {
+                        var repre = _this.getRecursiveItems(e.item.representations, _this.mcax.representations);
+                        repre.forEach(function (r, rIndex) {
+                            if (r.item.display === true) {
+                                var repIndex = r.index[rIndex];
+                                var repObj = {
+                                    customData: r.item,
+                                    geometryIndex: e.index[gIndex],
+                                    id: "representation_" + repIndex,
+                                    name: r.item.name
+                                };
+                                representations_1.push(repObj);
+                            }
+                        });
+                    });
+                    this.loadSelectedRepresentations(representations_1)
+                        .then(function () {
+                        Logger.setStatusBar("Mesh data downloaded.");
+                        _this.renderApp.fitView();
+                        return (true);
+                    }).catch((function (error) {
+                        Logger.setStatusBar("Error occurred while loading mesh.", statusIconType.ERROR);
+                        throw new Error(error);
+                    })).finally(function () {
+                    });
+                }
+                else {
+                    throw new Error("Invalid mcax or renderApp object.");
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
+    ProgressiveLoader.prototype.getRenderableGeometries = function () {
+        var models = this.mcax.models;
+        if (models instanceof Array && models.length > 0) {
+            var filteredModels = models.filter(function (item) { return item.display; });
+            var componentIndexList = filteredModels.map(function (item) { return (item.components || []); }).flat();
+            var components = this.getRecursiveItems(componentIndexList, this.mcax.components);
+            var filteredcomponents = components.filter(function (e) { return e.item.display; });
+            var geometryIndexList = filteredcomponents.map(function (e) { return (e.item.geometries || []); }).flat();
+            var geometries = this.getRecursiveItems(geometryIndexList, this.mcax.geometries);
+            return geometries;
+        }
+    };
+    ProgressiveLoader.prototype.getRecursiveItems = function (indexList, items) {
+        var _this = this;
+        var itemsList = [];
+        if (indexList instanceof Array && indexList.length > 0) {
+            indexList.forEach(function (index) {
+                var item = items[index];
+                if (item.children && item.children.length > 0) {
+                    itemsList.push.apply(itemsList, __spread(_this.getRecursiveItems(item.children, items)));
+                }
+                else {
+                    itemsList.push({
+                        item: item,
+                        index: index
+                    });
+                }
+            });
+        }
+        return itemsList;
+    };
+    //########################################################
+    ProgressiveLoader.prototype.loadSelectedRepresentations = function (representations) {
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            if (representations && representations instanceof Array) {
+                var rep_map = new Map();
+                representations.forEach(function (rep) {
+                    var level = rep.customData.level;
+                    if (!(rep_map.get(level) instanceof Array))
+                        rep_map.set(level, []);
+                    (rep_map.get(level)).push(rep);
+                });
+                var levelKeys = __spread(rep_map.keys());
+                var sortedLevels_1 = levelKeys.sort(function (a, b) { return (a - b); });
+                var promises_1 = [];
+                Logger.setStatusBar("Downloading data...");
+                sortedLevels_1.forEach(function (level) {
+                    promises_1.push(_this.loadLevelNodes(rep_map.get(level), level, sortedLevels_1));
+                });
+                Promise.all(promises_1).finally(function () {
+                    Logger.setStatusBar("Data downloaded.");
+                    resolve(true);
+                });
+            }
+            else {
+                //console.log("Invalid representations");
+                reject("Invalid representations");
+            }
+        });
+    };
+    ProgressiveLoader.prototype.getRepresentationsByLevel = function (representationList, level) {
+        var scope = this;
+        var representations = [];
+        representationList.forEach(function (element) {
+            var geometry = scope.mcax.geometries[element.geometryIndex];
+            geometry.representations.forEach(function (repIndex) {
+                if (scope.mcax.representations[repIndex].level == level) {
+                    var repObj = {
+                        customData: scope.mcax.representations[repIndex],
+                        geometryIndex: element.geometryIndex,
+                        id: "representation_" + repIndex,
+                        name: scope.mcax.representations[repIndex].name
+                    };
+                    representations.push(repObj);
+                }
+            });
+        });
+        return representations;
+    };
+    ProgressiveLoader.prototype.loadLevelNodes = function (representationList, currentLevel, allselectedLevels) {
+        return __awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return __generator(this, function (_a) {
+                return [2 /*return*/, new Promise(function (resolve) { return __awaiter(_this, void 0, void 0, function () {
+                        var downloadRepreList_1, lod, nodeList, progression, i, level, representations, nodeList, representations_2, nodeList;
+                        var _this = this;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0:
+                                    if (!(representationList instanceof Array)) return [3 /*break*/, 12];
+                                    downloadRepreList_1 = [];
+                                    representationList.forEach(function (element) {
+                                        //let gltfNodeIndex =  element.node;
+                                        //if(element.customData)
+                                        var gltfNodeIndex = element.customData.node;
+                                        if (_this.renderApp.getIsRenderDataAvailable([gltfNodeIndex]))
+                                            _this.renderApp.setNodeVisibility([gltfNodeIndex], true);
+                                        else
+                                            downloadRepreList_1.push(element);
+                                    });
+                                    if (!(downloadRepreList_1.length > 0)) return [3 /*break*/, 11];
+                                    lod = this.mcax.lods.filter(function (item) { return (item.level === currentLevel); });
+                                    if (!(lod.length === 0)) return [3 /*break*/, 2];
+                                    nodeList = downloadRepreList_1.map(function (item) { return item.customData.node; });
+                                    this.renderApp.setNodeVisibility(nodeList, true);
+                                    return [4 /*yield*/, this.loadRespresentationNodes(downloadRepreList_1)];
+                                case 1:
+                                    _a.sent();
+                                    //this.renderApp.fitView();                    
+                                    resolve(true);
+                                    return [3 /*break*/, 10];
+                                case 2:
+                                    progression = lod[0].progression;
+                                    i = 0;
+                                    _a.label = 3;
+                                case 3:
+                                    if (!(i < progression.length)) return [3 /*break*/, 9];
+                                    level = progression[i];
+                                    representations = this.getRepresentationsByLevel(downloadRepreList_1, level);
+                                    if (!(level !== currentLevel)) return [3 /*break*/, 5];
+                                    return [4 /*yield*/, this.loadLevelNodes(representations, level, allselectedLevels)];
+                                case 4:
+                                    _a.sent();
+                                    return [3 /*break*/, 7];
+                                case 5:
+                                    nodeList = representations.map(function (item) { return item.customData.node; });
+                                    this.renderApp.setNodeVisibility(nodeList, true);
+                                    return [4 /*yield*/, this.loadRespresentationNodes(representations)];
+                                case 6:
+                                    _a.sent();
+                                    _a.label = 7;
+                                case 7:
+                                    if (i !== 0) {
+                                        if (!(allselectedLevels.includes(progression[i - 1]))) {
+                                            representations_2 = this.getRepresentationsByLevel(representationList, progression[i - 1]);
+                                            nodeList = representations_2.map(function (item) { return item.customData.node; });
+                                            this.renderApp.setNodeVisibility(nodeList, false);
+                                        }
+                                    }
+                                    _a.label = 8;
+                                case 8:
+                                    i++;
+                                    return [3 /*break*/, 3];
+                                case 9:
+                                    resolve(true);
+                                    _a.label = 10;
+                                case 10: return [3 /*break*/, 12];
+                                case 11:
+                                    //this.renderApp.fitView();     
+                                    resolve(true);
+                                    _a.label = 12;
+                                case 12: return [2 /*return*/];
+                            }
+                        });
+                    }); })];
+            });
+        });
+    };
+    ProgressiveLoader.prototype.loadRespresentationNodes = function (representationList) {
+        return __awaiter(this, void 0, void 0, function () {
+            var urlObjArray, clubbedURLObjList, maxLength, urlCount, counter;
+            var _this = this;
+            return __generator(this, function (_a) {
+                urlObjArray = [];
+                representationList.forEach(function (element) {
+                    //let gltfNodeIndex =  element.node;
+                    //if(element.customData)
+                    var gltfNodeIndex = element.customData.node;
+                    var urlOjb = _this.gltfurlExtractor.getNodeURLs(gltfNodeIndex);
+                    urlObjArray.push(urlOjb);
+                });
+                clubbedURLObjList = ManagedURLDownloader.processURLObject(urlObjArray);
+                maxLength = 0;
+                urlCount = 0;
+                clubbedURLObjList.forEach(function (item) {
+                    maxLength = (item.length > maxLength) ? item.length : maxLength;
+                    urlCount += item.length;
+                });
+                counter = 0;
+                return [2 /*return*/, new Promise(function (resolve) {
+                        for (var i = 0; i < maxLength; i++) {
+                            var _loop_1 = function (j) {
+                                if (i < clubbedURLObjList[j].length) {
+                                    var URLobj_1 = clubbedURLObjList[j][i];
+                                    //console.log(URLobj);                    
+                                    _this.connector.getArrayBuffer(URLobj_1.url)
+                                        .then(function (arrayBuffer) {
+                                        _this.splitandUpdateBuffer(URLobj_1, arrayBuffer);
+                                        counter += 1;
+                                        if (counter === urlCount) {
+                                            resolve(true);
+                                        }
+                                    });
+                                }
+                            };
+                            for (var j = 0; j < clubbedURLObjList.length; j++) {
+                                _loop_1(j);
+                            }
+                        }
+                    })];
+            });
+        });
+    };
+    ProgressiveLoader.prototype.splitandUpdateBuffer = function (URLobj, arrayBuffer) {
+        var _this = this;
+        var chunkstring = Utility.getURLParameterByName(URLobj.url, "chunks");
+        var chunks = chunkstring.split(",");
+        var offset = 0;
+        chunks.forEach(function (chunk, index) {
+            var length = parseInt(chunk.split('+')[1]);
+            _this.renderApp.replaceWEBGLBuffer(URLobj.nodes[index], arrayBuffer.slice(offset, offset + length));
+            offset = offset + length;
+        });
+    };
+    ProgressiveLoader.prototype.loadLevelNodes_working = function (representationList) {
+        var _this = this;
+        if (representationList instanceof Array) {
+            var urlObjArray_1 = [];
+            representationList.forEach(function (element) {
+                var gltfNodeIndex = element.customData.node;
+                if (_this.renderApp.getIsRenderDataAvailable([gltfNodeIndex]))
+                    _this.renderApp.setNodeVisibility([gltfNodeIndex], true);
+                else {
+                    var urlOjb = _this.gltfurlExtractor.getNodeURLs(gltfNodeIndex);
+                    urlObjArray_1.push(urlOjb);
+                }
+            });
+            var clubbedURLObjList = ManagedURLDownloader.processURLObject(urlObjArray_1);
+            var maxLength_1 = 0;
+            clubbedURLObjList.forEach(function (item) {
+                maxLength_1 = (item.length > maxLength_1) ? item.length : maxLength_1;
+            });
+            for (var i = 0; i < maxLength_1; i++) {
+                var _loop_2 = function (j) {
+                    if (i < clubbedURLObjList[j].length) {
+                        var URLobj_2 = clubbedURLObjList[j][i];
+                        //console.log(URLobj);                    
+                        this_1.connector.getArrayBuffer(URLobj_2.url)
+                            .then(function (arrayBuffer) {
+                            _this.splitandUpdateBuffer(URLobj_2, arrayBuffer);
+                        });
+                    }
+                };
+                var this_1 = this;
+                for (var j = 0; j < clubbedURLObjList.length; j++) {
+                    _loop_2(j);
+                }
+            }
+            /*
+            for (let i=0;i < clubbedURLObjList.length; i++)
+            {
+                for(let j=0;j < clubbedURLObjList[i].length; j++)
+                {
+                    let URLobj = clubbedURLObjList[i][j];
+                    //console.log(URLobj);
+                    this.connector.getArrayBuffer(URLobj.url)
+                    .then((arrayBuffer) => {
+                        this.splitandUpdateBuffer(URLobj,arrayBuffer)
+                    });
+                }
+            }
+            */
+        }
+    };
+    return ProgressiveLoader;
+}());
+var ManagedURLDownloader = /** @class */ (function () {
+    function ManagedURLDownloader() {
+    }
+    ManagedURLDownloader.processURLObject = function (urlObjArray) {
+        var _this = this;
+        var urlMap = new Map();
+        urlObjArray.forEach(function (item) {
+            item.forEach(function (urlObj) {
+                if (!(urlMap.get(urlObj.url)))
+                    urlMap.set(urlObj.url, []);
+                (urlMap.get(urlObj.url)).push(urlObj);
+            });
+        });
+        var uniqueURLs = __spread(urlMap.keys());
+        var clubbedURLObjList = [];
+        uniqueURLs.forEach(function (url) {
+            clubbedURLObjList.push(_this.URLMerger(url, urlMap.get(url)));
+        });
+        return clubbedURLObjList;
+    };
+    ManagedURLDownloader.URLMerger = function (_url, specificUrlObjArray) {
+        var groupedIndex = [];
+        var clubbedSize = 0;
+        var tempIndex = [];
+        for (var i = 0; i < specificUrlObjArray.length; i++) {
+            var size = specificUrlObjArray[i].bufferViewLength;
+            if (size >= ManagedURLDownloader.downloadSizeLimit) {
+                groupedIndex.push(i);
+            }
+            else {
+                if ((clubbedSize + size) >= ManagedURLDownloader.downloadSizeLimit) {
+                    tempIndex = [i];
+                    clubbedSize = size;
+                    groupedIndex.push(tempIndex);
+                }
+                else {
+                    if (tempIndex.length === 0)
+                        groupedIndex.push(tempIndex);
+                    tempIndex.push(i);
+                    clubbedSize += size;
+                }
+            }
+        }
+        //console.log(groupedIndex);
+        var clubbedURLObjects = [];
+        groupedIndex.forEach(function (item) {
+            var queryString = "";
+            var nodes = [];
+            if (item instanceof Array) {
+                var indexedItems = item.map(function (value, index) { return { index: index, value: value }; });
+                var sortedItems = indexedItems.sort(function (x, y) { return ((specificUrlObjArray[x.value].bufferViewOffset > specificUrlObjArray[y.value].bufferViewOffset) ? 1 : ((specificUrlObjArray[x.value].bufferViewOffset === specificUrlObjArray[y.value].bufferViewOffset) ? 0 : -1)); });
+                var sortedIndex = sortedItems.map(function (e) { return e.value; });
+                sortedIndex.forEach(function (i) {
+                    var offset = specificUrlObjArray[i].bufferViewOffset || 0;
+                    var length = specificUrlObjArray[i].bufferViewLength || 0;
+                    if (queryString === "")
+                        queryString = "chunks=" + offset + "%2B" + length; //%2B = +                 
+                    else
+                        queryString += "," + offset + "%2B" + length; //%2B = + 
+                    nodes.push(specificUrlObjArray[i]);
+                });
+            }
+            else {
+                var offset = specificUrlObjArray[item].bufferViewOffset || 0;
+                var length = specificUrlObjArray[item].bufferViewLength || 0;
+                queryString = "chunks=" + offset + "%2B" + length; //%2B = +        
+                nodes.push(specificUrlObjArray[item]);
+            }
+            var bufferURI = _url;
+            var url = (bufferURI.includes('?') ?
+                bufferURI + "&" + queryString :
+                bufferURI + "?" + queryString);
+            var objects = {
+                url: url,
+                nodes: nodes
+            };
+            clubbedURLObjects.push(objects);
+        });
+        return clubbedURLObjects;
+    };
+    ManagedURLDownloader.downloadSizeLimit = 4 * 1024 * 1024; // 4 MB
+    return ManagedURLDownloader;
+}());var basicType = Object.freeze({
+    ANALYTICAL: 1,
+    PRIMITIVES: 2,
+    CONNECTIONS: 3,
+    BOUNDING_BOX: 4,
+    FEATURE_EDGES: 5,
+    SIMPLIFIED: 6,
+    FULL_MESH: 7,
+    MESH_POINTS: 8
+});
+var powof2 = function (value) { return Math.pow(2, value); };
+var abstractType = Object.freeze({
+    BBOX: powof2(basicType.CONNECTIONS) + powof2(basicType.BOUNDING_BOX),
+    MESH: powof2(basicType.FULL_MESH) + powof2(basicType.PRIMITIVES),
+    WIREFRAME: powof2(basicType.FULL_MESH) + powof2(basicType.CONNECTIONS),
+    POINT: powof2(basicType.MESH_POINTS) + powof2(basicType.FULL_MESH)
+});var Default = {
+    LEGEND_ORIENTATION: orientation.VERTICAL,
+    LEGEND_PALETTE_TYPE: paletteType.CONTINUOUS,
+    LEGEND_VALUE_TYPE: valueType.CONTINUOUS,
+    LEGEND_VALUE_PLACEMENT: valuePlacement.EDGE,
+    LEGEND_TICS_POSITION: ticsPosition.ACROSS,
+    LEGEND_COLOR_VALUE_MODE: colorValueMode.BOUNDED,
+    LEGEND_COLOR_MAP: colorMap.PRESET1
+};/**
+ * Common utilities
+ * @module glMatrix
+ */
+var ARRAY_TYPE = typeof Float32Array !== 'undefined' ? Float32Array : Array;
+if (!Math.hypot) Math.hypot = function () {
+  var y = 0,
+      i = arguments.length;
+
+  while (i--) {
+    y += arguments[i] * arguments[i];
+  }
+
+  return Math.sqrt(y);
+};/**
+ * 4x4 Matrix<br>Format: column-major, when typed out it looks like row-major<br>The matrices are being post multiplied.
+ * @module mat4
+ */
+
+/**
+ * Creates a new identity mat4
+ *
+ * @returns {mat4} a new 4x4 matrix
+ */
+
+function create() {
+  var out = new ARRAY_TYPE(16);
+
+  if (ARRAY_TYPE != Float32Array) {
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 0;
+    out[4] = 0;
+    out[6] = 0;
+    out[7] = 0;
+    out[8] = 0;
+    out[9] = 0;
+    out[11] = 0;
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+  }
+
+  out[0] = 1;
+  out[5] = 1;
+  out[10] = 1;
+  out[15] = 1;
+  return out;
+}
+/**
+ * Creates a new mat4 initialized with values from an existing matrix
+ *
+ * @param {ReadonlyMat4} a matrix to clone
+ * @returns {mat4} a new 4x4 matrix
+ */
+
+function clone(a) {
+  var out = new ARRAY_TYPE(16);
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  out[3] = a[3];
+  out[4] = a[4];
+  out[5] = a[5];
+  out[6] = a[6];
+  out[7] = a[7];
+  out[8] = a[8];
+  out[9] = a[9];
+  out[10] = a[10];
+  out[11] = a[11];
+  out[12] = a[12];
+  out[13] = a[13];
+  out[14] = a[14];
+  out[15] = a[15];
+  return out;
+}/**
+ * 3 Dimensional Vector
+ * @module vec3
+ */
+
+/**
+ * Creates a new, empty vec3
+ *
+ * @returns {vec3} a new 3D vector
+ */
+
+function create$1() {
+  var out = new ARRAY_TYPE(3);
+
+  if (ARRAY_TYPE != Float32Array) {
+    out[0] = 0;
+    out[1] = 0;
+    out[2] = 0;
+  }
+
+  return out;
+}
+/**
+ * Creates a new vec3 initialized with the given values
+ *
+ * @param {Number} x X component
+ * @param {Number} y Y component
+ * @param {Number} z Z component
+ * @returns {vec3} a new 3D vector
+ */
+
+function fromValues(x, y, z) {
+  var out = new ARRAY_TYPE(3);
+  out[0] = x;
+  out[1] = y;
+  out[2] = z;
+  return out;
+}
+/**
+ * Subtracts vector b from vector a
+ *
+ * @param {vec3} out the receiving vector
+ * @param {ReadonlyVec3} a the first operand
+ * @param {ReadonlyVec3} b the second operand
+ * @returns {vec3} out
+ */
+
+function subtract(out, a, b) {
+  out[0] = a[0] - b[0];
+  out[1] = a[1] - b[1];
+  out[2] = a[2] - b[2];
+  return out;
+}
+/**
+ * Calculates the squared length of a vec3
+ *
+ * @param {ReadonlyVec3} a vector to calculate squared length of
+ * @returns {Number} squared length of a
+ */
+
+function squaredLength(a) {
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+  return x * x + y * y + z * z;
+}
+/**
+ * Normalize a vec3
+ *
+ * @param {vec3} out the receiving vector
+ * @param {ReadonlyVec3} a vector to normalize
+ * @returns {vec3} out
+ */
+
+function normalize(out, a) {
+  var x = a[0];
+  var y = a[1];
+  var z = a[2];
+  var len = x * x + y * y + z * z;
+
+  if (len > 0) {
+    //TODO: evaluate use of glm_invsqrt here?
+    len = 1 / Math.sqrt(len);
+  }
+
+  out[0] = a[0] * len;
+  out[1] = a[1] * len;
+  out[2] = a[2] * len;
+  return out;
+}
+/**
+ * Calculates the dot product of two vec3's
+ *
+ * @param {ReadonlyVec3} a the first operand
+ * @param {ReadonlyVec3} b the second operand
+ * @returns {Number} dot product of a and b
+ */
+
+function dot(a, b) {
+  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+/**
+ * Computes the cross product of two vec3's
+ *
+ * @param {vec3} out the receiving vector
+ * @param {ReadonlyVec3} a the first operand
+ * @param {ReadonlyVec3} b the second operand
+ * @returns {vec3} out
+ */
+
+function cross(out, a, b) {
+  var ax = a[0],
+      ay = a[1],
+      az = a[2];
+  var bx = b[0],
+      by = b[1],
+      bz = b[2];
+  out[0] = ay * bz - az * by;
+  out[1] = az * bx - ax * bz;
+  out[2] = ax * by - ay * bx;
+  return out;
+}
+/**
+ * Alias for {@link vec3.subtract}
+ * @function
+ */
+
+var sub = subtract;
+/**
+ * Alias for {@link vec3.squaredLength}
+ * @function
+ */
+
+var sqrLen = squaredLength;
+/**
+ * Perform some operation over an array of vec3s.
+ *
+ * @param {Array} a the array of vectors to iterate over
+ * @param {Number} stride Number of elements between the start of each vec3. If 0 assumes tightly packed
+ * @param {Number} offset Number of elements to skip at the beginning of the array
+ * @param {Number} count Number of vec3s to iterate over. If 0 iterates over entire array
+ * @param {Function} fn Function to call for each vector in the array
+ * @param {Object} [arg] additional argument to pass to fn
+ * @returns {Array} a
+ * @function
+ */
+
+(function () {
+  var vec = create$1();
+  return function (a, stride, offset, count, fn, arg) {
+    var i, l;
+
+    if (!stride) {
+      stride = 3;
+    }
+
+    if (!offset) {
+      offset = 0;
+    }
+
+    if (count) {
+      l = Math.min(count * stride + offset, a.length);
+    } else {
+      l = a.length;
+    }
+
+    for (i = offset; i < l; i += stride) {
+      vec[0] = a[i];
+      vec[1] = a[i + 1];
+      vec[2] = a[i + 2];
+      fn(vec, vec, arg);
+      a[i] = vec[0];
+      a[i + 1] = vec[1];
+      a[i + 2] = vec[2];
+    }
+
+    return a;
+  };
+}());var Legend = /** @class */ (function () {
+    function Legend(id) {
+        this.id = id;
+        this.orientation = Default.LEGEND_ORIENTATION;
+        this.paletteType = Default.LEGEND_PALETTE_TYPE;
+        this.valueType = Default.LEGEND_VALUE_TYPE;
+        this.valuePlacement = Default.LEGEND_VALUE_PLACEMENT;
+        this.ticsPosition = Default.LEGEND_TICS_POSITION;
+        this.colorValueMode = Default.LEGEND_COLOR_VALUE_MODE;
+        this.colorMap = Default.LEGEND_COLOR_MAP;
+        this.isUserCustomDefinedValue = false;
+        this.userDefinedValues = [];
+        this.min = null;
+        this.max = null;
+    }
+    Legend.prototype.setMinMAX = function (min, max) {
+        this.min = min;
+        this.max = max;
+    };
+    Legend.prototype.getDisplayData = function () {
+        var range = this.getRange();
+        var data = {
+            colors: this.colorMap,
+            paletteType: this.paletteType,
+            range: range,
+        };
+        return data;
+    };
+    Legend.prototype.getNewColorSet = function (newSize, inColorArray) {
+        var outColorArray = [];
+        if (inColorArray.length < 2)
+            return outColorArray;
+        if (newSize <= 0)
+            return outColorArray;
+        var iOldColorSize = inColorArray.length; //size of input
+        if (newSize == iOldColorSize) {
+            outColorArray = __spread(inColorArray);
+            return outColorArray;
+        }
+        if (newSize == 1) {
+            if (inColorArray.length % 2 == 0) {
+                var idxStart = inColorArray.length / 2 - 1;
+                var color = create$1();
+                color[0] = (inColorArray[idxStart][0] + inColorArray[idxStart + 1][0]) * 0.5;
+                color[1] = (inColorArray[idxStart][1] + inColorArray[idxStart + 1][1]) * 0.5;
+                color[2] = (inColorArray[idxStart][2] + inColorArray[idxStart + 1][2]) * 0.5;
+                outColorArray.push(color);
+            }
+            else {
+                var idx = inColorArray.length * 0.5;
+                outColorArray.push(inColorArray[idx]);
+            }
+            return outColorArray;
+        }
+        var GapRatio = (iOldColorSize - 1) / (newSize - 1); //count for each size of input
+        //set first color as it is
+        outColorArray.push(inColorArray[0]);
+        var position = 0.0;
+        for (var i = 1; i < newSize; i++) {
+            position += GapRatio;
+            var intPart = parseInt(position.toString());
+            var fracPart = position - intPart;
+            var color1 = inColorArray[intPart];
+            var color2 = create$1();
+            if (intPart < iOldColorSize - 1)
+                color2 = inColorArray[intPart + 1];
+            else
+                color2 = fromValues(0, 0, 0);
+            var rIncr = (color2[0] - color1[0]) * fracPart;
+            var gIncr = (color2[1] - color1[1]) * fracPart;
+            var bIncr = (color2[2] - color1[2]) * fracPart;
+            var color = create$1();
+            color[0] = color1[0] + rIncr;
+            color[1] = color1[1] + gIncr;
+            color[2] = color1[2] + bIncr;
+            outColorArray.push(color);
+        }
+        return outColorArray;
+    };
+    Legend.prototype.createTexture = function (colorArray, textureSize, isDiscrete) {
+        var out = [];
+        if (isDiscrete) {
+            var band = Math.floor(textureSize / colorArray.length);
+            textureSize - band * colorArray.length;
+            for (var x = 0; x < textureSize; x++) {
+                var fract = x * colorArray.length / textureSize;
+                var i = Math.floor(fract);
+                colorArray[i][0];
+                colorArray[i][1];
+                colorArray[i][2];
+                out.push(colorArray[i]);
+            }
+        }
+        else {
+            out = this.getNewColorSet(textureSize, colorArray);
+        }
+        return out;
+    };
+    Legend.prototype.getTextureData = function () {
+        var input = __spread(this.colorMap);
+        var isDiscrete = this.paletteType == paletteType.DISCRETE;
+        var texture256Array = this.createTexture(input.reverse(), 256, isDiscrete);
+        var textureData = [];
+        texture256Array.forEach(function (color) {
+            textureData.push.apply(textureData, __spread(color));
+            //textureData.push(255);
+        });
+        return textureData;
+    };
+    Legend.prototype.getRange = function () {
+        var range = [];
+        var colorCount = this.colorMap.length;
+        var step = (this.max - this.min) / colorCount;
+        if (this.paletteType === paletteType.CONTINUOUS) {
+            step = (this.max - this.min) / (colorCount - 1);
+            colorCount = colorCount - 1;
+        }
+        for (var i = 0; i < colorCount + 1; i++) {
+            var val = this.min + (step * i);
+            range.push(val);
+        }
+        return range.reverse();
+    };
+    return Legend;
+}());var LegendManager = /** @class */ (function () {
+    function LegendManager() {
+        this.Legends = new Map();
+        this.defaultLegendsID = null;
+    }
+    LegendManager.prototype.createLegend = function () {
+        var id = Utility.create_UUID();
+        var legend = new Legend(id);
+        this.Legends.set(id, legend);
+        if (this.defaultLegendsID === null)
+            this.defaultLegendsID = id;
+        return id;
+    };
+    LegendManager.prototype.getLegend = function (id) {
+        if (id)
+            return this.Legends.get(id);
+        return this.Legends.get(this.defaultLegendsID);
+    };
+    return LegendManager;
+}());var CAEResult = /** @class */ (function () {
+    function CAEResult(_mcax, _renderApp, _connector, _legendManager) {
+        this.mcax = _mcax;
+        this.renderApp = _renderApp;
+        this.connector = _connector;
+        this.legendManager = _legendManager;
+        this.legendID = null;
+        this.result = null;
+        if (this.getIsCAEResultAvailable())
+            this.createResult();
+        this.appliedResultId = null;
+        this.appliedStepId = null;
+        this.appliedDerivedTypeId = null;
+        if (this.mcax.selection) {
+            if (this.mcax.selection.variableIndex != undefined && this.mcax.selection.variableIndex != null)
+                this.appliedResultId = this.mcax.selection.variableIndex;
+            if (this.mcax.selection.stepIndex != undefined && this.mcax.selection.stepIndex != null)
+                this.appliedStepId = this.mcax.selection.stepIndex;
+            if (this.mcax.selection.derivedTypeIndex != undefined && this.mcax.selection.derivedTypeIndex != null)
+                this.appliedDerivedTypeId = this.mcax.selection.derivedTypeIndex;
+            if (this.legendManager)
+                this.legendID = this.legendManager.createLegend();
+        }
+    }
+    CAEResult.prototype.getIsCAEResultAvailable = function () {
+        var variables = this.mcax.variables;
+        if (variables) {
+            var activeVariables = variables.filter(function (item) { return item.active; });
+            if (activeVariables.length > 0)
+                return true;
+        }
+        return false;
+    };
+    CAEResult.prototype.setDefaultDerived = function (variableTypeId, defaultValue) {
+        this.result.variableTypes[variableTypeId].defaultDerived = this.mcax.derivedTypes[defaultValue].generator;
+    };
+    CAEResult.prototype.createResult = function () {
+        var _this = this;
+        this.result = {
+            variables: {},
+            derivedTypes: {},
+            missingVariableSteps: {},
+            variableTypes: {},
+            stepVariables: {},
+            selection: {}
+        };
+        try {
+            this.result.selection = {
+                variableId: this.mcax.variables[this.mcax.selection.variableIndex].id,
+                stepId: this.mcax.steps[this.mcax.selection.stepIndex].id,
+                derivedTypeId: this.mcax.derivedTypes[this.mcax.selection.derivedTypeIndex].generator
+            };
+            this.mcax.variableTypes.forEach(function (variableType) {
+                if (variableType.active == true) {
+                    _this.result.variableTypes[variableType.id] = {
+                        name: variableType.name,
+                        defaultDerived: "",
+                        derivedTypeIds: variableType.derivedTypes.map(function (e) { return _this.mcax.derivedTypes[e].generator; })
+                    };
+                }
+            });
+            this.mcax.variables.forEach(function (variable) {
+                if (variable.active == true) {
+                    _this.result.variables[variable.id] = {
+                        name: variable.name,
+                        type: _this.mcax.variableTypes[variable.type].id,
+                        attributes: {}
+                    };
+                    _this.setDefaultDerived(_this.mcax.variableTypes[variable.type].id, variable.defaultDerived['colorplot']);
+                }
+            });
+            this.mcax.derivedTypes.forEach(function (derivedType) {
+                _this.result.derivedTypes[derivedType.generator] = {
+                    name: derivedType.name,
+                    generator: derivedType.generator
+                };
+            });
+            this.mcax.steps.forEach(function (step) {
+                if (step.active == true) {
+                    _this.result.stepVariables[step.id] = {
+                        name: step.name
+                    };
+                }
+            });
+            //missing steps
+            this.mcax.variables.forEach(function (variable) {
+                if (_this.mcax.steps.length !== variable.stepsAvailable.length) {
+                    var missingStepIds_1 = [];
+                    _this.mcax.steps.forEach(function (step, index) {
+                        if (!variable.stepsAvailable.find(function (sIndex) { return index == sIndex; })) {
+                            missingStepIds_1.push(step.id);
+                        }
+                    });
+                    _this.result.missingVariableSteps[variable.id] = missingStepIds_1;
+                }
+                else {
+                    _this.result.missingVariableSteps[variable.id] = [];
+                }
+            });
+            console.log(this.result);
+        }
+        catch (error) {
+            throw new Error(error);
+        }
+    };
+    CAEResult.prototype.getCAEResult = function () {
+        return this.result ? Object.freeze(this.result) : null;
+    };
+    CAEResult.prototype.getDisplayResult = function () {
+        return this.getCAEResult();
+        // let resultSet:any = {
+        //     resultsNameList : [],
+        //     stepsNameList : [],
+        //     derivedTypesNameList : [],
+        //     result : null,
+        //     step : null,
+        //     derivedType : null,
+        // };
+        // try{
+        //     let variables =  this.mcax.variables;
+        //     if(variables){                  
+        //         let resultObj = this.getResults();
+        //         let stepObj = this.getSteps(this.appliedResultIndex);
+        //         let derivedTypeObj = this.getDerivedTypes(this.appliedResultIndex);
+        //         resultSet.resultsNameList =resultObj.results;
+        //         resultSet.stepsNameList = stepObj.steps;
+        //         resultSet.derivedTypesNameList = derivedTypeObj.derivedTypes;
+        //         resultSet.result = resultObj.defaultValue;
+        //         resultSet.step = stepObj.defaultValue;
+        //         resultSet.derivedType = derivedTypeObj.defaultValue;           
+        //     }  
+        // } 
+        // catch(error){
+        //     throw new Error(error);
+        // }  
+        // return resultSet;        
+    };
+    CAEResult.prototype.getResults = function () {
+        // let variables = this.mcax.variables;
+        // if(variables){  
+        //     try{   
+        //         let CAEResults: any = {
+        //             results : [],
+        //             defaultValue : null
+        //         };
+        //         variables.forEach((element:any, index:number) => {
+        //             if(element.active === true){
+        //                 CAEResults.results.push({
+        //                     name : element.name,
+        //                     id : element.id,
+        //                     value : index
+        //                 });
+        //             }
+        //         });
+        //         CAEResults.defaultValue = (this.appliedResultIndex !== null ? this.appliedResultIndex : 0); 
+        //         return CAEResults;
+        //     }
+        //     catch(error){
+        //         throw new Error(error);
+        //     }            
+        // } 
+        // else
+        //     throw new Error("Invalid data")
+    };
+    CAEResult.prototype.getSteps = function (selectedResultIndex) {
+        // selectedResultIndex = selectedResultIndex || 0;  
+        // try{       
+        //     let oldStepIndex =this.appliedStepIndex;
+        //     let CAESteps:any = {
+        //         steps : [],
+        //         defaultValue : null
+        //     };
+        //     let steps = this.mcax.variables[ selectedResultIndex ].stepsAvailable;
+        //     if(steps && steps instanceof Array &&  this.mcax.steps instanceof Array)
+        //     {
+        //         steps.forEach(stepIndex => {
+        //             if (this.mcax.steps.length > stepIndex){
+        //                 CAESteps.steps.push({
+        //                     name :  this.mcax.steps[stepIndex].name,
+        //                     id :  this.mcax.steps[stepIndex].id,
+        //                     value : stepIndex
+        //                 });  
+        //             }
+        //         });
+        //     }
+        //     if(steps.includes(oldStepIndex))
+        //         CAESteps.defaultValue = oldStepIndex;
+        //     else if(CAESteps.steps.length > 0)
+        //         CAESteps.defaultValue =  CAESteps.steps[0].value;               
+        //         return CAESteps; 
+        // }
+        // catch(error){
+        //     throw new Error(error);
+        // }           
+    };
+    CAEResult.prototype.getDerivedTypes = function (selectedResultIndex) {
+        var _this = this;
+        selectedResultIndex = selectedResultIndex || 0;
+        try {
+            var CAEDerivedTypes_1 = {
+                derivedTypes: [],
+                defaultValue: null
+            };
+            var type = this.mcax.variables[selectedResultIndex].type;
+            var defaultDerivedIndex_1 = this.mcax.variables[selectedResultIndex].defaultDerived.colorplot;
+            var variableTypes = this.mcax.variableTypes[type];
+            var derivedTypes = variableTypes.derivedTypes;
+            var defaultValue_1 = null;
+            var oldDerivedIndex = this.mcax.appliedDerivedTypeIndex;
+            derivedTypes.forEach(function (derivedTypesIndex) {
+                if (_this.mcax.derivedTypes.length > derivedTypesIndex) {
+                    CAEDerivedTypes_1.derivedTypes.push({
+                        name: _this.mcax.derivedTypes[derivedTypesIndex].name,
+                        generator: _this.mcax.derivedTypes[derivedTypesIndex].generator,
+                        value: derivedTypesIndex
+                    });
+                    if (derivedTypesIndex === defaultDerivedIndex_1)
+                        defaultValue_1 = derivedTypesIndex;
+                }
+            });
+            if (derivedTypes.includes(oldDerivedIndex))
+                CAEDerivedTypes_1.defaultValue = oldDerivedIndex;
+            else if (defaultValue_1 !== null)
+                CAEDerivedTypes_1.defaultValue = defaultValue_1;
+            else if (CAEDerivedTypes_1.derivedTypes.length > 0)
+                CAEDerivedTypes_1.defaultValue = CAEDerivedTypes_1.derivedTypes[0].value;
+            return CAEDerivedTypes_1;
+        }
+        catch (error) {
+            throw new Error(error);
+        }
+    };
+    CAEResult.prototype.applyResult = function (variableId, stepId, derivedTypeId, productTree) {
+        var _this = this;
+        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+            var parts, resultName, stepName, derivedGenerator, textureCoordsURL, uri, uri_meta_info, textureArrayBuffer, textureMetaData, legend, min, max, error_1;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!this.getIsCAEResultAvailable())
+                            reject("No CAE Result available");
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 6, , 7]);
+                        parts = productTree.getAllPartNodes();
+                        parts.map(function (part) {
+                            part.customData.displayProps.useTexture = true;
+                        });
+                        resultName = this.result.variables[variableId].name;
+                        stepName = this.result.stepVariables[stepId].name;
+                        derivedGenerator = this.result.derivedTypes[derivedTypeId].generator;
+                        textureCoordsURL = this.mcax.gltf.buffers.filter(function (buffer) { return buffer.uri.includes('type=texcoords'); });
+                        this.appliedResultId = variableId;
+                        this.appliedStepId = stepId;
+                        this.appliedDerivedTypeId = derivedTypeId;
+                        if (!(textureCoordsURL && textureCoordsURL.length > 0)) return [3 /*break*/, 4];
+                        uri = textureCoordsURL[0].uri.replace("${variableIndex}", resultName);
+                        uri = uri.replace("${stepIndex}", stepName);
+                        uri = uri.replace("${derivedTypeIndex}", derivedGenerator);
+                        uri_meta_info = uri.replace("/extract/buffer", "/extract/buffermeta");
+                        Logger.setStatusBar("Downloading result buffers.");
+                        return [4 /*yield*/, this.connector.getArrayBuffer(uri)];
+                    case 2:
+                        textureArrayBuffer = _a.sent();
+                        return [4 /*yield*/, this.connector.getJsonData(uri_meta_info)];
+                    case 3:
+                        textureMetaData = _a.sent();
+                        Logger.setStatusBar("Result buffers downloaded.");
+                        this.renderApp.applyResultByData(textureCoordsURL[0].uri, textureArrayBuffer);
+                        legend = this.legendManager.getLegend(this.legendID);
+                        min = textureMetaData.range[0];
+                        max = textureMetaData.range[1];
+                        legend.setMinMAX(min, max);
+                        this.renderApp.setTextureData(legend.getTextureData());
+                        resolve(true);
+                        return [3 /*break*/, 5];
+                    case 4: throw new Error("Invalid texture Coords URL");
+                    case 5: return [3 /*break*/, 7];
+                    case 6:
+                        error_1 = _a.sent();
+                        throw new Error(error_1);
+                    case 7: return [2 /*return*/];
+                }
+            });
+        }); });
+    };
+    CAEResult.prototype.getLegendData = function () {
+        var legend = this.legendManager.getLegend(this.legendID);
+        var data = legend.getDisplayData();
+        return data;
+    };
+    return CAEResult;
+}());var GUIState = /** @class */ (function () {
+    function GUIState() {
+        this.planeOptions = new Map();
+    }
+    return GUIState;
+}());
+var SelectionMode;
+(function (SelectionMode) {
+    SelectionMode[SelectionMode["NONE"] = 0] = "NONE";
+    SelectionMode[SelectionMode["THREE_PT"] = 1] = "THREE_PT";
+    SelectionMode[SelectionMode["FACE"] = 2] = "FACE";
+})(SelectionMode || (SelectionMode = {}));
+var PlaneGUIState = /** @class */ (function () {
+    function PlaneGUIState() {
+        this.selectionMode = SelectionMode.NONE;
+        this.isPlaneEnabled = false;
+        this.isPlaneVisible = false;
+        this.sliderMinMax = [0, 0];
+        this.primarySliderValue = 0;
+        this.rotSliderUValue = 360;
+        this.rotSliderVValue = 360;
+        this.rotSliderNValue = 360;
+        this.delta = 0;
+        this.deltaRotU = 0;
+        this.deltaRotV = 0;
+        this.deltaRotN = 0;
+        this.transform = create();
+        this.initTransform = create();
+    }
+    return PlaneGUIState;
+}());
+var Section = /** @class */ (function () {
+    function Section(_renderApp, appState) {
+        this.renderApp = _renderApp;
+        this.appState = appState;
+        this.activePlaneId = -1;
+        this.events = this.renderApp.getEvents();
+        this.externalEventDispatcher = this.renderApp.getEventDispatcher();
+        this.registerEvents();
+        this.bbox = null;
+        this.guiState = new GUIState();
+        this.selectedPts = [];
+        this.selectionMode = SelectionMode.NONE;
+    }
+    Section.prototype.registerEvents = function () {
+        this.externalEventDispatcher.addEventListener(this.events.PROBE_FINISH, this.handleSelection.bind(this));
+        this.externalEventDispatcher.addEventListener(this.events.MODEL_LOADED, this.handleOnModelLoad.bind(this));
+    };
+    Section.prototype.handle3ptSelect = function (probeData) {
+        if (this.selectedPts.length > 0 && this.selectedPts[this.selectedPts.length - 1] == probeData.nearPoint) {
+            return;
+        }
+        else {
+            this.selectedPts.push(probeData.hitPoint);
+        }
+        if (this.selectedPts.length == 3) {
+            var activeTrans = clone(this.guiState.planeOptions.get(this.activePlaneId).transform);
+            this.planeFrom3pts(this.activePlaneId, this.selectedPts[0], this.selectedPts[1], this.selectedPts[2], activeTrans);
+            this.selectedPts = [];
+        }
+        Logger.setStatusBar("Probing from 3pt section");
+    };
+    Section.prototype.handleFaceSelect = function (probeData) {
+        if (probeData.primitiveSize == 3) {
+            var data = probeData.primitiveData;
+            this.selectedPts = [
+                [data[0], data[1], data[2]],
+                [data[3], data[4], data[5]],
+                [data[6], data[7], data[8]]
+            ];
+            var activeTrans = clone(this.guiState.planeOptions.get(this.activePlaneId).transform);
+            this.planeFrom3pts(this.activePlaneId, this.selectedPts[0], this.selectedPts[1], this.selectedPts[2], activeTrans);
+            this.selectedPts = [];
+            Logger.setStatusBar("Probing from face section");
+        }
+        else {
+            Logger.setStatusBar("Please select a face");
+        }
+    };
+    Section.prototype.handleSelection = function (e) {
+        var probeData = e.data;
+        if (probeData.hitPoint && this.appState.probeMode == probeMode.SECTION) {
+            if (this.selectionMode == SelectionMode.THREE_PT)
+                this.handle3ptSelect(probeData);
+            else if (this.selectionMode == SelectionMode.FACE)
+                this.handleFaceSelect(probeData);
+        }
+    };
+    Section.prototype.handleOnModelLoad = function (e) {
+        this.bbox = this.renderApp.getSceneBoundingBox(false);
+    };
+    Section.prototype.getSectionGUIData = function () {
+        return Utility.deepCopy(this.guiState);
+    };
+    Section.prototype.setSectionGUIData = function (guiState) {
+        this.guiState = guiState;
+    };
+    Section.prototype.addSectionPlane = function (planeId, transform, color) {
+        var newPlaneState = new PlaneGUIState();
+        newPlaneState.transform = clone(transform);
+        newPlaneState.initTransform = clone(transform);
+        this.guiState.planeOptions.set(planeId, newPlaneState);
+        this.renderApp.addSectionPlane(planeId, transform, color);
+    };
+    Section.prototype.deleteSectionPlane = function (planeId) {
+        this.guiState.planeOptions.delete(planeId);
+        this.renderApp.deleteSectionPlane(planeId);
+    };
+    Section.prototype.setSectionPlaneEquation = function (planeId, transform, initTransform) {
+        var curPlane = this.guiState.planeOptions.get(planeId);
+        if (curPlane) {
+            curPlane.transform = clone(transform);
+            curPlane.initTransform = initTransform ? clone(initTransform) : null;
+        }
+        this.renderApp.setSectionPlaneEquation(planeId, transform, initTransform);
+    };
+    Section.prototype.getSectionPlaneEquation = function (planeId) {
+        var curPlane = this.guiState.planeOptions.get(planeId);
+        var _a = this.renderApp.getSectionPlaneEquation(planeId), transform = _a.transform, initTransform = _a.initTransform;
+        if (curPlane) {
+            curPlane.transform = clone(transform);
+            curPlane.initTransform = initTransform ? clone(initTransform) : null;
+        }
+        return { transform: transform, initTransform: initTransform };
+    };
+    Section.prototype.setSelection = function (planeId, mode) {
+        this.appState.probeMode = probeMode.SECTION;
+        this.activePlaneId = planeId;
+        this.selectionMode = mode;
+        this.renderApp.setActiveSectionPlaneId(planeId);
+    };
+    Section.prototype.setPlaneState = function (planeId, params) {
+        //this.setSelection(planeId,params.selectionMode);
+        if (params.isPlaneEnabled) {
+            this.renderApp.enableClipPlane(planeId);
+        }
+        else {
+            this.renderApp.disableClipPlane(planeId);
+        }
+        if (params.isPlaneVisible) {
+            this.renderApp.showClipPlane(planeId);
+        }
+        else {
+            this.renderApp.hideClipPlane(planeId);
+        }
+        if (this.guiState.planeOptions.has(planeId)) {
+            this.guiState.planeOptions.set(planeId, params);
+        }
+    };
+    Section.prototype.invert = function (planeId) {
+        // let currentEqn:{eqn:number[],transform:glmatrix.mat4} = this.getSectionPlaneEquation(planeId);
+        // if(currentEqn == undefined)
+        // return;
+        // let {eqn,transform} = currentEqn;
+        // const invertedAxes = glmatrix.mat4.clone(transform);
+        // invertedAxes[8] = -invertedAxes[8]; invertedAxes[9] = -invertedAxes[9]; invertedAxes[10] = -invertedAxes[10];
+        // const invNormal = [-eqn[0],-eqn[1],-eqn[2]];
+        // this.setSectionPlaneEquation(planeId,[...invNormal ,-eqn[3]] as [number,number,number,number],invertedAxes);
+    };
+    Section.prototype.planeFrom3pts = function (planeId, p1, p2, p3, transform) {
+        var kEdge1 = create$1();
+        var kEdge2 = create$1();
+        sub(kEdge1, p2, p1);
+        sub(kEdge2, p3, p1);
+        var n = create$1();
+        cross(n, kEdge1, kEdge2);
+        normalize(n, n);
+        var d = -dot(n, p1);
+        if (sqrLen(n) > 0.0001) {
+            var eqn = [n[0], n[1], n[2], d];
+            this.setSectionPlaneEquation(planeId, transform);
+            console.log('plane eqn from 3pts', eqn);
+        }
+    };
+    Section.prototype.translatePlane = function (delta, deltaSlice, planeId) {
+        if (delta == 0 && deltaSlice == 0)
+            return;
+        //this.slicePlaneOffset[planeId] +=deltaSlice;
+        this.renderApp.translateSectionPlane(delta, deltaSlice, planeId);
+        // let currentEqn = this.getSectionPlaneEquation(planeId);
+        // if(currentEqn == undefined)
+        // return;
+        // currentEqn[3] += delta;
+        // this.renderApp.setSlicePlaneOffset(this.slicePlaneOffset[planeId],planeId);
+        // this.setSectionPlaneEquation(planeId,currentEqn)
+    };
+    Section.prototype.rotatePlane = function (deltaU, deltaV, deltaN, planeId) {
+        if (deltaU == 0 && deltaV == 0 && deltaN == 0)
+            return;
+        this.renderApp.rotateSectionPlane(deltaU, deltaV, deltaN, planeId);
+    };
+    Section.prototype.setBounds = function (planeId) {
+        var planeState = this.guiState.planeOptions.get(planeId);
+        if (planeState) {
+            planeState.sliderMinMax = [-this.bbox.getRadius(), this.bbox.getRadius()];
+            this.guiState.planeOptions.set(planeId, planeState);
+        }
+    };
+    return Section;
+}());var LabelManager = /** @class */ (function () {
+    function LabelManager(_renderApp, appState) {
+        this.renderApp = _renderApp;
+        this.appState = appState;
+        this.events = this.renderApp.getEvents();
+        this.externalEventDispatcher = this.renderApp.getEventDispatcher();
+        this.registerEvents();
+    }
+    LabelManager.prototype.registerEvents = function () {
+        //this.externalEventDispatcher.addEventListener(this.events.PROBE_FINISH,this.handleSelection.bind(this));
+    };
+    LabelManager.prototype.handleSelection = function (e) {
+        var probeData = e.data;
+        if (probeData.hitPoint && this.appState.probeMode == probeMode.LABEL) {
+            this.renderApp.addLabel(probeData.connectivityIndex.toString(), probeData.hitPoint, probeData.connectivityIndex.toString());
+            Logger.setStatusBar("probing for labels");
+        }
+    };
+    return LabelManager;
+}());var RepresentationType;
+(function (RepresentationType) {
+    RepresentationType[RepresentationType["BBOX"] = 24] = "BBOX";
+    RepresentationType[RepresentationType["MESH"] = 132] = "MESH";
+    RepresentationType[RepresentationType["WIREFRAME"] = 136] = "WIREFRAME";
+    RepresentationType[RepresentationType["POINTS"] = 384] = "POINTS";
+    RepresentationType[RepresentationType["HIGHLIGHT"] = 143345245] = "HIGHLIGHT"; // to be changed if we get from server
+})(RepresentationType || (RepresentationType = {}));var MCAXFilter = /** @class */ (function () {
+    function MCAXFilter(renderer, mcax) {
+        this.renderApp = renderer;
+        this.mcax = mcax;
+    }
+    MCAXFilter.prototype.getRenderableGeometries = function () {
+        var models = this.mcax.models;
+        if (models instanceof Array && models.length > 0) {
+            var filteredModels = models.filter(function (item) { return item.display; });
+            var componentIndexList = filteredModels.map(function (item) { return (item.components || []); }).flat();
+            var components = this.getRecursiveItems(componentIndexList, this.mcax.components);
+            var filteredcomponents = components.filter(function (e) { return e.item.display; });
+            var geometryIndexList = filteredcomponents.map(function (e) { return (e.item.geometries || []); }).flat();
+            var geometries = this.getRecursiveItems(geometryIndexList, this.mcax.geometries);
+            return geometries;
+        }
+    };
+    MCAXFilter.prototype.getRecursiveItems = function (indexList, items) {
+        var _this = this;
+        var itemsList = [];
+        if (indexList instanceof Array && indexList.length > 0) {
+            indexList.forEach(function (index) {
+                var item = items[index];
+                if (item.children && item.children.length > 0) {
+                    itemsList.push.apply(itemsList, __spread(_this.getRecursiveItems(item.children, items)));
+                }
+                else {
+                    itemsList.push({
+                        item: item,
+                        index: index
+                    });
+                }
+            });
+        }
+        return itemsList;
+    };
+    MCAXFilter.prototype.getVisibleGeometries = function (representationsId) {
+        var geometries = this.getRenderableGeometries();
+        var visibleGeometries = [];
+        representationsId.forEach(function (id, index) {
+            for (var i = 0; i < geometries.length; i++) {
+                var geo = geometries[i].item;
+                if (geo.representations && geo.representations.length > 0 && geo.representations.includes(id)) {
+                    if (visibleGeometries[index]) {
+                        visibleGeometries[index].name = geo.name;
+                        visibleGeometries[index].representations.push(id);
+                    }
+                    else {
+                        visibleGeometries[index] = {
+                            name: geo.name,
+                            representations: [id]
+                        };
+                    }
+                    break;
+                }
+            }
+        });
+        return visibleGeometries;
+    };
+    MCAXFilter.prototype.getRepresentationType = function (id) {
+        var curr_rep = this.mcax.representations[id];
+        if (curr_rep)
+            return RepresentationType[curr_rep.type];
+    };
+    return MCAXFilter;
+}());var AppState = /** @class */ (function () {
+    function AppState() {
+        this.probeMode = probeMode.LABEL;
+    }
+    return AppState;
+}());var viewerEvents;
+(function (viewerEvents) {
+    viewerEvents["MODEL_DOWNLOAD_STATUS_UPDATE"] = "MODEL_DOWNLOAD_STATUS_UPDATE";
+    viewerEvents["MODEL_PART_HIGHLIGHTED"] = "MODEL_PART_HIGHLIGHTED";
+})(viewerEvents || (viewerEvents = {}));
+var globalEvents;
+(function (globalEvents) {
+    globalEvents["ERROR"] = "ERROR";
+    globalEvents["INFO"] = "INFO";
+    globalEvents["WARN"] = "WARN";
+    globalEvents["LOG"] = "LOG";
+})(globalEvents || (globalEvents = {}));
+var getEventObject = function (type, viewerID, data) {
+    return {
+        type: type,
+        viewerID: viewerID,
+        data: data
+    };
+};/*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
 
 Permission to use, copy, modify, and/or distribute this software for any
@@ -226,7 +2155,7 @@ function __spread$1() {
             extension: '.bmp'
         },
     };
-})(AppConstants || (AppConstants = {}));var AppState = /** @class */ (function () {
+})(AppConstants || (AppConstants = {}));var AppState$1 = /** @class */ (function () {
     function AppState() {
     }
     AppState.DefaultDisplayMode = AppConstants.DisplayMode.SHADED;
@@ -400,7 +2329,7 @@ var errorCode = {
     downloadInProgress: 'Download in progress'
 };var WEBGLBuffer = /** @class */ (function () {
     function WEBGLBuffer(_uid, usage) {
-        this.GLContext = AppState.GLContext;
+        this.GLContext = AppState$1.GLContext;
         this.buffer = this.GLContext.createBuffer();
         this.usage = usage;
         this.uid = _uid;
@@ -687,6 +2616,33 @@ var WEBGLCOMPONENTTYPES = {
     WebGLArrayBufferAttribute.prototype.clearPromise = function () {
         this.promise = null;
     };
+    WebGLArrayBufferAttribute.prototype.clearData = function () {
+        if (this.position) {
+            this.position.clearData();
+            this.position = null;
+        }
+        if (this.normal) {
+            this.normal.clearData();
+            this.normal = null;
+        }
+        if (this.color) {
+            this.color.clearData();
+            this.color = null;
+        }
+        if (this.texCoord) {
+            this.texCoord.clearData();
+            this.texCoord = null;
+        }
+        if (this.CustomBuffers) {
+            for (var key in this.CustomBuffers) {
+                if (this.CustomBuffers.hasOwnProperty(key)) {
+                    var element = this.CustomBuffers[key];
+                    element.clearData();
+                    delete this.CustomBuffers[key];
+                }
+            }
+        }
+    };
     WebGLArrayBufferAttribute.prototype.getData = function (useTexture) {
         var scope = this;
         if (this.promise === null)
@@ -787,7 +2743,7 @@ var WEBGLCOMPONENTTYPES = {
  */
 // Configuration Constants
 var EPSILON = 0.000001;
-var ARRAY_TYPE = typeof Float32Array !== 'undefined' ? Float32Array : Array;
+var ARRAY_TYPE$1 = typeof Float32Array !== 'undefined' ? Float32Array : Array;
 if (!Math.hypot) Math.hypot = function () {
   var y = 0,
       i = arguments.length;
@@ -808,10 +2764,10 @@ if (!Math.hypot) Math.hypot = function () {
  * @returns {mat3} a new 3x3 matrix
  */
 
-function create() {
-  var out = new ARRAY_TYPE(9);
+function create$2() {
+  var out = new ARRAY_TYPE$1(9);
 
-  if (ARRAY_TYPE != Float32Array) {
+  if (ARRAY_TYPE$1 != Float32Array) {
     out[1] = 0;
     out[2] = 0;
     out[3] = 0;
@@ -835,10 +2791,10 @@ function create() {
  * @returns {mat4} a new 4x4 matrix
  */
 
-function create$1() {
-  var out = new ARRAY_TYPE(16);
+function create$1$1() {
+  var out = new ARRAY_TYPE$1(16);
 
-  if (ARRAY_TYPE != Float32Array) {
+  if (ARRAY_TYPE$1 != Float32Array) {
     out[1] = 0;
     out[2] = 0;
     out[3] = 0;
@@ -866,8 +2822,8 @@ function create$1() {
  * @returns {mat4} a new 4x4 matrix
  */
 
-function clone(a) {
-  var out = new ARRAY_TYPE(16);
+function clone$1(a) {
+  var out = new ARRAY_TYPE$1(16);
   out[0] = a[0];
   out[1] = a[1];
   out[2] = a[2];
@@ -908,8 +2864,8 @@ function clone(a) {
  * @returns {mat4} A new mat4
  */
 
-function fromValues(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
-  var out = new ARRAY_TYPE(16);
+function fromValues$1(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33) {
+  var out = new ARRAY_TYPE$1(16);
   out[0] = m00;
   out[1] = m01;
   out[2] = m02;
@@ -1510,7 +3466,7 @@ function getScaling(out, mat) {
  */
 
 function getRotation(out, mat) {
-  var scaling = new ARRAY_TYPE(3);
+  var scaling = new ARRAY_TYPE$1(3);
   getScaling(scaling, mat);
   var is1 = 1 / scaling[0];
   var is2 = 1 / scaling[1];
@@ -1707,10 +3663,10 @@ var mul = multiply;/**
  * @returns {vec3} a new 3D vector
  */
 
-function create$2() {
-  var out = new ARRAY_TYPE(3);
+function create$2$1() {
+  var out = new ARRAY_TYPE$1(3);
 
-  if (ARRAY_TYPE != Float32Array) {
+  if (ARRAY_TYPE$1 != Float32Array) {
     out[0] = 0;
     out[1] = 0;
     out[2] = 0;
@@ -1725,8 +3681,8 @@ function create$2() {
  * @returns {vec3} a new 3D vector
  */
 
-function clone$1(a) {
-  var out = new ARRAY_TYPE(3);
+function clone$1$1(a) {
+  var out = new ARRAY_TYPE$1(3);
   out[0] = a[0];
   out[1] = a[1];
   out[2] = a[2];
@@ -1754,8 +3710,8 @@ function length(a) {
  * @returns {vec3} a new 3D vector
  */
 
-function fromValues$1(x, y, z) {
-  var out = new ARRAY_TYPE(3);
+function fromValues$1$1(x, y, z) {
+  var out = new ARRAY_TYPE$1(3);
   out[0] = x;
   out[1] = y;
   out[2] = z;
@@ -1799,7 +3755,7 @@ function add(out, a, b) {
  * @returns {vec3} out
  */
 
-function subtract(out, a, b) {
+function subtract$1(out, a, b) {
   out[0] = a[0] - b[0];
   out[1] = a[1] - b[1];
   out[2] = a[2] - b[2];
@@ -1885,7 +3841,7 @@ function squaredDistance(a, b) {
  * @returns {Number} squared length of a
  */
 
-function squaredLength(a) {
+function squaredLength$1(a) {
   var x = a[0];
   var y = a[1];
   var z = a[2];
@@ -1913,7 +3869,7 @@ function negate(out, a) {
  * @returns {vec3} out
  */
 
-function normalize(out, a) {
+function normalize$1(out, a) {
   var x = a[0];
   var y = a[1];
   var z = a[2];
@@ -1937,7 +3893,7 @@ function normalize(out, a) {
  * @returns {Number} dot product of a and b
  */
 
-function dot(a, b) {
+function dot$1(a, b) {
   return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 /**
@@ -1949,7 +3905,7 @@ function dot(a, b) {
  * @returns {vec3} out
  */
 
-function cross(out, a, b) {
+function cross$1(out, a, b) {
   var ax = a[0],
       ay = a[1],
       az = a[2];
@@ -2030,7 +3986,7 @@ function transformQuat(out, a, q) {
  * @function
  */
 
-var sub = subtract;
+var sub$1 = subtract$1;
 /**
  * Alias for {@link vec3.distance}
  * @function
@@ -2054,7 +4010,7 @@ var len = length;
  * @function
  */
 
-var sqrLen = squaredLength;
+var sqrLen$1 = squaredLength$1;
 /**
  * Perform some operation over an array of vec3s.
  *
@@ -2069,7 +4025,7 @@ var sqrLen = squaredLength;
  */
 
 (function () {
-  var vec = create$2();
+  var vec = create$2$1();
   return function (a, stride, offset, count, fn, arg) {
     var i, l;
 
@@ -2111,9 +4067,9 @@ var sqrLen = squaredLength;
  */
 
 function create$3() {
-  var out = new ARRAY_TYPE(4);
+  var out = new ARRAY_TYPE$1(4);
 
-  if (ARRAY_TYPE != Float32Array) {
+  if (ARRAY_TYPE$1 != Float32Array) {
     out[0] = 0;
     out[1] = 0;
     out[2] = 0;
@@ -2133,7 +4089,7 @@ function create$3() {
  */
 
 function fromValues$2(x, y, z, w) {
-  var out = new ARRAY_TYPE(4);
+  var out = new ARRAY_TYPE$1(4);
   out[0] = x;
   out[1] = y;
   out[2] = z;
@@ -2164,7 +4120,7 @@ function scale$2(out, a, b) {
  * @returns {vec4} out
  */
 
-function normalize$1(out, a) {
+function normalize$1$1(out, a) {
   var x = a[0];
   var y = a[1];
   var z = a[2];
@@ -2259,9 +4215,9 @@ function transformMat4$1(out, a, m) {
  */
 
 function create$4() {
-  var out = new ARRAY_TYPE(4);
+  var out = new ARRAY_TYPE$1(4);
 
-  if (ARRAY_TYPE != Float32Array) {
+  if (ARRAY_TYPE$1 != Float32Array) {
     out[0] = 0;
     out[1] = 0;
     out[2] = 0;
@@ -2470,7 +4426,7 @@ var mul$1 = multiply$1;
  * @function
  */
 
-var normalize$2 = normalize$1;
+var normalize$2 = normalize$1$1;
 /**
  * Sets a quaternion to represent the shortest rotation from one
  * vector to another.
@@ -2484,30 +4440,30 @@ var normalize$2 = normalize$1;
  */
 
 (function () {
-  var tmpvec3 = create$2();
-  var xUnitVec3 = fromValues$1(1, 0, 0);
-  var yUnitVec3 = fromValues$1(0, 1, 0);
+  var tmpvec3 = create$2$1();
+  var xUnitVec3 = fromValues$1$1(1, 0, 0);
+  var yUnitVec3 = fromValues$1$1(0, 1, 0);
   return function (out, a, b) {
-    var dot$1 = dot(a, b);
+    var dot$1$1 = dot$1(a, b);
 
-    if (dot$1 < -0.999999) {
-      cross(tmpvec3, xUnitVec3, a);
-      if (len(tmpvec3) < 0.000001) cross(tmpvec3, yUnitVec3, a);
-      normalize(tmpvec3, tmpvec3);
+    if (dot$1$1 < -0.999999) {
+      cross$1(tmpvec3, xUnitVec3, a);
+      if (len(tmpvec3) < 0.000001) cross$1(tmpvec3, yUnitVec3, a);
+      normalize$1(tmpvec3, tmpvec3);
       setAxisAngle(out, tmpvec3, Math.PI);
       return out;
-    } else if (dot$1 > 0.999999) {
+    } else if (dot$1$1 > 0.999999) {
       out[0] = 0;
       out[1] = 0;
       out[2] = 0;
       out[3] = 1;
       return out;
     } else {
-      cross(tmpvec3, a, b);
+      cross$1(tmpvec3, a, b);
       out[0] = tmpvec3[0];
       out[1] = tmpvec3[1];
       out[2] = tmpvec3[2];
-      out[3] = 1 + dot$1;
+      out[3] = 1 + dot$1$1;
       return normalize$2(out, out);
     }
   };
@@ -2546,7 +4502,7 @@ var normalize$2 = normalize$1;
  */
 
 (function () {
-  var matr = create();
+  var matr = create$2();
   return function (out, view, right, up) {
     matr[0] = right[0];
     matr[3] = right[1];
@@ -2571,9 +4527,9 @@ var normalize$2 = normalize$1;
  */
 
 function create$5() {
-  var out = new ARRAY_TYPE(2);
+  var out = new ARRAY_TYPE$1(2);
 
-  if (ARRAY_TYPE != Float32Array) {
+  if (ARRAY_TYPE$1 != Float32Array) {
     out[0] = 0;
     out[1] = 0;
   }
@@ -2589,7 +4545,7 @@ function create$5() {
  */
 
 function fromValues$4(x, y) {
-  var out = new ARRAY_TYPE(2);
+  var out = new ARRAY_TYPE$1(2);
   out[0] = x;
   out[1] = y;
   return out;
@@ -2636,7 +4592,7 @@ function fromValues$4(x, y) {
 
     return a;
   };
-}());var Utility;
+}());var Utility$1;
 (function (Utility) {
     /**
      * Create a Random UUID/GUID.
@@ -3021,7 +4977,7 @@ function fromValues$4(x, y) {
         return leafNodes;
     };
     Utility.getAvgRot = function (matrices) {
-        var out = create$1();
+        var out = create$1$1();
         if (matrices.length > 0) {
             var q_1 = null;
             matrices.forEach(function (mat) {
@@ -3043,9 +4999,9 @@ function fromValues$4(x, y) {
         }
     };
     Utility.getAvgTrans = function (matrices) {
-        var out = create$2();
+        var out = create$2$1();
         if (matrices.length > 0) {
-            var trans_1 = create$2();
+            var trans_1 = create$2$1();
             matrices.forEach(function (m) {
                 getTranslation(trans_1, m);
                 add(out, out, trans_1);
@@ -3058,26 +5014,26 @@ function fromValues$4(x, y) {
         }
     };
     Utility.getPerpendicular = function (input) {
-        var n = create$2();
-        normalize(n, input);
-        var X = fromValues$1(1, 0, 0);
-        var Y = fromValues$1(0, 1, 0);
-        var Z = fromValues$1(0, 0, 1);
-        var dots = [dot(input, X), dot(input, Y), dot(input, Z)];
+        var n = create$2$1();
+        normalize$1(n, input);
+        var X = fromValues$1$1(1, 0, 0);
+        var Y = fromValues$1$1(0, 1, 0);
+        var Z = fromValues$1$1(0, 0, 1);
+        var dots = [dot$1(input, X), dot$1(input, Y), dot$1(input, Z)];
         var minIndex = Utility.getMinIndex(dots);
-        var i = create$2();
+        var i = create$2$1();
         var n1 = n[0];
         var n2 = n[1];
         var n3 = n[2];
         switch (minIndex) {
             case 0:
-                i = fromValues$1(1 - n1 * n1, -n1 * n2, -n1 * n3);
+                i = fromValues$1$1(1 - n1 * n1, -n1 * n2, -n1 * n3);
                 break;
             case 1:
-                i = fromValues$1(-n1 * n2, 1 - n2 * n2, -n2 * n3);
+                i = fromValues$1$1(-n1 * n2, 1 - n2 * n2, -n2 * n3);
                 break;
             case 2:
-                i = fromValues$1(-n1 * n3, -n2 * n3, 1 - n3 * n3);
+                i = fromValues$1$1(-n1 * n3, -n2 * n3, 1 - n3 * n3);
                 break;
         }
         return i;
@@ -3087,17 +5043,17 @@ function fromValues$4(x, y) {
     };
     Utility.getOrthoAxes = function (input) {
         var i = Utility.getPerpendicular(input);
-        var n = create$2();
-        var j = create$2();
-        normalize(n, input);
-        cross(j, n, i);
+        var n = create$2$1();
+        var j = create$2$1();
+        normalize$1(n, input);
+        cross$1(j, n, i);
         return {
             x: i,
             y: j
         };
     };
     Utility.formMat4 = function (x, y, z, t) {
-        var out = create$1();
+        var out = create$1$1();
         out[0] = x[0];
         out[1] = x[1];
         out[2] = x[2];
@@ -3113,23 +5069,23 @@ function fromValues$4(x, y) {
         return out;
     };
     Utility.getPlaneEqnFromTransfromMat = function (transform) {
-        var n = fromValues$1(transform[8], transform[9], transform[10]);
-        var d = dot(n, fromValues$1(transform[12], transform[13], transform[14]));
+        var n = fromValues$1$1(transform[8], transform[9], transform[10]);
+        var d = dot$1(n, fromValues$1$1(transform[12], transform[13], transform[14]));
         return [n[0], n[1], n[2], -d];
     };
-})(Utility || (Utility = {}));var Texture = /** @class */ (function () {
+})(Utility$1 || (Utility$1 = {}));var Texture = /** @class */ (function () {
     function Texture(name, textureType) {
         this.name = name;
-        if (AppState.GLContext) {
-            this.texture = AppState.GLContext.createTexture();
+        if (AppState$1.GLContext) {
+            this.texture = AppState$1.GLContext.createTexture();
             this.textureType = textureType | TextureType.TEXTURE_2D;
             this.level = 0;
-            this.internalformat = AppState.GLContext.RGB;
+            this.internalformat = AppState$1.GLContext.RGB;
             this.width = 0;
             this.height = 0;
             this.border = 0;
-            this.format = AppState.GLContext.RGB;
-            this.type = AppState.GLContext.UNSIGNED_BYTE;
+            this.format = AppState$1.GLContext.RGB;
+            this.type = AppState$1.GLContext.UNSIGNED_BYTE;
             this.textureData = null;
             this.index = Texture.textureCounter++;
             this.isBind = false;
@@ -3137,23 +5093,23 @@ function fromValues$4(x, y) {
         }
     }
     Texture.prototype.setTextureType = function (textureType) {
-        if (AppState.GLContext) {
+        if (AppState$1.GLContext) {
             this.textureType = textureType;
             return true;
         }
         return false;
     };
     Texture.prototype.bind = function () {
-        if (AppState.GLContext && this.isBind == false) {
-            var textureSlot = AppState.GLContext.TEXTURE0 + this.index;
-            AppState.GLContext.activeTexture(textureSlot);
-            AppState.GLContext.bindTexture(this.textureType, this.texture);
+        if (AppState$1.GLContext && this.isBind == false) {
+            var textureSlot = AppState$1.GLContext.TEXTURE0 + this.index;
+            AppState$1.GLContext.activeTexture(textureSlot);
+            AppState$1.GLContext.bindTexture(this.textureType, this.texture);
             this.isBind = true;
         }
     };
     Texture.prototype.unBind = function () {
-        if (AppState.GLContext && this.isBind == true) {
-            AppState.GLContext.bindTexture(this.textureType, null);
+        if (AppState$1.GLContext && this.isBind == true) {
+            AppState$1.GLContext.bindTexture(this.textureType, null);
             this.isBind = false;
         }
     };
@@ -3161,31 +5117,31 @@ function fromValues$4(x, y) {
         this.textureData = txtData;
     };
     Texture.prototype.setTextureDataFromImage = function (img) {
-        if (AppState.GLContext) {
+        if (AppState$1.GLContext) {
             this.setTextureData(img);
             //AppState.GLContext.bindTexture(this.textureType, this.texture);
             this.bind();
-            AppState.GLContext.texImage2D(this.textureType, this.level, this.internalformat, this.format, this.type, img);
+            AppState$1.GLContext.texImage2D(this.textureType, this.level, this.internalformat, this.format, this.type, img);
         }
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MAG_FILTER, AppState.GLContext.NEAREST);
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MIN_FILTER, AppState.GLContext.NEAREST);
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_S, AppState.GLContext.CLAMP_TO_EDGE);
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_T, AppState.GLContext.CLAMP_TO_EDGE);
+        AppState$1.GLContext.texParameteri(AppState$1.GLContext.TEXTURE_2D, AppState$1.GLContext.TEXTURE_MAG_FILTER, AppState$1.GLContext.NEAREST);
+        AppState$1.GLContext.texParameteri(AppState$1.GLContext.TEXTURE_2D, AppState$1.GLContext.TEXTURE_MIN_FILTER, AppState$1.GLContext.NEAREST);
+        AppState$1.GLContext.texParameteri(AppState$1.GLContext.TEXTURE_2D, AppState$1.GLContext.TEXTURE_WRAP_S, AppState$1.GLContext.CLAMP_TO_EDGE);
+        AppState$1.GLContext.texParameteri(AppState$1.GLContext.TEXTURE_2D, AppState$1.GLContext.TEXTURE_WRAP_T, AppState$1.GLContext.CLAMP_TO_EDGE);
         //AppState.GLContext.bindTexture(AppState.GLContext.TEXTURE_2D, null);
         this.unBind();
     };
     Texture.prototype.setTextureDataFromArrayBuffer = function (arrayBuffer) {
-        if (AppState.GLContext) {
+        if (AppState$1.GLContext) {
             var textureData = arrayBuffer;
             this.width = textureData.length / 3;
             this.height = 1;
             this.setTextureData(arrayBuffer);
             this.bind();
-            AppState.GLContext.texImage2D(this.textureType, this.level, this.internalformat, this.width, this.height, this.border, this.format, this.type, arrayBuffer);
-            AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MAG_FILTER, AppState.GLContext.NEAREST);
-            AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MIN_FILTER, AppState.GLContext.NEAREST);
-            AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_S, AppState.GLContext.CLAMP_TO_EDGE);
-            AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_T, AppState.GLContext.CLAMP_TO_EDGE);
+            AppState$1.GLContext.texImage2D(this.textureType, this.level, this.internalformat, this.width, this.height, this.border, this.format, this.type, arrayBuffer);
+            AppState$1.GLContext.texParameteri(AppState$1.GLContext.TEXTURE_2D, AppState$1.GLContext.TEXTURE_MAG_FILTER, AppState$1.GLContext.NEAREST);
+            AppState$1.GLContext.texParameteri(AppState$1.GLContext.TEXTURE_2D, AppState$1.GLContext.TEXTURE_MIN_FILTER, AppState$1.GLContext.NEAREST);
+            AppState$1.GLContext.texParameteri(AppState$1.GLContext.TEXTURE_2D, AppState$1.GLContext.TEXTURE_WRAP_S, AppState$1.GLContext.CLAMP_TO_EDGE);
+            AppState$1.GLContext.texParameteri(AppState$1.GLContext.TEXTURE_2D, AppState$1.GLContext.TEXTURE_WRAP_T, AppState$1.GLContext.CLAMP_TO_EDGE);
             //AppState.GLContext.bindTexture(AppState.GLContext.TEXTURE_2D, null);
             this.unBind();
         }
@@ -3194,13 +5150,13 @@ function fromValues$4(x, y) {
         return (value & (value - 1)) == 0;
     };
     Texture.prototype.setEmptyTexture = function () {
-        AppState.GLContext.texImage2D(this.textureType, this.level, this.internalformat, this.width, this.height, this.border, this.format, this.type, null);
+        AppState$1.GLContext.texImage2D(this.textureType, this.level, this.internalformat, this.width, this.height, this.border, this.format, this.type, null);
     };
     Texture.prototype.setFilterOptions = function (options) {
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MAG_FILTER, options.magFilter);
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_MIN_FILTER, options.minFilter);
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_S, options.wrap_s);
-        AppState.GLContext.texParameteri(AppState.GLContext.TEXTURE_2D, AppState.GLContext.TEXTURE_WRAP_T, options.wrap_t);
+        AppState$1.GLContext.texParameteri(AppState$1.GLContext.TEXTURE_2D, AppState$1.GLContext.TEXTURE_MAG_FILTER, options.magFilter);
+        AppState$1.GLContext.texParameteri(AppState$1.GLContext.TEXTURE_2D, AppState$1.GLContext.TEXTURE_MIN_FILTER, options.minFilter);
+        AppState$1.GLContext.texParameteri(AppState$1.GLContext.TEXTURE_2D, AppState$1.GLContext.TEXTURE_WRAP_S, options.wrap_s);
+        AppState$1.GLContext.texParameteri(AppState$1.GLContext.TEXTURE_2D, AppState$1.GLContext.TEXTURE_WRAP_T, options.wrap_t);
     };
     Texture.prototype.isDataAvailable = function () {
         if (this.textureData)
@@ -3238,7 +5194,7 @@ var TextureManager = /** @class */ (function () {
                     else if (textureJson.texture.bufferViewLoader) {
                         var promise = textureJson.texture.bufferViewLoader.getData();
                         promise.then(function (arrayBuffer) {
-                            var stringData = Utility.convertUint8ArrayToString(new Uint8Array(arrayBuffer));
+                            var stringData = Utility$1.convertUint8ArrayToString(new Uint8Array(arrayBuffer));
                             image_1.src = 'data:' + textureJson.texture.mimeType + ';base64,' + btoa(stringData);
                         })
                             .catch(function (error) {
@@ -3256,7 +5212,7 @@ var TextureManager = /** @class */ (function () {
         }
         return null;
     };
-    TextureManager.textureCache = new Utility.Registry();
+    TextureManager.textureCache = new Utility$1.Registry();
     return TextureManager;
 }());var Material = /** @class */ (function () {
     function Material(name) {
@@ -3352,7 +5308,7 @@ var MaterialManager = /** @class */ (function () {
         }
         return null;
     };
-    MaterialManager.materialCache = new Utility.Registry();
+    MaterialManager.materialCache = new Utility$1.Registry();
     return MaterialManager;
 }());var WEBGLBufferCache = /** @class */ (function () {
     function WEBGLBufferCache() {
@@ -3372,7 +5328,7 @@ var MaterialManager = /** @class */ (function () {
     WEBGLBufferCache.getAll = function () {
         return Object.values(WEBGLBufferCache.cache.objects);
     };
-    WEBGLBufferCache.cache = new Utility.Registry();
+    WEBGLBufferCache.cache = new Utility$1.Registry();
     return WEBGLBufferCache;
 }());var BoundingBox = /** @class */ (function () {
     function BoundingBox() {
@@ -3392,7 +5348,7 @@ var MaterialManager = /** @class */ (function () {
         return Math.sqrt(Math.pow((this.Max.x - this.Min.x), 2) + Math.pow((this.Max.y - this.Min.y), 2) + Math.pow((this.Max.z - this.Min.z), 2));
     };
     BoundingBox.prototype.getCenter = function () {
-        var center = create$2();
+        var center = create$2$1();
         center[0] = (this.Min.x + this.Max.x) / 2;
         center[1] = (this.Min.y + this.Max.y) / 2;
         center[2] = (this.Min.z + this.Max.z) / 2;
@@ -3423,8 +5379,8 @@ var MaterialManager = /** @class */ (function () {
     BoundingBox.prototype.multiply = function (matrix) {
         var minArray = [this.Min.x, this.Min.y, this.Min.z];
         var maxArray = [this.Max.x, this.Max.y, this.Max.z];
-        var min = create$2();
-        var max = create$2();
+        var min = create$2$1();
+        var max = create$2$1();
         transformMat4(min, minArray, matrix);
         transformMat4(max, maxArray, matrix);
         this.Min.x = min[0];
@@ -3475,6 +5431,12 @@ var MaterialManager = /** @class */ (function () {
             this.attribs.delete();
         if (this.indices)
             this.indices.delete();
+    };
+    CoreMesh.prototype.clearData = function () {
+        if (this.attribs)
+            this.attribs.clearData();
+        if (this.indices)
+            this.indices.clearData();
     };
     CoreMesh.prototype.isDataAvailable = function () {
         if (this.attribs && this.attribs.isDataAvailable(this.material ? this.material.useTexture : false) === false)
@@ -3740,7 +5702,7 @@ var Mesh = /** @class */ (function () {
         }
         return m;
     };
-    Mesh.bufferAttributeCache = new Utility.Registry(); // used in old  code 
+    Mesh.bufferAttributeCache = new Utility$1.Registry(); // used in old  code 
     return Mesh;
 }());var SceneNode = /** @class */ (function () {
     function SceneNode(_name) {
@@ -3748,8 +5710,8 @@ var Mesh = /** @class */ (function () {
         this.children = [];
         this.type = AppConstants.NodeType.NONE;
         this.subType = AppConstants.NodeSubType.NONE;
-        this.localMatrix = create$1();
-        this.worldMatrix = create$1();
+        this.localMatrix = create$1$1();
+        this.worldMatrix = create$1$1();
         this.parent = null;
         this.key = null;
         this.attributes = {};
@@ -3781,16 +5743,16 @@ var Mesh = /** @class */ (function () {
         configurable: true
     });
     SceneNode.prototype.getUpDir = function () {
-        return fromValues$1(this.worldMatrix[4], this.worldMatrix[5], this.worldMatrix[6]);
+        return fromValues$1$1(this.worldMatrix[4], this.worldMatrix[5], this.worldMatrix[6]);
     };
     SceneNode.prototype.getFrontDir = function () {
-        return fromValues$1(this.worldMatrix[8], this.worldMatrix[9], this.worldMatrix[10]);
+        return fromValues$1$1(this.worldMatrix[8], this.worldMatrix[9], this.worldMatrix[10]);
     };
     SceneNode.prototype.getLeftDir = function () {
-        return fromValues$1(this.worldMatrix[0], this.worldMatrix[1], this.worldMatrix[2]);
+        return fromValues$1$1(this.worldMatrix[0], this.worldMatrix[1], this.worldMatrix[2]);
     };
     SceneNode.prototype.getPosition = function () {
-        return fromValues$1(this.worldMatrix[12], this.worldMatrix[13], this.worldMatrix[14]);
+        return fromValues$1$1(this.worldMatrix[12], this.worldMatrix[13], this.worldMatrix[14]);
     };
     SceneNode.prototype.rotateX = function (angle) {
         rotateX(this.worldMatrix, this.worldMatrix, angle * 3.142 / 180);
@@ -3806,7 +5768,7 @@ var Mesh = /** @class */ (function () {
     };
     SceneNode.prototype.rotateOnWorldAxis = function (angleInRad, axis) {
         var translation = this.getPosition();
-        var scale = create$2();
+        var scale = create$2$1();
         getScaling(scale, this.worldMatrix);
         var _quat = create$4();
         setAxisAngle(_quat, axis, angleInRad);
@@ -3816,10 +5778,10 @@ var Mesh = /** @class */ (function () {
         fromRotationTranslationScale(this.worldMatrix, quat, translation, scale);
     };
     SceneNode.prototype.translate = function (x, y, z) {
-        translate(this.worldMatrix, this.worldMatrix, fromValues$1(x, y, z));
+        translate(this.worldMatrix, this.worldMatrix, fromValues$1$1(x, y, z));
     };
     SceneNode.prototype.scale = function (x, y, z) {
-        scale(this.worldMatrix, this.worldMatrix, fromValues$1(x, y, z));
+        scale(this.worldMatrix, this.worldMatrix, fromValues$1$1(x, y, z));
     };
     SceneNode.prototype.setPosition = function (vec) {
         this.worldMatrix[12] = vec[0];
@@ -3838,8 +5800,8 @@ var TransFormNode = /** @class */ (function (_super) {
         var _this = _super.call(this, _name) || this;
         _this.type = AppConstants.NodeType.TRANSFORM;
         _this.children = [];
-        _this.explodeTranslation = create$2();
-        _this.pickAndMoveMatrix = create$1();
+        _this.explodeTranslation = create$2$1();
+        _this.pickAndMoveMatrix = create$1$1();
         _this.initialMatrix = null;
         return _this;
     }
@@ -3864,14 +5826,14 @@ var ShapeNode = /** @class */ (function (_super) {
     __extends(ShapeNode, _super);
     function ShapeNode(_name) {
         var _this = _super.call(this, _name) || this;
-        _this.uid = Utility.getGUID();
+        _this.uid = Utility$1.getGUID();
         _this.type = AppConstants.NodeType.SHAPE;
         _this.children = null;
         _this.mesh = null;
-        _this.displayMode = AppState.DefaultDisplayMode;
+        _this.displayMode = AppState$1.DefaultDisplayMode;
         //this.colorPlot = AppState.DefaultColorPlotState;
-        _this.explodeTranslation = create$2();
-        _this.pickAndMoveMatrix = create$1();
+        _this.explodeTranslation = create$2$1();
+        _this.pickAndMoveMatrix = create$1$1();
         _this.initialMatrix = null;
         return _this;
     }
@@ -3922,8 +5884,8 @@ var ShapeNode = /** @class */ (function (_super) {
     };
     ShapeNode.prototype.getBBoxMinMax = function () {
         if (this.attributes && this.attributes.bbox) {
-            var min = clone$1(this.attributes.bbox.min);
-            var max = clone$1(this.attributes.bbox.max);
+            var min = clone$1$1(this.attributes.bbox.min);
+            var max = clone$1$1(this.attributes.bbox.max);
             transformMat4(min, min, this.worldMatrix);
             transformMat4(max, max, this.worldMatrix);
             return [min, max];
@@ -4002,7 +5964,7 @@ var ShapeNode = /** @class */ (function (_super) {
                 var TNode = new TransFormNode(node.name);
                 TNode.index = node.index;
                 TNode.attributes = node.attributes;
-                var localMatrix = create$1();
+                var localMatrix = create$1$1();
                 identity(localMatrix);
                 if (node.matrix) {
                     console.warn("Matrix transform is not implemented.");
@@ -4012,7 +5974,7 @@ var ShapeNode = /** @class */ (function (_super) {
                 if (node.rotation) {
                     var quad = fromValues$3(node.rotation[0], node.rotation[1], node.rotation[2], node.rotation[3]);
                     //let quad = glmatrix.quat.fromValues(0,0,0,1);
-                    var axis = create$2();
+                    var axis = create$2$1();
                     var angleInRad = getAxisAngle(axis, quad);
                     rotate(localMatrix, localMatrix, angleInRad, axis);
                     //TNode.rotate(angleInRad,axis);
@@ -4069,7 +6031,7 @@ var ShapeNode = /** @class */ (function (_super) {
         }
         if (topNode["type"] === AppConstants.NodeType.TRANSFORM) {
             var transformNode = topNode;
-            var temp = create$1();
+            var temp = create$1$1();
             if (topNode.localMatrix) {
                 if (transformNode.pickAndMoveMatrix) {
                     mul(temp, transformNode.pickAndMoveMatrix, topNode["localMatrix"]);
@@ -4204,7 +6166,7 @@ var Shader = /** @class */ (function () {
         this.attributeLocationMap = new Map();
         this.vertexSource = vShader;
         this.fragmentSource = fShader;
-        this.GLContext = AppState.GLContext;
+        this.GLContext = AppState$1.GLContext;
         this.shaderProgram = this.createShaderProgram();
         if (this.shaderProgram) {
             this.fillUniforms();
@@ -4571,7 +6533,7 @@ var Shader = /** @class */ (function () {
         _this.visible = false;
         _this.min = min;
         _this.max = max;
-        _this.uid = Utility.getGUID();
+        _this.uid = Utility$1.getGUID();
         _this.rendingMode = RenderMode.LINES;
         _this.createBoxMesh(min, max, precentOffset);
         _this.material = new Material(name);
@@ -4582,8 +6544,8 @@ var Shader = /** @class */ (function () {
         //Set offset
         var percent = precentOffset / 100;
         var offset = squaredDistance(min, max) * percent * percent;
-        sub(min, min, fromValues$1(offset, offset, offset));
-        add(max, max, fromValues$1(offset, offset, offset));
+        sub$1(min, min, fromValues$1$1(offset, offset, offset));
+        add(max, max, fromValues$1$1(offset, offset, offset));
         var vertices = new Float32Array([
             //back vertices
             min[0], min[1], min[2],
@@ -4627,8 +6589,8 @@ var Shader = /** @class */ (function () {
         this.max = max;
         var percent = precentOffset / 100;
         var offset = squaredDistance(min, max) * percent * percent;
-        sub(min, min, fromValues$1(offset, offset, offset));
-        add(max, max, fromValues$1(offset, offset, offset));
+        sub$1(min, min, fromValues$1$1(offset, offset, offset));
+        add(max, max, fromValues$1$1(offset, offset, offset));
         var vertices = new Float32Array([
             //back vertices
             min[0], min[1], min[2],
@@ -4653,8 +6615,8 @@ var Shader = /** @class */ (function () {
     BoxMesh.prototype.intersect = function (r, transform) {
         var tmin, tmax, tymin, tymax, tzmin, tzmax;
         //update mesh bounds
-        var boundMin = create$2();
-        var boundMax = create$2();
+        var boundMin = create$2$1();
+        var boundMax = create$2$1();
         transformMat4(boundMin, this.min, transform);
         transformMat4(boundMax, this.max, transform);
         var bounds = [boundMin, boundMax];
@@ -4679,17 +6641,17 @@ var Shader = /** @class */ (function () {
         return true;
     };
     BoxMesh.prototype.getCenter = function () {
-        var center = create$2();
+        var center = create$2$1();
         center[0] = (this.min[0] + this.max[0]) / 2;
         center[1] = (this.min[1] + this.max[1]) / 2;
         center[2] = (this.min[2] + this.max[2]) / 2;
         return center;
     };
     BoxMesh.prototype.getMin = function () {
-        return clone$1(this.min);
+        return clone$1$1(this.min);
     };
     BoxMesh.prototype.getMax = function () {
-        return clone$1(this.max);
+        return clone$1$1(this.max);
     };
     return BoxMesh;
 }(CoreMesh));function createCommonjsModule(fn, module) {
@@ -4734,7 +6696,7 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
     function Scene(_name, _key) {
         this.name = _name;
         if (_key != null)
-            this.key = Utility.getGUID();
+            this.key = Utility$1.getGUID();
         else
             this.key = _key;
         this.sceneGraph = new SceneGraph(_name);
@@ -4852,33 +6814,33 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         }
     };
     Scene.prototype.renderMesh_old = function (shader, mesh, node, renderPass) {
-        if (AppState.GLContext) {
+        if (AppState$1.GLContext) {
             if (mesh.name === 'Shaded') {
                 if (node.displayMode !== AppConstants.DisplayMode.WIREFRAME &&
                     node.displayMode !== AppConstants.DisplayMode.POINT) {
                     if (node.displayMode === AppConstants.DisplayMode.SHADEDMESH ||
                         node.displayMode === AppConstants.DisplayMode.HIDDENWIREFRAME) {
-                        AppState.GLContext.enable(AppState.GLContext.POLYGON_OFFSET_FILL); // to avoid over lapping of wiremesh
-                        AppState.GLContext.polygonOffset(1, 1);
+                        AppState$1.GLContext.enable(AppState$1.GLContext.POLYGON_OFFSET_FILL); // to avoid over lapping of wiremesh
+                        AppState$1.GLContext.polygonOffset(1, 1);
                         if (node.displayMode === AppConstants.DisplayMode.HIDDENWIREFRAME)
-                            AppState.GLContext.colorMask(false, false, false, false);
+                            AppState$1.GLContext.colorMask(false, false, false, false);
                         this.drawElements(shader, mesh, node, renderPass);
                         if (node.displayMode === AppConstants.DisplayMode.HIDDENWIREFRAME)
-                            AppState.GLContext.colorMask(true, true, true, true);
-                        AppState.GLContext.disable(AppState.GLContext.POLYGON_OFFSET_FILL);
+                            AppState$1.GLContext.colorMask(true, true, true, true);
+                        AppState$1.GLContext.disable(AppState$1.GLContext.POLYGON_OFFSET_FILL);
                     }
                     else if (node.displayMode === AppConstants.DisplayMode.TRANSPARENT) {
-                        AppState.GLContext.depthMask(false);
-                        AppState.GLContext.enable(AppState.GLContext.BLEND);
-                        AppState.GLContext.blendFunc(AppState.GLContext.ONE, AppState.GLContext.ONE_MINUS_SRC_ALPHA);
+                        AppState$1.GLContext.depthMask(false);
+                        AppState$1.GLContext.enable(AppState$1.GLContext.BLEND);
+                        AppState$1.GLContext.blendFunc(AppState$1.GLContext.ONE, AppState$1.GLContext.ONE_MINUS_SRC_ALPHA);
                         //shader.setUniformUseTransparency(true);
                         shader.setBool(uniforms.uUseTransparency, true);
                         //shader.setUniformTransparencyFactor(0.07);
                         shader.setFloat(uniforms.uTransparencyFactor, 0.07);
                         this.drawElements(shader, mesh, node, renderPass);
                         shader.setBool(uniforms.uUseTransparency, false);
-                        AppState.GLContext.disable(AppState.GLContext.BLEND);
-                        AppState.GLContext.depthMask(true);
+                        AppState$1.GLContext.disable(AppState$1.GLContext.BLEND);
+                        AppState$1.GLContext.depthMask(true);
                     }
                     else
                         this.drawElements(shader, mesh, node, renderPass);
@@ -4929,7 +6891,7 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         mesh.indices.bind();
         shader.setFloat(uniforms.uDisplayMode, 0.0);
         shader.setMat4f(uniforms.uModelViewMatrix, node.worldMatrix);
-        var normalMatrix = create$1();
+        var normalMatrix = create$1$1();
         invert(normalMatrix, node.worldMatrix);
         transpose(normalMatrix, normalMatrix);
         shader.setMat4f(uniforms.uNormalMatrix, normalMatrix);
@@ -4950,26 +6912,26 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         if (node.displayMode === AppConstants.DisplayMode.POINT) {
             shader.setBool(uniforms.uUnlit, true);
             if (mesh.name.includes('_BBox')) {
-                AppState.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
+                AppState$1.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
             }
-            AppState.GLContext.drawElements(RenderMode.POINTS, mesh.indices.getDataArrayCount(), GLDrawType, 0);
+            AppState$1.GLContext.drawElements(RenderMode.POINTS, mesh.indices.getDataArrayCount(), GLDrawType, 0);
         }
         else if (mesh.name === 'Wireframe') {
             shader.setBool(uniforms.uUnlit, true);
             if (node.displayMode === AppConstants.DisplayMode.SHADEDMESH) {
-                if (AppState.UseDefaultWireFrameColor == true) {
+                if (AppState$1.UseDefaultWireFrameColor == true) {
                     shader.setBool(uniforms.uUseTexture, false);
-                    shader.setVector3f(uniforms.uColor, new Float32Array(AppState.DefaultWireFrameColor));
+                    shader.setVector3f(uniforms.uColor, new Float32Array(AppState$1.DefaultWireFrameColor));
                 }
                 else {
                     shader.setFloat(uniforms.uDisplayMode, 1.0);
                 }
             }
-            AppState.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
+            AppState$1.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
         }
         else {
             shader.setBool(uniforms.uUnlit, false);
-            AppState.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
+            AppState$1.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
         }
     };
     Scene.prototype.render = function (shader, renderPass) {
@@ -4995,7 +6957,7 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         }
     };
     Scene.prototype.renderMesh = function (shader, mesh, node, renderPass) {
-        if (AppState.GLContext) {
+        if (AppState$1.GLContext) {
             this.drawElements(shader, mesh, node, renderPass);
         }
         return true;
@@ -5021,7 +6983,7 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         mesh.indices.bind();
         shader.setFloat(uniforms.uDisplayMode, 0.0);
         shader.setMat4f(uniforms.uModelViewMatrix, node.worldMatrix);
-        var normalMatrix = create$1();
+        var normalMatrix = create$1$1();
         invert(normalMatrix, node.worldMatrix);
         transpose(normalMatrix, normalMatrix);
         shader.setMat4f(uniforms.uNormalMatrix, normalMatrix);
@@ -5062,9 +7024,9 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
             }
         }
         if (mesh.material && mesh.material.isColorMaskEnabled)
-            AppState.GLContext.colorMask(true, true, true, true);
+            AppState$1.GLContext.colorMask(true, true, true, true);
         else
-            AppState.GLContext.colorMask(false, false, false, false);
+            AppState$1.GLContext.colorMask(false, false, false, false);
         if (mesh.rendingMode === RenderMode.TRIANGLES ||
             mesh.rendingMode === RenderMode.TRIANGLE_FAN ||
             mesh.rendingMode === RenderMode.TRIANGLE_STRIP) {
@@ -5077,18 +7039,18 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
         }
         var GLDrawType = mesh.indices.getType();
         if (mesh.material && mesh.material.transparency > 0) {
-            AppState.GLContext.depthMask(false);
-            AppState.GLContext.enable(AppState.GLContext.BLEND);
-            AppState.GLContext.blendFunc(AppState.GLContext.ONE, AppState.GLContext.ONE_MINUS_SRC_ALPHA);
+            AppState$1.GLContext.depthMask(false);
+            AppState$1.GLContext.enable(AppState$1.GLContext.BLEND);
+            AppState$1.GLContext.blendFunc(AppState$1.GLContext.ONE, AppState$1.GLContext.ONE_MINUS_SRC_ALPHA);
             shader.setBool(uniforms.uUseTransparency, true);
             shader.setFloat(uniforms.uTransparencyFactor, 1.0 - mesh.material.transparency);
-            AppState.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
+            AppState$1.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
             shader.setBool(uniforms.uUseTransparency, false);
-            AppState.GLContext.disable(AppState.GLContext.BLEND);
-            AppState.GLContext.depthMask(true);
+            AppState$1.GLContext.disable(AppState$1.GLContext.BLEND);
+            AppState$1.GLContext.depthMask(true);
         }
         else
-            AppState.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
+            AppState$1.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
     };
     Scene.prototype.getBoundingBox = function (onlyVisible) {
         if (onlyVisible === void 0) { onlyVisible = true; }
@@ -5340,10 +7302,10 @@ var arraybufferConcat_1 = arraybufferConcat.arrayBufferConcat;var Scene = /** @c
                                 var bboxmin = node.attributes.bbox.min;
                                 var box = SceneNode_1.mesh.subMeshes['bbox'];
                                 if (box === undefined || null) {
-                                    box = new BoxMesh(node.name + '_boundingbox', fromValues$1(bboxmin[0], bboxmin[1], bboxmin[2]), fromValues$1(bboxmax[0], bboxmax[1], bboxmax[2]), 0.5);
+                                    box = new BoxMesh(node.name + '_boundingbox', fromValues$1$1(bboxmin[0], bboxmin[1], bboxmin[2]), fromValues$1$1(bboxmax[0], bboxmax[1], bboxmax[2]), 0.5);
                                 }
                                 else {
-                                    box.updateBBox(fromValues$1(bboxmin[0], bboxmin[1], bboxmin[2]), fromValues$1(bboxmax[0], bboxmax[1], bboxmax[2]), 0.5);
+                                    box.updateBBox(fromValues$1$1(bboxmin[0], bboxmin[1], bboxmin[2]), fromValues$1$1(bboxmax[0], bboxmax[1], bboxmax[2]), 0.5);
                                 }
                             }
                         }
@@ -5656,7 +7618,7 @@ var MathUtils;
         //https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
         var screen_width = canvas.width;
         var screen_height = canvas.height;
-        var P = create$2();
+        var P = create$2$1();
         // y = screen_height;
         //var centeredModelScreenPos = [0, 0, 0, 0]
         //centeredModelScreenPos[0] = translation[0];
@@ -5675,7 +7637,7 @@ var MathUtils;
         if (OP_squared <= 1 * 1)
             P[2] = Math.sqrt(1 * 1 - OP_squared); // Pythagorean
         else
-            P = normalize(P, P); // nearest point
+            P = normalize$1(P, P); // nearest point
         return P;
     }
     MathUtils.getArcballVector = getArcballVector;
@@ -5697,29 +7659,29 @@ var MathUtils;
     }
     MathUtils.getContainerBox = getContainerBox;
     function projectOnVector(target, v) {
-        var denominator = squaredLength(v);
+        var denominator = squaredLength$1(v);
         if (denominator === 0)
-            return create$2();
-        var scalar = dot(v, target) / denominator;
+            return create$2$1();
+        var scalar = dot$1(v, target) / denominator;
         scale$1(target, v, scalar);
         return target;
     }
     MathUtils.projectOnVector = projectOnVector;
     function projectPointOnLine(point, line) {
-        var out = create$2();
-        var AP = create$2();
-        var AB = create$2();
-        sub(AP, line.x, point);
-        sub(AB, line.x, line.y);
-        var projection = dot(AP, AB) / dot(AB, AB);
+        var out = create$2$1();
+        var AP = create$2$1();
+        var AB = create$2$1();
+        sub$1(AP, line.x, point);
+        sub$1(AB, line.x, line.y);
+        var projection = dot$1(AP, AB) / dot$1(AB, AB);
         scaleAndAdd(out, line.x, AB, projection);
         return out;
     }
     MathUtils.projectPointOnLine = projectPointOnLine;
     function rotateOnWorldAxis(worldMatrix, angleInRad, axis) {
-        var translation = create$2();
+        var translation = create$2$1();
         getTranslation(translation, worldMatrix);
-        var scale = create$2();
+        var scale = create$2$1();
         getScaling(scale, worldMatrix);
         var _quat = create$4();
         setAxisAngle(_quat, axis, angleInRad);
@@ -5735,21 +7697,21 @@ var MathUtils;
         worldMatrix[14] += trans[2];
     }
     MathUtils.translateOnWorld = translateOnWorld;
-    function getUpVector(matrix) { return fromValues$1(matrix[4], matrix[5], matrix[6]); }
+    function getUpVector(matrix) { return fromValues$1$1(matrix[4], matrix[5], matrix[6]); }
     MathUtils.getUpVector = getUpVector;
-    function getRightVector(matrix) { return fromValues$1(matrix[0], matrix[1], matrix[2]); }
+    function getRightVector(matrix) { return fromValues$1$1(matrix[0], matrix[1], matrix[2]); }
     MathUtils.getRightVector = getRightVector;
-    function getDirVector(matrix) { return fromValues$1(matrix[8], matrix[9], matrix[10]); }
+    function getDirVector(matrix) { return fromValues$1$1(matrix[8], matrix[9], matrix[10]); }
     MathUtils.getDirVector = getDirVector;
-    function getPositionVector(matrix) { return fromValues$1(matrix[12], matrix[13], matrix[14]); }
+    function getPositionVector(matrix) { return fromValues$1$1(matrix[12], matrix[13], matrix[14]); }
     MathUtils.getPositionVector = getPositionVector;
     function getPerpendicular(v) {
-        var perpendicular = create$2();
-        cross(perpendicular, v, [1, 0, 0]);
-        if (sqrLen(perpendicular) <= 0.000001 * 0.000001) {
-            cross(perpendicular, v, [0, 1, 0]);
+        var perpendicular = create$2$1();
+        cross$1(perpendicular, v, [1, 0, 0]);
+        if (sqrLen$1(perpendicular) <= 0.000001 * 0.000001) {
+            cross$1(perpendicular, v, [0, 1, 0]);
         }
-        normalize(perpendicular, perpendicular);
+        normalize$1(perpendicular, perpendicular);
         return perpendicular;
     }
     MathUtils.getPerpendicular = getPerpendicular;
@@ -5762,7 +7724,7 @@ var MathUtils;
     }
     MathUtils.rad2Deg = rad2Deg;
     function getMidPoint(a, b) {
-        var out = create$2();
+        var out = create$2$1();
         add(out, a, b);
         scale$1(out, out, 0.5);
         return out;
@@ -5817,16 +7779,16 @@ var MathUtils;
     return EventDispatcher;
 }());var PerspCamera = /** @class */ (function () {
     function PerspCamera() {
-        this.camMatrix = create$1();
-        this.pMatrix = create$1();
-        this.projectionViewMatrix = create$1();
+        this.camMatrix = create$1$1();
+        this.pMatrix = create$1$1();
+        this.projectionViewMatrix = create$1$1();
     }
     return PerspCamera;
 }());var OrthCamera = /** @class */ (function () {
     function OrthCamera() {
-        this.camMatrix = create$1();
-        this.pMatrix = create$1();
-        this.projectionViewMatrix = create$1();
+        this.camMatrix = create$1$1();
+        this.pMatrix = create$1$1();
+        this.projectionViewMatrix = create$1$1();
     }
     return OrthCamera;
 }());var Events;
@@ -5853,7 +7815,7 @@ var CameraControl = /** @class */ (function (_super) {
         _this.camType = camType;
         _this.container = container;
         _this.canvas = canvas;
-        _this.translation = create$2();
+        _this.translation = create$2$1();
         _this.sceneBoundingBox = new BoundingBox();
         //control params initialization
         _this.params = {
@@ -5903,7 +7865,7 @@ var CameraControl = /** @class */ (function (_super) {
     };
     CameraControl.prototype.resetPosition = function () {
         this.moveToCenter();
-        var translate$1 = fromValues$1(0, 0, 0);
+        var translate$1 = fromValues$1$1(0, 0, 0);
         var radius = this.sceneBoundingBox.getRadius();
         var zPos = (radius / (Math.tan((this.perspParams.fov / 2.0) * 0.01745329251)));
         translate$1[2] = -zPos;
@@ -5919,7 +7881,7 @@ var CameraControl = /** @class */ (function (_super) {
     CameraControl.prototype.project = function (point3DArray, NewMVMatrix, widthHeight, cameraMat) {
         var point2D = create$3();
         var point3D = create$3();
-        var tempMatrix = create$1();
+        var tempMatrix = create$1$1();
         identity(tempMatrix);
         var viewportArray = [0.0, 0.0, widthHeight[0], widthHeight[1]];
         point3D[0] = point3DArray[0];
@@ -5940,14 +7902,14 @@ var CameraControl = /** @class */ (function (_super) {
         /* Map x and y to window coordinates */
         point2D[0] = Math.round((point2D[0] * viewportArray[2]) + viewportArray[0]);
         point2D[1] = Math.round(widthHeight[1] - ((point2D[1] * viewportArray[3]) + viewportArray[1]));
-        return fromValues$1(point2D[0], point2D[1], point2D[2]);
+        return fromValues$1$1(point2D[0], point2D[1], point2D[2]);
     };
     CameraControl.prototype.unproject = function (point2DArray, NewMVMatrix, widthHeight, cameraMat) {
         //console.log(point2DArray);  
         var viewport = [0.0, 0.0, widthHeight[0], widthHeight[1]];
         var point2D = create$3();
         var point3D = create$3();
-        var tempMatrix = create$1();
+        var tempMatrix = create$1$1();
         point2DArray[1] = widthHeight[1] - point2DArray[1];
         /* Map x and y from window coordinates */
         point2D[0] = (point2DArray[0] - viewport[0]) / viewport[2];
@@ -5971,14 +7933,14 @@ var CameraControl = /** @class */ (function (_super) {
         point3D[0] = (point3D[0] / point3D[3]);
         point3D[1] = (point3D[1] / point3D[3]);
         point3D[2] = (point3D[2] / point3D[3]);
-        return fromValues$1(point3D[0], point3D[1], point3D[2]);
+        return fromValues$1$1(point3D[0], point3D[1], point3D[2]);
     };
     CameraControl.prototype.setRotationPoint = function (v) {
         this.params.pointOfRotation = v;
     };
     CameraControl.prototype.getRotationPoint = function () {
         if (this.params.pointOfRotation) {
-            return clone$1(this.params.pointOfRotation);
+            return clone$1$1(this.params.pointOfRotation);
         }
         else {
             return this.sceneBoundingBox.getCenter();
@@ -5990,7 +7952,7 @@ var CameraControl = /** @class */ (function (_super) {
         var camPos = fromValues$2(0, 0, 0, 1);
         invert(cameraMatrix, cameraMatrix);
         transformMat4$1(camPos, camPos, cameraMatrix);
-        return fromValues$1(camPos[0], camPos[1], camPos[2]);
+        return fromValues$1$1(camPos[0], camPos[1], camPos[2]);
     };
     CameraControl.prototype.getGLMatrix = function () {
         return (this.camType === CameraType.Perspective) ? this.perspCamera.projectionViewMatrix : this.orthCamera.projectionViewMatrix;
@@ -6004,21 +7966,21 @@ var CameraControl = /** @class */ (function (_super) {
         var axis_in_object_coord = create$3();
         var axis_in_object_coord_ortho = create$3();
         var axis_in_camera_coord = fromValues$2(rotationObject.axis_in_camera_coord[0], rotationObject.axis_in_camera_coord[1], rotationObject.axis_in_camera_coord[2], 0);
-        var camera2object = create$1();
-        var camera2objectOrtho = create$1();
+        var camera2object = create$1$1();
+        var camera2objectOrtho = create$1$1();
         multiply(camera2object, camera2object, this.perspCamera.camMatrix);
         multiply(camera2objectOrtho, camera2objectOrtho, this.orthCamera.camMatrix);
         invert(camera2object, camera2object);
         invert(camera2objectOrtho, camera2objectOrtho);
-        var rotationPoint = fromValues$1(-0, -0, -0);
-        rotationPoint = (this.params.pointOfRotation != null ? clone$1(this.params.pointOfRotation) : this.sceneBoundingBox.getCenter());
+        var rotationPoint = fromValues$1$1(-0, -0, -0);
+        rotationPoint = (this.params.pointOfRotation != null ? clone$1$1(this.params.pointOfRotation) : this.sceneBoundingBox.getCenter());
         transformMat4$1(axis_in_object_coord, axis_in_camera_coord, camera2object);
         transformMat4$1(axis_in_object_coord_ortho, axis_in_camera_coord, camera2objectOrtho);
         translate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, rotationPoint);
-        rotate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, angle, fromValues$1(axis_in_object_coord[0], axis_in_object_coord[1], axis_in_object_coord[2]));
+        rotate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, angle, fromValues$1$1(axis_in_object_coord[0], axis_in_object_coord[1], axis_in_object_coord[2]));
         translate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, negate(rotationPoint, rotationPoint));
         translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, negate(rotationPoint, rotationPoint));
-        rotate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, angle, fromValues$1(axis_in_object_coord_ortho[0], axis_in_object_coord_ortho[1], axis_in_object_coord_ortho[2]));
+        rotate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, angle, fromValues$1$1(axis_in_object_coord_ortho[0], axis_in_object_coord_ortho[1], axis_in_object_coord_ortho[2]));
         translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, negate(rotationPoint, rotationPoint));
         AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.CAMERA_MOVED, data: { camType: this.camType } });
     };
@@ -6026,7 +7988,7 @@ var CameraControl = /** @class */ (function (_super) {
         if (newMouseX != lastMouseX || newMouseY != lastMouseY) {
             var deltaX = newMouseX - lastMouseX;
             var deltaY = newMouseY - lastMouseY;
-            var mvMatrix = create$1();
+            var mvMatrix = create$1$1();
             var camMatrix = this.getCameraMatrix2(CameraType.Perspective);
             var point3d1 = this.unproject([lastMouseX, lastMouseY, 0], mvMatrix, [this.canvas.width, this.canvas.height], camMatrix); // 0 means near plane
             var point3d2 = this.unproject([newMouseX, newMouseY, 0], mvMatrix, [this.canvas.width, this.canvas.height], camMatrix); // 0 means near plane
@@ -6040,26 +8002,26 @@ var CameraControl = /** @class */ (function (_super) {
             var CameraMatrix = this.getCameraMatrix(CameraType.Perspective);
             invert(CameraMatrix, CameraMatrix);
             transformMat4$1(cameraPosition, cameraPosition, CameraMatrix);
-            var ray1 = create$2();
-            subtract(ray1, point3d1, point3d11);
-            var ray2 = create$2();
-            subtract(ray2, point3d2, point3d22);
-            normalize(ray1, ray1);
-            normalize(ray2, ray2);
-            var angle = Math.acos(Math.min(1.0, dot(ray1, ray2)));
-            var right = fromValues$1(CameraMatrix[0], CameraMatrix[1], CameraMatrix[2]);
-            var up = fromValues$1(CameraMatrix[4], CameraMatrix[5], CameraMatrix[6]);
-            normalize(up, up);
-            normalize(right, right);
-            var v1 = create$2();
+            var ray1 = create$2$1();
+            subtract$1(ray1, point3d1, point3d11);
+            var ray2 = create$2$1();
+            subtract$1(ray2, point3d2, point3d22);
+            normalize$1(ray1, ray1);
+            normalize$1(ray2, ray2);
+            var angle = Math.acos(Math.min(1.0, dot$1(ray1, ray2)));
+            var right = fromValues$1$1(CameraMatrix[0], CameraMatrix[1], CameraMatrix[2]);
+            var up = fromValues$1$1(CameraMatrix[4], CameraMatrix[5], CameraMatrix[6]);
+            normalize$1(up, up);
+            normalize$1(right, right);
+            var v1 = create$2$1();
             scale$1(v1, right, deltaY);
-            var v2 = create$2();
+            var v2 = create$2$1();
             scale$1(v2, up, deltaX);
-            var axis_in_camera_coord = create$2();
+            var axis_in_camera_coord = create$2$1();
             add(axis_in_camera_coord, v1, v2);
             negate(axis_in_camera_coord, axis_in_camera_coord);
-            normalize(axis_in_camera_coord, axis_in_camera_coord);
-            var rotationPoint = fromValues$1(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
+            normalize$1(axis_in_camera_coord, axis_in_camera_coord);
+            var rotationPoint = fromValues$1$1(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
             translate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, rotationPoint);
             rotate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, angle, axis_in_camera_coord);
             translate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, negate(rotationPoint, rotationPoint));
@@ -6074,7 +8036,7 @@ var CameraControl = /** @class */ (function (_super) {
             var _orthoWindowHeight = (x * 2 / this.perspParams.aspect) * this.orthoParams.orthoZoomFactor;
             this.translation[0] = (_orthoWindowWidth * deltaX) / width;
             this.translation[1] = (_orthoWindowHeight * deltaY) / height;
-            var trans = fromValues$1(this.translation[0], this.translation[1], 0);
+            var trans = fromValues$1$1(this.translation[0], this.translation[1], 0);
             translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, trans);
             AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.CAMERA_MOVED, data: { camType: this.camType } });
         }
@@ -6173,22 +8135,22 @@ var CameraControl = /** @class */ (function (_super) {
             var fYDelta = -iY * fYStep / iHeight;
             this.translation[0] = -fXDelta;
             this.translation[1] = -fYDelta;
-            translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, fromValues$1(this.translation[0], this.translation[1], 0));
+            translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, fromValues$1$1(this.translation[0], this.translation[1], 0));
         }
         if (this.orthoParams.orthoZoomFactor < 0 && this.orthoParams.orthoZoomFactor < 1000)
             this.orthoParams.orthoZoomFactor = orthoZoomFactorOld;
-        var mvMatrix = create$1();
+        var mvMatrix = create$1$1();
         var camMatrix = this.getCameraMatrix2(CameraType.Perspective);
         var point3d1 = this.unproject([posX, posY, 0], mvMatrix, [this.canvas.width, this.canvas.height], camMatrix); // 0 means near plane
         var point3d2 = this.unproject([posX, posY, 1], mvMatrix, [this.canvas.width, this.canvas.height], camMatrix); // 1 means far plane
         if (point3d1 == null || point3d2 == null) {
             return;
         }
-        var dir = create$2();
-        sub(dir, point3d2, point3d1);
-        var unitDir = create$2();
-        normalize(unitDir, dir);
-        var finalPoint = create$2();
+        var dir = create$2$1();
+        sub$1(dir, point3d2, point3d1);
+        var unitDir = create$2$1();
+        normalize$1(unitDir, dir);
+        var finalPoint = create$2$1();
         scale$1(finalPoint, unitDir, zSensitivity);
         if (factor != null && factor != undefined) {
             finalPoint = scale$1(finalPoint, finalPoint, factor);
@@ -6225,21 +8187,21 @@ var CameraControl = /** @class */ (function (_super) {
             var fYDelta = -iY * fYStep / iHeight;
             this.translation[0] = -fXDelta;
             this.translation[1] = -fYDelta;
-            translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, fromValues$1(this.translation[0], this.translation[1], 0));
+            translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, fromValues$1$1(this.translation[0], this.translation[1], 0));
         }
         if (this.orthoParams.orthoZoomFactor < 0 && this.orthoParams.orthoZoomFactor < 1000)
             this.orthoParams.orthoZoomFactor = orthoZoomFactorOld;
-        var mvMatrix = create$1();
+        var mvMatrix = create$1$1();
         var camMatrix = this.getCameraMatrix2(CameraType.Perspective);
         var point3d1 = this.unproject([posX, posY, 0], mvMatrix, [this.canvas.width, this.canvas.height], camMatrix); // 0 means near plane
         var point3d2 = this.unproject([posX, posY, 1], mvMatrix, [this.canvas.width, this.canvas.height], camMatrix); // 1 means far plane
         if (point3d1 == null || point3d2 == null)
             return;
-        var dir = create$2();
-        sub(dir, point3d2, point3d1);
-        var unitDir = create$2();
-        normalize(unitDir, dir);
-        var finalPoint = create$2();
+        var dir = create$2$1();
+        sub$1(dir, point3d2, point3d1);
+        var unitDir = create$2$1();
+        normalize$1(unitDir, dir);
+        var finalPoint = create$2$1();
         scale$1(finalPoint, unitDir, zSensitivity);
         if (factor != null && factor != undefined) {
             finalPoint = scale$1(finalPoint, finalPoint, factor);
@@ -6255,10 +8217,10 @@ var CameraControl = /** @class */ (function (_super) {
         if (newMouseX != lastMouseX || newMouseY != lastMouseY) {
             var va = MathUtils.getArcballVector(lastMouseX, lastMouseY, this.canvas);
             var vb = MathUtils.getArcballVector(newMouseX, newMouseY, this.canvas);
-            var angle = Math.acos(Math.min(1.0, dot(va, vb)));
-            var axis_in_camera_coord = create$2();
-            cross(axis_in_camera_coord, va, vb);
-            normalize(axis_in_camera_coord, axis_in_camera_coord);
+            var angle = Math.acos(Math.min(1.0, dot$1(va, vb)));
+            var axis_in_camera_coord = create$2$1();
+            cross$1(axis_in_camera_coord, va, vb);
+            normalize$1(axis_in_camera_coord, axis_in_camera_coord);
             rotationObject.angle = angle;
             rotationObject.axis_in_camera_coord = axis_in_camera_coord;
         }
@@ -6304,7 +8266,7 @@ var CameraControl = /** @class */ (function (_super) {
         multiply(this.orthCamera.projectionViewMatrix, this.orthCamera.pMatrix, this.orthCamera.camMatrix);
     };
     CameraControl.prototype.getPerspectiveCamera = function (fovY, aspect, near, far) {
-        var PerspectiveProjectionMat = create$1();
+        var PerspectiveProjectionMat = create$1$1();
         var D2R = Math.PI / 180.0;
         var yScale;
         var xScale;
@@ -6372,7 +8334,7 @@ var CameraControl = /** @class */ (function (_super) {
         this.params.zoomScale = 0.0015 * 0.25;
     };
     CameraControl.prototype.getCameraMatrix = function (type) {
-        var matrix = create$1();
+        var matrix = create$1$1();
         if (type == CameraType.Perspective)
             multiply(matrix, matrix, this.perspCamera.camMatrix);
         else
@@ -6380,9 +8342,9 @@ var CameraControl = /** @class */ (function (_super) {
         return matrix;
     };
     CameraControl.prototype.getCameraMatrix2 = function (type) {
-        var matrix = create$1();
+        var matrix = create$1$1();
         if (type == CameraType.Ortho) {
-            var out = create$1();
+            var out = create$1$1();
             if (this.orthoParams.orthoZoomFactor < 0.00001) // orthoProjectionZoomFactor should not be zero r negative
                 this.orthoParams.orthoZoomFactor = 0.00001;
             ortho(out, -(this.orthoParams.orthoHeight / 2) * this.orthoParams.orthoZoomFactor, (this.orthoParams.orthoWidth / 2) * this.orthoParams.orthoZoomFactor, -(this.orthoParams.orthoHeight / 2) * this.orthoParams.orthoZoomFactor, (this.orthoParams.orthoHeight / 2) * this.orthoParams.orthoZoomFactor, this.perspParams.near, this.perspParams.far);
@@ -6403,17 +8365,17 @@ var CameraControl = /** @class */ (function (_super) {
     CameraControl.prototype.getUpDir = function (type) {
         if (type === void 0) { type = this.camType; }
         var invMat = this.getInverseCameraMatrix(type);
-        return fromValues$1(invMat[4], invMat[5], invMat[6]);
+        return fromValues$1$1(invMat[4], invMat[5], invMat[6]);
     };
     CameraControl.prototype.getFrontDir = function (type) {
         if (type === void 0) { type = this.camType; }
         var invMat = this.getInverseCameraMatrix(type);
-        return fromValues$1(invMat[8], invMat[9], invMat[10]);
+        return fromValues$1$1(invMat[8], invMat[9], invMat[10]);
     };
     CameraControl.prototype.getLeftDir = function (type) {
         if (type === void 0) { type = this.camType; }
         var invMat = this.getInverseCameraMatrix(type);
-        return fromValues$1(invMat[0], invMat[1], invMat[2]);
+        return fromValues$1$1(invMat[0], invMat[1], invMat[2]);
     };
     CameraControl.prototype.fitView = function (bbox) {
         if (bbox === void 0) { bbox = null; }
@@ -6439,13 +8401,13 @@ var CameraControl = /** @class */ (function (_super) {
             }
             zPos = newZPos + (newZPos * 0.1);
         }
-        var distance = create$2();
-        distance = sub(distance, boundingBox.getCenter(), MathUtils.getPositionVector(camMatrixPersp));
+        var distance = create$2$1();
+        distance = sub$1(distance, boundingBox.getCenter(), MathUtils.getPositionVector(camMatrixPersp));
         translate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, negate(distance, distance));
-        fromValues$1(0, 0, -zPos);
+        fromValues$1$1(0, 0, -zPos);
         //glmatrix.mat4.translate(this.perspCamera.camMatrix,this.perspCamera.camMatrix,trans);
         this.perspCamera.camMatrix[14] += -zPos;
-        this.orthCamera.camMatrix = clone(this.perspCamera.camMatrix);
+        this.orthCamera.camMatrix = clone$1(this.perspCamera.camMatrix);
         this.orthoParams.orthoZoomFactor = 1;
         var x = 0;
         var y = 0;
@@ -6490,11 +8452,11 @@ var CameraControl = /** @class */ (function (_super) {
             var maxV = -100000000000;
             var maxD = -100000000000;
             for (var i = 0; i < 8; i++) {
-                var pt = fromValues$1(corners[i][0], corners[i][1], corners[i][2]);
-                sub(pt, pt, bbCenter);
-                var x = dot(right, pt);
-                var y = dot(up, pt);
-                var z = dot(dir, pt);
+                var pt = fromValues$1$1(corners[i][0], corners[i][1], corners[i][2]);
+                sub$1(pt, pt, bbCenter);
+                var x = dot$1(right, pt);
+                var y = dot$1(up, pt);
+                var z = dot$1(dir, pt);
                 if (minH > x)
                     minH = x;
                 if (minV > y)
@@ -6508,7 +8470,7 @@ var CameraControl = /** @class */ (function (_super) {
                 if (maxD < z)
                     maxD = z;
             }
-            var dimension = fromValues$1(maxH - minH, maxV - minV, maxD - minD);
+            var dimension = fromValues$1$1(maxH - minH, maxV - minV, maxD - minD);
             return dimension;
         }
         catch (e) {
@@ -6520,7 +8482,7 @@ var CameraControl = /** @class */ (function (_super) {
 var Renderer2D = /** @class */ (function () {
     function Renderer2D(container) {
         this.container = container;
-        var canvasBackPlane = Utility.getElementInsideContainer(this.container.id, 'canvasBackPlane_' + this.container.id);
+        var canvasBackPlane = Utility$1.getElementInsideContainer(this.container.id, 'canvasBackPlane_' + this.container.id);
         if (canvasBackPlane)
             this.container.removeChild(canvasBackPlane);
         this.canvasBackPlane = document.createElement('canvas');
@@ -6537,7 +8499,7 @@ var Renderer2D = /** @class */ (function () {
         //let gradientcolor1 = '#9F9FFF';
         //let gradientcolor2 = '#FFFFFF';
         //this.canvasBackPlane.style.background = 'linear-gradient(' + gradientcolor1 + ', ' + gradientcolor2 + ')';
-        var canvasFrontPlane = Utility.getElementInsideContainer(this.container.id, 'canvasfrontPlane_' + this.container.id);
+        var canvasFrontPlane = Utility$1.getElementInsideContainer(this.container.id, 'canvasfrontPlane_' + this.container.id);
         if (canvasFrontPlane)
             this.container.removeChild(canvasFrontPlane);
         this.canvasFrontPlane = document.createElement('canvas');
@@ -6577,18 +8539,18 @@ var Renderer2D = /** @class */ (function () {
         this.setBackground();
     };
     Renderer2D.prototype.setBackground = function () {
-        if (AppState._BGTYPE === AppConstants.BackgroundType.LINEAR) {
+        if (AppState$1._BGTYPE === AppConstants.BackgroundType.LINEAR) {
             console.warn('Not Implemented');
         }
-        else if (AppState._BGTYPE === AppConstants.BackgroundType.GRADIENT) {
+        else if (AppState$1._BGTYPE === AppConstants.BackgroundType.GRADIENT) {
             var grd = this.backPlane2dctx.createLinearGradient(0, 0, 0, this.canvasBackPlane.height);
-            grd.addColorStop(0, AppState._BGColor1);
-            grd.addColorStop(1, AppState._BGColor2);
+            grd.addColorStop(0, AppState$1._BGColor1);
+            grd.addColorStop(1, AppState$1._BGColor2);
             this.backPlane2dctx.fillStyle = grd;
             this.backPlane2dctx.rect(0, 0, this.canvasBackPlane.width, this.canvasBackPlane.height);
             this.backPlane2dctx.fill();
         }
-        else if (AppState._BGTYPE === AppConstants.BackgroundType.IMAGE) {
+        else if (AppState$1._BGTYPE === AppConstants.BackgroundType.IMAGE) {
             console.warn('Not Implemented');
         }
         else {
@@ -6850,7 +8812,7 @@ var Renderer2D = /** @class */ (function () {
     function ArrowMesh(name, color) {
         if (color === void 0) { color = [0, 0, 0, 1]; }
         var _this = _super.call(this, name) || this;
-        _this.uid = Utility.getGUID();
+        _this.uid = Utility$1.getGUID();
         _this.rendingMode = RenderMode.TRIANGLES;
         _this.createArrowMesh();
         _this.material = new Material(name);
@@ -6987,10 +8949,10 @@ var Renderer2D = /** @class */ (function () {
         _this.x = new Arrow3D("x " + name, [1, 0, 0, 1]);
         _this.y = new Arrow3D("y" + name, [0, 1, 0, 1]);
         _this.z = new Arrow3D("z" + name, [0, 0, 1, 1]);
-        _this.x.rotateOnWorldAxis(-90 * Math.PI / 180, fromValues$1(0, 0, 1));
+        _this.x.rotateOnWorldAxis(-90 * Math.PI / 180, fromValues$1$1(0, 0, 1));
         _this.addChild(_this.x);
         _this.addChild(_this.y);
-        _this.z.rotateOnWorldAxis(90 * Math.PI / 180, fromValues$1(1, 0, 0));
+        _this.z.rotateOnWorldAxis(90 * Math.PI / 180, fromValues$1$1(1, 0, 0));
         _this.addChild(_this.z);
         _this.visible = false;
         _this.scale(0.5, 0.5, 0.5);
@@ -6999,7 +8961,7 @@ var Renderer2D = /** @class */ (function () {
     return Axes3DHelper;
 }(TransFormNode));var WebGLRenderTarget = /** @class */ (function () {
     function WebGLRenderTarget(width, height, options) {
-        this.buffer = AppState.GLContext.createFramebuffer();
+        this.buffer = AppState$1.GLContext.createFramebuffer();
         this.width = width;
         this.height = height;
         this.viewport = fromValues$2(0, 0, width, height);
@@ -7010,42 +8972,42 @@ var Renderer2D = /** @class */ (function () {
         this.stencilBuffer = true;
     }
     WebGLRenderTarget.prototype.bind = function () {
-        AppState.GLContext.bindFramebuffer(AppState.GLContext.FRAMEBUFFER, this.buffer);
+        AppState$1.GLContext.bindFramebuffer(AppState$1.GLContext.FRAMEBUFFER, this.buffer);
         if (this.texture) {
             this.texture.width = this.width;
             this.texture.height = this.height;
             this.texture.bind();
             this.texture.setEmptyTexture();
             var filter = {};
-            filter.magFilter = AppState.GLContext.NEAREST;
-            filter.minFilter = AppState.GLContext.NEAREST;
-            filter.wrap_s = AppState.GLContext.CLAMP_TO_EDGE;
-            filter.wrap_t = AppState.GLContext.CLAMP_TO_EDGE;
+            filter.magFilter = AppState$1.GLContext.NEAREST;
+            filter.minFilter = AppState$1.GLContext.NEAREST;
+            filter.wrap_s = AppState$1.GLContext.CLAMP_TO_EDGE;
+            filter.wrap_t = AppState$1.GLContext.CLAMP_TO_EDGE;
             this.texture.setFilterOptions(filter);
-            AppState.GLContext.framebufferTexture2D(AppState.GLContext.FRAMEBUFFER, AppState.GLContext.COLOR_ATTACHMENT0, AppState.GLContext.TEXTURE_2D, this.texture.texture, this.texture.level);
+            AppState$1.GLContext.framebufferTexture2D(AppState$1.GLContext.FRAMEBUFFER, AppState$1.GLContext.COLOR_ATTACHMENT0, AppState$1.GLContext.TEXTURE_2D, this.texture.texture, this.texture.level);
         }
         if (this.depthTexture) {
             this.depthTexture.width = this.width;
             this.depthTexture.height = this.height;
             this.depthTexture.bind();
             //change props
-            this.depthTexture.internalformat = AppState.GLContext.DEPTH_COMPONENT24;
-            this.depthTexture.format = AppState.GLContext.DEPTH_COMPONENT;
-            this.depthTexture.type = AppState.GLContext.UNSIGNED_INT;
+            this.depthTexture.internalformat = AppState$1.GLContext.DEPTH_COMPONENT24;
+            this.depthTexture.format = AppState$1.GLContext.DEPTH_COMPONENT;
+            this.depthTexture.type = AppState$1.GLContext.UNSIGNED_INT;
             this.depthTexture.setEmptyTexture();
             var filter = {};
-            filter.magFilter = AppState.GLContext.NEAREST;
-            filter.minFilter = AppState.GLContext.NEAREST;
-            filter.wrap_s = AppState.GLContext.CLAMP_TO_EDGE;
-            filter.wrap_t = AppState.GLContext.CLAMP_TO_EDGE;
+            filter.magFilter = AppState$1.GLContext.NEAREST;
+            filter.minFilter = AppState$1.GLContext.NEAREST;
+            filter.wrap_s = AppState$1.GLContext.CLAMP_TO_EDGE;
+            filter.wrap_t = AppState$1.GLContext.CLAMP_TO_EDGE;
             this.depthTexture.setFilterOptions(filter);
-            AppState.GLContext.framebufferTexture2D(AppState.GLContext.FRAMEBUFFER, AppState.GLContext.DEPTH_ATTACHMENT, AppState.GLContext.TEXTURE_2D, this.depthTexture.texture, this.depthTexture.level);
+            AppState$1.GLContext.framebufferTexture2D(AppState$1.GLContext.FRAMEBUFFER, AppState$1.GLContext.DEPTH_ATTACHMENT, AppState$1.GLContext.TEXTURE_2D, this.depthTexture.texture, this.depthTexture.level);
         }
-        var canRead = (AppState.GLContext.checkFramebufferStatus(AppState.GLContext.FRAMEBUFFER) == AppState.GLContext.FRAMEBUFFER_COMPLETE);
+        var canRead = (AppState$1.GLContext.checkFramebufferStatus(AppState$1.GLContext.FRAMEBUFFER) == AppState$1.GLContext.FRAMEBUFFER_COMPLETE);
         console.log(canRead);
     };
     WebGLRenderTarget.prototype.unbind = function () {
-        AppState.GLContext.bindFramebuffer(AppState.GLContext.FRAMEBUFFER, null);
+        AppState$1.GLContext.bindFramebuffer(AppState$1.GLContext.FRAMEBUFFER, null);
         this.texture.unBind();
         this.depthTexture.unBind();
     };
@@ -7096,7 +9058,7 @@ var Renderer2D = /** @class */ (function () {
         this.axis3DHelper = null;
         this.fps = 0;
         if (this.container !== null) {
-            var canvas3d = Utility.getElementInsideContainer(this.container.id, '3dcanvas_' + this.container.id);
+            var canvas3d = Utility$1.getElementInsideContainer(this.container.id, '3dcanvas_' + this.container.id);
             if (canvas3d)
                 this.container.removeChild(canvas3d);
             this.canvas = document.createElement('canvas');
@@ -7108,7 +9070,7 @@ var Renderer2D = /** @class */ (function () {
             this.canvas.height = this.container.clientHeight;
             this.canvas.style.position = 'absolute';
             this.canvas.style.zIndex = '1';
-            var divContainer = Utility.getElementInsideContainer(this.container.id, 'divContainer_' + this.container.id);
+            var divContainer = Utility$1.getElementInsideContainer(this.container.id, 'divContainer_' + this.container.id);
             if (divContainer)
                 this.container.removeChild(divContainer);
             this.divContainer = document.createElement('div');
@@ -7118,7 +9080,7 @@ var Renderer2D = /** @class */ (function () {
             this.divContainer.style.height = this.container.clientHeight + "px";
             this.divContainer.style.position = 'absolute';
             this.divContainer.style.zIndex = '3';
-            var fpsMonitor = Utility.getElementInsideContainer(this.divContainer.id, 'spanfps_' + this.container.id);
+            var fpsMonitor = Utility$1.getElementInsideContainer(this.divContainer.id, 'spanfps_' + this.container.id);
             if (fpsMonitor)
                 this.divContainer.removeChild(fpsMonitor);
             this.fpsMonitor = document.createElement('span');
@@ -7143,9 +9105,9 @@ var Renderer2D = /** @class */ (function () {
                 failIfMajorPerformanceCaveat: false,
                 powerPreference: "default"
             };
-            AppState.GLContext = this.canvas.getContext('webgl2', CANVASOptions);
-            AppState.CanvasID = this.canvas.id;
-            this.GLContext = AppState.GLContext;
+            AppState$1.GLContext = this.canvas.getContext('webgl2', CANVASOptions);
+            AppState$1.CanvasID = this.canvas.id;
+            this.GLContext = AppState$1.GLContext;
             this.GLContext.enable(this.GLContext.DEPTH_TEST);
             this.GLContext.depthFunc(this.GLContext.LEQUAL);
             if (this.GLContext) {
@@ -7192,18 +9154,14 @@ var Renderer2D = /** @class */ (function () {
                 });
             }
             if (!AppObjects.picker.selectNode || !AppObjects.picker.isProbingEnabled) ;
-            // if(AppObjects.picker.triangle && AppObjects.picker && AppObjects.picker.selectNode){
-            //     this.renderBufferDirect(
-            //         AppObjects.picker.triangle,
-            //         AppObjects.picker.selectNode.worldMatrix,
-            //         AppObjects.picker.pickShader,
-            //         [1,0,0]);
-            //     this.renderBufferDirect(
-            //         AppObjects.picker.line,
-            //         AppObjects.picker.selectNode.worldMatrix,
-            //         AppObjects.picker.pickShader,
-            //         [0,1,0]);
-            // }
+            if (AppObjects.picker.triangle && AppObjects.picker && AppObjects.picker.selectNode) {
+                this.renderBufferDirect(AppObjects.picker.triangle, AppObjects.picker.selectNode.worldMatrix, AppObjects.picker.pickShader, [1, 0, 0]);
+                // this.renderBufferDirect(
+                //     AppObjects.picker.line,
+                //     AppObjects.picker.selectNode.worldMatrix,
+                //     AppObjects.picker.pickShader,
+                //     [0,1,0]);
+            }
             //render labels
             if (AppObjects.labelManager) {
                 AppObjects.labelManager.render();
@@ -7238,10 +9196,10 @@ var Renderer2D = /** @class */ (function () {
         if (mesh.indices) {
             var GLDrawType = mesh.indices.getType();
             mesh.indices.bind();
-            AppState.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
+            AppState$1.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
         }
         else {
-            AppState.GLContext.drawArrays(mesh.rendingMode, 0, mesh.attribs.position.getDataArrayCount() / vertexSize);
+            AppState$1.GLContext.drawArrays(mesh.rendingMode, 0, mesh.attribs.position.getDataArrayCount() / vertexSize);
         }
     };
     Renderer.prototype.renderBufferAsGizmo = function (mesh, worldMatrix, shader, color) {
@@ -7270,10 +9228,10 @@ var Renderer2D = /** @class */ (function () {
         if (mesh.indices) {
             var GLDrawType = mesh.indices.getType();
             mesh.indices.bind();
-            AppState.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
+            AppState$1.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
         }
         else {
-            AppState.GLContext.drawArrays(mesh.rendingMode, 0, mesh.attribs.position.getDataArrayCount() / vertexSize);
+            AppState$1.GLContext.drawArrays(mesh.rendingMode, 0, mesh.attribs.position.getDataArrayCount() / vertexSize);
         }
     };
     Renderer.prototype.renderGizmos = function () {
@@ -7282,7 +9240,7 @@ var Renderer2D = /** @class */ (function () {
     };
     Renderer.prototype.renderAxisHelper = function () {
         var _this = this;
-        var center = create$2();
+        var center = create$2$1();
         this.highlightedNodes.forEach(function (node) {
             if (node.subType === AppConstants.NodeSubType.HIGHLIGHT && node.visible) {
                 var c = node.getBBoxCenter();
@@ -7302,24 +9260,24 @@ var Renderer2D = /** @class */ (function () {
             var camPos = this.camControl.getPosition();
             var objPos = center;
             var scaleToFit = dist(camPos, objPos) * Math.tan(this.camControl.perspParams.fov / 2) * 0.5; // some constant to fit to proper size
-            var scale = create$1();
-            var trans = create$1();
+            var scale = create$1$1();
+            var trans = create$1$1();
             trans[12] = objPos[0];
             trans[13] = objPos[1];
             trans[14] = objPos[2];
-            var rot = Utility.getAvgRot(__spread$1(this.highlightedNodes.values()).map(function (node) { return node.worldMatrix; }));
-            fromScaling(scale, fromValues$1(scaleToFit, scaleToFit, scaleToFit));
+            var rot = Utility$1.getAvgRot(__spread$1(this.highlightedNodes.values()).map(function (node) { return node.worldMatrix; }));
+            fromScaling(scale, fromValues$1$1(scaleToFit, scaleToFit, scaleToFit));
             var shader_1 = ShaderCache.labelShader;
             if (!shader_1)
                 return;
-            var model_1 = create$1();
+            var model_1 = create$1$1();
             mul(model_1, model_1, trans);
             mul(model_1, model_1, rot);
             mul(model_1, model_1, scale);
             mul(model_1, model_1, this.axis3DHelper.worldMatrix);
             //render axes
             this.axis3DHelper.children.forEach(function (node) {
-                var nodeMatrix = create$1();
+                var nodeMatrix = create$1$1();
                 mul(nodeMatrix, model_1, node.worldMatrix);
                 _this.renderBufferAsGizmo(node.mesh.mainMesh, nodeMatrix, shader_1, node.mesh.mainMesh.material.diffuseColor);
             });
@@ -7328,7 +9286,7 @@ var Renderer2D = /** @class */ (function () {
     Renderer.prototype.readPixels = function (x, y) {
         var data = new Uint8Array(4);
         this.GLContext.readPixels(x, y, 1, 1, this.GLContext.RGBA, this.GLContext.UNSIGNED_BYTE, data);
-        return fromValues$1(data[0], data[1], data[2]);
+        return fromValues$1$1(data[0], data[1], data[2]);
     };
     Renderer.prototype.startRenderLoop = function () {
         this.showFps();
@@ -7367,7 +9325,7 @@ var Renderer2D = /** @class */ (function () {
         }
     };
     Renderer.prototype.showFps = function () {
-        if (AppState.showFPS === false) {
+        if (AppState$1.showFPS === false) {
             this.fpsMonitor.textContent = "";
             return;
         }
@@ -7400,7 +9358,7 @@ var Renderer2D = /** @class */ (function () {
         var imageDataUrl = imageData;
         var bmpBlob = null;
         if (imageType === 'image/bmp') {
-            bmpBlob = Utility.CanvasToBMP.toBlob(MergedCanvas);
+            bmpBlob = Utility$1.CanvasToBMP.toBlob(MergedCanvas);
             imageDataUrl = URL.createObjectURL(bmpBlob);
         }
         var URLs = {
@@ -9240,7 +11198,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
     BufferCache.removeAll = function () {
         BufferCache.cache.removeAll();
     };
-    BufferCache.cache = new Utility.Registry();
+    BufferCache.cache = new Utility$1.Registry();
     return BufferCache;
 }());var GLTFBufferLoader = /** @class */ (function () {
     function GLTFBufferLoader(_buffer) {
@@ -9353,7 +11311,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
     AccessorCache.removeAll = function () {
         AccessorCache.cache.removeAll();
     };
-    AccessorCache.cache = new Utility.Registry();
+    AccessorCache.cache = new Utility$1.Registry();
     return AccessorCache;
 }());var GLTFAccessorLoader = /** @class */ (function () {
     function GLTFAccessorLoader(_accessor) {
@@ -9472,7 +11430,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
     BufferViewCache.removeAll = function () {
         BufferViewCache.cache.removeAll();
     };
-    BufferViewCache.cache = new Utility.Registry();
+    BufferViewCache.cache = new Utility$1.Registry();
     return BufferViewCache;
 }());var LoaderState = /** @class */ (function () {
     function LoaderState() {
@@ -9579,8 +11537,8 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
         this.serverConnection = _serverConnection || null;
         this.json = {};
         this.scenes = [];
-        this.cache = new Utility.Registry();
-        this.bufferCache = new Utility.Registry();
+        this.cache = new Utility$1.Registry();
+        this.bufferCache = new Utility$1.Registry();
         this.baseURL = null;
         this.isDeferredLoadingEnabled = true;
     }
@@ -9655,7 +11613,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
             'nodes',
             'planes'
         ]).then(function (dependencies) {
-            return Utility.each(json.scenes, function (scene) {
+            return Utility$1.each(json.scenes, function (scene) {
                 var _scene = {};
                 _scene.name = scene.name || "Scene_Untitled";
                 _scene.index = -1;
@@ -9695,7 +11653,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
             'colormaps',
             'styles'
         ]).then(function (dependencies) {
-            return Utility.each(json.planes, function (plane, index) {
+            return Utility$1.each(json.planes, function (plane, index) {
                 plane.index = index;
                 if (plane.elements !== undefined && plane.elements.constructor === Array) {
                     for (var i = 0; i < plane.elements.length; i++) {
@@ -9710,13 +11668,13 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
     };
     GLTFLoader.prototype.loadStyles = function () {
         var json = this.json;
-        return Utility.each(json.styles, function (style) {
+        return Utility$1.each(json.styles, function (style) {
             return style;
         });
     };
     GLTFLoader.prototype.loadLabels = function () {
         var json = this.json;
-        return Utility.each(json.labels, function (label) {
+        return Utility$1.each(json.labels, function (label) {
             return label;
         });
     };
@@ -9725,7 +11683,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
         return this.withDependencies([
             'points'
         ]).then(function (dependencies) {
-            return Utility.each(json.colormaps, function (colormap) {
+            return Utility$1.each(json.colormaps, function (colormap) {
                 if (colormap.colors !== undefined && colormap.colors.constructor === Array) {
                     var colors = [];
                     for (var i = 0; i < colormap.colors.length; i++)
@@ -9744,7 +11702,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
     };
     GLTFLoader.prototype.loadPoints = function () {
         var json = this.json;
-        return Utility.each(json.points, function (point) {
+        return Utility$1.each(json.points, function (point) {
             return point;
         });
     };
@@ -9754,7 +11712,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
             'meshes',
             'cameras'
         ]).then(function (dependencies) {
-            return Utility.each(json.nodes, function (node, index) {
+            return Utility$1.each(json.nodes, function (node, index) {
                 if (node.name === undefined) {
                     node.name = "node_" + index;
                 }
@@ -9774,7 +11732,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
     };
     GLTFLoader.prototype.loadCameras = function () {
         var json = this.json;
-        return Utility.each(json.cameras, function (camera) {
+        return Utility$1.each(json.cameras, function (camera) {
             return camera;
         });
     };
@@ -9784,7 +11742,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
             'materials',
             'accessors'
         ]).then(function (dependencies) {
-            return Utility.each(json.meshes, function (_mesh, index) {
+            return Utility$1.each(json.meshes, function (_mesh, index) {
                 var selectedMesh = _mesh;
                 var mesh = null;
                 if (selectedMesh) {
@@ -9829,7 +11787,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
         return this.withDependencies([
             'textures'
         ]).then(function (dependencies) {
-            return Utility.each(json.materials, function (_material, index) {
+            return Utility$1.each(json.materials, function (_material, index) {
                 var material = JSON.parse(JSON.stringify(_material));
                 material.id = 'material_' + index;
                 if (material.pbrMetallicRoughness !== undefined && material.pbrMetallicRoughness.baseColorTexture !== undefined)
@@ -9843,7 +11801,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
         return this.withDependencies([
             'bufferViews'
         ]).then(function (dependencies) {
-            return Utility.each(json.textures, function (_texture) {
+            return Utility$1.each(json.textures, function (_texture) {
                 var texture = JSON.parse(JSON.stringify(_texture));
                 if (texture.source !== undefined) {
                     var imageSource = json.images[texture.source];
@@ -9852,7 +11810,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
                     texture.mimeType = imageSource.mimeType;
                     var bufferView = bufferViewLoader.getBufferView();
                     if (bufferView.arrayBuffer) {
-                        var stringData = Utility.convertUint8ArrayToString(new Uint8Array(bufferView.arrayBuffer));
+                        var stringData = Utility$1.convertUint8ArrayToString(new Uint8Array(bufferView.arrayBuffer));
                         texture.data = 'data:' + imageSource.mimeType + ';base64,' + btoa(stringData);
                     }
                     else {
@@ -9868,7 +11826,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
         return this.withDependencies([
             'bufferViews'
         ]).then(function (dependencies) {
-            return Utility.each(json.accessors, function (accessor, index) {
+            return Utility$1.each(json.accessors, function (accessor, index) {
                 //let selectedAccessor = JSON.parse(JSON.stringify(accessor));
                 //selectedAccessor.bufferViewData = dependencies.bufferViews[ accessor.bufferView ]; 
                 //accessor.bufferViewData = dependencies.bufferViews[ accessor.bufferView ]; 
@@ -9888,7 +11846,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
         return this.withDependencies([
             'buffers'
         ]).then(function (dependencies) {
-            return Utility.each(json.bufferViews, function (bufferView, index) {
+            return Utility$1.each(json.bufferViews, function (bufferView, index) {
                 /*
                 let selectedBufferView = JSON.parse(JSON.stringify(bufferView));
                 let bufferObject = dependencies.buffers[ bufferView.buffer ];
@@ -9935,7 +11893,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
         var scope = this;
         var json = this.json;
         json.buffers.length;
-        return Utility.each(json.buffers, function (buffer, index) {
+        return Utility$1.each(json.buffers, function (buffer, index) {
             return new Promise(function (resolve, reject) {
                 if (buffer.uri) {
                     var bufferObject = scope.bufferCache.get(buffer.uri);
@@ -9971,7 +11929,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
                                         //let mimeType = dataUriRegexResult[ 1 ];
                                         //let isBase64 = !! dataUriRegexResult[ 2 ];
                                         var data = dataUriRegexResult[3];
-                                        var arrayBuffer = Utility.base64.decode(data);
+                                        var arrayBuffer = Utility$1.base64.decode(data);
                                         resolve(arrayBuffer);
                                     }
                                     catch (error) {
@@ -10025,7 +11983,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
                 _dependencies[dependency] = fn;
             }
         }
-        return Utility.each(_dependencies, function (dependency) {
+        return Utility$1.each(_dependencies, function (dependency) {
             return dependency;
         });
     };
@@ -10408,7 +12366,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
     function PointMesh(name, point) {
         var _this = _super.call(this, name) || this;
         _this.pt = point;
-        _this.uid = Utility.getGUID();
+        _this.uid = Utility$1.getGUID();
         _this.rendingMode = RenderMode.POINTS;
         _this.createPointMesh(point);
         _this.material = new Material(name);
@@ -10523,7 +12481,7 @@ var MouseControl = /** @class */ (function (_super) {
             //  let rotationPoint = (hit && hit['hitPoint'])?hit['hitPoint']:undefined;
             var rotationPoint = undefined;
             if (rotationPoint !== undefined && _altKeyPressed == true) {
-                this.camControls.setRotationPoint(fromValues$1(rotationPoint[0], rotationPoint[1], rotationPoint[2]));
+                this.camControls.setRotationPoint(fromValues$1$1(rotationPoint[0], rotationPoint[1], rotationPoint[2]));
                 //visualize point
                 if (!this.rotationPointNode) {
                     this.rotationPointNode = this.getPointMesh('rotationPoint', rotationPoint);
@@ -10649,9 +12607,9 @@ var Triangle = /** @class */ (function () {
         return new Float32Array(__spread$1(this.v1.values(), this.v2.values(), this.v3.values()));
     };
     Triangle.prototype.transformCopy = function (data) {
-        var a = create$2();
-        var b = create$2();
-        var c = create$2();
+        var a = create$2$1();
+        var b = create$2$1();
+        var c = create$2$1();
         transformMat4(a, this.v1, data);
         transformMat4(b, this.v2, data);
         transformMat4(c, this.v3, data);
@@ -10668,8 +12626,8 @@ var Line = /** @class */ (function () {
         return new Float32Array(__spread$1(this.v1.values(), this.v2.values()));
     };
     Line.prototype.transformCopy = function (data) {
-        var a = create$2();
-        var b = create$2();
+        var a = create$2$1();
+        var b = create$2$1();
         transformMat4(a, this.v1, data);
         transformMat4(b, this.v2, data);
         return new Line(a, b);
@@ -10684,59 +12642,14 @@ var Point = /** @class */ (function () {
         return new Float32Array(__spread$1(this.v1.values()));
     };
     Point.prototype.transformCopy = function (data) {
-        var a = create$2();
+        var a = create$2$1();
         transformMat4(a, this.v1, data);
         return new Point(a);
     };
     return Point;
-}());var LineMesh = /** @class */ (function (_super) {
-    __extends(LineMesh, _super);
-    function LineMesh(name, p1, p2, precentOffset) {
-        if (precentOffset === void 0) { precentOffset = 0; }
-        var _this = _super.call(this, name) || this;
-        _this.uid = Utility.getGUID();
-        _this.p1 = p1;
-        _this.p2 = p2;
-        _this.rendingMode = RenderMode.LINES;
-        _this.createLineMesh(precentOffset);
-        _this.material = new Material(name);
-        _this.material.diffuseColor = [0, 0, 0];
-        return _this;
-    }
-    LineMesh.prototype.createLineMesh = function (precentOffset) {
-        //Set offset
-        var percent = precentOffset / 100;
-        var offset = squaredDistance(this.p1, this.p2) * percent * percent;
-        sub(this.p1, this.p1, fromValues$1(offset, offset, offset));
-        add(this.p2, this.p2, fromValues$1(offset, offset, offset));
-        var vertices = new Float32Array([
-            this.p1[0], this.p1[1], this.p1[2],
-            this.p2[0], this.p2[1], this.p2[2],
-        ]);
-        var indices = new Uint32Array([
-            0, 1
-        ]);
-        this.setattribs(this.generateAttribute(vertices));
-        this.setIndex(this.generateIndices(indices));
-    };
-    LineMesh.prototype.generateAttribute = function (vertices) {
-        var attrib = new WebGLArrayBufferAttribute();
-        attrib.position = new WebGLArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, vertices);
-        return attrib;
-    };
-    LineMesh.prototype.generateIndices = function (indices) {
-        var index = new WebGLElementArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, indices);
-        return index;
-    };
-    LineMesh.prototype.update = function (p1, p2) {
-        this.attribs.position.updateData(new Float32Array(__spread$1(p1, p2)).buffer);
-    };
-    return LineMesh;
-}(CoreMesh));var Picker = /** @class */ (function () {
+}());var Picker = /** @class */ (function () {
     function Picker() {
         this.sceneManager = AppObjects.sceneManager;
-        this.selectedPartId = -1;
-        this.lastSelectedId = -1;
         this.isProbingEnabled = false;
         this.renderer = AppObjects.renderer;
         this.pickShader = new Shader(PickVertexShader, PickFragmentShader);
@@ -10752,7 +12665,7 @@ var Point = /** @class */ (function () {
         }
     };
     Picker.prototype.pickPart = function (nodes, mouseData) {
-        var mouse = mouseData.xyFromBtm;
+        var mouse = [mouseData.xyFromTop[0], mouseData.height - mouseData.xyFromTop[1]];
         this.renderer.stopRenderLoop();
         WebGLState.clear();
         this.renderer.clearColor();
@@ -10771,27 +12684,12 @@ var Point = /** @class */ (function () {
         }
         var pixelBuffer = this.renderer.readPixels(mouse[0], mouse[1]);
         var id = (pixelBuffer[0] << 16) | (pixelBuffer[1] << 8) | (pixelBuffer[2]);
-        this.selectedPartId = id - 1;
+        var selectedPartId = id - 1;
         this.renderer.startRenderLoop();
-        return this.selectedPartId;
+        return selectedPartId;
     };
-    Picker.prototype.probePart = function (nodes, mouseData) {
-        var _this = this;
-        var mouse = mouseData.xyFromBtm;
-        this.pickPart(nodes, mouseData);
-        this.selectNode = nodes[this.selectedPartId];
-        if (this.probeMesh) {
-            this.probeMesh.delete();
-            this.triangle.delete();
-            this.line.delete();
-            this.probeMesh = null;
-            this.triangle = null;
-            this.line = null;
-        }
-        if (this.selectNode == undefined || null)
-            return;
-        console.log('select node', this.selectNode);
-        this.renderer.stopRenderLoop();
+    Picker.prototype.performProbing = function (mouseData) {
+        var mouse = [mouseData.xyFromTop[0], mouseData.height - mouseData.xyFromTop[1]];
         var submeshName = "primitive_" + 0;
         var vertexSize = 3; // vertex count x,y,z
         var primitiveSize = 3; // triangle vertices 
@@ -10801,32 +12699,49 @@ var Point = /** @class */ (function () {
         else if (this.selectNode.mesh.subMeshes[submeshName].rendingMode === RenderMode.POINTS) {
             primitiveSize = 1;
         }
-        var positionArray = new Float32Array(this.selectNode.mesh.subMeshes[submeshName].attribs.position.getDataArray);
-        var indices = new Uint32Array(this.selectNode.mesh.subMeshes[submeshName].indices.getDataArray);
-        this.probeMesh = new CoreMesh('probeMesh');
+        var positionArray = this.selectNode.mesh.subMeshes[submeshName].attribs.position.getDataArray;
+        var indices = this.selectNode.mesh.subMeshes[submeshName].indices.getDataArray;
+        var probeMesh = new CoreMesh('probeMesh');
         var attribs = new WebGLArrayBufferAttribute();
-        var newPosition = [];
-        var newColor = [];
+        var newPosition = new Float32Array(indices.length * vertexSize);
+        //let newPosition = [];
+        var newColor = new Float32Array(indices.length * vertexSize);
         var vertexCount = 0;
-        indices.forEach(function (index) {
+        var counter = 0;
+        var start = performance.now();
+        var maxColors = 256 * 256 * 256;
+        for (var j = 0; j < indices.length; j++) {
+            var index = indices[j];
+            //let color = this.getColorFromIndex(Math.floor((vertexCount++)/primitiveSize) + 1);
+            var colorIndex = Math.floor((vertexCount++) / primitiveSize) + 1;
+            if (colorIndex >= maxColors)
+                colorIndex = 1;
+            var color = [Math.floor((colorIndex / 256 / 256) % 256) / 255, (Math.floor((colorIndex / 256)) % 256) / 255, Math.floor(colorIndex % 256) / 255];
             for (var i = 0; i < vertexSize; i++) {
-                newPosition.push(positionArray[index * vertexSize + i]);
+                //newPosition.push(positionArray[index*vertexSize + i]);
+                newPosition[counter] = positionArray[index * vertexSize + i];
+                newColor[counter] = color[i];
+                counter += 1;
             }
-            newColor.push.apply(newColor, __spread$1(_this.getColorFromIndex(Math.floor((vertexCount++) / primitiveSize) + 1)));
-        });
-        attribs.position = new WebGLArrayBuffer('probePos', BufferUsage.STATIC_DRAW, new Float32Array(newPosition));
-        attribs.color = new WebGLArrayBuffer('probeColor', BufferUsage.STATIC_DRAW, new Float32Array(newColor));
-        this.probeMesh.attribs = attribs;
-        this.probeMesh.rendingMode = this.selectNode.mesh.subMeshes[submeshName].rendingMode;
+        }
+        var end = performance.now();
+        var bufferCreationTime = end - start;
+        start = performance.now();
+        attribs.position = new WebGLArrayBuffer('probePos', BufferUsage.STATIC_DRAW, newPosition);
+        attribs.color = new WebGLArrayBuffer('probeColor', BufferUsage.STATIC_DRAW, newColor);
+        end = performance.now();
+        var bufferCopyTime = end - start;
+        probeMesh.attribs = attribs;
+        probeMesh.rendingMode = this.selectNode.mesh.subMeshes[submeshName].rendingMode;
         this.renderer.stopRenderLoop();
         WebGLState.clear();
         if (this.renderer.camControl)
             this.renderer.camControl.update();
         this.renderer.renderTarget.bind();
         this.renderer.clearColor();
-        AppState.GLContext.enable(AppState.GLContext.DEPTH_TEST);
-        AppState.GLContext.depthFunc(AppState.GLContext.LEQUAL);
-        this.renderer.renderBufferDirect(this.probeMesh, this.selectNode.worldMatrix, this.pickShader);
+        AppState$1.GLContext.enable(AppState$1.GLContext.DEPTH_TEST);
+        AppState$1.GLContext.depthFunc(AppState$1.GLContext.LEQUAL);
+        this.renderer.renderBufferDirect(probeMesh, this.selectNode.worldMatrix, this.pickShader);
         var pixelBuffer = this.renderer.readPixels(mouse[0], mouse[1]);
         this.renderer.renderTarget.unbind();
         console.log("pixel buffer", pixelBuffer);
@@ -10834,47 +12749,45 @@ var Point = /** @class */ (function () {
         var primitiveId = ((pixelBuffer[0] << 16) | (pixelBuffer[1] << 8) | (pixelBuffer[2])) - 1;
         if (primitiveId < 0) {
             console.error("Part Selected but prob failed to detect");
-            this.probeMesh.delete();
-            this.probeMesh = null;
+            probeMesh.delete();
+            probeMesh.clearData();
+            newPosition = null;
+            newColor = null;
+            probeMesh = null;
             this.renderer.startRenderLoop();
             return out;
         }
         var primitivePos = null;
-        console.log("oldPos", positionArray);
-        console.log("connect", indices);
-        console.log("newPos", newPosition);
-        console.log("primitive id", primitiveId);
         var indicesId = primitiveId * primitiveSize;
-        console.log("index id", indices[indicesId]);
         var v1Index = indices[indicesId];
         //get ray from camera
         var cam = AppObjects.mouseControl.camControls;
-        var nearPoint = cam.unproject(__spread$1(mouseData.xyFromTop, [0]), create$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
-        var farPoint = cam.unproject(__spread$1(mouseData.xyFromTop, [1]), create$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
+        var nearPoint = cam.unproject(__spread$1(mouseData.xyFromTop, [0]), create$1$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
+        var farPoint = cam.unproject(__spread$1(mouseData.xyFromTop, [1]), create$1$1(), [cam.canvas.width, cam.canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
         var transPrimitive = null;
         if (primitiveSize == 3) {
-            primitivePos = new Triangle(fromValues$1(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]), fromValues$1(newPosition[primitiveId * vertexSize * primitiveSize + 3], newPosition[primitiveId * vertexSize * primitiveSize + 4], newPosition[primitiveId * vertexSize * primitiveSize + 5]), fromValues$1(newPosition[primitiveId * vertexSize * primitiveSize + 6], newPosition[primitiveId * vertexSize * primitiveSize + 7], newPosition[primitiveId * vertexSize * primitiveSize + 8]));
+            primitivePos = new Triangle(fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]), fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize + 3], newPosition[primitiveId * vertexSize * primitiveSize + 4], newPosition[primitiveId * vertexSize * primitiveSize + 5]), fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize + 6], newPosition[primitiveId * vertexSize * primitiveSize + 7], newPosition[primitiveId * vertexSize * primitiveSize + 8]));
             console.log("using vertex ", primitivePos);
             transPrimitive = primitivePos.transformCopy(this.selectNode.worldMatrix);
             out = this.intersectTriangle(nearPoint, farPoint, transPrimitive);
             //For testing only
             var v2Index = indices[indicesId + 1];
             var v3Index = indices[indicesId + 2];
-            var triangleFromIndices = new Triangle(fromValues$1(positionArray[v1Index * vertexSize], positionArray[v1Index * vertexSize + 1], positionArray[v1Index * vertexSize + 2]), fromValues$1(positionArray[v2Index * vertexSize], positionArray[v2Index * vertexSize + 1], positionArray[v2Index * vertexSize + 2]), fromValues$1(positionArray[v3Index * vertexSize], positionArray[v3Index * vertexSize + 1], positionArray[v3Index * vertexSize + 2]));
+            var triangleFromIndices = new Triangle(fromValues$1$1(positionArray[v1Index * vertexSize], positionArray[v1Index * vertexSize + 1], positionArray[v1Index * vertexSize + 2]), fromValues$1$1(positionArray[v2Index * vertexSize], positionArray[v2Index * vertexSize + 1], positionArray[v2Index * vertexSize + 2]), fromValues$1$1(positionArray[v3Index * vertexSize], positionArray[v3Index * vertexSize + 1], positionArray[v3Index * vertexSize + 2]));
             console.log("using indices ", triangleFromIndices);
         }
         else if (primitiveSize == 2) {
-            primitivePos = new Line(fromValues$1(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]), fromValues$1(newPosition[primitiveId * vertexSize * primitiveSize + 3], newPosition[primitiveId * vertexSize * primitiveSize + 4], newPosition[primitiveId * vertexSize * primitiveSize + 5]));
+            primitivePos = new Line(fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]), fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize + 3], newPosition[primitiveId * vertexSize * primitiveSize + 4], newPosition[primitiveId * vertexSize * primitiveSize + 5]));
             console.log("using vertex ", primitivePos);
             transPrimitive = primitivePos.transformCopy(this.selectNode.worldMatrix);
             out = this.intersectLine(nearPoint, farPoint, transPrimitive);
             //For testing only
             var v2Index = indices[indicesId + 1];
-            var LineFromIndices = new Line(fromValues$1(positionArray[v1Index * vertexSize], positionArray[v1Index * vertexSize + 1], positionArray[v1Index * vertexSize + 2]), fromValues$1(positionArray[v2Index * vertexSize], positionArray[v2Index * vertexSize + 1], positionArray[v2Index * vertexSize + 2]));
+            var LineFromIndices = new Line(fromValues$1$1(positionArray[v1Index * vertexSize], positionArray[v1Index * vertexSize + 1], positionArray[v1Index * vertexSize + 2]), fromValues$1$1(positionArray[v2Index * vertexSize], positionArray[v2Index * vertexSize + 1], positionArray[v2Index * vertexSize + 2]));
             console.log("using indices ", LineFromIndices);
         }
         else if (primitiveSize == 1) {
-            primitivePos = new Point(fromValues$1(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]));
+            primitivePos = new Point(fromValues$1$1(newPosition[primitiveId * vertexSize * primitiveSize], newPosition[primitiveId * vertexSize * primitiveSize + 1], newPosition[primitiveId * vertexSize * primitiveSize + 2]));
             console.log("using vertex ", primitivePos);
             transPrimitive = primitivePos.transformCopy(this.selectNode.worldMatrix);
             out = {
@@ -10882,9 +12795,14 @@ var Point = /** @class */ (function () {
                 nearPoint: transPrimitive.v1
             };
             //For testing only
-            var PointFromIndices = new Point(fromValues$1(positionArray[v1Index * vertexSize], positionArray[v1Index * vertexSize + 1], positionArray[v1Index * vertexSize + 2]));
+            var PointFromIndices = new Point(fromValues$1$1(positionArray[v1Index * vertexSize], positionArray[v1Index * vertexSize + 1], positionArray[v1Index * vertexSize + 2]));
             console.log("using indices ", PointFromIndices);
         }
+        //           // for testing
+        //   probeMesh.delete();
+        //   probeMesh.clearData();
+        //   console.log("probing finish")
+        //   return {}
         //draw primitive for visualization
         var selectPrimitive = new CoreMesh('selectedPrimitive');
         selectPrimitive.rendingMode = this.selectNode.mesh.subMeshes[submeshName].rendingMode;
@@ -10892,10 +12810,11 @@ var Point = /** @class */ (function () {
         primAttrib.position = new WebGLArrayBuffer('pos', BufferUsage.STATIC_DRAW, primitivePos.data());
         selectPrimitive.attribs = primAttrib;
         this.triangle = selectPrimitive;
-        //draw ray for testing
-        this.line = new LineMesh('ray', nearPoint, farPoint);
+        // //draw ray for testing
+        // this.line= new LineMesh('ray',nearPoint,farPoint);
         this.renderer.startRenderLoop();
         var probeData = {
+            debugInfo: "Buffer creation: " + bufferCreationTime + " ms, BufferCopy: " + bufferCopyTime + " ms",
             hitPoint: out ? out.hitPoint : null,
             nearPoint: out ? out.nearPoint : null,
             connectivityIndex: indicesId,
@@ -10903,6 +12822,31 @@ var Point = /** @class */ (function () {
             renderNodeId: this.selectNode ? this.selectNode.index : -1,
             primitiveData: transPrimitive.data()
         };
+        probeMesh.delete();
+        probeMesh.clearData();
+        newPosition = null;
+        newColor = null;
+        probeMesh = null;
+        return probeData;
+    };
+    Picker.prototype.probePart = function (nodes, mouseData) {
+        console.log("probing.........");
+        var selectedPartId = this.pickPart(nodes, mouseData);
+        this.selectNode = nodes[selectedPartId];
+        if (this.triangle) {
+            this.triangle.delete();
+            this.triangle.clearData();
+            //this.line.delete();
+            //this.line.clearData();
+            this.triangle = null;
+            this.line = null;
+        }
+        if (this.selectNode == undefined || null)
+            return;
+        console.log('select node', this.selectNode);
+        this.renderer.stopRenderLoop();
+        var probeData = this.performProbing(mouseData);
+        //let probeData = {}
         AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.PROBE_FINISH, data: probeData });
         return probeData;
     };
@@ -10921,66 +12865,41 @@ var Point = /** @class */ (function () {
         var color = [Math.floor((colorIndex / 256 / 256) % 256) / 255, (Math.floor((colorIndex / 256)) % 256) / 255, Math.floor(colorIndex % 256) / 255];
         return color;
     };
-    Picker.prototype.highlightPart = function () {
-        var selectNode = this.nodes[this.selectedPartId];
-        var lastNode = this.nodes[this.lastSelectedId];
-        if (selectNode !== undefined) {
-            var bbox = selectNode.mesh.subMeshes['BBox'];
-            bbox.visible = true;
-            if (AppObjects.externalEventDispatcher)
-                AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.PART_PICKED, data: {
-                        id: this.selectedPartId,
-                        index: this.selectedPartId,
-                        name: selectNode.name
-                    } });
-            if (lastNode !== undefined && this.lastSelectedId !== this.selectedPartId) {
-                var bbox_1 = lastNode.mesh.subMeshes['BBox'];
-                bbox_1.visible = false;
-            }
-            this.lastSelectedId = this.selectedPartId;
-        }
-        else {
-            if (lastNode !== undefined) {
-                var bbox = lastNode.mesh.subMeshes['BBox'];
-                bbox.visible = false;
-            }
-        }
-    };
     Picker.prototype.intersectTriangle = function (point3d1, point3d2, triangle) {
         var EPSILON = 0.000001;
         var noIntersection = false;
         //var HitPos = null;
         var pt = point3d1;
-        var dir = create$2();
-        sub(dir, point3d2, point3d1);
-        normalize(dir, dir);
-        var edge1 = create$2();
-        sub(edge1, triangle.v2, triangle.v1);
-        var edge2 = create$2();
-        sub(edge2, triangle.v3, triangle.v1);
-        var pvec = create$2();
-        cross(pvec, dir, edge2);
-        var det = dot(pvec, edge1);
+        var dir = create$2$1();
+        sub$1(dir, point3d2, point3d1);
+        normalize$1(dir, dir);
+        var edge1 = create$2$1();
+        sub$1(edge1, triangle.v2, triangle.v1);
+        var edge2 = create$2$1();
+        sub$1(edge2, triangle.v3, triangle.v1);
+        var pvec = create$2$1();
+        cross$1(pvec, dir, edge2);
+        var det = dot$1(pvec, edge1);
         if (det < EPSILON)
             noIntersection = true;
-        var tvec = create$2();
-        sub(tvec, pt, triangle.v1);
-        var u = dot(tvec, pvec);
+        var tvec = create$2$1();
+        sub$1(tvec, pt, triangle.v1);
+        var u = dot$1(tvec, pvec);
         if (u < 0 || u > det)
             noIntersection = true;
-        var qvec = create$2();
-        cross(qvec, tvec, edge1);
-        var v = dot(dir, qvec);
+        var qvec = create$2$1();
+        cross$1(qvec, tvec, edge1);
+        var v = dot$1(dir, qvec);
         if (v < 0 || u + v > det)
             noIntersection = true;
         var out = [];
-        var t = dot(edge2, qvec) / det;
+        var t = dot$1(edge2, qvec) / det;
         out[0] = pt[0] + t * dir[0];
         out[1] = pt[1] + t * dir[1];
         out[2] = pt[2] + t * dir[2];
         out[3] = 1;
         if (noIntersection) {
-            var intersection = fromValues$1(out[0], out[1], out[2]);
+            var intersection = fromValues$1$1(out[0], out[1], out[2]);
             var nearPointWorld = this.projectToEdge(triangle.v1, triangle.v2, triangle.v3, intersection);
             sqrDist(intersection, nearPointWorld);
             //alert("sqred error"+error)
@@ -10989,7 +12908,7 @@ var Point = /** @class */ (function () {
             out = [nearPointWorld[0], nearPointWorld[1], nearPointWorld[2]];
             out = __spread$1(intersection);
         }
-        var nearPt = this.findNearPoint(triangle.v1, triangle.v2, triangle.v3, fromValues$1(out[0], out[1], out[2]));
+        var nearPt = this.findNearPoint(triangle.v1, triangle.v2, triangle.v3, fromValues$1$1(out[0], out[1], out[2]));
         var obj = {
             hitPoint: out,
             nearPoint: nearPt
@@ -10999,30 +12918,30 @@ var Point = /** @class */ (function () {
     Picker.prototype.intersectLine = function (point3d1, point3d2, line) {
         var p1 = line.v1;
         var p2 = point3d1;
-        var d1 = create$2();
-        var d2 = create$2();
-        sub(d1, line.v2, line.v1);
-        sub(d2, point3d2, point3d1);
-        var d1xd2 = create$2();
-        cross(d1xd2, d1, d2);
-        var p2p1 = create$2();
-        sub(p2p1, p2, p1);
-        var d1xd2sq = sqrLen(d1xd2);
+        var d1 = create$2$1();
+        var d2 = create$2$1();
+        sub$1(d1, line.v2, line.v1);
+        sub$1(d2, point3d2, point3d1);
+        var d1xd2 = create$2$1();
+        cross$1(d1xd2, d1, d2);
+        var p2p1 = create$2$1();
+        sub$1(p2p1, p2, p1);
+        var d1xd2sq = sqrLen$1(d1xd2);
         if (d1xd2sq == 0)
             return {};
-        var p2p1xd2 = create$2();
-        var p2p1xd1 = create$2();
-        cross(p2p1xd2, p2p1, d2);
-        cross(p2p1xd1, p2p1, d1);
-        var t1 = dot(p2p1xd2, d1xd2) / d1xd2sq;
-        var t2 = dot(p2p1xd1, d1xd2) / d1xd2sq;
-        var lineIntersect = create$2();
-        var rayIntersect = create$2();
+        var p2p1xd2 = create$2$1();
+        var p2p1xd1 = create$2$1();
+        cross$1(p2p1xd2, p2p1, d2);
+        cross$1(p2p1xd1, p2p1, d1);
+        var t1 = dot$1(p2p1xd2, d1xd2) / d1xd2sq;
+        var t2 = dot$1(p2p1xd1, d1xd2) / d1xd2sq;
+        var lineIntersect = create$2$1();
+        var rayIntersect = create$2$1();
         scaleAndAdd(lineIntersect, p1, d1, t1);
         scaleAndAdd(rayIntersect, p2, d2, t2);
         sqrDist(lineIntersect, rayIntersect);
         var hitPoint = lineIntersect;
-        var nearPoint = create$2();
+        var nearPoint = create$2$1();
         var v1dist = sqrDist(line.v1, hitPoint);
         var v2dist = sqrDist(line.v2, hitPoint);
         nearPoint = (v1dist < v2dist) ? line.v1 : line.v2;
@@ -11037,36 +12956,36 @@ var Point = /** @class */ (function () {
         var disToE2 = sqrDist(pt, pB);
         var disToE3 = sqrDist(pt, pC);
         if (disToE1 < disToE2 && disToE1 < disToE3) {
-            return pA;
+            return clone$1$1(pA);
         }
         else if (disToE2 < disToE3) {
-            return pB;
+            return clone$1$1(pB);
         }
         else {
-            return pC;
+            return clone$1$1(pC);
         }
     };
     Picker.prototype.projectToEdge = function (pA, pB, pC, pt) {
-        var E1 = create$2();
+        var E1 = create$2$1();
         var edge1 = { a: pA, b: pC };
-        sub(E1, pC, pA);
-        var E2 = create$2();
+        sub$1(E1, pC, pA);
+        var E2 = create$2$1();
         var edge2 = { a: pA, b: pB };
-        sub(E2, pB, pA);
-        var E3 = create$2();
+        sub$1(E2, pB, pA);
+        var E3 = create$2$1();
         var edge3 = { a: pB, b: pC };
-        sub(E3, pC, pB);
-        var nearPt = create$2();
-        var nearPointWorldE1 = create$2();
-        var nearPointWorldE2 = create$2();
-        var nearPointWorldE3 = create$2();
-        sub(nearPt, pt, edge1.a);
+        sub$1(E3, pC, pB);
+        var nearPt = create$2$1();
+        var nearPointWorldE1 = create$2$1();
+        var nearPointWorldE2 = create$2$1();
+        var nearPointWorldE3 = create$2$1();
+        sub$1(nearPt, pt, edge1.a);
         MathUtils.projectOnVector(nearPt, E1);
         add(nearPointWorldE1, edge1.a, nearPt);
-        sub(nearPt, pt, edge2.a);
+        sub$1(nearPt, pt, edge2.a);
         MathUtils.projectOnVector(nearPt, E2);
         add(nearPointWorldE2, edge2.a, nearPt);
-        sub(nearPt, pt, edge3.a);
+        sub$1(nearPt, pt, edge3.a);
         MathUtils.projectOnVector(nearPt, E3);
         add(nearPointWorldE3, edge3.a, nearPt);
         var disToE1 = sqrDist(pt, nearPointWorldE1);
@@ -11093,7 +13012,7 @@ var Point = /** @class */ (function () {
         _this.b = b;
         _this.c = c;
         _this.d = d;
-        _this.uid = Utility.getGUID();
+        _this.uid = Utility$1.getGUID();
         _this.rendingMode = RenderMode.LINES;
         _this.createRectangleMesh(a, b, c, d, precentOffset);
         _this.material = new Material(name);
@@ -11141,7 +13060,7 @@ var Point = /** @class */ (function () {
         _this.b = b;
         _this.c = c;
         _this.d = d;
-        _this.uid = Utility.getGUID();
+        _this.uid = Utility$1.getGUID();
         _this.mainMesh = _this.createPlaneMesh(a, b, c, d, color);
         _this.subMeshes['bbox'] = new RectangleMesh(name + "border", a, b, c, d, [0, 0, 0, 1]);
         return _this;
@@ -11180,21 +13099,21 @@ var Point = /** @class */ (function () {
         return Math.abs(p0[0] * (p1[1] - p2[1]) + p1[0] * (p2[1] - p0[1]) + p2[0] * (p0[1] - p1[1]) * 0.5);
     };
     SectionPlaneMesh.prototype.checkWithinBounds = function (target, p0, p1, p2, p3) {
-        var center = create$2();
+        var center = create$2$1();
         add(center, p0, p2);
         scale$1(center, center, 0.5);
-        var hit = create$2();
-        sub(hit, target, center);
-        var u = create$2();
-        var v = create$2();
-        sub(u, p3, p0);
-        normalize(u, u);
-        sub(v, p1, p0);
-        normalize(v, v);
+        var hit = create$2$1();
+        sub$1(hit, target, center);
+        var u = create$2$1();
+        var v = create$2$1();
+        sub$1(u, p3, p0);
+        normalize$1(u, u);
+        sub$1(v, p1, p0);
+        normalize$1(v, v);
         var uDist = sqrDist(p3, p0) / 4;
         var vDist = sqrDist(p1, p0) / 4;
-        var q1 = dot(u, hit);
-        var q2 = dot(v, hit);
+        var q1 = dot$1(u, hit);
+        var q2 = dot$1(v, hit);
         if (q1 * q1 < uDist && q1 * q1 > 0 && q2 * q2 > 0 && q2 * q2 < vDist) {
             return true;
         }
@@ -11204,10 +13123,10 @@ var Point = /** @class */ (function () {
     };
     SectionPlaneMesh.prototype.updateBounds = function (transform) {
         var bounds = [];
-        bounds.push(create$2());
-        bounds.push(create$2());
-        bounds.push(create$2());
-        bounds.push(create$2());
+        bounds.push(create$2$1());
+        bounds.push(create$2$1());
+        bounds.push(create$2$1());
+        bounds.push(create$2$1());
         transformMat4(bounds[0], this.a, transform);
         transformMat4(bounds[1], this.b, transform);
         transformMat4(bounds[2], this.c, transform);
@@ -11219,20 +13138,20 @@ var Point = /** @class */ (function () {
         //update normal and constant
         var quat = create$4();
         getRotation(quat, transform);
-        var normal = create$2();
-        transformQuat(normal, fromValues$1(0, 0, 1), quat);
+        var normal = create$2$1();
+        transformQuat(normal, fromValues$1$1(0, 0, 1), quat);
         var position = MathUtils.getPositionVector(transform);
-        var denom = dot(normal, r.dir);
+        var denom = dot$1(normal, r.dir);
         if (denom != 0) {
-            var p0l0 = create$2();
-            sub(p0l0, position, r.orig);
-            var t = Math.abs(dot(p0l0, normal) / denom);
-            var hitpoint = create$2();
+            var p0l0 = create$2$1();
+            sub$1(p0l0, position, r.orig);
+            var t = Math.abs(dot$1(p0l0, normal) / denom);
+            var hitpoint = create$2$1();
             scaleAndAdd(hitpoint, r.orig, r.dir, t);
             round(hitpoint, hitpoint);
             console.log("hit point", hitpoint);
-            var offset = create$2();
-            sub(offset, hitpoint, position);
+            var offset = create$2$1();
+            sub$1(offset, hitpoint, position);
             if (this.checkWithinBounds(hitpoint, bounds[0], bounds[1], bounds[2], bounds[3])) {
                 return sqrDist(r.orig, hitpoint);
             }
@@ -11241,38 +13160,38 @@ var Point = /** @class */ (function () {
     };
     SectionPlaneMesh.prototype.getPoints = function () {
         return [
-            clone$1(this.a),
-            clone$1(this.b),
-            clone$1(this.c),
-            clone$1(this.d)
+            clone$1$1(this.a),
+            clone$1$1(this.b),
+            clone$1$1(this.c),
+            clone$1$1(this.d)
         ];
     };
     SectionPlaneMesh.prototype.getCenter = function () {
-        var out = create$2();
+        var out = create$2$1();
         add(out, this.a, this.c);
         scale$1(out, out, 0.5);
         return out;
     };
     SectionPlaneMesh.prototype.getRightDir = function () {
-        var right = create$2();
+        var right = create$2$1();
         add(right, this.c, this.d);
         scale$1(right, right, 0.5);
-        sub(right, right, this.getCenter());
-        normalize(right, right);
+        sub$1(right, right, this.getCenter());
+        normalize$1(right, right);
         return right;
     };
     SectionPlaneMesh.prototype.getTopDir = function () {
-        var top = create$2();
+        var top = create$2$1();
         add(top, this.b, this.c);
         scale$1(top, top, 0.5);
-        sub(top, top, this.getCenter());
-        normalize(top, top);
+        sub$1(top, top, this.getCenter());
+        normalize$1(top, top);
         return top;
     };
     SectionPlaneMesh.prototype.getFrontDir = function () {
-        var front = create$2();
-        cross(front, this.getRightDir(), this.getTopDir());
-        normalize(front, front);
+        var front = create$2$1();
+        cross$1(front, this.getRightDir(), this.getTopDir());
+        normalize$1(front, front);
         return front;
     };
     return SectionPlaneMesh;
@@ -11282,7 +13201,7 @@ var LabelVertex = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\ni
 var LabelFrag = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 vColor;uniform highp vec3 uColor;out vec4 outColor;void main(void){vec3 col=uColor;if(col==vec3(0.0))col=vColor;outColor=vec4(col,1);}"; // eslint-disable-line
 var Plane = /** @class */ (function () {
     function Plane(normal, constant) {
-        if (normal === void 0) { normal = fromValues$1(1, 0, 0); }
+        if (normal === void 0) { normal = fromValues$1$1(1, 0, 0); }
         if (constant === void 0) { constant = 0; }
         this.normal = normal;
         this.constant = constant;
@@ -11290,35 +13209,35 @@ var Plane = /** @class */ (function () {
     Plane.prototype.applyMatrix4 = function (mat) {
         var quat = create$4();
         getRotation(quat, mat);
-        transformQuat(this.normal, fromValues$1(0, 0, 1), quat);
+        transformQuat(this.normal, fromValues$1$1(0, 0, 1), quat);
         var position = MathUtils.getPositionVector(mat);
-        this.constant = dot(this.normal, position);
+        this.constant = dot$1(this.normal, position);
     };
     Plane.prototype.getClipEquation = function () {
         return fromValues$2(this.normal[0], this.normal[1], this.normal[2], -this.constant);
     };
     Plane.prototype.setFromNormalAndCoplanarPoint = function (normal, point) {
         copy(this.normal, normal);
-        this.constant = dot(point, this.normal);
+        this.constant = dot$1(point, this.normal);
     };
     Plane.prototype.distanceToPoint = function (point) {
-        return dot(this.normal, point) - this.constant;
+        return dot$1(this.normal, point) - this.constant;
     };
     Plane.prototype.projectPoint = function (point) {
-        var out = create$2();
+        var out = create$2$1();
         copy(out, this.normal);
         scale$1(out, out, -this.distanceToPoint(point));
         return add(out, out, point);
     };
     Plane.from3points = function (rkPoint0, rkPoint1, rkPoint2) {
-        var kEdge1 = create$2();
-        var kEdge2 = create$2();
-        sub(kEdge1, rkPoint1, rkPoint0);
-        sub(kEdge2, rkPoint2, rkPoint0);
-        var n = create$2();
-        cross(n, kEdge2, kEdge1);
-        normalize(n, n);
-        var d = -dot(n, rkPoint0);
+        var kEdge1 = create$2$1();
+        var kEdge2 = create$2$1();
+        sub$1(kEdge1, rkPoint1, rkPoint0);
+        sub$1(kEdge2, rkPoint2, rkPoint0);
+        var n = create$2$1();
+        cross$1(n, kEdge2, kEdge1);
+        normalize$1(n, n);
+        var d = -dot$1(n, rkPoint0);
         return new Plane(n, d);
     };
     return Plane;
@@ -11373,7 +13292,7 @@ var Plane = /** @class */ (function () {
     function Axes2DHelper(name, origin, scale) {
         var _this = _super.call(this, name) || this;
         _this.mesh = new Mesh("axisMesh");
-        _this.mesh.mainMesh = new AxisMesh("axis", origin, fromValues$1(scale, 0, 0), fromValues$1(0, scale, 0), fromValues$1(0, 0, scale));
+        _this.mesh.mainMesh = new AxisMesh("axis", origin, fromValues$1$1(scale, 0, 0), fromValues$1$1(0, scale, 0), fromValues$1$1(0, 0, scale));
         _this.visible = false;
         return _this;
     }
@@ -11409,21 +13328,21 @@ var Plane = /** @class */ (function () {
         var radius = this.bbox.getRadius() * 2;
         var out = [];
         if (transform) {
-            var u = fromValues$1(transform[0], transform[1], transform[2]);
-            var v = fromValues$1(transform[4], transform[5], transform[6]);
-            var left = create$2();
-            var right = create$2();
-            var top_1 = create$2();
-            var bottom = create$2();
+            var u = fromValues$1$1(transform[0], transform[1], transform[2]);
+            var v = fromValues$1$1(transform[4], transform[5], transform[6]);
+            var left = create$2$1();
+            var right = create$2$1();
+            var top_1 = create$2$1();
+            var bottom = create$2$1();
             scaleAndAdd(left, left, u, -radius);
             scaleAndAdd(right, right, u, radius);
             scaleAndAdd(top_1, top_1, v, radius);
             scaleAndAdd(bottom, bottom, v, -radius);
-            var lb = create$2();
-            var lt = create$2();
-            var rt = create$2();
-            var rb = create$2();
-            var center = fromValues$1(transform[12], transform[13], transform[14]);
+            var lb = create$2$1();
+            var lt = create$2$1();
+            var rt = create$2$1();
+            var rb = create$2$1();
+            var center = fromValues$1$1(transform[12], transform[13], transform[14]);
             add(lb, center, left);
             add(lb, lb, bottom);
             add(lt, center, left);
@@ -11447,8 +13366,8 @@ var Plane = /** @class */ (function () {
     SectionManager.prototype.setPlaneEqn = function (id, eqn) {
         if (eqn === void 0) { eqn = [1, 0, 0, 0]; }
         var planeEqn = new Plane();
-        planeEqn.normal = fromValues$1(eqn[0], eqn[1], eqn[2]);
-        normalize(planeEqn.normal, planeEqn.normal);
+        planeEqn.normal = fromValues$1$1(eqn[0], eqn[1], eqn[2]);
+        normalize$1(planeEqn.normal, planeEqn.normal);
         planeEqn.constant = -eqn[3];
         var planeState = this.planeStates.get(id);
         if (planeState) {
@@ -11470,17 +13389,17 @@ var Plane = /** @class */ (function () {
         this.shader.setMat4f(uniforms.uModelViewMatrix, node.worldMatrix);
         if (mesh.material) {
             var color = mesh.material.diffuseColor;
-            this.shader.setVector3f(uniforms.uColor, fromValues$1(color[0], color[1], color[2]));
+            this.shader.setVector3f(uniforms.uColor, fromValues$1$1(color[0], color[1], color[2]));
         }
         if (mesh.material.transparency > 0) {
             this.shader.setBool(uniforms.uUseTransparency, true);
             this.shader.setFloat(uniforms.uTransparencyFactor, mesh.material.transparency);
-            AppState.GLContext.depthMask(false);
-            AppState.GLContext.enable(AppState.GLContext.BLEND);
-            AppState.GLContext.blendFunc(AppState.GLContext.SRC_ALPHA, AppState.GLContext.ONE_MINUS_SRC_ALPHA);
-            AppState.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), AppState.GLContext.UNSIGNED_INT, 0);
-            AppState.GLContext.disable(AppState.GLContext.BLEND);
-            AppState.GLContext.depthMask(true);
+            AppState$1.GLContext.depthMask(false);
+            AppState$1.GLContext.enable(AppState$1.GLContext.BLEND);
+            AppState$1.GLContext.blendFunc(AppState$1.GLContext.SRC_ALPHA, AppState$1.GLContext.ONE_MINUS_SRC_ALPHA);
+            AppState$1.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), AppState$1.GLContext.UNSIGNED_INT, 0);
+            AppState$1.GLContext.disable(AppState$1.GLContext.BLEND);
+            AppState$1.GLContext.depthMask(true);
         }
         else {
             var lightDir = MathUtils.getDirVector(this.camControl.getInverseCameraMatrix(this.camControl.camType));
@@ -11488,18 +13407,18 @@ var Plane = /** @class */ (function () {
             this.shader.setVector3f(uniforms.uCameraPosition, this.camControl.getPosition());
             this.shader.setBool(uniforms.uUseTransparency, false);
             this.shader.setFloat(uniforms.uTransparencyFactor, mesh.material.transparency);
-            AppState.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), AppState.GLContext.UNSIGNED_INT, 0);
+            AppState$1.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), AppState$1.GLContext.UNSIGNED_INT, 0);
         }
     };
     SectionManager.prototype.renderGizmos = function () {
-        AppState.GLContext.clear(AppState.GLContext.DEPTH_BUFFER_BIT);
+        AppState$1.GLContext.clear(AppState$1.GLContext.DEPTH_BUFFER_BIT);
         this.renderAxisHelper();
     };
     SectionManager.prototype.renderAxisHelper = function () {
         var _this = this;
-        if (this.axis3DHelper === null && AppState.GLContext) {
+        if (this.axis3DHelper === null && AppState$1.GLContext) {
             this.axis3DHelper = new Axes3DHelper("axis");
-            this.refAxis2DHelper = new Axes2DHelper("axis2d", create$2(), 1);
+            this.refAxis2DHelper = new Axes2DHelper("axis2d", create$2$1(), 1);
         }
         if (this.axis3DHelper) {
             this.planeStates.forEach(function (planeState, key) {
@@ -11511,12 +13430,12 @@ var Plane = /** @class */ (function () {
                     var camPos = _this.camControl.getPosition();
                     var objPos = mesh.getCenter();
                     var scaleToFit = dist(camPos, objPos) * Math.tan(_this.camControl.perspParams.fov / 2) * 0.5; // some constant to fit to proper size
-                    var scale = create$1();
-                    var trans = create$1();
+                    var scale = create$1$1();
+                    var trans = create$1$1();
                     trans[12] = objPos[0];
                     trans[13] = objPos[1];
                     trans[14] = objPos[2];
-                    var rot = create$1();
+                    var rot = create$1$1();
                     var z = eqn.normal;
                     var u = mesh.getRightDir();
                     var v = mesh.getTopDir();
@@ -11529,30 +13448,30 @@ var Plane = /** @class */ (function () {
                     rot[8] = z[0];
                     rot[9] = z[1];
                     rot[10] = z[2];
-                    fromScaling(scale, fromValues$1(scaleToFit, scaleToFit, scaleToFit));
+                    fromScaling(scale, fromValues$1$1(scaleToFit, scaleToFit, scaleToFit));
                     var shader_1 = _this.gizmoShader;
-                    var model_1 = create$1();
+                    var model_1 = create$1$1();
                     mul(model_1, model_1, trans);
                     mul(model_1, model_1, rot);
                     mul(model_1, model_1, scale);
                     mul(model_1, model_1, _this.axis3DHelper.worldMatrix);
                     //render axes
                     _this.axis3DHelper.children.forEach(function (node) {
-                        var nodeMatrix = create$1();
+                        var nodeMatrix = create$1$1();
                         mul(nodeMatrix, model_1, node.worldMatrix);
                         _this.renderBufferAsGizmo(node.mesh.mainMesh, nodeMatrix, shader_1, node.mesh.mainMesh.material.diffuseColor);
                     });
                     //render reference axis
                     var initTransform = planeState.initialTransform;
-                    var refObjPos = create$2();
+                    var refObjPos = create$2$1();
                     getTranslation(refObjPos, initTransform);
                     var refScaleToFit = dist(camPos, refObjPos) * Math.tan(_this.camControl.perspParams.fov / 2) * 0.5; // some constant to fit to proper size
-                    var refScale = create$1();
-                    var refModel = create$1();
-                    fromScaling(refScale, fromValues$1(refScaleToFit, refScaleToFit, refScaleToFit));
+                    var refScale = create$1$1();
+                    var refModel = create$1$1();
+                    fromScaling(refScale, fromValues$1$1(refScaleToFit, refScaleToFit, refScaleToFit));
                     mul(refModel, initTransform, refScale);
                     mul(refModel, refModel, _this.refAxis2DHelper.worldMatrix);
-                    var nodeMatrix = create$1();
+                    var nodeMatrix = create$1$1();
                     mul(nodeMatrix, refModel, _this.refAxis2DHelper.worldMatrix);
                     _this.renderBufferAsGizmo(_this.refAxis2DHelper.mesh.mainMesh, nodeMatrix, shader_1, [0, 0, 0]);
                 }
@@ -11584,10 +13503,10 @@ var Plane = /** @class */ (function () {
         if (mesh.indices) {
             var GLDrawType = mesh.indices.getType();
             mesh.indices.bind();
-            AppState.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
+            AppState$1.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
         }
         else {
-            AppState.GLContext.drawArrays(mesh.rendingMode, 0, mesh.attribs.position.getDataArrayCount() / vertexSize);
+            AppState$1.GLContext.drawArrays(mesh.rendingMode, 0, mesh.attribs.position.getDataArrayCount() / vertexSize);
         }
     };
     SectionManager.prototype.updateVisualPlane = function (id, transform) {
@@ -11634,9 +13553,9 @@ var Plane = /** @class */ (function () {
         }
         if (this.planeStates.has(id) === false) {
             var planeEqn = new Plane();
-            var e = Utility.getPlaneEqnFromTransfromMat(transform);
-            planeEqn.normal = fromValues$1(e[0], e[1], e[2]);
-            normalize(planeEqn.normal, planeEqn.normal);
+            var e = Utility$1.getPlaneEqnFromTransfromMat(transform);
+            planeEqn.normal = fromValues$1$1(e[0], e[1], e[2]);
+            normalize$1(planeEqn.normal, planeEqn.normal);
             planeEqn.constant = -e[3];
             var plane = this.createPrimaryPlaneFromEqn(id, transform, __spread$1(color));
             var planeGroup = new TransFormNode(id + 'group');
@@ -11646,7 +13565,7 @@ var Plane = /** @class */ (function () {
                 isPlaneEnabled: false,
                 eqn: planeEqn,
                 plane: planeGroup,
-                initialTransform: clone(transform)
+                initialTransform: clone$1(transform)
             };
             this.planeStates.set(id, newPlaneState);
         }
@@ -11736,7 +13655,7 @@ var Plane = /** @class */ (function () {
         }
     };
     SectionManager.prototype.setPlaneEquation = function (id, transform, initTransform) {
-        var e = Utility.getPlaneEqnFromTransfromMat(transform);
+        var e = Utility$1.getPlaneEqnFromTransfromMat(transform);
         var planeState = this.planeStates.get(id);
         if (planeState) {
             if (initTransform) {
@@ -11758,7 +13677,7 @@ var Plane = /** @class */ (function () {
             var c = planeMesh.getCenter();
             return {
                 initTransform: planeState.initialTransform,
-                transform: fromValues(x[0], x[1], x[2], 0, y[0], y[1], y[2], 0, n[0], n[1], n[2], 0, c[0], c[1], c[2], 1),
+                transform: fromValues$1(x[0], x[1], x[2], 0, y[0], y[1], y[2], 0, n[0], n[1], n[2], 0, c[0], c[1], c[2], 1),
             };
         }
     };
@@ -11805,7 +13724,7 @@ var Plane = /** @class */ (function () {
         if (selectedNodes.size > 0 && (newMouseX != lastMouseX || newMouseY != lastMouseY)) {
             var deltaX = newMouseX - lastMouseX;
             var deltaY = newMouseY - lastMouseY;
-            var mvMatrix = create$1();
+            var mvMatrix = create$1$1();
             var camMatrix = camControl.getCameraMatrix2(CameraType.Perspective);
             var point3d1 = camControl.unproject([lastMouseX, lastMouseY, 0], mvMatrix, [camControl.canvas.width, camControl.canvas.height], camMatrix); // 0 means near plane
             var point3d2 = camControl.unproject([newMouseX, newMouseY, 0], mvMatrix, [camControl.canvas.width, camControl.canvas.height], camMatrix); // 0 means near plane
@@ -11819,35 +13738,35 @@ var Plane = /** @class */ (function () {
             var CameraMatrix = camControl.getCameraMatrix(CameraType.Perspective);
             invert(CameraMatrix, CameraMatrix);
             transformMat4$1(cameraPosition_1, cameraPosition_1, CameraMatrix);
-            var ray1 = create$2();
-            subtract(ray1, point3d1, point3d11);
-            var ray2 = create$2();
-            subtract(ray2, point3d2, point3d22);
-            normalize(ray1, ray1);
-            normalize(ray2, ray2);
-            var angle_1 = Math.acos(Math.min(1.0, dot(ray1, ray2)));
-            var right = fromValues$1(CameraMatrix[0], CameraMatrix[1], CameraMatrix[2]);
-            var up = fromValues$1(CameraMatrix[4], CameraMatrix[5], CameraMatrix[6]);
-            normalize(up, up);
-            normalize(right, right);
-            var v1 = create$2();
+            var ray1 = create$2$1();
+            subtract$1(ray1, point3d1, point3d11);
+            var ray2 = create$2$1();
+            subtract$1(ray2, point3d2, point3d22);
+            normalize$1(ray1, ray1);
+            normalize$1(ray2, ray2);
+            var angle_1 = Math.acos(Math.min(1.0, dot$1(ray1, ray2)));
+            var right = fromValues$1$1(CameraMatrix[0], CameraMatrix[1], CameraMatrix[2]);
+            var up = fromValues$1$1(CameraMatrix[4], CameraMatrix[5], CameraMatrix[6]);
+            normalize$1(up, up);
+            normalize$1(right, right);
+            var v1 = create$2$1();
             scale$1(v1, right, deltaY);
-            var v2 = create$2();
+            var v2 = create$2$1();
             scale$1(v2, up, deltaX);
-            var axis_in_camera_coord_1 = create$2();
+            var axis_in_camera_coord_1 = create$2$1();
             add(axis_in_camera_coord_1, v1, v2);
             negate(axis_in_camera_coord_1, axis_in_camera_coord_1);
-            normalize(axis_in_camera_coord_1, axis_in_camera_coord_1);
+            normalize$1(axis_in_camera_coord_1, axis_in_camera_coord_1);
             selectedNodes.forEach(function (node) {
                 var selectNode = node.parent;
                 if (selectNode) {
-                    var pickAndMoveInv = create$1();
+                    var pickAndMoveInv = create$1$1();
                     invert(pickAndMoveInv, selectNode.pickAndMoveMatrix);
                     var rotationPointInModelSpace = create$3();
                     transformMat4$1(rotationPointInModelSpace, fromValues$2(cameraPosition_1[0], cameraPosition_1[1], cameraPosition_1[2], 1), pickAndMoveInv);
-                    var rotationPoint = fromValues$1(rotationPointInModelSpace[0], rotationPointInModelSpace[1], rotationPointInModelSpace[2]);
+                    var rotationPoint = fromValues$1$1(rotationPointInModelSpace[0], rotationPointInModelSpace[1], rotationPointInModelSpace[2]);
                     translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, rotationPoint);
-                    MathUtils.rotateOnWorldAxis(selectNode.pickAndMoveMatrix, angle_1, fromValues$1(axis_in_camera_coord_1[0], axis_in_camera_coord_1[1], axis_in_camera_coord_1[2]));
+                    MathUtils.rotateOnWorldAxis(selectNode.pickAndMoveMatrix, angle_1, fromValues$1$1(axis_in_camera_coord_1[0], axis_in_camera_coord_1[1], axis_in_camera_coord_1[2]));
                     translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, negate(rotationPoint, rotationPoint));
                 }
             });
@@ -11857,7 +13776,7 @@ var Plane = /** @class */ (function () {
     PartManipulator.prototype.rotatePart = function (newX, newY, lastMouseX, lastMouseY) {
         var selectedNodes = AppObjects.renderer.highlightedNodes;
         if (selectedNodes.size > 0) {
-            var partCenter_1 = create$2();
+            var partCenter_1 = create$2$1();
             selectedNodes.forEach(function (node) { return add(partCenter_1, partCenter_1, node.getBBoxCenter(true)); });
             scale$1(partCenter_1, partCenter_1, 1 / selectedNodes.size);
             var angleAxis_1 = this.getRotAngleAndNormalizedAxis(newX, newY, lastMouseX, lastMouseY);
@@ -11865,23 +13784,23 @@ var Plane = /** @class */ (function () {
                 return;
             var axis_in_camera_coord = fromValues$2(angleAxis_1.axis_in_camera_coord[0], angleAxis_1.axis_in_camera_coord[1], angleAxis_1.axis_in_camera_coord[2], 0);
             var axis_in_obj_coord_1 = create$3();
-            normalize$1(axis_in_camera_coord, axis_in_camera_coord);
+            normalize$1$1(axis_in_camera_coord, axis_in_camera_coord);
             var camControl = AppObjects.renderer.camControl;
             var camMat = (camControl.camType == CameraType.Perspective) ? camControl.perspCamera.camMatrix : camControl.orthCamera.camMatrix;
-            var cam2object = create$1();
+            var cam2object = create$1$1();
             invert(cam2object, camMat);
             transformMat4$1(axis_in_obj_coord_1, axis_in_camera_coord, cam2object);
-            normalize$1(axis_in_obj_coord_1, axis_in_obj_coord_1);
+            normalize$1$1(axis_in_obj_coord_1, axis_in_obj_coord_1);
             selectedNodes.forEach(function (node) {
                 var selectNode = node.parent;
                 if (selectNode) {
-                    var world_center = clone$1(partCenter_1);
-                    var local_center = create$2();
-                    var world_inverse = create$1();
+                    var world_center = clone$1$1(partCenter_1);
+                    var local_center = create$2$1();
+                    var world_inverse = create$1$1();
                     invert(world_inverse, selectNode.worldMatrix);
                     transformMat4(local_center, world_center, world_inverse);
                     translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, local_center);
-                    MathUtils.rotateOnWorldAxis(selectNode.pickAndMoveMatrix, angleAxis_1.angle, fromValues$1(axis_in_obj_coord_1[0], axis_in_obj_coord_1[1], axis_in_obj_coord_1[2]));
+                    MathUtils.rotateOnWorldAxis(selectNode.pickAndMoveMatrix, angleAxis_1.angle, fromValues$1$1(axis_in_obj_coord_1[0], axis_in_obj_coord_1[1], axis_in_obj_coord_1[2]));
                     translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, negate(local_center, local_center));
                 }
             });
@@ -11892,27 +13811,27 @@ var Plane = /** @class */ (function () {
         var _this = this;
         var selectedNodes = AppObjects.renderer.highlightedNodes;
         var camControl = AppObjects.renderer.camControl;
-        var partCenter = create$2();
+        var partCenter = create$2$1();
         selectedNodes.forEach(function (node) { return add(partCenter, partCenter, node.getBBoxCenter(true)); });
         scale$1(partCenter, partCenter, 1 / selectedNodes.size);
         var CameraMatrix = camControl.getCameraMatrix(CameraType.Perspective);
         invert(CameraMatrix, CameraMatrix);
         var cameraPosition = fromValues$2(0, 0, 0, 1);
         transformMat4$1(cameraPosition, cameraPosition, CameraMatrix);
-        var camDir = create$2();
-        sub(camDir, fromValues$1(cameraPosition[0], cameraPosition[1], cameraPosition[2]), partCenter);
+        var camDir = create$2$1();
+        sub$1(camDir, fromValues$1$1(cameraPosition[0], cameraPosition[1], cameraPosition[2]), partCenter);
         selectedNodes.forEach(function (node) {
             var selectNode = node.parent;
             if (selectNode) {
-                var pickAndMoveInv = create$1();
+                var pickAndMoveInv = create$1$1();
                 invert(pickAndMoveInv, selectNode.pickAndMoveMatrix);
                 var dist2Cam = len(camDir);
                 var front = MathUtils.getDirVector(CameraMatrix);
                 var frontInModelSpace = create$3();
                 transformMat4$1(frontInModelSpace, fromValues$2(front[0], front[1], front[2], 0), pickAndMoveInv);
-                normalize$1(frontInModelSpace, frontInModelSpace);
+                normalize$1$1(frontInModelSpace, frontInModelSpace);
                 scale$2(frontInModelSpace, frontInModelSpace, scale * dist2Cam * _this.zoomFactor);
-                translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, fromValues$1(frontInModelSpace[0], frontInModelSpace[1], frontInModelSpace[2]));
+                translate(selectNode.pickAndMoveMatrix, selectNode.pickAndMoveMatrix, fromValues$1$1(frontInModelSpace[0], frontInModelSpace[1], frontInModelSpace[2]));
             }
         });
         AppObjects.sceneManager.update();
@@ -11921,7 +13840,7 @@ var Plane = /** @class */ (function () {
         this.parts = AppObjects.sceneManager.getPartNodes();
         if (this.parts) {
             this.parts.forEach(function (part) {
-                part.explodeTranslation = create$2();
+                part.explodeTranslation = create$2$1();
             });
             AppObjects.sceneManager.update();
         }
@@ -11930,7 +13849,7 @@ var Plane = /** @class */ (function () {
         this.parts = AppObjects.sceneManager.getPartNodes();
         if (this.parts) {
             this.parts.forEach(function (part) {
-                part.pickAndMoveMatrix = create$1();
+                part.pickAndMoveMatrix = create$1$1();
             });
             AppObjects.sceneManager.update();
             var bbox = AppObjects.sceneManager.getBoundingBox(true);
@@ -11946,10 +13865,10 @@ var Plane = /** @class */ (function () {
         if (newMouseX != lastMouseX || newMouseY != lastMouseY) {
             var va = MathUtils.getArcballVector(lastMouseX, lastMouseY, canvas);
             var vb = MathUtils.getArcballVector(newMouseX, newMouseY, canvas);
-            var angle = Math.acos(Math.min(1.0, dot(va, vb)));
-            var axis_in_camera_coord = create$2();
-            cross(axis_in_camera_coord, va, vb);
-            normalize(axis_in_camera_coord, axis_in_camera_coord);
+            var angle = Math.acos(Math.min(1.0, dot$1(va, vb)));
+            var axis_in_camera_coord = create$2$1();
+            cross$1(axis_in_camera_coord, va, vb);
+            normalize$1(axis_in_camera_coord, axis_in_camera_coord);
             rotationObject.angle = angle;
             rotationObject.axis_in_camera_coord = axis_in_camera_coord;
         }
@@ -12018,7 +13937,50 @@ var LabelState;
         return _this;
     }
     return PointNode;
-}(ShapeNode));var LineNode = /** @class */ (function (_super) {
+}(ShapeNode));var LineMesh = /** @class */ (function (_super) {
+    __extends(LineMesh, _super);
+    function LineMesh(name, p1, p2, precentOffset) {
+        if (precentOffset === void 0) { precentOffset = 0; }
+        var _this = _super.call(this, name) || this;
+        _this.uid = Utility$1.getGUID();
+        _this.p1 = p1;
+        _this.p2 = p2;
+        _this.rendingMode = RenderMode.LINES;
+        _this.createLineMesh(precentOffset);
+        _this.material = new Material(name);
+        _this.material.diffuseColor = [0, 0, 0];
+        return _this;
+    }
+    LineMesh.prototype.createLineMesh = function (precentOffset) {
+        //Set offset
+        var percent = precentOffset / 100;
+        var offset = squaredDistance(this.p1, this.p2) * percent * percent;
+        sub$1(this.p1, this.p1, fromValues$1$1(offset, offset, offset));
+        add(this.p2, this.p2, fromValues$1$1(offset, offset, offset));
+        var vertices = new Float32Array([
+            this.p1[0], this.p1[1], this.p1[2],
+            this.p2[0], this.p2[1], this.p2[2],
+        ]);
+        var indices = new Uint32Array([
+            0, 1
+        ]);
+        this.setattribs(this.generateAttribute(vertices));
+        this.setIndex(this.generateIndices(indices));
+    };
+    LineMesh.prototype.generateAttribute = function (vertices) {
+        var attrib = new WebGLArrayBufferAttribute();
+        attrib.position = new WebGLArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, vertices);
+        return attrib;
+    };
+    LineMesh.prototype.generateIndices = function (indices) {
+        var index = new WebGLElementArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, indices);
+        return index;
+    };
+    LineMesh.prototype.update = function (p1, p2) {
+        this.attribs.position.updateData(new Float32Array(__spread$1(p1, p2)).buffer);
+    };
+    return LineMesh;
+}(CoreMesh));var LineNode = /** @class */ (function (_super) {
     __extends(LineNode, _super);
     function LineNode(name, p1, p2, color) {
         if (color === void 0) { color = [0, 0, 0, 1]; }
@@ -12063,7 +14025,7 @@ var LabelState;
     };
     Label.prototype.setHTML = function (div) {
         if (this.htmlContainer) {
-            var existing = Utility.getElementInsideContainer(this.htmlContainer.id, div.id);
+            var existing = Utility$1.getElementInsideContainer(this.htmlContainer.id, div.id);
             if (existing != null) {
                 this.htmlContainer.removeChild(existing);
             }
@@ -12167,8 +14129,8 @@ var Label3D = /** @class */ (function () {
         this.label = null;
         this.shader = null;
         this.visible = true;
-        this.lineStartPos = fromValues$1(0, 6, 0);
-        this.lineEndPos = fromValues$1(10, 20, 0);
+        this.lineStartPos = fromValues$1$1(0, 6, 0);
+        this.lineEndPos = fromValues$1$1(10, 20, 0);
         this.pointDisplay = new PointNode(id + '_pointDisplay', this.lineStartPos);
         this.lineDisplay = new LineNode(id + '_lineDisplay', this.lineStartPos, this.lineEndPos);
         this.renderer = AppObjects.renderer;
@@ -12279,7 +14241,7 @@ var Label3D = /** @class */ (function () {
                 this.label.show();
                 if (this.parentNode)
                     transformMat4(this.lineStartPos, this.lineStartPos, this.parentNode.worldMatrix);
-                var mvMatrix = create$1();
+                var mvMatrix = create$1$1();
                 identity(mvMatrix);
                 var canvas = this.renderer.camControl.canvas;
                 var x = 0;
@@ -12292,9 +14254,9 @@ var Label3D = /** @class */ (function () {
                 //  else{
                 var bbox = AppObjects.sceneManager.getBoundingBox();
                 var center = bbox.getCenter();
-                var lineDir = create$2();
-                sub(lineDir, this.lineStartPos, center);
-                normalize(lineDir, lineDir);
+                var lineDir = create$2$1();
+                sub$1(lineDir, this.lineStartPos, center);
+                normalize$1(lineDir, lineDir);
                 scaleAndAdd(this.lineEndPos, this.lineStartPos, lineDir, bbox.getRadius());
                 if (this.is3DPointVisible(this.lineEndPos)) {
                     var point2d = this.renderer.camControl.project(__spread$1(this.lineEndPos), mvMatrix, [canvas.width, canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
@@ -12313,7 +14275,7 @@ var Label3D = /** @class */ (function () {
         }
     };
     return Label3D;
-}());var LabelManager = /** @class */ (function () {
+}());var LabelManager$1 = /** @class */ (function () {
     function LabelManager() {
         this.labelArray = [];
         this.shader = new Shader(LabelVertex, LabelFrag);
@@ -12327,7 +14289,7 @@ var Label3D = /** @class */ (function () {
     };
     LabelManager.prototype.addLabel = function (id, hitpt, message) {
         var label = new Label3D(id + '_' + this.labelArray.length, Label3DType.PROBE);
-        label.setOrigin(fromValues$1(hitpt[0], hitpt[1], hitpt[2]));
+        label.setOrigin(fromValues$1$1(hitpt[0], hitpt[1], hitpt[2]));
         label.setMessage(message);
         label.setShader(this.shader);
         this.labelArray.push(label);
@@ -12368,7 +14330,7 @@ var Label3D = /** @class */ (function () {
         AppObjects.sectionManager = this.sectionManager;
         this.partManipulator = new PartManipulator();
         AppObjects.partManipulator = this.partManipulator;
-        this.labelManager = new LabelManager();
+        this.labelManager = new LabelManager$1();
         AppObjects.labelManager = this.labelManager;
         this.mouseControl = new MouseControl(this.renderer.camControl);
         AppObjects.mouseControl = this.mouseControl;
@@ -12497,12 +14459,12 @@ var Label3D = /** @class */ (function () {
                         resultSet.derivedTypes = data.rsd.derivedTypes;
                     }
                     if (data.rsd.baseUrl !== undefined)
-                        AppState.BaseUrl = data.rsd.baseUrl;
+                        AppState$1.BaseUrl = data.rsd.baseUrl;
                 }
-                AppState.resultSet = resultSet;
+                AppState$1.resultSet = resultSet;
                 //console.log("Result Set :", resultSet); 
                 //AppObjects.sectionManager.init();
-                AppState.isSceneLoaded = true;
+                AppState$1.isSceneLoaded = true;
                 if (AppObjects.externalEventDispatcher)
                     AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MODEL_LOADED, data: {} });
                 return [2 /*return*/, true];
@@ -12611,14 +14573,14 @@ var Label3D = /** @class */ (function () {
         }
     };
     App.prototype.applyResult_old = function (selectedResultName, selectedStepName, derivedTypeFunc) {
-        var resultURL = AppState.BaseUrl + ("?result=" + selectedResultName + "&step=" + selectedStepName + "&derived=" + derivedTypeFunc);
+        var resultURL = AppState$1.BaseUrl + ("?result=" + selectedResultName + "&step=" + selectedStepName + "&derived=" + derivedTypeFunc);
         return this.applyResultByURL(resultURL);
     };
     App.prototype.applyResult = function (glft) {
         var _this = this;
         this.dataManager.loadGLTF(glft).then(function (scene) {
-            var leafNodes = Utility.getAllLeafNode(scene);
-            var meshNodes = Utility.getAllLeafNode(leafNodes.filter(function (item) { return item.mesh; }));
+            var leafNodes = Utility$1.getAllLeafNode(scene);
+            var meshNodes = Utility$1.getAllLeafNode(leafNodes.filter(function (item) { return item.mesh; }));
             var sceneNodes = _this.sceneManager.getRenderNodes();
             AccessorCache.removeAll();
             BufferViewCache.removeAll();
@@ -12690,7 +14652,7 @@ var Label3D = /** @class */ (function () {
         return Events;
     };
     App.prototype.getResultSet = function () {
-        return AppState.resultSet;
+        return AppState$1.resultSet;
     };
     App.prototype.setUseTexture = function (nodeIndexList, useTexture) {
         var nodes = this.sceneManager.getRenderNodes();
@@ -12978,7 +14940,7 @@ var Label3D = /** @class */ (function () {
         var url = this.renderer.captureImage(imageType, imageQuality);
         //window.open(url.imageDataUrl);
         //console.log(url.imageDataUrl);
-        Utility.CopyToClipboard(url.imageData);
+        Utility$1.CopyToClipboard(url.imageData);
         /*
             let copiedState = Utility.CopyToClipboard(url.imageData);
             if(copiedState)
@@ -13007,7 +14969,7 @@ var Label3D = /** @class */ (function () {
             ("0" + d.getMinutes()).slice(-2) +
             ("0" + d.getSeconds()).slice(-2);
         var fileName = "vcollab-capture-" + modelname + "-" + datestring + extention;
-        Utility.SaveToDisk(url.imageDataUrl, fileName, imageType, url.bmpBlob);
+        Utility$1.SaveToDisk(url.imageDataUrl, fileName, imageType, url.bmpBlob);
     };
     App.prototype.setProjection = function (mode) {
         this.renderer.camControl.camType = (mode) ? 1 : 0;
@@ -13039,13 +15001,13 @@ var Label3D = /** @class */ (function () {
     };
     App.prototype.pickFromNodes = function (nodeIndexList, mouseXY) {
         var renderNodes = this.getRenderNodesFromId(nodeIndexList);
-        if (mouseXY.xyFromBtm == undefined || mouseXY.xyFromTop == undefined)
+        if (mouseXY.xyFromTop == undefined)
             return;
         AppObjects.picker.pickPart(renderNodes, mouseXY);
     };
     App.prototype.probeFromNodes = function (nodeIndexList, mouseXY) {
         var renderNodes = this.getRenderNodesFromId(nodeIndexList);
-        if (mouseXY.xyFromBtm == undefined || mouseXY.xyFromTop == undefined)
+        if (mouseXY.xyFromTop == undefined)
             return;
         else
             return AppObjects.picker.probePart(renderNodes, mouseXY);
@@ -13121,13 +15083,14 @@ var Label3D = /** @class */ (function () {
         var extention = '.txt';
         var fileName = "vcollab-network-" + modelname + "-" + datestring + extention;
         var mimeType = 'text/plain';
-        Utility.SaveToDisk(fileURL, fileName, mimeType, data);
+        Utility$1.SaveToDisk(fileURL, fileName, mimeType, data);
     };
     App.prototype.setFPSVisibility = function (value) {
-        AppState.showFPS = (value === true ? true : false);
+        AppState$1.showFPS = (value === true ? true : false);
     };
     return App;
-}());var version$1 = "0.0.10";var vctViewer = /** @class */ (function () {
+}());var version$1 = "0.0.10";//@public
+var vctViewer = /** @class */ (function () {
     function vctViewer(_containerID, _connectorObject) {
         this.appli = new App(_containerID, _connectorObject);
     }
@@ -13315,1943 +15278,14 @@ var Label3D = /** @class */ (function () {
         this.appli.addLabel(id, hitpt, message);
     };
     return vctViewer;
-}());var Utility$1 = /** @class */ (function () {
-    function Utility() {
-    }
-    Utility.create_UUID = function () {
-        var dt = new Date().getTime();
-        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = (dt + Math.random() * 16) % 16 | 0;
-            dt = Math.floor(dt / 16);
-            return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-        });
-        return uuid;
-    };
-    Utility.deepCopy = function (obj) {
-        var _this = this;
-        if (typeof obj !== 'object' || obj === null) {
-            return obj;
-        }
-        if (obj instanceof Array) {
-            return obj.reduce(function (arr, item, i) {
-                arr[i] = _this.deepCopy(item);
-                return arr;
-            }, []);
-        }
-        if (obj instanceof Object) {
-            return Object.keys(obj).reduce(function (newObj, key) {
-                newObj[key] = _this.deepCopy(obj[key]);
-                return newObj;
-            }, {});
-        }
-    };
-    Utility.downloadDataAsFile = function (data, filename, type) {
-        if (!type)
-            type = 'application/json';
-        // @ts-ignore
-        var blob = new Blob([JSON.stringify(data)], { type: type });
-        // @ts-ignore
-        var url = URL.createObjectURL(blob);
-        // Create a new anchor element
-        // @ts-ignore
-        var a = document.createElement('a');
-        a.href = url;
-        a.download = filename || 'download';
-        a.click();
-        a.remove();
-    };
-    Utility.getURLParameterByName = function (URL, name) {
-        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)", 'i'), results = regex.exec(URL);
-        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-    };
-    Utility.getPathFromUrl = function (url) {
-        return url.split(/[?#]/)[0];
-    };
-    return Utility;
-}());var orientation = {
-    VERTICAL: 0,
-    HORIZONTAL: 1,
-};
-var paletteType = {
-    CONTINUOUS: 0,
-    DISCRETE: 1
-};
-var valueType = {
-    CONTINUOUS: 0,
-    DISCRETE: 1
-};
-var valuePlacement = {
-    EDGE: 0,
-    MIDDLE: 1
-};
-var ticsPosition = {
-    NONE: 0,
-    INSIDE: 1,
-    OUTSIDE: 2,
-    ACROSS: 3,
-};
-var colorValueMode = {
-    BOUNDED: 0,
-    EXTENDED: 1,
-};
-var colorMap = {
-    PRESET1: [
-        [255, 0, 0],
-        [255, 78, 0],
-        [255, 156, 0],
-        [247, 227, 0],
-        [196, 255, 0],
-        [117, 255, 0],
-        [39, 255, 0],
-        [0, 255, 39],
-        [0, 255, 117],
-        [0, 255, 196],
-        [0, 227, 247],
-        [0, 156, 255],
-        [0, 78, 255],
-        [0, 0, 255],
-    ],
-    COLORS_2: [
-        [255, 0, 0],
-        [0, 0, 255],
-    ]
-};
-var probeMode = {
-    LABEL: 0,
-    SECTION: 1
-};
-var displayModes = {
-    DM_1: {
-        ID: "DM_1",
-        DISPLAYNAME: "Bounding Box",
-        DISPLAYORDER: 1
-    },
-    DM_2: {
-        ID: "DM_2",
-        DISPLAYNAME: "Point",
-        DISPLAYORDER: 2
-    },
-    DM_3: {
-        ID: "DM_3",
-        DISPLAYNAME: "Wireframe",
-        DISPLAYORDER: 3
-    },
-    DM_4: {
-        ID: "DM_4",
-        DISPLAYNAME: "Hidden Line",
-        DISPLAYORDER: 4
-    },
-    DM_5: {
-        ID: "DM_5",
-        DISPLAYNAME: "Shaded",
-        DISPLAYORDER: 5
-    },
-    DM_6: {
-        ID: "DM_6",
-        DISPLAYNAME: "Shaded Mesh",
-        DISPLAYORDER: 6
-    },
-    DM_7: {
-        ID: "DM_7",
-        DISPLAYNAME: "Transparent",
-        DISPLAYORDER: 7
-    }
-};
-var downloadMetricTypes = {
-    NONE: "NONE",
-    SIZE: "SIZE",
-    TIME: "TIME",
-};var ModelTree = /** @class */ (function () {
-    function ModelTree(treeMap, modelIds) {
-        this.models = treeMap;
-        this.rootNodeIds = modelIds;
-    }
-    ModelTree.prototype.getVisibleNodeIds = function () {
-        if (this.models) {
-            var visible = __spread(this.models.values()).filter(function (node) { return (node.children.length === 0 && node.customData.displayProps.visibility == true); });
-            return visible.map(function (node) { return node.id; });
-        }
-    };
-    ModelTree.prototype.getInvisibleNodeIds = function () {
-        if (this.models) {
-            var invisible = __spread(this.models.values()).filter(function (node) { return (node.children.length === 0 && node.customData.displayProps.visibility == false); });
-            return invisible.map(function (node) { return node.id; });
-        }
-    };
-    ModelTree.prototype.getPartNodeFromNodeIds = function (nodeIds) {
-        var _this = this;
-        var out = [];
-        if (this.models) {
-            nodeIds.forEach(function (nodeId) {
-                var selectedNode = _this.models.get(nodeId);
-                if (selectedNode)
-                    out.push(selectedNode);
-            });
-        }
-        //console.log(out);
-        return out;
-    };
-    ModelTree.prototype.getAllPartNodes = function () {
-        if (this.models) {
-            return __spread(this.models.values()).filter(function (node) { return node.children.length === 0; });
-        }
-    };
-    ModelTree.prototype.getRepresentationsFromParts = function (nodes) {
-        var out = [];
-        nodes.forEach(function (part) {
-            if (part.customData && part.customData.geometries) {
-                part.customData.geometries.forEach(function (geometry) {
-                    if (geometry.customData && geometry.customData.representations) {
-                        out.push.apply(out, __spread(geometry.customData.representations));
-                    }
-                });
-            }
-        });
-        return out;
-    };
-    ModelTree.prototype.getRenderNodeIdsFromNodeIds = function (nodeIds) {
-        var nodes = this.getPartNodeFromNodeIds(nodeIds);
-        var reps = this.getRepresentationsFromParts(nodes);
-        return reps.map(function (rep) { return rep.customData.node; });
-    };
-    ModelTree.prototype.getPartIdsFromRenderNodeIds = function (renderIds) {
-        var partIds = [];
-        __spread(this.models.values()).forEach(function (node) {
-            if (node.children.length === 0) {
-                if (node.customData && node.customData.geometries) {
-                    node.customData.geometries.forEach(function (geometry) {
-                        if (geometry.customData && geometry.customData.representations) {
-                            geometry.customData.representations.forEach(function (rep) {
-                                if (renderIds.includes(rep.customData.node)) {
-                                    partIds.push(node.id);
-                                }
-                            });
-                        }
-                    });
-                }
-            }
-        });
-        return partIds;
-    };
-    ModelTree.prototype.setVisibility = function (nodes, toShow) {
-        var _this = this;
-        nodes.forEach(function (node) {
-            var curNode = __assign({}, _this.models.get(node.id));
-            curNode.customData.displayProps.visibility = toShow;
-            _this.models.set(curNode.id, curNode);
-        });
-    };
-    return ModelTree;
-}());
-var ModelTreeBuilder = /** @class */ (function () {
-    function ModelTreeBuilder(_mcax) {
-        this.mcax = _mcax;
-        this.tree = new Map();
-    }
-    ModelTreeBuilder.prototype.build = function () {
-        var rootNodeIds = this.processModels(Utility$1.deepCopy(this.mcax.models));
-        return new ModelTree(this.tree, rootNodeIds);
-    };
-    ModelTreeBuilder.prototype.processModels = function (models) {
-        var _this = this;
-        var modelIds = [];
-        if (models && models instanceof Array && models.length > 0) {
-            var filteredModels = models.filter(this.filter);
-            for (var j = 0; j < filteredModels.length; j++) {
-                var model = filteredModels[j];
-                var children = [];
-                if (model.components) {
-                    var filteredComponents = model.components.filter(function (item) { return _this.filter(_this.mcax.components[item]); });
-                    for (var i = 0, l = filteredComponents.length; i < l; i++) {
-                        var childID = this.buildComponentsHierachy("model_" + j, filteredComponents[i], this.mcax.components);
-                        children.push(childID);
-                    }
-                }
-                var name = model.name || "model_" + j;
-                var tempModel = {
-                    //name,
-                    id: "model_" + j,
-                    pid: null,
-                    children: children,
-                    customData: model,
-                    title: name,
-                    attributes: model.attributes
-                };
-                this.tree.set(tempModel.id, tempModel);
-                modelIds.push(tempModel.id);
-            }
-        }
-        return modelIds;
-    };
-    ModelTreeBuilder.prototype.buildComponentsHierachy = function (pid, componentId, allComponents) {
-        var _this = this;
-        var component = JSON.parse(JSON.stringify(this.mcax.components[componentId]));
-        var children = [];
-        if (component.geometries) {
-            //children = this.processGeometries(component.geometries);
-            component.geometries = this.processGeometries(component.geometries);
-            component.displayProps = {
-                displayId: displayModes.DM_1.ID,
-                hiddenlineEnabled: false,
-                transparency: 0.0,
-                useTexture: false,
-                isHighlighted: false,
-                visibility: component.display
-            };
-        }
-        if (component.children) {
-            var filteredChildren = component.children.filter(function (item) { return _this.filter(allComponents[item]); });
-            for (var i = 0, l = filteredChildren.length; i < l; i++) {
-                var compo = this.buildComponentsHierachy("component_" + componentId, filteredChildren[i], allComponents);
-                children.push(compo);
-            }
-        }
-        var name = component.name || "component_" + componentId;
-        var tempComponent = {
-            //name,
-            id: "component_" + componentId,
-            pid: pid,
-            children: children,
-            customData: component,
-            title: name,
-            attributes: component.attributes
-        };
-        this.tree.set(tempComponent.id, tempComponent);
-        return tempComponent.id;
-    };
-    ModelTreeBuilder.prototype.buildChildHierachy = function (pid, childId, allmodels, allComponents) {
-        var _this = this;
-        var model = JSON.parse(JSON.stringify(allmodels[childId]));
-        var children = [];
-        if (model.components) {
-            var filteredComponents = model.components.filter(function (item) { return _this.filter(allComponents[item]); });
-            for (var i = 0, l = filteredComponents.length; i < l; i++) {
-                var child = this.buildComponentsHierachy("component_" + childId, filteredComponents[i], allComponents);
-                children.push(child);
-            }
-        }
-        if (model.children) {
-            var filteredChildren = model.children.filter(function (item) { return _this.filter(allmodels[item]); });
-            for (var i = 0, l = filteredChildren.length; i < l; i++) {
-                var child = this.buildChildHierachy("model_" + childId, filteredChildren[i], allmodels, allComponents);
-                children.push(child);
-            }
-        }
-        var name = model.name || "model_" + childId;
-        var tempModel = {
-            //name,
-            id: "model_" + childId,
-            pid: pid,
-            children: children,
-            customData: model,
-            title: name,
-            key: "model_" + childId,
-            attributes: model.attributes
-        };
-        return tempModel;
-    };
-    ModelTreeBuilder.prototype.processGeometries = function (geometryArray) {
-        var geometries = [];
-        if (geometryArray && geometryArray instanceof Array) {
-            for (var i = 0; i < geometryArray.length; i++) {
-                var geometryIndex = geometryArray[i];
-                var geometry = JSON.parse(JSON.stringify(this.mcax.geometries[geometryIndex]));
-                if (geometry.representations)
-                    geometry.representations = this.processRepresentation(geometry.representations, geometryIndex);
-                var name = geometry.name || "geometry_" + geometryIndex;
-                var tempGeometry = {
-                    name: name,
-                    id: "geometry_" + geometryIndex,
-                    customData: geometry
-                };
-                geometries.push(tempGeometry);
-            }
-        }
-        return geometries;
-    };
-    ModelTreeBuilder.prototype.processRepresentation = function (representationArray, geometryIndex) {
-        var representations = [];
-        if (representationArray && representationArray instanceof Array) {
-            for (var i = 0; i < representationArray.length; i++) {
-                var representationIndex = representationArray[i];
-                var representation = JSON.parse(JSON.stringify(this.mcax.representations[representationIndex]));
-                var name = representation.name || "representation_" + representationIndex;
-                var tempRepresentation = {
-                    name: name,
-                    id: "representation_" + representationIndex,
-                    geometryIndex: geometryIndex,
-                    customData: representation
-                };
-                representations.push(tempRepresentation);
-            }
-        }
-        return representations;
-    };
-    ModelTreeBuilder.prototype.filter = function (item) {
-        return item.active;
-    };
-    return ModelTreeBuilder;
-}());var URLObject = /** @class */ (function () {
-    function URLObject(_url) {
-        this.bufferViewLength = 0;
-        this.url = _url;
-        this.bufferViewOffset = 0;
-        this.bufferViewLength = 0;
-        this.bufferIndex = null;
-        this.bufferViewIndex = null;
-        this.accessorIndex = null;
-        this.meshIndex = null;
-        this.nodeIndex = null;
-    }
-    return URLObject;
-}());
-var GltfUrlExtractor = /** @class */ (function () {
-    function GltfUrlExtractor(_glftJSON) {
-        this.glftJSON = _glftJSON;
-    }
-    GltfUrlExtractor.prototype.getNodeURLs = function (nodeIndex) {
-        var urlObjArray = [];
-        if (nodeIndex !== null && nodeIndex !== undefined) {
-            var nodes = this.glftJSON.nodes;
-            if (nodeIndex < nodes.length) {
-                var meshIndex = nodes[nodeIndex].mesh;
-                urlObjArray = this.getMeshURLs(meshIndex);
-                urlObjArray.forEach(function (item) {
-                    item.nodeIndex = nodeIndex;
-                });
-            }
-        }
-        return urlObjArray;
-    };
-    GltfUrlExtractor.prototype.getMeshURLs = function (meshIndex) {
-        var _this = this;
-        var urlObjArray = [];
-        if (meshIndex !== null && meshIndex !== undefined) {
-            var meshes = this.glftJSON.meshes;
-            if (meshIndex < meshes.length) {
-                var mesh = meshes[meshIndex];
-                var accesstorIndices_1 = [];
-                mesh.primitives.forEach(function (primitive) {
-                    accesstorIndices_1.push(primitive.attributes.POSITION);
-                    accesstorIndices_1.push(primitive.indices);
-                });
-                accesstorIndices_1.forEach(function (accessorIndex) {
-                    var urlObj = _this.getAccessorURLs(accessorIndex);
-                    if (urlObj) {
-                        urlObj.meshIndex = meshIndex;
-                        urlObjArray.push(urlObj);
-                    }
-                });
-            }
-        }
-        return urlObjArray;
-    };
-    GltfUrlExtractor.prototype.getAccessorURLs = function (accessorIndex) {
-        var urlObj = null;
-        if (accessorIndex !== null && accessorIndex !== undefined) {
-            var accessors = this.glftJSON.accessors;
-            if (accessorIndex < accessors.length) {
-                var bufferViewIndex = accessors[accessorIndex].bufferView;
-                urlObj = this.getBufferViewURLs(bufferViewIndex);
-                urlObj.accessorIndex = accessorIndex;
-            }
-        }
-        return urlObj;
-    };
-    GltfUrlExtractor.prototype.getBufferViewURLs = function (bufferViewIndex) {
-        var urlObj = null;
-        if (bufferViewIndex !== null && bufferViewIndex !== undefined) {
-            var bufferViews = this.glftJSON.bufferViews;
-            if (bufferViewIndex < bufferViews.length) {
-                var bufferIndex = bufferViews[bufferViewIndex].buffer;
-                var offset = bufferViews[bufferViewIndex].byteOffset;
-                var length = bufferViews[bufferViewIndex].byteLength;
-                var url = this.getBufferURLs(bufferIndex);
-                if (url) {
-                    urlObj = new URLObject(url);
-                    urlObj.bufferViewOffset = offset || 0;
-                    urlObj.bufferViewLength = length || 0;
-                    urlObj.bufferViewIndex = bufferViewIndex;
-                    urlObj.bufferIndex = bufferIndex;
-                }
-            }
-        }
-        return urlObj;
-    };
-    GltfUrlExtractor.prototype.getBufferURLs = function (bufferIndex) {
-        var uri = null;
-        if (bufferIndex !== null && bufferIndex !== undefined) {
-            var buffers = this.glftJSON.buffers;
-            if (bufferIndex < buffers.length) {
-                var buffer = buffers[bufferIndex];
-                uri = buffer.uri;
-            }
-        }
-        return uri;
-    };
-    return GltfUrlExtractor;
-}());var statusIconType;
-(function (statusIconType) {
-    statusIconType[statusIconType["NONE"] = 0] = "NONE";
-    statusIconType[statusIconType["ERROR"] = 1] = "ERROR";
-    statusIconType[statusIconType["WARN"] = 2] = "WARN";
-    statusIconType[statusIconType["INFO"] = 3] = "INFO";
-    statusIconType[statusIconType["SUCCESS"] = 4] = "SUCCESS";
-})(statusIconType || (statusIconType = {}));
-var Logger = /** @class */ (function () {
-    function Logger() {
-    }
-    Logger.setExternalLogger = function (externalLogger) {
-        this.externalLogger = externalLogger;
-    };
-    Logger.setStatusBar = function (text, iconType) {
-        if (iconType === void 0) { iconType = statusIconType.INFO; }
-        if (this.externalLogger) {
-            this.externalLogger.setStatusBar(text, iconType);
-        }
-        else {
-            console.log(text);
-        }
-    };
-    Logger.clearStatusBar = function () {
-        if (this.externalLogger)
-            this.externalLogger.clearStatusBar();
-    };
-    Logger.externalLogger = null;
-    return Logger;
-}());var ProgressiveLoader = /** @class */ (function () {
-    function ProgressiveLoader(_mcax, _renderApp, _connector) {
-        this.mcax = _mcax;
-        this.renderApp = _renderApp;
-        this.connector = _connector;
-        this.gltfurlExtractor = new GltfUrlExtractor(_mcax.gltf);
-    }
-    //########################################################
-    ProgressiveLoader.prototype.showDefaultDisplay = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var representations_1, geometries;
-            var _this = this;
-            return __generator(this, function (_a) {
-                if (this.mcax && this.renderApp) {
-                    Logger.setStatusBar("Downloading mesh data...");
-                    representations_1 = [];
-                    geometries = this.getRenderableGeometries();
-                    geometries.forEach(function (e, gIndex) {
-                        var repre = _this.getRecursiveItems(e.item.representations, _this.mcax.representations);
-                        repre.forEach(function (r, rIndex) {
-                            if (r.item.display === true) {
-                                var repIndex = r.index[rIndex];
-                                var repObj = {
-                                    customData: r.item,
-                                    geometryIndex: e.index[gIndex],
-                                    id: "representation_" + repIndex,
-                                    name: r.item.name
-                                };
-                                representations_1.push(repObj);
-                            }
-                        });
-                    });
-                    this.loadSelectedRepresentations(representations_1)
-                        .then(function () {
-                        Logger.setStatusBar("Mesh data downloaded.");
-                        _this.renderApp.fitView();
-                        return (true);
-                    }).catch((function (error) {
-                        Logger.setStatusBar("Error occurred while loading mesh.", statusIconType.ERROR);
-                        throw new Error(error);
-                    })).finally(function () {
-                    });
-                }
-                else {
-                    throw new Error("Invalid mcax or renderApp object.");
-                }
-                return [2 /*return*/];
-            });
-        });
-    };
-    ProgressiveLoader.prototype.getRenderableGeometries = function () {
-        var models = this.mcax.models;
-        if (models instanceof Array && models.length > 0) {
-            var filteredModels = models.filter(function (item) { return item.display; });
-            var componentIndexList = filteredModels.map(function (item) { return (item.components || []); }).flat();
-            var components = this.getRecursiveItems(componentIndexList, this.mcax.components);
-            var filteredcomponents = components.filter(function (e) { return e.item.display; });
-            var geometryIndexList = filteredcomponents.map(function (e) { return (e.item.geometries || []); }).flat();
-            var geometries = this.getRecursiveItems(geometryIndexList, this.mcax.geometries);
-            return geometries;
-        }
-    };
-    ProgressiveLoader.prototype.getRecursiveItems = function (indexList, items) {
-        var _this = this;
-        var itemsList = [];
-        if (indexList instanceof Array && indexList.length > 0) {
-            indexList.forEach(function (index) {
-                var item = items[index];
-                if (item.children && item.children.length > 0) {
-                    itemsList.push.apply(itemsList, __spread(_this.getRecursiveItems(item.children, items)));
-                }
-                else {
-                    itemsList.push({
-                        item: item,
-                        index: index
-                    });
-                }
-            });
-        }
-        return itemsList;
-    };
-    //########################################################
-    ProgressiveLoader.prototype.loadSelectedRepresentations = function (representations) {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            if (representations && representations instanceof Array) {
-                var rep_map = new Map();
-                representations.forEach(function (rep) {
-                    var level = rep.customData.level;
-                    if (!(rep_map.get(level) instanceof Array))
-                        rep_map.set(level, []);
-                    (rep_map.get(level)).push(rep);
-                });
-                var levelKeys = __spread(rep_map.keys());
-                var sortedLevels_1 = levelKeys.sort(function (a, b) { return (a - b); });
-                var promises_1 = [];
-                Logger.setStatusBar("Downloading data...");
-                sortedLevels_1.forEach(function (level) {
-                    promises_1.push(_this.loadLevelNodes(rep_map.get(level), level, sortedLevels_1));
-                });
-                Promise.all(promises_1).finally(function () {
-                    Logger.setStatusBar("Data downloaded.");
-                    resolve(true);
-                });
-            }
-            else {
-                //console.log("Invalid representations");
-                reject("Invalid representations");
-            }
-        });
-    };
-    ProgressiveLoader.prototype.getRepresentationsByLevel = function (representationList, level) {
-        var scope = this;
-        var representations = [];
-        representationList.forEach(function (element) {
-            var geometry = scope.mcax.geometries[element.geometryIndex];
-            geometry.representations.forEach(function (repIndex) {
-                if (scope.mcax.representations[repIndex].level == level) {
-                    var repObj = {
-                        customData: scope.mcax.representations[repIndex],
-                        geometryIndex: element.geometryIndex,
-                        id: "representation_" + repIndex,
-                        name: scope.mcax.representations[repIndex].name
-                    };
-                    representations.push(repObj);
-                }
-            });
-        });
-        return representations;
-    };
-    ProgressiveLoader.prototype.loadLevelNodes = function (representationList, currentLevel, allselectedLevels) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                return [2 /*return*/, new Promise(function (resolve) { return __awaiter(_this, void 0, void 0, function () {
-                        var downloadRepreList_1, lod, nodeList, progression, i, level, representations, nodeList, representations_2, nodeList;
-                        var _this = this;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0:
-                                    if (!(representationList instanceof Array)) return [3 /*break*/, 12];
-                                    downloadRepreList_1 = [];
-                                    representationList.forEach(function (element) {
-                                        //let gltfNodeIndex =  element.node;
-                                        //if(element.customData)
-                                        var gltfNodeIndex = element.customData.node;
-                                        if (_this.renderApp.getIsRenderDataAvailable([gltfNodeIndex]))
-                                            _this.renderApp.setNodeVisibility([gltfNodeIndex], true);
-                                        else
-                                            downloadRepreList_1.push(element);
-                                    });
-                                    if (!(downloadRepreList_1.length > 0)) return [3 /*break*/, 11];
-                                    lod = this.mcax.lods.filter(function (item) { return (item.level === currentLevel); });
-                                    if (!(lod.length === 0)) return [3 /*break*/, 2];
-                                    nodeList = downloadRepreList_1.map(function (item) { return item.customData.node; });
-                                    this.renderApp.setNodeVisibility(nodeList, true);
-                                    return [4 /*yield*/, this.loadRespresentationNodes(downloadRepreList_1)];
-                                case 1:
-                                    _a.sent();
-                                    //this.renderApp.fitView();                    
-                                    resolve(true);
-                                    return [3 /*break*/, 10];
-                                case 2:
-                                    progression = lod[0].progression;
-                                    i = 0;
-                                    _a.label = 3;
-                                case 3:
-                                    if (!(i < progression.length)) return [3 /*break*/, 9];
-                                    level = progression[i];
-                                    representations = this.getRepresentationsByLevel(downloadRepreList_1, level);
-                                    if (!(level !== currentLevel)) return [3 /*break*/, 5];
-                                    return [4 /*yield*/, this.loadLevelNodes(representations, level, allselectedLevels)];
-                                case 4:
-                                    _a.sent();
-                                    return [3 /*break*/, 7];
-                                case 5:
-                                    nodeList = representations.map(function (item) { return item.customData.node; });
-                                    this.renderApp.setNodeVisibility(nodeList, true);
-                                    return [4 /*yield*/, this.loadRespresentationNodes(representations)];
-                                case 6:
-                                    _a.sent();
-                                    _a.label = 7;
-                                case 7:
-                                    if (i !== 0) {
-                                        if (!(allselectedLevels.includes(progression[i - 1]))) {
-                                            representations_2 = this.getRepresentationsByLevel(representationList, progression[i - 1]);
-                                            nodeList = representations_2.map(function (item) { return item.customData.node; });
-                                            this.renderApp.setNodeVisibility(nodeList, false);
-                                        }
-                                    }
-                                    _a.label = 8;
-                                case 8:
-                                    i++;
-                                    return [3 /*break*/, 3];
-                                case 9:
-                                    resolve(true);
-                                    _a.label = 10;
-                                case 10: return [3 /*break*/, 12];
-                                case 11:
-                                    //this.renderApp.fitView();     
-                                    resolve(true);
-                                    _a.label = 12;
-                                case 12: return [2 /*return*/];
-                            }
-                        });
-                    }); })];
-            });
-        });
-    };
-    ProgressiveLoader.prototype.loadRespresentationNodes = function (representationList) {
-        return __awaiter(this, void 0, void 0, function () {
-            var urlObjArray, clubbedURLObjList, maxLength, urlCount, counter;
-            var _this = this;
-            return __generator(this, function (_a) {
-                urlObjArray = [];
-                representationList.forEach(function (element) {
-                    //let gltfNodeIndex =  element.node;
-                    //if(element.customData)
-                    var gltfNodeIndex = element.customData.node;
-                    var urlOjb = _this.gltfurlExtractor.getNodeURLs(gltfNodeIndex);
-                    urlObjArray.push(urlOjb);
-                });
-                clubbedURLObjList = ManagedURLDownloader.processURLObject(urlObjArray);
-                maxLength = 0;
-                urlCount = 0;
-                clubbedURLObjList.forEach(function (item) {
-                    maxLength = (item.length > maxLength) ? item.length : maxLength;
-                    urlCount += item.length;
-                });
-                counter = 0;
-                return [2 /*return*/, new Promise(function (resolve) {
-                        for (var i = 0; i < maxLength; i++) {
-                            var _loop_1 = function (j) {
-                                if (i < clubbedURLObjList[j].length) {
-                                    var URLobj_1 = clubbedURLObjList[j][i];
-                                    //console.log(URLobj);                    
-                                    _this.connector.getArrayBuffer(URLobj_1.url)
-                                        .then(function (arrayBuffer) {
-                                        _this.splitandUpdateBuffer(URLobj_1, arrayBuffer);
-                                        counter += 1;
-                                        if (counter === urlCount) {
-                                            resolve(true);
-                                        }
-                                    });
-                                }
-                            };
-                            for (var j = 0; j < clubbedURLObjList.length; j++) {
-                                _loop_1(j);
-                            }
-                        }
-                    })];
-            });
-        });
-    };
-    ProgressiveLoader.prototype.splitandUpdateBuffer = function (URLobj, arrayBuffer) {
-        var _this = this;
-        var chunkstring = Utility$1.getURLParameterByName(URLobj.url, "chunks");
-        var chunks = chunkstring.split(",");
-        var offset = 0;
-        chunks.forEach(function (chunk, index) {
-            var length = parseInt(chunk.split('+')[1]);
-            _this.renderApp.replaceWEBGLBuffer(URLobj.nodes[index], arrayBuffer.slice(offset, offset + length));
-            offset = offset + length;
-        });
-    };
-    ProgressiveLoader.prototype.loadLevelNodes_working = function (representationList) {
-        var _this = this;
-        if (representationList instanceof Array) {
-            var urlObjArray_1 = [];
-            representationList.forEach(function (element) {
-                var gltfNodeIndex = element.customData.node;
-                if (_this.renderApp.getIsRenderDataAvailable([gltfNodeIndex]))
-                    _this.renderApp.setNodeVisibility([gltfNodeIndex], true);
-                else {
-                    var urlOjb = _this.gltfurlExtractor.getNodeURLs(gltfNodeIndex);
-                    urlObjArray_1.push(urlOjb);
-                }
-            });
-            var clubbedURLObjList = ManagedURLDownloader.processURLObject(urlObjArray_1);
-            var maxLength_1 = 0;
-            clubbedURLObjList.forEach(function (item) {
-                maxLength_1 = (item.length > maxLength_1) ? item.length : maxLength_1;
-            });
-            for (var i = 0; i < maxLength_1; i++) {
-                var _loop_2 = function (j) {
-                    if (i < clubbedURLObjList[j].length) {
-                        var URLobj_2 = clubbedURLObjList[j][i];
-                        //console.log(URLobj);                    
-                        this_1.connector.getArrayBuffer(URLobj_2.url)
-                            .then(function (arrayBuffer) {
-                            _this.splitandUpdateBuffer(URLobj_2, arrayBuffer);
-                        });
-                    }
-                };
-                var this_1 = this;
-                for (var j = 0; j < clubbedURLObjList.length; j++) {
-                    _loop_2(j);
-                }
-            }
-            /*
-            for (let i=0;i < clubbedURLObjList.length; i++)
-            {
-                for(let j=0;j < clubbedURLObjList[i].length; j++)
-                {
-                    let URLobj = clubbedURLObjList[i][j];
-                    //console.log(URLobj);
-                    this.connector.getArrayBuffer(URLobj.url)
-                    .then((arrayBuffer) => {
-                        this.splitandUpdateBuffer(URLobj,arrayBuffer)
-                    });
-                }
-            }
-            */
-        }
-    };
-    return ProgressiveLoader;
-}());
-var ManagedURLDownloader = /** @class */ (function () {
-    function ManagedURLDownloader() {
-    }
-    ManagedURLDownloader.processURLObject = function (urlObjArray) {
-        var _this = this;
-        var urlMap = new Map();
-        urlObjArray.forEach(function (item) {
-            item.forEach(function (urlObj) {
-                if (!(urlMap.get(urlObj.url)))
-                    urlMap.set(urlObj.url, []);
-                (urlMap.get(urlObj.url)).push(urlObj);
-            });
-        });
-        var uniqueURLs = __spread(urlMap.keys());
-        var clubbedURLObjList = [];
-        uniqueURLs.forEach(function (url) {
-            clubbedURLObjList.push(_this.URLMerger(url, urlMap.get(url)));
-        });
-        return clubbedURLObjList;
-    };
-    ManagedURLDownloader.URLMerger = function (_url, specificUrlObjArray) {
-        var groupedIndex = [];
-        var clubbedSize = 0;
-        var tempIndex = [];
-        for (var i = 0; i < specificUrlObjArray.length; i++) {
-            var size = specificUrlObjArray[i].bufferViewLength;
-            if (size >= ManagedURLDownloader.downloadSizeLimit) {
-                groupedIndex.push(i);
-            }
-            else {
-                if ((clubbedSize + size) >= ManagedURLDownloader.downloadSizeLimit) {
-                    tempIndex = [i];
-                    clubbedSize = size;
-                    groupedIndex.push(tempIndex);
-                }
-                else {
-                    if (tempIndex.length === 0)
-                        groupedIndex.push(tempIndex);
-                    tempIndex.push(i);
-                    clubbedSize += size;
-                }
-            }
-        }
-        //console.log(groupedIndex);
-        var clubbedURLObjects = [];
-        groupedIndex.forEach(function (item) {
-            var queryString = "";
-            var nodes = [];
-            if (item instanceof Array) {
-                var indexedItems = item.map(function (value, index) { return { index: index, value: value }; });
-                var sortedItems = indexedItems.sort(function (x, y) { return ((specificUrlObjArray[x.value].bufferViewOffset > specificUrlObjArray[y.value].bufferViewOffset) ? 1 : ((specificUrlObjArray[x.value].bufferViewOffset === specificUrlObjArray[y.value].bufferViewOffset) ? 0 : -1)); });
-                var sortedIndex = sortedItems.map(function (e) { return e.value; });
-                sortedIndex.forEach(function (i) {
-                    var offset = specificUrlObjArray[i].bufferViewOffset || 0;
-                    var length = specificUrlObjArray[i].bufferViewLength || 0;
-                    if (queryString === "")
-                        queryString = "chunks=" + offset + "%2B" + length; //%2B = +                 
-                    else
-                        queryString += "," + offset + "%2B" + length; //%2B = + 
-                    nodes.push(specificUrlObjArray[i]);
-                });
-            }
-            else {
-                var offset = specificUrlObjArray[item].bufferViewOffset || 0;
-                var length = specificUrlObjArray[item].bufferViewLength || 0;
-                queryString = "chunks=" + offset + "%2B" + length; //%2B = +        
-                nodes.push(specificUrlObjArray[item]);
-            }
-            var bufferURI = _url;
-            var url = (bufferURI.includes('?') ?
-                bufferURI + "&" + queryString :
-                bufferURI + "?" + queryString);
-            var objects = {
-                url: url,
-                nodes: nodes
-            };
-            clubbedURLObjects.push(objects);
-        });
-        return clubbedURLObjects;
-    };
-    ManagedURLDownloader.downloadSizeLimit = 4 * 1024 * 1024; // 4 MB
-    return ManagedURLDownloader;
-}());var basicType = Object.freeze({
-    ANALYTICAL: 1,
-    PRIMITIVES: 2,
-    CONNECTIONS: 3,
-    BOUNDING_BOX: 4,
-    FEATURE_EDGES: 5,
-    SIMPLIFIED: 6,
-    FULL_MESH: 7,
-    MESH_POINTS: 8
-});
-var powof2 = function (value) { return Math.pow(2, value); };
-var abstractType = Object.freeze({
-    BBOX: powof2(basicType.CONNECTIONS) + powof2(basicType.BOUNDING_BOX),
-    MESH: powof2(basicType.FULL_MESH) + powof2(basicType.PRIMITIVES),
-    WIREFRAME: powof2(basicType.FULL_MESH) + powof2(basicType.CONNECTIONS),
-    POINT: powof2(basicType.MESH_POINTS) + powof2(basicType.FULL_MESH)
-});var Default = {
-    LEGEND_ORIENTATION: orientation.VERTICAL,
-    LEGEND_PALETTE_TYPE: paletteType.CONTINUOUS,
-    LEGEND_VALUE_TYPE: valueType.CONTINUOUS,
-    LEGEND_VALUE_PLACEMENT: valuePlacement.EDGE,
-    LEGEND_TICS_POSITION: ticsPosition.ACROSS,
-    LEGEND_COLOR_VALUE_MODE: colorValueMode.BOUNDED,
-    LEGEND_COLOR_MAP: colorMap.PRESET1
-};/**
- * Common utilities
- * @module glMatrix
- */
-var ARRAY_TYPE$1 = typeof Float32Array !== 'undefined' ? Float32Array : Array;
-if (!Math.hypot) Math.hypot = function () {
-  var y = 0,
-      i = arguments.length;
-
-  while (i--) {
-    y += arguments[i] * arguments[i];
-  }
-
-  return Math.sqrt(y);
-};/**
- * 4x4 Matrix<br>Format: column-major, when typed out it looks like row-major<br>The matrices are being post multiplied.
- * @module mat4
- */
-
-/**
- * Creates a new identity mat4
- *
- * @returns {mat4} a new 4x4 matrix
- */
-
-function create$6() {
-  var out = new ARRAY_TYPE$1(16);
-
-  if (ARRAY_TYPE$1 != Float32Array) {
-    out[1] = 0;
-    out[2] = 0;
-    out[3] = 0;
-    out[4] = 0;
-    out[6] = 0;
-    out[7] = 0;
-    out[8] = 0;
-    out[9] = 0;
-    out[11] = 0;
-    out[12] = 0;
-    out[13] = 0;
-    out[14] = 0;
-  }
-
-  out[0] = 1;
-  out[5] = 1;
-  out[10] = 1;
-  out[15] = 1;
-  return out;
-}
-/**
- * Creates a new mat4 initialized with values from an existing matrix
- *
- * @param {ReadonlyMat4} a matrix to clone
- * @returns {mat4} a new 4x4 matrix
- */
-
-function clone$2(a) {
-  var out = new ARRAY_TYPE$1(16);
-  out[0] = a[0];
-  out[1] = a[1];
-  out[2] = a[2];
-  out[3] = a[3];
-  out[4] = a[4];
-  out[5] = a[5];
-  out[6] = a[6];
-  out[7] = a[7];
-  out[8] = a[8];
-  out[9] = a[9];
-  out[10] = a[10];
-  out[11] = a[11];
-  out[12] = a[12];
-  out[13] = a[13];
-  out[14] = a[14];
-  out[15] = a[15];
-  return out;
-}/**
- * 3 Dimensional Vector
- * @module vec3
- */
-
-/**
- * Creates a new, empty vec3
- *
- * @returns {vec3} a new 3D vector
- */
-
-function create$7() {
-  var out = new ARRAY_TYPE$1(3);
-
-  if (ARRAY_TYPE$1 != Float32Array) {
-    out[0] = 0;
-    out[1] = 0;
-    out[2] = 0;
-  }
-
-  return out;
-}
-/**
- * Creates a new vec3 initialized with the given values
- *
- * @param {Number} x X component
- * @param {Number} y Y component
- * @param {Number} z Z component
- * @returns {vec3} a new 3D vector
- */
-
-function fromValues$5(x, y, z) {
-  var out = new ARRAY_TYPE$1(3);
-  out[0] = x;
-  out[1] = y;
-  out[2] = z;
-  return out;
-}
-/**
- * Subtracts vector b from vector a
- *
- * @param {vec3} out the receiving vector
- * @param {ReadonlyVec3} a the first operand
- * @param {ReadonlyVec3} b the second operand
- * @returns {vec3} out
- */
-
-function subtract$1(out, a, b) {
-  out[0] = a[0] - b[0];
-  out[1] = a[1] - b[1];
-  out[2] = a[2] - b[2];
-  return out;
-}
-/**
- * Calculates the squared length of a vec3
- *
- * @param {ReadonlyVec3} a vector to calculate squared length of
- * @returns {Number} squared length of a
- */
-
-function squaredLength$1(a) {
-  var x = a[0];
-  var y = a[1];
-  var z = a[2];
-  return x * x + y * y + z * z;
-}
-/**
- * Normalize a vec3
- *
- * @param {vec3} out the receiving vector
- * @param {ReadonlyVec3} a vector to normalize
- * @returns {vec3} out
- */
-
-function normalize$3(out, a) {
-  var x = a[0];
-  var y = a[1];
-  var z = a[2];
-  var len = x * x + y * y + z * z;
-
-  if (len > 0) {
-    //TODO: evaluate use of glm_invsqrt here?
-    len = 1 / Math.sqrt(len);
-  }
-
-  out[0] = a[0] * len;
-  out[1] = a[1] * len;
-  out[2] = a[2] * len;
-  return out;
-}
-/**
- * Calculates the dot product of two vec3's
- *
- * @param {ReadonlyVec3} a the first operand
- * @param {ReadonlyVec3} b the second operand
- * @returns {Number} dot product of a and b
- */
-
-function dot$1(a, b) {
-  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-}
-/**
- * Computes the cross product of two vec3's
- *
- * @param {vec3} out the receiving vector
- * @param {ReadonlyVec3} a the first operand
- * @param {ReadonlyVec3} b the second operand
- * @returns {vec3} out
- */
-
-function cross$1(out, a, b) {
-  var ax = a[0],
-      ay = a[1],
-      az = a[2];
-  var bx = b[0],
-      by = b[1],
-      bz = b[2];
-  out[0] = ay * bz - az * by;
-  out[1] = az * bx - ax * bz;
-  out[2] = ax * by - ay * bx;
-  return out;
-}
-/**
- * Alias for {@link vec3.subtract}
- * @function
- */
-
-var sub$1 = subtract$1;
-/**
- * Alias for {@link vec3.squaredLength}
- * @function
- */
-
-var sqrLen$1 = squaredLength$1;
-/**
- * Perform some operation over an array of vec3s.
- *
- * @param {Array} a the array of vectors to iterate over
- * @param {Number} stride Number of elements between the start of each vec3. If 0 assumes tightly packed
- * @param {Number} offset Number of elements to skip at the beginning of the array
- * @param {Number} count Number of vec3s to iterate over. If 0 iterates over entire array
- * @param {Function} fn Function to call for each vector in the array
- * @param {Object} [arg] additional argument to pass to fn
- * @returns {Array} a
- * @function
- */
-
-(function () {
-  var vec = create$7();
-  return function (a, stride, offset, count, fn, arg) {
-    var i, l;
-
-    if (!stride) {
-      stride = 3;
-    }
-
-    if (!offset) {
-      offset = 0;
-    }
-
-    if (count) {
-      l = Math.min(count * stride + offset, a.length);
-    } else {
-      l = a.length;
-    }
-
-    for (i = offset; i < l; i += stride) {
-      vec[0] = a[i];
-      vec[1] = a[i + 1];
-      vec[2] = a[i + 2];
-      fn(vec, vec, arg);
-      a[i] = vec[0];
-      a[i + 1] = vec[1];
-      a[i + 2] = vec[2];
-    }
-
-    return a;
-  };
-}());var Legend = /** @class */ (function () {
-    function Legend(id) {
-        this.id = id;
-        this.orientation = Default.LEGEND_ORIENTATION;
-        this.paletteType = Default.LEGEND_PALETTE_TYPE;
-        this.valueType = Default.LEGEND_VALUE_TYPE;
-        this.valuePlacement = Default.LEGEND_VALUE_PLACEMENT;
-        this.ticsPosition = Default.LEGEND_TICS_POSITION;
-        this.colorValueMode = Default.LEGEND_COLOR_VALUE_MODE;
-        this.colorMap = Default.LEGEND_COLOR_MAP;
-        this.isUserCustomDefinedValue = false;
-        this.userDefinedValues = [];
-        this.min = null;
-        this.max = null;
-    }
-    Legend.prototype.setMinMAX = function (min, max) {
-        this.min = min;
-        this.max = max;
-    };
-    Legend.prototype.getDisplayData = function () {
-        var range = this.getRange();
-        var data = {
-            colors: this.colorMap,
-            paletteType: this.paletteType,
-            range: range,
-        };
-        return data;
-    };
-    Legend.prototype.getNewColorSet = function (newSize, inColorArray) {
-        var outColorArray = [];
-        if (inColorArray.length < 2)
-            return outColorArray;
-        if (newSize <= 0)
-            return outColorArray;
-        var iOldColorSize = inColorArray.length; //size of input
-        if (newSize == iOldColorSize) {
-            outColorArray = __spread(inColorArray);
-            return outColorArray;
-        }
-        if (newSize == 1) {
-            if (inColorArray.length % 2 == 0) {
-                var idxStart = inColorArray.length / 2 - 1;
-                var color = create$7();
-                color[0] = (inColorArray[idxStart][0] + inColorArray[idxStart + 1][0]) * 0.5;
-                color[1] = (inColorArray[idxStart][1] + inColorArray[idxStart + 1][1]) * 0.5;
-                color[2] = (inColorArray[idxStart][2] + inColorArray[idxStart + 1][2]) * 0.5;
-                outColorArray.push(color);
-            }
-            else {
-                var idx = inColorArray.length * 0.5;
-                outColorArray.push(inColorArray[idx]);
-            }
-            return outColorArray;
-        }
-        var GapRatio = (iOldColorSize - 1) / (newSize - 1); //count for each size of input
-        //set first color as it is
-        outColorArray.push(inColorArray[0]);
-        var position = 0.0;
-        for (var i = 1; i < newSize; i++) {
-            position += GapRatio;
-            var intPart = parseInt(position.toString());
-            var fracPart = position - intPart;
-            var color1 = inColorArray[intPart];
-            var color2 = create$7();
-            if (intPart < iOldColorSize - 1)
-                color2 = inColorArray[intPart + 1];
-            else
-                color2 = fromValues$5(0, 0, 0);
-            var rIncr = (color2[0] - color1[0]) * fracPart;
-            var gIncr = (color2[1] - color1[1]) * fracPart;
-            var bIncr = (color2[2] - color1[2]) * fracPart;
-            var color = create$7();
-            color[0] = color1[0] + rIncr;
-            color[1] = color1[1] + gIncr;
-            color[2] = color1[2] + bIncr;
-            outColorArray.push(color);
-        }
-        return outColorArray;
-    };
-    Legend.prototype.createTexture = function (colorArray, textureSize, isDiscrete) {
-        var out = [];
-        if (isDiscrete) {
-            var band = Math.floor(textureSize / colorArray.length);
-            textureSize - band * colorArray.length;
-            for (var x = 0; x < textureSize; x++) {
-                var fract = x * colorArray.length / textureSize;
-                var i = Math.floor(fract);
-                colorArray[i][0];
-                colorArray[i][1];
-                colorArray[i][2];
-                out.push(colorArray[i]);
-            }
-        }
-        else {
-            out = this.getNewColorSet(textureSize, colorArray);
-        }
-        return out;
-    };
-    Legend.prototype.getTextureData = function () {
-        var input = __spread(this.colorMap);
-        var isDiscrete = this.paletteType == paletteType.DISCRETE;
-        var texture256Array = this.createTexture(input.reverse(), 256, isDiscrete);
-        var textureData = [];
-        texture256Array.forEach(function (color) {
-            textureData.push.apply(textureData, __spread(color));
-            //textureData.push(255);
-        });
-        return textureData;
-    };
-    Legend.prototype.getRange = function () {
-        var range = [];
-        var colorCount = this.colorMap.length;
-        var step = (this.max - this.min) / colorCount;
-        if (this.paletteType === paletteType.CONTINUOUS) {
-            step = (this.max - this.min) / (colorCount - 1);
-            colorCount = colorCount - 1;
-        }
-        for (var i = 0; i < colorCount + 1; i++) {
-            var val = this.min + (step * i);
-            range.push(val);
-        }
-        return range.reverse();
-    };
-    return Legend;
-}());var LegendManager = /** @class */ (function () {
-    function LegendManager() {
-        this.Legends = new Map();
-        this.defaultLegendsID = null;
-    }
-    LegendManager.prototype.createLegend = function () {
-        var id = Utility$1.create_UUID();
-        var legend = new Legend(id);
-        this.Legends.set(id, legend);
-        if (this.defaultLegendsID === null)
-            this.defaultLegendsID = id;
-        return id;
-    };
-    LegendManager.prototype.getLegend = function (id) {
-        if (id)
-            return this.Legends.get(id);
-        return this.Legends.get(this.defaultLegendsID);
-    };
-    return LegendManager;
-}());var CAEResult = /** @class */ (function () {
-    function CAEResult(_mcax, _renderApp, _connector, _legendManager) {
-        this.mcax = _mcax;
-        this.renderApp = _renderApp;
-        this.connector = _connector;
-        this.legendManager = _legendManager;
-        this.legendID = null;
-        this.result = null;
-        if (this.getIsCAEResultAvailable())
-            this.createResult();
-        this.appliedResultId = null;
-        this.appliedStepId = null;
-        this.appliedDerivedTypeId = null;
-        if (this.mcax.selection) {
-            if (this.mcax.selection.variableIndex != undefined && this.mcax.selection.variableIndex != null)
-                this.appliedResultId = this.mcax.selection.variableIndex;
-            if (this.mcax.selection.stepIndex != undefined && this.mcax.selection.stepIndex != null)
-                this.appliedStepId = this.mcax.selection.stepIndex;
-            if (this.mcax.selection.derivedTypeIndex != undefined && this.mcax.selection.derivedTypeIndex != null)
-                this.appliedDerivedTypeId = this.mcax.selection.derivedTypeIndex;
-            if (this.legendManager)
-                this.legendID = this.legendManager.createLegend();
-        }
-    }
-    CAEResult.prototype.getIsCAEResultAvailable = function () {
-        var variables = this.mcax.variables;
-        if (variables) {
-            var activeVariables = variables.filter(function (item) { return item.active; });
-            if (activeVariables.length > 0)
-                return true;
-        }
-        return false;
-    };
-    CAEResult.prototype.setDefaultDerived = function (variableTypeId, defaultValue) {
-        this.result.variableTypes[variableTypeId].defaultDerived = this.mcax.derivedTypes[defaultValue].generator;
-    };
-    CAEResult.prototype.createResult = function () {
-        var _this = this;
-        this.result = {
-            variables: {},
-            derivedTypes: {},
-            missingVariableSteps: {},
-            variableTypes: {},
-            stepVariables: {},
-            selection: {}
-        };
-        try {
-            this.result.selection = {
-                variableId: this.mcax.variables[this.mcax.selection.variableIndex].id,
-                stepId: this.mcax.steps[this.mcax.selection.stepIndex].id,
-                derivedTypeId: this.mcax.derivedTypes[this.mcax.selection.derivedTypeIndex].generator
-            };
-            this.mcax.variableTypes.forEach(function (variableType) {
-                if (variableType.active == true) {
-                    _this.result.variableTypes[variableType.id] = {
-                        name: variableType.name,
-                        defaultDerived: "",
-                        derivedTypeIds: variableType.derivedTypes.map(function (e) { return _this.mcax.derivedTypes[e].generator; })
-                    };
-                }
-            });
-            this.mcax.variables.forEach(function (variable) {
-                if (variable.active == true) {
-                    _this.result.variables[variable.id] = {
-                        name: variable.name,
-                        type: _this.mcax.variableTypes[variable.type].id,
-                        attributes: {}
-                    };
-                    _this.setDefaultDerived(_this.mcax.variableTypes[variable.type].id, variable.defaultDerived['colorplot']);
-                }
-            });
-            this.mcax.derivedTypes.forEach(function (derivedType) {
-                _this.result.derivedTypes[derivedType.generator] = {
-                    name: derivedType.name,
-                    generator: derivedType.generator
-                };
-            });
-            this.mcax.steps.forEach(function (step) {
-                if (step.active == true) {
-                    _this.result.stepVariables[step.id] = {
-                        name: step.name
-                    };
-                }
-            });
-            //missing steps
-            this.mcax.variables.forEach(function (variable) {
-                if (_this.mcax.steps.length !== variable.stepsAvailable.length) {
-                    var missingStepIds_1 = [];
-                    _this.mcax.steps.forEach(function (step, index) {
-                        if (!variable.stepsAvailable.find(function (sIndex) { return index == sIndex; })) {
-                            missingStepIds_1.push(step.id);
-                        }
-                    });
-                    _this.result.missingVariableSteps[variable.id] = missingStepIds_1;
-                }
-                else {
-                    _this.result.missingVariableSteps[variable.id] = [];
-                }
-            });
-            console.log(this.result);
-        }
-        catch (error) {
-            throw new Error(error);
-        }
-    };
-    CAEResult.prototype.getCAEResult = function () {
-        return this.result ? Object.freeze(this.result) : null;
-    };
-    CAEResult.prototype.getDisplayResult = function () {
-        return this.getCAEResult();
-        // let resultSet:any = {
-        //     resultsNameList : [],
-        //     stepsNameList : [],
-        //     derivedTypesNameList : [],
-        //     result : null,
-        //     step : null,
-        //     derivedType : null,
-        // };
-        // try{
-        //     let variables =  this.mcax.variables;
-        //     if(variables){                  
-        //         let resultObj = this.getResults();
-        //         let stepObj = this.getSteps(this.appliedResultIndex);
-        //         let derivedTypeObj = this.getDerivedTypes(this.appliedResultIndex);
-        //         resultSet.resultsNameList =resultObj.results;
-        //         resultSet.stepsNameList = stepObj.steps;
-        //         resultSet.derivedTypesNameList = derivedTypeObj.derivedTypes;
-        //         resultSet.result = resultObj.defaultValue;
-        //         resultSet.step = stepObj.defaultValue;
-        //         resultSet.derivedType = derivedTypeObj.defaultValue;           
-        //     }  
-        // } 
-        // catch(error){
-        //     throw new Error(error);
-        // }  
-        // return resultSet;        
-    };
-    CAEResult.prototype.getResults = function () {
-        // let variables = this.mcax.variables;
-        // if(variables){  
-        //     try{   
-        //         let CAEResults: any = {
-        //             results : [],
-        //             defaultValue : null
-        //         };
-        //         variables.forEach((element:any, index:number) => {
-        //             if(element.active === true){
-        //                 CAEResults.results.push({
-        //                     name : element.name,
-        //                     id : element.id,
-        //                     value : index
-        //                 });
-        //             }
-        //         });
-        //         CAEResults.defaultValue = (this.appliedResultIndex !== null ? this.appliedResultIndex : 0); 
-        //         return CAEResults;
-        //     }
-        //     catch(error){
-        //         throw new Error(error);
-        //     }            
-        // } 
-        // else
-        //     throw new Error("Invalid data")
-    };
-    CAEResult.prototype.getSteps = function (selectedResultIndex) {
-        // selectedResultIndex = selectedResultIndex || 0;  
-        // try{       
-        //     let oldStepIndex =this.appliedStepIndex;
-        //     let CAESteps:any = {
-        //         steps : [],
-        //         defaultValue : null
-        //     };
-        //     let steps = this.mcax.variables[ selectedResultIndex ].stepsAvailable;
-        //     if(steps && steps instanceof Array &&  this.mcax.steps instanceof Array)
-        //     {
-        //         steps.forEach(stepIndex => {
-        //             if (this.mcax.steps.length > stepIndex){
-        //                 CAESteps.steps.push({
-        //                     name :  this.mcax.steps[stepIndex].name,
-        //                     id :  this.mcax.steps[stepIndex].id,
-        //                     value : stepIndex
-        //                 });  
-        //             }
-        //         });
-        //     }
-        //     if(steps.includes(oldStepIndex))
-        //         CAESteps.defaultValue = oldStepIndex;
-        //     else if(CAESteps.steps.length > 0)
-        //         CAESteps.defaultValue =  CAESteps.steps[0].value;               
-        //         return CAESteps; 
-        // }
-        // catch(error){
-        //     throw new Error(error);
-        // }           
-    };
-    CAEResult.prototype.getDerivedTypes = function (selectedResultIndex) {
-        var _this = this;
-        selectedResultIndex = selectedResultIndex || 0;
-        try {
-            var CAEDerivedTypes_1 = {
-                derivedTypes: [],
-                defaultValue: null
-            };
-            var type = this.mcax.variables[selectedResultIndex].type;
-            var defaultDerivedIndex_1 = this.mcax.variables[selectedResultIndex].defaultDerived.colorplot;
-            var variableTypes = this.mcax.variableTypes[type];
-            var derivedTypes = variableTypes.derivedTypes;
-            var defaultValue_1 = null;
-            var oldDerivedIndex = this.mcax.appliedDerivedTypeIndex;
-            derivedTypes.forEach(function (derivedTypesIndex) {
-                if (_this.mcax.derivedTypes.length > derivedTypesIndex) {
-                    CAEDerivedTypes_1.derivedTypes.push({
-                        name: _this.mcax.derivedTypes[derivedTypesIndex].name,
-                        generator: _this.mcax.derivedTypes[derivedTypesIndex].generator,
-                        value: derivedTypesIndex
-                    });
-                    if (derivedTypesIndex === defaultDerivedIndex_1)
-                        defaultValue_1 = derivedTypesIndex;
-                }
-            });
-            if (derivedTypes.includes(oldDerivedIndex))
-                CAEDerivedTypes_1.defaultValue = oldDerivedIndex;
-            else if (defaultValue_1 !== null)
-                CAEDerivedTypes_1.defaultValue = defaultValue_1;
-            else if (CAEDerivedTypes_1.derivedTypes.length > 0)
-                CAEDerivedTypes_1.defaultValue = CAEDerivedTypes_1.derivedTypes[0].value;
-            return CAEDerivedTypes_1;
-        }
-        catch (error) {
-            throw new Error(error);
-        }
-    };
-    CAEResult.prototype.applyResult = function (variableId, stepId, derivedTypeId, productTree) {
-        var _this = this;
-        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var parts, resultName, stepName, derivedGenerator, textureCoordsURL, uri, uri_meta_info, textureArrayBuffer, textureMetaData, legend, min, max, error_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!this.getIsCAEResultAvailable())
-                            reject("No CAE Result available");
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 6, , 7]);
-                        parts = productTree.getAllPartNodes();
-                        parts.map(function (part) {
-                            part.customData.displayProps.useTexture = true;
-                        });
-                        resultName = this.result.variables[variableId].name;
-                        stepName = this.result.stepVariables[stepId].name;
-                        derivedGenerator = this.result.derivedTypes[derivedTypeId].generator;
-                        textureCoordsURL = this.mcax.gltf.buffers.filter(function (buffer) { return buffer.uri.includes('type=texcoords'); });
-                        this.appliedResultId = variableId;
-                        this.appliedStepId = stepId;
-                        this.appliedDerivedTypeId = derivedTypeId;
-                        if (!(textureCoordsURL && textureCoordsURL.length > 0)) return [3 /*break*/, 4];
-                        uri = textureCoordsURL[0].uri.replace("${variableIndex}", resultName);
-                        uri = uri.replace("${stepIndex}", stepName);
-                        uri = uri.replace("${derivedTypeIndex}", derivedGenerator);
-                        uri_meta_info = uri.replace("/extract/buffer", "/extract/buffermeta");
-                        Logger.setStatusBar("Downloading result buffers.");
-                        return [4 /*yield*/, this.connector.getArrayBuffer(uri)];
-                    case 2:
-                        textureArrayBuffer = _a.sent();
-                        return [4 /*yield*/, this.connector.getJsonData(uri_meta_info)];
-                    case 3:
-                        textureMetaData = _a.sent();
-                        Logger.setStatusBar("Result buffers downloaded.");
-                        this.renderApp.applyResultByData(textureCoordsURL[0].uri, textureArrayBuffer);
-                        legend = this.legendManager.getLegend(this.legendID);
-                        min = textureMetaData.range[0];
-                        max = textureMetaData.range[1];
-                        legend.setMinMAX(min, max);
-                        this.renderApp.setTextureData(legend.getTextureData());
-                        resolve(true);
-                        return [3 /*break*/, 5];
-                    case 4: throw new Error("Invalid texture Coords URL");
-                    case 5: return [3 /*break*/, 7];
-                    case 6:
-                        error_1 = _a.sent();
-                        throw new Error(error_1);
-                    case 7: return [2 /*return*/];
-                }
-            });
-        }); });
-    };
-    CAEResult.prototype.getLegendData = function () {
-        var legend = this.legendManager.getLegend(this.legendID);
-        var data = legend.getDisplayData();
-        return data;
-    };
-    return CAEResult;
-}());var GUIState = /** @class */ (function () {
-    function GUIState() {
-        this.planeOptions = new Map();
-    }
-    return GUIState;
-}());
-var SelectionMode;
-(function (SelectionMode) {
-    SelectionMode[SelectionMode["NONE"] = 0] = "NONE";
-    SelectionMode[SelectionMode["THREE_PT"] = 1] = "THREE_PT";
-    SelectionMode[SelectionMode["FACE"] = 2] = "FACE";
-})(SelectionMode || (SelectionMode = {}));
-var PlaneGUIState = /** @class */ (function () {
-    function PlaneGUIState() {
-        this.selectionMode = SelectionMode.NONE;
-        this.isPlaneEnabled = false;
-        this.isPlaneVisible = false;
-        this.sliderMinMax = [0, 0];
-        this.primarySliderValue = 0;
-        this.rotSliderUValue = 360;
-        this.rotSliderVValue = 360;
-        this.rotSliderNValue = 360;
-        this.delta = 0;
-        this.deltaRotU = 0;
-        this.deltaRotV = 0;
-        this.deltaRotN = 0;
-        this.transform = create$6();
-        this.initTransform = create$6();
-    }
-    return PlaneGUIState;
-}());
-var Section = /** @class */ (function () {
-    function Section(_renderApp, appState) {
-        this.renderApp = _renderApp;
-        this.appState = appState;
-        this.activePlaneId = -1;
-        this.events = this.renderApp.getEvents();
-        this.externalEventDispatcher = this.renderApp.getEventDispatcher();
-        this.registerEvents();
-        this.bbox = null;
-        this.guiState = new GUIState();
-        this.selectedPts = [];
-        this.selectionMode = SelectionMode.NONE;
-    }
-    Section.prototype.registerEvents = function () {
-        this.externalEventDispatcher.addEventListener(this.events.PROBE_FINISH, this.handleSelection.bind(this));
-        this.externalEventDispatcher.addEventListener(this.events.MODEL_LOADED, this.handleOnModelLoad.bind(this));
-    };
-    Section.prototype.handle3ptSelect = function (probeData) {
-        if (this.selectedPts.length > 0 && this.selectedPts[this.selectedPts.length - 1] == probeData.nearPoint) {
-            return;
-        }
-        else {
-            this.selectedPts.push(probeData.hitPoint);
-        }
-        if (this.selectedPts.length == 3) {
-            var activeTrans = clone$2(this.guiState.planeOptions.get(this.activePlaneId).transform);
-            this.planeFrom3pts(this.activePlaneId, this.selectedPts[0], this.selectedPts[1], this.selectedPts[2], activeTrans);
-            this.selectedPts = [];
-        }
-        Logger.setStatusBar("Probing from 3pt section");
-    };
-    Section.prototype.handleFaceSelect = function (probeData) {
-        if (probeData.primitiveSize == 3) {
-            var data = probeData.primitiveData;
-            this.selectedPts = [
-                [data[0], data[1], data[2]],
-                [data[3], data[4], data[5]],
-                [data[6], data[7], data[8]]
-            ];
-            var activeTrans = clone$2(this.guiState.planeOptions.get(this.activePlaneId).transform);
-            this.planeFrom3pts(this.activePlaneId, this.selectedPts[0], this.selectedPts[1], this.selectedPts[2], activeTrans);
-            this.selectedPts = [];
-            Logger.setStatusBar("Probing from face section");
-        }
-        else {
-            Logger.setStatusBar("Please select a face");
-        }
-    };
-    Section.prototype.handleSelection = function (e) {
-        var probeData = e.data;
-        if (probeData.hitPoint && this.appState.probeMode == probeMode.SECTION) {
-            if (this.selectionMode == SelectionMode.THREE_PT)
-                this.handle3ptSelect(probeData);
-            else if (this.selectionMode == SelectionMode.FACE)
-                this.handleFaceSelect(probeData);
-        }
-    };
-    Section.prototype.handleOnModelLoad = function (e) {
-        this.bbox = this.renderApp.getSceneBoundingBox(false);
-    };
-    Section.prototype.getSectionGUIData = function () {
-        return Utility$1.deepCopy(this.guiState);
-    };
-    Section.prototype.setSectionGUIData = function (guiState) {
-        this.guiState = guiState;
-    };
-    Section.prototype.addSectionPlane = function (planeId, transform, color) {
-        var newPlaneState = new PlaneGUIState();
-        newPlaneState.transform = clone$2(transform);
-        newPlaneState.initTransform = clone$2(transform);
-        this.guiState.planeOptions.set(planeId, newPlaneState);
-        this.renderApp.addSectionPlane(planeId, transform, color);
-    };
-    Section.prototype.deleteSectionPlane = function (planeId) {
-        this.guiState.planeOptions.delete(planeId);
-        this.renderApp.deleteSectionPlane(planeId);
-    };
-    Section.prototype.setSectionPlaneEquation = function (planeId, transform, initTransform) {
-        var curPlane = this.guiState.planeOptions.get(planeId);
-        if (curPlane) {
-            curPlane.transform = clone$2(transform);
-            curPlane.initTransform = initTransform ? clone$2(initTransform) : null;
-        }
-        this.renderApp.setSectionPlaneEquation(planeId, transform, initTransform);
-    };
-    Section.prototype.getSectionPlaneEquation = function (planeId) {
-        var curPlane = this.guiState.planeOptions.get(planeId);
-        var _a = this.renderApp.getSectionPlaneEquation(planeId), transform = _a.transform, initTransform = _a.initTransform;
-        if (curPlane) {
-            curPlane.transform = clone$2(transform);
-            curPlane.initTransform = initTransform ? clone$2(initTransform) : null;
-        }
-        return { transform: transform, initTransform: initTransform };
-    };
-    Section.prototype.setSelection = function (planeId, mode) {
-        this.appState.probeMode = probeMode.SECTION;
-        this.activePlaneId = planeId;
-        this.selectionMode = mode;
-        this.renderApp.setActiveSectionPlaneId(planeId);
-    };
-    Section.prototype.setPlaneState = function (planeId, params) {
-        //this.setSelection(planeId,params.selectionMode);
-        if (params.isPlaneEnabled) {
-            this.renderApp.enableClipPlane(planeId);
-        }
-        else {
-            this.renderApp.disableClipPlane(planeId);
-        }
-        if (params.isPlaneVisible) {
-            this.renderApp.showClipPlane(planeId);
-        }
-        else {
-            this.renderApp.hideClipPlane(planeId);
-        }
-        if (this.guiState.planeOptions.has(planeId)) {
-            this.guiState.planeOptions.set(planeId, params);
-        }
-    };
-    Section.prototype.invert = function (planeId) {
-        // let currentEqn:{eqn:number[],transform:glmatrix.mat4} = this.getSectionPlaneEquation(planeId);
-        // if(currentEqn == undefined)
-        // return;
-        // let {eqn,transform} = currentEqn;
-        // const invertedAxes = glmatrix.mat4.clone(transform);
-        // invertedAxes[8] = -invertedAxes[8]; invertedAxes[9] = -invertedAxes[9]; invertedAxes[10] = -invertedAxes[10];
-        // const invNormal = [-eqn[0],-eqn[1],-eqn[2]];
-        // this.setSectionPlaneEquation(planeId,[...invNormal ,-eqn[3]] as [number,number,number,number],invertedAxes);
-    };
-    Section.prototype.planeFrom3pts = function (planeId, p1, p2, p3, transform) {
-        var kEdge1 = create$7();
-        var kEdge2 = create$7();
-        sub$1(kEdge1, p2, p1);
-        sub$1(kEdge2, p3, p1);
-        var n = create$7();
-        cross$1(n, kEdge1, kEdge2);
-        normalize$3(n, n);
-        var d = -dot$1(n, p1);
-        if (sqrLen$1(n) > 0.0001) {
-            var eqn = [n[0], n[1], n[2], d];
-            this.setSectionPlaneEquation(planeId, transform);
-            console.log('plane eqn from 3pts', eqn);
-        }
-    };
-    Section.prototype.translatePlane = function (delta, deltaSlice, planeId) {
-        if (delta == 0 && deltaSlice == 0)
-            return;
-        //this.slicePlaneOffset[planeId] +=deltaSlice;
-        this.renderApp.translateSectionPlane(delta, deltaSlice, planeId);
-        // let currentEqn = this.getSectionPlaneEquation(planeId);
-        // if(currentEqn == undefined)
-        // return;
-        // currentEqn[3] += delta;
-        // this.renderApp.setSlicePlaneOffset(this.slicePlaneOffset[planeId],planeId);
-        // this.setSectionPlaneEquation(planeId,currentEqn)
-    };
-    Section.prototype.rotatePlane = function (deltaU, deltaV, deltaN, planeId) {
-        if (deltaU == 0 && deltaV == 0 && deltaN == 0)
-            return;
-        this.renderApp.rotateSectionPlane(deltaU, deltaV, deltaN, planeId);
-    };
-    Section.prototype.setBounds = function (planeId) {
-        var planeState = this.guiState.planeOptions.get(planeId);
-        if (planeState) {
-            planeState.sliderMinMax = [-this.bbox.getRadius(), this.bbox.getRadius()];
-            this.guiState.planeOptions.set(planeId, planeState);
-        }
-    };
-    return Section;
-}());var LabelManager$1 = /** @class */ (function () {
-    function LabelManager(_renderApp, appState) {
-        this.renderApp = _renderApp;
-        this.appState = appState;
-        this.events = this.renderApp.getEvents();
-        this.externalEventDispatcher = this.renderApp.getEventDispatcher();
-        this.registerEvents();
-    }
-    LabelManager.prototype.registerEvents = function () {
-        //this.externalEventDispatcher.addEventListener(this.events.PROBE_FINISH,this.handleSelection.bind(this));
-    };
-    LabelManager.prototype.handleSelection = function (e) {
-        var probeData = e.data;
-        if (probeData.hitPoint && this.appState.probeMode == probeMode.LABEL) {
-            this.renderApp.addLabel(probeData.connectivityIndex.toString(), probeData.hitPoint, probeData.connectivityIndex.toString());
-            Logger.setStatusBar("probing for labels");
-        }
-    };
-    return LabelManager;
-}());var RepresentationType;
-(function (RepresentationType) {
-    RepresentationType[RepresentationType["BBOX"] = 24] = "BBOX";
-    RepresentationType[RepresentationType["MESH"] = 132] = "MESH";
-    RepresentationType[RepresentationType["WIREFRAME"] = 136] = "WIREFRAME";
-    RepresentationType[RepresentationType["POINTS"] = 384] = "POINTS";
-    RepresentationType[RepresentationType["HIGHLIGHT"] = 143345245] = "HIGHLIGHT"; // to be changed if we get from server
-})(RepresentationType || (RepresentationType = {}));var MCAXFilter = /** @class */ (function () {
-    function MCAXFilter(renderer, mcax) {
-        this.renderApp = renderer;
-        this.mcax = mcax;
-    }
-    MCAXFilter.prototype.getRenderableGeometries = function () {
-        var models = this.mcax.models;
-        if (models instanceof Array && models.length > 0) {
-            var filteredModels = models.filter(function (item) { return item.display; });
-            var componentIndexList = filteredModels.map(function (item) { return (item.components || []); }).flat();
-            var components = this.getRecursiveItems(componentIndexList, this.mcax.components);
-            var filteredcomponents = components.filter(function (e) { return e.item.display; });
-            var geometryIndexList = filteredcomponents.map(function (e) { return (e.item.geometries || []); }).flat();
-            var geometries = this.getRecursiveItems(geometryIndexList, this.mcax.geometries);
-            return geometries;
-        }
-    };
-    MCAXFilter.prototype.getRecursiveItems = function (indexList, items) {
-        var _this = this;
-        var itemsList = [];
-        if (indexList instanceof Array && indexList.length > 0) {
-            indexList.forEach(function (index) {
-                var item = items[index];
-                if (item.children && item.children.length > 0) {
-                    itemsList.push.apply(itemsList, __spread(_this.getRecursiveItems(item.children, items)));
-                }
-                else {
-                    itemsList.push({
-                        item: item,
-                        index: index
-                    });
-                }
-            });
-        }
-        return itemsList;
-    };
-    MCAXFilter.prototype.getVisibleGeometries = function (representationsId) {
-        var geometries = this.getRenderableGeometries();
-        var visibleGeometries = [];
-        representationsId.forEach(function (id, index) {
-            for (var i = 0; i < geometries.length; i++) {
-                var geo = geometries[i].item;
-                if (geo.representations && geo.representations.length > 0 && geo.representations.includes(id)) {
-                    if (visibleGeometries[index]) {
-                        visibleGeometries[index].name = geo.name;
-                        visibleGeometries[index].representations.push(id);
-                    }
-                    else {
-                        visibleGeometries[index] = {
-                            name: geo.name,
-                            representations: [id]
-                        };
-                    }
-                    break;
-                }
-            }
-        });
-        return visibleGeometries;
-    };
-    MCAXFilter.prototype.getRepresentationType = function (id) {
-        var curr_rep = this.mcax.representations[id];
-        if (curr_rep)
-            return RepresentationType[curr_rep.type];
-    };
-    return MCAXFilter;
-}());var AppState$1 = /** @class */ (function () {
-    function AppState() {
-        this.probeMode = probeMode.LABEL;
-    }
-    return AppState;
-}());var viewerEvents;
-(function (viewerEvents) {
-    viewerEvents["MODEL_DOWNLOAD_STATUS_UPDATE"] = "MODEL_DOWNLOAD_STATUS_UPDATE";
-    viewerEvents["MODEL_PART_HIGHLIGHTED"] = "MODEL_PART_HIGHLIGHTED";
-})(viewerEvents || (viewerEvents = {}));
-var globalEvents;
-(function (globalEvents) {
-    globalEvents["ERROR"] = "ERROR";
-    globalEvents["INFO"] = "INFO";
-    globalEvents["WARN"] = "WARN";
-    globalEvents["LOG"] = "LOG";
-})(globalEvents || (globalEvents = {}));
-var getEventObject = function (type, viewerID, data) {
-    return {
-        type: type,
-        viewerID: viewerID,
-        data: data
-    };
-};var Viewer = /** @class */ (function () {
+}());var Viewer = /** @class */ (function () {
     function Viewer(_UUID, _containerID, _connector, _eventDispacther) {
         this.UUID = _UUID;
         this.containerID = _containerID;
         this.connector = _connector;
         this.eventDispatcher = _eventDispacther;
-        this.state = new AppState$1();
-        this.renderApp = new vctViewer(_containerID);
+        this.state = new AppState();
+        this.renderApp = new vctViewer(_containerID, {});
         this.renderApp.init(_UUID);
         this.externalEventDispatcher = this.renderApp.getEventDispatcher();
         this.externalEvents = this.renderApp.getEvents();
@@ -15303,13 +15337,13 @@ var getEventObject = function (type, viewerID, data) {
                         obj_1 = getEventObject(viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, this.UUID, "Processing data");
                         this.eventDispatcher.dispatchEvent(obj_1);
                         //logger.setStatusBar("Processing data");
-                        this.mcax = Utility$1.deepCopy(model);
+                        this.mcax = Utility.deepCopy(model);
                         //console.log(this.mcax);          
                         this.productTree = new ModelTreeBuilder(this.mcax).build();
                         this.sectionManager = new Section(this.renderApp, this.state);
                         this.legendManager = new LegendManager();
-                        this.caeResult = new CAEResult(Utility$1.deepCopy(this.mcax), this.renderApp, this.connector, this.legendManager);
-                        gltf = Utility$1.deepCopy(model.gltf);
+                        this.caeResult = new CAEResult(Utility.deepCopy(this.mcax), this.renderApp, this.connector, this.legendManager);
+                        gltf = Utility.deepCopy(model.gltf);
                         return [4 /*yield*/, this.renderApp.loadGLTF(gltf)];
                     case 4:
                         _a.sent();
@@ -15344,7 +15378,7 @@ var getEventObject = function (type, viewerID, data) {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        this.progressiveLoader = new ProgressiveLoader(Utility$1.deepCopy(this.mcax), this.renderApp, this.connector);
+                        this.progressiveLoader = new ProgressiveLoader(Utility.deepCopy(this.mcax), this.renderApp, this.connector);
                         return [4 /*yield*/, this.progressiveLoader.showDefaultDisplay()];
                     case 1:
                         _a.sent();
@@ -15371,10 +15405,7 @@ var getEventObject = function (type, viewerID, data) {
             event.clientX - rect.left,
             event.clientY - rect.top
         ];
-        var xyFromBtm = [
-            xyFromTop[0], rect.bottom - rect.top - xyFromTop[1]
-        ];
-        var data = this.probeFromNodes({ xyFromBtm: xyFromBtm, xyFromTop: xyFromTop });
+        var data = this.probeFromNodes({ xyFromTop: xyFromTop, width: rect.width, height: rect.height });
         console.log("probeData", data);
         if ((data === null || data === void 0 ? void 0 : data.renderNodeId) > -1) {
             var nodeIds = this.productTree.getPartIdsFromRenderNodeIds([data.renderNodeId]);
@@ -15393,7 +15424,7 @@ var getEventObject = function (type, viewerID, data) {
         }
     };
     Viewer.prototype.handleModelLoad = function (e) {
-        this.labelManager = new LabelManager$1(this.renderApp, this.state);
+        this.labelManager = new LabelManager(this.renderApp, this.state);
     };
     Viewer.prototype.getSearchHints = function () {
         return Promise.resolve([]);
@@ -15408,8 +15439,8 @@ var getEventObject = function (type, viewerID, data) {
     Viewer.prototype.getProductTree = function () {
         if (this.productTree)
             return {
-                models: Utility$1.deepCopy(Object.fromEntries(this.productTree.models)),
-                rootNodeIds: Utility$1.deepCopy(this.productTree.rootNodeIds)
+                models: Utility.deepCopy(Object.fromEntries(this.productTree.models)),
+                rootNodeIds: Utility.deepCopy(this.productTree.rootNodeIds)
             };
         return "No model is loaded";
     };
@@ -15680,7 +15711,7 @@ var getEventObject = function (type, viewerID, data) {
             if (hRep.length === 0) {
                 var boxReps = reps.filter(function (rep) { return rep.customData.type === RepresentationType.BBOX; });
                 boxReps.forEach(function (boxRep) {
-                    var highlightRep = Utility$1.deepCopy(boxRep);
+                    var highlightRep = Utility.deepCopy(boxRep);
                     highlightRep.customData.type = RepresentationType.HIGHLIGHT;
                     var uid = RepresentationType.HIGHLIGHT;
                     highlightRep.id += uid;
@@ -15856,9 +15887,9 @@ var getEventObject = function (type, viewerID, data) {
         this.sectionManager.invert(planeId);
     };
     Viewer.prototype.planeFrom3pts = function (planeId, p1, p2, p3, transform) {
-        var a = fromValues$5(p1[0], p1[1], p1[2]);
-        var b = fromValues$5(p2[0], p2[1], p2[2]);
-        var c = fromValues$5(p3[0], p3[1], p3[2]);
+        var a = fromValues(p1[0], p1[1], p1[2]);
+        var b = fromValues(p2[0], p2[1], p2[2]);
+        var c = fromValues(p3[0], p3[1], p3[2]);
         this.sectionManager.planeFrom3pts(planeId, a, b, c, transform);
     };
     //#endregion
@@ -17927,7 +17958,7 @@ var ViewerManager = /** @class */ (function () {
         return "Invalid viewer ID";
     };
     ViewerManager.prototype.createViewer = function (_containerID) {
-        var viewerUUID = Utility$1.create_UUID();
+        var viewerUUID = Utility.create_UUID();
         var viewer = new Viewer(viewerUUID, _containerID, this.connector, this.eventDispacther);
         if (this.defaultViewerID === null) {
             this.defaultViewerID = viewerUUID;
@@ -18111,9 +18142,12 @@ var ViewerManager = /** @class */ (function () {
     };
     //#endregion
     //#region Probing
-    ViewerManager.prototype.probeFromNodes = function (pickInfo, viewerUUID) {
+    ViewerManager.prototype.probeFromNodes = function (pointerData, viewerUUID) {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
-        viewer.probeFromNodes(pickInfo);
+        if (viewer)
+            return viewer.probeFromNodes(pointerData);
+        else
+            return "Invalid viewer id";
     };
     //#endregion
     //#region Section

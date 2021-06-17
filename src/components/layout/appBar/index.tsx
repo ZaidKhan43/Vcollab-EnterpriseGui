@@ -13,6 +13,7 @@ import Displaymodes from '../../icons/displaymodes';
 import Fitview from '../../icons/fitview';
 import Fullscreen from '../../icons/fullscreen';
 import PickAndMoveIcon from '@material-ui/icons/ThreeDRotation';
+import ProbeIcon from '@material-ui/icons/Colorize'
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import FullscreenClose from '../../icons/fullscreen_exit';
 import Hamburger from '../../icons/hamburger';
@@ -21,6 +22,7 @@ import More from '../../icons/more';
 import { selectModelName, selectFullscreenStatus,selectSidebarVisibility,selectDarkModeEnable, 
   selectActiveViewerID,setFullscreenState, setSidebarVisibility , setDarkModeEnable, 
   setPopupMenuActiveContent, setPopupMenuDisplayMode } from '../../../store/appSlice';
+import {enableProbe} from '../../../store/probeSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
 
 
@@ -36,6 +38,7 @@ function AppBar() {
     const isSidebarVisible = useAppSelector(selectSidebarVisibility);
     const isDarkModeEnable = useAppSelector(selectDarkModeEnable);
     let [isPickAndMoveEnabled,setIsPickAndMoveEnabled] = useState(false);
+    let [isProbeEnabled, setIsProbeEnabled] = useState(false);
     const activeViewerID = useAppSelector(selectActiveViewerID);
     const modelName = useAppSelector(selectModelName);
     const dispatch = useAppDispatch();  
@@ -54,6 +57,11 @@ function AppBar() {
 
     const resetPickAndMove = () => {
         viewerAPIProxy.resetPickAndMove(activeViewerID);
+    }
+
+    const onClickProbe = () => {
+        dispatch(enableProbe({isEnabled:!isProbeEnabled}));
+        setIsProbeEnabled(!isProbeEnabled);
     }
 
     const OnClickFitview = function(){
@@ -118,11 +126,15 @@ function AppBar() {
             </div>
 
             <div className={classes.divIcon} onClick={ OnClickPickAndMove } >
-                  <MuiToggleButton value='rotate move' selected={ isPickAndMoveEnabled } onChange={() => OnClickPickAndMove}><PickAndMoveIcon /></MuiToggleButton> 
+                  <MuiToggleButton value='rotate move' selected={ isPickAndMoveEnabled } ><PickAndMoveIcon /></MuiToggleButton> 
             </div>
             
             <div className={classes.divIcon} onClick={ resetPickAndMove } >
                   <MuiIconButton><RotateLeftIcon /></MuiIconButton> 
+            </div>
+
+            <div className={classes.divIcon} onClick={ onClickProbe } >
+            <MuiToggleButton value='rotate move' selected={ isProbeEnabled } ><ProbeIcon /></MuiToggleButton> 
             </div>
 
             <div className={classes.divIcon}  onClick={(evt) => OnClickMenuIcon(evt, popupMenuContentTypes.displayModes) }>

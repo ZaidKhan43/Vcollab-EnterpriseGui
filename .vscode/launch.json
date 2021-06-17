@@ -10,6 +10,14 @@
             "name": "Launch Chrome against localhost",
             "url": "http://localhost:3000/",
             "webRoot": "${workspaceFolder}"
+        },
+        {
+            "name": "Launch Firforx index.html",
+            "type": "firefox",
+            "request": "launch",
+            "reAttach": true,
+            "url": "http://localhost:3000/",
+            "webRoot": "${workspaceFolder}"
         }
     ]
 }
