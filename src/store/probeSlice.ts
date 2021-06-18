@@ -44,7 +44,7 @@ export const fetchProbeData = createAsyncThunk(
             let content = 'dummy';
             dispatch(probeSlice.actions.showProbeLabel({toShow:probeData?true:false}));
             if(probeData)
-            content = JSON.stringify(probeData.debugInfo,null,2)
+            content = JSON.stringify(probeData.hitPoint,null,2)
             content += ` time ${time} ms`;
             dispatch(probeSlice.actions.updateContent({text:content}))
         }
