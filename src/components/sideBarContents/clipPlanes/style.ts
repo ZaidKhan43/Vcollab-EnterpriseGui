@@ -63,7 +63,25 @@ export default makeStyles((theme) => (
     
   },
     
+  listItemOption: {
+    display: "flex",
+    alignItems: "center",
+    paddingLeft:"15px",
+    // justifyContent: "flex-start",
+    width: "100%",
+    padding: 1,
+    color: theme.palette.text.primary,
     
+    '&:hover': {
+      background: theme.palette.action.hover,
+    },
+    [theme.breakpoints.down('sm')]: {
+      '&:hover': {
+        background: theme.palette.action.hover,
+      }
+    },
+  },
+
   listItem: {
     display: "flex",
     alignItems: "center",
@@ -71,6 +89,8 @@ export default makeStyles((theme) => (
     // justifyContent: "flex-start",
     width: "100%",
     padding: 1,
+    paddingTop:"7px",
+    paddingBottom:"7px",
     color: theme.palette.text.primary,
     
     '&:hover': {
@@ -90,6 +110,8 @@ export default makeStyles((theme) => (
     width: "100%",
     paddingLeft:"15px",
     padding: 1,
+    paddingTop:"7px",
+    paddingBottom:"7px",
     background: theme.palette.action.selected,
     [theme.breakpoints.down('sm')]: {
       background: theme.palette.action.hover,
@@ -115,7 +137,7 @@ export default makeStyles((theme) => (
   
   displayList:{ 
     position: "fixed",
-      overflowY: "auto",
+    overflowY: "auto",
     overflowX:"hidden",
     listStyle: "none",
     height: "22%",
@@ -329,7 +351,7 @@ opacity:0.6,
   }},
 
   disabledTextBox: {
-    marginLeft:"-20px", width:"90%",marginTop:"10px",border: "1px solid",paddingLeft:"5px",paddingRight:"5px",
+    marginLeft:"-40px", width:"240px",marginTop:"10px",border: "1px solid",
   },
 
 }));

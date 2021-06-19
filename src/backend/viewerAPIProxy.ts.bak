@@ -75,11 +75,7 @@ export function getDisplayResult(activeViewerID:string) {
 export function applyResult(resultId:string, stepId:string, derivedTypeId:string, activeViewerID:string) {
     return viewerMgr.applyResult(resultId,stepId,derivedTypeId, activeViewerID);
 }
-//#region Probe
-export function probe(pointerData:{xyFromTop:number[], width:number,height:number},activeViewerID:string) {
-    return viewerMgr.probeFromNodes(pointerData,activeViewerID);
-}
-//#endregion
+
 //#region Section
 export function getSectionGUIData(activeViewerID:string) {
     return viewerMgr.getSectionGUIData(activeViewerID);

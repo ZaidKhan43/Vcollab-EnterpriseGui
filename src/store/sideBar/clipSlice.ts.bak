@@ -282,7 +282,7 @@ export const duplicatePlane = createAsyncThunk(
   async (data:{pastedPlane:plane},{dispatch,getState}) => {
     dispatch(pastePlane(data.pastedPlane))
     const rootState = getState() as RootState;
-    const state = rootState.clipPlane;
+    //const state = rootState.clipPlane;
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
     const index : any = rootState.clipPlane.planes.findIndex((item) => item.id === data.pastedPlane.id);
     const curPlane = rootState.clipPlane.planes[index+1];
