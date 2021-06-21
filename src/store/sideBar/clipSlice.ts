@@ -438,7 +438,7 @@ export const clipSlice = createSlice({
 
       const index = state.planes.findIndex(item => item.id === action.payload);
         if( index >= 0 ){
-          const childPlanes = state.planes[index].childPlane;
+          // const childPlanes = state.planes[index].childPlane;
           const masterPlaneId = state.planes[index].masterPlane.id;
           
           if(masterPlaneId > -1){
@@ -448,17 +448,17 @@ export const clipSlice = createSlice({
             state.planes[masterIndex] = changeItem
           }
 
-          if(childPlanes.length > 0){
-            childPlanes.forEach(item => 
-              {
-                const childIndex : any = state.planes.findIndex(element => element.id === item)
-                if ( childIndex >= 0){
-                  let changeItem = state.planes[childIndex]
-                  changeItem.masterPlane = {id: -1, name: "Global"}
-                  state.planes[childIndex] = changeItem;
-                }
-              })
-          }
+          // if(childPlanes.length > 0){
+          //   childPlanes.forEach(item => 
+          //     {
+          //       const childIndex : any = state.planes.findIndex(element => element.id === item)
+          //       if ( childIndex >= 0){
+          //         let changeItem = state.planes[childIndex]
+          //         changeItem.masterPlane = {id: -1, name: "Global"}
+          //         state.planes[childIndex] = changeItem;
+          //       }
+          //     })
+          // }
         }
         const newArray = state.planes.filter(item => item.id !== action.payload);
         state.planes=[...newArray];
@@ -810,15 +810,14 @@ export const clipSlice = createSlice({
             }
           }
 
-          if(state.planes[childIndex].childPlane.length > 0){
-            const masterIndex = state.planes.findIndex((item) => item.id === action.payload.masterId);
-            if(masterIndex >= 0){
-              let changeMaster : any = state.planes[masterIndex];
-              changeMaster.childPlane = state.planes[masterIndex].childPlane.concat(state.planes[childIndex].childPlane); 
-              state.planes[masterIndex] = changeMaster;
-            }
-
-          }
+          // if(state.planes[childIndex].childPlane.length > 0){
+          //   const masterIndex = state.planes.findIndex((item) => item.id === action.payload.masterId);
+          //   if(masterIndex >= 0){
+          //     let changeMaster : any = state.planes[masterIndex];
+          //     changeMaster.childPlane = state.planes[masterIndex].childPlane.concat(state.planes[childIndex].childPlane); 
+          //     state.planes[masterIndex] = changeMaster;
+          //   }
+          // }
         
 
           if (state.planes[childIndex].masterPlane.id > -1){
@@ -847,23 +846,6 @@ export const clipSlice = createSlice({
         const index= state.planes.findIndex((item) => item.id === action.payload.childId);
         if ( index >= 0 ) {
           let changeItem : any = state.planes[index];
-          if(changeItem.childPlane){
-            changeItem.childPlane.forEach((item : any)=> 
-              {
-                const childIndex = state.planes.findIndex((element) => element.id === item);
-                let changeChild : any = state.planes[childIndex];
-                changeChild.masterPlane = {id: action.payload.masterId, name : action.payload.masterName};
-                state.planes[childIndex] = changeChild;
-              })
-              
-            // remove all the childs from the current plane
-            const currentIndex = state.planes.findIndex((item) => item.id === action.payload.childId);
-            if (currentIndex >= 0){
-              let removeChild : any = state.planes[currentIndex];
-              removeChild.childPlane = [];
-              state.planes[currentIndex] = removeChild; 
-            }
-          }
           changeItem.masterPlane = {id: action.payload.masterId, name: action.payload.masterName}
           state.planes[index] = changeItem;
         }

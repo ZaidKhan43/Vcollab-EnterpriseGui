@@ -210,13 +210,21 @@ export default function ClipPlanes(){
   }
 
   const onHandleDelete = () => {
-    setOpenDialog(false);
-    setOpenDeleteConfirm(true);
 
-    dispatch(editEnabled(clickedValues[0].id))
-    SetDeleted(clickedValues[0].name);
-    dispatch(removePlane({id:clickedValues[0].id}))
-    dispatch(saveSelectedPlane({clicked: clickedValues[0]}))
+    if(clickedValues[0].childPlane.length === 0){
+      setOpenDialog(false);
+      setOpenDeleteConfirm(true);
+      dispatch(editEnabled(clickedValues[0].id))
+      SetDeleted(clickedValues[0].name);
+      dispatch(removePlane({id:clickedValues[0].id}))
+      dispatch(saveSelectedPlane({clicked: clickedValues[0]}))
+    } 
+
+    else{
+      setOpenDeleteConfirm(false);
+      alert("Its a master Plane. You can't delete a master plane")
+    }
+  
   }
 
   const onHandleEdit = () => {
