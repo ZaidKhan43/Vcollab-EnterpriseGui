@@ -32,7 +32,7 @@ import DialogBox from "../../../components/shared/dialogBox"
 // import { PlayCircleOutlineSharp } from '@material-ui/icons';
 
 import ClipPlane from "./clipPlane"
-import {setSectionPlaneData, addPlane, editEnabled, setActive, editShowClip, editEdgeClip, editShowCap, pastePlane, editPlaneName, saveClickedVal, removePlane, duplicatePlane} from "../../../store/sideBar/clipSlice";
+import {setSectionPlaneData, addPlane, editEnabled, setActive, editShowClip, editEdgeClip, editShowCap, editPlaneName, saveClickedVal, removePlane, duplicatePlane} from "../../../store/sideBar/clipSlice";
 
 
 export default function ClipPlanes(){

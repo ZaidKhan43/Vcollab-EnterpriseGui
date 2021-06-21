@@ -11,7 +11,7 @@ import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
 
 
 import MuiGrid from '@material-ui/core/Grid';
-import MuiSlider from '@material-ui/core/Slider';
+//import MuiSlider from '@material-ui/core/Slider';
 
 import Triangle from '../../../components/icons/triangle'
 import ThreePoints from '../../../components/icons/threePoints'
@@ -20,7 +20,7 @@ import ThreePoints from '../../../components/icons/threePoints'
 //import MuiSwitch from '@material-ui/core/Switch';
 // import NumericInput from '../../shared/numericInput'
 
-import NumericInput from 'react-numeric-input';
+//import NumericInput from 'react-numeric-input';
 
 import MuiCheckbox from '@material-ui/core/Checkbox';
 
@@ -35,8 +35,8 @@ import { setSectionPlaneData, editEquation , editNormalInverted,editTranslate, e
 import RotateSlider from './rotateSlider';
 import TranslateSlider from './translateSlider';
 
-import MuiExpandLessIcon from '@material-ui/icons/ExpandLess';
-import MuiExpandMoreIcon from '@material-ui/icons/ExpandMore';
+//import MuiExpandLessIcon from '@material-ui/icons/ExpandLess';
+//import MuiExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import MuiEditIcon from '@material-ui/icons/Edit';
 

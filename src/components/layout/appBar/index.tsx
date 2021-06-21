@@ -6,21 +6,23 @@ import MuiIconButton from '@material-ui/core/IconButton';
 import MuiTooltip from '@material-ui/core/Tooltip';
 import MuiClickAwayListener from '@material-ui/core/ClickAwayListener';
 import MuiToggleButton from '@material-ui/lab/ToggleButton';
-import MuiSwitch from "@material-ui/core/Switch";
+//import MuiSwitch from "@material-ui/core/Switch";
 
 import clsx from 'clsx';
 import Displaymodes from '../../icons/displaymodes';
 import Fitview from '../../icons/fitview';
 import Fullscreen from '../../icons/fullscreen';
 import PickAndMoveIcon from '@material-ui/icons/ThreeDRotation';
+import ProbeIcon from '@material-ui/icons/Colorize'
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import FullscreenClose from '../../icons/fullscreen_exit';
 import Hamburger from '../../icons/hamburger';
 import More from '../../icons/more';
 
-import { selectModelName, selectFullscreenStatus,selectSidebarVisibility,selectDarkModeEnable, 
-  selectActiveViewerID,setFullscreenState, setSidebarVisibility , setDarkModeEnable, 
+import { selectModelName, selectFullscreenStatus,selectSidebarVisibility, 
+  selectActiveViewerID,setFullscreenState, setSidebarVisibility ,  
   setPopupMenuActiveContent, setPopupMenuDisplayMode } from '../../../store/appSlice';
+import {enableProbe} from '../../../store/probeSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
 
 
@@ -34,8 +36,9 @@ function AppBar() {
     const classes = styles();
     const isFullscreenEnabled = useAppSelector(selectFullscreenStatus);
     const isSidebarVisible = useAppSelector(selectSidebarVisibility);
-    const isDarkModeEnable = useAppSelector(selectDarkModeEnable);
+    //const isDarkModeEnable = useAppSelector(selectDarkModeEnable);
     let [isPickAndMoveEnabled,setIsPickAndMoveEnabled] = useState(false);
+    let [isProbeEnabled, setIsProbeEnabled] = useState(false);
     const activeViewerID = useAppSelector(selectActiveViewerID);
     const modelName = useAppSelector(selectModelName);
     const dispatch = useAppDispatch();  
@@ -56,6 +59,11 @@ function AppBar() {
         viewerAPIProxy.resetPickAndMove(activeViewerID);
     }
 
+    const onClickProbe = () => {
+        dispatch(enableProbe({isEnabled:!isProbeEnabled}));
+        setIsProbeEnabled(!isProbeEnabled);
+    }
+
     const OnClickFitview = function(){
       viewerAPIProxy.fitView(activeViewerID);
     }
@@ -64,9 +72,11 @@ function AppBar() {
       dispatch(setSidebarVisibility(!isSidebarVisible));
     }  
   
+    /*
     const OnChangeTheme = function() {
       dispatch(setDarkModeEnable (!isDarkModeEnable));
     }
+    */
 
     const OnClickAwayMenuPopup = function(){
       if(clickedMenu === popupMenuContentTypes.displayModes || clickedMenu === popupMenuContentTypes.more)
@@ -113,16 +123,22 @@ function AppBar() {
      
           <div className={classes.toolBarRightContent}>
           
+            {/*
             <div className={classes.divIcon}  >
                 <MuiIconButton> <MuiSwitch checked={isDarkModeEnable} onChange={OnChangeTheme} /> </MuiIconButton>
-            </div>
+            </div> 
+            */}
 
             <div className={classes.divIcon} onClick={ OnClickPickAndMove } >
-                  <MuiToggleButton value='rotate move' selected={ isPickAndMoveEnabled } onChange={() => OnClickPickAndMove}><PickAndMoveIcon /></MuiToggleButton> 
+                  <MuiToggleButton value='rotate move' selected={ isPickAndMoveEnabled } ><PickAndMoveIcon /></MuiToggleButton> 
             </div>
             
             <div className={classes.divIcon} onClick={ resetPickAndMove } >
                   <MuiIconButton><RotateLeftIcon /></MuiIconButton> 
+            </div>
+
+            <div className={classes.divIcon} onClick={ onClickProbe } >
+            <MuiToggleButton value='rotate move' selected={ isProbeEnabled } ><ProbeIcon /></MuiToggleButton> 
             </div>
 
             <div className={classes.divIcon}  onClick={(evt) => OnClickMenuIcon(evt, popupMenuContentTypes.displayModes) }>

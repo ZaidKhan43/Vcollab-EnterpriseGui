@@ -1,4 +1,4 @@
-import MuiTypgraphy from '@material-ui/core/Typography';
+//import MuiTypgraphy from '@material-ui/core/Typography';
 import MuiGrid from '@material-ui/core/Grid';
 import MuiSlider from '@material-ui/core/Slider';
 import MuiIconButton from '@material-ui/core/IconButton';
