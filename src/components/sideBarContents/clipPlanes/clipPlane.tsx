@@ -31,7 +31,7 @@ import FlipDirectionLeft from "../../../components/icons/flipDirectionLeft";
 import FlipDirectionRight from "../../../components/icons/flipDirectionRight";
 
 import {selectActiveViewerID} from "../../../store/appSlice";
-import { setSectionPlaneData, editEquation , editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMax, sliceEditEnable, editSliceTranslate} from '../../../store/sideBar/clipSlice';
+import { setSectionPlaneData, editEquation , editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMax, sliceEditEnable, editSliceTranslate , setMasterPlane , setChildPlane} from '../../../store/sideBar/clipSlice';
 import RotateSlider from './rotateSlider';
 import TranslateSlider from './translateSlider';
 
@@ -57,10 +57,11 @@ export default function ClipPlanes(props : any){
   const index : any = planes.findIndex((item) => item.id === props.clicked.id);
   const clipNormalInverted = planes[index].clipNormalInverted;
 
-  const slicePlaneList = planes.filter((item) => item.id !== props.clicked.id).map(item => item.name)
-  const [clickedSlicePlane, setClickedSlicePlane] = useState<string>("Global");
-  const planeNames = slicePlaneList.unshift("Global")
+  const masterPlaneList = planes.filter((item) => (item.id !== props.clicked.id && item.masterPlane.id === -1)).map((item) => ({id:item.id, name: item.name}));
+  const planeNames = masterPlaneList.unshift({id:-1,name:"Global"})
 
+  const masterPlane = planes[index].masterPlane;
+  const name = planes[index].name;
   const translate = planes[index].translate;
   const translateMin = planes[index].translateMin;
   const translateMax = planes[index].translateMax;
@@ -250,8 +251,11 @@ export default function ClipPlanes(props : any){
     dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
 
-  const onHandleSlicePlane = (name : any) => {
-    setClickedSlicePlane(name);
+  const onHandleSlicePlane = (masterId : any) => {
+    const newMaster :any = masterPlaneList.find((item) => item.id === masterId)
+    console.log(newMaster)
+    dispatch(setChildPlane({masterId: newMaster.id, childId : props.clicked.id}));
+    dispatch(setMasterPlane({masterId : newMaster.id , masterName: newMaster.name, childId : props.clicked.id}));
   }
 
   // const onHandleReset = () => {
@@ -293,7 +297,7 @@ export default function ClipPlanes(props : any){
           </MuiGrid>
           <MuiGrid item xs>
             <MuiTypography variant="h2" noWrap className={classes.listItemAsHeading}> 
-              {props.clicked.name}
+              {name}
             </MuiTypography>
           </MuiGrid>
         </MuiGrid>
@@ -303,7 +307,6 @@ export default function ClipPlanes(props : any){
     
   const getBody = () => {
     console.log("planeNames", planeNames)
-    console.log("slicePlaneList", slicePlaneList)
     //console.log("getBody",rotate)
     return (
       <div 
@@ -429,7 +432,7 @@ export default function ClipPlanes(props : any){
         
         <MuiFormControl style={{width:"100%", marginTop:"20px", marginLeft:"10px"}}>
         
-        <MuiInputLabel id="demo-simple-select-helper-label" style={{color:"currentcolor", marginLeft:"5px"}}>Co-ordinates</MuiInputLabel>
+        <MuiInputLabel id="demo-simple-select-helper-label" style={{color:"currentcolor", marginLeft:"5px"}}>Master corodinate system</MuiInputLabel>
 
               <MuiSelect MenuProps={{
                 disablePortal: true,
@@ -442,12 +445,12 @@ export default function ClipPlanes(props : any){
                 style={{width:"90%", marginLeft:"0px", marginTop:"15px",border: "1px solid currentColor",}}
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                value={clickedSlicePlane}
+                value={masterPlane.id}
                 onChange={(e) => onHandleSlicePlane(e.target.value)}
               >
               {
-                slicePlaneList.map((item) => 
-                  <MuiMenuItem value={item}>{item}</MuiMenuItem>  
+                masterPlaneList.map((item) => 
+                  <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
               )
               }
         </MuiSelect>

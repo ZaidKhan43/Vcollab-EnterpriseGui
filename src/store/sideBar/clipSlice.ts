@@ -1,5 +1,6 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import { mat4, vec3 } from 'gl-matrix';
+import { forEachChild } from 'typescript';
 import {getSectionGUIData, setSectionPlaneGUIData, setSectionPlaneEquation, setActiveSectionPlane, addSectionPlane, deleteSectionPlane, getSceneBoundingBox} from "../../backend/viewerAPIProxy"
 import {getNormalizedEqn, getPerpendicular, getWorldTransformFromPlaneEqn} from "../../components/utils/Math"
 import type { RootState } from '../index';
@@ -14,6 +15,11 @@ interface slicePlane {
   translateMax:number,
   color: Color
 } 
+
+type masterPlane = {
+  id: number,
+  name: string,
+}
 
 type plane = {
     id: number,
@@ -38,7 +44,10 @@ type plane = {
     userInputEquation:number[],		
     color: [number,number,number,number]
     slicePlane: slicePlane | null,
-}
+    childPlane: number[],
+    masterPlane: masterPlane ,
+      
+  }
 
 type settings= {
   planesData: any,
@@ -97,6 +106,8 @@ const initialState : planes = {
       userInputEquation: [1,0,0,0],
       color: [1,0,0,0.3],
       slicePlane: null,
+      childPlane: [],
+      masterPlane: {id:-1, name: "Global"},
     }
   }
 }
@@ -185,7 +196,9 @@ const generatePlane = (id:number, transform:number[], eqn:number[], color:Color,
     initTransform: Array.from(transform),
     userInputEquation: [eqn[0],eqn[1],eqn[2],-eqn[3]],
     color,
-    slicePlane: null
+    slicePlane: null,
+    childPlane: [],
+    masterPlane: {id:-1, name:"Global"},
   }
 return plane
 }
@@ -308,6 +321,7 @@ export const removePlane = createAsyncThunk(
 export const setActive = createAsyncThunk(
   "clipSlice/setActiveSectionPlane",
   async (data:{id:number},{dispatch,getState}) => {
+     console.log("active plane", data.id)
      const rootState = getState() as RootState;
      const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
      setActiveSectionPlane(data.id,viewerId)
@@ -338,7 +352,7 @@ export const clipSlice = createSlice({
       const index= state.planes.findIndex((item) => item.id === action.payload);
       if ( index >= 0 ) {
         let changeItem : any = state.planes[index];
-        
+
         // if(changeItem.enabled === true && changeItem.slicePlane.enabled === true)
         //   changeItem.slicePlane.enabled = false;
         //   changeItem.slicePlane.showClip = false;
@@ -351,11 +365,19 @@ export const clipSlice = createSlice({
         changeItem.enabled = !changeItem.enabled
         
         state.planes[index] = changeItem;
+        
+        const indexSelected = state.settings.selectedPlanes.findIndex((item:any) => item.id === action.payload);
+          if( indexSelected >= 0) {
+            state.settings.selectedPlanes[indexSelected] = changeItem;
+          }
+
       }
+    
+
     },
 
     editShowClip : (state,action) => {
-      const index= state.planes.findIndex((item) => item.id === action.payload);
+      const index= state.planes.findIndex((item) => item.id === action.payload[0]);
       if ( index >= 0 ) {
         let changeItem : any = state.planes[index];
         // if(changeItem.showClip === true && changeItem.slicePlane.showClip === true)
@@ -363,26 +385,38 @@ export const clipSlice = createSlice({
         // if(changeItem.showClip === false && changeItem.slicePlane.enabled === true)
         //   changeItem.slicePlane.showClip = true;
           
-        changeItem.showClip = !changeItem.showClip;
+        changeItem.showClip = action.payload[1];
         state.planes[index] = changeItem;
+        const indexSelected = state.settings.selectedPlanes.findIndex((item:any) => item.id === action.payload[0]);
+          if( indexSelected >= 0) {
+            state.settings.selectedPlanes[indexSelected] = changeItem;
+          }
       }
     },
 
     editEdgeClip : (state,action) => {
-      const index= state.planes.findIndex((item) => item.id === action.payload);
+      const index= state.planes.findIndex((item) => item.id === action.payload[0]);
       if ( index >= 0 ) {
         let changeItem : any = state.planes[index];
-        changeItem.showEdge = !changeItem.showEdge
+        changeItem.showEdge = action.payload[1]
         state.planes[index] = changeItem;
+        const indexSelected = state.settings.selectedPlanes.findIndex((item:any) => item.id === action.payload[0]);
+          if( indexSelected >= 0) {
+            state.settings.selectedPlanes[indexSelected] = changeItem;
+          }
       }       
     },
 
     editShowCap : (state,action) => {
-      const index= state.planes.findIndex((item) => item.id === action.payload);
+      const index= state.planes.findIndex((item) => item.id === action.payload[0]);
       if ( index >= 0) {
         let changeItem : any = state.planes[index];
-        changeItem.showCap = !changeItem.showCap
+        changeItem.showCap = action.payload[1]
         state.planes[index] = changeItem;
+        const indexSelected = state.settings.selectedPlanes.findIndex((item:any) => item.id === action.payload[0]);
+          if( indexSelected >= 0) {
+            state.settings.selectedPlanes[indexSelected] = changeItem;
+          }
       }
     },
 
@@ -401,8 +435,33 @@ export const clipSlice = createSlice({
     },
 
     deletePlane : (state, action) => {
-      const newArray = state.planes.filter(item => item.id !== action.payload);
-      state.planes=[...newArray]
+
+      const index = state.planes.findIndex(item => item.id === action.payload);
+        if( index >= 0 ){
+          const childPlanes = state.planes[index].childPlane;
+          const masterPlaneId = state.planes[index].masterPlane.id;
+          
+          if(masterPlaneId > -1){
+            const masterIndex = state.planes.findIndex(item => item.id === masterPlaneId);
+            let changeItem = state.planes[masterIndex];
+            changeItem.childPlane = changeItem.childPlane.filter(item => item !== action.payload)
+            state.planes[masterIndex] = changeItem
+          }
+
+          if(childPlanes.length > 0){
+            childPlanes.forEach(item => 
+              {
+                const childIndex : any = state.planes.findIndex(element => element.id === item)
+                if ( childIndex >= 0){
+                  let changeItem = state.planes[childIndex]
+                  changeItem.masterPlane = {id: -1, name: "Global"}
+                  state.planes[childIndex] = changeItem;
+                }
+              })
+          }
+        }
+        const newArray = state.planes.filter(item => item.id !== action.payload);
+        state.planes=[...newArray];
     },
 
     editPlane: (state, action) => {
@@ -544,13 +603,14 @@ export const clipSlice = createSlice({
     },
 
     saveSelectedPlane: (state, action) => {
-      if((state.settings.selectedPlanes.findIndex((item : any) => item.id === action.payload.id)) === -1)
-        state.settings.selectedPlanes = [...state.settings.selectedPlanes, action.payload];
-      if((state.settings.selectedPlanes.findIndex((item : any) => item.id === action.payload.id)) >= 0){
-        const newArray = state.settings.selectedPlanes.filter((item: any )=> item.id !== action.payload.id);
-        state.settings.selectedPlanes = newArray;
+      // console.log("clicked", action.payload.clicked.id)
+      if((state.settings.selectedPlanes.findIndex((item : any) => item.id === action.payload.clicked.id)) >= 0){
+        const newArray = state.settings.selectedPlanes.filter((item: any )=> item.id !== action.payload.clicked.id);
+        state.settings.selectedPlanes = [...newArray];
       }
-
+      else{
+       state.settings.selectedPlanes = [...state.settings.selectedPlanes, action.payload.clicked];
+      }
     },
         //added by pravin
         setPlaneEqn: (state, action) => {
@@ -734,7 +794,84 @@ export const clipSlice = createSlice({
 		  clipSlice.caseReducers.updateSlicePlane(state,{payload:{pid:changeItem.id}, type:"clipSlice/updateSlicePlane"})
         }
       },
+
+      setChildPlane: (state, action) => {
+
+        const childIndex = state.planes.findIndex((item) => item.id === action.payload.childId);
+        if( childIndex >= 0) {
+          if (state.planes[childIndex].masterPlane.id === -1){
+            const index= state.planes.findIndex((item) => item.id === action.payload.masterId);
+            if ( index >= 0 ) {
+              let changeItem : any = state.planes[index];
+              if( changeItem.childPlane.includes(action.payload.childId) === false) {
+                changeItem.childPlane = [...changeItem.childPlane , action.payload.childId ]
+                state.planes[index] = changeItem;
+              }
+            }
+          }
+
+          if(state.planes[childIndex].childPlane.length > 0){
+            const masterIndex = state.planes.findIndex((item) => item.id === action.payload.masterId);
+            if(masterIndex >= 0){
+              let changeMaster : any = state.planes[masterIndex];
+              changeMaster.childPlane = state.planes[masterIndex].childPlane.concat(state.planes[childIndex].childPlane); 
+              state.planes[masterIndex] = changeMaster;
+            }
+
+          }
+        
+
+          if (state.planes[childIndex].masterPlane.id > -1){
+            const currentMasterIndex = state.planes.findIndex((item) => item.id === state.planes[childIndex].masterPlane.id);
+            if (  currentMasterIndex >= 0) {
+              let changeMaster : any = state.planes[currentMasterIndex];
+              changeMaster.childPlane = changeMaster.childPlane.filter((item : number) => item !== action.payload.childId)
+              state.planes[currentMasterIndex] = changeMaster;
+            }
+            const newMasterIndex= state.planes.findIndex((item) => item.id === action.payload.masterId);
+            if (  newMasterIndex >= 0 ) {
+              let changeItem : any = state.planes[newMasterIndex];
+              if( changeItem.childPlane.includes(action.payload.childId) === false){
+                changeItem.childPlane = [...changeItem.childPlane , action.payload.childId ]
+                state.planes[newMasterIndex] = changeItem;
+              }
+            }
+          }
+
+        
+
+        }
+      },
+
+      setMasterPlane: (state, action) => {
+        const index= state.planes.findIndex((item) => item.id === action.payload.childId);
+        if ( index >= 0 ) {
+          let changeItem : any = state.planes[index];
+          if(changeItem.childPlane){
+            changeItem.childPlane.forEach((item : any)=> 
+              {
+                const childIndex = state.planes.findIndex((element) => element.id === item);
+                let changeChild : any = state.planes[childIndex];
+                changeChild.masterPlane = {id: action.payload.masterId, name : action.payload.masterName};
+                state.planes[childIndex] = changeChild;
+              })
+              
+            // remove all the childs from the current plane
+            const currentIndex = state.planes.findIndex((item) => item.id === action.payload.childId);
+            if (currentIndex >= 0){
+              let removeChild : any = state.planes[currentIndex];
+              removeChild.childPlane = [];
+              state.planes[currentIndex] = removeChild; 
+            }
+          }
+          changeItem.masterPlane = {id: action.payload.masterId, name: action.payload.masterName}
+          state.planes[index] = changeItem;
+        }
+
+
+      },
   },
+
 extraReducers: (builder) => {
   builder.addCase(fetchSectionPlaneData.fulfilled, (state,{payload}) => {
     clipSlice.caseReducers.setPlanesData(state,{payload,type:"any"})
@@ -742,6 +879,6 @@ extraReducers: (builder) => {
 }
 })
 
-export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlane, editEquation, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, saveClickedVal,rotateX, rotateY, rotateZ, translate, updateMinMax, sliceEditEnable, editSliceTranslate , saveSelectedPlane} = clipSlice.actions;
+export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editPlane, editEquation, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, saveClickedVal,rotateX, rotateY, rotateZ, translate, updateMinMax, sliceEditEnable, editSliceTranslate , saveSelectedPlane , setMasterPlane , setChildPlane } = clipSlice.actions;
 
 export default clipSlice.reducer;
