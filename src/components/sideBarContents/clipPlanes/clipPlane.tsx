@@ -60,6 +60,7 @@ export default function ClipPlanes(props : any){
   const masterPlaneList = planes.filter((item) => (item.id !== props.clicked.id && item.masterPlane.id === -1)).map((item) => ({id:item.id, name: item.name}));
   const planeNames = masterPlaneList.unshift({id:-1,name:"Global"})
 
+  const stepValue = (planes[index].translateMax - planes[index].translateMin)/20
   const masterPlane = planes[index].masterPlane;
   const name = planes[index].name;
   const translate = planes[index].translate;
@@ -225,7 +226,6 @@ export default function ClipPlanes(props : any){
   }
 
   const onHandleSliceCheck = () => {
-    dispatch(sliceEditEnable(props.clicked.id))
     dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
 
@@ -235,19 +235,16 @@ export default function ClipPlanes(props : any){
       return;
     }
     const update= {id : props.clicked.id, translate : newValue};
-    dispatch(editSliceTranslate(update))
     dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
 
   const onHandleSliceTranslateType= (e: any ) => {
     const update= {id : props.clicked.id, translate : Number(e.target.value)};
-    dispatch(editSliceTranslate(update))
     dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
 
   const onHandleSliceTranslateButton = (newValue : any) => {
     const update= {id : props.clicked.id, translate : Number(newValue)};
-    dispatch(editSliceTranslate(update))
     dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
 

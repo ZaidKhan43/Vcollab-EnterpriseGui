@@ -43,7 +43,7 @@ export default function ClipPlanes(){
   const limit = useAppSelector((state) => state.clipPlane.settings.maxAllowedPlanes);
   // const clickedVal = useAppSelector<any>((state) => state.clipPlane.settings.clickedVal);
 
-  const clickedValues = useAppSelector((state) => state.clipPlane.settings.selectedPlanes.filter(item => item.enabled === true))
+  const clickedValues = useAppSelector((state) => state.clipPlane.planes.filter(item => item.selected === true))
 
   const [copied, setCopied] = useState<boolean>(false); 
   const [copy, setCopy] = useState<plane | null>(null);
@@ -324,18 +324,13 @@ export default function ClipPlanes(){
                 { editPlane !== item.id 
                   ?
                   <div key={ 'divChild_' + index }  
-                    className={clickedValues 
-                                ?
-
-                                  clickedValues.map((item) => item.id).includes(item.id)
+                    className={
+                                  item.selected
                                     ? 
                                     classes.listItemClicked 
-                                     
                                     :
-                                    
                                     classes.listItem
                                     
-                                : classes.listItem
                               }  
                   >
                     {/* <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/> */}
