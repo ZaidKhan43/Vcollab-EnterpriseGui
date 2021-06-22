@@ -31,7 +31,7 @@ import FlipDirectionLeft from "../../../components/icons/flipDirectionLeft";
 import FlipDirectionRight from "../../../components/icons/flipDirectionRight";
 
 import {selectActiveViewerID} from "../../../store/appSlice";
-import { setSectionPlaneData, editEquation , editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMax, sliceEditEnable, editSliceTranslate , setMasterPlane , setChildPlane} from '../../../store/sideBar/clipSlice';
+import { setSectionPlaneData, editEquation , editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMax, setMasterPlane , setChildPlane} from '../../../store/sideBar/clipSlice';
 import RotateSlider from './rotateSlider';
 import TranslateSlider from './translateSlider';
 
