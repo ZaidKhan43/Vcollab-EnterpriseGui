@@ -231,14 +231,18 @@ export default makeStyles((theme) => (
 
 inputTranslate :{
   color:theme.palette.text.primary,
-  background:"none",
+   background:"none",
   border: "1px solid",
   borderColor: theme.palette.text.primary ,
   textAlign:"center",
-  width:"70px",
+  width:"70%",
   fontSize:"16px",
   zIndex: 10,
   size: 4,
+  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
+    "-webkit-appearance": "none",
+  },
+ 
 },
 
 inputEquation:{

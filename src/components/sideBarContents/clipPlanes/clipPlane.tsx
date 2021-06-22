@@ -46,6 +46,7 @@ import MuiSelect from '@material-ui/core/Select';
 import MuiInputLabel from '@material-ui/core/InputLabel';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 import MuiFormControl from '@material-ui/core/FormControl';
+import parse from "autosuggest-highlight/parse";
 
 export default function ClipPlanes(props : any){
 
@@ -60,7 +61,6 @@ export default function ClipPlanes(props : any){
   const masterPlaneList = planes.filter((item) => (item.id !== props.clicked.id && item.masterPlane.id === -1)).map((item) => ({id:item.id, name: item.name}));
   const planeNames = masterPlaneList.unshift({id:-1,name:"Global"})
 
-  const stepValue = (planes[index].translateMax - planes[index].translateMin)/20
   const masterPlane = planes[index].masterPlane;
   const name = planes[index].name;
   const translate = planes[index].translate;
@@ -70,6 +70,8 @@ export default function ClipPlanes(props : any){
   const axisX = planes[index].axisX;
   const axisY = planes[index].axisY;
   
+  const stepValue = (translateMax - translateMin) / 100;
+
   const clipCordX = planes[index].clipCordX;
   const clipCordY = planes[index].clipCordY;
   const clipCordZ = planes[index].clipCordZ;
@@ -184,7 +186,7 @@ export default function ClipPlanes(props : any){
     }
 
     console.log(newValue)
-    const update= {id : props.clicked.id, translate : newValue};
+    const update= {id : props.clicked.id, translate : Number(newValue)};
     dispatch(editTranslate(update))
     dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
@@ -199,7 +201,7 @@ export default function ClipPlanes(props : any){
   }
 
   const onHandleTranslateButton = (newValue : any) => {
-    const update= {id : props.clicked.id, translate : Number(newValue)};
+    const update= {id : props.clicked.id, translate : Number(parseFloat(newValue).toFixed(4))};
     dispatch(editTranslate(update))
     if(update.translate >= translateMax || update.translate <= translateMin) {
       dispatch(updateMinMax({id:props.clicked.id}));
@@ -303,7 +305,6 @@ export default function ClipPlanes(props : any){
   }
     
   const getBody = () => {
-    console.log("planeNames", planeNames)
     //console.log("getBody",rotate)
     return (
       <div 
@@ -327,7 +328,7 @@ export default function ClipPlanes(props : any){
         >
           {editMode === false 
           ?
-          <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px", marginTop:"-5px"}} className={`${classes.disabledTextBox} + ${classes.disabled}`} value={`${clipCordX}X ${Math.sign(clipCordY)===1 || Math.sign(clipCordY) === 0 ? "+" : "-"} ${Math.abs(clipCordY)}Y ${Math.sign(clipCordZ) === 1 || Math.sign(clipCordZ) === 0 ? "+" : "-"} ${Math.abs(clipCordZ)}Z = ${clipConstD}`}/>
+          <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px", marginTop:"-5px"}} className={`${classes.disabledTextBox} + ${classes.disabled}`} value={`${clipInputX}X ${Math.sign(clipInputY)===1 || Math.sign(clipInputY) === 0 ? "+" : "-"} ${Math.abs(clipInputY)}Y ${Math.sign(clipInputZ) === 1 || Math.sign(clipInputZ) === 0 ? "+" : "-"} ${Math.abs(clipInputZ)}Z = ${clipInputD}`}/>
         :
         <div className={classes.inputEqnBorder}>
           <MuiInput inputProps={{style: { textAlign: 'center' },}} className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputX} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordX")}/>X+
@@ -478,6 +479,7 @@ export default function ClipPlanes(props : any){
               name={"Translate"} editMode={editMode}
               value={translate} valueMin={translateMin} 
               valueMax={translateMax} onHandleChange={onHandleTranslate}
+              stepValue= {stepValue}
               onHandleType={onHandleTranslateType} onHandleCommited={onHandleTranslateCommitted}
               onHandleButton={onHandleTranslateButton}
             />
