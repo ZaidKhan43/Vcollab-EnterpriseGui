@@ -286,7 +286,7 @@ export const setActive = createAsyncThunk(
      const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
      
      if(selectedPlane.length === 1)
-      setActiveSectionPlane(data.clicked.id,viewerId)
+      setActiveSectionPlane(selectedPlane[0].id,viewerId)
     else
       setActiveSectionPlane(-1,viewerId)
   }
@@ -366,11 +366,12 @@ export const clipSlice = createSlice({
       }
     },
 
-    pastePlane : (state, action: PayloadAction<number>) => {
+    pastePlane : (state, action: PayloadAction<plane>) => {
       if (state.planes.length < state.settings.maxAllowedPlanes){
         let clone:plane = JSON.parse(JSON.stringify(action.payload));
         clipSlice.caseReducers.incrementId(state);
         clone.id=state.settings.idGenerator;
+        clone.selected = false;
         clone.name = `${clone.name} (Copy)`
         clone.color = state.colors[clone.id % state.colors.length];
         state.planes=[...state.planes, clone];
