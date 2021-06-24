@@ -53,7 +53,7 @@ export default function ClipPlanes(){
   const [openDeleteConfirm, setOpenDeleteConfirm] = useState<boolean>(false);
 
   const [editPlane, setEditPlane] = useState<number | null>(null)
-  const [editName, SetEditName] = useState<string | null>(null);
+  const [editName, SetEditName] = useState<string>("");
 
 
 
@@ -335,8 +335,7 @@ export default function ClipPlanes(){
                                     ? 
                                     classes.listItemClicked 
                                     :
-                                    classes.listItem
-                                    
+                                    classes.listItem      
                               }  
                   >
                     {/* <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/> */}
@@ -435,7 +434,6 @@ export default function ClipPlanes(){
               <MuiDeleteForeverOutlinedIcon/>
             </MuiIconButton>  
           }
-
             </div>
           </div>
     ) 

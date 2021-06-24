@@ -4,18 +4,15 @@ import Slider, { Range } from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import MuiIconButton from '@material-ui/core/IconButton';
 import MuiTypography from '@material-ui/core/Typography';
-import NumericInput from 'react-numeric-input';
+// import NumericInput from 'react-numeric-input';
 import styles from './style';
 import MuiExpandLessIcon from '@material-ui/icons/ExpandLess';
 import MuiExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MuiInput from '@material-ui/core/Input';
 import {useState, useEffect} from 'react';
-import { translate } from '../../../store/sideBar/clipSlice';
 
 export default function TranslateSlider( props : any ){
     const classes = styles();
-    const valueMin = props.valueMin
-    const valueMax = props.valueMax
     const [value, setValue] = useState(props.value)
       useEffect(() => {
         setValue(props.value)
@@ -23,12 +20,6 @@ export default function TranslateSlider( props : any ){
 
     const [stepDisplay, setStepDisplay] = useState(props.stepValue)
     const [stepValue, setStepValue] = useState(props.stepValue)
-    // const marks = {
-    //   max : `${props.valueMax}` ,
-    //   min : `${props.valueMax}`,
-      
-     
-    // }
 
 return(
     <div>
@@ -52,9 +43,7 @@ return(
           width: 10,
           marginTop: -3,
         }}
-        // marks={marks}
         startPoint= {(props.valueMax + props.valueMin) /2}
-        // track="inverted"
         onChange={props.onHandleChange}
         onAfterChange={props.onHandleCommited}
       />

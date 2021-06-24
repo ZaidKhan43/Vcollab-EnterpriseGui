@@ -9,9 +9,8 @@ import BackButton from '../../../components/icons/back';
 
 import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
 
-
 import MuiGrid from '@material-ui/core/Grid';
-import MuiSlider from '@material-ui/core/Slider';
+// import MuiSlider from '@material-ui/core/Slider';
 
 import Triangle from '../../../components/icons/triangle'
 import ThreePoints from '../../../components/icons/threePoints'
@@ -20,9 +19,8 @@ import ThreePoints from '../../../components/icons/threePoints'
 //import MuiSwitch from '@material-ui/core/Switch';
 // import NumericInput from '../../shared/numericInput'
 
-import NumericInput from 'react-numeric-input';
-
-import MuiCheckbox from '@material-ui/core/Checkbox';
+// import NumericInput from 'react-numeric-input';
+// import MuiCheckbox from '@material-ui/core/Checkbox';
 
 import MuiInput from '@material-ui/core/Input';
 import MuiButton from '@material-ui/core/Button';
@@ -31,12 +29,12 @@ import FlipDirectionLeft from "../../../components/icons/flipDirectionLeft";
 import FlipDirectionRight from "../../../components/icons/flipDirectionRight";
 
 import {selectActiveViewerID} from "../../../store/appSlice";
-import { setSectionPlaneData, editEquation , editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMax, setMasterPlane , setChildPlane} from '../../../store/sideBar/clipSlice';
+import { setSectionPlaneData, editEquation , editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMaxGUI, setMasterPlane , setChildPlane} from '../../../store/sideBar/clipSlice';
 import RotateSlider from './rotateSlider';
 import TranslateSlider from './translateSlider';
 
-import MuiExpandLessIcon from '@material-ui/icons/ExpandLess';
-import MuiExpandMoreIcon from '@material-ui/icons/ExpandMore';
+// import MuiExpandLessIcon from '@material-ui/icons/ExpandLess';
+// import MuiExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import MuiEditIcon from '@material-ui/icons/Edit';
 
@@ -46,7 +44,7 @@ import MuiSelect from '@material-ui/core/Select';
 import MuiInputLabel from '@material-ui/core/InputLabel';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 import MuiFormControl from '@material-ui/core/FormControl';
-import parse from "autosuggest-highlight/parse";
+// import parse from "autosuggest-highlight/parse";
 
 export default function ClipPlanes(props : any){
 
@@ -76,11 +74,6 @@ export default function ClipPlanes(props : any){
   const clipCordY = planes[index].clipCordY;
   const clipCordZ = planes[index].clipCordZ;
   const clipConstD = planes[index].clipConstD;
-  
-  const slicePlaneEnabled = planes[index].slicePlane?.enabled;
-  const sliceTranslate = planes[index].slicePlane?.translate;
-  const sliceTranslateMin = planes[index].slicePlane?.translateMin;
-  const sliceTranslateMax = planes[index].slicePlane?.translateMax;
 
   const [clipInputX, setClipInputX] = useState(planes[index].userInputEquation[0]);
   const [clipInputY, setClipInputY] = useState(planes[index].userInputEquation[1]);
@@ -99,20 +92,6 @@ export default function ClipPlanes(props : any){
   },[planes, index])
 
   const OnHandleEquation:(value : any, variable: string) => any = (value,variable) => {
-    // switch(variable){
-    //   case "clipCordX" :
-    //     setClipCordX(Number(e.target.value));
-    //   break;
-    //   case "clipCordY" :
-    //     setClipCordY(Number(e.target.value));
-    //   break;
-    //   case "clipCordZ" :
-    //     setClipCordZ(Number(e.target.value));
-    //   break;
-    //   case "clipConstD" :
-    //     setClipConstD(Number(e.target.value));
-    //   break;
-    // }
 
     switch(variable){
       case "clipCordX" :
@@ -175,7 +154,7 @@ export default function ClipPlanes(props : any){
 
   const onHandleTranslateCommitted= (newValue:any) => {
     const id = props.clicked.id;
-    dispatch(updateMinMax({id}));
+    dispatch(updateMinMaxGUI({id}));
   }
 
   const onHandleTranslate= ( newValue : any) => {
@@ -195,7 +174,7 @@ export default function ClipPlanes(props : any){
     const update= {id : props.clicked.id, translate : newValue};
     dispatch(editTranslate(update))
     if(update.translate >= translateMax || update.translate <= translateMin) {
-      dispatch(updateMinMax({id:props.clicked.id}));
+      dispatch(updateMinMaxGUI({id:props.clicked.id}));
     }
     dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
@@ -217,30 +196,7 @@ export default function ClipPlanes(props : any){
     dispatch(editAxisY(update));
     dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
-
-  const onHandleSliceCheck = () => {
-    dispatch(setSectionPlaneData({id:props.clicked.id}))
-  }
-
-  const onHandleSliceTranslate= (e: any, newValue : any) => {
-    if (sliceTranslate === newValue)
-    {
-      return;
-    }
-    const update= {id : props.clicked.id, translate : newValue};
-    dispatch(setSectionPlaneData({id:props.clicked.id}))
-  }
-
-  const onHandleSliceTranslateType= (e: any ) => {
-    const update= {id : props.clicked.id, translate : Number(e.target.value)};
-    dispatch(setSectionPlaneData({id:props.clicked.id}))
-  }
-
-  const onHandleSliceTranslateButton = (newValue : any) => {
-    const update= {id : props.clicked.id, translate : Number(newValue)};
-    dispatch(setSectionPlaneData({id:props.clicked.id}))
-  }
-
+   
   const onHandleSlicePlane = (masterId : any) => {
     const newMaster :any = masterPlaneList.find((item) => item.id === masterId)
     console.log(newMaster)
@@ -482,9 +438,7 @@ export default function ClipPlanes(props : any){
             <MuiGrid item xs={12} sm={6}>
             <RotateSlider disable={editMode} value={axisY} handleChange={onHandleRotateY}  label={"Y-Axis"}/>
             </MuiGrid>
-          </MuiGrid>         
-       
-        
+          </MuiGrid>               
       </div>
     )
   } 
@@ -532,7 +486,6 @@ export default function ClipPlanes(props : any){
       // )
     }
    
-
     return(
         <SideBarContainer
       headerLeftIcon = { getHeaderLeftIcon() }
