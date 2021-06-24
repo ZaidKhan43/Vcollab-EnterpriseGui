@@ -34,7 +34,7 @@ return(
         step={stepValue}
         min={props.valueMin}
         max={props.valueMax}
-        railStyle={{opacity:"50%",height: 4,}}
+        railStyle={{backgroundColor:"#80808080",height: 4,}}
         trackStyle={{ backgroundColor: 'currentColor',height: 5,}}
         handleStyle={{
           borderColor: 'currentColor',

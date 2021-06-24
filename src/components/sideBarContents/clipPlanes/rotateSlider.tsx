@@ -48,10 +48,10 @@ export default function RotateSlider( props : any ){
                 max={359.9}
                 knobPosition= "right"
                 knobColor="currentColor"
-                trackColor = 'currentColor' 
+                trackColor = "#80808080"
                 knobSize={24}
-                progressColorFrom="#8C8BFF"
-                progressColorTo="#8C8BFF"
+                progressColorFrom="currentColor"
+                progressColorTo="currentColor"
                 tooltipColor="#6ab6e1"
                 showTooltip={true}
                 tooltipSize={26}
