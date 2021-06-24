@@ -27,7 +27,7 @@ export default makeStyles((theme) => (
     overflowY: "auto",
     overflowX:"hidden",
     listStyle: "none",
-    height: "42%",
+    height: "40%",
     width:"100%",
     '&::-webkit-scrollbar': {
       width: '0.4em'
@@ -231,14 +231,18 @@ export default makeStyles((theme) => (
 
 inputTranslate :{
   color:theme.palette.text.primary,
-  background:"none",
+   background:"none",
   border: "1px solid",
   borderColor: theme.palette.text.primary ,
   textAlign:"center",
-  width:"70px",
+  width:"70%",
   fontSize:"16px",
   zIndex: 10,
   size: 4,
+  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
+    "-webkit-appearance": "none",
+  },
+ 
 },
 
 inputEquation:{
@@ -273,7 +277,7 @@ opacity:0.6,
   translate:{
     color:theme.palette.text.primary,
     marginLeft:"10px",
-    marginRight:"20px"
+    marginRight:"20px",
   },
 
   rotate: {
