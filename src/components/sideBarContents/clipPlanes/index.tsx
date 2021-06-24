@@ -389,7 +389,6 @@ export default function ClipPlanes(){
 
   const getFooter = () => {
     return(
-      <div>
         <div style={{marginLeft:"10px", marginRight:"10px"}}>
           <div style={{display: "flex",alignItems: "center",justifyContent: "space-between",}}>
             { clickedValues.length ===  1 && clickedValues[0].enabled
@@ -439,7 +438,6 @@ export default function ClipPlanes(){
 
             </div>
           </div>
-      </div>
     ) 
   }
 

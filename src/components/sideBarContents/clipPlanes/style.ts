@@ -277,7 +277,7 @@ opacity:0.6,
   translate:{
     color:theme.palette.text.primary,
     marginLeft:"10px",
-    marginRight:"20px"
+    marginRight:"20px",
   },
 
   rotate: {

@@ -173,17 +173,17 @@ export default function ClipPlanes(props : any){
    
   }
 
-  const onHandleTranslateCommitted= (e:any,newValue:any) => {
+  const onHandleTranslateCommitted= (newValue:any) => {
     const id = props.clicked.id;
     dispatch(updateMinMax({id}));
   }
 
-  const onHandleTranslate= (e: any, newValue : any) => {
-    if (translate === newValue)
-    {
-      console.log("event",e);
-      return;
-    }
+  const onHandleTranslate= ( newValue : any) => {
+    // if (translate === newValue)
+    // {
+    //   console.log("event",e);
+    //   return;
+    // }
 
     console.log(newValue)
     const update= {id : props.clicked.id, translate : Number(newValue)};
@@ -191,17 +191,8 @@ export default function ClipPlanes(props : any){
     dispatch(setSectionPlaneData({id:props.clicked.id}))
   }
 
-  const onHandleTranslateType= (e: any ) => {
-    const update= {id : props.clicked.id, translate : Number(e.target.value)};
-    dispatch(editTranslate(update))
-    if(update.translate >= translateMax || update.translate <= translateMin) {
-      dispatch(updateMinMax({id:props.clicked.id}));
-    }
-    dispatch(setSectionPlaneData({id:props.clicked.id}))
-  }
-
-  const onHandleTranslateButton = (newValue : any) => {
-    const update= {id : props.clicked.id, translate : Number(parseFloat(newValue).toFixed(4))};
+  const onHandleTranslateTextbox= (newValue : number ) => {
+    const update= {id : props.clicked.id, translate : newValue};
     dispatch(editTranslate(update))
     if(update.translate >= translateMax || update.translate <= translateMin) {
       dispatch(updateMinMax({id:props.clicked.id}));
@@ -480,8 +471,7 @@ export default function ClipPlanes(props : any){
               value={translate} valueMin={translateMin} 
               valueMax={translateMax} onHandleChange={onHandleTranslate}
               stepValue= {stepValue}
-              onHandleType={onHandleTranslateType} onHandleCommited={onHandleTranslateCommitted}
-              onHandleButton={onHandleTranslateButton}
+              onHandleTextbox={onHandleTranslateTextbox} onHandleCommited={onHandleTranslateCommitted}
             />
           </div>
         <MuiTypography className={classes.listSub} noWrap>Rotate</MuiTypography>
