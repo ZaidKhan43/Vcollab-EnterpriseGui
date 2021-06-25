@@ -21,6 +21,29 @@ export default function TranslateSlider( props : any ){
     const [stepDisplay, setStepDisplay] = useState(props.stepValue)
     const [stepValue, setStepValue] = useState(props.stepValue)
 
+    let valueMin = Math.round(props.valueMin*1000)/1000;
+    let valueMax = Math.round(props.valueMax*1000)/1000;
+
+    if (Math.sign(props.valueMax) === 1) {
+      if(props.valueMax < 0.01 || props.valueMax > 999)
+        valueMax = props.valueMax.toExponential(3)
+    }
+    if (Math.sign(props.valueMax) === -1){
+       if(props.valueMax > -0.01 || props.valueMax < -999)
+      valueMax = props.valueMax.toExponential(3)
+    }
+    
+    if(Math.sign(props.valueMin) === 1 ){
+      if(props.valueMin < 0.01 || props.valueMin > 999)
+      valueMin = props.valueMin.toExponential(3)
+    }
+    if(Math.sign(props.valueMin) === -1) {
+      if(props.valueMin > -0.01 || props.valueMin < -999)
+     valueMin = props.valueMin.toExponential(3)
+   }
+    
+
+
 return(
     <div>
     <MuiTypography className={classes.listSub}  >
@@ -48,8 +71,8 @@ return(
         onAfterChange={props.onHandleCommited}
       />
       <div style={{marginLeft:"8px",marginTop:"-5px" , width:"100%", fontSize:"11px"}}>
-        <span style={{float:"left"}}> {props.valueMin}</span>
-          <span style={{float:"right"}} >{props.valueMax}</span>
+        <span style={{float:"left"}}> {valueMin}</span>
+          <span style={{float:"right"}} >{valueMax}</span>
       </div>
     </MuiGrid>
     

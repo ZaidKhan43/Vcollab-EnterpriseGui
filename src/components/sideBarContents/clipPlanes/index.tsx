@@ -159,7 +159,7 @@ export default function ClipPlanes(){
           dispatch(editEnabled({id:item.id,isEnabled:false}));
           SetDeleted(item.name);
           dispatch(removePlane({id:item.id}))
-          dispatch(saveSelectedPlane({clicked: item}))
+          // dispatch(saveSelectedPlane({clicked: item}))
         } 
         else{
           setOpenDeleteConfirm(false);
