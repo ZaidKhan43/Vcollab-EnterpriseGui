@@ -27,7 +27,7 @@ export default makeStyles((theme) => (
     overflowY: "auto",
     overflowX:"hidden",
     listStyle: "none",
-    height: "40%",
+    height: "30%",
     width:"100%",
     '&::-webkit-scrollbar': {
       width: '0.4em'
@@ -316,7 +316,7 @@ opacity:0.6,
     borderRadius:"5px",
     width:40,
     height:10,
-    marginLeft:"120px",
+    marginLeft:"90px",
   },
   
   editButtonActive:{
