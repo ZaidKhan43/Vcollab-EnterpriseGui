@@ -266,6 +266,7 @@ export const removePlane = createAsyncThunk(
     const rootState = getState() as RootState;
     //const state = rootState.clipPlane;
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
+    dispatch(editEnabled({id:data.id,isEnabled:false}));
     dispatch(setSectionPlaneData({id:data.id}))
     deleteSectionPlane(data.id,viewerId);
     dispatch(clipSlice.actions.deletePlane(data.id));
@@ -635,7 +636,7 @@ export const clipSlice = createSlice({
           let child = state.planes[childIndex];
           child.localTransform = Array.from(child.worldTransform);
           clipSlice.caseReducers.updatePlaneMatrix(state, {
-            payload: {id:pid,parentMat:null},
+            payload: {id,parentMat:null},
             type: "clipSlice/updatePlaneMatrix"
           })
           return;

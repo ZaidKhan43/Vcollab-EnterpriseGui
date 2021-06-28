@@ -260,7 +260,6 @@ inputEquation:{
 
 disabled: {
 background: theme.palette.text.disabled,
-opacity:0.6,
 },
 
 disabledButton:{
@@ -317,7 +316,7 @@ opacity:0.6,
     borderRadius:"5px",
     width:40,
     height:10,
-    marginLeft:"90px",
+    marginLeft:"110px",
   },
   
   editButtonActive:{

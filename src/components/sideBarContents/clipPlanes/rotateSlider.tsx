@@ -38,7 +38,7 @@ export default function RotateSlider( props : any ){
     return(
         <div className={classes.rotate}>
             <CircularSlider 
-                knobDraggable={props.disable === false  && true}
+                knobDraggable={true}
                 dataIndex={Math.round(props.value)}
                 width={90}
                 knobRadius={10}
@@ -76,7 +76,7 @@ export default function RotateSlider( props : any ){
                 }
             />
             
-            <MuiTypgraphy className={classes.caption}  noWrap>{props.label}</MuiTypgraphy>
+            <MuiTypgraphy className={classes.caption} noWrap>{props.label}</MuiTypgraphy>
         </div>
     )
 }

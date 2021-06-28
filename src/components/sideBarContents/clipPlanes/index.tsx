@@ -49,6 +49,7 @@ import MuiFormControl from '@material-ui/core/FormControl'
 import MuiInputLabel from '@material-ui/core/InputLabel'
 import MuiSelect from '@material-ui/core/Select';
 import MuiMenuItem from '@material-ui/core/MenuItem';
+import { isTypeNode } from 'typescript';
 //palne Equation
 
 export default function ClipPlanes(){
@@ -224,8 +225,8 @@ export default function ClipPlanes(){
     }
   }
 
-  const onHandleSlicePlane = (masterId : any) => {
-    const newMaster :any = planes.find((item) => item.id === masterId)
+  const onHandleSlicePlane = (masterId : any , masterPlaneList: any) => {
+    const newMaster :any = masterPlaneList.find((item : any) => item.id === masterId)
     console.log("hell0", newMaster)
     dispatch(setChildPlane({masterId: newMaster.id, childId : clickedValues[0].id}));
     dispatch(setMasterPlane({masterId : newMaster.id , masterName: newMaster.name, childId : clickedValues[0].id}));
@@ -354,8 +355,52 @@ export default function ClipPlanes(){
     let masterPlane = {id:-2 , name: "None"};
     
     if(clickedValues.length === 1){
-      masterPlaneList = planes.filter((item) => (item.id !== clickedValues[0].id && item.masterPlane.id === -1)).map((item) => ({id:item.id, name: item.name}));
-      const planeNames = masterPlaneList.unshift({id:-1,name:"Global"})
+    let masterPlaneSet = planes.filter((item) => (item.id !== clickedValues[0].id))
+    let removed : any[] = []
+
+      masterPlaneSet.forEach( item => {
+        if(item.masterPlane.id === clickedValues[0].id) {
+          removed.push(item.id)
+          masterPlaneSet = masterPlaneSet.filter(element => element.id !== item.id)
+        }
+      })
+
+      if(removed.length > 0){
+        for(let i=0; i < planes.length; i++ ){
+          masterPlaneSet.forEach( item => {
+            if(removed.includes(item.masterPlane.id)) {
+              removed.push(item.id)
+              masterPlaneSet = masterPlaneSet.filter(element => element.id !== item.id)
+            }
+            // removed = removed.filter(element => element !== item.masterPlane.id)
+          })
+        }
+      }
+      
+
+
+      console.log("removed" , removed)
+      console.log("resa" , masterPlaneSet)
+    
+
+    // .map((item) => ({id:item.id, name: item.name}));
+
+    
+    // let removed = masterPlaneSet.filter(item => item.masterPlane.id === clickedValues[0].id).map(item =>item.id);
+    // masterPlaneSet = masterPlaneSet.filter(item => item.masterPlane.id !== clickedValues[0].id)
+    //   console.log(removed)
+    // masterPlaneSet.forEach(item => {
+    //   if(removed.includes(item.masterPlane.id)){
+    //     removed = masterPlaneSet.filter(element => element.id === item.id).map(item =>item.id)
+    //     masterPlaneSet = masterPlaneSet.filter(element => (element.id !== item.id)) 
+    //   }
+    // })
+
+    masterPlaneList = masterPlaneSet.map((item) => ({id:item.id, name: item.name}))
+
+      // masterPlaneList = masterPlaneList.filter((item) => item.masterPlane.id.include())
+
+      masterPlaneList.unshift({id:-1,name:"Global"})
       masterPlane = clickedValues[0].masterPlane
     }
 
@@ -371,7 +416,7 @@ export default function ClipPlanes(){
               className={classes.scrollBar}
               style={{position:"relative"}}
             >
-              <MuiTypography className={classes.listSub} noWrap>
+              <MuiTypography className={classes.listSub} style={{marginLeft:"10px"}} noWrap>
                 Plane Equation 
                 { clickedValues.length === 1 
                   ?
@@ -465,7 +510,7 @@ export default function ClipPlanes(){
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         value={masterPlane.id}
-                        onChange={(e) => onHandleSlicePlane(e.target.value)}
+                        onChange={(e) => onHandleSlicePlane(e.target.value , masterPlaneList)}
                       >
                         {
                           masterPlaneList.map((item) => 
