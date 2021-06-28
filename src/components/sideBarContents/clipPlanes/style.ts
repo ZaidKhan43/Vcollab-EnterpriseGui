@@ -343,8 +343,9 @@ opacity:0.6,
   },
 
   inputEqnBorder:{
+    marginLeft:"5px",
     border: "1px solid",
-    width:"240px",
+    width:"260px",
     borderColor: theme.palette.text.primary ,
   },
 
@@ -356,7 +357,7 @@ opacity:0.6,
   }},
 
   disabledTextBox: {
-    marginLeft:"-40px", width:"240px",marginTop:"10px",border: "1px solid",
+    marginLeft:"-40px", width:"260px",marginTop:"10px",border: "1px solid",
   },
 
 }));

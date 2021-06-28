@@ -226,7 +226,7 @@ export default function ClipPlanes(){
 
   const onHandleSlicePlane = (masterId : any) => {
     const newMaster :any = planes.find((item) => item.id === masterId)
-    console.log(newMaster)
+    console.log("hell0", newMaster)
     dispatch(setChildPlane({masterId: newMaster.id, childId : clickedValues[0].id}));
     dispatch(setMasterPlane({masterId : newMaster.id , masterName: newMaster.name, childId : clickedValues[0].id}));
   }
@@ -449,7 +449,7 @@ export default function ClipPlanes(){
                   </MuiGrid>
               }
               <MuiFormControl style={{width:"100%", marginTop:"20px", marginLeft:"10px"}}>
-                <MuiInputLabel id="demo-simple-select-helper-label" style={{color:"currentcolor", marginLeft:"5px"}}>Master corodinate system</MuiInputLabel>
+                <MuiInputLabel id="demo-simple-select-helper-label" style={{color:"currentcolor", marginLeft:"5px",}}>Master corodinate system</MuiInputLabel>
                   { clickedValues.length === 1
                     ?
                       <MuiSelect 
@@ -461,7 +461,7 @@ export default function ClipPlanes(){
                           },
                           getContentAnchorEl: null
                         }}
-                        style={{width:"90%", marginLeft:"0px", marginTop:"15px",border: "1px solid currentColor",}}
+                        style={{width:"90%", marginLeft:"0px", marginTop:"24px",border: "1px solid currentColor",}}
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         value={masterPlane.id}
@@ -483,7 +483,7 @@ export default function ClipPlanes(){
                           },
                           getContentAnchorEl: null
                         }}
-                        style={{width:"90%", marginLeft:"0px", marginTop:"15px",border: "1px solid currentColor",}}
+                        style={{width:"90%", marginLeft:"0px", marginTop:"24px",border: "1px solid currentColor",}}
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         value={masterPlane.id}
@@ -498,7 +498,7 @@ export default function ClipPlanes(){
                   </MuiFormControl>
                 </div>
     
-                <div>
+                <div style={{marginTop:"15px"}}>
                   <MuiTypography className={classes.listItemOption} noWrap onClick={() =>onHandleClip("showClip",indeterminateShowClip,displayShowClip)}>
                     <MuiCheckbox color="default" indeterminate={indeterminateShowClip} checked ={displayShowClip} />
                     Show Clip Plane
@@ -556,7 +556,7 @@ export default function ClipPlanes(){
                   }
                 </span>
         </div>
-        <div className={clickedValues.length >= 1 ? classes.listClick : classes.listClickNo}>
+        <div>
           {
             planes.map((item, index : number) => 
               <div key={ 'divRoot_' + index }>

@@ -22,6 +22,8 @@ import MuiGrid from '@material-ui/core/Grid';
 import FlipDirectionLeft from "../../../components/icons/flipDirectionLeft";
 import FlipDirectionRight from "../../../components/icons/flipDirectionRight";
 
+import MuiInput from '@material-ui/core/Input';
+
 import {selectActiveViewerID} from "../../../store/appSlice";
 import { setSectionPlaneData, editEquation , editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMaxGUI, setMasterPlane , setChildPlane} from '../../../store/sideBar/clipSlice';
 import RotateSlider from './rotateSlider';
@@ -52,23 +54,13 @@ export default function ClipPlanes(props : any){
   const rotate = planes[index].rotate;
   const axisX = planes[index].axisX;
   const axisY = planes[index].axisY;
+
+  const clipCordX = planes[index].clipCordX;
+  const clipCordY = planes[index].clipCordY;
+  const clipCordZ = planes[index].clipCordZ;
+  const clipConstD = planes[index].clipConstD;
   
   const stepValue = (translateMax - translateMin) / 100;
-
-  const [clipInputX, setClipInputX] = useState(planes[index].userInputEquation[0]);
-  const [clipInputY, setClipInputY] = useState(planes[index].userInputEquation[1]);
-  const [clipInputZ, setClipInputZ] = useState(planes[index].userInputEquation[2]);
-  const [clipInputD, setClipInputD] = useState(planes[index].userInputEquation[3]);
-
-  const [editMode, setEditMode] = useState(false)
-
-  useEffect(() => {
-    setClipInputX(planes[index].userInputEquation[0])
-    setClipInputY(planes[index].userInputEquation[1])
-    setClipInputZ(planes[index].userInputEquation[2])
-    setClipInputD(planes[index].userInputEquation[3])
-  },[planes, index])
-
 
   const onHandleDirection = () => {
     const id= props.clicked.id
@@ -176,12 +168,15 @@ export default function ClipPlanes(props : any){
       <div 
       className={classes.scrollBar}
       > 
+      <div>
+        <MuiInput disabled inputProps={{style: { textAlign: 'center' ,},}} className={classes.disabledTextBox} style={{marginLeft:"0px"}} value={`${Math.round(clipCordX*1000)/1000}X ${Math.sign(clipCordY)===1 || Math.sign(clipCordY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordY*1000)/1000)}Y ${Math.sign(clipCordZ) === 1 || Math.sign(clipCordZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordZ*1000)/1000)}Z = ${Math.round(clipConstD*1000)/1000}`}/>
+         </div> 
         <MuiTypography className={classes.listSub}  style={{marginTop:"10%"}} noWrap>
           Coordinate System
         </MuiTypography>
         <MuiGrid container spacing={3}>
           <MuiGrid item xs={12} sm={6}>
-            <MuiIconButton disabled={editMode && true} style={{width:"60px",height: "90px", }}   onClick={() => onHandleDirection()}>
+            <MuiIconButton style={{width:"60px",height: "90px", }}   onClick={() => onHandleDirection()}>
               { clipNormalInverted === false 
                ? 
                 <FlipDirectionLeft/>
@@ -192,12 +187,12 @@ export default function ClipPlanes(props : any){
             <MuiTypography className={classes.caption}  noWrap>Flip Direction</MuiTypography>
           </MuiGrid>
           <MuiGrid item xs={12} sm={6}>
-            <RotateSlider disable={editMode} value={rotate} handleChange={onHandleRotate} label={"Rotate"}/>
+            <RotateSlider value={rotate} handleChange={onHandleRotate} label={"Rotate"}/>
           </MuiGrid>
         </MuiGrid>
         <div style={{marginTop:"10%"}}>
           <TranslateSlider 
-            name={"Translate"} editMode={editMode}
+            name={"Translate"}
             value={translate} valueMin={translateMin} 
             valueMax={translateMax} onHandleChange={onHandleTranslate}
             stepValue= {stepValue}
@@ -207,10 +202,10 @@ export default function ClipPlanes(props : any){
         <MuiTypography className={classes.listSub} noWrap>Rotate</MuiTypography>
           <MuiGrid container spacing={3}>
             <MuiGrid item xs={12} sm={6}>
-            <RotateSlider disable={editMode} value={axisX} handleChange={onHandleRotateX}  label={"X-Axis"}/>
+            <RotateSlider value={axisX} handleChange={onHandleRotateX}  label={"X-Axis"}/>
             </MuiGrid>
             <MuiGrid item xs={12} sm={6}>
-            <RotateSlider disable={editMode} value={axisY} handleChange={onHandleRotateY}  label={"Y-Axis"}/>
+            <RotateSlider value={axisY} handleChange={onHandleRotateY}  label={"Y-Axis"}/>
             </MuiGrid>
           </MuiGrid>               
       </div>
