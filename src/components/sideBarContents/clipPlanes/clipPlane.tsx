@@ -175,7 +175,6 @@ export default function ClipPlanes(props : any){
     return (
       <div 
       className={classes.scrollBar}
-      style={{position:"relative"}}
       > 
         <MuiTypography className={classes.listSub}  style={{marginTop:"10%"}} noWrap>
           Coordinate System

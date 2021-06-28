@@ -498,10 +498,10 @@ export default function ClipPlanes(){
                   </MuiFormControl>
                 </div>
     
-                <div className={classes.displayList}>
+                <div>
                   <MuiTypography className={classes.listItemOption} noWrap onClick={() =>onHandleClip("showClip",indeterminateShowClip,displayShowClip)}>
                     <MuiCheckbox color="default" indeterminate={indeterminateShowClip} checked ={displayShowClip} />
-                    Show Clip Plate
+                    Show Clip Plane
                   </MuiTypography>
                   <MuiTypography className={classes.listItemOption} onClick={() =>onHandleClip("showEdge",indeterminateShowEdge,displayShowEdge)} noWrap>
                     <MuiCheckbox color="default" indeterminate={indeterminateShowEdge} checked={displayShowEdge} />
@@ -540,7 +540,7 @@ export default function ClipPlanes(){
 
     // console.log("selected",clickedValues)
     return (
-      <div>
+      <div className={classes.scrollBar}>
         <div className={classes.heading} style={{marginBottom:"-20px", marginTop:"-10px"}}>
           <MuiTypography  variant='h1' noWrap>List</MuiTypography>
           <span style={{marginRight: "6.5%",}}>
@@ -556,7 +556,7 @@ export default function ClipPlanes(){
                   }
                 </span>
         </div>
-        <div className={clickedValues ? classes.listClick : classes.listClickNo}>
+        <div className={clickedValues.length >= 1 ? classes.listClick : classes.listClickNo}>
           {
             planes.map((item, index : number) => 
               <div key={ 'divRoot_' + index }>
@@ -610,7 +610,7 @@ export default function ClipPlanes(){
           }
         </div>
         <div>
-            <div style={{marginTop:"60%",}}> 
+            <div style={{position:"absolute", marginTop:"20px" , width:"100%"}}> 
               {displayClicked()}
             </div> 
         </div>

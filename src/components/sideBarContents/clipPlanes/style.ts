@@ -23,11 +23,11 @@ export default makeStyles((theme) => (
   },
       
   listClick:{
-    position: "absolute",
+    position: "relative",
     overflowY: "auto",
     overflowX:"hidden",
     listStyle: "none",
-    height: "30%",
+    height: "28%",
     width:"100%",
     '&::-webkit-scrollbar': {
       width: '0.4em'
@@ -291,6 +291,7 @@ opacity:0.6,
   },
   
   scrollBar: {
+    position:"relative",
     overflowY: "auto",
     overflowX:"hidden",
     // margin: 0,
