@@ -71,13 +71,14 @@ export default function ClipPlanes(props : any){
 
   const onHandleTranslateCommitted= (newValue:any , stepValue : any) => {
     console.log("stepValue",stepValue)
+    
     if(newValue + stepValue >= translateMax ){
       const update= {id : props.clicked.id, translate : Number(newValue + stepValue)};
       dispatch(editTranslate(update))
       dispatch(updateMinMaxGUI({id:props.clicked.id}));
     }
 
-    if(newValue - stepValue <= translateMax ){
+    if(newValue - stepValue <= translateMin ){
       const update= {id : props.clicked.id, translate : Number(newValue - stepValue)};
       dispatch(editTranslate(update))
       dispatch(updateMinMaxGUI({id:props.clicked.id}));
@@ -156,19 +157,19 @@ export default function ClipPlanes(props : any){
   }
   const getHeaderContent = () => {
     return (
-      <div className={classes.heading}>
-        <MuiGrid container spacing={0} alignItems="center">
-          <MuiGrid item xs={6}>
-            <MuiTypography  variant="h1">
-              Clip Plates -
+      <div>
+
+        <MuiGrid container spacing={0}>
+          <MuiGrid item xs>
+            <MuiTypography  variant="h2">
+              Clip Planes
             </MuiTypography>
-          </MuiGrid>
-          <MuiGrid item xs={6}>
-            <MuiTypography variant="h2" noWrap className={classes.listItemAsHeading}> 
+            <MuiTypography variant="h1" noWrap className={classes.listItemAsHeading}> 
               {name}
             </MuiTypography>
           </MuiGrid>
         </MuiGrid>
+        
       </div>
     )
   }

@@ -50,6 +50,7 @@ import MuiInputLabel from '@material-ui/core/InputLabel'
 import MuiSelect from '@material-ui/core/Select';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 import { isTypeNode } from 'typescript';
+import { useEffect } from 'react';
 //palne Equation
 
 export default function ClipPlanes(){
@@ -59,7 +60,11 @@ export default function ClipPlanes(){
   const planes = useAppSelector((state) => state.clipPlane.planes);
   const limit = useAppSelector((state) => state.clipPlane.settings.maxAllowedPlanes);
   // const clickedVal = useAppSelector<any>((state) => state.clipPlane.settings.clickedVal);
-  const clickedValues = useAppSelector((state) => state.clipPlane.planes.filter(item => item.selected === true))
+  const [clickedValues, setClickedValues] = useState<plane[]>(useAppSelector((state) => state.clipPlane.planes.filter(item => item.selected === true)));
+
+   useEffect(() => {
+        setClickedValues(planes.filter(item => item.selected === true))
+      },[planes]);
 
   // plane Equation 
   const clickedValuesCount = clickedValues.length;
@@ -289,6 +294,7 @@ export default function ClipPlanes(){
 
   const onHandlePlateKey = (e : any, item : any) => {
     if (e.key === 'Enter') {
+      setClickedValues(planes.filter(item => item.selected === true))
       setEditPlane(null)
       if(editName === "")
         setEditPlane(null)
@@ -296,10 +302,12 @@ export default function ClipPlanes(){
       const editPlane = {id : item.id, editName : editName}
       dispatch(editPlaneName(editPlane))
       }
+   
     }
     if (e.keyCode === 27) {
       e.preventDefault();
       setEditPlane(null)
+      setClickedValues(planes.filter(item => item.selected === true))
     }
   }
 
@@ -626,7 +634,7 @@ export default function ClipPlanes(){
                   >
                     {/* <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/> */}
                     <div style={{ display: "flex", alignItems: "left", width:"65%"}} onClick={(event)=> onHandleClick(event,item)}>
-                      <MuiTypography className={classes.listItemText} onDoubleClick={() => {setEditPlane(item.id); SetEditName(item.name)}} >
+                      <MuiTypography className={classes.listItemText} onDoubleClick={() => {setEditPlane(item.id); SetEditName(item.name); setClickedValues([])}} >
                         {item.name}
                       </MuiTypography>
                     </div>    
