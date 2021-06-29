@@ -95,7 +95,7 @@ function __spread() {
     for (var ar = [], i = 0; i < arguments.length; i++)
         ar = ar.concat(__read(arguments[i]));
     return ar;
-}var version = "0.0.12";var Utility = /** @class */ (function () {
+}var version = "0.0.13";var Utility = /** @class */ (function () {
     function Utility() {
     }
     Utility.create_UUID = function () {
@@ -12595,8 +12595,8 @@ var MouseControl = /** @class */ (function (_super) {
         return pointNode;
     };
     return MouseControl;
-}(EventDispatcher));var PickVertexShader = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 aPosition;in vec3 aColor;out vec3 vColor;uniform mat4 uProjectionMatrix;uniform mat4 uModelViewMatrix;void main(void){gl_PointSize=3.0;vec4 vPosWorldSpace=uModelViewMatrix*vec4(aPosition,1.0);gl_Position=uProjectionMatrix*vPosWorldSpace;vColor=aColor;}"; // eslint-disable-line
-var PickFragmentShader = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 vColor;uniform highp vec3 uColor;out vec4 outColor;void main(void){vec3 col=uColor;if(col==vec3(0.0))col=vColor;outColor=vec4(col,1);}"; // eslint-disable-line
+}(EventDispatcher));var PickVertexShader = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 aPosition;in vec3 aColor;out vec3 vColor;out highp vec4 vPositionWorldSpace;uniform mat4 uProjectionMatrix;uniform mat4 uModelViewMatrix;void main(void){gl_PointSize=3.0;vec4 vPosWorldSpace=uModelViewMatrix*vec4(aPosition,1.0);gl_Position=uProjectionMatrix*vPosWorldSpace;vPositionWorldSpace=vPosWorldSpace;vColor=aColor;}"; // eslint-disable-line
+var PickFragmentShader = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 vColor;uniform highp vec3 uColor;out vec4 outColor;uniform highp vec4 uClipPlane0;uniform highp vec4 uClipPlane1;uniform highp vec4 uClipPlane2;uniform highp vec4 uClipPlane3;uniform highp vec4 uClipPlane4;uniform highp vec4 uClipPlane5;uniform highp float uClipPlane0State;uniform highp float uClipPlane1State;uniform highp float uClipPlane2State;uniform highp float uClipPlane3State;uniform highp float uClipPlane4State;uniform highp float uClipPlane5State;uniform highp float uBoundRadius;in highp vec4 vPositionWorldSpace;void updateClipPlane(float planeState,vec4 clipPlane,float OutlinePercent){if(planeState==1.0){if(dot(vPositionWorldSpace,clipPlane)<0.0){discard;}else if(abs(dot(vPositionWorldSpace,clipPlane))<uBoundRadius*OutlinePercent){outColor=vec4(1.0,0.0,0.0,1.0);}}}void updateClipPlanes(float OutlinePercent){updateClipPlane(uClipPlane0State,uClipPlane0,OutlinePercent);updateClipPlane(uClipPlane1State,uClipPlane1,OutlinePercent);updateClipPlane(uClipPlane2State,uClipPlane2,OutlinePercent);updateClipPlane(uClipPlane3State,uClipPlane3,OutlinePercent);updateClipPlane(uClipPlane4State,uClipPlane4,OutlinePercent);updateClipPlane(uClipPlane5State,uClipPlane5,OutlinePercent);}void main(void){vec3 col=uColor;if(col==vec3(0.0))col=vColor;outColor=vec4(col,1);updateClipPlanes(0.008);}"; // eslint-disable-line
 var Triangle = /** @class */ (function () {
     function Triangle(v1, v2, v3) {
         this.v1 = v1;
@@ -12676,6 +12676,7 @@ var Point = /** @class */ (function () {
             this.renderer.camControl.setBoundingBox(bbox);
             this.renderer.camControl.update();
         }
+        this.pickShader.updateClipPlaneUniforms();
         for (var j = 0; j < nodes.length; j++) {
             var currNode = nodes[j];
             var submeshName = "primitive_" + 0;
@@ -13294,6 +13295,7 @@ var Plane = /** @class */ (function () {
     function SectionManager(cameraControl) {
         this.initialized = false;
         this.maxPlanes = 6;
+        this.planeHalfWidthRatio = 1.2;
         this.activePlaneId = -1;
         this.selectedPlaneColor = [1, 1, 0, 1];
         this.camControl = cameraControl;
@@ -13317,7 +13319,7 @@ var Plane = /** @class */ (function () {
         return plane;
     };
     SectionManager.prototype.getPlaneCoordsFromEqn = function (transform) {
-        var radius = this.bbox.getRadius() * 2;
+        var radius = this.bbox.getRadius() * this.planeHalfWidthRatio;
         var out = [];
         if (transform) {
             var u = fromValues$1$1(transform[0], transform[1], transform[2]);
@@ -15081,7 +15083,7 @@ var Label3D = /** @class */ (function () {
         AppState$1.showFPS = (value === true ? true : false);
     };
     return App;
-}());var version$1 = "0.0.10";//@public
+}());var version$1 = "0.0.13";//@public
 var vctViewer = /** @class */ (function () {
     function vctViewer(_containerID, _connectorObject) {
         this.appli = new App(_containerID, _connectorObject);
