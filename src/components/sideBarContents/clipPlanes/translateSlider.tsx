@@ -68,7 +68,7 @@ return(
         }}
         startPoint= {(props.valueMax + props.valueMin) /2}
         onChange={props.onHandleChange}
-        onAfterChange={props.onHandleCommited}
+        onAfterChange={(value) => props.onHandleCommited(value, stepValue)}
       />
       <div style={{marginLeft:"8px",marginTop:"-5px" , width:"100%", fontSize:"11px"}}>
         <span style={{float:"left"}}> {valueMin}</span>

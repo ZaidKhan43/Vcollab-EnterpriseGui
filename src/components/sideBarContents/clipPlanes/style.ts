@@ -128,11 +128,9 @@ export default makeStyles((theme) => (
 
   listItemAsHeading: {
     color: theme.palette.text.primary,
-    width:"120px",
     whiteSpace: "nowrap",
     overflow:"hidden",
     textOverflow:"ellipsis",
-    fontSize: "17px",
   },
   
   displayList:{ 
