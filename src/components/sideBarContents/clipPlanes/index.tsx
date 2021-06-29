@@ -367,13 +367,21 @@ export default function ClipPlanes(){
 
       if(removed.length > 0){
         for(let i=0; i < planes.length; i++ ){
+          let newlyRemoved : any[] = [];
           masterPlaneSet.forEach( item => {
             if(removed.includes(item.masterPlane.id)) {
-              removed.push(item.id)
+              newlyRemoved.push(item.id)
               masterPlaneSet = masterPlaneSet.filter(element => element.id !== item.id)
             }
+            console.log(removed.length)
             // removed = removed.filter(element => element !== item.masterPlane.id)
           })
+
+          removed = [];
+          if(newlyRemoved.length === 0)
+            break;
+          
+          removed =[...newlyRemoved]
         }
       }
       
