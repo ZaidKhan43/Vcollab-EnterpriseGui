@@ -2128,6 +2128,7 @@ function __spread$1() {
     (function (NodeSubType) {
         NodeSubType[NodeSubType["NONE"] = 0] = "NONE";
         NodeSubType[NodeSubType["HIGHLIGHT"] = 1] = "HIGHLIGHT";
+        NodeSubType[NodeSubType["SECTION_PLANE"] = 2] = "SECTION_PLANE";
     })(AppConstants.NodeSubType || (AppConstants.NodeSubType = {}));
     (function (DisplayMode) {
         DisplayMode[DisplayMode["SHADED"] = 1] = "SHADED";
@@ -3762,20 +3763,6 @@ function subtract$1(out, a, b) {
   return out;
 }
 /**
- * Math.round the components of a vec3
- *
- * @param {vec3} out the receiving vector
- * @param {ReadonlyVec3} a vector to round
- * @returns {vec3} out
- */
-
-function round(out, a) {
-  out[0] = Math.round(a[0]);
-  out[1] = Math.round(a[1]);
-  out[2] = Math.round(a[2]);
-  return out;
-}
-/**
  * Scales a vec3 by a scalar number
  *
  * @param {vec3} out the receiving vector
@@ -4979,6 +4966,10 @@ function fromValues$4(x, y) {
     Utility.getAvgRot = function (matrices) {
         var out = create$1$1();
         if (matrices.length > 0) {
+            if (matrices.length == 1) {
+                var w = matrices[0];
+                return fromValues$1(w[0], w[1], w[2], w[3], w[4], w[5], w[6], w[7], w[8], w[9], w[10], w[11], 0, 0, 0, 1);
+            }
             var q_1 = null;
             matrices.forEach(function (mat) {
                 var curQ = create$4();
@@ -6453,12 +6444,16 @@ var Shader = /** @class */ (function () {
     Shader.prototype.updateClipPlaneUniforms = function () {
         var _this = this;
         if (AppObjects.sectionManager.planeStates.size > 0) {
-            var counter_1 = 0;
             AppObjects.sectionManager.planeStates.forEach(function (planeState) {
-                _this.setBool(uniforms['uClipPlane' + counter_1 + 'State'], planeState.isPlaneEnabled);
-                _this.setVector4f(uniforms['uClipPlane' + counter_1], planeState.eqn.getClipEquation());
-                counter_1 += 1;
+                var id = planeState.internalId % AppObjects.sectionManager.MaxPlanes;
+                _this.setBool(uniforms['uClipPlane' + id + 'State'], planeState.isPlaneEnabled);
+                _this.setVector4f(uniforms['uClipPlane' + id], planeState.eqn.getClipEquation());
             });
+        }
+        else {
+            for (var i = 0; i < 6; i++) {
+                this.setBool(uniforms['uClipPlane' + i.toString() + 'State'], false);
+            }
         }
     };
     //#endregion
@@ -9236,14 +9231,14 @@ var Renderer2D = /** @class */ (function () {
     };
     Renderer.prototype.renderGizmos = function () {
         this.GLContext.clear(this.GLContext.DEPTH_BUFFER_BIT);
-        this.renderAxisHelper();
+        this.renderAxisHelper(__spread$1(this.highlightedNodes.values()));
     };
-    Renderer.prototype.renderAxisHelper = function () {
+    Renderer.prototype.renderAxisHelper = function (nodes) {
         var _this = this;
         var center = create$2$1();
-        this.highlightedNodes.forEach(function (node) {
-            if (node.subType === AppConstants.NodeSubType.HIGHLIGHT && node.visible) {
-                var c = node.getBBoxCenter();
+        nodes.forEach(function (node) {
+            if (node.visible) {
+                var c = node.subType === AppConstants.NodeSubType.SECTION_PLANE ? node.getPosition() : node.getBBoxCenter();
                 if (c) {
                     add(center, center, c);
                 }
@@ -9252,11 +9247,11 @@ var Renderer2D = /** @class */ (function () {
                 }
             }
         });
-        scale$1(center, center, 1 / this.highlightedNodes.size);
+        scale$1(center, center, 1 / nodes.length);
         if (this.axis3DHelper === null && this.GLContext) {
             this.axis3DHelper = new Axes3DHelper("axis");
         }
-        if (this.highlightedNodes.size > 0 && this.axis3DHelper && center) {
+        if (nodes.length > 0 && this.axis3DHelper && center) {
             var camPos = this.camControl.getPosition();
             var objPos = center;
             var scaleToFit = dist(camPos, objPos) * Math.tan(this.camControl.perspParams.fov / 2) * 0.5; // some constant to fit to proper size
@@ -9265,7 +9260,7 @@ var Renderer2D = /** @class */ (function () {
             trans[12] = objPos[0];
             trans[13] = objPos[1];
             trans[14] = objPos[2];
-            var rot = Utility$1.getAvgRot(__spread$1(this.highlightedNodes.values()).map(function (node) { return node.worldMatrix; }));
+            var rot = Utility$1.getAvgRot(__spread$1(nodes).map(function (node) { return node.worldMatrix; }));
             fromScaling(scale, fromValues$1$1(scaleToFit, scaleToFit, scaleToFit));
             var shader_1 = ShaderCache.labelShader;
             if (!shader_1)
@@ -12676,6 +12671,7 @@ var Point = /** @class */ (function () {
             this.renderer.camControl.setBoundingBox(bbox);
             this.renderer.camControl.update();
         }
+        this.pickShader.bind();
         this.pickShader.updateClipPlaneUniforms();
         for (var j = 0; j < nodes.length; j++) {
             var currNode = nodes[j];
@@ -12688,6 +12684,7 @@ var Point = /** @class */ (function () {
         var pixelBuffer = this.renderer.readPixels(mouse[0], mouse[1]);
         var id = (pixelBuffer[0] << 16) | (pixelBuffer[1] << 8) | (pixelBuffer[2]);
         var selectedPartId = id - 1;
+        this.pickShader.unbind();
         this.renderer.startRenderLoop();
         return selectedPartId;
     };
@@ -12995,200 +12992,7 @@ var Point = /** @class */ (function () {
         }
     };
     return Picker;
-}());var RectangleMesh = /** @class */ (function (_super) {
-    __extends(RectangleMesh, _super);
-    function RectangleMesh(name, a, b, c, d, color, precentOffset) {
-        if (color === void 0) { color = [0, 0, 0, 1]; }
-        if (precentOffset === void 0) { precentOffset = 0; }
-        var _this = _super.call(this, name) || this;
-        _this.a = a;
-        _this.b = b;
-        _this.c = c;
-        _this.d = d;
-        _this.uid = Utility$1.getGUID();
-        _this.rendingMode = RenderMode.LINES;
-        _this.createRectangleMesh(a, b, c, d, precentOffset);
-        _this.material = new Material(name);
-        _this.material.diffuseColor = color;
-        _this.material.transparency = 1 - color[3];
-        return _this;
-    }
-    RectangleMesh.prototype.createRectangleMesh = function (a, b, c, d, precentOffset) {
-        //Set offset
-        var percent = precentOffset / 100;
-        scale$1(a, a, 1 + percent);
-        scale$1(b, b, 1 + percent);
-        scale$1(c, c, 1 + percent);
-        scale$1(d, d, 1 + percent);
-        var vertices = new Float32Array([
-            //back vertices
-            a[0], a[1], a[2],
-            b[0], b[1], b[2],
-            c[0], c[1], c[2],
-            d[0], d[1], d[2],
-        ]);
-        var indices = new Uint32Array([
-            0, 1, 1, 2, 2, 3, 3, 0,
-        ]);
-        this.setattribs(this.generateAttribute(vertices));
-        this.setIndex(this.generateIndices(indices));
-    };
-    RectangleMesh.prototype.generateAttribute = function (vertices) {
-        var attrib = new WebGLArrayBufferAttribute();
-        attrib.position = new WebGLArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, vertices);
-        //attrib.color = new WebGLArrayBuffer("bboxColorBuff",BufferUsage.STATIC_DRAW,color);
-        return attrib;
-    };
-    RectangleMesh.prototype.generateIndices = function (indices) {
-        var index = new WebGLElementArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, indices);
-        return index;
-    };
-    return RectangleMesh;
-}(CoreMesh));var SectionPlaneMesh = /** @class */ (function (_super) {
-    __extends(SectionPlaneMesh, _super);
-    function SectionPlaneMesh(name, a, b, c, d, color) {
-        if (color === void 0) { color = [1, 0, 0, 1]; }
-        var _this = _super.call(this, name) || this;
-        _this.a = a;
-        _this.b = b;
-        _this.c = c;
-        _this.d = d;
-        _this.uid = Utility$1.getGUID();
-        _this.mainMesh = _this.createPlaneMesh(a, b, c, d, color);
-        _this.subMeshes['bbox'] = new RectangleMesh(name + "border", a, b, c, d, [0, 0, 0, 1]);
-        return _this;
-    }
-    SectionPlaneMesh.prototype.createPlaneMesh = function (a, b, c, d, color) {
-        var coreMesh = new CoreMesh(this.name);
-        coreMesh.rendingMode = RenderMode.TRIANGLES;
-        coreMesh.material = new Material("Plane");
-        coreMesh.material.diffuseColor = [color[0], color[1], color[2]];
-        coreMesh.material.transparency = color[3];
-        var vertices = new Float32Array([
-            //back vertices
-            a[0], a[1], a[2],
-            b[0], b[1], b[2],
-            c[0], c[1], c[2],
-            d[0], d[1], d[2]
-        ]);
-        var indices = new Uint32Array([
-            0, 1, 2, 2, 3, 0 // face
-        ]);
-        coreMesh.setattribs(this.generateAttribute(vertices));
-        coreMesh.setIndex(this.generateIndices(indices));
-        return coreMesh;
-    };
-    SectionPlaneMesh.prototype.generateAttribute = function (vertices) {
-        var attrib = new WebGLArrayBufferAttribute();
-        attrib.position = new WebGLArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, vertices);
-        //attrib.color = new WebGLArrayBuffer("bboxColorBuff",BufferUsage.STATIC_DRAW,color);
-        return attrib;
-    };
-    SectionPlaneMesh.prototype.generateIndices = function (indices) {
-        var index = new WebGLElementArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, indices);
-        return index;
-    };
-    SectionPlaneMesh.prototype.getArea = function (p0, p1, p2) {
-        return Math.abs(p0[0] * (p1[1] - p2[1]) + p1[0] * (p2[1] - p0[1]) + p2[0] * (p0[1] - p1[1]) * 0.5);
-    };
-    SectionPlaneMesh.prototype.checkWithinBounds = function (target, p0, p1, p2, p3) {
-        var center = create$2$1();
-        add(center, p0, p2);
-        scale$1(center, center, 0.5);
-        var hit = create$2$1();
-        sub$1(hit, target, center);
-        var u = create$2$1();
-        var v = create$2$1();
-        sub$1(u, p3, p0);
-        normalize$1(u, u);
-        sub$1(v, p1, p0);
-        normalize$1(v, v);
-        var uDist = sqrDist(p3, p0) / 4;
-        var vDist = sqrDist(p1, p0) / 4;
-        var q1 = dot$1(u, hit);
-        var q2 = dot$1(v, hit);
-        if (q1 * q1 < uDist && q1 * q1 > 0 && q2 * q2 > 0 && q2 * q2 < vDist) {
-            return true;
-        }
-        else {
-            return false;
-        }
-    };
-    SectionPlaneMesh.prototype.updateBounds = function (transform) {
-        var bounds = [];
-        bounds.push(create$2$1());
-        bounds.push(create$2$1());
-        bounds.push(create$2$1());
-        bounds.push(create$2$1());
-        transformMat4(bounds[0], this.a, transform);
-        transformMat4(bounds[1], this.b, transform);
-        transformMat4(bounds[2], this.c, transform);
-        transformMat4(bounds[3], this.d, transform);
-        return bounds;
-    };
-    SectionPlaneMesh.prototype.intersect = function (r, transform) {
-        var bounds = this.updateBounds(transform);
-        //update normal and constant
-        var quat = create$4();
-        getRotation(quat, transform);
-        var normal = create$2$1();
-        transformQuat(normal, fromValues$1$1(0, 0, 1), quat);
-        var position = MathUtils.getPositionVector(transform);
-        var denom = dot$1(normal, r.dir);
-        if (denom != 0) {
-            var p0l0 = create$2$1();
-            sub$1(p0l0, position, r.orig);
-            var t = Math.abs(dot$1(p0l0, normal) / denom);
-            var hitpoint = create$2$1();
-            scaleAndAdd(hitpoint, r.orig, r.dir, t);
-            round(hitpoint, hitpoint);
-            console.log("hit point", hitpoint);
-            var offset = create$2$1();
-            sub$1(offset, hitpoint, position);
-            if (this.checkWithinBounds(hitpoint, bounds[0], bounds[1], bounds[2], bounds[3])) {
-                return sqrDist(r.orig, hitpoint);
-            }
-        }
-        return 0;
-    };
-    SectionPlaneMesh.prototype.getPoints = function () {
-        return [
-            clone$1$1(this.a),
-            clone$1$1(this.b),
-            clone$1$1(this.c),
-            clone$1$1(this.d)
-        ];
-    };
-    SectionPlaneMesh.prototype.getCenter = function () {
-        var out = create$2$1();
-        add(out, this.a, this.c);
-        scale$1(out, out, 0.5);
-        return out;
-    };
-    SectionPlaneMesh.prototype.getRightDir = function () {
-        var right = create$2$1();
-        add(right, this.c, this.d);
-        scale$1(right, right, 0.5);
-        sub$1(right, right, this.getCenter());
-        normalize$1(right, right);
-        return right;
-    };
-    SectionPlaneMesh.prototype.getTopDir = function () {
-        var top = create$2$1();
-        add(top, this.b, this.c);
-        scale$1(top, top, 0.5);
-        sub$1(top, top, this.getCenter());
-        normalize$1(top, top);
-        return top;
-    };
-    SectionPlaneMesh.prototype.getFrontDir = function () {
-        var front = create$2$1();
-        cross$1(front, this.getRightDir(), this.getTopDir());
-        normalize$1(front, front);
-        return front;
-    };
-    return SectionPlaneMesh;
-}(Mesh));var PlaneVShader = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 aPosition;uniform mat4 uProjectionMatrix;uniform mat4 uModelViewMatrix;uniform vec3 uColor;out highp vec4 vPositionWorldSpace;void main(void){vec4 positionWorldSpace=uModelViewMatrix*vec4(aPosition,1.0);vPositionWorldSpace=positionWorldSpace;gl_Position=uProjectionMatrix*positionWorldSpace;}"; // eslint-disable-line
+}());var PlaneVShader = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 aPosition;uniform mat4 uProjectionMatrix;uniform mat4 uModelViewMatrix;uniform vec3 uColor;out highp vec4 vPositionWorldSpace;void main(void){vec4 positionWorldSpace=uModelViewMatrix*vec4(aPosition,1.0);vPositionWorldSpace=positionWorldSpace;gl_Position=uProjectionMatrix*positionWorldSpace;}"; // eslint-disable-line
 var PlaneFShader = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nuniform highp mat4 uProjectionMatrix;uniform highp mat4 uModelViewMatrix;uniform highp vec3 uLightDirection;uniform highp vec3 uCameraPosition;uniform float uTransparencyFactor;uniform bool uUseTransparency;uniform vec3 uColor;in highp vec4 vPositionWorldSpace;out highp vec4 outColor;void main(void){highp float diffuseFactor=1.0;highp vec3 diffuseColor=uColor.xyz;if(uUseTransparency&&uTransparencyFactor>0.){outColor=vec4((diffuseColor),uTransparencyFactor);}else{outColor=vec4((diffuseColor*diffuseFactor),1.0);}}"; // eslint-disable-line
 var LabelVertex = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 aPosition;in vec3 aColor;out vec3 vColor;uniform mat4 uProjectionMatrix;uniform mat4 uModelViewMatrix;void main(void){gl_PointSize=5.0;vec4 vPosWorldSpace=uModelViewMatrix*vec4(aPosition,1.0);gl_Position=uProjectionMatrix*vPosWorldSpace;vColor=aColor;}"; // eslint-disable-line
 var LabelFrag = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 vColor;uniform highp vec3 uColor;out vec4 outColor;void main(void){vec3 col=uColor;if(col==vec3(0.0))col=vColor;outColor=vec4(col,1);}"; // eslint-disable-line
@@ -13290,10 +13094,102 @@ var Plane = /** @class */ (function () {
         return _this;
     }
     return Axes2DHelper;
-}(ShapeNode));var SectionManager = /** @class */ (function () {
+}(ShapeNode));var PlaneMesh = /** @class */ (function (_super) {
+    __extends(PlaneMesh, _super);
+    function PlaneMesh(name, width, height, color) {
+        if (width === void 0) { width = 10; }
+        if (height === void 0) { height = 10; }
+        if (color === void 0) { color = [1, 0, 0, 1]; }
+        var _this = _super.call(this, name) || this;
+        _this.width = width;
+        _this.height = height;
+        _this.uid = Utility$1.getGUID();
+        _this.rendingMode = RenderMode.TRIANGLES;
+        _this.material = new Material(name);
+        _this.material.diffuseColor = [color[0], color[1], color[2]];
+        _this.material.transparency = 1 - color[3];
+        _this.createPlaneMesh();
+        return _this;
+    }
+    PlaneMesh.prototype.createPlaneMesh = function () {
+        //Set offset
+        var vertices = new Float32Array([
+            -this.width / 2, -this.height / 2, 0,
+            -this.width / 2, this.height / 2, 0,
+            this.width / 2, this.height / 2, 0,
+            this.width / 2, -this.height / 2, 0,
+        ]);
+        var indices = new Uint32Array([
+            0, 2, 1,
+            0, 3, 2
+        ]);
+        this.setattribs(this.generateAttribute(vertices));
+        this.setIndex(this.generateIndices(indices));
+    };
+    PlaneMesh.prototype.generateAttribute = function (vertices) {
+        var attrib = new WebGLArrayBufferAttribute();
+        attrib.position = new WebGLArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, vertices);
+        return attrib;
+    };
+    PlaneMesh.prototype.generateIndices = function (indices) {
+        var index = new WebGLElementArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, indices);
+        return index;
+    };
+    PlaneMesh.prototype.updateAttribute = function (vertices) {
+        this.attribs.position.updateData(vertices);
+    };
+    PlaneMesh.prototype.updateIndices = function (indices) {
+        this.indices.updateData(indices);
+    };
+    return PlaneMesh;
+}(CoreMesh));var RectangleMesh = /** @class */ (function (_super) {
+    __extends(RectangleMesh, _super);
+    function RectangleMesh(name, width, height, color, precentOffset) {
+        if (color === void 0) { color = [0, 0, 0, 1]; }
+        if (precentOffset === void 0) { precentOffset = 0; }
+        var _this = _super.call(this, name) || this;
+        _this.width = width;
+        _this.height = height;
+        _this.uid = Utility$1.getGUID();
+        _this.rendingMode = RenderMode.LINES;
+        _this.createRectangleMesh(precentOffset);
+        _this.material = new Material(name);
+        _this.material.diffuseColor = color;
+        _this.material.transparency = 1 - color[3];
+        return _this;
+    }
+    RectangleMesh.prototype.createRectangleMesh = function (precentOffset) {
+        //Set offset
+        var vertices = new Float32Array([
+            -this.width / 2 - precentOffset, -this.height / 2 - precentOffset, 0,
+            -this.width / 2 - precentOffset, this.height / 2 + precentOffset, 0,
+            this.width / 2 + precentOffset, this.height / 2 + precentOffset, 0,
+            this.width / 2 + precentOffset, -this.height / 2 - precentOffset, 0,
+        ]);
+        var indices = new Uint32Array([
+            0, 1,
+            1, 2,
+            2, 3,
+            3, 0
+        ]);
+        this.setattribs(this.generateAttribute(vertices));
+        this.setIndex(this.generateIndices(indices));
+    };
+    RectangleMesh.prototype.generateAttribute = function (vertices) {
+        var attrib = new WebGLArrayBufferAttribute();
+        attrib.position = new WebGLArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, vertices);
+        return attrib;
+    };
+    RectangleMesh.prototype.generateIndices = function (indices) {
+        var index = new WebGLElementArrayBuffer(this.uid, BufferUsage.STATIC_DRAW, indices);
+        return index;
+    };
+    return RectangleMesh;
+}(CoreMesh));var SectionManager = /** @class */ (function () {
     //Constructor
     function SectionManager(cameraControl) {
         this.initialized = false;
+        this.counter = 0;
         this.maxPlanes = 6;
         this.planeHalfWidthRatio = 1.2;
         this.activePlaneId = -1;
@@ -13312,49 +13208,26 @@ var Plane = /** @class */ (function () {
         this.bbox = AppObjects.sceneManager.getBoundingBox(false);
         this.initialized = true;
     };
-    SectionManager.prototype.createPlane = function (name, a, b, c, d, color) {
+    Object.defineProperty(SectionManager.prototype, "MaxPlanes", {
+        get: function () {
+            return this.maxPlanes;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    SectionManager.prototype.createPlane = function (name, transform, color) {
         var plane = new ShapeNode(name);
-        plane.mesh = new SectionPlaneMesh(name, a, b, c, d, color);
+        plane.subType = AppConstants.NodeSubType.SECTION_PLANE;
+        var radius = this.bbox.getRadius() * this.planeHalfWidthRatio;
+        plane.mesh = new Mesh(name);
+        plane.mesh.mainMesh = new PlaneMesh(name, radius * 2, radius * 2, color);
+        plane.mesh.subMeshes['bbox'] = new RectangleMesh(name + "border", radius * 2, radius * 2, [0, 0, 0, 1]);
         plane.mesh.mainMesh.material.transparency = color[3];
+        plane.worldMatrix = clone$1(transform);
         return plane;
     };
-    SectionManager.prototype.getPlaneCoordsFromEqn = function (transform) {
-        var radius = this.bbox.getRadius() * this.planeHalfWidthRatio;
-        var out = [];
-        if (transform) {
-            var u = fromValues$1$1(transform[0], transform[1], transform[2]);
-            var v = fromValues$1$1(transform[4], transform[5], transform[6]);
-            var left = create$2$1();
-            var right = create$2$1();
-            var top_1 = create$2$1();
-            var bottom = create$2$1();
-            scaleAndAdd(left, left, u, -radius);
-            scaleAndAdd(right, right, u, radius);
-            scaleAndAdd(top_1, top_1, v, radius);
-            scaleAndAdd(bottom, bottom, v, -radius);
-            var lb = create$2$1();
-            var lt = create$2$1();
-            var rt = create$2$1();
-            var rb = create$2$1();
-            var center = fromValues$1$1(transform[12], transform[13], transform[14]);
-            add(lb, center, left);
-            add(lb, lb, bottom);
-            add(lt, center, left);
-            add(lt, lt, top_1);
-            add(rt, center, right);
-            add(rt, rt, top_1);
-            add(rb, center, right);
-            add(rb, rb, bottom);
-            out = [lb, lt, rt, rb];
-        }
-        else {
-            throw new Error("plane equation not defined");
-        }
-        return out;
-    };
     SectionManager.prototype.createPrimaryPlaneFromEqn = function (id, transform, color) {
-        var _a = __read$1(this.getPlaneCoordsFromEqn(transform), 4), a = _a[0], b = _a[1], c = _a[2], d = _a[3];
-        var plane = this.createPlane(id.toString(), a, b, c, d, color);
+        var plane = this.createPlane(id.toString(), transform, color);
         return plane;
     };
     SectionManager.prototype.setPlaneEqn = function (id, eqn) {
@@ -13408,66 +13281,33 @@ var Plane = /** @class */ (function () {
         AppState$1.GLContext.clear(AppState$1.GLContext.DEPTH_BUFFER_BIT);
         this.renderAxisHelper();
     };
+    SectionManager.prototype.renderRefAxis = function () {
+    };
     SectionManager.prototype.renderAxisHelper = function () {
         var _this = this;
-        if (this.axis3DHelper === null && AppState$1.GLContext) {
-            this.axis3DHelper = new Axes3DHelper("axis");
+        if (this.refAxis2DHelper === null && AppState$1.GLContext) {
             this.refAxis2DHelper = new Axes2DHelper("axis2d", create$2$1(), 1);
         }
-        if (this.axis3DHelper) {
+        if (this.refAxis2DHelper) {
             this.planeStates.forEach(function (planeState, key) {
                 var planeGroup = planeState.plane;
-                var eqn = planeState.eqn;
                 if (planeGroup.visible && key === _this.activePlaneId) {
                     var plane = planeGroup.children[0];
-                    var mesh = plane.mesh;
-                    var camPos = _this.camControl.getPosition();
-                    var objPos = mesh.getCenter();
-                    var scaleToFit = dist(camPos, objPos) * Math.tan(_this.camControl.perspParams.fov / 2) * 0.5; // some constant to fit to proper size
-                    var scale = create$1$1();
-                    var trans = create$1$1();
-                    trans[12] = objPos[0];
-                    trans[13] = objPos[1];
-                    trans[14] = objPos[2];
-                    var rot = create$1$1();
-                    var z = eqn.normal;
-                    var u = mesh.getRightDir();
-                    var v = mesh.getTopDir();
-                    rot[0] = u[0];
-                    rot[1] = u[1];
-                    rot[2] = u[2];
-                    rot[4] = v[0];
-                    rot[5] = v[1];
-                    rot[6] = v[2];
-                    rot[8] = z[0];
-                    rot[9] = z[1];
-                    rot[10] = z[2];
-                    fromScaling(scale, fromValues$1$1(scaleToFit, scaleToFit, scaleToFit));
-                    var shader_1 = _this.gizmoShader;
-                    var model_1 = create$1$1();
-                    mul(model_1, model_1, trans);
-                    mul(model_1, model_1, rot);
-                    mul(model_1, model_1, scale);
-                    mul(model_1, model_1, _this.axis3DHelper.worldMatrix);
-                    //render axes
-                    _this.axis3DHelper.children.forEach(function (node) {
-                        var nodeMatrix = create$1$1();
-                        mul(nodeMatrix, model_1, node.worldMatrix);
-                        _this.renderBufferAsGizmo(node.mesh.mainMesh, nodeMatrix, shader_1, node.mesh.mainMesh.material.diffuseColor);
-                    });
+                    plane.visible = planeGroup.visible;
+                    AppObjects.renderer.renderAxisHelper([plane]);
                     //render reference axis
-                    var initTransform = planeState.initialTransform;
-                    var refObjPos = create$2$1();
-                    getTranslation(refObjPos, initTransform);
-                    var refScaleToFit = dist(camPos, refObjPos) * Math.tan(_this.camControl.perspParams.fov / 2) * 0.5; // some constant to fit to proper size
-                    var refScale = create$1$1();
-                    var refModel = create$1$1();
-                    fromScaling(refScale, fromValues$1$1(refScaleToFit, refScaleToFit, refScaleToFit));
-                    mul(refModel, initTransform, refScale);
-                    mul(refModel, refModel, _this.refAxis2DHelper.worldMatrix);
-                    var nodeMatrix = create$1$1();
-                    mul(nodeMatrix, refModel, _this.refAxis2DHelper.worldMatrix);
-                    _this.renderBufferAsGizmo(_this.refAxis2DHelper.mesh.mainMesh, nodeMatrix, shader_1, [0, 0, 0]);
+                    // let initTransform = planeState.initialTransform;
+                    // const refObjPos = glmatrix.vec3.create();
+                    // glmatrix.mat4.getTranslation(refObjPos,initTransform);
+                    // const refScaleToFit = glmatrix.vec3.dist(camPos,refObjPos) * Math.tan(this.camControl.perspParams.fov/2) *0.5; // some constant to fit to proper size
+                    // const refScale = glmatrix.mat4.create();
+                    // const refModel = glmatrix.mat4.create();
+                    // glmatrix.mat4.fromScaling(refScale,glmatrix.vec3.fromValues(refScaleToFit,refScaleToFit,refScaleToFit))
+                    // glmatrix.mat4.mul(refModel,initTransform,refScale);
+                    // glmatrix.mat4.mul(refModel,refModel,this.refAxis2DHelper.worldMatrix);
+                    // const nodeMatrix = glmatrix.mat4.create();
+                    // glmatrix.mat4.mul(nodeMatrix,refModel,this.refAxis2DHelper.worldMatrix);
+                    // this.renderBufferAsGizmo(this.refAxis2DHelper.mesh.mainMesh,nodeMatrix,shader,[0,0,0]);
                 }
             });
         }
@@ -13555,7 +13395,8 @@ var Plane = /** @class */ (function () {
             var planeGroup = new TransFormNode(id + 'group');
             planeGroup.addChild(plane);
             var newPlaneState = {
-                uid: id,
+                id: id,
+                internalId: this.counter++,
                 isPlaneEnabled: false,
                 eqn: planeEqn,
                 plane: planeGroup,
@@ -13621,7 +13462,6 @@ var Plane = /** @class */ (function () {
         if (planeState) {
             planeState.isPlaneEnabled = true;
             this.planeStates.set(id, planeState);
-            AppObjects.renderer.mainShader.updateClipPlaneUniforms();
         }
     };
     SectionManager.prototype.disableClipPlane = function (id) {
@@ -13629,9 +13469,6 @@ var Plane = /** @class */ (function () {
         if (planeState) {
             planeState.isPlaneEnabled = false;
             this.planeStates.set(id, planeState);
-            AppObjects.renderer.mainShader.bind();
-            AppObjects.renderer.mainShader.updateClipPlaneUniforms();
-            this.shader.bind();
         }
     };
     SectionManager.prototype.showClipPlane = function (id) {
@@ -15083,7 +14920,7 @@ var Label3D = /** @class */ (function () {
         AppState$1.showFPS = (value === true ? true : false);
     };
     return App;
-}());var version$1 = "0.0.13";//@public
+}());var version$1 = "0.0.14";//@public
 var vctViewer = /** @class */ (function () {
     function vctViewer(_containerID, _connectorObject) {
         this.appli = new App(_containerID, _connectorObject);
@@ -15401,11 +15238,16 @@ var vctViewer = /** @class */ (function () {
         ];
         var data = this.probeFromNodes({ xyFromTop: xyFromTop, width: rect.width, height: rect.height });
         console.log("probeData", data);
-        if ((data === null || data === void 0 ? void 0 : data.renderNodeId) > -1) {
-            var nodeIds = this.productTree.getPartIdsFromRenderNodeIds([data.renderNodeId]);
-            this.setHighlightedNodes(nodeIds, true);
+        this.handleHighlight(data);
+    };
+    Viewer.prototype.handleHighlight = function (probeData) {
+        if ((probeData === null || probeData === void 0 ? void 0 : probeData.renderNodeId) > -1) {
+            var nodeIds = this.productTree.getPartIdsFromRenderNodeIds([probeData.renderNodeId]);
+            var parts = this.productTree.getPartNodeFromNodeIds(nodeIds);
+            var isHighlighted = parts[0].customData.displayProps.isHighlighted;
+            this.setHighlightedNodes(nodeIds, !isHighlighted);
             this.eventDispatcher.dispatchEvent(getEventObject(viewerEvents.MODEL_PART_HIGHLIGHTED, this.UUID, {
-                isHighlighted: true,
+                isHighlighted: !isHighlighted,
                 nodeIds: nodeIds
             }));
         }
