@@ -71,18 +71,22 @@ export default function ClipPlanes(props : any){
 
   const onHandleTranslateCommitted= (newValue:any , stepValue : any) => {
     console.log("stepValue",stepValue)
-    
-    if(newValue + stepValue >= translateMax ){
-      const update= {id : props.clicked.id, translate : Number(newValue + stepValue)};
+ 
+    console.log("hwllo" ,translateMax)
+
+    if( (newValue - stepValue) <= translateMin ){
+      const update= {id : props.clicked.id, translate : newValue - stepValue};
       dispatch(editTranslate(update))
       dispatch(updateMinMaxGUI({id:props.clicked.id}));
     }
 
-    if(newValue - stepValue <= translateMin ){
-      const update= {id : props.clicked.id, translate : Number(newValue - stepValue)};
+       
+    if( (newValue + stepValue) >= translateMax ){
+      const update= {id : props.clicked.id, translate : newValue + stepValue};
       dispatch(editTranslate(update))
       dispatch(updateMinMaxGUI({id:props.clicked.id}));
     }
+
 
   }
 

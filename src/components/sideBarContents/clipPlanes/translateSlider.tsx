@@ -21,14 +21,6 @@ export default function TranslateSlider( props : any ){
     const [stepDisplay, setStepDisplay] = useState(props.stepValue)
     const [stepValue, setStepValue] = useState(props.stepValue)
 
-    const onHandleBlur = () => {
-      if(stepDisplay)
-        setStepValue(stepDisplay);
-        
-      else
-      setStepDisplay(stepValue);
-        
-    }
 
     let valueMin = Math.round(props.valueMin*1000)/1000;
     let valueMax = Math.round(props.valueMax*1000)/1000;
@@ -52,6 +44,20 @@ export default function TranslateSlider( props : any ){
    }
     
 
+
+   const onHandleBlur = () => {
+    if(stepDisplay)
+      setStepValue(Number(stepDisplay));
+      
+    else
+    setStepDisplay(Number(stepValue));    
+  }
+
+  const onHandleSlider = (value : any) => {
+    console.log("vae", value)
+    console.log("sa" , stepValue)
+    props.onHandleCommited(value, stepValue)
+  }
 
 return(
     <div>
@@ -77,7 +83,7 @@ return(
         }}
         startPoint= {(props.valueMax + props.valueMin) /2}
         onChange={props.onHandleChange}
-        onAfterChange={(value) => props.onHandleCommited(value, stepValue)}
+        onAfterChange={(value) => onHandleSlider(value)}
       />
       <div style={{marginLeft:"8px",marginTop:"-5px" , width:"100%", fontSize:"11px"}}>
         <span style={{float:"left"}}> {valueMin}</span>
@@ -86,18 +92,18 @@ return(
     </MuiGrid>
     
   <MuiGrid item xs={12} sm={3} style={{marginTop:"-28px"}} >
-  <MuiIconButton disabled={props.editMode} style={{height:10, width:10, marginLeft:"5px"}}><MuiExpandLessIcon  onClick={() => props.value < props.valueMax && props.onHandleTextbox(Number((props.value - (-stepValue)).toFixed(4)))} className={`${classes.translateButton} + ${props.editMode && classes.disabledButton}`}/></MuiIconButton>
+  <MuiIconButton disabled={props.editMode} style={{height:10, width:10, marginLeft:"5px"}}><MuiExpandLessIcon  onClick={() => props.value < props.valueMax && props.onHandleTextbox(Number((props.value + stepValue).toFixed(4)))} className={`${classes.translateButton} + ${props.editMode && classes.disabledButton}`}/></MuiIconButton>
   <input 
     readOnly={props.editMode}
     step= {stepValue}
-     min= {props.translateMin}
-    max= {props.translateMax} 
+     min= {props.valueMin}
+    max= {props.valueMax} 
     className={`${classes.inputTranslate} + ${props.editMode && classes.disabled}`} 
     style={{width: "70px", }} 
     type="number" 
     value={value} 
     onChange={(e) => setValue(e.target.value)} 
-    onBlur={() => props.onHandleTextbox(Number(value))} 
+    onBlur={() => props.onHandleTextbox((value))} 
   />
      <MuiIconButton disabled={props.editMode} style={{height:10, width:10,marginLeft:"5px"}}><MuiExpandMoreIcon  onClick={() =>  props.value > props.valueMin && props.onHandleTextbox(Number((props.value - stepValue).toFixed(4)))} className={`${classes.translateButton} + ${props.editMode && classes.disabledButton}`}/></MuiIconButton>
   </MuiGrid>
