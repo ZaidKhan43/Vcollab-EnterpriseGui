@@ -32,7 +32,14 @@ export default function RotateSlider( props : any ){
     }
 
     const onChangeHandleOne = (value: any) => {
-        props.handleChange(value)
+        if(value)
+            props.handleChange(value)
+        else
+            props.handleChange(0)
+    }
+
+    const onChangeHandleTwo = (value : any) =>{
+
     }
 //console.log(value)
     return(
@@ -70,6 +77,7 @@ export default function RotateSlider( props : any ){
                         max={359.9}
                         mobile={false}
                         onChange={onChangeHandleOne}
+                        onBlur = {onChangeHandleTwo}
                         />
                          <MuiIconButton disabled={props.disable} style={{ width: 10, height: 10}} onClick={() => props.value > 0 ? onChangeHandle(props.value - 1) : onChangeHandle(359)}><MuiMinusIcon   className={`${classes.circularSliderButton} + ${props.disable && classes.disabledButton }`}/></MuiIconButton>
                     </div>

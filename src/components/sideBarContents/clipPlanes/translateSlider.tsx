@@ -78,9 +78,11 @@ return(
     
   <MuiGrid item xs={12} sm={3} style={{marginTop:"-28px"}} >
   <MuiIconButton disabled={props.editMode} style={{height:10, width:10, marginLeft:"5px"}}><MuiExpandLessIcon  onClick={() => props.value < props.valueMax && props.onHandleTextbox( Number(parseFloat(props.value + stepValue).toFixed(4)))} className={`${classes.translateButton} + ${props.editMode && classes.disabledButton}`}/></MuiIconButton>
-  <MuiInput 
+  <input 
     readOnly={props.editMode}
-    inputProps={{style: { textAlign: 'center', padding:"1px" }, step: stepValue, min: props.translateMin , max: props.translateMax}} 
+    step= {stepValue}
+     min= {props.translateMin}
+    max= {props.translateMax} 
     className={`${classes.inputTranslate} + ${props.editMode && classes.disabled}`} 
     style={{width: "70px", }} 
     type="number" 
@@ -98,14 +100,14 @@ return(
     </MuiGrid>
 
     <MuiGrid item xs={12} sm={4} >
-    <MuiInput
+    <input
     readOnly={props.editMode}
-    inputProps={{style: { textAlign: 'center', padding:"1px" }, }} 
+    // inputProps={{style: { textAlign: 'center', padding:"1px",  }, }} 
     className={`${classes.inputTranslate} + ${props.editMode && classes.disabled}`} 
     style={{width: "70px",}} 
     type="number" 
     value={stepDisplay} 
-    onChange={(e) => setStepDisplay(Number(e.target.value))}  
+    onChange={(e) => {setStepDisplay(Number(e.target.value))}}  
     onBlur = {() => setStepValue(stepDisplay)}
   />
     </MuiGrid>

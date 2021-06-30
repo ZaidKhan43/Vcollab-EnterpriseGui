@@ -237,10 +237,18 @@ inputTranslate :{
   fontSize:"16px",
   zIndex: 10,
   size: 4,
-  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
-    "-webkit-appearance": "none",
+  
+  '&[type=number]': {
+    '-moz-appearance': 'textfield',
   },
- 
+  '&::-webkit-outer-spin-button': {
+    '-webkit-appearance': 'none',
+    margin: 0,
+  },
+  '&::-webkit-inner-spin-button': {
+    '-webkit-appearance': 'none',
+    margin: 0,
+  },
 },
 
 inputEquation:{
@@ -348,6 +356,27 @@ opacity:0.6,
 
   inputEqn: {
     textAlign:"center",
+    background:"none",
+    border:"none",
+    paddingTop:"10px",
+    paddingBottom:"5px",
+    marginBottom:"4px",
+    borderBottom: "1px solid white",
+    '&:focus': {
+      outline:"none",
+  },
+    color:theme.palette.text.primary,
+    '&[type=number]': {
+    '-moz-appearance': 'textfield',
+  },
+  '&::-webkit-outer-spin-button': {
+    '-webkit-appearance': 'none',
+    margin: 0,
+  },
+  '&::-webkit-inner-spin-button': {
+    '-webkit-appearance': 'none',
+    margin: 0,
+  },
       "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
         "-webkit-appearance": "none",
         margin: 0
