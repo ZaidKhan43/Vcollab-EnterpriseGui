@@ -23,11 +23,11 @@ export default makeStyles((theme) => (
   },
       
   listClick:{
-    position: "absolute",
+    position: "relative",
     overflowY: "auto",
     overflowX:"hidden",
     listStyle: "none",
-    height: "40%",
+    height: "28%",
     width:"100%",
     '&::-webkit-scrollbar': {
       width: '0.4em'
@@ -128,11 +128,9 @@ export default makeStyles((theme) => (
 
   listItemAsHeading: {
     color: theme.palette.text.primary,
-    width:"120px",
     whiteSpace: "nowrap",
     overflow:"hidden",
     textOverflow:"ellipsis",
-    fontSize: "17px",
   },
   
   displayList:{ 
@@ -239,10 +237,18 @@ inputTranslate :{
   fontSize:"16px",
   zIndex: 10,
   size: 4,
-  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
-    "-webkit-appearance": "none",
+  
+  '&[type=number]': {
+    '-moz-appearance': 'textfield',
   },
- 
+  '&::-webkit-outer-spin-button': {
+    '-webkit-appearance': 'none',
+    margin: 0,
+  },
+  '&::-webkit-inner-spin-button': {
+    '-webkit-appearance': 'none',
+    margin: 0,
+  },
 },
 
 inputEquation:{
@@ -260,7 +266,6 @@ inputEquation:{
 
 disabled: {
 background: theme.palette.text.disabled,
-opacity:0.6,
 },
 
 disabledButton:{
@@ -291,6 +296,7 @@ opacity:0.6,
   },
   
   scrollBar: {
+    position:"relative",
     overflowY: "auto",
     overflowX:"hidden",
     // margin: 0,
@@ -316,7 +322,7 @@ opacity:0.6,
     borderRadius:"5px",
     width:40,
     height:10,
-    marginLeft:"120px",
+    marginLeft:"110px",
   },
   
   editButtonActive:{
@@ -342,20 +348,42 @@ opacity:0.6,
   },
 
   inputEqnBorder:{
+    marginLeft:"5px",
     border: "1px solid",
-    width:"240px",
+    width:"260px",
     borderColor: theme.palette.text.primary ,
   },
 
   inputEqn: {
     textAlign:"center",
+    background:"none",
+    border:"none",
+    paddingTop:"10px",
+    paddingBottom:"5px",
+    marginBottom:"4px",
+    borderBottom: "1px solid white",
+    '&:focus': {
+      outline:"none",
+  },
+    color:theme.palette.text.primary,
+    '&[type=number]': {
+    '-moz-appearance': 'textfield',
+  },
+  '&::-webkit-outer-spin-button': {
+    '-webkit-appearance': 'none',
+    margin: 0,
+  },
+  '&::-webkit-inner-spin-button': {
+    '-webkit-appearance': 'none',
+    margin: 0,
+  },
       "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
         "-webkit-appearance": "none",
         margin: 0
   }},
 
   disabledTextBox: {
-    marginLeft:"-40px", width:"240px",marginTop:"10px",border: "1px solid",
+    marginLeft:"-40px", width:"260px",marginTop:"10px",border: "1px solid",
   },
 
 }));

@@ -32,13 +32,20 @@ export default function RotateSlider( props : any ){
     }
 
     const onChangeHandleOne = (value: any) => {
-        props.handleChange(value)
+        if(value)
+            props.handleChange(value)
+        else
+            props.handleChange(0)
+    }
+
+    const onChangeHandleTwo = (value : any) =>{
+
     }
 //console.log(value)
     return(
         <div className={classes.rotate}>
             <CircularSlider 
-                knobDraggable={props.disable === false  && true}
+                knobDraggable={true}
                 dataIndex={Math.round(props.value)}
                 width={90}
                 knobRadius={10}
@@ -48,10 +55,10 @@ export default function RotateSlider( props : any ){
                 max={359.9}
                 knobPosition= "right"
                 knobColor="currentColor"
-                trackColor = 'currentColor' 
+                trackColor = "#80808080"
                 knobSize={24}
-                progressColorFrom="#8C8BFF"
-                progressColorTo="#8C8BFF"
+                progressColorFrom="currentColor"
+                progressColorTo="currentColor"
                 tooltipColor="#6ab6e1"
                 showTooltip={true}
                 tooltipSize={26}
@@ -70,13 +77,14 @@ export default function RotateSlider( props : any ){
                         max={359.9}
                         mobile={false}
                         onChange={onChangeHandleOne}
+                        onBlur = {onChangeHandleTwo}
                         />
                          <MuiIconButton disabled={props.disable} style={{ width: 10, height: 10}} onClick={() => props.value > 0 ? onChangeHandle(props.value - 1) : onChangeHandle(359)}><MuiMinusIcon   className={`${classes.circularSliderButton} + ${props.disable && classes.disabledButton }`}/></MuiIconButton>
                     </div>
                 }
             />
             
-            <MuiTypgraphy className={classes.caption}  noWrap>{props.label}</MuiTypgraphy>
+            <MuiTypgraphy className={classes.caption} noWrap>{props.label}</MuiTypgraphy>
         </div>
     )
 }
