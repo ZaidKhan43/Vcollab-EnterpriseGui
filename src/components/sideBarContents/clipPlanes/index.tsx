@@ -458,24 +458,34 @@ export default function ClipPlanes(){
                   ?
                     <div>
                       { editMode === false 
-                        ?
-                          <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px",marginTop:"-5px"}} className={`${classes.disabledTextBox} + ${classes.disabled}`} value={`${clipInputX}X ${Math.sign(clipInputY)===1 || Math.sign(clipInputY) === 0 ? "+" : "-"} ${Math.abs(clipInputY)}Y ${Math.sign(clipInputZ) === 1 || Math.sign(clipInputZ) === 0 ? "+" : "-"} ${Math.abs(clipInputZ)}Z = ${clipInputD}`}/>
-                        :
-                          <div className={classes.inputEqnBorder}>
-                            <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputX} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordX")}/>X+
-                            <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputY} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordY")}/>Y+
-                            <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputZ} onChange={(e : any) => OnHandleEquation(e.target.value, "clipCordZ")}/>Z =
-                            <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputD}  onChange={(e : any) => OnHandleEquation(e.target.value, "clipConstD")} />
+                        ? <div>
+                            <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px",marginTop:"-5px"}} className={`${classes.disabledTextBox} + ${classes.disabled}`} value={`${Math.round(clipInputX*1000)/1000}X ${Math.sign(clipInputY)===1 || Math.sign(clipInputY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputY*1000)/1000)}Y ${Math.sign(clipInputZ) === 1 || Math.sign(clipInputZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputZ*1000)/1000)}Z = ${Math.round(clipInputD*1000)/1000}`}/>
+                            <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
+                              <MuiGrid item xs={12} sm={6} >
+                                <MuiButton disabled className={clsx({ [classes.button]: clipPlaneMode==="Surface" })} size="small"  startIcon={<Triangle />}  onClick={() => {clipPlaneMode==="Surface" ? setClipPlaneMode(null) : setClipPlaneMode("Surface")}}>
+                                  <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
+                                    Select Surface
+                                  </MuiTypography> 
+                                </MuiButton>
+                              </MuiGrid>
+                              <MuiGrid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
+                                <MuiButton disabled className={clsx({ [classes.button]: clipPlaneMode==="Points" })} size="small" startIcon={<ThreePoints/>}   onClick={() => {clipPlaneMode==="Points" ? setClipPlaneMode(null) : setClipPlaneMode("Points")}}>
+                                  <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
+                                    Select Points
+                                  </MuiTypography>  
+                                </MuiButton>
+                              </MuiGrid>
+                            </MuiGrid>
                           </div>
-                      }
-                    </div>
-                  :
-                    <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px",marginTop:"-5px"}} className={classes.disabledTextBox}/>
-                }
-              </div>
-              { clickedValues.length === 1
-                ?
-                  <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
+                        :
+                          <div>
+                            <div className={classes.inputEqnBorder}>
+                              <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputX} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordX")}/>X+
+                              <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputY} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordY")}/>Y+
+                              <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputZ} onChange={(e : any) => OnHandleEquation(e.target.value, "clipCordZ")}/>Z =
+                              <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputD}  onChange={(e : any) => OnHandleEquation(e.target.value, "clipConstD")} />
+                            </div>
+                            <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
                     <MuiGrid item xs={12} sm={6} >
                       <MuiButton className={clsx({ [classes.button]: clipPlaneMode==="Surface" })} size="small"  startIcon={<Triangle />}  onClick={() => {clipPlaneMode==="Surface" ? setClipPlaneMode(null) : setClipPlaneMode("Surface")}}>
                         <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
@@ -491,24 +501,32 @@ export default function ClipPlanes(){
                       </MuiButton>
                     </MuiGrid>
                   </MuiGrid>
-                :
-                  <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
-                    <MuiGrid item xs={12} sm={6} >
-                      <MuiButton disabled className={clsx({ [classes.button]: clipPlaneMode==="Surface" })} size="small"  startIcon={<Triangle />}  onClick={() => {clipPlaneMode==="Surface" ? setClipPlaneMode(null) : setClipPlaneMode("Surface")}}>
-                        <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
-                          Select Surface
-                        </MuiTypography> 
-                      </MuiButton>
-                    </MuiGrid>
-                    <MuiGrid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
-                      <MuiButton disabled className={clsx({ [classes.button]: clipPlaneMode==="Points" })} size="small" startIcon={<ThreePoints/>}   onClick={() => {clipPlaneMode==="Points" ? setClipPlaneMode(null) : setClipPlaneMode("Points")}}>
-                        <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
-                          Select Points
-                        </MuiTypography>  
-                      </MuiButton>
-                    </MuiGrid>
-                  </MuiGrid>
-              }
+                          </div>
+                      }
+                    </div>
+                  :
+                    <div>
+                      <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px",marginTop:"-5px"}} className={classes.disabledTextBox}/>
+                        <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px",marginTop:"-5px"}} className={`${classes.disabledTextBox} + ${classes.disabled}`} value={`${Math.round(clipInputX*1000)/1000}X ${Math.sign(clipInputY)===1 || Math.sign(clipInputY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputY*1000)/1000)}Y ${Math.sign(clipInputZ) === 1 || Math.sign(clipInputZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputZ*1000)/1000)}Z = ${Math.round(clipInputD*1000)/1000}`}/>
+                        <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
+                          <MuiGrid item xs={12} sm={6} >
+                            <MuiButton disabled className={clsx({ [classes.button]: clipPlaneMode==="Surface" })} size="small"  startIcon={<Triangle />}  onClick={() => {clipPlaneMode==="Surface" ? setClipPlaneMode(null) : setClipPlaneMode("Surface")}}>
+                              <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
+                                Select Surface
+                              </MuiTypography> 
+                            </MuiButton>
+                          </MuiGrid>
+                          <MuiGrid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
+                            <MuiButton disabled className={clsx({ [classes.button]: clipPlaneMode==="Points" })} size="small" startIcon={<ThreePoints/>}   onClick={() => {clipPlaneMode==="Points" ? setClipPlaneMode(null) : setClipPlaneMode("Points")}}>
+                              <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
+                                Select Points
+                              </MuiTypography>  
+                            </MuiButton>
+                          </MuiGrid>
+                        </MuiGrid>
+                      </div>
+                  }
+              </div>
               <MuiFormControl style={{width:"100%", marginTop:"20px", marginLeft:"10px"}}>
                 <MuiInputLabel id="demo-simple-select-helper-label" style={{color:"currentcolor", marginLeft:"5px",}}>Master corodinate system</MuiInputLabel>
                   { clickedValues.length === 1

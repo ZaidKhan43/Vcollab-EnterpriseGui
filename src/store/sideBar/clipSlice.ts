@@ -243,6 +243,7 @@ export const addPlane = createAsyncThunk(
     let radius = bbox.getRadius();
     let plane = generatePlane(id, Array.from(newTransform), eqn, color,radius);
     dispatch(createPlane({plane}));
+    dispatch(editEnabled({id,isEnabled:true}));
     dispatch(setSectionPlaneData({id}))
   }
 )
