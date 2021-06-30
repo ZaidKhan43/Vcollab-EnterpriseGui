@@ -361,7 +361,7 @@ opacity:0.6,
     paddingTop:"10px",
     paddingBottom:"5px",
     marginBottom:"4px",
-    borderBottom: "1px solid white",
+    borderBottom: "1px solid ",
     '&:focus': {
       outline:"none",
   },
