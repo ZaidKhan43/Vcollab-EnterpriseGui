@@ -507,7 +507,6 @@ export default function ClipPlanes(){
                   :
                     <div>
                       <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px",marginTop:"-5px"}} className={classes.disabledTextBox}/>
-                        <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px",marginTop:"-5px"}} className={`${classes.disabledTextBox} + ${classes.disabled}`} value={`${Math.round(clipInputX*1000)/1000}X ${Math.sign(clipInputY)===1 || Math.sign(clipInputY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputY*1000)/1000)}Y ${Math.sign(clipInputZ) === 1 || Math.sign(clipInputZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputZ*1000)/1000)}Z = ${Math.round(clipInputD*1000)/1000}`}/>
                         <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
                           <MuiGrid item xs={12} sm={6} >
                             <MuiButton disabled className={clsx({ [classes.button]: clipPlaneMode==="Surface" })} size="small"  startIcon={<Triangle />}  onClick={() => {clipPlaneMode==="Surface" ? setClipPlaneMode(null) : setClipPlaneMode("Surface")}}>
