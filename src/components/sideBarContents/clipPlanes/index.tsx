@@ -79,9 +79,9 @@ export default function ClipPlanes(){
   const [copied, setCopied] = useState<boolean>(false); 
   const [copy, setCopy] = useState<plane | null>(null);
   const [edit, setEdit] = useState<boolean>(false);
-  const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [deleted,SetDeleted] = useState<string | null>(null);
-  const [openDeleteConfirm, setOpenDeleteConfirm] = useState<boolean>(false);
+  const [openDelete, setOpenDelete] = useState<boolean>(false);
+
+  const [openMasterDelete, setOpenMasterDelete] = useState<boolean>(false);
 
   const [editPlane, setEditPlane] = useState<number | null>(null)
   const [editName, SetEditName] = useState<string>("");
@@ -95,8 +95,9 @@ export default function ClipPlanes(){
   const onHandleClick :(e: any, click: any) => any = (e, click)=> {
   
     //Plane Equation
-    setClipPlaneMode(null)
-    setEditMode(false)
+    setClipPlaneMode(null);
+    setEditMode(false);
+    setOpenDelete(false);
 
     console.log("clicked", clickedValues)
     if(clickedValues.length === 0) {
@@ -263,21 +264,41 @@ export default function ClipPlanes(){
     }
   }
 
+ const onHandleDeleteButton = () => {
+  if(clickedValues.length > 1){
+    setOpenDelete(true); 
+    setEditMode(false);
+    setOpenMasterDelete(false)
+  }
+
+  if(clickedValues.length === 1){
+    if(clickedValues[0].childPlane.length === 0){
+    setOpenDelete(!openDelete); 
+    setEditMode(false)
+    setOpenMasterDelete(false)
+    }
+    if(clickedValues[0].childPlane.length >= 1){
+      setOpenDelete(!openDelete); 
+      setOpenMasterDelete(true);
+      setEditMode(false)
+    }
+  }
+
+ }
+
   const onHandleDelete = () => {
     clickedValues.forEach(item => 
       {
         if(item.childPlane.length === 0){
-          setOpenDialog(false);
-          setOpenDeleteConfirm(true);
+          setOpenDelete(false);
+          // setOpenMasterDelete(true);
           dispatch(editEnabled({id:item.id,isEnabled:false}));
-          SetDeleted(item.name);
+          // SetDeleted(item.name);
           dispatch(removePlane({id:item.id}))
           // dispatch(saveSelectedPlane({clicked: item}))
         } 
-        else{
-          setOpenDeleteConfirm(false);
-          alert("Its a master Plane. You can't delete a master plane")
-        }
+        else
+          setOpenDelete(false);
       }
     )
   }
@@ -292,11 +313,7 @@ export default function ClipPlanes(){
   }
 
   const handleCloseDialog = () => {
-    setOpenDialog(false)
-  }
-
-  const handleCloseAlert = () => {
-    setOpenDeleteConfirm(false)
+    setOpenDelete(false)
   }
 
   const onHandlePlateNameEdit = (e : any) => {
@@ -727,55 +744,98 @@ export default function ClipPlanes(){
   const getFooter = () => {
     return(
         <div style={{marginLeft:"10px", marginRight:"10px"}}>
-          <div style={{display: "flex",alignItems: "center",justifyContent: "space-between",}}>
-            { clickedValues.length ===  1 && clickedValues[0].enabled
-              ?
-                <MuiIconButton  onClick={() => onHandleEdit()}> 
-                  <MuiEditIcon/>
-                </MuiIconButton>
-              :
-                <MuiIconButton disabled> 
-                 <MuiEditIcon/>
-                </MuiIconButton>
-            }
-
-            { clickedValues.length === 1
-              ?
-                <MuiIconButton onClick={() => onHandleCopy(planes.find((item : any )=> 
-                  item.id === clickedValues[0].id))}> 
-                  <MuiFileCopyOutlinedIcon />
-                </MuiIconButton>
-              :
-                <MuiIconButton disabled> 
-                  <MuiFileCopyOutlinedIcon />
-                </MuiIconButton>
-            }
-
-            { copied && planes.length !== limit 
-              ?
-                <MuiIconButton onClick={() => onHandlePaste(copy)}>
-                  <MuiPaste/>
-                </MuiIconButton>  
-              :
-                <MuiIconButton disabled>
-                  <MuiPaste/>
-                </MuiIconButton> 
-              }
-          
-          {clickedValues.length >= 1
+          { !openDelete
             ?
-            <MuiIconButton style={{ }}  onClick={() => setOpenDialog(!openDialog)} > 
-               <MuiDeleteForeverOutlinedIcon/>
-             </MuiIconButton>  
+              <div style={{display: "flex",alignItems: "center",justifyContent: "space-between",}}>
+                { clickedValues.length ===  1 && clickedValues[0].enabled
+                  ?
+                    <MuiIconButton  onClick={() => onHandleEdit()}> 
+                      <MuiEditIcon/>
+                    </MuiIconButton>
+                  :
+                    <MuiIconButton disabled> 
+                      <MuiEditIcon/>
+                    </MuiIconButton>
+                }
+
+                { clickedValues.length === 1
+                  ?
+                    <MuiIconButton onClick={() => onHandleCopy(planes.find((item : any )=> 
+                      item.id === clickedValues[0].id))}
+                    > 
+                      <MuiFileCopyOutlinedIcon />
+                    </MuiIconButton>
+                  :
+                    <MuiIconButton disabled> 
+                      <MuiFileCopyOutlinedIcon />  
+                    </MuiIconButton>
+                }
+
+                { copied && planes.length !== limit 
+                  ?
+                    <MuiIconButton onClick={() => onHandlePaste(copy)}>
+                      <MuiPaste/>
+                    </MuiIconButton>  
+                  :
+                    <MuiIconButton disabled>
+                      <MuiPaste/>
+                    </MuiIconButton> 
+                }
+          
+                { clickedValues.length >= 1
+                  ?
+                    <MuiIconButton style={{ }}  onClick={onHandleDeleteButton} > 
+                      <MuiDeleteForeverOutlinedIcon/>
+                    </MuiIconButton>  
+                  :
+                    <MuiIconButton disabled > 
+                      <MuiDeleteForeverOutlinedIcon/>
+                    </MuiIconButton>  
+                }
+              </div>
             :
-            <MuiIconButton disabled > 
-              <MuiDeleteForeverOutlinedIcon/>
-            </MuiIconButton>  
-          }
-            </div>
-          </div>
-    ) 
-  }
+              <div>
+                { !openMasterDelete
+                  ?
+                    <div className={classes.heading} style={{marginBottom:"0px", marginTop:"0px"}}>
+                      <MuiTypography>
+                        Are you sure?
+                      </MuiTypography>
+                      <div>
+                        <MuiButton style={{backgroundColor:"#5958FF", marginLeft:"-50%", width:"20%", fontSize:"9px"}} 
+                          autoFocus 
+                          onClick={onHandleDelete} 
+                          // color="primary"
+                        >
+                          Confirm
+                        </MuiButton>
+                        <MuiButton style={{width:"20%", fontSize:"9px"}}
+                          onClick={handleCloseDialog} 
+                          // color="primary"
+                        >
+                          Cancel
+                        </MuiButton>
+                      </div>
+                    </div>
+                  :
+                    <div className={classes.heading} style={{marginBottom:"0px", marginTop:"0px", width:"70%"}}>
+                      <MuiTypography>
+                        Cannot Delete 
+                      </MuiTypography>
+                      <MuiButton style={{backgroundColor:"#5958FF", marginLeft:"0%", width:"20%", fontSize:"9px"}} 
+                        autoFocus 
+                        onClick={() => setOpenDelete(false)} 
+                        // color="primary"
+                      >
+                        Okey
+                      </MuiButton>
+                    </div>
+                }
+              </div>  
+            }  
+        </div>
+      ) 
+    }
 
   return (
     <div>
@@ -792,20 +852,20 @@ export default function ClipPlanes(){
           /> 
       }
       
-      <DialogBox 
-        openDialog={openDialog} 
+      {/* <DialogBox 
+        openDelete={openDelete} 
         dialogBox={classes.dialogBox} 
         clickedVal={clickedValues[0]} 
         onHandleDelete={onHandleDelete} 
         handleCloseDialog={handleCloseDialog} 
         snackBar={classes.snackBar} 
-        openDeleteConfirm={openDeleteConfirm} 
+        openMasterDelete={openMasterDelete} 
         handleCloseAlert={handleCloseAlert} 
         confirmationMessage={clickedValues[0] ?  `Are you sure want to delete ${clickedValues.map(item => item.name)}?` : null} 
         confirmedMessage={`${deleted} deleted`}
         confirmationIcon={ <MuiErrorOutlineOutlinedIcon className={classes.dialogBox}/>}
         confirmedIcon={<MuiDeleteForeverOutlinedIcon/>}
-  /> 
+  />  */}
 
 </div>
   )
