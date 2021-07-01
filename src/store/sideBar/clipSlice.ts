@@ -167,7 +167,25 @@ export const setSectionPlaneData = createAsyncThunk(
 )
 
 const generatePlane = (id:number, transform:number[], eqn:number[], color:Color, radius:number) => {
-  const plane:plane = {  id,name:`Plane ${id}`, 
+  
+  let surName="Plane"
+  if(eqn[0]=== 0 && eqn[1] === 0){
+    surName = 'XY'
+  }
+
+  if(eqn[0] === 0 && eqn[2] === 0 ){
+    surName = 'XZ'
+  }
+
+  if(eqn[1] === 0 && eqn[2] === 0) {
+    surName = 'YZ'
+  }
+
+  if(id > 2){
+    surName = "Plane"
+  }
+  
+  const plane:plane = {  id,name:`${surName} ${id}`, 
     enabled: false, 
     showClip: false, 
     showEdge: false,
@@ -383,7 +401,7 @@ export const clipSlice = createSlice({
         clipSlice.caseReducers.incrementId(state);
         clone.id=state.settings.idGenerator;
         clone.selected = false;
-        clone.name = `${clone.name} (Copy)`
+        clone.name = `Plane ${clone.id}`
         clone.color = state.colors[clone.id % state.colors.length];
         clone.childPlane = [];
         state.planes=[...state.planes, clone];

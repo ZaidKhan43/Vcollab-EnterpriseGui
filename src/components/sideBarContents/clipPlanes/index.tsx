@@ -86,6 +86,8 @@ export default function ClipPlanes(){
   const [editPlane, setEditPlane] = useState<number | null>(null)
   const [editName, SetEditName] = useState<string>("");
 
+  const [deleteMessage, setDeleteMessage] = useState<string>("");
+
   const [editMode, setEditMode] = useState(false)
 
   const onClickBackIcon = () =>{
@@ -265,42 +267,57 @@ export default function ClipPlanes(){
   }
 
  const onHandleDeleteButton = () => {
-  if(clickedValues.length > 1){
-    setOpenDelete(true); 
-    setEditMode(false);
-    setOpenMasterDelete(false)
-  }
-
+  
   if(clickedValues.length === 1){
-    if(clickedValues[0].childPlane.length === 0){
     setOpenDelete(!openDelete); 
     setEditMode(false)
-    setOpenMasterDelete(false)
+    
+    if(clickedValues[0].childPlane.length === 0){
+      setOpenMasterDelete(false)
+      setDeleteMessage("Are you sure want to delete this plane?")
     }
-    if(clickedValues[0].childPlane.length >= 1){
-      setOpenDelete(!openDelete); 
-      setOpenMasterDelete(true);
-      setEditMode(false)
+      if(clickedValues[0].childPlane.length >= 1){
+        setOpenMasterDelete(true);
+        setDeleteMessage("Cannot delete a Master Plane.")
+      }
     }
-  }
 
+    if(clickedValues.length > 1){
+      let count = 0;
+      clickedValues.forEach(item => 
+        {
+          if(item.childPlane.length >= 1){
+            count++;
+          }
+      })
+
+      if(count > 0) {
+        setOpenDelete(!openDelete); 
+        setOpenMasterDelete(true);
+        setEditMode(false)
+        setDeleteMessage("The selection contains Master Plane.")
+      }
+
+      else{
+        setOpenDelete(!openDelete); 
+        setEditMode(false)
+        setOpenMasterDelete(false)
+        setDeleteMessage("Are you sure want to delete the selected planes?")
+      }
+
+    }
  }
 
   const onHandleDelete = () => {
     clickedValues.forEach(item => 
       {
-        if(item.childPlane.length === 0){
-          setOpenDelete(false);
-          // setOpenMasterDelete(true);
-          dispatch(editEnabled({id:item.id,isEnabled:false}));
-          // SetDeleted(item.name);
-          dispatch(removePlane({id:item.id}))
-          // dispatch(saveSelectedPlane({clicked: item}))
-        } 
-        else
-          setOpenDelete(false);
-      }
-    )
+        setOpenDelete(false);
+        // setOpenMasterDelete(true);
+        dispatch(editEnabled({id:item.id,isEnabled:false}));
+        // SetDeleted(item.name);
+        dispatch(removePlane({id:item.id}))
+        // dispatch(saveSelectedPlane({clicked: item}))
+      })
   }
 
   const onHandleEdit = () => {
@@ -794,46 +811,44 @@ export default function ClipPlanes(){
                 }
               </div>
             :
-              <div>
-                { !openMasterDelete
-                  ?
-                    <div className={classes.heading} style={{marginBottom:"0px", marginTop:"0px"}}>
-                      <MuiTypography>
-                        Are you sure?
-                      </MuiTypography>
-                      <div>
-                        <MuiButton style={{backgroundColor:"#5958FF", marginLeft:"-50%", width:"20%", fontSize:"9px"}} 
-                          autoFocus 
-                          onClick={onHandleDelete} 
-                          // color="primary"
-                        >
-                          Confirm
-                        </MuiButton>
-                        <MuiButton style={{width:"20%", fontSize:"9px"}}
-                          onClick={handleCloseDialog} 
-                          // color="primary"
-                        >
-                          Cancel
-                        </MuiButton>
+              <div style={{marginBottom:"5px", marginTop:"5px"}}>
+                <MuiTypography style={{marginBottom:"5px", fontSize:"14px"}}>
+                  {deleteMessage}
+                    </MuiTypography>
+                      <div style={{alignContent:"center",}}>
+                        { !openMasterDelete
+                          ?
+                            <div>
+                              <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+                                autoFocus 
+                                onClick={onHandleDelete} 
+                                // color="primary"
+                              >
+                                Confirm
+                              </MuiButton>
+                              <MuiButton style={{width:"20%", fontSize:"9px"}}
+                                onClick={handleCloseDialog} 
+                                // color="primary"
+                              >
+                                Cancel
+                              </MuiButton>
+                            </div>
+
+                          :
+                            <div  style={{alignContent:"center",}}>
+                              <MuiButton style={{backgroundColor:"#5958FF", marginLeft:"0%", width:"20%", fontSize:"9px"}} 
+                                autoFocus 
+                                onClick={() => setOpenDelete(false)} 
+                                // color="primary"
+                              >
+                                Okey
+                              </MuiButton>
+                            </div>
+                        }  
                       </div>
                     </div>
-                  :
-                    <div className={classes.heading} style={{marginBottom:"0px", marginTop:"0px", width:"70%"}}>
-                      <MuiTypography>
-                        Cannot Delete 
-                      </MuiTypography>
-                      <MuiButton style={{backgroundColor:"#5958FF", marginLeft:"0%", width:"20%", fontSize:"9px"}} 
-                        autoFocus 
-                        onClick={() => setOpenDelete(false)} 
-                        // color="primary"
-                      >
-                        Okey
-                      </MuiButton>
+  }
                     </div>
-                }
-              </div>  
-            }  
-        </div>
       ) 
     }
 
