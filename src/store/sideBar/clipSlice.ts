@@ -9,6 +9,12 @@ type masterPlane = {
   name: string,
 }
 
+export enum SelectionMode{
+  NONE = 0,
+  THREE_PT = 1,
+  FACE = 2
+}
+
 enum Axis{
   X,Y,Z
 }
@@ -43,6 +49,7 @@ export type plane = {
 
 type settings= {
   planesData: any,
+  selectionMode: SelectionMode,
   defaultPlaneParameters : plane
   maxAllowedPlanes : number,
   idGenerator: number,
@@ -67,6 +74,7 @@ const initialState : planes = {
   planes:[],
 
   settings :{
+    selectionMode: SelectionMode.NONE,
     maxAllowedPlanes : 6,
     idGenerator :-1,
     planesData: [],
@@ -142,6 +150,7 @@ export const setSectionPlaneData = createAsyncThunk(
      const curPlane = rootState.clipPlane.planes[index];
      let options = {
        ...rootState.clipPlane.settings.planesData[index],
+       selectionMode: rootState.clipPlane.settings.selectionMode,
        isPlaneEnabled: curPlane.enabled,
        isPlaneVisible: curPlane.showClip,
        primarySliderValue: curPlane.translate,
@@ -320,6 +329,13 @@ export const setActive = createAsyncThunk(
       setActiveSectionPlane(selectedPlane[0].id,viewerId)
     else
       setActiveSectionPlane(-1,viewerId)
+  }
+)
+
+export const setSelectionMode = createAsyncThunk(
+  "clipSlice/setSelectionMode",
+  async (data:{activeId:number,selectionMode:SelectionMode }, {dispatch, getState}) => {
+    dispatch(clipSlice.actions.editSelectMode(data.selectionMode));
   }
 )
 
@@ -809,6 +825,10 @@ export const clipSlice = createSlice({
           state.planes[index] = changeItem;
         }
       },
+
+      editSelectMode:(state, action) => {
+        state.settings.selectionMode = action.payload;
+      }
   },
 
 extraReducers: (builder) => {

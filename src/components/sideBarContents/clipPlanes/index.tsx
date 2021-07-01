@@ -36,7 +36,7 @@ import MuiToggleButton from '@material-ui/lab/ToggleButton';
 // import { PlayCircleOutlineSharp } from '@material-ui/icons';
 
 import ClipPlane from "./clipPlane"
-import {plane, setSectionPlaneData, addPlane, editEnabled, setActive, editShowClip, editEdgeClip, editShowCap, editPlaneName, removePlane, duplicatePlane, saveSelectedPlane , editEquation , setChildPlane , setMasterPlane} from "../../../store/sideBar/clipSlice";
+import {plane,SelectionMode, setSectionPlaneData, addPlane, editEnabled, setActive, editShowClip, editEdgeClip, editShowCap, editPlaneName, removePlane, duplicatePlane, saveSelectedPlane , editEquation , setChildPlane , setMasterPlane, setSelectionMode} from "../../../store/sideBar/clipSlice";
 
 //Plane Equation
 import {selectActiveViewerID} from "../../../store/appSlice";
@@ -73,7 +73,6 @@ export default function ClipPlanes(){
   const [clipInputZ, setClipInputZ] = useState(clickedValuesCount ? clickedValues[0].userInputEquation[2] : 0);
   const [clipInputD, setClipInputD] = useState(clickedValuesCount ? clickedValues[0].userInputEquation[3] : 0);
   const viewerId = useAppSelector(selectActiveViewerID);
-  const [clipPlaneMode, setClipPlaneMode] = useState<string | null>(null);
 // plane Equation
 
   const [copied, setCopied] = useState<boolean>(false); 
@@ -90,6 +89,8 @@ export default function ClipPlanes(){
 
   const [editMode, setEditMode] = useState(false)
 
+  const clipPlaneMode = useAppSelector((state) => state.clipPlane.settings.selectionMode);      
+
   const onClickBackIcon = () =>{
     dispatch(setSidebarActiveContent(sideBarContentTypes.mainMenu))
   }
@@ -97,7 +98,10 @@ export default function ClipPlanes(){
   const onHandleClick :(e: any, click: any) => any = (e, click)=> {
   
     //Plane Equation
-    setClipPlaneMode(null);
+
+    // Set SelectionMode to None when mupliple item selected. 
+    dispatch(setSelectionMode({activeId : -1 , selectionMode : 0}))
+
     setEditMode(false);
     setOpenDelete(false);
 
@@ -126,9 +130,10 @@ export default function ClipPlanes(){
     
     if(click.id !== editPlane)
       setEditPlane(null)
-    }
+  }
 
-  const onClickAddItem = () => {
+  
+    const onClickAddItem = () => {
     dispatch(addPlane());
   }
 
@@ -225,6 +230,9 @@ export default function ClipPlanes(){
   const handleEditShow = () => {
     if(editMode === true){
       setEditMode(false)
+
+      // Set SelectionMode None in showMode 
+      dispatch(setSelectionMode({activeId : -1 , selectionMode : 0}))
 
         if (clipInputX === 0 && clipInputY === 0 && clipInputZ === 0){
           setClipInputX(clickedValues[0].userInputEquation[0])
@@ -355,6 +363,27 @@ export default function ClipPlanes(){
       setEditPlane(null)
       setClickedValues(planes.filter(item => item.selected === true))
     }
+  }
+
+  // Set SelectionMode
+  const onHandleSelectMode  = (clickedSelection : SelectionMode) => {
+
+    let select = SelectionMode.NONE;
+    let id = -1;
+
+    console.log("sasda", clickedSelection)
+
+    if(clickedSelection === clipPlaneMode)
+      select = SelectionMode.NONE
+    
+    else
+        select = clickedSelection
+
+    if(clickedValues.length === 1 ){
+      id = 1;
+    }
+      const data = {activeId: id, selectionMode : select}
+      dispatch(setSelectionMode(data))
   }
 
   const displayClicked = () => {
@@ -506,14 +535,14 @@ export default function ClipPlanes(){
                               <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px",marginTop:"-5px"}} className={`${classes.disabledTextBox} + ${classes.disabled}`} value={`${Math.round(clipInputX*1000)/1000}X ${Math.sign(clipInputY)===1 || Math.sign(clipInputY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputY*1000)/1000)}Y ${Math.sign(clipInputZ) === 1 || Math.sign(clipInputZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputZ*1000)/1000)}Z = ${Math.round(clipInputD*1000)/1000}`}/>
                               <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
                                 <MuiGrid item xs={12} sm={6} >
-                                  <MuiButton disabled className={clsx({ [classes.button]: clipPlaneMode==="Surface" })} size="small"  startIcon={<Triangle />}  onClick={() => {clipPlaneMode==="Surface" ? setClipPlaneMode(null) : setClipPlaneMode("Surface")}}>
+                                  <MuiButton disabled size="small"  startIcon={<Triangle />} >
                                     <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
                                      Select Surface
                                     </MuiTypography> 
                                   </MuiButton>
                                 </MuiGrid>
                                 <MuiGrid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
-                                  <MuiButton disabled className={clsx({ [classes.button]: clipPlaneMode==="Points" })} size="small" startIcon={<ThreePoints/>}   onClick={() => {clipPlaneMode==="Points" ? setClipPlaneMode(null) : setClipPlaneMode("Points")}}>
+                                  <MuiButton disabled size="small" startIcon={<ThreePoints/>}>
                                     <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
                                       Select Points
                                     </MuiTypography>  
@@ -552,17 +581,17 @@ export default function ClipPlanes(){
                               </div>
                               <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
                                 <MuiGrid item xs={12} sm={6} >
-                                  <MuiButton className={clsx({ [classes.button]: clipPlaneMode==="Surface" })} size="small"  startIcon={<Triangle />}  onClick={() => {clipPlaneMode==="Surface" ? setClipPlaneMode(null) : setClipPlaneMode("Surface")}}>
+                                <MuiButton className={clsx({ [classes.button]: clipPlaneMode === SelectionMode.FACE  })} size="small"  startIcon={<Triangle />}  onClick={() => onHandleSelectMode(SelectionMode.FACE)}>
                                     <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
-                                      Select Surface
-                                    </MuiTypography>  
+                                     Select Surface
+                                    </MuiTypography> 
                                   </MuiButton>
                                 </MuiGrid>
                                 <MuiGrid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
-                                  <MuiButton className={clsx({ [classes.button]: clipPlaneMode==="Points" })} size="small" startIcon={<ThreePoints/>}   onClick={() => {clipPlaneMode==="Points" ? setClipPlaneMode(null) : setClipPlaneMode("Points")}}>
+                                  <MuiButton className={clsx({ [classes.button]: clipPlaneMode === SelectionMode.THREE_PT })} size="small" startIcon={<ThreePoints/>}   onClick={() => onHandleSelectMode(SelectionMode.THREE_PT)}>
                                     <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
                                       Select Points
-                                    </MuiTypography>
+                                    </MuiTypography>  
                                   </MuiButton>
                                 </MuiGrid>
                               </MuiGrid>
@@ -597,14 +626,14 @@ export default function ClipPlanes(){
                       <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px",marginTop:"-5px"}} className={classes.disabledTextBox}/>
                         <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
                           <MuiGrid item xs={12} sm={6} >
-                            <MuiButton disabled className={clsx({ [classes.button]: clipPlaneMode==="Surface" })} size="small"  startIcon={<Triangle />}  onClick={() => {clipPlaneMode==="Surface" ? setClipPlaneMode(null) : setClipPlaneMode("Surface")}}>
+                            <MuiButton disabled size="small"  startIcon={<Triangle />} >
                               <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
                                 Select Surface
                               </MuiTypography> 
                             </MuiButton>
                           </MuiGrid>
                           <MuiGrid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
-                            <MuiButton disabled className={clsx({ [classes.button]: clipPlaneMode==="Points" })} size="small" startIcon={<ThreePoints/>}   onClick={() => {clipPlaneMode==="Points" ? setClipPlaneMode(null) : setClipPlaneMode("Points")}}>
+                            <MuiButton disabled  size="small" startIcon={<ThreePoints/>}>
                               <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
                                 Select Points
                               </MuiTypography>  
