@@ -101,6 +101,19 @@ const initialState : planes = {
 }
 
 //added by pravin
+const getRootPlane = (state:planes, id:number):number => {
+  const index : any = state.planes.findIndex((item) => item.id === id);
+  let curPlane = state.planes[index];
+  if((curPlane.masterPlane.id !== null || curPlane.masterPlane.id !== undefined) 
+      && curPlane.masterPlane.id > -1) {
+    let parentIdx = state.planes.findIndex((item) => item.id === curPlane.masterPlane.id);
+    let parent = state.planes[parentIdx];
+    return getRootPlane(state, parent.id);
+  }
+  else {
+    return curPlane.id;
+  }
+}
 export const fetchSectionPlaneData = createAsyncThunk(
   "clipSlice/fetchSectionPlaneData",
   async (data,{dispatch,getState}) => {
@@ -239,6 +252,7 @@ export const addPlane = createAsyncThunk(
     let id = (getState() as RootState).clipPlane.settings.idGenerator;
     let randColorIdx = id % state.colors.length;
     let color = state.colors[randColorIdx];
+
     addSectionPlane(id, newTransform, color ,viewerId);
     let radius = bbox.getRadius();
     let plane = generatePlane(id, Array.from(newTransform), eqn, color,radius);
@@ -371,9 +385,22 @@ export const clipSlice = createSlice({
         clone.selected = false;
         clone.name = `${clone.name} (Copy)`
         clone.color = state.colors[clone.id % state.colors.length];
+        clone.childPlane = [];
         state.planes=[...state.planes, clone];
         //console.log("clone",clone)
         //console.log("After", state.planes)
+
+        console.log("cloneId",clone.id)
+
+        const masterPlaneIndex = state.planes.findIndex(item => item.id === clone.masterPlane.id)
+        if(masterPlaneIndex >= 0) {
+          let updateMaster = state.planes[masterPlaneIndex];
+          console.log("cloneId",clone.id)
+          updateMaster.childPlane.push(clone.id);
+          state.planes[masterPlaneIndex] = updateMaster;
+        }
+      
+
       }
     },
 
@@ -510,7 +537,7 @@ export const clipSlice = createSlice({
       }
     },
         //added by pravin
-        setPlaneEqn: (state, action) => {
+      setPlaneEqn: (state, action) => {
           const {id, eqn} = action.payload;
           let plane = state.planes[id];
           plane.clipCordX = eqn[0];
@@ -590,17 +617,8 @@ export const clipSlice = createSlice({
       },
       update: (state, action:PayloadAction<{id:number}>) => {
         let {id} = action.payload;
-        let index = state.planes.findIndex((item) => item.id === id);
-        let curPlane = state.planes[index];
-
-        if(curPlane.masterPlane.id > -1) {
-          let parentIndex = state.planes.findIndex((item) => item.id === curPlane.masterPlane.id);
-          let parent = state.planes[parentIndex];
-          clipSlice.caseReducers.updatePlaneMatrix(state,{payload:{id, parentMat:new Float32Array(parent.worldTransform)},type:"clipPlanes/updatePlaneMatrix"})
-        }
-        else{
-          clipSlice.caseReducers.updatePlaneMatrix(state,{payload:{id, parentMat:null},type:"clipPlanes/updatePlaneMatrix"})
-        }
+        let rootPlaneId = getRootPlane(state, id);
+        clipSlice.caseReducers.updatePlaneMatrix(state,{payload:{id:rootPlaneId, parentMat:null},type:"clipPlanes/updatePlaneMatrix"})
         clipSlice.caseReducers.updateEqnGUI(state, {payload:{id}, type:"clipSlice/updateEqn"});
       },
       invert: (state, action:PayloadAction<{id:number}>) => {
@@ -658,6 +676,8 @@ export const clipSlice = createSlice({
             type: "clipSlice/updatePlaneMatrix"
           })
         }
+
+        clipSlice.caseReducers.update(state, {payload:{id}, type: "clipSlice/update"});
       },
 
       updatePlaneMatrix: (state, action:PayloadAction<{id:number, parentMat:mat4 | null}>) => {
@@ -758,7 +778,7 @@ export const clipSlice = createSlice({
         }
       },
 
-            setMasterPlane: (state, action : PayloadAction<{childId:number,masterName:string,masterId:number}>) => {
+      setMasterPlane: (state, action : PayloadAction<{childId:number,masterName:string,masterId:number}>) => {
         const {childId, masterId} = action.payload;
         const index= state.planes.findIndex((item) => item.id === childId);
         if ( index >= 0 ) {

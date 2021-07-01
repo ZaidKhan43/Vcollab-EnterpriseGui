@@ -96,6 +96,7 @@ export default function ClipPlanes(){
   
     //Plane Equation
     setClipPlaneMode(null)
+    setEditMode(false)
 
     console.log("clicked", clickedValues)
     if(clickedValues.length === 0) {
