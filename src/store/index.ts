@@ -6,6 +6,7 @@ import displayModesSlice from './sideBar/displayModesSlice';
 import clipSlice from './sideBar/clipSlice';
 import probeSlice from './probeSlice';
 import sceneSlice  from './sideBar/sceneSlice';
+import settingsSlice from './sideBar/settings';
 
 const store = configureStore({
     reducer:
@@ -17,6 +18,7 @@ const store = configureStore({
         toast: toastSlice,
         probe: probeSlice,
         scene: sceneSlice,
+        settings:settingsSlice,
       })
 });
 
