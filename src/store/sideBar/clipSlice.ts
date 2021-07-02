@@ -175,26 +175,10 @@ export const setSectionPlaneData = createAsyncThunk(
   }
 )
 
-const generatePlane = (id:number, transform:number[], eqn:number[], color:Color, radius:number) => {
+const generatePlane = (id:number, name:string, transform:number[], eqn:number[], color:Color, radius:number) => {
   
-  let surName="Plane"
-  if(eqn[0]=== 0 && eqn[1] === 0){
-    surName = 'XY'
-  }
-
-  if(eqn[0] === 0 && eqn[2] === 0 ){
-    surName = 'XZ'
-  }
-
-  if(eqn[1] === 0 && eqn[2] === 0) {
-    surName = 'YZ'
-  }
-
-  if(id > 2){
-    surName = "Plane"
-  }
   
-  const plane:plane = {  id,name:`${surName} ${id}`, 
+  const plane:plane = {  id,name, 
     enabled: false, 
     showClip: false, 
     showEdge: false,
@@ -220,6 +204,29 @@ const generatePlane = (id:number, transform:number[], eqn:number[], color:Color,
     selected: false,
   }
 return plane
+}
+
+const generateName = (id : number , eqn: number[]) => {
+
+  // let surName="Plane"
+  // if(eqn[0]=== 0 && eqn[1] === 0){
+  //   surName = 'XY'
+  // }
+
+  // if(eqn[0] === 0 && eqn[2] === 0 ){
+  //   surName = 'XZ'
+  // }
+
+  // if(eqn[1] === 0 && eqn[2] === 0) {
+  //   surName = 'YZ'
+  // }
+
+  // if(id > 2){
+  //   surName = "Plane"
+  // }
+
+  const name = `Plane ${id + 1}`;
+  return name;
 }
 
 const generateEqn = (planes:plane[],bbox:any):[number,number,number,number] => {
@@ -277,12 +284,13 @@ export const addPlane = createAsyncThunk(
 
     dispatch(clipSlice.actions.incrementId())
     let id = (getState() as RootState).clipPlane.settings.idGenerator;
+    let name = generateName(id , eqn);
     let randColorIdx = id % state.colors.length;
     let color = state.colors[randColorIdx];
 
     addSectionPlane(id, newTransform, color ,viewerId);
     let radius = bbox.getRadius();
-    let plane = generatePlane(id, Array.from(newTransform), eqn, color,radius);
+    let plane = generatePlane(id, name, Array.from(newTransform), eqn, color,radius);
     dispatch(createPlane({plane}));
     dispatch(editEnabled({id,isEnabled:true}));
     dispatch(setSectionPlaneData({id}))
