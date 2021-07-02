@@ -344,8 +344,26 @@ export const setSelectionMode = createAsyncThunk(
   "clipSlice/setSelectionMode",
   async (data:{activeId:number,selectionMode:SelectionMode }, {dispatch, getState}) => {
     dispatch(clipSlice.actions.editSelectMode(data.selectionMode));
+    if(data.activeId > -1) {
+      dispatch(setSectionPlaneData({id:data.activeId}));
+    }
   }
 )
+
+export const handlePlaneSelection = createAsyncThunk(
+  "clipSlice/handlePlaneSelection",
+  async (data:{e:any}, {dispatch, getState}) => {
+    let planeId = data.e?.planeId;
+    let points = data.e?.points;
+    let state = (getState() as RootState).clipPlane;
+    let index = state.planes.findIndex(plane => plane.id === planeId);
+    if(index >=0) {
+      alert(planeId);
+    }
+    dispatch(clipSlice.actions.editSelectMode(SelectionMode.NONE));
+    dispatch(setSectionPlaneData({id:0}));
+  }
+) 
 
 export const clipSlice = createSlice({
   name: "clip",
@@ -425,7 +443,7 @@ export const clipSlice = createSlice({
         clipSlice.caseReducers.incrementId(state);
         clone.id=state.settings.idGenerator;
         clone.selected = false;
-        clone.name = `Plane ${clone.id}`
+        clone.name = generateName(clone.id, []);
         clone.color = state.colors[clone.id % state.colors.length];
         clone.childPlane = [];
         state.planes=[...state.planes, clone];
@@ -834,7 +852,7 @@ export const clipSlice = createSlice({
         }
       },
 
-      editSelectMode:(state, action) => {
+      editSelectMode:(state, action : PayloadAction<SelectionMode>) => {
         state.settings.selectionMode = action.payload;
       }
   },
@@ -847,5 +865,7 @@ extraReducers: (builder) => {
 })
 
 export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editEquation, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, updateMinMaxGUI , saveSelectedPlane , setMasterPlane , setChildPlane } = clipSlice.actions;
+
+//selectors
 
 export default clipSlice.reducer;
