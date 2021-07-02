@@ -1,4 +1,5 @@
 import {mat4, vec3} from 'gl-matrix'
+import { EPSILON } from '../../config';
 export const getPerpendicular = (input: vec3):vec3 => {
     const n = vec3.create();
     vec3.normalize(n,input);
@@ -72,4 +73,20 @@ export const getWorldTransformFromPlaneEqn = (eqn:[number,number,number,number],
         n[0],n[1],n[2],0,
         c[0],c[1],c[2],1
     )
+}
+
+export const planeEqnFrom3pts = (p1:vec3,p2:vec3,p3:vec3):number[] | undefined => {
+    const kEdge1 = vec3.create();
+    const kEdge2 = vec3.create(); 
+    vec3.sub(kEdge1,p2,p1)
+    vec3.sub(kEdge2,p3,p1)
+    const n = vec3.create();
+    vec3.cross(n,kEdge1,kEdge2);
+    vec3.normalize(n,n);
+    let d = vec3.dot(n,p1);
+    if(vec3.sqrLen(n) > EPSILON){
+        const eqn = [n[0],n[1],n[2] ,d];
+        return eqn;
+    }
+    return undefined;
 }
