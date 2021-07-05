@@ -72,10 +72,10 @@ export default function ClipPlanes(){
   
   useEffect(() => {
     if(clickedValuesCount === 1){
-      setClipInputX(planes[clickedValues[0].id].userInputEquation[0]);
-      setClipInputY(planes[clickedValues[0].id].userInputEquation[1]);
-      setClipInputZ(planes[clickedValues[0].id].userInputEquation[2]);
-      setClipInputD(planes[clickedValues[0].id].userInputEquation[3]);
+      setClipInputX(clickedValues[0] && clickedValues[0].userInputEquation[0]);
+      setClipInputY(clickedValues[0] && clickedValues[0].userInputEquation[1]);
+      setClipInputZ(clickedValues[0] && clickedValues[0].userInputEquation[2]);
+      setClipInputD(clickedValues[0] && clickedValues[0].userInputEquation[3]);
     }
   },[planes]);
 
