@@ -23,12 +23,14 @@ import { sideBarContentTypes } from '../../../config';
 
 import SideBarContainer from '../../layout/sideBar/sideBarContainer'
 
+import {MainMenuItem} from './type';
+
 export default function MainMenu(){
 
     const classes = styles();
     const dispatch = useAppDispatch();  
 
-    const menuItem = [
+    const menuItem :MainMenuItem[] = [
         {
           title: 'Product Explorer',
           icon: <BranchIcon />,

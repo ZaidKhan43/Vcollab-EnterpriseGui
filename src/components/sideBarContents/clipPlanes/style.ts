@@ -386,4 +386,5 @@ opacity:0.6,
     marginLeft:"-40px", width:"260px",marginTop:"10px",border: "1px solid",
   },
 
+
 }));

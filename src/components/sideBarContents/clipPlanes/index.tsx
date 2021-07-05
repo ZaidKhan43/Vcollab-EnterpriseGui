@@ -13,6 +13,8 @@ import MuiInput from '@material-ui/core/Input';
 import MuiCheckbox from '@material-ui/core/Checkbox';
 
 import Switch from "react-switch";
+import Toggle from 'react-toggle';
+import "react-toggle/style.css";
 
 import MuiEditIcon from '@material-ui/icons/EditOutlined';
 import MuiFileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
@@ -627,7 +629,12 @@ export default function ClipPlanes(){
                         {item.name}
                       </MuiTypography>
                     </div>    
-                    <Switch
+                    <Toggle
+                      checked={item.enabled}
+                      trackColor={{true: 'red', false: 'grey'}}
+                      // icons={false}
+                      onChange={() => onHandleCheck(!item.enabled,item)}/>
+                    {/* <Switch
                       borderRadius={8}
                       onColor='#2E2E33'
                       offColor='#2E2E33'
@@ -640,9 +647,9 @@ export default function ClipPlanes(){
                       checked={item.enabled} onChange={(toCheck:boolean) => onHandleCheck(toCheck,item)}
                       uncheckedIcon={<div style={{display: "flex",justifyContent: "center",alignItems: "center",color:"grey"}}>On</div>}
                       uncheckedHandleIcon={<div style={{ display: "flex",justifyContent: "center",alignItems: "center",color:"white",marginLeft:"10px"}}>Off</div>}
-                      checkedIcon={<div style={{display: "flex",justifyContent: "center",alignItems: "center",color:"grey"}}>Off</div>}
-                      checkedHandleIcon={<div style={{ display: "flex",justifyContent: "center",alignItems: "center",color:"white",marginLeft:"-10px"}}>On</div>}
-                    />
+                      checkedIcon={<div style={{display: "flex",justifyContent: "center",alignItems: "center",color:"grey"}}>On</div>}
+                      checkedHandleIcon={<div style={{ display: "flex",justifyContent: "center",alignItems: "center",color:"white",marginLeft:"-10px"}}>Off</div>}
+                    /> */}
                   </div>
                 :
                   <div key={ 'divChild_' + index } className={classes.listItemClicked}>
