@@ -6,7 +6,7 @@ import { setModelInfo, setModelLoadedState, setModelLoadingStatus } from '../../
 import { setCAEResult } from '../../store/colormapSlice';
 import { useAppDispatch } from '../../store/storeHooks';
 import {saveTree, fetchSearchHints,setHightLightedNodesAsync } from "../../store/sideBar/productTreeSlice";
-import {fetchSectionPlaneData} from "../../store/sideBar/clipSlice";
+import {fetchSectionPlaneData, handlePlaneSelection} from "../../store/sideBar/clipSlice";
 import { addViewer } from '../../store/appSlice';
 import ProbeLabel from "../probe";
 
@@ -106,7 +106,7 @@ function Viewer(){
             //let url = "file://samples/merged.cax";
             //let url = "file://samples/F30_model.cax";
             //let url = "file%3A%2F%2FC%3A%5CWORK%5Centerprise-1.1-win64%5Csamples%5Cbracket.cax";
-            let url = "file%3A%2F%2FD%3A%5Ccaxserver%5Cbracket.cax";
+            let url = "file%3A%2F%2FD%3A%5Ccaxserver%5Cbeam.cax";
       
             //let api = "http://100.26.229.30:8181/api/1.0/model";
             //let url = "file%3A%2F%2FC%3A%5CUsers%5CAdministrator%5CDownloads%5Centerprise-1.1-win64%5Csamples%5CF30_model.cax";           
@@ -153,6 +153,13 @@ function Viewer(){
                     dispatch(setHightLightedNodesAsync({toHighlight,nodeId:treeData.rootNodeIds[0]}))
                   }
                   
+                }
+              );
+              eventDispatcher?.addEventListener(
+                events.viewerEvents.SECTION_PLANE_SELECTED,
+                (event : any) => {
+                  let data = event.data;
+                  dispatch(handlePlaneSelection({e:data}));
                 }
               )
             }

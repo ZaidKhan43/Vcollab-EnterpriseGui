@@ -95,7 +95,7 @@ function __spread() {
     for (var ar = [], i = 0; i < arguments.length; i++)
         ar = ar.concat(__read(arguments[i]));
     return ar;
-}var version = "0.0.13";var Utility = /** @class */ (function () {
+}var version = "0.0.14";var Utility = /** @class */ (function () {
     function Utility() {
     }
     Utility.create_UUID = function () {
@@ -197,10 +197,11 @@ var colorMap = {
         [0, 0, 255],
     ]
 };
-var probeMode = {
-    LABEL: 0,
-    SECTION: 1
-};
+var ProbeMode;
+(function (ProbeMode) {
+    ProbeMode[ProbeMode["LABEL"] = 0] = "LABEL";
+    ProbeMode[ProbeMode["SECTION"] = 1] = "SECTION";
+})(ProbeMode || (ProbeMode = {}));
 var displayModes = {
     DM_1: {
         ID: "DM_1",
@@ -1152,6 +1153,20 @@ function subtract(out, a, b) {
   return out;
 }
 /**
+ * Calculates the squared euclidian distance between two vec3's
+ *
+ * @param {ReadonlyVec3} a the first operand
+ * @param {ReadonlyVec3} b the second operand
+ * @returns {Number} squared distance between a and b
+ */
+
+function squaredDistance(a, b) {
+  var x = b[0] - a[0];
+  var y = b[1] - a[1];
+  var z = b[2] - a[2];
+  return x * x + y * y + z * z;
+}
+/**
  * Calculates the squared length of a vec3
  *
  * @param {ReadonlyVec3} a vector to calculate squared length of
@@ -1226,6 +1241,12 @@ function cross(out, a, b) {
  */
 
 var sub = subtract;
+/**
+ * Alias for {@link vec3.squaredDistance}
+ * @function
+ */
+
+var sqrDist = squaredDistance;
 /**
  * Alias for {@link vec3.squaredLength}
  * @function
@@ -1689,9 +1710,11 @@ var sqrLen = squaredLength;
                         Logger.setStatusBar("Result buffers downloaded.");
                         this.renderApp.applyResultByData(textureCoordsURL[0].uri, textureArrayBuffer);
                         legend = this.legendManager.getLegend(this.legendID);
-                        min = textureMetaData.range[0];
-                        max = textureMetaData.range[1];
-                        legend.setMinMAX(min, max);
+                        if (textureMetaData) {
+                            min = textureMetaData.range[0];
+                            max = textureMetaData.range[1];
+                            legend.setMinMAX(min, max);
+                        }
                         this.renderApp.setTextureData(legend.getTextureData());
                         resolve(true);
                         return [3 /*break*/, 5];
@@ -1711,7 +1734,19 @@ var sqrLen = squaredLength;
         return data;
     };
     return CAEResult;
-}());var GUIState = /** @class */ (function () {
+}());var viewerEvents;
+(function (viewerEvents) {
+    viewerEvents["MODEL_DOWNLOAD_STATUS_UPDATE"] = "MODEL_DOWNLOAD_STATUS_UPDATE";
+    viewerEvents["MODEL_PART_HIGHLIGHTED"] = "MODEL_PART_HIGHLIGHTED";
+    viewerEvents["SECTION_PLANE_SELECTED"] = "SECTION_PLANE_SELECTED";
+})(viewerEvents || (viewerEvents = {}));
+var globalEvents;
+(function (globalEvents) {
+    globalEvents["ERROR"] = "ERROR";
+    globalEvents["INFO"] = "INFO";
+    globalEvents["WARN"] = "WARN";
+    globalEvents["LOG"] = "LOG";
+})(globalEvents || (globalEvents = {}));var GUIState = /** @class */ (function () {
     function GUIState() {
         this.planeOptions = new Map();
     }
@@ -1725,7 +1760,7 @@ var SelectionMode;
 })(SelectionMode || (SelectionMode = {}));
 var PlaneGUIState = /** @class */ (function () {
     function PlaneGUIState() {
-        this.selectionMode = SelectionMode.NONE;
+        this.selectionMode = SelectionMode.FACE;
         this.isPlaneEnabled = false;
         this.isPlaneVisible = false;
         this.sliderMinMax = [0, 0];
@@ -1743,32 +1778,46 @@ var PlaneGUIState = /** @class */ (function () {
     return PlaneGUIState;
 }());
 var Section = /** @class */ (function () {
-    function Section(_renderApp, appState) {
+    function Section(viewerId, _renderApp, appState, eventDispatcher) {
         this.renderApp = _renderApp;
         this.appState = appState;
         this.activePlaneId = -1;
-        this.events = this.renderApp.getEvents();
+        this.externalEvents = this.renderApp.getEvents();
         this.externalEventDispatcher = this.renderApp.getEventDispatcher();
+        this.eventDispatcher = eventDispatcher;
         this.registerEvents();
         this.bbox = null;
         this.guiState = new GUIState();
         this.selectedPts = [];
         this.selectionMode = SelectionMode.NONE;
+        this.viewerId = viewerId;
     }
     Section.prototype.registerEvents = function () {
-        this.externalEventDispatcher.addEventListener(this.events.PROBE_FINISH, this.handleSelection.bind(this));
-        this.externalEventDispatcher.addEventListener(this.events.MODEL_LOADED, this.handleOnModelLoad.bind(this));
+        this.externalEventDispatcher.addEventListener(this.externalEvents.PROBE_FINISH, this.handleSelection.bind(this));
+        this.externalEventDispatcher.addEventListener(this.externalEvents.MODEL_LOADED, this.handleOnModelLoad.bind(this));
     };
     Section.prototype.handle3ptSelect = function (probeData) {
-        if (this.selectedPts.length > 0 && this.selectedPts[this.selectedPts.length - 1] == probeData.nearPoint) {
-            return;
+        if (this.selectedPts.length < 2) {
+            this.selectedPts.push(probeData.hitPoint);
         }
         else {
             this.selectedPts.push(probeData.hitPoint);
-        }
-        if (this.selectedPts.length == 3) {
-            var activeTrans = clone(this.guiState.planeOptions.get(this.activePlaneId).transform);
-            this.planeFrom3pts(this.activePlaneId, this.selectedPts[0], this.selectedPts[1], this.selectedPts[2], activeTrans);
+            var a = fromValues(this.selectedPts[0][0], this.selectedPts[0][1], this.selectedPts[0][2]);
+            var b = fromValues(this.selectedPts[1][0], this.selectedPts[1][1], this.selectedPts[1][2]);
+            var c = fromValues(this.selectedPts[2][0], this.selectedPts[2][1], this.selectedPts[2][2]);
+            var d1 = sqrDist(a, b);
+            var d2 = sqrDist(b, c);
+            var d3 = sqrDist(c, a);
+            var e = this.appState.EPSIOLON;
+            if (d1 > e && d2 > e && d3 > e) {
+                this.eventDispatcher.dispatchEvent({
+                    type: viewerEvents.SECTION_PLANE_SELECTED,
+                    viewerID: this.viewerId,
+                    data: { points: Array.from(this.selectedPts), planeId: this.activePlaneId }
+                });
+                console.error("event dispatched");
+                this.selectedPts = [];
+            }
             this.selectedPts = [];
         }
         Logger.setStatusBar("Probing from 3pt section");
@@ -1781,9 +1830,22 @@ var Section = /** @class */ (function () {
                 [data[3], data[4], data[5]],
                 [data[6], data[7], data[8]]
             ];
-            var activeTrans = clone(this.guiState.planeOptions.get(this.activePlaneId).transform);
-            this.planeFrom3pts(this.activePlaneId, this.selectedPts[0], this.selectedPts[1], this.selectedPts[2], activeTrans);
-            this.selectedPts = [];
+            var a = fromValues(data[0], data[1], data[2]);
+            var b = fromValues(data[3], data[4], data[5]);
+            var c = fromValues(data[6], data[7], data[8]);
+            var d1 = sqrDist(a, b);
+            var d2 = sqrDist(b, c);
+            var d3 = sqrDist(c, a);
+            var e = this.appState.EPSIOLON;
+            if (d1 > e && d2 > e && d3 > e) {
+                this.eventDispatcher.dispatchEvent({
+                    type: viewerEvents.SECTION_PLANE_SELECTED,
+                    viewerID: this.viewerId,
+                    data: { points: Array.from(this.selectedPts), planeId: this.activePlaneId }
+                });
+                this.renderApp.addPoint(Utility.create_UUID(), create$1(), 1, [1, 0, 0, 1]);
+                this.selectedPts = [];
+            }
             Logger.setStatusBar("Probing from face section");
         }
         else {
@@ -1792,7 +1854,7 @@ var Section = /** @class */ (function () {
     };
     Section.prototype.handleSelection = function (e) {
         var probeData = e.data;
-        if (probeData.hitPoint && this.appState.probeMode == probeMode.SECTION) {
+        if ((probeData === null || probeData === void 0 ? void 0 : probeData.hitPoint) && this.appState.probeMode == ProbeMode.SECTION) {
             if (this.selectionMode == SelectionMode.THREE_PT)
                 this.handle3ptSelect(probeData);
             else if (this.selectionMode == SelectionMode.FACE)
@@ -1836,14 +1898,16 @@ var Section = /** @class */ (function () {
         }
         return { transform: transform, initTransform: initTransform };
     };
-    Section.prototype.setSelection = function (planeId, mode) {
-        this.appState.probeMode = probeMode.SECTION;
+    Section.prototype.setActive = function (planeId) {
         this.activePlaneId = planeId;
-        this.selectionMode = mode;
         this.renderApp.setActiveSectionPlaneId(planeId);
     };
+    Section.prototype.setSelection = function (mode) {
+        this.appState.probeMode = ProbeMode.SECTION;
+        this.selectionMode = mode;
+    };
     Section.prototype.setPlaneState = function (planeId, params) {
-        //this.setSelection(planeId,params.selectionMode);
+        this.setSelection(params.selectionMode);
         if (params.isPlaneEnabled) {
             this.renderApp.enableClipPlane(planeId);
         }
@@ -1889,7 +1953,7 @@ var Section = /** @class */ (function () {
         if (delta == 0 && deltaSlice == 0)
             return;
         //this.slicePlaneOffset[planeId] +=deltaSlice;
-        this.renderApp.translateSectionPlane(delta, deltaSlice, planeId);
+        //this.renderApp.translateSectionPlane(delta,deltaSlice,planeId);
         // let currentEqn = this.getSectionPlaneEquation(planeId);
         // if(currentEqn == undefined)
         // return;
@@ -1900,7 +1964,7 @@ var Section = /** @class */ (function () {
     Section.prototype.rotatePlane = function (deltaU, deltaV, deltaN, planeId) {
         if (deltaU == 0 && deltaV == 0 && deltaN == 0)
             return;
-        this.renderApp.rotateSectionPlane(deltaU, deltaV, deltaN, planeId);
+        //this.renderApp.rotateSectionPlane(deltaU,deltaV,deltaN,planeId);
     };
     Section.prototype.setBounds = function (planeId) {
         var planeState = this.guiState.planeOptions.get(planeId);
@@ -1923,7 +1987,7 @@ var Section = /** @class */ (function () {
     };
     LabelManager.prototype.handleSelection = function (e) {
         var probeData = e.data;
-        if (probeData.hitPoint && this.appState.probeMode == probeMode.LABEL) {
+        if (probeData.hitPoint && this.appState.probeMode == ProbeMode.LABEL) {
             this.renderApp.addLabel(probeData.connectivityIndex.toString(), probeData.hitPoint, probeData.connectivityIndex.toString());
             Logger.setStatusBar("probing for labels");
         }
@@ -2003,28 +2067,11 @@ var Section = /** @class */ (function () {
     return MCAXFilter;
 }());var AppState = /** @class */ (function () {
     function AppState() {
-        this.probeMode = probeMode.LABEL;
+        this.probeMode = ProbeMode.SECTION;
+        this.EPSIOLON = 0.000001;
     }
     return AppState;
-}());var viewerEvents;
-(function (viewerEvents) {
-    viewerEvents["MODEL_DOWNLOAD_STATUS_UPDATE"] = "MODEL_DOWNLOAD_STATUS_UPDATE";
-    viewerEvents["MODEL_PART_HIGHLIGHTED"] = "MODEL_PART_HIGHLIGHTED";
-})(viewerEvents || (viewerEvents = {}));
-var globalEvents;
-(function (globalEvents) {
-    globalEvents["ERROR"] = "ERROR";
-    globalEvents["INFO"] = "INFO";
-    globalEvents["WARN"] = "WARN";
-    globalEvents["LOG"] = "LOG";
-})(globalEvents || (globalEvents = {}));
-var getEventObject = function (type, viewerID, data) {
-    return {
-        type: type,
-        viewerID: viewerID,
-        data: data
-    };
-};/*! *****************************************************************************
+}());/*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
 
 Permission to use, copy, modify, and/or distribute this software for any
@@ -3815,7 +3862,7 @@ function distance(a, b) {
  * @returns {Number} squared distance between a and b
  */
 
-function squaredDistance(a, b) {
+function squaredDistance$1(a, b) {
   var x = b[0] - a[0];
   var y = b[1] - a[1];
   var z = b[2] - a[2];
@@ -3985,7 +4032,7 @@ var dist = distance;
  * @function
  */
 
-var sqrDist = squaredDistance;
+var sqrDist$1 = squaredDistance$1;
 /**
  * Alias for {@link vec3.length}
  * @function
@@ -6538,7 +6585,7 @@ var Shader = /** @class */ (function () {
     BoxMesh.prototype.createBoxMesh = function (min, max, precentOffset) {
         //Set offset
         var percent = precentOffset / 100;
-        var offset = squaredDistance(min, max) * percent * percent;
+        var offset = squaredDistance$1(min, max) * percent * percent;
         sub$1(min, min, fromValues$1$1(offset, offset, offset));
         add(max, max, fromValues$1$1(offset, offset, offset));
         var vertices = new Float32Array([
@@ -6583,7 +6630,7 @@ var Shader = /** @class */ (function () {
         this.min = min;
         this.max = max;
         var percent = precentOffset / 100;
-        var offset = squaredDistance(min, max) * percent * percent;
+        var offset = squaredDistance$1(min, max) * percent * percent;
         sub$1(min, min, fromValues$1$1(offset, offset, offset));
         add(max, max, fromValues$1$1(offset, offset, offset));
         var vertices = new Float32Array([
@@ -9170,6 +9217,9 @@ var Renderer2D = /** @class */ (function () {
         if (color === void 0) { color = [0, 0, 0, 1]; }
         if (mesh.isDataAvailable() === false) {
             return;
+        }
+        if (shader === undefined || shader === null) {
+            shader = this.mainShader;
         }
         shader.bind();
         shader.setMat4f(uniforms.uProjectionMatrix, this.camControl.getGLMatrix());
@@ -12462,18 +12512,6 @@ var MouseControl = /** @class */ (function (_super) {
         var _ctrlKeyPressed = event.ctrlKey;
         if ((AppObjects.picker.isProbingEnabled == true || _altKeyPressed == true)
             && this.mouseButtonPressed == 1) {
-            // let hit:Object;
-            // let triangle = AppObjects.picker.probePart(glmatrix.vec2.fromValues(
-            // this.lastMouseX,(contatinerPos[2]-containerTop)-this.lastMouseY
-            // ));
-            // if(triangle){
-            //    let nearPoint = this.camControls.unproject([this.lastMouseX,this.lastMouseY,0], glmatrix.mat4.create(),[this.camControls.canvas.width,this.camControls.canvas.height],AppObjects.renderer.camControl.getGLMatrix());
-            //    let farPoint = this.camControls.unproject([this.lastMouseX,this.lastMouseY,1], glmatrix.mat4.create(),[this.camControls.canvas.width,this.camControls.canvas.height],AppObjects.renderer.camControl.getGLMatrix());
-            //    hit = AppObjects.picker.intersectTriangle(nearPoint,farPoint,triangle);
-            //    console.log('hit point',hit);
-            // }
-            //set rotation point
-            //  let rotationPoint = (hit && hit['hitPoint'])?hit['hitPoint']:undefined;
             var rotationPoint = undefined;
             if (rotationPoint !== undefined && _altKeyPressed == true) {
                 this.camControls.setRotationPoint(fromValues$1$1(rotationPoint[0], rotationPoint[1], rotationPoint[2]));
@@ -12894,7 +12932,7 @@ var Point = /** @class */ (function () {
         if (noIntersection) {
             var intersection = fromValues$1$1(out[0], out[1], out[2]);
             var nearPointWorld = this.projectToEdge(triangle.v1, triangle.v2, triangle.v3, intersection);
-            sqrDist(intersection, nearPointWorld);
+            sqrDist$1(intersection, nearPointWorld);
             out = [nearPointWorld[0], nearPointWorld[1], nearPointWorld[2]];
             out = [intersection[0], intersection[1], intersection[2]];
         }
@@ -12929,11 +12967,11 @@ var Point = /** @class */ (function () {
         var rayIntersect = create$2$1();
         scaleAndAdd(lineIntersect, p1, d1, t1);
         scaleAndAdd(rayIntersect, p2, d2, t2);
-        sqrDist(lineIntersect, rayIntersect);
+        sqrDist$1(lineIntersect, rayIntersect);
         var hitPoint = lineIntersect;
         var nearPoint = create$2$1();
-        var v1dist = sqrDist(line.v1, hitPoint);
-        var v2dist = sqrDist(line.v2, hitPoint);
+        var v1dist = sqrDist$1(line.v1, hitPoint);
+        var v2dist = sqrDist$1(line.v2, hitPoint);
         nearPoint = (v1dist < v2dist) ? line.v1 : line.v2;
         var obj = {
             hitPoint: [hitPoint[0], hitPoint[1], hitPoint[2]],
@@ -12942,9 +12980,9 @@ var Point = /** @class */ (function () {
         return obj;
     };
     Picker.prototype.findNearPoint = function (pA, pB, pC, pt) {
-        var disToE1 = sqrDist(pt, pA);
-        var disToE2 = sqrDist(pt, pB);
-        var disToE3 = sqrDist(pt, pC);
+        var disToE1 = sqrDist$1(pt, pA);
+        var disToE2 = sqrDist$1(pt, pB);
+        var disToE3 = sqrDist$1(pt, pC);
         if (disToE1 < disToE2 && disToE1 < disToE3) {
             return clone$1$1(pA);
         }
@@ -12978,9 +13016,9 @@ var Point = /** @class */ (function () {
         sub$1(nearPt, pt, edge3.a);
         MathUtils.projectOnVector(nearPt, E3);
         add(nearPointWorldE3, edge3.a, nearPt);
-        var disToE1 = sqrDist(pt, nearPointWorldE1);
-        var disToE2 = sqrDist(pt, nearPointWorldE2);
-        var disToE3 = sqrDist(pt, nearPointWorldE3);
+        var disToE1 = sqrDist$1(pt, nearPointWorldE1);
+        var disToE2 = sqrDist$1(pt, nearPointWorldE2);
+        var disToE3 = sqrDist$1(pt, nearPointWorldE3);
         if (disToE1 < disToE2 && disToE1 < disToE3) {
             return nearPointWorldE1;
         }
@@ -13785,7 +13823,7 @@ var LabelState;
     LineMesh.prototype.createLineMesh = function (precentOffset) {
         //Set offset
         var percent = precentOffset / 100;
-        var offset = squaredDistance(this.p1, this.p2) * percent * percent;
+        var offset = squaredDistance$1(this.p1, this.p2) * percent * percent;
         sub$1(this.p1, this.p1, fromValues$1$1(offset, offset, offset));
         add(this.p2, this.p2, fromValues$1$1(offset, offset, offset));
         var vertices = new Float32Array([
@@ -14126,7 +14164,66 @@ var Label3D = /** @class */ (function () {
         this.labelArray.push(label);
     };
     return LabelManager;
-}());var App = /** @class */ (function () {
+}());var PointCloudMesh = /** @class */ (function (_super) {
+    __extends(PointCloudMesh, _super);
+    function PointCloudMesh(name) {
+        var _this = _super.call(this, name) || this;
+        _this.uid = Utility$1.getGUID();
+        _this.rendingMode = RenderMode.POINTS;
+        _this.createPointCloudMesh();
+        _this.material = new Material(name);
+        _this.material.shader = ShaderCache.labelShader;
+        return _this;
+    }
+    PointCloudMesh.prototype.createPointCloudMesh = function () {
+        var vertices = new Float32Array([]);
+        var color = new Float32Array([]);
+        var indices = new Uint32Array([]);
+        this.setattribs(this.generateAttribute(vertices, color));
+        this.setIndex(this.generateIndices(indices));
+    };
+    PointCloudMesh.prototype.generateAttribute = function (vertices, color) {
+        var attrib = new WebGLArrayBufferAttribute();
+        attrib.position = new WebGLArrayBuffer(this.uid + "pos", BufferUsage.DYNAMIC_DRAW, vertices);
+        attrib.color = new WebGLArrayBuffer(this.uid + "color", BufferUsage.DYNAMIC_DRAW, color);
+        return attrib;
+    };
+    PointCloudMesh.prototype.generateIndices = function (indices) {
+        var index = new WebGLElementArrayBuffer(this.uid, BufferUsage.DYNAMIC_DRAW, indices);
+        return index;
+    };
+    PointCloudMesh.prototype.update = function (position, color, indices) {
+        this.attribs.position.updateData((position).buffer);
+        this.attribs.color.updateData((color).buffer);
+        this.indices.updateData(indices.buffer);
+    };
+    return PointCloudMesh;
+}(CoreMesh));var PointCloudNode = /** @class */ (function (_super) {
+    __extends(PointCloudNode, _super);
+    function PointCloudNode(name) {
+        var _this = _super.call(this, name) || this;
+        _this.points = new Map();
+        _this.mesh = new Mesh(name);
+        _this.mesh.mainMesh = new PointCloudMesh(name);
+        _this.visible = true;
+        return _this;
+    }
+    PointCloudNode.prototype.addPoint = function (uid, point, size, color) {
+        var offset = this.mesh.mainMesh.attribs.position.getDataArrayCount();
+        this.points.set(uid, { point: point, color: color, size: size, offset: offset });
+        var pos = new Float32Array(this.mesh.mainMesh.attribs.position.getDataArray);
+        var col = new Float32Array(this.mesh.mainMesh.attribs.color.getDataArray);
+        var newPos = new Float32Array(pos.length + point.length);
+        newPos.set(pos);
+        newPos.set(point, pos.length);
+        var newCol = new Float32Array(col.length + 3);
+        newCol.set(col);
+        newCol.set(new Float32Array([color[0], color[1], color[2]]), col.length);
+        var pointCloudMesh = this.mesh.mainMesh;
+        pointCloudMesh.update(newPos, newCol, new Uint32Array([newPos.length / 3 - 1]));
+    };
+    return PointCloudNode;
+}(ShapeNode));var App = /** @class */ (function () {
     function App(_containerID, _connectorObject) {
         this.containerID = _containerID;
         this.externalConnector = _connectorObject;
@@ -14919,6 +15016,15 @@ var Label3D = /** @class */ (function () {
     App.prototype.setFPSVisibility = function (value) {
         AppState$1.showFPS = (value === true ? true : false);
     };
+    //#endregion
+    //#region Custom Rendering API
+    App.prototype.addPoint = function (uid, point, size, color) {
+        var pointCloud = new PointCloudNode("PointCloud");
+        pointCloud.addPoint(uid, point, size, color);
+        AppObjects.renderer.addCustomRenderNode(pointCloud);
+    };
+    App.prototype.removePoint = function (uid) {
+    };
     return App;
 }());var version$1 = "0.0.14";//@public
 var vctViewer = /** @class */ (function () {
@@ -15108,6 +15214,14 @@ var vctViewer = /** @class */ (function () {
     vctViewer.prototype.addLabel = function (id, hitpt, message) {
         this.appli.addLabel(id, hitpt, message);
     };
+    //#endregion
+    //#region Custom Rendering API
+    vctViewer.prototype.addPoint = function (uid, point, size, color) {
+        return this.appli.addPoint(uid, point, size, color);
+    };
+    vctViewer.prototype.removePoint = function (uid) {
+        return this.appli.removePoint(uid);
+    };
     return vctViewer;
 }());var Viewer = /** @class */ (function () {
     function Viewer(_UUID, _containerID, _connector, _eventDispacther) {
@@ -15156,7 +15270,7 @@ var vctViewer = /** @class */ (function () {
                             //throw new Error("Invalid response from server");
                         }
                         Logger.setStatusBar("Downloading data from server");
-                        obj = getEventObject(viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, this.UUID, "Downloading data from server");
+                        obj = { type: viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, viewerID: this.UUID, data: "Downloading data from server" };
                         this.eventDispatcher.dispatchEvent(obj);
                         return [4 /*yield*/, this.connector.getJsonData(jsonResult.json_url)];
                     case 2:
@@ -15165,20 +15279,20 @@ var vctViewer = /** @class */ (function () {
                         reject("Error response from server : " + model.error);
                         return [3 /*break*/, 5];
                     case 3:
-                        obj_1 = getEventObject(viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, this.UUID, "Processing data");
+                        obj_1 = { type: viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, viewerID: this.UUID, data: "Processing data" };
                         this.eventDispatcher.dispatchEvent(obj_1);
                         //logger.setStatusBar("Processing data");
                         this.mcax = Utility.deepCopy(model);
                         //console.log(this.mcax);          
                         this.productTree = new ModelTreeBuilder(this.mcax).build();
-                        this.sectionManager = new Section(this.renderApp, this.state);
+                        this.sectionManager = new Section(this.UUID, this.renderApp, this.state, this.eventDispatcher);
                         this.legendManager = new LegendManager();
                         this.caeResult = new CAEResult(Utility.deepCopy(this.mcax), this.renderApp, this.connector, this.legendManager);
                         gltf = Utility.deepCopy(model.gltf);
                         return [4 /*yield*/, this.renderApp.loadGLTF(gltf)];
                     case 4:
                         _a.sent();
-                        obj_1 = getEventObject(viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, this.UUID, "Loading model...");
+                        obj_1 = { type: viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, viewerID: this.UUID, data: "Loading model..." };
                         this.eventDispatcher.dispatchEvent(obj_1);
                         resolve("SUCCESS");
                         _a.label = 5;
@@ -15246,17 +15360,17 @@ var vctViewer = /** @class */ (function () {
             var parts = this.productTree.getPartNodeFromNodeIds(nodeIds);
             var isHighlighted = parts[0].customData.displayProps.isHighlighted;
             this.setHighlightedNodes(nodeIds, !isHighlighted);
-            this.eventDispatcher.dispatchEvent(getEventObject(viewerEvents.MODEL_PART_HIGHLIGHTED, this.UUID, {
-                isHighlighted: !isHighlighted,
-                nodeIds: nodeIds
-            }));
+            this.eventDispatcher.dispatchEvent({ type: viewerEvents.MODEL_PART_HIGHLIGHTED, viewerID: this.UUID, data: {
+                    isHighlighted: !isHighlighted,
+                    nodeIds: nodeIds
+                } });
         }
         else {
             this.setHighlightedNodes([], false);
-            this.eventDispatcher.dispatchEvent(getEventObject(viewerEvents.MODEL_PART_HIGHLIGHTED, this.UUID, {
-                isHighlighted: false,
-                nodeIds: []
-            }));
+            this.eventDispatcher.dispatchEvent({ type: viewerEvents.MODEL_PART_HIGHLIGHTED, viewerID: this.UUID, data: {
+                    isHighlighted: false,
+                    nodeIds: []
+                } });
         }
     };
     Viewer.prototype.handleModelLoad = function (e) {
@@ -15697,7 +15811,7 @@ var vctViewer = /** @class */ (function () {
         return 'SUCCESS';
     };
     Viewer.prototype.setActiveSectionPlane = function (planeId) {
-        this.sectionManager.setSelection(planeId, 0);
+        this.sectionManager.setActive(planeId);
         return 'SUCCESS';
     };
     Viewer.prototype.setSectionPlaneEquation = function (planeId, transform, initTransform) {
@@ -17582,7 +17696,11 @@ axios_1$1.default = _default;var axios$3 = axios_1$1;var AxiosConnector$1 = /** 
     AppConnector.prototype.getModel = function (API, caxFilePath, viewerID) {
         //console.log("Downloading file on the server.");
         Logger.setStatusBar("Checking the file on the server.");
-        var obj = getEventObject(viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, viewerID, "Checking the file on the server");
+        var obj = {
+            type: viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE,
+            viewerID: viewerID,
+            data: "Checking the file on the server"
+        };
         this.eventDispacther.dispatchEvent(obj);
         var scope = this;
         var url = API + "?url=" + caxFilePath;
@@ -17602,7 +17720,7 @@ axios_1$1.default = _default;var axios$3 = axios_1$1;var AxiosConnector$1 = /** 
                             else if (status === "download_in_progress") {
                                 var statusMessage = "File download in progress";
                                 Logger.setStatusBar("Downloading file on the server");
-                                var obj_1 = getEventObject(viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, viewerID, "Downloading file on the server");
+                                var obj_1 = { type: viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, viewerID: viewerID, data: "Downloading file on the server" };
                                 scope.eventDispacther.dispatchEvent(obj_1);
                                 scope.checkTaskStatus(taskURL, taskId, viewerID, statusMessage, function () {
                                     Logger.clearStatusBar();
@@ -17667,7 +17785,7 @@ axios_1$1.default = _default;var axios$3 = axios_1$1;var AxiosConnector$1 = /** 
                             msg = statusMessage + " : " + percetage.toFixed(1) + "% completed.";
                         }
                         Logger.setStatusBar(msg);
-                        var obj = getEventObject(viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, viewerID, msg);
+                        var obj = { type: viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE, viewerID: viewerID, data: msg };
                         scope.eventDispacther.dispatchEvent(obj);
                         //console.log(msg);
                         setTimeout(function () {

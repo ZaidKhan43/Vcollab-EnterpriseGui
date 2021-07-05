@@ -13,6 +13,8 @@ import MuiInput from '@material-ui/core/Input';
 import MuiCheckbox from '@material-ui/core/Checkbox';
 
 import Switch from "react-switch";
+import Toggle from 'react-toggle';
+import "react-toggle/style.css";
 
 import MuiEditIcon from '@material-ui/icons/EditOutlined';
 import MuiFileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
@@ -36,7 +38,7 @@ import MuiToggleButton from '@material-ui/lab/ToggleButton';
 // import { PlayCircleOutlineSharp } from '@material-ui/icons';
 
 import ClipPlane from "./clipPlane"
-import {plane, setSectionPlaneData, addPlane, editEnabled, setActive, editShowClip, editEdgeClip, editShowCap, editPlaneName, removePlane, duplicatePlane, saveSelectedPlane , editEquation , setChildPlane , setMasterPlane} from "../../../store/sideBar/clipSlice";
+import {plane,SelectionMode,selectActivePlane, setSectionPlaneData, addPlane, editEnabled, setActive, editShowClip, editEdgeClip, editShowCap, editPlaneName, removePlane, duplicatePlane, saveSelectedPlane , editEquation , setChildPlane , setMasterPlane, setSelectionMode} from "../../../store/sideBar/clipSlice";
 
 //Plane Equation
 import {selectActiveViewerID} from "../../../store/appSlice";
@@ -59,34 +61,43 @@ export default function ClipPlanes(){
   const classes = styles();
   const planes = useAppSelector((state) => state.clipPlane.planes);
   const limit = useAppSelector((state) => state.clipPlane.settings.maxAllowedPlanes);
+  const activePlaneId = useAppSelector(selectActivePlane);
   // const clickedVal = useAppSelector<any>((state) => state.clipPlane.settings.clickedVal);
-  const [clickedValues, setClickedValues] = useState<plane[]>(useAppSelector((state) => state.clipPlane.planes.filter(item => item.selected === true)));
-
-   useEffect(() => {
-        setClickedValues(planes.filter(item => item.selected === true))
-      },[planes]);
+  const clickedValues = useAppSelector((state) => state.clipPlane.planes.filter(item => item.selected === true));
 
   // plane Equation 
   const clickedValuesCount = clickedValues.length;
-  const [clipInputX, setClipInputX] = useState(clickedValuesCount ? clickedValues[0].userInputEquation[0] : 0);
-  const [clipInputY, setClipInputY] = useState(clickedValuesCount ? clickedValues[0].userInputEquation[1] : 0);
-  const [clipInputZ, setClipInputZ] = useState(clickedValuesCount ? clickedValues[0].userInputEquation[2] : 0);
-  const [clipInputD, setClipInputD] = useState(clickedValuesCount ? clickedValues[0].userInputEquation[3] : 0);
+  const [clipInputX, setClipInputX] = useState<number>(clickedValuesCount === 1 ? clickedValues[0].userInputEquation[0] : 0);
+  const [clipInputY, setClipInputY] = useState<number>(clickedValuesCount === 1 ? clickedValues[0].userInputEquation[1] : 0);
+  const [clipInputZ, setClipInputZ] = useState<number>(clickedValuesCount === 1 ? clickedValues[0].userInputEquation[2] : 0);
+  const [clipInputD, setClipInputD] = useState<number>(clickedValuesCount === 1 ? clickedValues[0].userInputEquation[3] : 0);
+  
+  useEffect(() => {
+    if(clickedValuesCount === 1){
+      setClipInputX(clickedValues[0] && clickedValues[0].userInputEquation[0]);
+      setClipInputY(clickedValues[0] && clickedValues[0].userInputEquation[1]);
+      setClipInputZ(clickedValues[0] && clickedValues[0].userInputEquation[2]);
+      setClipInputD(clickedValues[0] && clickedValues[0].userInputEquation[3]);
+    }
+  },[planes]);
+
   const viewerId = useAppSelector(selectActiveViewerID);
-  const [clipPlaneMode, setClipPlaneMode] = useState<string | null>(null);
 // plane Equation
+  
 
   const [copied, setCopied] = useState<boolean>(false); 
   const [copy, setCopy] = useState<plane | null>(null);
   const [edit, setEdit] = useState<boolean>(false);
-  const [openDialog, setOpenDialog] = useState<boolean>(false);
-  const [deleted,SetDeleted] = useState<string | null>(null);
-  const [openDeleteConfirm, setOpenDeleteConfirm] = useState<boolean>(false);
+  const [openDelete, setOpenDelete] = useState<boolean>(false);
 
-  const [editPlane, setEditPlane] = useState<number | null>(null)
+  const [editPlane, setEditPlane] = useState<number>(-1)
   const [editName, SetEditName] = useState<string>("");
 
+  const [deleteMessage, setDeleteMessage] = useState<string>("");
+
   const [editMode, setEditMode] = useState(false)
+
+  const clipPlaneMode = useAppSelector((state) => state.clipPlane.settings.selectionMode);      
 
   const onClickBackIcon = () =>{
     dispatch(setSidebarActiveContent(sideBarContentTypes.mainMenu))
@@ -95,7 +106,12 @@ export default function ClipPlanes(){
   const onHandleClick :(e: any, click: any) => any = (e, click)=> {
   
     //Plane Equation
-    setClipPlaneMode(null)
+
+    // Set SelectionMode to None when mupliple item selected. 
+    dispatch(setSelectionMode({activeId : -1 , selectionMode : 0}))
+
+    setEditMode(false);
+    setOpenDelete(false);
 
     console.log("clicked", clickedValues)
     if(clickedValues.length === 0) {
@@ -121,10 +137,11 @@ export default function ClipPlanes(){
     dispatch(setActive({clicked: click}))
     
     if(click.id !== editPlane)
-      setEditPlane(null)
-    }
+      setEditPlane(-1)
+  }
 
-  const onClickAddItem = () => {
+  
+    const onClickAddItem = () => {
     dispatch(addPlane());
   }
 
@@ -190,7 +207,7 @@ export default function ClipPlanes(){
   }
 
   // Equation
-  const OnHandleEquation:(value : any, variable: string) => any = (value,variable) => {
+  const OnHandleEquation:(value : number, variable: string) => any = (value,variable) => {
     switch(variable){
       case "clipCordX" :
         setClipInputX(value);
@@ -222,7 +239,10 @@ export default function ClipPlanes(){
     if(editMode === true){
       setEditMode(false)
 
-        if (clipInputX === 0 && clipInputY === 0 && clipInputZ === 0){
+      // Set SelectionMode None in showMode 
+      dispatch(setSelectionMode({activeId : -1 , selectionMode : 0}))
+
+        if (Number(clipInputX) === 0 && Number(clipInputY) === 0 && Number(clipInputZ) === 0){
           setClipInputX(clickedValues[0].userInputEquation[0])
           setClipInputY(clickedValues[0].userInputEquation[1])
           setClipInputZ(clickedValues[0].userInputEquation[2])
@@ -230,8 +250,7 @@ export default function ClipPlanes(){
     
         else{
           const id= clickedValues[0].id
-          const clip = {id, clipInputX,clipInputY, clipInputZ, clipInputD}
-          dispatch(editEquation({planeData:clip, viewerId}));
+          dispatch(editEquation({id:id,eqn:{clipInputX,clipInputY,clipInputZ,clipInputD},}));
           dispatch(setSectionPlaneData({id}));
         }
       }
@@ -262,23 +281,22 @@ export default function ClipPlanes(){
     }
   }
 
+ const onHandleDeleteButton = () => {
+    setOpenDelete(true); 
+    setEditMode(false)
+    setDeleteMessage("Are you sure want to delete the selected plane?")
+ }
+
   const onHandleDelete = () => {
     clickedValues.forEach(item => 
       {
-        if(item.childPlane.length === 0){
-          setOpenDialog(false);
-          setOpenDeleteConfirm(true);
-          dispatch(editEnabled({id:item.id,isEnabled:false}));
-          SetDeleted(item.name);
-          dispatch(removePlane({id:item.id}))
-          // dispatch(saveSelectedPlane({clicked: item}))
-        } 
-        else{
-          setOpenDeleteConfirm(false);
-          alert("Its a master Plane. You can't delete a master plane")
-        }
-      }
-    )
+        setOpenDelete(false);
+        // setOpenMasterDelete(true);
+        dispatch(editEnabled({id:item.id,isEnabled:false}));
+        // SetDeleted(item.name);
+        dispatch(removePlane({id:item.id}))
+        // dispatch(saveSelectedPlane({clicked: item}))
+      })
   }
 
   const onHandleEdit = () => {
@@ -291,11 +309,7 @@ export default function ClipPlanes(){
   }
 
   const handleCloseDialog = () => {
-    setOpenDialog(false)
-  }
-
-  const handleCloseAlert = () => {
-    setOpenDeleteConfirm(false)
+    setOpenDelete(false)
   }
 
   const onHandlePlateNameEdit = (e : any) => {
@@ -305,10 +319,9 @@ export default function ClipPlanes(){
 
   const onHandlePlateKey = (e : any, item : any) => {
     if (e.key === 'Enter') {
-      setClickedValues(planes.filter(item => item.selected === true))
-      setEditPlane(null)
+      setEditPlane(-1)
       if(editName === "")
-        setEditPlane(null)
+        setEditPlane(-1)
       else{
       const editPlane = {id : item.id, editName : editName}
       dispatch(editPlaneName(editPlane))
@@ -317,14 +330,31 @@ export default function ClipPlanes(){
     }
     if (e.keyCode === 27) {
       e.preventDefault();
-      setEditPlane(null)
-      setClickedValues(planes.filter(item => item.selected === true))
+      setEditPlane(-1)
     }
+  }
+
+  // Set SelectionMode
+  const onHandleSelectMode  = (clickedSelection : SelectionMode) => {
+
+    let select = SelectionMode.NONE;
+    let id = activePlaneId;
+
+    console.log("ActiveId", id)
+
+    if(clickedSelection === clipPlaneMode)
+      select = SelectionMode.NONE
+    
+    else
+        select = clickedSelection
+
+      const data = {activeId: id, selectionMode : select}
+      dispatch(setSelectionMode(data))
   }
 
   const displayClicked = () => {
 
-    let enabledOptionOne = false;
+    let enabledCountOne = false;
     let enableCount = 0;
     let displayShowClip = false;
     let displayShowEdge = false;
@@ -339,7 +369,7 @@ export default function ClipPlanes(){
       clickedValues.forEach((item : any) => {
         enableCount = item.enabled ? enableCount + 1 : enableCount ; 
       })
-      enabledOptionOne = enableCount >= 1 ? true : false;
+      enabledCountOne = enableCount >= 1 ? true : false;
     }
     
     if(enableCount === 1){
@@ -433,7 +463,7 @@ export default function ClipPlanes(){
 
     return(
       <div>
-      { clickedValues && enabledOptionOne 
+      { clickedValues && enabledCountOne 
         ? 
           <div>
             <MuiTypography className={classes.heading} style={{ marginBottom:"-10px"}} variant='h1' noWrap>
@@ -462,144 +492,62 @@ export default function ClipPlanes(){
                 marginTop:"5px", }}
                 // onBlur={handleValidation}
               >
-                { clickedValues.length === 1
-                  ?
-                    <div>
-                      { editMode === false 
-                          ? 
-                            <div>
-                              <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px",marginTop:"-5px"}} className={`${classes.disabledTextBox} + ${classes.disabled}`} value={`${Math.round(clipInputX*1000)/1000}X ${Math.sign(clipInputY)===1 || Math.sign(clipInputY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputY*1000)/1000)}Y ${Math.sign(clipInputZ) === 1 || Math.sign(clipInputZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputZ*1000)/1000)}Z = ${Math.round(clipInputD*1000)/1000}`}/>
-                              <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
-                                <MuiGrid item xs={12} sm={6} >
-                                  <MuiButton disabled className={clsx({ [classes.button]: clipPlaneMode==="Surface" })} size="small"  startIcon={<Triangle />}  onClick={() => {clipPlaneMode==="Surface" ? setClipPlaneMode(null) : setClipPlaneMode("Surface")}}>
-                                    <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
-                                     Select Surface
-                                    </MuiTypography> 
-                                  </MuiButton>
-                                </MuiGrid>
-                                <MuiGrid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
-                                  <MuiButton disabled className={clsx({ [classes.button]: clipPlaneMode==="Points" })} size="small" startIcon={<ThreePoints/>}   onClick={() => {clipPlaneMode==="Points" ? setClipPlaneMode(null) : setClipPlaneMode("Points")}}>
-                                    <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
-                                      Select Points
-                                    </MuiTypography>  
-                                  </MuiButton>
-                                </MuiGrid>
-                              </MuiGrid>
-                              <MuiFormControl style={{width:"100%", marginTop:"20px", marginLeft:"10px"}}>
-                                <MuiInputLabel id="demo-simple-select-helper-label" style={{color:"currentcolor", marginLeft:"5px",}}>Master corodinate system</MuiInputLabel>
-                                <MuiSelect disabled 
-                                  MenuProps={{
-                                    disablePortal: true,
-                                    anchorOrigin: {
-                                    vertical:"bottom",
-                                    horizontal:"left",
-                                  },
-                                  getContentAnchorEl: null
-                                  }}
-                                  style={{width:"95%", marginLeft:"0px", marginTop:"24px",border: "1px solid currentColor",}}
-                                  labelId="demo-simple-select-label"
-                                  id="demo-simple-select"
-                                  value={masterPlane.id}
-                                >
-                                  { masterPlaneList.map((item) => 
-                                      <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
-                                  )}
-                                </MuiSelect>
-                              </MuiFormControl>
-                            </div>
-                          :
-                            <div>
-                              <div className={classes.inputEqnBorder}>
-                                <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputX} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordX")} onBlur={onHandleEquationBlur}/>X+
-                                <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputY} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordY")} onBlur={onHandleEquationBlur}/>Y+
-                                <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputZ} onChange={(e : any) => OnHandleEquation(e.target.value, "clipCordZ")} onBlur={onHandleEquationBlur}/>Z =
-                                <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputD}  onChange={(e : any) => OnHandleEquation(e.target.value, "clipConstD")} onBlur={onHandleEquationBlur} />
-                              </div>
-                              <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
-                                <MuiGrid item xs={12} sm={6} >
-                                  <MuiButton className={clsx({ [classes.button]: clipPlaneMode==="Surface" })} size="small"  startIcon={<Triangle />}  onClick={() => {clipPlaneMode==="Surface" ? setClipPlaneMode(null) : setClipPlaneMode("Surface")}}>
-                                    <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
-                                      Select Surface
-                                    </MuiTypography>  
-                                  </MuiButton>
-                                </MuiGrid>
-                                <MuiGrid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
-                                  <MuiButton className={clsx({ [classes.button]: clipPlaneMode==="Points" })} size="small" startIcon={<ThreePoints/>}   onClick={() => {clipPlaneMode==="Points" ? setClipPlaneMode(null) : setClipPlaneMode("Points")}}>
-                                    <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
-                                      Select Points
-                                    </MuiTypography>
-                                  </MuiButton>
-                                </MuiGrid>
-                              </MuiGrid>
-                              <MuiFormControl style={{width:"100%", marginTop:"20px", marginLeft:"10px"}}>
-                                <MuiInputLabel id="demo-simple-select-helper-label" style={{color:"currentcolor", marginLeft:"5px",}}>Master corodinate system</MuiInputLabel>
-                                <MuiSelect 
-                                  MenuProps={{
-                                    disablePortal: true,
-                                    anchorOrigin: {
-                                      vertical:"bottom",
-                                      horizontal:"left",
-                                    },
-                                    getContentAnchorEl: null
-                                  }}
-                                  style={{width:"95%", marginLeft:"0px", marginTop:"24px",border: "1px solid currentColor",}}
-                                  labelId="demo-simple-select-label"
-                                  id="demo-simple-select"
-                                  value={masterPlane.id}
-                                  onChange={(e) => onHandleSlicePlane(e.target.value , masterPlaneList)}
-                                >
-                                  {
-                                    masterPlaneList.map((item) => 
-                                      <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
-                                  )}
-                                </MuiSelect>
-                              </MuiFormControl>
-                            </div>
-                      }
-                    </div>
-                  :
-                    <div>
-                      <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px",marginTop:"-5px"}} className={classes.disabledTextBox}/>
-                        <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
-                          <MuiGrid item xs={12} sm={6} >
-                            <MuiButton disabled className={clsx({ [classes.button]: clipPlaneMode==="Surface" })} size="small"  startIcon={<Triangle />}  onClick={() => {clipPlaneMode==="Surface" ? setClipPlaneMode(null) : setClipPlaneMode("Surface")}}>
-                              <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
-                                Select Surface
-                              </MuiTypography> 
-                            </MuiButton>
-                          </MuiGrid>
-                          <MuiGrid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
-                            <MuiButton disabled className={clsx({ [classes.button]: clipPlaneMode==="Points" })} size="small" startIcon={<ThreePoints/>}   onClick={() => {clipPlaneMode==="Points" ? setClipPlaneMode(null) : setClipPlaneMode("Points")}}>
-                              <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
-                                Select Points
-                              </MuiTypography>  
-                            </MuiButton>
-                          </MuiGrid>
-                        </MuiGrid>
-                        <MuiFormControl style={{width:"100%", marginTop:"20px", marginLeft:"10px"}}>
-                         <MuiInputLabel id="demo-simple-select-helper-label" style={{color:"currentcolor", marginLeft:"5px",}}>Master corodinate system</MuiInputLabel>
-                          <MuiSelect disabled 
-                            MenuProps={{
-                              disablePortal: true,
-                              anchorOrigin: {
-                                vertical:"bottom",
-                                horizontal:"left",
-                              },
-                              getContentAnchorEl: null
-                            }}
-                            style={{width:"95%", marginLeft:"0px", marginTop:"24px",border: "1px solid currentColor",}}
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={masterPlane.id}
-                          >
-                            {
-                              masterPlaneList.map((item) => 
-                                <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
-                            )}
-                          </MuiSelect>
-                        </MuiFormControl>
+                <div>
+                  { editMode === false
+                    ?
+                      <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px",marginTop:"-5px"}} className={clickedValues.length > 1 ? `${classes.disabledTextBox}` : `${classes.disabledTextBox} + ${classes.disabled}`} 
+                        value={clickedValues.length>1 ?"":`${Math.round(clipInputX*1000)/1000}X ${Math.sign(clipInputY)===1 || Math.sign(clipInputY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputY*1000)/1000)}Y ${Math.sign(clipInputZ) === 1 || Math.sign(clipInputZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputZ*1000)/1000)}Z = ${Math.round(clipInputD*1000)/1000}`}
+                      />
+
+                    :
+                      <div className={classes.inputEqnBorder}>
+                        <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputX} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordX")} onBlur={onHandleEquationBlur}/>X+
+                        <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputY} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordY")} onBlur={onHandleEquationBlur}/>Y+
+                        <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputZ} onChange={(e : any) => OnHandleEquation(e.target.value, "clipCordZ")} onBlur={onHandleEquationBlur}/>Z =
+                        <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputD}  onChange={(e : any) => OnHandleEquation(e.target.value, "clipConstD")} onBlur={onHandleEquationBlur} />
                       </div>
                   }
+                  <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px"}}>
+                    <MuiGrid item xs={12} sm={6} >
+                      <MuiButton disabled={editMode ? false : true}  className={clsx({ [classes.button]: clipPlaneMode === SelectionMode.FACE  })} size="small"  startIcon={<Triangle />}  onClick={() => onHandleSelectMode(SelectionMode.FACE)}>
+                        <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
+                          Select Surface
+                        </MuiTypography> 
+                      </MuiButton>
+                    </MuiGrid>
+                    <MuiGrid item xs={12} sm={6} style={{position:"absolute",left: "50%",}} >
+                      <MuiButton disabled={editMode ? false : true}  className={clsx({ [classes.button]: clipPlaneMode === SelectionMode.THREE_PT })} size="small" startIcon={<ThreePoints/>}   onClick={() => onHandleSelectMode(SelectionMode.THREE_PT)}>
+                        <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
+                          Select Points
+                        </MuiTypography>  
+                      </MuiButton>
+                    </MuiGrid>
+                  </MuiGrid>
+                  <MuiFormControl style={{width:"100%", marginTop:"20px", marginLeft:"10px"}}>
+                    <MuiInputLabel id="demo-simple-select-helper-label" style={{color:"currentcolor", marginLeft:"5px",}}>Master corodinate system</MuiInputLabel>
+                      	<MuiSelect 
+                           disabled={editMode ? false : true} 
+                          MenuProps={{
+                            disablePortal: true,
+                            anchorOrigin: {
+                              vertical:"bottom",
+                              horizontal:"left",
+                           },
+                           getContentAnchorEl: null
+                          }}
+                          style={{width:"95%", marginLeft:"0px", marginTop:"24px",border: "1px solid currentColor",}}
+                          labelId="demo-simple-select-label"
+                          id="demo-simple-select"
+                          value={masterPlane.id}
+                          onChange={(e) => onHandleSlicePlane(e.target.value , masterPlaneList)}
+                        >
+                          {
+                            masterPlaneList.map((item) => 
+                              <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
+                          )}
+                       </MuiSelect>
+                      </MuiFormControl>
+                    </div>
                 </div>
               </div>
               <div style={{marginTop:"15px"}}>
@@ -668,7 +616,7 @@ export default function ClipPlanes(){
                   ?
                   <div key={ 'divChild_' + index }  
                     className={
-                                  item.selected
+                                  item.selected && editPlane === -1
                                     ? 
                                     classes.listItemClicked 
                                     :
@@ -677,11 +625,16 @@ export default function ClipPlanes(){
                   >
                     {/* <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/> */}
                     <div style={{ display: "flex", alignItems: "left", width:"65%"}} onClick={(event)=> onHandleClick(event,item)}>
-                      <MuiTypography className={classes.listItemText} onDoubleClick={() => {setEditPlane(item.id); SetEditName(item.name); setClickedValues([])}} >
+                      <MuiTypography className={classes.listItemText} onDoubleClick={() => {setEditPlane(item.id); SetEditName(item.name);}} >
                         {item.name}
                       </MuiTypography>
                     </div>    
-                    <Switch
+                    <Toggle
+                      checked={item.enabled}
+                      trackColor={{true: 'red', false: 'grey'}}
+                      // icons={false}
+                      onChange={() => onHandleCheck(!item.enabled,item)}/>
+                    {/* <Switch
                       borderRadius={8}
                       onColor='#2E2E33'
                       offColor='#2E2E33'
@@ -694,9 +647,9 @@ export default function ClipPlanes(){
                       checked={item.enabled} onChange={(toCheck:boolean) => onHandleCheck(toCheck,item)}
                       uncheckedIcon={<div style={{display: "flex",justifyContent: "center",alignItems: "center",color:"grey"}}>On</div>}
                       uncheckedHandleIcon={<div style={{ display: "flex",justifyContent: "center",alignItems: "center",color:"white",marginLeft:"10px"}}>Off</div>}
-                      checkedIcon={<div style={{display: "flex",justifyContent: "center",alignItems: "center",color:"grey"}}>Off</div>}
-                      checkedHandleIcon={<div style={{ display: "flex",justifyContent: "center",alignItems: "center",color:"white",marginLeft:"-10px"}}>On</div>}
-                    />
+                      checkedIcon={<div style={{display: "flex",justifyContent: "center",alignItems: "center",color:"grey"}}>On</div>}
+                      checkedHandleIcon={<div style={{ display: "flex",justifyContent: "center",alignItems: "center",color:"white",marginLeft:"-10px"}}>Off</div>}
+                    /> */}
                   </div>
                 :
                   <div key={ 'divChild_' + index } className={classes.listItemClicked}>
@@ -715,7 +668,11 @@ export default function ClipPlanes(){
         </div>
         <div>
             <div style={{position:"absolute", marginTop:"20px" , width:"100%"}}> 
-              {displayClicked()}
+              {editPlane >= 0
+              ?
+              null
+              :
+              displayClicked()}
             </div> 
         </div>
       </div>
@@ -724,55 +681,88 @@ export default function ClipPlanes(){
 
 
   const getFooter = () => {
+
+    let deleteMaster = false;
+
+    const count = clickedValues.filter(item => item.childPlane.length !== 0)
+
+    if(count.length > 0)
+      deleteMaster = true;
+
     return(
         <div style={{marginLeft:"10px", marginRight:"10px"}}>
-          <div style={{display: "flex",alignItems: "center",justifyContent: "space-between",}}>
-            { clickedValues.length ===  1 && clickedValues[0].enabled
-              ?
-                <MuiIconButton  onClick={() => onHandleEdit()}> 
-                  <MuiEditIcon/>
-                </MuiIconButton>
-              :
-                <MuiIconButton disabled> 
-                 <MuiEditIcon/>
-                </MuiIconButton>
-            }
-
-            { clickedValues.length === 1
-              ?
-                <MuiIconButton onClick={() => onHandleCopy(planes.find((item : any )=> 
-                  item.id === clickedValues[0].id))}> 
-                  <MuiFileCopyOutlinedIcon />
-                </MuiIconButton>
-              :
-                <MuiIconButton disabled> 
-                  <MuiFileCopyOutlinedIcon />
-                </MuiIconButton>
-            }
-
-            { copied && planes.length !== limit 
-              ?
-                <MuiIconButton onClick={() => onHandlePaste(copy)}>
-                  <MuiPaste/>
-                </MuiIconButton>  
-              :
-                <MuiIconButton disabled>
-                  <MuiPaste/>
-                </MuiIconButton> 
-              }
-          
-          {clickedValues.length >= 1
+          { !openDelete
             ?
-            <MuiIconButton style={{ }}  onClick={() => setOpenDialog(!openDialog)} > 
-               <MuiDeleteForeverOutlinedIcon/>
-             </MuiIconButton>  
+              <div style={{display: "flex",alignItems: "center",justifyContent: "space-between",}}>
+                { clickedValues.length ===  1 && clickedValues[0].enabled && editPlane === -1
+                  ?
+                    <MuiIconButton  onClick={() => onHandleEdit()}> 
+                      <MuiEditIcon/>
+                    </MuiIconButton>
+                  :
+                    <MuiIconButton disabled> 
+                      <MuiEditIcon/>
+                    </MuiIconButton>
+                }
+
+                { clickedValues.length === 1 && editPlane === -1
+                  ?
+                    <MuiIconButton onClick={() => onHandleCopy(planes.find((item : any )=> 
+                      item.id === clickedValues[0].id))}
+                    > 
+                      <MuiFileCopyOutlinedIcon />
+                    </MuiIconButton>
+                  :
+                    <MuiIconButton disabled> 
+                      <MuiFileCopyOutlinedIcon />  
+                    </MuiIconButton>
+                }
+
+                { copied && planes.length !== limit 
+                  ?
+                    <MuiIconButton onClick={() => onHandlePaste(copy)}>
+                      <MuiPaste/>
+                    </MuiIconButton>  
+                  :
+                    <MuiIconButton disabled>
+                      <MuiPaste/>
+                    </MuiIconButton> 
+                }
+          
+                { clickedValues.length >= 1 && deleteMaster === false && editPlane === -1
+                  ?
+                    <MuiIconButton style={{ }}  onClick={onHandleDeleteButton} > 
+                      <MuiDeleteForeverOutlinedIcon/>
+                    </MuiIconButton>  
+                  :
+                    <MuiIconButton disabled > 
+                      <MuiDeleteForeverOutlinedIcon/>
+                    </MuiIconButton>  
+                }
+              </div>
             :
-            <MuiIconButton disabled > 
-              <MuiDeleteForeverOutlinedIcon/>
-            </MuiIconButton>  
-          }
+              <div style={{marginBottom:"5px", marginTop:"5px"}}>
+                <MuiTypography style={{marginBottom:"5px", fontSize:"14px"}}>
+                  {deleteMessage}
+                </MuiTypography>
+                <div style={{alignContent:"center",}}>
+                  <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+                    autoFocus 
+                    onClick={onHandleDelete} 
+                    // color="primary"
+                  >
+                    Confirm
+                  </MuiButton>
+                <MuiButton style={{width:"20%", fontSize:"9px"}}
+                  onClick={handleCloseDialog} 
+                  // color="primary"
+                >
+                  Cancel
+              </MuiButton>
             </div>
           </div>
+        }
+      </div>
     ) 
   }
 
@@ -791,20 +781,20 @@ export default function ClipPlanes(){
           /> 
       }
       
-      <DialogBox 
-        openDialog={openDialog} 
+      {/* <DialogBox 
+        openDelete={openDelete} 
         dialogBox={classes.dialogBox} 
         clickedVal={clickedValues[0]} 
         onHandleDelete={onHandleDelete} 
         handleCloseDialog={handleCloseDialog} 
         snackBar={classes.snackBar} 
-        openDeleteConfirm={openDeleteConfirm} 
+        openMasterDelete={openMasterDelete} 
         handleCloseAlert={handleCloseAlert} 
         confirmationMessage={clickedValues[0] ?  `Are you sure want to delete ${clickedValues.map(item => item.name)}?` : null} 
         confirmedMessage={`${deleted} deleted`}
         confirmationIcon={ <MuiErrorOutlineOutlinedIcon className={classes.dialogBox}/>}
         confirmedIcon={<MuiDeleteForeverOutlinedIcon/>}
-  /> 
+  />  */}
 
 </div>
   )

@@ -361,7 +361,7 @@ opacity:0.6,
     paddingTop:"10px",
     paddingBottom:"5px",
     marginBottom:"4px",
-    borderBottom: "1px solid white",
+    borderBottom: "1px solid ",
     '&:focus': {
       outline:"none",
   },
@@ -385,5 +385,6 @@ opacity:0.6,
   disabledTextBox: {
     marginLeft:"-40px", width:"260px",marginTop:"10px",border: "1px solid",
   },
+
 
 }));

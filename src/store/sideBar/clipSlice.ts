@@ -1,12 +1,25 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import { mat4, vec3 } from 'gl-matrix';
 import {getSectionGUIData, setSectionPlaneGUIData, setSectionPlaneEquation, setActiveSectionPlane, addSectionPlane, deleteSectionPlane, getSceneBoundingBox} from "../../backend/viewerAPIProxy"
-import {getNormalizedEqn, getPerpendicular, getWorldTransformFromPlaneEqn} from "../../components/utils/Math"
+import {getNormalizedEqn, getPerpendicular, getWorldTransformFromPlaneEqn, planeEqnFrom3pts} from "../../components/utils/Math"
 import type { RootState } from '../index';
 
 type masterPlane = {
   id: number,
   name: string,
+}
+
+type EqnGUI = {
+  clipInputX:number,
+  clipInputY:number,
+  clipInputZ:number,
+  clipInputD:number
+}
+
+export enum SelectionMode{
+  NONE = 0,
+  THREE_PT = 1,
+  FACE = 2
 }
 
 enum Axis{
@@ -43,6 +56,7 @@ export type plane = {
 
 type settings= {
   planesData: any,
+  selectionMode: SelectionMode,
   defaultPlaneParameters : plane
   maxAllowedPlanes : number,
   idGenerator: number,
@@ -67,6 +81,7 @@ const initialState : planes = {
   planes:[],
 
   settings :{
+    selectionMode: SelectionMode.NONE,
     maxAllowedPlanes : 6,
     idGenerator :-1,
     planesData: [],
@@ -142,6 +157,7 @@ export const setSectionPlaneData = createAsyncThunk(
      const curPlane = rootState.clipPlane.planes[index];
      let options = {
        ...rootState.clipPlane.settings.planesData[index],
+       selectionMode: rootState.clipPlane.settings.selectionMode,
        isPlaneEnabled: curPlane.enabled,
        isPlaneVisible: curPlane.showClip,
        primarySliderValue: curPlane.translate,
@@ -166,8 +182,10 @@ export const setSectionPlaneData = createAsyncThunk(
   }
 )
 
-const generatePlane = (id:number, transform:number[], eqn:number[], color:Color, radius:number) => {
-  const plane:plane = {  id,name:`Plane ${id}`, 
+const generatePlane = (id:number, name:string, transform:number[], eqn:number[], color:Color, radius:number) => {
+  
+  
+  const plane:plane = {  id,name, 
     enabled: false, 
     showClip: false, 
     showEdge: false,
@@ -193,6 +211,29 @@ const generatePlane = (id:number, transform:number[], eqn:number[], color:Color,
     selected: false,
   }
 return plane
+}
+
+const generateName = (id : number , eqn: number[]) => {
+
+  // let surName="Plane"
+  // if(eqn[0]=== 0 && eqn[1] === 0){
+  //   surName = 'XY'
+  // }
+
+  // if(eqn[0] === 0 && eqn[2] === 0 ){
+  //   surName = 'XZ'
+  // }
+
+  // if(eqn[1] === 0 && eqn[2] === 0) {
+  //   surName = 'YZ'
+  // }
+
+  // if(id > 2){
+  //   surName = "Plane"
+  // }
+
+  const name = `Plane ${id + 1}`;
+  return name;
 }
 
 const generateEqn = (planes:plane[],bbox:any):[number,number,number,number] => {
@@ -250,12 +291,13 @@ export const addPlane = createAsyncThunk(
 
     dispatch(clipSlice.actions.incrementId())
     let id = (getState() as RootState).clipPlane.settings.idGenerator;
+    let name = generateName(id , eqn);
     let randColorIdx = id % state.colors.length;
     let color = state.colors[randColorIdx];
 
     addSectionPlane(id, newTransform, color ,viewerId);
     let radius = bbox.getRadius();
-    let plane = generatePlane(id, Array.from(newTransform), eqn, color,radius);
+    let plane = generatePlane(id, name, Array.from(newTransform), eqn, color,radius);
     dispatch(createPlane({plane}));
     dispatch(editEnabled({id,isEnabled:true}));
     dispatch(setSectionPlaneData({id}))
@@ -287,6 +329,17 @@ export const removePlane = createAsyncThunk(
     dispatch(clipSlice.actions.deletePlane(data.id));
   }
 )
+export const editEquation = createAsyncThunk(
+  "clipSlice/editEquation",
+  async (data:{id:number,eqn:EqnGUI},{dispatch,getState}) => {
+    const rootState = getState() as RootState;
+    const {id,eqn} = data;
+    const state = rootState.clipPlane;
+    const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
+    dispatch(clipSlice.actions.editEquationGUI({id,eqn}));
+    dispatch(clipSlice.actions.updateEqn({id,viewerId}));
+  }
+)
 
 export const setActive = createAsyncThunk(
   "clipSlice/setActiveSectionPlane",
@@ -304,6 +357,44 @@ export const setActive = createAsyncThunk(
       setActiveSectionPlane(-1,viewerId)
   }
 )
+
+export const setSelectionMode = createAsyncThunk(
+  "clipSlice/setSelectionMode",
+  async (data:{activeId:number,selectionMode:SelectionMode }, {dispatch, getState}) => {
+    dispatch(clipSlice.actions.editSelectMode(data.selectionMode));
+    if(data.activeId > -1) {
+      dispatch(setSectionPlaneData({id:data.activeId}));
+    }
+  }
+)
+
+export const handlePlaneSelection = createAsyncThunk(
+  "clipSlice/handlePlaneSelection",
+  async (data:{e:any}, {dispatch, getState}) => {
+    let planeId = data.e?.planeId;
+    let points = data.e?.points;
+    let state = (getState() as RootState).clipPlane;
+    let index = state.planes.findIndex(plane => plane.id === planeId);
+    if(index >=0 && points) {
+      let eqn = planeEqnFrom3pts(
+      new Float32Array(points[0]),
+      new Float32Array(points[1]),
+      new Float32Array(points[2]));
+
+      if(eqn && eqn.length === 4) {
+        let data:EqnGUI = {
+          clipInputX: eqn[0],
+          clipInputY: eqn[1],
+          clipInputZ: eqn[2],
+          clipInputD: -eqn[3]
+        }
+        dispatch(editEquation({id:planeId,eqn:data}));
+      }
+    }
+    dispatch(clipSlice.actions.editSelectMode(SelectionMode.NONE));
+    dispatch(setSectionPlaneData({id:0}));
+  }
+) 
 
 export const clipSlice = createSlice({
   name: "clip",
@@ -383,11 +474,24 @@ export const clipSlice = createSlice({
         clipSlice.caseReducers.incrementId(state);
         clone.id=state.settings.idGenerator;
         clone.selected = false;
-        clone.name = `${clone.name} (Copy)`
+        clone.name = generateName(clone.id, []);
         clone.color = state.colors[clone.id % state.colors.length];
+        clone.childPlane = [];
         state.planes=[...state.planes, clone];
         //console.log("clone",clone)
         //console.log("After", state.planes)
+
+        console.log("cloneId",clone.id)
+
+        const masterPlaneIndex = state.planes.findIndex(item => item.id === clone.masterPlane.id)
+        if(masterPlaneIndex >= 0) {
+          let updateMaster = state.planes[masterPlaneIndex];
+          console.log("cloneId",clone.id)
+          updateMaster.childPlane.push(clone.id);
+          state.planes[masterPlaneIndex] = updateMaster;
+        }
+      
+
       }
     },
 
@@ -421,14 +525,14 @@ export const clipSlice = createSlice({
         state.planes=[...newArray];
     },
 
-    editEquation: (state, action:PayloadAction<{planeData:any,viewerId:any}>) => {
-      let {planeData,viewerId} = action.payload;
-      const index : any = state.planes.findIndex((item) => item.id === planeData.id);
+    editEquationGUI: (state, action:PayloadAction<{id: number,eqn:EqnGUI}>) => {
+      let {id,eqn} = action.payload;
+      const index : any = state.planes.findIndex((item) => item.id === id);
       if ( index >= 0) {
         let changeItem = state.planes[index];
 
 
-        if(changeItem.clipCordX !== planeData.clipCordX || changeItem.clipCordY !== planeData.clipCordY || changeItem.clipCordZ !== planeData.clipCordZ)
+        if(changeItem.clipCordX !== eqn.clipInputX || changeItem.clipCordY !== eqn.clipInputY || changeItem.clipCordZ !== eqn.clipInputZ)
         {
           changeItem.rotate = 0;
           changeItem.translate = 0;
@@ -436,16 +540,15 @@ export const clipSlice = createSlice({
           changeItem.axisY = 0;
         }
 
-        changeItem.clipCordX = planeData.clipInputX;
-        changeItem.clipCordY = planeData.clipInputY;
-        changeItem.clipCordZ = planeData.clipInputZ;
-        changeItem.clipConstD = planeData.clipInputD;
+        changeItem.clipCordX = eqn.clipInputX;
+        changeItem.clipCordY = eqn.clipInputY;
+        changeItem.clipCordZ = eqn.clipInputZ;
+        changeItem.clipConstD = eqn.clipInputD;
 
-        changeItem.userInputEquation[0] = planeData.clipInputX;
-        changeItem.userInputEquation[1] = planeData.clipInputY;
-        changeItem.userInputEquation[2] = planeData.clipInputZ;
-        changeItem.userInputEquation[3] = planeData.clipInputD;
-        clipSlice.caseReducers.updateEqn(state, {payload:{id:planeData.id,viewerId},type:"clipSlice/updateEqn"});
+        changeItem.userInputEquation[0] = eqn.clipInputX;
+        changeItem.userInputEquation[1] = eqn.clipInputY;
+        changeItem.userInputEquation[2] = eqn.clipInputZ;
+        changeItem.userInputEquation[3] = eqn.clipInputD;
         state.planes[index] = changeItem;
       }
     },
@@ -778,6 +881,10 @@ export const clipSlice = createSlice({
           state.planes[index] = changeItem;
         }
       },
+
+      editSelectMode:(state, action : PayloadAction<SelectionMode>) => {
+        state.settings.selectionMode = action.payload;
+      }
   },
 
 extraReducers: (builder) => {
@@ -787,6 +894,15 @@ extraReducers: (builder) => {
 }
 })
 
-export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editEquation, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, updateMinMaxGUI , saveSelectedPlane , setMasterPlane , setChildPlane } = clipSlice.actions;
+export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, updateMinMaxGUI , saveSelectedPlane , setMasterPlane , setChildPlane } = clipSlice.actions;
+
+//selectors
+export const selectActivePlane = (state : RootState) => {
+  const clickedValues = state.clipPlane.planes.filter(item => item.selected === true);
+  if(clickedValues.length === 1)
+    return (clickedValues[0].id)
+  else  
+    return(-1)
+};
 
 export default clipSlice.reducer;
