@@ -13,8 +13,13 @@ export default makeStyles((theme) => ({
         height: 2,
         width: '100%',
       },
+      
       listItem: {
-        padding: 12,
+        padding: 10,
+        width:"100%",
+        marginLeft:"-10px",
+        // display: "flex",
+        // alignItems: "center",
         '&:hover': {
           background: theme.palette.action.hover,
         },
@@ -24,6 +29,8 @@ export default makeStyles((theme) => ({
               }
           },
       },
+
+      
       listItemText: {
         //color: theme.palette.text.primary,
       },

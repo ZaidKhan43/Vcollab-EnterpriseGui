@@ -96,6 +96,7 @@ function Search(props:any) {
     }, [dispatch])
 
     useEffect(() => {
+        
         let searchInput = getSearchInput(searchString);
         let r:any[] = (fuse as any)?.search(searchInput);
         if(r)

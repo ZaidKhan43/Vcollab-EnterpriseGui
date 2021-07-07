@@ -53,7 +53,7 @@ function App() {
       dispatch(setPopupMenuActiveContent(popupMenuContentTypes.none)); 
   },[isAppBarVisible, dispatch]);
 
-  return (    
+  return (
     <FullScreen
     enabled={ isFullscreenOn }
     onChange={(isFullscreenEnabled: any) => handleFullscreen(isFullscreenEnabled)}
@@ -79,6 +79,7 @@ function App() {
         <SnackBar/>
       </div>
     </FullScreen>
+
   );
 }
 

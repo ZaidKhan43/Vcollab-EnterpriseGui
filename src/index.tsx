@@ -6,16 +6,19 @@ import App from './components/App';
 import reportWebVitals from './reportWebVitals';
 
 import store from './store';
-import { Provider } from 'react-redux';
-
+import { Provider, ReactReduxContext } from 'react-redux';
+import {ConnectedRouter} from 'connected-react-router/immutable';
+import { history } from './store';
 import CustomThemeProvider from './components/shared/customThemeProvider';
 
 ReactDOM.render(
   <React.StrictMode>  
     <Provider store={store}>
+      <ConnectedRouter history={history} context={ReactReduxContext} noInitialPop>
       <CustomThemeProvider>
         <App />
       </CustomThemeProvider>
+      </ConnectedRouter>
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')
