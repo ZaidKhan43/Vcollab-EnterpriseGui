@@ -13,21 +13,31 @@ export default makeStyles((theme) => ({
         height: 2,
         width: '100%',
       },
-      
+      accordianExpanded:{
+        margin: '2px 0 !important'
+      },
+      accordianSummaryExpanded: {
+        minHeight: '0px !important',
+        height: '48px'
+      },
+      accordianSummary: {
+        paddingLeft: '0px',
+      },
+      selected: {
+        backgroundColor: theme.palette.primary.main
+      },
+      accordianSummaryContent: {
+        margin: '0px !important',
+      },
+      accordianDetails: {
+        padding: '0px !important'
+      },
+      list: {
+        width: '100%',
+        padding:0
+      },
       listItem: {
-        padding: 10,
-        width:"100%",
-        marginLeft:"-10px",
-        // display: "flex",
-        // alignItems: "center",
-        '&:hover': {
-          background: theme.palette.action.hover,
-        },
-        [theme.breakpoints.down('sm')]: {
-            '&:hover': {
-                background: theme.palette.action.hover,
-              }
-          },
+        paddingLeft: '72px'
       },
 
       

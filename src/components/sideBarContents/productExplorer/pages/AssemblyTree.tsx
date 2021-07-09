@@ -1,7 +1,7 @@
 import {goBack, push} from 'connected-react-router/immutable';
 import BackIcon from '../shared/BackIcon';
 import SearchIcon from '../shared/SearchIcon';
-import Title from '../shared/Title';
+import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
 
 import {Routes} from "../../../../routes"
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
@@ -37,7 +37,7 @@ function AssemblyTree(props:any) {
 
     const getHeaderContent = () => {
 
-          return (<Title text="Product Tree"/>)
+          return (<Title text="Product Tree" group="Geometry"/>)
     }
     
 

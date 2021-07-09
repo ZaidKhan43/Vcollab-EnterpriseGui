@@ -1,12 +1,13 @@
 export const appTheme = {
   overrides: {
-    MuiCssBaseline: {
-      '@global': {
-        body: {
-          backgroundColor: 'rgb(160,160,255)',
-        },
-      },
-    },
+    MuiAccordion: {
+      root: {
+        boxShadow: 'none',
+        '&:before': { 
+          backgroundColor: 'none'
+        }
+      }
+    }
   },  
   palette:{
     type:'dark'

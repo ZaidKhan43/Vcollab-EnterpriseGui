@@ -1,19 +1,20 @@
 import SvgIcon from '@material-ui/core/SvgIcon';
 
-function Clipplanes(props:any) {
+function Clip(props:any) {
   return (
     <SvgIcon  {...props}>
-      <path d="M5.28481 5.28564H1" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
-      <path d="M5.28613 1V20.7143H25.0003" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
-      <path d="M20.7147 17.2857V5.28564H8.71387" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
-      <path d="M20.7139 25.0001V20.7144" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
+<path d="M4.5707 4.57141H1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M4.57153 1V17.4287H21.0001" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17.4287 14.5715V4.57141H7.42798" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17.4287 21.0001V17.4287" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
     </SvgIcon>
   );
 }
 
-export default function ClipplanesIcon() {
+export default function ClipIcon() {
 
   return (
-      <Clipplanes viewBox="0 0 26 26"/>
+      <Clip viewBox="0 0 22 22"/>
   );
 }

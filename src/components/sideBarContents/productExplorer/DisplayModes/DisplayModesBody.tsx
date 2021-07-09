@@ -118,29 +118,10 @@ function DisplayModesBody() {
     };
 
     return (
-        <div >
+        <List >
         {panelsData.map((panel:any, panelIndex:number) => (
-         
-          <Accordion
-            key={`${panel.id}index`}
-            square
-            className = {classes.accordian}
-            expanded={panel.expanded}
-            onChange={() => handlePanelClick(panelIndex)}
-          >
-            <AccordionSummary
-              aria-controls="panel1d-content"
-              id="panel1d-header"
-              classes={{expandIcon: classes.accordianSummaryIcon,
-                content: classes.accordianSummaryContent,
-              expanded: classes.accordianSummaryExpanded}}
-              expandIcon={<ExpandMoreIcon />}
-              IconButtonProps={{edge:'start'}}
-            >
-              <Typography>{panel.id}</Typography>
-            </AccordionSummary>
-            <AccordionDetails classes = {{root: classes.accordianDetails }}>
-              <List className={classes.displayModeList}>
+         <div key = {panelIndex}>
+              <List  className={classes.displayModeList}>
               {panel?.menuData?.map((item:any, menuIndex:number) => (
                 <ListItem  key={menuIndex} dense button  role={undefined}
                 selected = {item.selected}
@@ -156,16 +137,15 @@ function DisplayModesBody() {
                 </ListItem>
               ))}
               </List>
-              <Box flex>
+              <Box>
                 {
                   renderSelectedMenu(panel,panelIndex)
                 }
               </Box>
-            </AccordionDetails>
-          </Accordion>
+          </div>
 
         ))}
-      </div>
+      </List>
     );
 }
 

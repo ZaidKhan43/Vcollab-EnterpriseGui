@@ -7,7 +7,7 @@ import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";
 import {selectCheckedLeafNodes} from "../../../../store/sideBar/productTreeSlice";
 import Footer from '../Footer'
 import { Routes } from '../../../../routes';
-import Title from '../shared/Title';
+import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
 
 
 export default function TreeSearch(props:any){
@@ -31,7 +31,7 @@ export default function TreeSearch(props:any){
     }
 
     const getHeaderContent = () => {
-      return(<Title text="Search"/>)
+      return(<Title text="Search" group="Geometry"/>)
     }
     
 

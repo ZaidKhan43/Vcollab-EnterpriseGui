@@ -1,17 +1,20 @@
 import {goBack} from 'connected-react-router/immutable';
 import BackIcon from '../shared/BackIcon';
-import Title from '../shared/Title';
+import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 
 import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";
 import {selectCheckedLeafNodes} from "../../../../store/sideBar/productTreeSlice";
 import DisplayModeBody from '../DisplayModes/DisplayModesBody'
-
+import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
+import { useEffect } from 'react';
 
 export default function DisplayModes(props:any){
-    const checkedNodes = useAppSelector(selectCheckedLeafNodes)
-    const dispatch = useAppDispatch();  
     
+    const dispatch = useAppDispatch();  
+    useEffect(() => {
+        console.log("mounting DisplayModes page")
+    },[])
 
     const onClickBackIcon = () =>{
       dispatch(goBack());
@@ -24,7 +27,7 @@ export default function DisplayModes(props:any){
     }
 
     const getHeaderContent = () => {
-      return (<Title text={`${checkedNodes.length } selected` }/>)
+      return (<Title text={"Display Modes" } group="Geometry"/>)
     }
     
 
@@ -46,6 +49,7 @@ export default function DisplayModes(props:any){
       headerLeftIcon = { getHeaderLeftIcon() }
       headerContent={ getHeaderContent() }
       headerRightIcon = { getHeaderRightIcon() }
+      headerAction = { <SelectAction/>}
       body ={ getBody() }
       footer = { getFooter() }
       />)

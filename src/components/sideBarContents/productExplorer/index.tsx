@@ -4,6 +4,7 @@ import { Routes } from '../../../routes'
 import AssemblyTree from './pages/AssemblyTree' 
 import Search from './pages/Search'
 import DisplayModes from './pages/DisplayModes'
+import { useEffect } from 'react'
 function ProductExplorer() {
     
     return (
@@ -18,6 +19,7 @@ function ProductExplorer() {
                 <DisplayModes/>
             </Route>
         </Switch>
+        
     )
 }
 

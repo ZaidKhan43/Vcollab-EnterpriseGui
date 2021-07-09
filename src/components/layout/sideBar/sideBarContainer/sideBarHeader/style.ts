@@ -3,18 +3,10 @@ import { sideBarHeaderHeight } from '../../../../../config';
 
 export default makeStyles((theme) => ({
     header: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
         height: sideBarHeaderHeight,
-        //paddingLeft : 12,
-        //paddingRight : 12,
     },
-    headerLeftContent :{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'start-first',
-        height: sideBarHeaderHeight,
+    rightContent: {
+        marginLeft: 'auto'
     },
     leftIcon : {
         width : 48,
@@ -25,5 +17,8 @@ export default makeStyles((theme) => ({
         height : 48
     },
     content : {
+    },
+    action: {
+        
     }
 }));
