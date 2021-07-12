@@ -155,6 +155,9 @@ export const mainMenuSlice = createSlice({
                     item.expanded = false;
                 }
             })
+        },
+        setChildItem: (state, action:PayloadAction<{panelId:string, child:MainMenuItemChild}>) => {
+            
         }
     },
 

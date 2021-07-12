@@ -1,20 +1,11 @@
 import React, {useState, useEffect, useRef} from 'react'
 import useContainer from '../../../../customHooks/useContainer';
 import { Table, Column,HeaderCell,Cell } from 'rsuite-table';
-import { getSearchInput} from "../../../utils/search";
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
 import SearchItem from './SearchItem'
 import SearchHints from './SearchHints'
-import {selectSearchHints,selectPrevSearches,saveSearchQuery,setCheckedNodesAsync,selectProductTreeData, updatePrevSearches, TreeNode as ITreeNode} from "../../../../store/sideBar/productTreeSlice"
+import {selectSearchHints,selectPrevSearches,setCheckedNodesAsync,selectProductTreeData, setSearchString, TreeNode as ITreeNode, selectSearchResults} from "../../../../store/sideBar/productTreeSlice"
 import Checkbox from "@material-ui/core/Checkbox"
-import TextField from '@material-ui/core/TextField';
-import IconButtom from '@material-ui/core/IconButton';
-import Grid from '@material-ui/core/Grid';
-import AddIcon from '@material-ui/icons/Add';
-import Autocomplete from '@material-ui/lab/Autocomplete';
-import parse from 'autosuggest-highlight/parse';
-import match from 'autosuggest-highlight/match';
-import Fuse from 'fuse.js';
 import {makeStyles} from '@material-ui/core/styles'
 
 const useRTreeOverrideStyles = makeStyles((theme) => ({
@@ -38,17 +29,12 @@ const useRTreeOverrideStyles = makeStyles((theme) => ({
 })) 
 
 function Search(props:any) {
-
     const treeData = useAppSelector(selectProductTreeData);
-    const treeDataRef = useRef(treeData);
     const prevSearches = useAppSelector(selectPrevSearches);
     const searchHints = useAppSelector(selectSearchHints);
+    const result = useAppSelector(selectSearchResults);
     const dispatch = useAppDispatch();
-    const [fuse, setFuse] = useState(null);
-    const [result, setResult] = useState([] as any);
-    const [searchString, setSearchString] = useState("");
     // eslint-disable-next-line
-    const [isOpen, setisOpen] = useState(false);
     const [selectAll, setSelectAll] = useState(false);
 
     const headerRef = useRef(null);
@@ -58,19 +44,6 @@ function Search(props:any) {
     // eslint-disable-next-line
     const [containerWidth, containerHeight] = useContainer(containerRef,[]);
 
-    const getAttrbKeys = (treeArray:any[]) => {
-        let keys = new Set();
-        for (let i=0; i< treeArray.length; i++){
-          if(treeArray[i].pid){
-            let attr = treeArray[i].attributes;
-            Object.keys(attr).forEach(key => {
-              keys.add("attributes."+key);
-            })
-          }
-        }
-        return ['title',...keys] as string[];
-    
-    }
     const generateOptions = () => {
         let options:any = {};
         prevSearches.forEach((e:string) => {
@@ -81,46 +54,7 @@ function Search(props:any) {
         })
         return Object.keys(options) as string[]
     }
-    useEffect(() => {
-      let options = {
-            includeScore: false,
-            keys: getAttrbKeys([...Object.values(treeDataRef.current)]),
-            ignoreLocation: true,
-            includeMatches:false,
-            threshold: 0.2,
-            useExtendedSearch: true,
-            minMatchCharLength: 2
-        }
-        let fuse:any = new Fuse([...Object.values(treeDataRef.current)],options);
-        setFuse(fuse);
-    }, [dispatch])
 
-    useEffect(() => {
-        
-        let searchInput = getSearchInput(searchString);
-        let r:any[] = (fuse as any)?.search(searchInput);
-        if(r)
-        setResult(r.filter(e => e.item.children.length === 0));
-        setSelectAll(false)
-    },[searchString,fuse])
-
-    const handleSearch = (e:any) => {
-       if (!e) {
-         return
-       } 
-       const query = e? e.target.value : "";
-        setSearchString(query);
-        dispatch(saveSearchQuery({data:query}));
-    }
-    const handleAutoComplete = (e:any) => {
-        if(e.key === "Enter")
-        return;
-        setSearchString(e.target.outerText);
-        dispatch(saveSearchQuery({data:e.target.outerText}));
-    }
-    const handleAutoCompleteOpenState = (v:boolean) => {
-      setisOpen(v);
-    }
     const handleCheck = (toCheck:boolean,node:ITreeNode) => {
         dispatch(setCheckedNodesAsync({toCheck,nodeId:node.id}));
     }
@@ -135,58 +69,6 @@ function Search(props:any) {
     return (
         <div ref = {containerRef} style={{height:'100%', overflow:'hidden'}} >
           <div ref = {headerRef} >
-            <Grid container alignItems='center' justify='center' spacing={1}>
-              <Grid item xs={11}>
-              <Autocomplete
-                style={{marginTop:-10}}
-                size = 'small'
-                color = 'inherit'
-                disableClearable
-                clearOnBlur = {false}
-                open = {false}
-                forcePopupIcon = {false}
-                fullWidth = {true}
-                onOpen = {(e:any) => {handleAutoCompleteOpenState(true)}}
-                onClose = {(e:any) => {handleAutoCompleteOpenState(false)}}
-                onKeyPress = {(e:any) => {
-                  if(e.code === 'Enter' || e.code === 'NumpadEnter'){
-                    setisOpen(false);
-                  }
-                }}
-                id="free-solo-search"
-                value={searchString}
-                options={generateOptions()}
-                onChange={handleAutoComplete}
-                onInputChange={handleSearch}
-                renderOption={(option, { inputValue }) => {
-                    const matches = match(option, inputValue);
-                    const parts = parse(option, matches);
-            
-                    return (
-                      <div>
-                        {parts.map((part:any, index:any) => (
-                          <span key={index} style={{ fontWeight: part.highlight ? 700 : 400 }}>
-                            {part.text}
-                          </span>
-                        ))}
-                      </div>
-                    );
-                  }}
-                renderInput={(params:any) => (
-                <TextField
-                    {...params}
-                    label="Search"
-                    margin="normal"
-                    InputProps={{ ...params.InputProps, type: 'search', endAdornment:  <IconButtom size='small' onClick={() => dispatch(updatePrevSearches())}> <AddIcon/></IconButtom> }}
-                    
-                />
-                )}
-            />
-              </Grid>
-              <Grid item>
-             
-              </Grid>
-            </Grid>
 
             <SearchHints data = {generateOptions()} setInput={setSearchString}></SearchHints>
             {

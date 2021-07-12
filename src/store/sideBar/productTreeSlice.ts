@@ -24,7 +24,8 @@ type ProductTreeState = {
     currentState: ProductTreeStates,
     searchHints: {[id:string]:any},
     prevSearches: {[id:string]:any},
-    searchQuery: string
+    searchQuery: string,
+    searchResults: any[]
 }
 
 // Define the initial state using that type
@@ -34,7 +35,8 @@ const initialState: ProductTreeState = {
     currentState: ProductTreeStates.Tree,
     searchHints: {},
     prevSearches: {},
-    searchQuery: ''
+    searchQuery: '',
+    searchResults: []
 }
 
 const getNode = (id:string, state:ProductTreeState):TreeNode|undefined => {
@@ -433,13 +435,17 @@ export const productTreeSlice = createSlice({
     setProductTreeState: (state, action:PayloadAction<{data:ProductTreeStates}>) => {
       state.currentState = action.payload.data;
     },
-    updatePrevSearches: (state) => {
-      if(!state.prevSearches[state.searchQuery] && state.searchQuery !== ''){
-        state.prevSearches[state.searchQuery] = Object.keys(state.prevSearches).length;
+    updatePrevSearches: (state, action:PayloadAction<string>) => {
+      const query = action.payload;
+      if(!state.prevSearches[query] && query !== ''){
+        state.prevSearches[query] = Object.keys(state.prevSearches).length;
       }
     },
-    saveSearchQuery : (state, action: PayloadAction<{data:string}>)=> {
-        state.searchQuery = action.payload.data;
+    setSearchString: (state, action:PayloadAction<string>) => {
+      state.searchQuery = action.payload;
+    },
+    setSearchResults: (state, action:PayloadAction<any[]>) => {
+      state.searchResults = action.payload;
     }
   },
   extraReducers: builder => {
@@ -492,7 +498,8 @@ export const {
   groupSelectedNodes, 
   focusSelectedNodes,
   setProductTreeState,
-  saveSearchQuery, 
+  setSearchString,
+  setSearchResults,
   updatePrevSearches } = productTreeSlice.actions;
 
 //Define the selectors
@@ -501,6 +508,8 @@ export const selectCurrentState = (state:RootState) => state.productTree.current
 export const selectRootIds = (state:RootState) => state.productTree.rootIds
 export const selectSearchHints = (state:RootState) => Object.keys(state.productTree.searchHints)
 export const selectPrevSearches = (state:RootState) => Object.keys(state.productTree.prevSearches)
+export const selectSearchString = (state:RootState) => state.productTree.searchQuery
+export const selectSearchResults = (state:RootState) => state.productTree.searchResults
 export const selectCheckedLeafNodes = (state:RootState):TreeNode[] => {
   let nodes = [...Object.values(state.productTree.data)] as TreeNode[];
   return nodes.filter((item: TreeNode) => item.children.length === 0 && item.state.checked);

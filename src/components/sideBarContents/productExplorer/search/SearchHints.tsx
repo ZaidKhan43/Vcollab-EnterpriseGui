@@ -8,7 +8,7 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Remove';
 import React, { useRef } from 'react'
 import {useAppDispatch} from '../../../../store/storeHooks'
-import {saveSearchQuery,removeSearchHint} from '../../../../store/sideBar/productTreeSlice'
+import {removeSearchHint, setSearchString} from '../../../../store/sideBar/productTreeSlice'
 
 //@ts-expect-error
 import ResizePanel from 'react-resize-panel'
@@ -52,7 +52,7 @@ function Body(props:SearchHintsProps) {
     const classes = useStyles();
     const handleClick = (s:string) => {
         props.setInput(s);
-        dispatch(saveSearchQuery({data:s}));
+        dispatch(setSearchString(s));
     }
     const handleDelete = (s:string) => {
         dispatch(removeSearchHint({data:s}));

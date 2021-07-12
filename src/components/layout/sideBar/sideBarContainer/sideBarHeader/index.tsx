@@ -1,35 +1,30 @@
 import styles from './style';
 import Grid from '@material-ui/core/Grid'
-import Select from './utilComponents/SelectAction'
+import clsx from 'clsx'
 
 const HeaderFirstRow = (props:any) => {
     const classes = styles();
     return(
       <Grid container className={classes.header} alignItems='center'>
-      <Grid item >
       {props.leftIcon ?
-          <div className = {classes.leftIcon}>
+          <Grid item className = {classes.leftIcon}>
               {props.leftIcon}
-          </div>
+          </Grid>
           :null
       }
-      </Grid>
-      
       {props.content ?
       <Grid item className = {classes.content}>
               {props.content}
       </Grid>
           :null
       }
-      <Grid item className={classes.rightContent}>
       {props.rightIcon ?
-      <div className = {classes.rightIcon}>
+      <Grid item className={clsx(classes.rightContent,classes.rightIcon)}>
           {props.rightIcon}
-      </div>
+      </Grid>
       :null
       }
-      </Grid>
-  </Grid>
+     </Grid>
     )
 
 }

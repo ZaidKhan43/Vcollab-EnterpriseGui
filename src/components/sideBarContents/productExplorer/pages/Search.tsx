@@ -1,13 +1,16 @@
+import IconButton from '@material-ui/core/IconButton';
+import ClearIcon from '@material-ui/icons/Clear';
+
 import {goBack, push} from 'connected-react-router/immutable';
 
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import BackIcon from '../shared/BackIcon';
 import Search from '../search';
 import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";
-import {selectCheckedLeafNodes} from "../../../../store/sideBar/productTreeSlice";
+import {selectCheckedLeafNodes, setSearchString} from "../../../../store/sideBar/productTreeSlice";
 import Footer from '../Footer'
 import { Routes } from '../../../../routes';
-import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
+import SearchBox from '../search/SearchBox';
 
 
 export default function TreeSearch(props:any){
@@ -31,12 +34,14 @@ export default function TreeSearch(props:any){
     }
 
     const getHeaderContent = () => {
-      return(<Title text="Search" group="Geometry"/>)
+      return(<SearchBox/>)
     }
     
 
     const getHeaderRightIcon = () => {
-      return null
+      return(<IconButton aria-label="search" onClick={() => dispatch(setSearchString(""))}>
+      <ClearIcon />
+    </IconButton>)
     }
 
     const getBody = () => {

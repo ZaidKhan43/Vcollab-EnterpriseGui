@@ -117,7 +117,7 @@ export default function MainMenu(){
       return (  
        <> 
       <Divider className={classes.divider} />
-      <List disablePadding>
+      <List disablePadding className={classes.root}>
       {
         mainMenuData?.map((item:any) => 
           <MuiAccordion 
@@ -136,12 +136,12 @@ export default function MainMenu(){
                         aria-controls="panel1a-content"
                         id="panel1a-header"
                     >
-                    <Grid container spacing={0} alignContent='center' alignItems='flex-start'>
+                    <Grid container alignContent='center' alignItems='flex-start'>
                       <Grid item xs={3}>
                       {item.icon}
                       </Grid>
                       <Grid item>
-                      <MuiTypography >{item.title}</MuiTypography>
+                      <MuiTypography noWrap>{item.title}</MuiTypography>
                       </Grid>
                     </Grid>
                 </MuiAccordionSummary>
