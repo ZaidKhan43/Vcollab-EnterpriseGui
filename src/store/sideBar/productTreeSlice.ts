@@ -505,5 +505,8 @@ export const selectCheckedLeafNodes = (state:RootState):TreeNode[] => {
   let nodes = [...Object.values(state.productTree.data)] as TreeNode[];
   return nodes.filter((item: TreeNode) => item.children.length === 0 && item.state.checked);
 }
-
+export const selectUnCheckedLeafNodes = (state:RootState):TreeNode[] => {
+  let nodes = [...Object.values(state.productTree.data)] as TreeNode[];
+  return nodes.filter((item: TreeNode) => item.children.length === 0 && item.state.checked === false);
+}
 export default productTreeSlice.reducer;

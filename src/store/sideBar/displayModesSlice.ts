@@ -1,12 +1,19 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import {getDisplayModes, setDisplayMode} from "../../backend/viewerAPIProxy";
-import {selectCheckedLeafNodes} from "./productTreeSlice"
+import {selectCheckedLeafNodes, selectUnCheckedLeafNodes} from "./productTreeSlice"
 import {toastMsg} from "../toastSlice";
 import type { RootState } from '../index';
+
+export enum Selection {
+  ALL_PARTS,
+  SELECTED_PARTS,
+  UNSELECTED_PARTS
+}
 
 // Define a type for the slice state
 type DisplayModesState = {
     displayModesData: any[],
+    applyTo: Selection
 }
 
 type DisplayMenuItem = {
@@ -25,7 +32,8 @@ const initialState: DisplayModesState = {
         icon: "ExpandMoreIcon",
         expanded: true,
         menuData: []
-      },]
+      },],
+    applyTo: Selection.SELECTED_PARTS
 }
 
 export enum DownloadStates {
@@ -61,12 +69,25 @@ export const fetchDisplayModes = createAsyncThunk(
   }
 )
 
+const getSelectedNodeIds = (root:RootState) : string[]=> {
+  let displayModesState = root.displayModes;
+  switch(displayModesState.applyTo) {
+    case Selection.SELECTED_PARTS:
+      return selectCheckedLeafNodes(root).map(node => node.id);
+    case Selection.UNSELECTED_PARTS:
+      return selectUnCheckedLeafNodes(root).map(node => node.id);
+    default: 
+      return [] as string[]
+    
+  }
+  
+}
 export const setDisplayModeAsync = createAsyncThunk(
   "displayModes/setDisplayModeAsync",
   async (data:{menuId:number}, {dispatch,getState}) => {
     let root = getState() as RootState;
     const viewerId = root.app.viewers[root.app.activeViewer || ""];
-    const nodeIds = selectCheckedLeafNodes(root).map(node => node.id);
+    const nodeIds = getSelectedNodeIds(root);
     const item = root.displayModes.displayModesData[0].menuData[data.menuId];
     let res = await setDisplayMode(viewerId,item.displayId,nodeIds);
     if(res === "SUCCESS")
@@ -83,6 +104,9 @@ export const displayModesSlice = createSlice({
   name: 'displayModes',
   initialState,
   reducers: {
+      setApplyTo: (state, action:PayloadAction<Selection>) => {
+        state.applyTo = action.payload;
+      },
       expandPanel: (state, action:PayloadAction<{panelId:number,value:boolean}>) => {
         let selectedPanel = state.displayModesData[action.payload.panelId];
         selectedPanel.expanded = action.payload.value;
@@ -104,6 +128,7 @@ export const displayModesSlice = createSlice({
 
 //Define the Reducers
 export const { 
+    setApplyTo,
     expandPanel,
     setSelectedMenu,
     setDownloadStatus
@@ -111,5 +136,6 @@ export const {
 
 //Define the selectors
 export const selectDisplayModesData = (state:RootState) => state.displayModes.displayModesData;
+export const selectApplyTo = (state:RootState) => state.displayModes.applyTo;
 
 export default displayModesSlice.reducer;

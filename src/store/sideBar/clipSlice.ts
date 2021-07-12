@@ -905,4 +905,8 @@ export const selectActivePlane = (state : RootState) => {
     return(-1)
 };
 
+export const selectPlanes = (state:RootState) => {
+  return state.clipPlane.planes
+}
+
 export default clipSlice.reducer;

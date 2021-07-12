@@ -50,7 +50,7 @@ const getIcon = (name:String) => {
 }
 
 
-function DisplayModesBody() {
+function DisplayModesBody(props:any) {
     const dispatch = useAppDispatch();
     const panelsData = useAppSelector(selectDisplayModesData);
 
@@ -118,12 +118,12 @@ function DisplayModesBody() {
     };
 
     return (
-        <List >
-        {panelsData.map((panel:any, panelIndex:number) => (
+        <List>
+        { panelsData.map((panel:any, panelIndex:number) => (
          <div key = {panelIndex}>
               <List  className={classes.displayModeList}>
               {panel?.menuData?.map((item:any, menuIndex:number) => (
-                <ListItem  key={menuIndex} dense button  role={undefined}
+                <ListItem disabled={props.disabled} key={menuIndex} dense button  role={undefined}
                 selected = {item.selected}
                 onClick={() => onSelectMenu(menuIndex, panelIndex)}>
                   <ListItemIcon>
