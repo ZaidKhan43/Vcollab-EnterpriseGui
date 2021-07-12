@@ -6,7 +6,8 @@ import Grid from "@material-ui/core/Grid"
 import ToolTip from '@material-ui/core/Tooltip'
 import Typography from "@material-ui/core/Typography";
 
-import AddTagDialog from "./Dialogs/AddTagDialog"
+import AddTagDialog from "./Dialogs/AddTagDialog";
+import AddTagNoModal from "./Dialogs/AddTagNoModal";
 import VisibilityOptions from './VisibilityOptions'
 import { useAppDispatch, useAppSelector } from '../../../../store/storeHooks';
 import {selectActiveViewerID} from '../../../../store/appSlice';
@@ -39,6 +40,14 @@ function FooterOptions(props:any) {
         dispatch(focusSelectedNodes({viewerId:activeViewerId}));
     }
     return (
+
+        showDialog ?
+        <AddTagNoModal message=" Enter a tag name to the selected Nodes. 
+        This tag name can be used in search to filter nodes" 
+        onAdd = {handleDialogSave}
+        onCancel = {handleDialogClose}
+        />
+        :
         <Grid container justify="space-around">
             <Grid item xs={4}>
                 <Grid container item direction='column' justify='flex-start'>

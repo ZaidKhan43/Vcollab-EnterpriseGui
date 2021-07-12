@@ -91,13 +91,17 @@ function Search(props:any) {
                    showHeader={false}
                    width={300}
                    rowHeight = {(rowData:any) => {
-                        let attr = rowData?.item?.attributes;
+                        let attr = rowData?.item?.id? treeData[rowData.item.id].attributes : null;
                         if(attr && Object.keys(attr).length > 0)
                         {
-                            return 30 * (Object.keys(attr).length+1);
+                            let height = 30 * (Object.keys(attr).length+1);
+                            console.log("height",height)
+                            return height;
                         }
                         else{
-                            return 45;
+                            let height = 45;
+                            console.log("height",height)
+                            return height;
                         }
                         
                    }}
