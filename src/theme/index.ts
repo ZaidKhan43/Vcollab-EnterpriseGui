@@ -30,6 +30,11 @@ export const appTheme = {
       fontWeight: 400,
       fontSize: 13,
     },
+
+    h5: {
+      fontWeight: 400,
+      fontSize: 10,
+    },
   },
   breakpoints: {
     values: {

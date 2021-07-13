@@ -76,16 +76,16 @@ function SearchBox() {
      useEffect(() => {
         let options = {
               includeScore: false,
-              keys: getAttrbKeys([...Object.values(treeDataRef.current)]),
+              keys: getAttrbKeys([...Object.values(treeData)]),
               ignoreLocation: true,
               includeMatches:false,
               threshold: 0.2,
               useExtendedSearch: true,
               minMatchCharLength: 2
           }
-          let fuse:any = new Fuse([...Object.values(treeDataRef.current)],options);
+          let fuse:any = new Fuse([...Object.values(treeData)],options);
           setFuse(fuse);
-      }, [dispatch])
+      }, [dispatch,treeData])
   
       useEffect(() => {
           

@@ -8,9 +8,7 @@ import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";
 import {selectCheckedLeafNodes, selectUnCheckedLeafNodes} from "../../../../store/sideBar/productTreeSlice";
 import DisplayModeBody from '../DisplayModes/DisplayModesBody'
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
-import { useEffect } from 'react';
-import { selectPlanes } from '../../../../store/sideBar/clipSlice';
-import { useState } from 'react';
+import Footer from '../DisplayModes/Footer';
 import { fetchDisplayModes, selectApplyTo,Selection,setApplyTo } from '../../../../store/sideBar/displayModesSlice';
 
 
@@ -64,10 +62,14 @@ export default function DisplayModes(props:any){
           </SelectAction>
         )
     }
+    const getFooter = () => {
+       return <Footer/>
+    }
     return (<SideBarContainer
       headerLeftIcon = { <BackIcon onClick={onClickBackIcon}/> }
       headerContent={ <Title text={"Display Modes" } group="Geometry"/> }
       headerAction = {getAction()}
       body ={ <DisplayModeBody disabled={IsListDisabled()}/> }
+      footer = {getFooter()}
       />)
 }

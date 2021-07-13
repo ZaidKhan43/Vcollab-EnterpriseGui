@@ -108,10 +108,14 @@ return(
      <MuiIconButton disabled={props.editMode} style={{height:10, width:10,marginLeft:"5px"}}><MuiExpandMoreIcon  onClick={() =>  props.value > props.valueMin && props.onHandleTextbox(Number((props.value - stepValue).toFixed(4)))} className={`${classes.translateButton} + ${props.editMode && classes.disabledButton}`}/></MuiIconButton>
   </MuiGrid>
 </MuiGrid>
-<div style={{marginLeft: "20px"}}> 
+<div style={{marginLeft: "-25px"}}> 
   <MuiGrid container spacing={1}>
-    <MuiGrid item xs={12} sm={4}>
-      <MuiTypgraphy style={{ fontSize: "14px",}}>Step Value :</MuiTypgraphy>
+  <MuiGrid item xs={12} sm={5}>
+    </MuiGrid>
+    <MuiGrid item xs={12} sm={3}>
+      <div style={{marginTop:"5px"}}>
+      <MuiTypgraphy style={{ fontSize: "12.5px",}}>Step Value :</MuiTypgraphy>
+      </div>
     </MuiGrid>
 
     <MuiGrid item xs={12} sm={4} >

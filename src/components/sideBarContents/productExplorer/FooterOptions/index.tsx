@@ -11,7 +11,7 @@ import AddTagNoModal from "./Dialogs/AddTagNoModal";
 import VisibilityOptions from './VisibilityOptions'
 import { useAppDispatch, useAppSelector } from '../../../../store/storeHooks';
 import {selectActiveViewerID} from '../../../../store/appSlice';
-import {groupSelectedNodes,focusSelectedNodes} from '../../../../store/sideBar/productTreeSlice'
+import {groupSelectedNodes,focusSelectedNodes, updatePrevSearches} from '../../../../store/sideBar/productTreeSlice'
 import { makeStyles,createStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(theme => createStyles({
@@ -34,6 +34,7 @@ function FooterOptions(props:any) {
     }  
     const handleDialogSave = (name:string) => {
         dispatch(groupSelectedNodes({tagName:name}))
+        dispatch(updatePrevSearches(name));
         setShowDialog(false);
     }
     const handleFocus = () => {

@@ -44,11 +44,11 @@ export default function Sidebar(){
         <Route path={Routes.GEOMETRY}>
         <ProductExplorer />
         </Route>
-        <Route>
-        <Colormaps />
+        <Route path={Routes.CLIPPLANES} >
+        <ClipPlanes/>
         </Route>
         <Route>
-        <ClipPlanes />
+        <Colormaps />
         </Route>
         <Route>
         <Views />

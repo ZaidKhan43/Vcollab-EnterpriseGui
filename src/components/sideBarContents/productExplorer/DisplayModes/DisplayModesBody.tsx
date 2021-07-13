@@ -7,9 +7,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
+
 
 //icons import
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -25,7 +23,6 @@ import DownloadStatusIcon from "./DownloadStatusIcon";
 import {DownloadStates, expandPanel,fetchDisplayModes,setDisplayModeAsync, selectDisplayModesData,setSelectedMenu,setDownloadStatus} from "../../../../store/sideBar/displayModesSlice";
 import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";
 import useStyles from './styles';
-import {BytesToStructuredString} from "../../../utils/networkUtils"
 
 
 const getIcon = (name:String) => {
@@ -92,30 +89,6 @@ function DisplayModesBody(props:any) {
       
     },[dispatch]);
     const classes = useStyles();
-    const renderSelectedMenu = (panel:any,panelIndex:number) => {
-      return(panel?.menuData?.map((item:any, menuIndex:number) => (
-        item.selected && item.status === DownloadStates.NOT_DOWNLOADED ? (
-          <>
-            <Typography>{BytesToStructuredString(item.size)}</Typography>
-            <Button
-              className = {classes.selectedButton}
-              key = {menuIndex}
-              variant="contained"
-              size="small"
-              color="primary"
-              onClick={() => handleDownload(menuIndex,panelIndex)}
-            >
-              Download and Show
-            </Button>
-          </>
-
-        ) : item.selected && item.status === DownloadStates.DOWNLOADED ? (
-            <>
-
-            </>
-        ) : null
-    )))
-    };
 
     return (
         <List>
@@ -137,11 +110,6 @@ function DisplayModesBody(props:any) {
                 </ListItem>
               ))}
               </List>
-              <Box>
-                {
-                  renderSelectedMenu(panel,panelIndex)
-                }
-              </Box>
           </div>
 
         ))}

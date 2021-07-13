@@ -83,7 +83,8 @@ const getMainMenuData = (mainMenu:MainMenuType) => {
             {
               id: child.id,
               title: child.name,
-              path: child.path
+              path: child.path,
+              disabled: child.disabled,
             }
           )
       })
@@ -148,7 +149,7 @@ export default function MainMenu(){
                 <MuiAccordionDetails className ={classes.accordianDetails}>
                     <List classes={{root:classes.list}}>
                         { item?.list.map((element : any) =>
-                            <ListItem alignItems='flex-start' className={classes.listItem} button key={ 'divParent_' + element.id }
+                            <ListItem disabled={element.disabled === false ? false : true} alignItems='flex-start' className={classes.listItem} button key={ 'divParent_' + element.id }
                             onClick={() => handleOnClick(element.path)}>
                                 <ListItemText primary={element.title} >
                                 </ListItemText>

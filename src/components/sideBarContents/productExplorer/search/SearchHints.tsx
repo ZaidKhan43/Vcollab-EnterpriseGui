@@ -17,6 +17,25 @@ import { makeStyles } from '@material-ui/core/styles'
 import clsx from 'clsx'
 
 const useStyles = makeStyles(theme => ({
+    root: {
+        overflowY: "scroll",
+        overflowX:"hidden",
+        width:"100%",
+        height:"100%",
+        scrollbarColor: "rgba(0,0,0,.3) rgba(0,0,0,0.00) ",
+        scrollbarWidth: 'thin',
+        '&::-webkit-scrollbar': {
+          width: '0.4em'
+        },
+        '&::-webkit-scrollbar-track': {
+          boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+          webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+        },
+        '&::-webkit-scrollbar-thumb': {
+          backgroundColor: 'rgba(0,0,0,.3)',
+          outline: '1px solid slategrey'
+        },
+    },
     customHandle: {
         height:2
     },
@@ -58,7 +77,7 @@ function Body(props:SearchHintsProps) {
         dispatch(removeSearchHint({data:s}));
     }
     return(
-        <List component='div' aria-label="search hints list">
+        <List component='div' aria-label="search hints list" classes={{root:classes.root}}>
             {
                 props.data.length === 0 ? (
                     <MuiTypography>No data</MuiTypography>
