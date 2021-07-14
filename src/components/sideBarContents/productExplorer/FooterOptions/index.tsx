@@ -9,6 +9,8 @@ import Typography from "@material-ui/core/Typography";
 import AddTagDialog from "./Dialogs/AddTagDialog";
 import AddTagNoModal from "./Dialogs/AddTagNoModal";
 import VisibilityOptions from './VisibilityOptions'
+import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
+import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
 import { useAppDispatch, useAppSelector } from '../../../../store/storeHooks';
 import {selectActiveViewerID} from '../../../../store/appSlice';
 import {groupSelectedNodes,focusSelectedNodes, updatePrevSearches} from '../../../../store/sideBar/productTreeSlice'
@@ -49,51 +51,22 @@ function FooterOptions(props:any) {
         onCancel = {handleDialogClose}
         />
         :
-        <Grid container justify="space-around">
-            <Grid item xs={4}>
-                <Grid container item direction='column' justify='flex-start'>
-                    <Grid item>
-                    <VisibilityOptions disabled={props.disabled}></VisibilityOptions>
-                    </Grid>
-                    <Grid item className={classes.iconText}>
-                        <Typography  variant='caption'>Visibility</Typography>    
-                    </Grid>
-                </Grid>
-            </Grid>
-            <Grid item xs={4}>
-                <Grid container item direction='column'>
-                <Grid item>
-                    <ToolTip title='Tag selected'>
-                        <span>
-                        <IconButton disabled={props.disabled} onClick={() => handleDialogOpen()}>
-                            <LocalOfferIcon/>
-                        </IconButton>  
-                        </span>
-                    </ToolTip>
-                    </Grid>
-                    <Grid item className={classes.iconText}>
-                        <Typography  variant='caption'>Label Parts</Typography>    
-                    </Grid>
-                </Grid>
-            </Grid>
-            <Grid item xs={4}>
-            <Grid container item direction='column'>
-                <Grid item>
-                    <ToolTip title='Focus selected'>
-                    <span>
-                    <IconButton disabled={props.disabled} onClick={() => handleFocus()}>
-                    <CenterFocusWeakSharpIcon/>
-                    </IconButton>  
-                    </span>
-                    </ToolTip>
-                </Grid>
-                <Grid item className={classes.iconText} >
-                        <Typography variant='caption'>Fit To Screen</Typography>    
-                </Grid>
-            </Grid>
-        </Grid>
+        <OptionContainer>
+            <Option label="Visibility" icon={<VisibilityOptions disabled={props.disabled}></VisibilityOptions>}/>
+            <Option label="Label Parts" icon = {
+            <IconButton disabled={props.disabled} onClick={() => handleDialogOpen()}>
+                <LocalOfferIcon/>
+            </IconButton>  
+           }/>
+            <Option 
+            label = "Fit To Screen"
+            icon = {<IconButton disabled={props.disabled} onClick={() => handleFocus()}>
+            <CenterFocusWeakSharpIcon/>
+            </IconButton>  }
+            />
             <AddTagDialog open={showDialog} handleSave={handleDialogSave} handleClose={handleDialogClose}></AddTagDialog>
-        </Grid>
+        </OptionContainer>
+        
     )
 }
 

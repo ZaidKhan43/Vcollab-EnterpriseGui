@@ -31,36 +31,34 @@ import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
 import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
 import MuiExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { Routes } from '../../../routes';
-import { MainMenu as MainMenuType, MainMenuItemChild, selectMainMenu, togglePanel } from '../../../store/mainMenuSlice';
+import { MainMenu as MainMenuType, MainMenuItem, MainMenuItems, selectMainMenu, togglePanel } from '../../../store/mainMenuSlice';
 import { useState } from 'react';
 import { useEffect } from 'react';
 
-//test
-import Select from '../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction'
 
-const getIcon = (name:string):JSX.Element | null => {
-    switch(name) {
-      case 'Geometry':
+const getIcon = (type:MainMenuItems):JSX.Element | null => {
+    switch(type) {
+      case MainMenuItems.GEOMETRY:
         return <GeometryIcon />
-      case 'Field':
+      case MainMenuItems.FIELD:
         return <FieldIcon/>
-      case 'Scene':
+      case MainMenuItems.SCENE:
         return <SceneIcon/>
-      case 'Color Maps':
+      case MainMenuItems.COLOR_MAPS:
         return <ColorMapIcon/>
-      case 'Clip Planes':
+      case MainMenuItems.CLIP_PLANE:
         return <ClipIcon/>
-      case 'Labels':
+      case MainMenuItems.LABELS:
         return <LabelIcon/>
-      case 'Transformations':
+      case MainMenuItems.TRANSFORMATIONS:
         return <TransformIcon/>
-      case 'Animations':
+      case MainMenuItems.ANIMATIONS:
         return <AnimIcon/>
-      case 'Slides':
+      case MainMenuItems.SLIDES:
         return <SlidesIcon/>
-      case 'Messages':
+      case MainMenuItems.MESSAGES:
         return <MessageIcon/>
-      case 'Application Settings':
+      case MainMenuItems.SETTINGS:
         return <SettingsIcon/>
       default:
         return null
@@ -73,7 +71,7 @@ const getMainMenuData = (mainMenu:MainMenuType) => {
       let newItem = {
         id: item.id,
         title: item.name,
-        icon: getIcon(item.name),
+        icon: getIcon(item.type),
         expanded: item.expanded,
         list: [] as any[]
       };

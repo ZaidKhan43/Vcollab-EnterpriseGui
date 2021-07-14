@@ -79,9 +79,6 @@ function Body(props:SearchHintsProps) {
     return(
         <List component='div' aria-label="search hints list" classes={{root:classes.root}}>
             {
-                props.data.length === 0 ? (
-                    <MuiTypography>No data</MuiTypography>
-                ):
                 props.data.map((item) => {
                     return(
                         <ListItem onClick={() => handleClick(item)} button classes={{root:classes.listItem}}>

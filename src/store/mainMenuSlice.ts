@@ -4,7 +4,8 @@ import type { RootState } from './index';
 
 export type MainMenuItemChild = {
     id:string,
-    name:string,
+    name: string,
+    type: MainMenuItems,
     path: Routes,
     disabled: boolean,
 }
@@ -12,8 +13,51 @@ export type MainMenuItemChild = {
 export type MainMenuItem = {
     id:string,
     name: string,
+    type: MainMenuItems,
     expanded: boolean,
     children: MainMenuItemChild[]
+}
+
+export enum MainMenuItems {
+    GEOMETRY,
+    GEOMETRY_ASSEMBLY_TREE,
+    GEOMETRY_SEARCH,
+    GEOMETRY_DISPLAY_MODE,
+    GEOMETRY_MATERIAL_COLOR,
+    GEOMETRY_COORDINATE_SYSTEM,
+    GEOMETRY_TRANSFORMATION,
+
+    FIELD,
+    FIELD_VARIABLES,
+    FIELD_STEPS_AND_SUBCASES,
+    FIELD_SECTIONS_AND_LAYERS,
+    FIELD_DERIVED_TYPES,
+    
+    SCENE,
+    SCENE_CAMERA,
+    SCENE_BACKGROUND,
+    SCENE_AXIS_TRIAD,
+    SCENE_LIGHT,
+
+    COLOR_MAPS,
+
+    CLIP_PLANE,
+    CLIP_PLANE_LIST,
+    CLIP_PLANE_SETTINGS,
+    CLIP_PLANE_TRANSFORM,
+
+    LABELS,
+
+    TRANSFORMATIONS,
+
+    ANIMATIONS,
+
+    SLIDES,
+
+    MESSAGES,
+
+    SETTINGS
+
 }
 
 export type MainMenu = {
@@ -24,41 +68,48 @@ const initialState: MainMenu ={
         {
             id:'1',
             expanded: false,
-            name: 'Geometry',
+            name: "Geometry",
+            type: MainMenuItems.GEOMETRY,
             children: [
                 {
                     id: '11',
-                    name:'Assembly Tree',
+                    name: "Assembly Tree",
+                    type:MainMenuItems.GEOMETRY_ASSEMBLY_TREE,
                     path: Routes.GEOMETRY_ASSEMBLY_TREE,
                     disabled: false,
                 },
                 {
                     id: '12',
-                    name:'Search',
+                    name: "Search",
+                    type:MainMenuItems.GEOMETRY_SEARCH,
                     path: Routes.GEOMETRY_SEARCH,
                     disabled: false,
                   },
                   {
                     id: '13',
-                    name:"Display Mode",
+                    name: "Display Mode",
+                    type:MainMenuItems.GEOMETRY_DISPLAY_MODE,
                     path: Routes.GEOMETRY_DISPLAY_MODES,
                     disabled: false,
                   },
                   {
                     id: '14',
-                    name:"Material Color",
+                    name: "Material Color",
+                    type:MainMenuItems.GEOMETRY_MATERIAL_COLOR,
                     path: Routes.HOME,
                     disabled: false,
                   },
                   {
                     id: '15',
-                    name:"Coordinate System",
+                    name: "Coordinate System",
+                    type:MainMenuItems.GEOMETRY_COORDINATE_SYSTEM,
                     path: Routes.HOME,
                     disabled: false,
                   },
                   {
                     id: '16',
-                    name:"Transformation",
+                    name: "Transform",
+                    type:MainMenuItems.GEOMETRY_TRANSFORMATION,
                     path: Routes.HOME,
                     disabled: false,
                   }
@@ -67,29 +118,34 @@ const initialState: MainMenu ={
         {
             id:'2',
             expanded: false,
-            name: 'Field',
+            name: "Field",
+            type: MainMenuItems.FIELD,
             children: [
                 {
                     id: '21',
-                    name:'Variabes',
+                    name: "Variables",
+                    type:MainMenuItems.FIELD_VARIABLES,
                     path:Routes.HOME,
                     disabled: false,
                   },
                   {
                     id:'22',
-                    name:'Steps & Subcases',
+                    name: "Steps & Subcases",
+                    type:MainMenuItems.FIELD_STEPS_AND_SUBCASES,
                     path:Routes.HOME,
                     disabled: false,
                   },
                   {
                     id:'23',
-                    name:'Sections & Layers',
+                    name: "Sections & Layers",
+                    type:MainMenuItems.FIELD_SECTIONS_AND_LAYERS,
                     path:Routes.HOME,
                     disabled: false,
                   },
                   {
                     id:'24',
-                    name:'Derived Types',
+                    name: "Derived Types",
+                    type:MainMenuItems.FIELD_DERIVED_TYPES,
                     path:Routes.HOME,
                     disabled: false,
                   },
@@ -98,56 +154,70 @@ const initialState: MainMenu ={
         {
             id:'3',
             expanded:false,
-            name: 'Scene',
+            name: "Scene",
+            type: MainMenuItems.SCENE,
             children: [
                 {
                     id:'31',
-                    name:'Camera',
+                    name: "Camera",
+                    type:MainMenuItems.SCENE_CAMERA,
                     path:Routes.HOME,
+                    disabled:false
                 },
                 {
                     id:'32',
-                    name:'Background',
+                    name: "Background",
+                    type:MainMenuItems.SCENE_BACKGROUND,
                     path:Routes.HOME,
+                    disabled: false,
                 },
                 {
                     id:'33',
-                    name:'Axis Triad',
+                    name: "Axis Triad",
+                    type:MainMenuItems.SCENE_AXIS_TRIAD,
                     path:Routes.HOME,
+                    disabled: false
                 },
                 {
                     id:'34',
-                    name:'Light',
+                    name: "Light",
+                    type:MainMenuItems.SCENE_LIGHT,
                     path:Routes.HOME,
+                    disabled: false
                 },
             ]
         },
         {
             id:'4',
             expanded:false,
-            name:'Color Maps',
+            name: "Color Maps",
+            type:MainMenuItems.COLOR_MAPS,
             children:[]
         },
         {
             id:'5',
             expanded: false,
-            name: 'Clip Planes',
+            name: "Clip Plane",
+            type: MainMenuItems.CLIP_PLANE,
             children: [
                 {
                     id:'51',
-                    name:'List',
+                    name: "List",
+                    type:MainMenuItems.CLIP_PLANE_LIST,
                     path:Routes.CLIPPLANES_LIST,
                     disabled: false,
                 },
                 {
                     id:'52',
-                    name:'Settings',
+                    name: "Settings",
+                    type:MainMenuItems.CLIP_PLANE_SETTINGS,
                     path:Routes.CLIPPLANES_SETTINGS,
                     disabled: true,
                 },
                 {
                     id:'53',
-                    name:'Transformation',
+                    name: "Transform",
+                    type:MainMenuItems.CLIP_PLANE_TRANSFORM,
                     path:Routes.CLIPPLANES_TRANSFORMATION,
                     disabled: true,
                 },
@@ -156,37 +226,43 @@ const initialState: MainMenu ={
         {
             id:'6',
             expanded: false,
-            name: 'Labels',
-            children: []
+            name: "Labels",
+            type: MainMenuItems.LABELS,
+            children: [],
         },
         {
             id:'7',
             expanded: false,
-            name: 'Transformations',
+            name: "Transformations",
+            type: MainMenuItems.TRANSFORMATIONS,
             children: []
         },
         {
             id:'8',
             expanded: false,
-            name: 'Animations',
+            name: "Animations",
+            type: MainMenuItems.ANIMATIONS,
             children: []   
         },
         {
             id:'9',
             expanded: false,
-            name: 'Slides', 
+            name: "Slides",
+            type: MainMenuItems.SLIDES, 
             children: []
         },
         {
             id:'10',
             expanded: false,
-            name: 'Messages',
+            name: "Messages",
+            type: MainMenuItems.MESSAGES,
             children:[]
         },
         {
             id:'11',
             expanded: false,
-            name: 'Application Settings',
+            name: "Application Settings",
+            type: MainMenuItems.SETTINGS,
             children: []
         }
     ]
