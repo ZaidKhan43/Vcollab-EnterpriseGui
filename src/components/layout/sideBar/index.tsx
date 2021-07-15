@@ -14,6 +14,7 @@ import { sideBarContentTypes } from '../../../config';
 
 import MainMenu from '../../sideBarContents/mainMenu';
 import ProductExplorer from '../../sideBarContents/productExplorer';
+import Field from '../../sideBarContents/field';
 import Colormaps from '../../sideBarContents/colormaps';
 import ClipPlanes from '../../sideBarContents/clipPlanes';
 import Views from '../../sideBarContents/views';
@@ -43,6 +44,9 @@ export default function Sidebar(){
         </Route>
         <Route path={Routes.GEOMETRY}>
         <ProductExplorer />
+        </Route>
+        <Route path={Routes.FIELD}>
+          <Field/>
         </Route>
         <Route path={Routes.CLIPPLANES} >
         <ClipPlanes/>

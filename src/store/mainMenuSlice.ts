@@ -125,7 +125,7 @@ const initialState: MainMenu ={
                     id: '21',
                     name: "Variables",
                     type:MainMenuItems.FIELD_VARIABLES,
-                    path:Routes.HOME,
+                    path:Routes.FIELD_VARIABLES,
                     disabled: false,
                   },
                   {
