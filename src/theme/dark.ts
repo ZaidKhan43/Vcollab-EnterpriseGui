@@ -15,7 +15,7 @@ const darMode = {
           }
         }
       },
-  },
+      },
   palette: {
     type: 'dark' as PaletteType,
     primary: {

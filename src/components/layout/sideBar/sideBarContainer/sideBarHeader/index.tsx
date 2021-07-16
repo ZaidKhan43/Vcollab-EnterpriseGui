@@ -34,7 +34,7 @@ const HeaderSecondRow = (props:any) => {
     return(
   <Grid container alignItems='center' className={classes.action}>
   { props.action ?
-        <Grid item style={{width:'90%', margin:'auto', marginTop:'10px'}}>
+        <Grid item style={{width:'90%', margin:'auto'}}>
             {props.action}
         </Grid>
         :null

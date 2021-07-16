@@ -3,6 +3,7 @@ import {goBack, push} from 'connected-react-router/immutable';
 import SideBarContainer from "../../../layout/sideBar/sideBarContainer"
 import { useAppDispatch, useAppSelector } from '../../../../store/storeHooks';
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
+import SearchBox from '../../../shared/searchBox';
 import Back from '../shared/BackIcon';
 import Select from '../shared/SelectModel';
 
@@ -29,7 +30,9 @@ function Variable() {
     }
 
     const getBody = () => {
-        return null
+        return (
+            <SearchBox placeholder='Search' text='random' onChange={(e) => e}/>
+        )
     }
 
     return (

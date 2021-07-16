@@ -5,7 +5,7 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
-import DeleteIcon from '@material-ui/icons/Remove';
+import DeleteIcon from '@material-ui/icons/Clear';
 import React, { useRef } from 'react'
 import {useAppDispatch} from '../../../../store/storeHooks'
 import {removeSearchHint, setSearchString} from '../../../../store/sideBar/productTreeSlice'
@@ -77,7 +77,7 @@ function Body(props:SearchHintsProps) {
         dispatch(removeSearchHint({data:s}));
     }
     return(
-        <List component='div' aria-label="search hints list" classes={{root:classes.root}}>
+        <List component='div' aria-label="search hints list" >
             {
                 props.data.map((item) => {
                     return(
@@ -107,9 +107,9 @@ function SearchHints(props:SearchHintsProps) {
     const classes = useStyles();
     return (
         <div>
-        <ResizePanel  direction='s' handleClass= {classes.customHandle} style={{height:100,maxHeight:window.innerHeight*0.3}}>
+        <ResizePanel direction='s' handleClass= {classes.customHandle} style={{height:100,maxHeight:window.innerHeight*0.3}}>
             <div ref={containerRef} style={{height:'100%',maxHeight:window.innerHeight*0.3}}>
-                <div style={{marginBottom:-5,height: (containerHeight ? containerHeight : 0), overflow:'auto'}}>
+                <div style={{marginBottom:-5,height: (containerHeight ? containerHeight : 0)}} className={classes.root} >
                 <Body data={props.data} setInput={props.setInput}></Body>
                 </div>
             </div>

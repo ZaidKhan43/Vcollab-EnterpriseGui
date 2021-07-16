@@ -1,5 +1,9 @@
 export const appTheme = {
   overrides: {
+    RsTableBodyWheelArea:{
+        color:'red'
+    },
+    
     MuiAccordion: {
       root: {
         boxShadow: 'none',

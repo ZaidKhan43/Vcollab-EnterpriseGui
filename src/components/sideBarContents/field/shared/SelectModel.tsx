@@ -1,20 +1,21 @@
 import React, { useState } from 'react'
 import MenuItem from '@material-ui/core/MenuItem';
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
+import { useAppSelector } from '../../../../store/storeHooks';
+import { selectModels } from '../../../../store/sideBar/productTreeSlice';
 
-enum Selection {
-    NONE,
-    ALL,
-    SELECTED
+interface Model {
+  id:string,
+  title: string
 }
-
 function SelectModel() {
 
-    const handleSelectChange = (e:React.ChangeEvent<{ value: Selection }>) => {
+    let models:Model[] = useAppSelector(selectModels)
+    const handleSelectChange = (e:React.ChangeEvent<{ value: string }>) => {
         setApplyTo(e.target.value);
     }
 
-    const [applyTo, setApplyTo] = useState<Selection>(Selection.NONE)
+    const [applyTo, setApplyTo] = useState(models[0].id);
     return(
           <SelectAction
           labelId="display-modes-selection-label-id"
@@ -30,9 +31,11 @@ function SelectModel() {
            getContentAnchorEl: null
           }}
           >
-            <MenuItem value={Selection.SELECTED}>Selected Parts</MenuItem>
-            <MenuItem value={Selection.ALL}>All Parts</MenuItem>
-            <MenuItem value={Selection.NONE}>Unselected Parts</MenuItem>
+            {
+               models.map(model => <MenuItem value={model.id}>{model.title}</MenuItem>)
+            }
+           
+            
           </SelectAction>
         )
 }

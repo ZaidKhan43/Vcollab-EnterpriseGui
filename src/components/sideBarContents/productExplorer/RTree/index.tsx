@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
+import Table, {Cell,Column,ColumnGroup,HeaderCell} from '../../../shared/RsTable'
 import useContainer from '../../../../customHooks/useContainer';
-import { Table ,Column, ColumnGroup, HeaderCell, Cell, } from 'rsuite-table';
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
 import {selectProductTreeData, selectRootIds, setCheckedNodesAsync, setHightLightedNodesAsync, expandNode, TreeNode as ITreeNode} from '../../../../store/sideBar/productTreeSlice'
 import TreeNode from "./TreeNode"
@@ -9,20 +9,6 @@ import ShowHideCell from "./ShowHide"
 import { makeStyles } from '@material-ui/core/styles';
 
 const useRTreeOverrideStyles = makeStyles((theme) => ({
-  tree: {
-      '& .rs-table-scrollbar': {
-        background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.05)':'rgba(25, 25, 25, 0.05)',
-        position: 'absolute'
-      },
-      '& .rs-table-scrollbar-active': {
-        background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.1)':'rgba(25, 25, 25, 0.1)'
-      },
-      '& .rs-table-scrollbar-handle': {
-        position: 'absolute',
-        background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.5)':'rgba(25, 25, 25, 0.5)',
-        borderRadius: '4px'
-      }
-  },
   rightColumn: {
       '& .rs-table-cell-group-fixed-right': {
         background:'transparent'
@@ -93,7 +79,6 @@ function RTree(props:any) {
           /*
 // @ts-ignore */}
           <Table
-            className = {overrideClasses.tree}
             isTree
             defaultExpandedRowKeys = {expandedNodes}
             rowKey="id"
