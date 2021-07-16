@@ -28,7 +28,7 @@ export default function SideBarContainer(props : any) {
   
   return (
     <div className={classes.sideBarContainer}>
-      <SideBarHeader leftIcon = {props.headerLeftIcon}  content = {props.headerContent} rightIcon = {props.headerRightIcon} />
+      <SideBarHeader leftIcon = {props.headerLeftIcon}  content = {props.headerContent} rightIcon = {props.headerRightIcon} action = {props.headerAction}/>
       <div className={classes.divider}></div>
 
       <div  className={classes.sideBarContainer}>

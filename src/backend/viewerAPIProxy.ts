@@ -104,4 +104,9 @@ export function setSectionPlaneGUIData(planeId:number,selectedPlaneOptions:any, 
     viewerMgr.setSectionPlaneGUIData(planeId,selectedPlaneOptions,activeViewerID);
     return 'SUCCESS'
 }
+
+export function probe(pointerData:{xyFromTop:number[], width:number,height:number},activeViewerID:string) {
+    return {};
+}
+
 //#endregion

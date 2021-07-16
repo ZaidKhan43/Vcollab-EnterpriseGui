@@ -7,9 +7,7 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-import Button from '@material-ui/core/Button';
+
 
 //icons import
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
@@ -25,7 +23,6 @@ import DownloadStatusIcon from "./DownloadStatusIcon";
 import {DownloadStates, expandPanel,fetchDisplayModes,setDisplayModeAsync, selectDisplayModesData,setSelectedMenu,setDownloadStatus} from "../../../../store/sideBar/displayModesSlice";
 import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";
 import useStyles from './styles';
-import {BytesToStructuredString} from "../../../utils/networkUtils"
 
 
 const getIcon = (name:String) => {
@@ -50,7 +47,7 @@ const getIcon = (name:String) => {
 }
 
 
-function DisplayModesBody() {
+function DisplayModesBody(props:any) {
     const dispatch = useAppDispatch();
     const panelsData = useAppSelector(selectDisplayModesData);
 
@@ -92,57 +89,14 @@ function DisplayModesBody() {
       
     },[dispatch]);
     const classes = useStyles();
-    const renderSelectedMenu = (panel:any,panelIndex:number) => {
-      return(panel?.menuData?.map((item:any, menuIndex:number) => (
-        item.selected && item.status === DownloadStates.NOT_DOWNLOADED ? (
-          <>
-            <Typography>{BytesToStructuredString(item.size)}</Typography>
-            <Button
-              className = {classes.selectedButton}
-              key = {menuIndex}
-              variant="contained"
-              size="small"
-              color="primary"
-              onClick={() => handleDownload(menuIndex,panelIndex)}
-            >
-              Download and Show
-            </Button>
-          </>
-
-        ) : item.selected && item.status === DownloadStates.DOWNLOADED ? (
-            <>
-
-            </>
-        ) : null
-    )))
-    };
 
     return (
-        <div >
-        {panelsData.map((panel:any, panelIndex:number) => (
-         
-          <Accordion
-            key={`${panel.id}index`}
-            square
-            className = {classes.accordian}
-            expanded={panel.expanded}
-            onChange={() => handlePanelClick(panelIndex)}
-          >
-            <AccordionSummary
-              aria-controls="panel1d-content"
-              id="panel1d-header"
-              classes={{expandIcon: classes.accordianSummaryIcon,
-                content: classes.accordianSummaryContent,
-              expanded: classes.accordianSummaryExpanded}}
-              expandIcon={<ExpandMoreIcon />}
-              IconButtonProps={{edge:'start'}}
-            >
-              <Typography>{panel.id}</Typography>
-            </AccordionSummary>
-            <AccordionDetails classes = {{root: classes.accordianDetails }}>
-              <List className={classes.displayModeList}>
+        <List>
+        { panelsData.map((panel:any, panelIndex:number) => (
+         <div key = {panelIndex}>
+              <List  className={classes.displayModeList}>
               {panel?.menuData?.map((item:any, menuIndex:number) => (
-                <ListItem  key={menuIndex} dense button  role={undefined}
+                <ListItem disabled={props.disabled} key={menuIndex} dense button  role={undefined}
                 selected = {item.selected}
                 onClick={() => onSelectMenu(menuIndex, panelIndex)}>
                   <ListItemIcon>
@@ -156,16 +110,10 @@ function DisplayModesBody() {
                 </ListItem>
               ))}
               </List>
-              <Box flex>
-                {
-                  renderSelectedMenu(panel,panelIndex)
-                }
-              </Box>
-            </AccordionDetails>
-          </Accordion>
+          </div>
 
         ))}
-      </div>
+      </List>
     );
 }
 

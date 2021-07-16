@@ -71,12 +71,12 @@ type planes = {
 };
 
 const initialState : planes = {
-  colors: [[1,0,0,0.5],
-  [0,1,0,0.5],
-  [0,0,1,0.5],
-  [1,1,0,0.5],
-  [1,0,1,0.5],
-  [0,1,1,0.5]],
+  colors: [[1,0,0,0.1],
+  [1,0,0,0.1],
+  [1,0,0,0.1],
+  [1,0,0,0.1],
+  [1,0,0,0.1],
+  [1,0,0,0.1]],
   
   planes:[],
 
@@ -619,11 +619,25 @@ export const clipSlice = createSlice({
 
     saveSelectedPlane: (state, action: PayloadAction<{clicked: plane}>) => {
 
+      const alreadySeletedIndex = state.planes.findIndex((item) => item.selected === true);
       const index= state.planes.findIndex((item) => item.id === action.payload.clicked.id);
-      if ( index >= 0) {
-        let changeItem : plane = state.planes[index];
-        changeItem.selected = !changeItem.selected;
-        state.planes[index] = changeItem;
+
+      console.log(alreadySeletedIndex , index)
+
+      
+      if(alreadySeletedIndex >= 0) {
+        let changeItemOne : plane = state.planes[alreadySeletedIndex];
+        console.log(changeItemOne.id)
+        changeItemOne.selected = false;
+        state.planes[alreadySeletedIndex] = changeItemOne;
+      }
+      
+      if ( index >= 0 ) {
+        if(index !== alreadySeletedIndex){
+          let changeItem : plane = state.planes[index];
+          changeItem.selected = true;
+          state.planes[index] = changeItem;
+        }
       }
     },
         //added by pravin
@@ -897,6 +911,12 @@ extraReducers: (builder) => {
 export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, updateMinMaxGUI , saveSelectedPlane , setMasterPlane , setChildPlane } = clipSlice.actions;
 
 //selectors
+
+export const selectedPlane = (state : RootState) => {
+  const clickedValues = state.clipPlane.planes.filter(item => item.selected === true);
+  return(clickedValues)
+}
+
 export const selectActivePlane = (state : RootState) => {
   const clickedValues = state.clipPlane.planes.filter(item => item.selected === true);
   if(clickedValues.length === 1)
@@ -904,5 +924,9 @@ export const selectActivePlane = (state : RootState) => {
   else  
     return(-1)
 };
+
+export const selectPlanes = (state:RootState) => {
+  return state.clipPlane.planes
+}
 
 export default clipSlice.reducer;

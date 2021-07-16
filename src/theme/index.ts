@@ -1,12 +1,13 @@
 export const appTheme = {
   overrides: {
-    MuiCssBaseline: {
-      '@global': {
-        body: {
-          backgroundColor: 'rgb(160,160,255)',
-        },
-      },
-    },
+    MuiAccordion: {
+      root: {
+        boxShadow: 'none',
+        '&:before': { 
+          backgroundColor: 'none'
+        }
+      }
+    }
   },  
   palette:{
     type:'dark'
@@ -28,6 +29,11 @@ export const appTheme = {
     h3: {
       fontWeight: 400,
       fontSize: 13,
+    },
+
+    h5: {
+      fontWeight: 400,
+      fontSize: 10,
     },
   },
   breakpoints: {

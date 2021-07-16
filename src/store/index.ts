@@ -1,26 +1,35 @@
-import { configureStore,combineReducers } from '@reduxjs/toolkit';
+import { configureStore,combineReducers, getDefaultMiddleware } from '@reduxjs/toolkit';
+import { createBrowserHistory } from 'history';
+import { connectRouter, routerMiddleware } from 'connected-react-router/immutable'
 import appSlice from './appSlice';
 import toastSlice from "./toastSlice";
 import productTreeSlice from './sideBar/productTreeSlice';
 import displayModesSlice from './sideBar/displayModesSlice';
 import clipSlice from './sideBar/clipSlice';
+import colormapSlice from './colormapSlice';
 import probeSlice from './probeSlice';
-import sceneSlice  from './sideBar/sceneSlice';
-import settingsSlice from './sideBar/settings';
+import mainMenuSlice  from './mainMenuSlice';
 
+export const history = createBrowserHistory();
 const store = configureStore({
-    reducer:
-      combineReducers({
+    reducer: combineReducers({
+        router: connectRouter(history),
         app: appSlice,
+        mainMenu: mainMenuSlice,
         clipPlane: clipSlice,
         productTree: productTreeSlice,
+        probe: probeSlice,
         displayModes: displayModesSlice,
         toast: toastSlice,
-        probe: probeSlice,
-        scene: sceneSlice,
-        settings:settingsSlice,
-      })
+        colormaps: colormapSlice
+      }),
+    middleware: getDefaultMiddleware({
+      serializableCheck: {
+        ignoredPaths: ['router']
+      }
+    }).concat(routerMiddleware(history))
 });
+
 
 export default store;
 

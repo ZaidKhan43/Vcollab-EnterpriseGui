@@ -3,17 +3,17 @@ import EyeIcon from '../../../icons/eyeIcon';
 import EyeSlashIcon from '../../../icons/eyeSlashIcon';
 import EyeInvert from '../../../icons/eyeInvert';
 import Popper from '@material-ui/core/Popper';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import MuiClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Grow from '@material-ui/core/Grow';
 import Paper from '@material-ui/core/Paper';
 import ToolTip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import {setCheckedVisibilityAsync, invertVisibilityAsync} from "../../../../store/sideBar/productTreeSlice"
 import { useAppDispatch } from '../../../../store/storeHooks';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import MenuItem from '@material-ui/core/MenuItem';
-import MenuList from '@material-ui/core/MenuList';
+import MuiListItemIcon from '@material-ui/core/ListItemIcon';
+import MuiListItemText from '@material-ui/core/ListItemText';
+import MuiMenuItem from '@material-ui/core/MenuItem';
+import MuiMenuList from '@material-ui/core/MenuList';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(createStyles({
@@ -68,6 +68,7 @@ function VisibilityOptions(props:any) {
   
       prevOpen.current = open;
     }, [open]);
+    
     const classes = useStyles();
     return (
         <>
@@ -90,23 +91,23 @@ function VisibilityOptions(props:any) {
               <Grow {...props.TransitionProps}
               style={{ transformOrigin: props.placement === 'bottom' ? 'center top' : 'center bottom' }}>
               <Paper elevation={10}>
-                <ClickAwayListener onClickAway={handleClose}>
-                    <MenuList>
+                <MuiClickAwayListener onClickAway={handleClose}>
+                    <MuiMenuList>
                     {
                         options.map((item:any) => {
                             return (
-                            <MenuItem className={classes.item} key={item.id} alignItems='center' onClick={(e) => handleIconClick(e,item)}>
-                            <ListItemIcon classes={{root: classes.icon}}>
+                            <MuiMenuItem className={classes.item} key={item.id} alignItems='center' onClick={(e) => handleIconClick(e,item)}>
+                            <MuiListItemIcon classes={{root: classes.icon}}>
                                 {item.icon}
-                            </ListItemIcon>
-                            <ListItemText primary={item.id}>
-                            </ListItemText>
-                            </MenuItem>
+                            </MuiListItemIcon>
+                            <MuiListItemText primary={item.id}>
+                            </MuiListItemText>
+                            </MuiMenuItem>
                             )
                         })
                     }
-                    </MenuList>
-               </ClickAwayListener>
+                    </MuiMenuList>
+               </MuiClickAwayListener>
               </Paper>
               </Grow>
           )

@@ -19,23 +19,7 @@ function Footer(props:any) {
         <>
         <Grid container justify='center'>
         <Grid item xs>
-            <Grid container alignItems='center'>
-                    <Grid item xs={10}>
-                        <Typography className={classes.selectedItemText}> {props.selectedCount} Selected</Typography>
-                    </Grid>
-                    <Grid item>
-                        <Tooltip title='Next'>
-                            <span>
-                            <IconButton disabled={props.selectedCount === 0} onClick={props.handleNext}>
-                                <NextIcon/>
-                            </IconButton>
-                            </span>
-                        </Tooltip>
-                    </Grid>
-            </Grid>
-        <Grid item xs>
-                <FooterOptions disabled={props.selectedCount === 0} ></FooterOptions>
-            </Grid>
+            <FooterOptions disabled={props.selectedCount === 0} ></FooterOptions>
         </Grid>
         </Grid>
         </>

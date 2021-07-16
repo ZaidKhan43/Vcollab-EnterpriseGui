@@ -1,88 +1,113 @@
+import {push} from 'connected-react-router/immutable';
+import clsx from 'clsx';
 import MuiTypography from '@material-ui/core/Typography';
+import Grid from '@material-ui/core/Grid';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 
-import BranchIcon  from '../../icons/branch';
-import StackIcon from '../../icons/stackicon';
-import Clipplanes from '../../icons/clipplanes';
-import Views from '../../icons/views';
-import Annotations from '../../icons/annotation';
-import Settings from '../../icons/settings';
-import Notifications from '../../icons/notification';
-
-import MuiPhotoSizeSelectActualOutlinedIcon from '@material-ui/icons/PhotoSizeSelectActualOutlined';
+import GeometryIcon  from '../../icons/geometry';
+import FieldIcon from '../../icons/field';
+import SceneIcon from '../../icons/scene';
+import ColorMapIcon from '../../icons/colormap';
+import LabelIcon from '../../icons/label';
+import ClipIcon from '../../icons/clipplanes';
+import TransformIcon from '../../icons/transform';
+import AnimIcon from '../../icons/animation';
+import SlidesIcon from '../../icons/slides';
+import MessageIcon from '../../icons/Messages';
+import SettingsIcon from '../../icons/settings';
 
 import Logo from '../../../assets/images/LogoBig.svg';
+
 import styles from './style';
-import { setSidebarActiveContent } from '../../../store/appSlice';
-import { useAppDispatch } from '../../../store/storeHooks';
-import { sideBarContentTypes } from '../../../config';
+import { useAppDispatch, useAppSelector } from '../../../store/storeHooks';
 
 import SideBarContainer from '../../layout/sideBar/sideBarContainer'
 
-import {MainMenuItem} from './type';
+import MuiAccordion from '@material-ui/core/Accordion';
+import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
+import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
+import MuiExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import { Routes } from '../../../routes';
+import { MainMenu as MainMenuType, MainMenuItem, MainMenuItems, selectMainMenu, togglePanel } from '../../../store/mainMenuSlice';
+import { useState } from 'react';
+import { useEffect } from 'react';
 
+
+const getIcon = (type:MainMenuItems):JSX.Element | null => {
+    switch(type) {
+      case MainMenuItems.GEOMETRY:
+        return <GeometryIcon />
+      case MainMenuItems.FIELD:
+        return <FieldIcon/>
+      case MainMenuItems.SCENE:
+        return <SceneIcon/>
+      case MainMenuItems.COLOR_MAPS:
+        return <ColorMapIcon/>
+      case MainMenuItems.CLIP_PLANE:
+        return <ClipIcon/>
+      case MainMenuItems.LABELS:
+        return <LabelIcon/>
+      case MainMenuItems.TRANSFORMATIONS:
+        return <TransformIcon/>
+      case MainMenuItems.ANIMATIONS:
+        return <AnimIcon/>
+      case MainMenuItems.SLIDES:
+        return <SlidesIcon/>
+      case MainMenuItems.MESSAGES:
+        return <MessageIcon/>
+      case MainMenuItems.SETTINGS:
+        return <SettingsIcon/>
+      default:
+        return null
+    }
+}
+
+const getMainMenuData = (mainMenu:MainMenuType) => {
+    let data:any[] = [];
+    mainMenu.menuItems.forEach(item => {
+      let newItem = {
+        id: item.id,
+        title: item.name,
+        icon: getIcon(item.type),
+        expanded: item.expanded,
+        list: [] as any[]
+      };
+
+      item.children.forEach(child => {
+          newItem.list.push(
+            {
+              id: child.id,
+              title: child.name,
+              path: child.path,
+              disabled: child.disabled,
+            }
+          )
+      })
+      data.push(newItem);
+    })
+    return data;
+} 
 export default function MainMenu(){
 
     const classes = styles();
-    const dispatch = useAppDispatch();  
-
-    const menuItem :MainMenuItem[] = [
-        {
-          title: 'Product Explorer',
-          icon: <BranchIcon />,
-          disabled : false,
-          onClick: () => dispatch(setSidebarActiveContent(sideBarContentTypes.productExplorer)),
-        },
-        {
-          title: 'Scene',
-          icon: <MuiPhotoSizeSelectActualOutlinedIcon />,
-          disabled : false,
-          onClick: () => dispatch(setSidebarActiveContent(sideBarContentTypes.scene)),
-        },
-        {
-          title: 'Color Maps',
-          icon: <StackIcon />,
-          disabled : false,
-          onClick: () => dispatch(setSidebarActiveContent(sideBarContentTypes.colormaps)),
-        },
-        {
-          title: 'Clip Planes',
-          icon: <Clipplanes />,
-          disabled : false,
-          onClick: () => dispatch(setSidebarActiveContent(sideBarContentTypes.clipsPlanes)),
-        },
-        {
-          title: 'Views',
-          icon: <Views />,
-          disabled : false,
-          onClick: () => dispatch(setSidebarActiveContent(sideBarContentTypes.views)),
-        },
-        {
-          title: 'Annotations',
-          icon: <Annotations />,
-          disabled : false,
-          onClick: () =>dispatch(setSidebarActiveContent(sideBarContentTypes.annotations)),
-        },
-        {
-          title: 'Settings',
-          icon: <Settings />,
-          disabled : false,
-          onClick: () => dispatch(setSidebarActiveContent(sideBarContentTypes.settings)),
-        },
-        {
-          title: 'Notifications',
-          icon: <Notifications />,
-          disabled : false,
-          onClick: () => dispatch(setSidebarActiveContent(sideBarContentTypes.notifications)),
-        },
-    ];
-
-
+    const dispatch = useAppDispatch();
+    const mainMenu = useAppSelector(selectMainMenu);
+    const [mainMenuData, setMainMenuData] = useState<any[]>(getMainMenuData(mainMenu));
   
+    useEffect(() => {
+      setMainMenuData(getMainMenuData(mainMenu))
+    },[mainMenu.menuItems])
+
+    const handleOnClick = (path:any) => {
+      dispatch(push(path));
+    }
+
+    const handleChange = (panelId: string) => {
+      dispatch(togglePanel({panelId}));
+    }
     const getHeaderContent = () => {
       return <img style={{paddingLeft: '12px', width:'150px'}} src={Logo} alt='VCollab Logo' />;
     }
@@ -91,30 +116,47 @@ export default function MainMenu(){
       return (  
        <> 
       <Divider className={classes.divider} />
-      
-      <List style={{ padding: '0' }}>
-            { 
-             menuItem.map((item, index) => (
-            <ListItem
-            disabled = {item.disabled === true}
-            onClick={item.onClick}
-            className={classes.listItem}
-            button
-            key={item.title}
-          >
-            <ListItemIcon style={{minWidth:'40px'}}>
-              <div>{item.icon}</div>
-            </ListItemIcon>
-            <ListItemText            
-              className={classes.listItemText}
-              primary={
-                <MuiTypography variant='h1' className={classes.listItemText}>
-                  {item.title}
-                </MuiTypography>
-      }
-      />
-    </ListItem>
-        ))
+      <List disablePadding className={classes.root}>
+      {
+        mainMenuData?.map((item:any) => 
+          <MuiAccordion 
+            key = {item.id}
+            expanded = {item.expanded}
+            onChange = {() => handleChange(item.id)}
+            classes = {{expanded:classes.accordianExpanded}}
+            TransitionProps={{ unmountOnExit: true }}>
+                    <MuiAccordionSummary
+                        classes = {{
+                          root: clsx(classes.accordianSummary,{[classes.selected]:item.expanded}),
+                          expanded: classes.accordianSummaryExpanded,
+                          content: classes.accordianSummaryContent
+                        }}
+                        expandIcon={<MuiExpandMoreIcon />}
+                        aria-controls="panel1a-content"
+                        id="panel1a-header"
+                    >
+                    <Grid container alignContent='center' alignItems='flex-start'>
+                      <Grid item xs={3}>
+                      {item.icon}
+                      </Grid>
+                      <Grid item>
+                      <MuiTypography noWrap>{item.title}</MuiTypography>
+                      </Grid>
+                    </Grid>
+                </MuiAccordionSummary>
+                <MuiAccordionDetails className ={classes.accordianDetails}>
+                    <List classes={{root:classes.list}}>
+                        { item?.list.map((element : any) =>
+                            <ListItem disabled={element.disabled === false ? false : true} alignItems='flex-start' className={classes.listItem} button key={ 'divParent_' + element.id }
+                            onClick={() => handleOnClick(element.path)}>
+                                <ListItemText primary={element.title} >
+                                </ListItemText>
+                            </ListItem>
+                	    )}
+                    </List>
+                </MuiAccordionDetails>
+            </MuiAccordion>
+        )
       }
       </List>
       </>

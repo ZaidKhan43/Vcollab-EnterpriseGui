@@ -5,10 +5,10 @@ import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
-import DeleteIcon from '@material-ui/icons/Delete';
+import DeleteIcon from '@material-ui/icons/Remove';
 import React, { useRef } from 'react'
 import {useAppDispatch} from '../../../../store/storeHooks'
-import {saveSearchQuery,removeSearchHint} from '../../../../store/sideBar/productTreeSlice'
+import {removeSearchHint, setSearchString} from '../../../../store/sideBar/productTreeSlice'
 
 //@ts-expect-error
 import ResizePanel from 'react-resize-panel'
@@ -17,6 +17,25 @@ import { makeStyles } from '@material-ui/core/styles'
 import clsx from 'clsx'
 
 const useStyles = makeStyles(theme => ({
+    root: {
+        overflowY: "scroll",
+        overflowX:"hidden",
+        width:"100%",
+        height:"100%",
+        scrollbarColor: "rgba(0,0,0,.3) rgba(0,0,0,0.00) ",
+        scrollbarWidth: 'thin',
+        '&::-webkit-scrollbar': {
+          width: '0.4em'
+        },
+        '&::-webkit-scrollbar-track': {
+          boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+          webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+        },
+        '&::-webkit-scrollbar-thumb': {
+          backgroundColor: 'rgba(0,0,0,.3)',
+          outline: '1px solid slategrey'
+        },
+    },
     customHandle: {
         height:2
     },
@@ -52,24 +71,21 @@ function Body(props:SearchHintsProps) {
     const classes = useStyles();
     const handleClick = (s:string) => {
         props.setInput(s);
-        dispatch(saveSearchQuery({data:s}));
+        dispatch(setSearchString(s));
     }
     const handleDelete = (s:string) => {
         dispatch(removeSearchHint({data:s}));
     }
     return(
-        <List component='div' aria-label="search hints list">
+        <List component='div' aria-label="search hints list" classes={{root:classes.root}}>
             {
-                props.data.length === 0 ? (
-                    <MuiTypography>No data</MuiTypography>
-                ):
                 props.data.map((item) => {
                     return(
                         <ListItem onClick={() => handleClick(item)} button classes={{root:classes.listItem}}>
                         <ListItemText >{item}</ListItemText>
                         <ListItemSecondaryAction>
                         <IconButton onClick={() => handleDelete(item)} size='small' edge="end" aria-label="delete">
-                        <DeleteIcon color='secondary'></DeleteIcon>
+                        <DeleteIcon ></DeleteIcon>
                         </IconButton>
                         </ListItemSecondaryAction>
                         </ListItem>

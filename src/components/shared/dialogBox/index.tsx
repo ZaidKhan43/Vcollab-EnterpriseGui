@@ -19,6 +19,7 @@ return (
 
     <MuiDialog
     open={props.openDialog}
+    disablePortal={ true }
     aria-labelledby="draggable-dialog-title"
   >
     <MuiDialogContent className={props.dialogBox}>

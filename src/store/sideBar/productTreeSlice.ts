@@ -24,7 +24,8 @@ type ProductTreeState = {
     currentState: ProductTreeStates,
     searchHints: {[id:string]:any},
     prevSearches: {[id:string]:any},
-    searchQuery: string
+    searchQuery: string,
+    searchResults: any[]
 }
 
 // Define the initial state using that type
@@ -34,7 +35,8 @@ const initialState: ProductTreeState = {
     currentState: ProductTreeStates.Tree,
     searchHints: {},
     prevSearches: {},
-    searchQuery: ''
+    searchQuery: '',
+    searchResults: []
 }
 
 const getNode = (id:string, state:ProductTreeState):TreeNode|undefined => {
@@ -77,6 +79,25 @@ const getHiddenChildCount =(nodes:any[]) => {
   });
   return hiddenCount;
 }
+const getHighlightChildCount = (nodes:any[]) => {
+  let highlightedCount =0;
+  nodes.forEach(node => {
+    if(node.state.highlighted){
+      highlightedCount++;
+    }
+  });
+  return highlightedCount;
+}
+
+const updateHighlightState = (parent:any,state:ProductTreeState) => {
+  let highlighted = getHighlightChildCount(parent.children.map((c:any) => getNode(c,state)));
+    if(highlighted === parent.children.length && parent.children.length >0){
+      parent.state.highlighted = true;
+    }
+    else{
+      parent.state.highlighted = false;
+    }
+}
 
 const updateVisiblityState = (parent:any,state:ProductTreeState) =>{
   let hide= getHiddenChildCount(parent.children.map((c:any) => getNode(c,state)));
@@ -109,6 +130,7 @@ const updateParent = (node:TreeNode, state:ProductTreeState) => {
     if(parent){
       updateCheckedState(parent,state);
       updateVisiblityState(parent,state);
+      updateHighlightState(parent,state);
       let grandParent = parent.pid ? getParent(parent.pid,state): null;
       if(grandParent !== null && grandParent !== undefined){
           updateParent(parent, state);
@@ -237,15 +259,14 @@ export const setCheckedNodesAsync = createAsyncThunk(
   'productTree/setCheckedNodesAsync',
   async (data:{toCheck: boolean, nodeId:string},
          {dispatch, getState}) => {
-    // const rootState = getState() as RootState;
-    // const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
-    // let leafNodesId:string[] = [];
-    // traverseNode(data.nodeId,rootState.productTree,(node) => {
-    //    if(node.children.length == 0)
-    //    leafNodesId.push(node.id);
-    // });
-    // let result = setHighlightedNodes(viewerId,data.toCheck, leafNodesId);
-    let result = 'SUCCESS';
+    const rootState = getState() as RootState;
+    const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
+    let leafNodesId:string[] = [];
+    traverseNode(data.nodeId,rootState.productTree,(node) => {
+       if(node.children.length == 0)
+       leafNodesId.push(node.id);
+    });
+    let result = setHighlightedNodes(viewerId,data.toCheck, leafNodesId);
     if(result === 'SUCCESS'){
       dispatch(productTreeSlice.actions.checkNode({...data}))
       return Promise.resolve();
@@ -270,7 +291,8 @@ export const setHightLightedNodesAsync = createAsyncThunk(
     let result:string = setHighlightedNodes(viewerId,data.toHighlight, leafNodesId);
     
     if(result === 'SUCCESS'){
-      dispatch(productTreeSlice.actions.highlightNode({...data}))
+      //dispatch(productTreeSlice.actions.highlightNode({...data}))
+      dispatch(productTreeSlice.actions.checkNode({toCheck:data.toHighlight,nodeId:data.nodeId}));
       return Promise.resolve();
     }
     else{
@@ -413,13 +435,17 @@ export const productTreeSlice = createSlice({
     setProductTreeState: (state, action:PayloadAction<{data:ProductTreeStates}>) => {
       state.currentState = action.payload.data;
     },
-    updatePrevSearches: (state) => {
-      if(!state.prevSearches[state.searchQuery] && state.searchQuery !== ''){
-        state.prevSearches[state.searchQuery] = Object.keys(state.prevSearches).length;
+    updatePrevSearches: (state, action:PayloadAction<string>) => {
+      const query = action.payload;
+      if(!state.prevSearches[query] && query !== ''){
+        state.prevSearches[query] = Object.keys(state.prevSearches).length;
       }
     },
-    saveSearchQuery : (state, action: PayloadAction<{data:string}>)=> {
-        state.searchQuery = action.payload.data;
+    setSearchString: (state, action:PayloadAction<string>) => {
+      state.searchQuery = action.payload;
+    },
+    setSearchResults: (state, action:PayloadAction<any[]>) => {
+      state.searchResults = action.payload;
     }
   },
   extraReducers: builder => {
@@ -472,7 +498,8 @@ export const {
   groupSelectedNodes, 
   focusSelectedNodes,
   setProductTreeState,
-  saveSearchQuery, 
+  setSearchString,
+  setSearchResults,
   updatePrevSearches } = productTreeSlice.actions;
 
 //Define the selectors
@@ -481,9 +508,14 @@ export const selectCurrentState = (state:RootState) => state.productTree.current
 export const selectRootIds = (state:RootState) => state.productTree.rootIds
 export const selectSearchHints = (state:RootState) => Object.keys(state.productTree.searchHints)
 export const selectPrevSearches = (state:RootState) => Object.keys(state.productTree.prevSearches)
+export const selectSearchString = (state:RootState) => state.productTree.searchQuery
+export const selectSearchResults = (state:RootState) => state.productTree.searchResults
 export const selectCheckedLeafNodes = (state:RootState):TreeNode[] => {
   let nodes = [...Object.values(state.productTree.data)] as TreeNode[];
   return nodes.filter((item: TreeNode) => item.children.length === 0 && item.state.checked);
 }
-
+export const selectUnCheckedLeafNodes = (state:RootState):TreeNode[] => {
+  let nodes = [...Object.values(state.productTree.data)] as TreeNode[];
+  return nodes.filter((item: TreeNode) => item.children.length === 0 && item.state.checked === false);
+}
 export default productTreeSlice.reducer;

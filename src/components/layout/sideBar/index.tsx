@@ -1,11 +1,13 @@
 import { useLayoutEffect } from 'react';
+import {Switch, Route} from 'react-router';
+import {Routes} from '../../../routes';
 import MuiDrawer from '@material-ui/core/Drawer';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import { useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 import  styles  from "./style";
-import {selectSidebarVisibility, selectSideBarActiveContent,
+import {selectSidebarVisibility,
         setSidebarVisibility } from '../../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
 import { sideBarContentTypes } from '../../../config';
@@ -17,15 +19,12 @@ import ClipPlanes from '../../sideBarContents/clipPlanes';
 import Views from '../../sideBarContents/views';
 import Annotations from '../../sideBarContents/annotations';
 import Settings from '../../sideBarContents/settings';
-import Notifications from '../../shared/notifications';
-
-import Scene from '../../sideBarContents/scene';
+import Notifications from '../../sideBarContents/notifications';
 
 export default function Sidebar(){
     
     const classes = styles();
     const isSidebarVisible = useAppSelector(selectSidebarVisibility);
-    const sidebarActiveContent = useAppSelector(selectSideBarActiveContent);
     const dispatch = useAppDispatch();  
     const theme = useTheme();
     const smMatches = useMediaQuery(theme.breakpoints.down('sm'));
@@ -38,28 +37,33 @@ export default function Sidebar(){
     };
 
     const renderContent = () => {
-      switch (sidebarActiveContent) {
-        case sideBarContentTypes.mainMenu:
-          return <MainMenu />;
-        case sideBarContentTypes.productExplorer:
-          return <ProductExplorer />;
-        case sideBarContentTypes.colormaps:
-          return <Colormaps />;
-        case sideBarContentTypes.clipsPlanes:
-          return <ClipPlanes />;
-        case sideBarContentTypes.views:
-          return <Views />;
-        case sideBarContentTypes.annotations:
-          return <Annotations />;
-        case sideBarContentTypes.settings:
-          return <Settings />;
-        case sideBarContentTypes.notifications:
-          return <Notifications />;
-        case sideBarContentTypes.scene:
-          return <Scene />;       
-        default:
-          return null;
-      }
+      return(<Switch>  
+        <Route exact path={Routes.HOME}>
+          <MainMenu />;
+        </Route>
+        <Route path={Routes.GEOMETRY}>
+        <ProductExplorer />
+        </Route>
+        <Route path={Routes.CLIPPLANES} >
+        <ClipPlanes/>
+        </Route>
+        <Route>
+        <Colormaps />
+        </Route>
+        <Route>
+        <Views />
+        </Route>
+        <Route>
+        <Annotations />
+        </Route>
+        <Route>
+        <Settings />
+        </Route>
+        <Route>
+        <Notifications />     
+        </Route>
+      </Switch>)
+      
     };
 
     useLayoutEffect(() => {

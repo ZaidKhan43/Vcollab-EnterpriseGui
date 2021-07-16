@@ -11,7 +11,7 @@ export default function FormDialog(props:any) {
   const [input, setInput] = useState("");
   return (
     <div>
-      <Dialog open={props.open} onClose={props.handleClose} aria-labelledby="form-dialog-title">
+      <Dialog disablePortal={true} open={props.open} onClose={props.handleClose} aria-labelledby="form-dialog-title">
         <DialogTitle id="form-dialog-title">Add Tag</DialogTitle>
         <DialogContent>
           <DialogContentText>

@@ -1,10 +1,9 @@
-
 let range = [" seconds ", " minutes ", " hours ", " days ", " weeks "];
-let SizeRange = ["Bytes", "KB", "MB", "GB", "TB"];
+let SizeRange = ["B", "KB", "MB", "GB", "TB"];
 let SpeedRange = ["B/s", "KB/s", "MB/s", "GB/s", "TB/s"];
 
 //Convert number of seconds to structure string E.g. 65 as input returns 1minutes 5seconds
-export const SecondsToStructuredString = function(time:any) {
+export const SecondsToStructuredString = function(time:number) {
         let min;
         let sec;
         let hr;
@@ -61,17 +60,19 @@ export const SecondsToStructuredString = function(time:any) {
 };
 
 //Returns number of bytes as structure string E.g. 1076 as input returns 1.05KB  
-export const BytesToStructuredString = function(bytes:any) {
+export const BytesToStructuredString = function(bytes:number , precision : number) {
+        if(precision === undefined) precision = 2;
         if (bytes < 1)
-            return "0 Byte";
+            return "0 B";
         let i = Math.floor(Math.log(bytes) / Math.log(1024));
-        return (bytes / Math.pow(1024, i)).toFixed(2) + " " + SizeRange[i];
+        return (bytes / Math.pow(1024, i)).toFixed(precision) + " " + SizeRange[i];
 };
 
 //Returns number of bytes/sec as structure string E.g. 1076 as input returns 1.05KB/s
-export const SpeedToStructuredString = function(speed:any) {
+export const SpeedToStructuredString = function(speed:number) {
         if (speed < 1)
             return "0 B/s";
         let i = Math.floor(Math.log(speed) / Math.log(1024));
         return (speed / Math.pow(1024, i)).toFixed(2) + " " + SpeedRange[i];
 };
+

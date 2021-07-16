@@ -1,4 +1,4 @@
-import { useRef,  useCallback } from 'react';
+import { useRef,  useCallback, useEffect } from 'react';
 import clsx from 'clsx';
 import { useResizeDetector } from 'react-resize-detector';
 import FullScreen from 'react-fullscreen-crossbrowser';
@@ -10,13 +10,11 @@ import AppBar from './layout/appBar';
 import FullscreenIcon from './layout/fullscreenIcon';
 import { useAppSelector, useAppDispatch } from '../store/storeHooks';
 import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
-        setAppBarVisibility, setFullscreenState ,selectModelLoadedState } from '../store/appSlice';
-import { appBarMinHeight } from '../config';
-import SnackBar from "./shared/notifications/SnackBar";
+        setAppBarVisibility, setFullscreenState ,selectModelLoadedState, setPopupMenuActiveContent } from '../store/appSlice';
+import { appBarMinHeight, popupMenuContentTypes } from '../config';
+import SnackBar from "./sideBarContents/notifications/SnackBar";
 
-import Probe from './probe';
 import Viewer from './viewer';
-
 
 function App() {
 
@@ -28,8 +26,6 @@ function App() {
   const isSidebarVisible = useAppSelector(selectSidebarVisibility);
   const dispatch = useAppDispatch();  
   const targetRef = useRef(null);
-
- 
 
   //===========================================================================
   const onResize = useCallback((width ?:number, height ?: number) => {
@@ -52,7 +48,12 @@ function App() {
       dispatch(setFullscreenState(isFullscreenEnabled));
   }
 
-  return (    
+  useEffect(() => {
+    if(isAppBarVisible === false)
+      dispatch(setPopupMenuActiveContent(popupMenuContentTypes.none)); 
+  },[isAppBarVisible, dispatch]);
+
+  return (
     <FullScreen
     enabled={ isFullscreenOn }
     onChange={(isFullscreenEnabled: any) => handleFullscreen(isFullscreenEnabled)}
@@ -72,13 +73,13 @@ function App() {
         : null ) }
         <main  className={ clsx(classes.content , {[classes.contentWithSideBar]: isSidebarVisible} , {[classes.contentWithTopBar]: isAppBarVisible}) }>
           <div className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
-            <Probe />
             <Viewer />
           </div>     
         </main>
         <SnackBar/>
       </div>
     </FullScreen>
+
   );
 }
 

@@ -67,11 +67,4 @@ export default makeStyles((theme) => ({
     divIcon : {
         textAlign: 'center'
     },
-
-    showProbeFlagButton:{
-        background: theme.palette.action.selected,
-        borderRadius:"5px",
-        width:40,
-        height:10,
-      },
 }));

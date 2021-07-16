@@ -32,7 +32,6 @@ export const sideBarContentTypes = {
   productExplorer: 'productExplorer',
   colormaps : 'colormaps',
   clipsPlanes : 'clipsPlanes',
-  scene : 'scene',
   views : 'views',
   annotations : 'annotations',
   settings : 'settings',
