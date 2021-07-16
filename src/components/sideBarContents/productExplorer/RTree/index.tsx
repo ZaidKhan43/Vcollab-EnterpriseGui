@@ -1,5 +1,8 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
+import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
+import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
 import Table, {Cell,Column,ColumnGroup,HeaderCell} from '../../../shared/RsTable'
+import clsx from 'clsx'
 import useContainer from '../../../../customHooks/useContainer';
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
 import {selectProductTreeData, selectRootIds, setCheckedNodesAsync, setHightLightedNodesAsync, expandNode, TreeNode as ITreeNode} from '../../../../store/sideBar/productTreeSlice'
@@ -9,6 +12,11 @@ import ShowHideCell from "./ShowHide"
 import { makeStyles } from '@material-ui/core/styles';
 
 const useRTreeOverrideStyles = makeStyles((theme) => ({
+  row: {
+    '& .rs-table-cell-content': {
+      display: 'flex !important'
+    }
+  },
   rightColumn: {
       '& .rs-table-cell-group-fixed-right': {
         background:'transparent'
@@ -92,12 +100,13 @@ function RTree(props:any) {
             onExpandChange={(isOpen:boolean, rowData:any) => {
               handleExpand(isOpen, rowData.id);
             }}
-            rowClassName={overrideClasses.rightColumn}
+            rowClassName={clsx(overrideClasses.row,overrideClasses.rightColumn)}
             renderTreeToggle={(icon, rowData:any) => {
               if (rowData.children && rowData.children.length === 0) {
-                return <div></div>;
+                return null;
               }
-              return <div>{icon}</div>;
+              let state = treeData[rowData.id].state;
+              return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
             }}
             affixHorizontalScrollbar
           >

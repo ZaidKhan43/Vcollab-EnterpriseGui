@@ -30,9 +30,7 @@ function Variable() {
     }
 
     const getBody = () => {
-        return (
-            <SearchBox placeholder='Search' text='random' onChange={(e) => e}/>
-        )
+        return null
     }
 
     return (
