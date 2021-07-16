@@ -201,7 +201,7 @@ export default function ClipPlanes(props : any){
             Plane Equation
           </MuiTypography>
           <div style={{width:"90%", margin:"auto"}}>
-            <MuiInput disabled inputProps={{style: { textAlign: 'center' ,},}} className={classes.disabledTextBox} style={{marginLeft:"0px"}} value={`${Math.round(clipCordX*1000)/1000}X ${Math.sign(clipCordY)===1 || Math.sign(clipCordY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordY*1000)/1000)}Y ${Math.sign(clipCordZ) === 1 || Math.sign(clipCordZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordZ*1000)/1000)}Z = ${Math.round(clipConstD*1000)/1000}`}/>
+            <MuiInput disabled inputProps={{style: { textAlign: 'center' ,},}} className={classes.disabledTextBox} value={`${Math.round(clipCordX*1000)/1000}X ${Math.sign(clipCordY)===1 || Math.sign(clipCordY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordY*1000)/1000)}Y ${Math.sign(clipCordZ) === 1 || Math.sign(clipCordZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordZ*1000)/1000)}Z = ${Math.round(clipConstD*1000)/1000}`}/>
           </div>
         </div>
 
@@ -237,7 +237,7 @@ export default function ClipPlanes(props : any){
       <MuiTypography className={classes.settingPageCaption}>
           Translate
         </MuiTypography>
-          <TranslateSlider 
+          <TranslateSlider  
             value={translate} valueMin={translateMin} 
             valueMax={translateMax} onHandleChange={onHandleTranslate}
             stepValue= {stepValue}
@@ -246,7 +246,7 @@ export default function ClipPlanes(props : any){
       </div>
       
       <div className={classes.settingItemContainer}>
-      <MuiTypography variant="h2" style={{textAlign:"left", marginBottom:"10px"}} noWrap>Rotate</MuiTypography>
+      <MuiTypography variant="h2" className={classes.settingPageCaption} noWrap>Rotate</MuiTypography>
           <MuiGrid container spacing={3}>
             <MuiGrid item xs={12} sm={6}>
             <RotateSlider value={axisX} handleChange={onHandleRotateX}  label={"X-Axis"}/>

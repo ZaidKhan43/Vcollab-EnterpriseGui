@@ -71,6 +71,7 @@
   },
   "devDependencies": {
     "@types/autosuggest-highlight": "^3.1.1",
+    "@types/react-color": "^3.0.5",
     "@types/react-router": "^5.1.15",
     "@types/react-toggle": "^4.0.2"
   }

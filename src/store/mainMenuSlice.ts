@@ -161,7 +161,7 @@ const initialState: MainMenu ={
                     id:'31',
                     name: "Camera",
                     type:MainMenuItems.SCENE_CAMERA,
-                    path:Routes.HOME,
+                    path:Routes.SCENE,
                     disabled:false
                 },
                 {

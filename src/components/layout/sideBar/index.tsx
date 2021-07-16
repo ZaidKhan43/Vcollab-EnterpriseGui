@@ -16,6 +16,7 @@ import MainMenu from '../../sideBarContents/mainMenu';
 import ProductExplorer from '../../sideBarContents/productExplorer';
 import Colormaps from '../../sideBarContents/colormaps';
 import ClipPlanes from '../../sideBarContents/clipPlanes';
+import Scene from "../../sideBarContents/scene";
 import Views from '../../sideBarContents/views';
 import Annotations from '../../sideBarContents/annotations';
 import Settings from '../../sideBarContents/settings';
@@ -43,6 +44,9 @@ export default function Sidebar(){
         </Route>
         <Route path={Routes.GEOMETRY}>
         <ProductExplorer />
+        </Route>
+        <Route  path={Routes.SCENE}>
+          <Scene/>
         </Route>
         <Route path={Routes.CLIPPLANES} >
         <ClipPlanes/>

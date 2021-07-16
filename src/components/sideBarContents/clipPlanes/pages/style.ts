@@ -41,7 +41,7 @@ export default makeStyles((theme) => (
     borderRadius:"5px",
     width:40,
     height:10,
-    marginLeft:"100px",
+    marginLeft:"70px",
   },
 
 
@@ -81,7 +81,7 @@ export default makeStyles((theme) => (
   }},
 
   disabledTextBox: {
-     width:"100%",marginTop:"10px",border: "1px solid",
+     width:"100%",border: "1px solid",
   },
 
   settingPageContainer:{
@@ -94,13 +94,13 @@ export default makeStyles((theme) => (
   },
 
   settingItemContainer:{
-    marginBottom:"20px",
+    marginBottom:"30px",
     marginTop:"10px",
   },
 
   settingPageCaption:{
     textAlign:"left",
-    marginBottom:"10px",
+    marginBottom:"15px",
     marginTop:"10px",
   },
 

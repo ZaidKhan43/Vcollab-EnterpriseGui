@@ -9,5 +9,12 @@ export enum Routes {
     CLIPPLANES_LIST = "/clipplanes/list",
     CLIPPLANES_SETTINGS = "/clipplanes/settings",
     CLIPPLANES_TRANSFORMATION = "/clipplanes/transfromation",
+
+    SCENE = "/scene",
+    SCENE_CAMERA = "/scene/camera",
+    SCENE_BACKGROUND = "/scene/background",
+    SCENE_AXIS_TRIAD = "/scene/axis_triad",
+    SCENE_LIGHT = "/scene/light",
+
     
 }
