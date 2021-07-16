@@ -56,6 +56,11 @@ import { useEffect } from 'react';
 
 import MuiTooltip from '@material-ui/core/Tooltip'
 
+// import MuiMenuItem from '@material-ui/core/MenuItem';
+import MuiMenuList from '@material-ui/core/MenuList';
+import MuiListItemIcon from '@material-ui/core/ListItemIcon';
+import MuiListItemText from '@material-ui/core/ListItemText';
+
 export default function ClipPlanes(){
 
   const dispatch = useAppDispatch();  
@@ -496,112 +501,129 @@ export default function ClipPlanes(){
 
     return (
       <div className={classes.scrollBar}>
-            <MuiTypography className={classes.listSub} style={{ marginBottom:"10px"}} variant='h1' noWrap>
+        
+        <div className={classes.settingPageContainer}>
+          
+          <div className={classes.settingItemContainer}>
+            <MuiTypography variant="h2" className={classes.settingPageCaption} noWrap>
                 Options
             </MuiTypography>
+            <MuiMenuItem onClick={() => onHandleEnabled(indeterminateEnablePlane,enablePlane)} >
+              <MuiListItemIcon>
+                <MuiCheckbox color="default" indeterminate={indeterminateEnablePlane} checked ={enablePlane} />
+              </MuiListItemIcon>
+              <MuiListItemText >
+                Eanble
+              </MuiListItemText>
+            </MuiMenuItem>
+          </div>
 
-            <MuiTypography className={classes.listItemOption} noWrap onClick={() => onHandleEnabled(indeterminateEnablePlane,enablePlane)}>
-                  <MuiCheckbox color="default" indeterminate={indeterminateEnablePlane} checked ={enablePlane} />
-                    Enable
-                  </MuiTypography>
-
-              <MuiTypography className={classes.listSub} style={{marginLeft:"10px"}} noWrap>
-                Plane Equation 
-                { activeId >= 0 && planes[indexOfActive].enabled === true
-                  ?
-                    <MuiToggleButton 
-                      className={classes.editButton}
-                      value="check"
-                      selected={!editMode}
-                      onChange={handleEditShow}
-                    >
-                      <MuiEditIconEquation style={{fontSize:"15px"}}/>
-                    </MuiToggleButton>
-                  :
+          <div className={classes.settingItemContainer}>
+            <MuiTypography variant="h2" className={classes.settingPageCaption} noWrap>
+              Plane Equation 
+              { activeId >= 0 && planes[indexOfActive].enabled === true
+                ?
+                  <MuiToggleButton 
+                    className={classes.editButton}
+                    value="check"
+                    selected={!editMode}
+                    onChange={handleEditShow}
+                  >
+                    <MuiEditIconEquation style={{fontSize:"15px"}}/>
+                  </MuiToggleButton>
+                :
                     null
-                }
-              </MuiTypography>
-         
-              <div style={{marginRight:"50px", marginLeft:"5px"}}
-                // onBlur={handleValidation}
-              >
-                <div>
-                  { editMode === false
-                    ?
-                      <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginTop:"-5px"}} className={ `${classes.disabledTextBox}`} 
-                        value={activeId === -1 ?"":`${Math.round(clipInputX*1000)/1000}X ${Math.sign(clipInputY)===1 || Math.sign(clipInputY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputY*1000)/1000)}Y ${Math.sign(clipInputZ) === 1 || Math.sign(clipInputZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputZ*1000)/1000)}Z = ${Math.round(clipInputD*1000)/1000}`}
-                      />
-
-                    :
-                      <div className={classes.inputEqnBorder}>
-                        <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputX} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordX")} onBlur={onHandleEquationBlur}/>X+
-                        <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputY} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordY")} onBlur={onHandleEquationBlur}/>Y+
-                        <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputZ} onChange={(e : any) => OnHandleEquation(e.target.value, "clipCordZ")} onBlur={onHandleEquationBlur}/>Z =
-                        <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputD}  onChange={(e : any) => OnHandleEquation(e.target.value, "clipConstD")} onBlur={onHandleEquationBlur} />
-                      </div>
-                  }
-                  <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginBottom:"20px"}}>
-                    <MuiGrid item xs={12} sm={6} >
-                      <MuiButton disabled={editMode ? false : true}  className={clsx({ [classes.button]: clipPlaneMode === SelectionMode.FACE  })} size="small"  startIcon={<Triangle />}  onClick={() => onHandleSelectMode(SelectionMode.FACE)}>
-                        <MuiTypography variant="h5" style={{textTransform:"none"}} >
-                          Select Surface
-                        </MuiTypography> 
-                      </MuiButton>
-                    </MuiGrid>
-                    <MuiGrid item xs={12} sm={6}  >
-                      <MuiButton disabled={editMode ? false : true}  className={clsx({ [classes.button]: clipPlaneMode === SelectionMode.THREE_PT })} size="small" startIcon={<ThreePoints/>}   onClick={() => onHandleSelectMode(SelectionMode.THREE_PT)}>
-                        <MuiTypography variant="h5"  style={{textTransform:"none"}}>
-                          Select Points
-                        </MuiTypography>  
-                      </MuiButton>
-                    </MuiGrid>
-                  </MuiGrid>
-                  <MuiTypography className={classes.listSub} noWrap>
-                Master Plane Coordinates
-                </MuiTypography> 
-                  {/* <MuiFormControl style={{width:"100%", marginLeft:"10px"}}> */}
-                    {/* <MuiInputLabel id="demo-simple-select-helper-label" style={{color:"currentcolor", marginLeft:"5px",}}>Master corodinate system</MuiInputLabel> */}
-                    
-                    
-                      	<MuiSelect 
-                           disabled={editMode ? false : true} 
-                          MenuProps={{
-                            disablePortal: true,
-                            anchorOrigin: {
-                              vertical:"bottom",
-                              horizontal:"left",
-                           },
-                           getContentAnchorEl: null
-                          }}
-                          style={{width:"100%",border: "1px solid currentColor",}}
-                          labelId="demo-simple-select-label"
-                          id="demo-simple-select"
-                          value={masterPlane.id}
-                          onChange={(e) => onHandleSlicePlane(e.target.value , masterPlaneList)}
-                        >
-                          {
-                            masterPlaneList.map((item) => 
-                              <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
-                          )}
-                       </MuiSelect>
-                      {/* </MuiFormControl> */}
-                    </div>
+              }
+            </MuiTypography>
+            { editMode === false
+              ?
+                <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginTop:"-5px"}} className={ `${classes.disabledTextBox}`} 
+                  value={activeId === -1 ?"":`${Math.round(clipInputX*1000)/1000}X ${Math.sign(clipInputY)===1 || Math.sign(clipInputY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputY*1000)/1000)}Y ${Math.sign(clipInputZ) === 1 || Math.sign(clipInputZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputZ*1000)/1000)}Z = ${Math.round(clipInputD*1000)/1000}`}
+                />
+              :
+                <div className={classes.inputEqnBorder}>
+                  <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputX} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordX")} onBlur={onHandleEquationBlur}/>X+
+                  <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputY} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordY")} onBlur={onHandleEquationBlur}/>Y+
+                  <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputZ} onChange={(e : any) => OnHandleEquation(e.target.value, "clipCordZ")} onBlur={onHandleEquationBlur}/>Z =
+                  <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputD}  onChange={(e : any) => OnHandleEquation(e.target.value, "clipConstD")} onBlur={onHandleEquationBlur} />
                 </div>
-              <div style={{marginTop:"15px"}}>
-                <MuiTypography className={classes.listItemOption} onClick={() =>onHandleClip("showClip",indeterminateShowClip,displayShowClip)} noWrap >
+            }
+            <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginBottom:"20px"}}>
+              <MuiGrid item xs={12} sm={6} >
+                <MuiButton disabled={editMode ? false : true}  className={clsx({ [classes.button]: clipPlaneMode === SelectionMode.FACE  })} size="small"  startIcon={<Triangle />}  onClick={() => onHandleSelectMode(SelectionMode.FACE)}>
+                  <MuiTypography variant="h5" style={{textTransform:"none"}} >
+                    Select Surface
+                  </MuiTypography> 
+                </MuiButton>
+              </MuiGrid>
+              <MuiGrid item xs={12} sm={6}  >
+                <MuiButton disabled={editMode ? false : true}  className={clsx({ [classes.button]: clipPlaneMode === SelectionMode.THREE_PT })} size="small" startIcon={<ThreePoints/>}   onClick={() => onHandleSelectMode(SelectionMode.THREE_PT)}>
+                  <MuiTypography variant="h5"  style={{textTransform:"none"}}>
+                    Select Points
+                  </MuiTypography>  
+                </MuiButton>
+              </MuiGrid>
+            </MuiGrid>
+          </div>
+          
+          <div className={classes.settingItemContainer}>
+            <MuiTypography variant="h2" className={classes.settingPageCaption} noWrap>        
+              Master Plane Coordinates
+            </MuiTypography> 
+            <MuiSelect 
+              disabled={editMode ? false : true} 
+              MenuProps={{
+                disablePortal: true,
+                anchorOrigin: {
+                  vertical:"bottom",
+                  horizontal:"left",
+                },
+                getContentAnchorEl: null
+              }}
+              style={{width:"100%",border: "1px solid currentColor",}}
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={masterPlane.id}
+              onChange={(e) => onHandleSlicePlane(e.target.value , masterPlaneList)}
+            >
+              {
+                masterPlaneList.map((item) => 
+                  <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
+              )}
+            </MuiSelect>
+          </div>
+                  
+          <div className={classes.settingItemContainer}>          
+            <MuiMenuList>
+              <MuiMenuItem onClick={() =>onHandleClip("showClip",indeterminateShowClip,displayShowClip)} >
+                <MuiListItemIcon>
                   <MuiCheckbox color="default" indeterminate={indeterminateShowClip} checked ={displayShowClip} />
-                    Show Clip Plane
-                  </MuiTypography>
-                  <MuiTypography className={classes.listItemOption} onClick={() =>onHandleClip("showEdge",indeterminateShowEdge,displayShowEdge)} noWrap>
-                    <MuiCheckbox color="default" indeterminate={indeterminateShowEdge} checked={displayShowEdge}/>
+                </MuiListItemIcon>
+                <MuiListItemText > 
+                  Show Clip Plane
+                </MuiListItemText>
+              </MuiMenuItem>
+              <MuiMenuItem onClick={() =>onHandleClip("showEdge",indeterminateShowEdge,displayShowEdge)} >
+                <MuiListItemIcon>
+                  <MuiCheckbox color="default" indeterminate={indeterminateShowEdge} checked={displayShowEdge}/>
+                </MuiListItemIcon>
+                <MuiListItemText > 
                     Show Edge
-                  </MuiTypography>
-                  <MuiTypography className={classes.listItemOption}   onClick={() =>onHandleClip("showCap",indeterminateShowCap,displayShowCap)} noWrap>
-                    <MuiCheckbox color="default" indeterminate={indeterminateShowCap} checked={displayShowCap}/>
-                    Show Cap
-                  </MuiTypography>
-                </div>
-            </div> 
+                </MuiListItemText>
+              </MuiMenuItem>
+              <MuiMenuItem onClick={() =>onHandleClip("showCap",indeterminateShowCap,displayShowCap)} >
+                <MuiListItemIcon>
+                  <MuiCheckbox color="default" indeterminate={indeterminateShowCap} checked={displayShowCap} />
+                </MuiListItemIcon>
+                <MuiListItemText >
+                  Show Cap
+                </MuiListItemText>
+              </MuiMenuItem>
+            </MuiMenuList>
+          </div>    
+        
+        </div>
+      </div> 
     )
   }
 

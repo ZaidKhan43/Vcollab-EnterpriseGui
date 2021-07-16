@@ -61,9 +61,6 @@ export default function TranslateSlider( props : any ){
 
 return(
     <div>
-    <MuiTypography className={classes.listSub}  >
-    {props.name}
-  </MuiTypography>
   <MuiGrid container spacing={1} >
     <MuiGrid item xs={12} sm={7} className={classes.translate}>
       <Slider className={classes.translate} style={ props.editMode ? {color:"cuttentColor", opacity:"50%"} : {color:"currentColor",}}

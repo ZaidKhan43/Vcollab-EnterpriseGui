@@ -192,48 +192,61 @@ export default function ClipPlanes(props : any){
   const getBody = () => {
     //console.log("getBody",rotate)
     return (
-      <div 
-      className={classes.scrollBar}
-      > 
+      <div className={classes.scrollBar}> 
 
-           {/* <MuiTypography className={classes.heading} style={{ marginTop:"20px"}} variant='h1' noWrap>
-                Options
-            </MuiTypography>  */}
-      <MuiTypography className={classes.listSub}  style={{marginTop:"10px"}} noWrap>
-          Plane Equation
-        </MuiTypography>
-        <div style={{width:"90%", margin:"auto"}}>
-        <MuiInput disabled inputProps={{style: { textAlign: 'center' ,},}} className={classes.disabledTextBox} style={{marginLeft:"0px"}} value={`${Math.round(clipCordX*1000)/1000}X ${Math.sign(clipCordY)===1 || Math.sign(clipCordY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordY*1000)/1000)}Y ${Math.sign(clipCordZ) === 1 || Math.sign(clipCordZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordZ*1000)/1000)}Z = ${Math.round(clipConstD*1000)/1000}`}/>
+      <div className={classes.translatePageContainer}>
+
+        <div className={classes.settingItemContainer}>
+          <MuiTypography variant="h2" className={classes.settingPageCaption} noWrap>
+            Plane Equation
+          </MuiTypography>
+          <div style={{width:"90%", margin:"auto"}}>
+            <MuiInput disabled inputProps={{style: { textAlign: 'center' ,},}} className={classes.disabledTextBox} style={{marginLeft:"0px"}} value={`${Math.round(clipCordX*1000)/1000}X ${Math.sign(clipCordY)===1 || Math.sign(clipCordY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordY*1000)/1000)}Y ${Math.sign(clipCordZ) === 1 || Math.sign(clipCordZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordZ*1000)/1000)}Z = ${Math.round(clipConstD*1000)/1000}`}/>
+          </div>
         </div>
-        <MuiTypography className={classes.listSub}  style={{marginTop:"10%"}} noWrap>
-          Coordinate System
-        </MuiTypography>
-        <MuiGrid container spacing={3}>
-          <MuiGrid item xs={12} sm={6}>
-            <MuiIconButton style={{width:"60px",height: "90px", }}   onClick={() => onHandleDirection()}>
-              { clipNormalInverted === false 
-               ? 
-                <FlipDirectionLeft/>
-               :
-                <FlipDirectionRight/>
-              }
-            </MuiIconButton>
-            <MuiTypography className={classes.caption}  noWrap>Flip Direction</MuiTypography>
+
+        <div className={classes.settingItemContainer}>
+          <MuiTypography variant="h2" className={classes.settingPageCaption} noWrap>
+            Coordinate System
+          </MuiTypography>
+          <MuiGrid container spacing={3}>
+            <MuiGrid item xs={12} sm={6}>
+              <MuiGrid container spacing={1} direction='column' >
+                <MuiGrid item>
+                  <MuiIconButton style={{width:"60px",height: "90px", }}   onClick={() => onHandleDirection()}>
+                    { clipNormalInverted === false 
+                      ? 
+                        <FlipDirectionLeft/>
+                      :
+                        <FlipDirectionRight/>
+                    }
+                </MuiIconButton>
+              </MuiGrid>
+              <MuiGrid item>
+                <MuiTypography className={classes.caption} variant="caption" noWrap>Flip Direction</MuiTypography>
+              </MuiGrid>
+            </MuiGrid>
           </MuiGrid>
           <MuiGrid item xs={12} sm={6}>
             <RotateSlider value={rotate} handleChange={onHandleRotate} label={"Rotate"}/>
           </MuiGrid>
         </MuiGrid>
-        <div style={{marginTop:"10%"}}>
+      </div>
+
+      <div className={classes.settingItemContainer}>
+      <MuiTypography className={classes.settingPageCaption}>
+          Translate
+        </MuiTypography>
           <TranslateSlider 
-            name={"Translate"}
             value={translate} valueMin={translateMin} 
             valueMax={translateMax} onHandleChange={onHandleTranslate}
             stepValue= {stepValue}
             onHandleTextbox={onHandleTranslateTextbox} onHandleCommited={onHandleTranslateCommitted}
           />
-        </div>
-        <MuiTypography className={classes.listSub} style={{marginTop:"10%"}} noWrap>Rotate</MuiTypography>
+      </div>
+      
+      <div className={classes.settingItemContainer}>
+      <MuiTypography variant="h2" style={{textAlign:"left", marginBottom:"10px"}} noWrap>Rotate</MuiTypography>
           <MuiGrid container spacing={3}>
             <MuiGrid item xs={12} sm={6}>
             <RotateSlider value={axisX} handleChange={onHandleRotateX}  label={"X-Axis"}/>
@@ -242,7 +255,10 @@ export default function ClipPlanes(props : any){
             <RotateSlider value={axisY} handleChange={onHandleRotateY}  label={"Y-Axis"}/>
             </MuiGrid>
           </MuiGrid>  
+      </div>
+      </div>
           </div>
+
     )
   } 
 

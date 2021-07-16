@@ -279,11 +279,9 @@ export default function List(){
                           </MuiMenuItem>
                       : 
                       <MuiMenuItem>
-                        <MuiTypography className={classes.listItemText} >
                   <MuiInput value={editName}
                   onChange={onHandlePlateNameEdit}
                   onKeyDown={(e) => onHandlePlateKey(e, item)}/>
-                </MuiTypography>
                       </MuiMenuItem> 
                         }
                         </div>
