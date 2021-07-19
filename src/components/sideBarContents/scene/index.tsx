@@ -27,7 +27,7 @@ function ClipPlanes() {
             <Route path={Routes.SCENE_LIGHT}>
                 <Views/>
             </Route>
-            <Route  path={Route.SCENE_CAMERA_EDIT}>
+            <Route  path={Routes.SCENE_CAMERA_EDIT}>
                 <CameraEdit/>
             </Route>
         </Switch>

@@ -70,18 +70,18 @@ export default makeStyles((theme) => (
             fontSize: "12px",
           },
       
-        inputEquation:{
-            color:theme.palette.text.primary,
-            background:"none",
-            border: "1px solid",
-            borderColor: theme.palette.text.primary ,
-            marginTop:"-60%",
-            textAlign:"center",
-            width:"70%",
-            fontSize:"16px",
-            zIndex: 10,
-            size: 4,
-        },
+        // inputEquation:{
+        //     color:theme.palette.text.primary,
+        //     background:"none",
+        //     border: "1px solid",
+        //     borderColor: theme.palette.text.primary ,
+        //     marginTop:"-60%",
+        //     textAlign:"center",
+        //     width:"70%",
+        //     fontSize:"16px",
+        //     zIndex: 10,
+        //     size: 4,
+        // },
     appTap:{
       marginRight:"20px",  
       marginLeft:"-20px",
@@ -122,6 +122,30 @@ export default makeStyles((theme) => (
       '&::-webkit-scrollbar-thumb': {
         backgroundColor: 'rgba(0,0,0,.1)',
         outline: '1px solid slategrey'
+      },
+    },
+
+    inputEquation :{
+      color:theme.palette.text.primary,
+       background:"none",
+      border: "1px solid",
+      borderColor: theme.palette.text.primary ,
+      textAlign:"center",
+      width:"70%",
+      fontSize:"16px",
+      zIndex: 10,
+      size: 4,
+      
+      '&[type=number]': {
+        '-moz-appearance': 'textfield',
+      },
+      '&::-webkit-outer-spin-button': {
+        '-webkit-appearance': 'none',
+        margin: 0,
+      },
+      '&::-webkit-inner-spin-button': {
+        '-webkit-appearance': 'none',
+        margin: 0,
       },
     },
     
