@@ -505,15 +505,12 @@ export default function ClipPlanes(){
         <div className={classes.settingPageContainer}>
           
           <div className={classes.settingItemContainer}>
-            <MuiTypography variant="h2" className={classes.settingPageCaption} noWrap>
-                Options
-            </MuiTypography>
             <MuiMenuItem style={{marginTop:"-10px"}} onClick={() => onHandleEnabled(indeterminateEnablePlane,enablePlane)} >
               <MuiListItemIcon>
                 <MuiCheckbox color="default" indeterminate={indeterminateEnablePlane} checked ={enablePlane} />
               </MuiListItemIcon>
               <MuiListItemText >
-                Eanble
+                Enable
               </MuiListItemText>
             </MuiMenuItem>
           </div>

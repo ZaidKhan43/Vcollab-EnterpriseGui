@@ -161,28 +161,28 @@ const initialState: MainMenu ={
                     id:'31',
                     name: "Camera",
                     type:MainMenuItems.SCENE_CAMERA,
-                    path:Routes.SCENE,
+                    path:Routes.SCENE_CAMERA,
                     disabled:false
                 },
                 {
                     id:'32',
                     name: "Background",
                     type:MainMenuItems.SCENE_BACKGROUND,
-                    path:Routes.HOME,
+                    path:Routes.SCENE_BACKGROUND,
                     disabled: false,
                 },
                 {
                     id:'33',
                     name: "Axis Triad",
                     type:MainMenuItems.SCENE_AXIS_TRIAD,
-                    path:Routes.HOME,
+                    path:Routes.SCENE_AXIS_TRIAD,
                     disabled: false
                 },
                 {
                     id:'34',
                     name: "Light",
                     type:MainMenuItems.SCENE_LIGHT,
-                    path:Routes.HOME,
+                    path:Routes.SCENE_LIGHT,
                     disabled: false
                 },
             ]
