@@ -264,7 +264,7 @@ export default function List(){
 
                     <MuiMenuList>
                     {
-                        planes.map((item:any) => 
+                        planes.map((item:any, index: number) => 
                       <div>
                         { editPlane !== item.id 
                           ?
@@ -279,7 +279,7 @@ export default function List(){
                           </MuiMenuItem>
                       : 
                       <MuiMenuItem>
-                  <MuiInput value={editName}
+                  <MuiInput value={editName}  key={item.id}
                   onChange={onHandlePlateNameEdit}
                   onKeyDown={(e) => onHandlePlateKey(e, item)}/>
                       </MuiMenuItem> 

@@ -12,6 +12,7 @@ export enum Routes {
 
     SCENE = "/scene",
     SCENE_CAMERA = "/scene/camera",
+    SCENE_CAMERA_EDIT = "/scene/camera/edit",
     SCENE_BACKGROUND = "/scene/background",
     SCENE_AXIS_TRIAD = "/scene/axis_triad",
     SCENE_LIGHT = "/scene/light",
