@@ -23,161 +23,34 @@ import MuiEditIcon from '@material-ui/icons/EditOutlined';
 import MuiFileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 import MuiPaste from '@material-ui/icons/AssignmentOutlined';
 import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
-import { CopyrightOutlined } from '@material-ui/icons';
+import MuiVisibilityIcon from '@material-ui/icons/Visibility';
+
+import MuiToggleButton from '@material-ui/lab/ToggleButton';
+import MuiToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 
 import { Routes } from '../../../../routes/index'
+import styles from '../style';
+
+import { cameraView ,addCameraView , setActiveId, ViewMode , editViewMode} from '../../../../store/sideBar/sceneSlice';
 
 export default function Camera (){
 
+    const classes = styles();
+
     const dispatch = useAppDispatch();
-    const [active,setActive] = useState(-1);
     const maxUserDefined = 3;
     const [copy, setCopy] = useState(-1);
     const [openDelete,setOpenDelete] = useState(false)
 
-    const [cameraList, setCameraList]=useState([
-        {
-            id: 0,
-            name: "Front" , 
-            userDefined: false,
-            valuePerspective :  [ 
-                {name:"Y-Field of View", value:100},
-                {name:"Aspect Ratio", value:1000},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            valueOrthographic : [
-                {name:"Left", value:100},
-                {name:"Right", value:1000},
-                {name:"Top", value:100},
-                {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-        },
-        {   
-            id:1,
-            name: "Back" , 
-            userDefined: false,
-            valuePerspective :  [ 
-                {name:"Y-Field of View", value:100},
-                {name:"Aspect Ratio", value:1000},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            valueOrthographic : [
-                {name:"Left", value:100},
-                {name:"Right", value:1000},
-                {name:"Top", value:100},
-                {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-        },
-        {
-            id:2,
-            name: "Left" ,
-            userDefined: false,
-            valuePerspective :  [ 
-                {name:"Y-Field of View", value:100},
-                {name:"Aspect Ratio", value:1000},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            valueOrthographic : [
-                {name:"Left", value:100},
-                {name:"Right", value:1000},
-                {name:"Top", value:100},
-                {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-        }, 
-        {
-            id:3,
-            name:"Right",
-            userDefined: false,
-            valuePerspective :  [ 
-                {name:"Y-Field of View", value:100},
-                {name:"Aspect Ratio", value:1000},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            valueOrthographic : [
-                {name:"Left", value:100},
-                {name:"Right", value:1000},
-                {name:"Top", value:100},
-                {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-        } , 
-        {
-            id:4,
-            name:"Top" ,
-            userDefined: false,
-            valuePerspective :  [ 
-                {name:"Y-Field of View", value:100},
-                {name:"Aspect Ratio", value:1000},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            valueOrthographic : [
-                {name:"Left", value:100},
-                {name:"Right", value:1000},
-                {name:"Top", value:100},
-                {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-        }, 
-        {
-            id:5,
-            name:"Bottom" ,
-            userDefined: false,
-            valuePerspective :  [ 
-                {name:"Y-Field of View", value:100},
-                {name:"Aspect Ratio", value:1000},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            valueOrthographic : [
-                {name:"Left", value:100},
-                {name:"Right", value:1000},
-                {name:"Top", value:100},
-                {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-        },
-        {
-            id:6,
-            name: "Isometric" ,
-            userDefined: false,
-            valuePerspective :  [ 
-                {name:"Y-Field of View", value:100},
-                {name:"Aspect Ratio", value:1000},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            valueOrthographic : [
-                {name:"Left", value:100},
-                {name:"Right", value:1000},
-                {name:"Top", value:100},
-                {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-        },
-    ]);
+    const cameraList : cameraView[] = useAppSelector((state) => state.scene.cameraViews)
+    const active = useAppSelector(state => state.scene.settings.activeId);
 
-    const userDefinedLength = cameraList.filter(item => item.userDefined === true).length;
+    const clickedView = cameraList.find(item => item.id === active);
+    
+    const userDefinedLength : number = cameraList.filter(item => item.userDefined === true).length;
 
     const onHandleCamera = (id : number) => {
-        if(active === id)
-            setActive(-1)
-        else
-            setActive(id)
+            dispatch(setActiveId(id))
     }
 
     const onClickBackIcon = () => {
@@ -185,31 +58,7 @@ export default function Camera (){
     }
 
     const onHandleAdd = () => {
-        const length = cameraList.length;
-        
-        if(userDefinedLength < maxUserDefined){
-            const newItem = { id: length,
-                            name:`Camera View ${userDefinedLength+1}`,
-                            userDefined : true,
-                            valuePerspective :  [ 
-                                {name:"Y-Field of View", value:100},
-                                {name:"Aspect Ratio", value:1000},
-                                {name:"Far Plane", value:100},
-                                {name:"Near Plane", value:1000},
-                            ],
-                            valueOrthographic : [
-                                {name:"Left", value:100},
-                                {name:"Right", value:1000},
-                                {name:"Top", value:100},
-                                {name:"Bottom", value:100},
-                                {name:"Far Plane", value:100},
-                                {name:"Near Plane", value:1000},
-                            ],
-                        }
-            const newList = [...cameraList , newItem];
-            setCameraList(newList);
-        }
-
+        dispatch(addCameraView());
     }
 
     const onHandleCopy = () => {
@@ -224,7 +73,7 @@ export default function Camera (){
         clone.userDefined = true;
         clone.name = `Camera View ${userDefinedLength + 1}`;
         const newCameraList = [...cameraList , clone];
-        setCameraList(newCameraList);
+        // setCameraList(newCameraList);
     }
 
     const onHandleDeleteButton = () => {
@@ -236,9 +85,18 @@ export default function Camera (){
         setOpenDelete(false);
         // const toRemove = cameraList.find(item => item.id === active)
         const newCameraList =  cameraList.filter(item => item.id !== active)
-        setCameraList(newCameraList)
-        setActive(-1)
+        // setCameraList(newCameraList)
+        // setActive(-1)
+        dispatch(setActiveId(-1))
     }
+
+    const onHandleViewMode = (e : any) => {
+        const id = active;
+        const value = Number(e.currentTarget.value);
+        dispatch(editViewMode({id, value}))
+    }
+
+    
 
     const onHandleEdit = () => {
         dispatch(push(Routes.SCENE_CAMERA_EDIT));  
@@ -251,32 +109,46 @@ export default function Camera (){
     }
 
     const getHeaderRightIcon = () => {
-        return ( null)
+        return ( 
+            <MuiIconButton onClick={onHandleAdd}>
+            <AddIcon/>
+        </MuiIconButton> 
+        )
     }
 
 
     const getBody = () => {
         return (
-            <div style={{marginLeft:"10px", marginTop:"10px",}}>
+            <div className={classes.scrollBar}>
+            <div style={{marginLeft:"10px", marginTop:"20px",}}>
+                <div style={{marginBottom: "20px"}}>
+                <MuiToggleButtonGroup
+            // style={{marginBottom:"20px",}}
+            size="small" 
+            value={clickedView?.viewMode}
+            exclusive
+            onChange={onHandleViewMode}
+            aria-label="text alignment"
+        >
+            <MuiToggleButton value={ViewMode.Perspective} aria-label="left aligned">
+                <MuiTypography style={{fontSize:"12px",textTransform:'none'}}>Perspective</MuiTypography>
+            </MuiToggleButton>
+            <MuiToggleButton value={ViewMode.Orthographic} aria-label="left aligned">
+                <MuiTypography style={{fontSize:"12px",textTransform:'none'}}>Orthographic</MuiTypography>
+            </MuiToggleButton>
+        </MuiToggleButtonGroup>
+                </div>
                 <div>
-                <MuiGrid container  spacing={6}>
-                    <MuiGrid item xs={12} sm={8}>
+
                         <MuiTypography  style={{textTransform:"none", textAlign:"left"}}>
-                            Add View
+                            System Provided
                         </MuiTypography>
-                    </MuiGrid>
-                    <MuiGrid item xs={12} sm={2} style={{marginTop:"-10px"}}>
-                        <MuiIconButton onClick={onHandleAdd}>
-                            <AddIcon/>
-                        </MuiIconButton> 
-                    </MuiGrid>
-                </MuiGrid>
                 </div>
 
                 <div>
                     <MuiMenuList>
                         {
-                            cameraList.map(item =>
+                            cameraList.filter(item => item.userDefined !== true).map(item =>
                                 <MuiMenuItem selected={active === item.id} onClick={() => onHandleCamera(item.id)}>
                                 <MuiTypography>
                                     {item.name}
@@ -285,7 +157,30 @@ export default function Camera (){
                         )}
                     </MuiMenuList>
                     
+                {
+                    userDefinedLength > 0 
+                    ?
+                    <div>
+                         <MuiTypography  style={{textTransform:"none", textAlign:"left"}}>
+                            User Defined
+                        </MuiTypography>
+                        <MuiMenuList>
+                        {
+                            cameraList.filter(item => item.userDefined === true).map(item =>
+                                <MuiMenuItem selected={active === item.id} onClick={() => onHandleCamera(item.id)}>
+                                <MuiTypography>
+                                    {item.name}
+                                </MuiTypography>
+                            </MuiMenuItem>
+                        )}
+                    </MuiMenuList>
+                    </div>
+
+                    :
+                    null
+                }
                 </div>
+            </div>
             </div>
         )
     }
@@ -316,13 +211,26 @@ export default function Camera (){
                                 {
                                     
                                     <OptionContainer>
-                                        <Option label="Edit" icon={<MuiIconButton 
-                                            disabled={active === -1 || activeItem[0]?.userDefined === false}
-                                             onClick={() => onHandleEdit()}
-                                        >
-                                            <MuiEditIcon/>
-                                            </MuiIconButton>} 
-                                        />
+                                        {
+                                            cameraList.find(item => item.id === active)?.userDefined
+                                            ?
+                                            <Option label="Edit" icon={<MuiIconButton 
+                                                disabled={active === -1 || activeItem[0]?.userDefined === false}
+                                                 onClick={() => onHandleEdit()}
+                                            >
+                                                <MuiEditIcon/>
+                                                </MuiIconButton>} 
+                                            />
+                                            :
+                                            <Option label="View" icon={<MuiIconButton 
+                                                disabled={active === -1}
+                                                 onClick={() => onHandleEdit()}
+                                            >
+                                                <MuiVisibilityIcon/>
+                                                </MuiIconButton>} 
+                                            />
+                                        }
+                                        
                                         
                                         <Option label="Copy" icon={ <MuiIconButton 
                                             disabled = {active === -1 || userDefinedLength === maxUserDefined} 

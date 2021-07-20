@@ -17,6 +17,7 @@ import NumericInput from 'react-numeric-input';
 import styles from '../style';
 
 import MuiButton from '@material-ui/core/Button';
+import { cameraView, selectedCameraView } from '../../../../store/sideBar/sceneSlice';
 
 export default function CameraEdit (){
 
@@ -25,30 +26,8 @@ export default function CameraEdit (){
 
     const [projection, setProjection] = useState<string>("perspective");
 
-    const cameraView = {
-        id:9,
-        name:"Camera View 1",
-        userDefined: true,
-            valuePerspective :  [ 
-                {name:"Y-Field of View", value:100},
-                {name:"Aspect Ratio", value:1000},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            valueOrthographic : [
-                {name:"Left", value:100},
-                {name:"Right", value:1000},
-                {name:"Top", value:100},
-                {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            position : [
-                {name:"X" , value:20.0},
-                {name:"Y", value:20.0},
-                {name:"Z", value:20.0},
-            ]
-    }
+
+    const cameraView : cameraView = useAppSelector(selectedCameraView)[0]
 
     const onClickBackIcon = () => {
         dispatch(goBack());
@@ -70,9 +49,12 @@ export default function CameraEdit (){
 
     const getBody = () => {
         return(
-            <div style={{marginTop:"20px", marginLeft:"10px"}}>
+            <div className={classes.scrollBar}>
+                <div  style={{marginTop:"20px", marginLeft:"10px"}}>
+
+               
             <div style={{marginBottom:"30px"}}>
-            <MuiTypography variant="h2" style={{textAlign:"left" , marginBottom:"10px"}} noWrap>
+            <MuiTypography variant="h2" style={{textAlign:"left" , marginBottom:"15px"}} noWrap>
             Projection
         </MuiTypography>
         <MuiToggleButtonGroup
@@ -93,7 +75,7 @@ export default function CameraEdit (){
         </div>
 
         <div style={{marginBottom:"30px"}}>
-        <MuiTypography variant="h2" style={{textAlign:"left", marginBottom:"10px"}} noWrap>
+        <MuiTypography variant="h2" style={{textAlign:"left", marginBottom:"15px"}} noWrap>
             View Frustum
         </MuiTypography>
 
@@ -105,11 +87,18 @@ export default function CameraEdit (){
                     cameraView.valueOrthographic)
                 .map((item) => 
                     <MuiGrid item xs={12} sm={6}>
-                        <MuiTypography> 
+
+                        <MuiGrid container direction="column" spacing={1}>
+                            <MuiGrid item>
+                        
+                        <MuiTypography variant="caption"> 
                             {item.name}
                         </MuiTypography>
+                        </MuiGrid>
+
+                        <MuiGrid item>
                         <input
-                            // readOnly={props.editMode}
+                            readOnly={!cameraView.userDefined}
                             // inputProps={{style: { textAlign: 'center', padding:"1px",  }, }} 
                             className={classes.inputEquation} 
                             // style={{width: "70px",marginLeft:"5px"}} 
@@ -118,23 +107,30 @@ export default function CameraEdit (){
                             // onChange={(e) => {setStepDisplay(e.target.value)}}
                             // onBlur = {onHandleBlur}
                         />
+                        </MuiGrid>
+                        </MuiGrid>
                     </MuiGrid>
             )}
         </MuiGrid>
         </div>
 
-        <div style={{marginBottom:"20px"}}>
-        <MuiTypography variant="h2" style={{textAlign:"left", marginBottom:"10px"}} noWrap>
-            Position
+        <div style={{marginBottom:"30px"}}>
+        <MuiTypography variant="h2" style={{textAlign:"left", marginBottom:"15px"}} noWrap>
+           Camera Position
         </MuiTypography>
         <MuiGrid container spacing={1}>
-            {cameraView.position.map((item) => 
+            {cameraView.cameraPosition.map((item) => 
                     <MuiGrid item xs={12} sm={4}>
-                        <MuiTypography> 
+                        
+                        <MuiGrid container direction="column" spacing={1}>
+                            <MuiGrid item>
+                        <MuiTypography variant="caption" > 
                             {item.name}
                         </MuiTypography>
+                        </MuiGrid>
+                        <MuiGrid item>
                         <input
-                            // readOnly={props.editMode}
+                            readOnly={!cameraView.userDefined}
                             // inputProps={{style: { textAlign: 'center', padding:"1px",  }, }} 
                             className={classes.inputEquation} 
                             // style={{width: "70px",marginLeft:"5px"}} 
@@ -152,43 +148,140 @@ export default function CameraEdit (){
                             noStyle
                             // onChange={(value : any) => onHandleTextBox(value,item.name,projection)} 
                         /> */}
+                        </MuiGrid>
+
+                        </MuiGrid>
                     </MuiGrid>
             )}
         </MuiGrid>
 
         </div>
 
-        <div style={{alignContent:"center", marginTop:"50px"}}>
-            
-                <MuiButton style={{backgroundColor:"#5958FF",width:"30%", fontSize:"11px" , marginRight:"5px"}} 
-                    autoFocus 
-                    // onClick={onHandleDelete} 
-                    // color="primary"
-                  >
-                    Save
-                  </MuiButton>
-               
-                <MuiButton style={{width:"30%", fontSize:"11px"}} 
-                    autoFocus 
-                    // onClick={onHandleDelete} 
-                    // color="primary"
-                  >
-                    Delete
-                  </MuiButton>
-              
+        <div style={{marginBottom:"30px"}}>
+        <MuiTypography variant="h2" style={{textAlign:"left", marginBottom:"15px"}} noWrap>
+           Camera Direction
+        </MuiTypography>
+        <MuiGrid container spacing={1}>
+            {cameraView.cameraDirection.map((item) => 
+                    <MuiGrid item xs={12} sm={4}>
+                        
+                        <MuiGrid container direction="column" spacing={1}>
+                            <MuiGrid item>
+                        <MuiTypography variant="caption" > 
+                            {item.name}
+                        </MuiTypography>
+                        </MuiGrid>
+                        <MuiGrid item>
+                        <input
+                            readOnly={!cameraView.userDefined}
+                            // inputProps={{style: { textAlign: 'center', padding:"1px",  }, }} 
+                            className={classes.inputEquation} 
+                            // style={{width: "70px",marginLeft:"5px"}} 
+                            type="number" 
+                            value={item.value} 
+                            // onChange={(e) => {setStepDisplay(e.target.value)}}
+                            // onBlur = {onHandleBlur}
+                        />
+
+                        {/* <NumericInput
+                            className={classes.inputEquation}
+                            value={item.value}
+                            button={"no"}
+                            margin="dense"
+                            noStyle
+                            // onChange={(value : any) => onHandleTextBox(value,item.name,projection)} 
+                        /> */}
+                        </MuiGrid>
+
+                        </MuiGrid>
+                    </MuiGrid>
+            )}
+        </MuiGrid>
+
+        </div>
+
+        <div style={{marginBottom:"30px"}}>
+        <MuiTypography variant="h2" style={{textAlign:"left", marginBottom:"15px"}} noWrap>
+           Camera Up
+        </MuiTypography>
+        <MuiGrid container spacing={1}>
+            {cameraView.cameraUp.map((item) => 
+                    <MuiGrid item xs={12} sm={4}>
+                        
+                        <MuiGrid container direction="column" spacing={1}>
+                            <MuiGrid item>
+                        <MuiTypography variant="caption" > 
+                            {item.name}
+                        </MuiTypography>
+                        </MuiGrid>
+                        <MuiGrid item>
+                        <input
+                            readOnly={!cameraView.userDefined}
+                            // inputProps={{style: { textAlign: 'center', padding:"1px",  }, }} 
+                            className={classes.inputEquation} 
+                            // style={{width: "70px",marginLeft:"5px"}} 
+                            type="number" 
+                            value={item.value} 
+                            // onChange={(e) => {setStepDisplay(e.target.value)}}
+                            // onBlur = {onHandleBlur}
+                        />
+
+                        {/* <NumericInput
+                            className={classes.inputEquation}
+                            value={item.value}
+                            button={"no"}
+                            margin="dense"
+                            noStyle
+                            // onChange={(value : any) => onHandleTextBox(value,item.name,projection)} 
+                        /> */}
+                        </MuiGrid>
+
+                        </MuiGrid>
+                    </MuiGrid>
+            )}
+        </MuiGrid>
+
+        </div>
+
         </div>
         </div>
         )
     }
 
     const getFooter = () => {
-        return(null)
+        return(
+            <div>
+            {
+                cameraView.userDefined === false
+                ?
+                null
+                :
+                <div style={{marginTop:"20px", marginBottom:"20px"}}>
+                <MuiButton style={{backgroundColor:"#5958FF",width:"30%", fontSize:"11px" , marginRight:"5px"}} 
+                autoFocus 
+                // onClick={onHandleDelete} 
+                // color="primary"
+              >
+                Save
+              </MuiButton>
+           
+            <MuiButton style={{width:"30%", fontSize:"11px"}} 
+                autoFocus 
+                // onClick={onHandleDelete} 
+                // color="primary"
+              >
+                Cancel
+              </MuiButton>
+              </div>
+            }
+            </div>
+        )
     }
 
     return(
         <SideBarContainer
         headerLeftIcon = { getHeaderLeftIcon() }
-        headerContent={ <Title text={"Camera View 1" } group="Scene - Camera"/> }
+        headerContent={ <Title text={cameraView.name } group="Scene - Camera"/> }
         headerRightIcon = { getHeaderRightIcon() }
         body ={ getBody() }
         footer = { getFooter() }
