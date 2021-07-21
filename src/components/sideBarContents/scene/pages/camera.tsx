@@ -31,7 +31,7 @@ import MuiToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import { Routes } from '../../../../routes/index'
 import styles from '../style';
 
-import { cameraView ,addCameraView , setActiveId, ViewMode , editViewMode} from '../../../../store/sideBar/sceneSlice';
+import { cameraView ,addCameraView , setActiveId, ViewMode , editViewMode , pasteCameraView , deteteCameraView} from '../../../../store/sideBar/sceneSlice';
 
 export default function Camera (){
 
@@ -44,6 +44,7 @@ export default function Camera (){
 
     const cameraList : cameraView[] = useAppSelector((state) => state.scene.cameraViews)
     const active = useAppSelector(state => state.scene.settings.activeId);
+    const projection = useAppSelector(state => state.scene.settings.projection)
 
     const clickedView = cameraList.find(item => item.id === active);
     
@@ -66,13 +67,8 @@ export default function Camera (){
     }
 
     const onHandlePaste = () => {
-        const toCopyItem = cameraList.find(item => item.id === copy)
-        let clone = JSON.parse(JSON.stringify(toCopyItem));
-        const newId = cameraList.length;
-        clone.id= newId;
-        clone.userDefined = true;
-        clone.name = `Camera View ${userDefinedLength + 1}`;
-        const newCameraList = [...cameraList , clone];
+        const data = cameraList.find(item => item.id === copy)
+        dispatch(pasteCameraView({data}))
         // setCameraList(newCameraList);
     }
 
@@ -83,17 +79,14 @@ export default function Camera (){
 
     const onHandleDelete = () => {
         setOpenDelete(false);
-        // const toRemove = cameraList.find(item => item.id === active)
-        const newCameraList =  cameraList.filter(item => item.id !== active)
-        // setCameraList(newCameraList)
-        // setActive(-1)
+        const id = active;
+        dispatch(deteteCameraView({id}))
         dispatch(setActiveId(-1))
     }
 
     const onHandleViewMode = (e : any) => {
-        const id = active;
         const value = Number(e.currentTarget.value);
-        dispatch(editViewMode({id, value}))
+        dispatch(editViewMode({value}))
     }
 
     
@@ -116,16 +109,13 @@ export default function Camera (){
         )
     }
 
-
-    const getBody = () => {
+    const getAction = () => {
         return (
-            <div className={classes.scrollBar}>
-            <div style={{marginLeft:"10px", marginTop:"20px",}}>
-                <div style={{marginBottom: "20px"}}>
+                <div style={{marginBottom: "20px", textAlign:"center"}}>
                 <MuiToggleButtonGroup
             // style={{marginBottom:"20px",}}
             size="small" 
-            value={clickedView?.viewMode}
+            value={projection}
             exclusive
             onChange={onHandleViewMode}
             aria-label="text alignment"
@@ -138,12 +128,18 @@ export default function Camera (){
             </MuiToggleButton>
         </MuiToggleButtonGroup>
                 </div>
-                <div>
+        )
+    }
+
+    const getBody = () => {
+        return (
+            <div className={classes.scrollBar}>
+            
+                <div style={{marginLeft:"10px", marginTop:"20px",}}>
 
                         <MuiTypography  style={{textTransform:"none", textAlign:"left"}}>
                             System Provided
                         </MuiTypography>
-                </div>
 
                 <div>
                     <MuiMenuList>
@@ -182,6 +178,7 @@ export default function Camera (){
                 </div>
             </div>
             </div>
+
         )
     }
 
@@ -291,6 +288,7 @@ export default function Camera (){
         <SideBarContainer
         headerLeftIcon = { getHeaderLeftIcon() }
         headerContent={ <Title text={"Camera" } group="Scene"/> }
+        headerAction = {getAction()}
         headerRightIcon = { getHeaderRightIcon() }
         body ={ getBody() }
         footer = { getFooter() }

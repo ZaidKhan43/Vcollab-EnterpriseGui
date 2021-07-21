@@ -45,7 +45,8 @@ export default function TranslateSlider( props : any ){
     
 
 
-   const onHandleBlur = () => {
+   const 
+   onHandleBlur = () => {
     if(stepDisplay)
       setStepValue(Number(stepDisplay));
       

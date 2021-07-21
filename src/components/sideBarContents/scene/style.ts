@@ -156,7 +156,7 @@ export default makeStyles((theme) => (
       // margin: 0,
       // padding: 0,
       listStyle: "none",
-      height: "99%",
+      height: "84%",
       width:"100%",
       '&::-webkit-scrollbar': {
         width: '0.4em'

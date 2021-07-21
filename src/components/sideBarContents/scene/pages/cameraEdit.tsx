@@ -17,25 +17,196 @@ import NumericInput from 'react-numeric-input';
 import styles from '../style';
 
 import MuiButton from '@material-ui/core/Button';
-import { cameraView, selectedCameraView } from '../../../../store/sideBar/sceneSlice';
+import { cameraView,ViewMode, updateChange, } from '../../../../store/sideBar/sceneSlice';
+
+import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
+import MuiMenuItem from '@material-ui/core/MenuItem';
 
 export default function CameraEdit (){
 
     const dispatch = useAppDispatch();
     const classes = styles();
 
-    const [projection, setProjection] = useState<string>("perspective");
+    const [projection, setProjection] = useState(useAppSelector(state => state.scene.settings.projection));
+    const [active, setActive] = useState(useAppSelector(state => state.scene.settings.activeId));
 
+    const cameraViews : cameraView[] = useAppSelector(state => state.scene.cameraViews)
 
-    const cameraView : cameraView = useAppSelector(selectedCameraView)[0]
+    const [cameraView,setCameraView] : cameraView = useState(cameraViews.find(item => item.id === active))
 
     const onClickBackIcon = () => {
         dispatch(goBack());
     }
 
     const handleProjection = (e: any) => {
-        setProjection(e.currentTarget.value);
-}
+        setProjection(Number(e.currentTarget.value));
+    }
+
+    const onHandleSelect = (newId : number) => {
+        setActive(newId)
+        setCameraView(cameraViews.find(item => item.id === newId))
+    }
+
+    const onHandleChange = (newValue : string , variable: string) => {
+        
+        console.log(variable)
+        const updatedCameraView = JSON.parse(JSON.stringify(cameraView));
+        switch(variable){
+            // Perspective value update
+            case "Y-Field of View":
+                updatedCameraView.valuePerspective[0].value = newValue;
+            break;
+            case "Aspect Ratio":
+                updatedCameraView.valuePerspective[1].value = newValue;
+            break;
+            case "Far Plane":
+                updatedCameraView.valuePerspective[2].value = newValue;
+            break;
+            case "Near Plane":
+                updatedCameraView.valuePerspective[2].value = newValue;
+            break;
+
+            // Orthographic value update
+            case "Left":
+                updatedCameraView.valueOrthographic[0].value = newValue;
+            break;
+            case "Right":
+                updatedCameraView.valueOrthographic[1].value = newValue;
+            break;
+            case "Top":
+                updatedCameraView.valueOrthographic[2].value = newValue;
+            break;
+            case "Bottom":
+                updatedCameraView.valueOrthographic[3].value = newValue;
+            break;
+            case "Far":
+                updatedCameraView.valueOrthographic[4].value = newValue;
+            break;
+            case "Near":
+                updatedCameraView.valueOrthographic[5].value = newValue;
+            break;
+        
+            // Camera position value update
+            case "position X":
+                updatedCameraView.cameraPosition[0].value = newValue;
+            break;
+            case "position Y":
+                updatedCameraView.cameraPosition[1].value = newValue;
+            break;
+            case "position Z":
+                updatedCameraView.cameraPosition[2].value = newValue;
+            break;
+
+            // camera Direction value update
+            case "direction X":
+                updatedCameraView.cameraDirection[0].value = newValue;
+            break;
+            case "direction Y":
+                updatedCameraView.cameraDirection[1].value = newValue;
+            break;
+            case "direction Z":
+                updatedCameraView.cameraDirection[2].value = newValue;
+            break;
+
+            // CameraUp value update
+            case "up X":
+                updatedCameraView.cameraUp[0].value = newValue;
+            break;
+            case "up Y":
+                updatedCameraView.cameraUp[1].value = newValue;
+            break;
+            case "up Z":
+                updatedCameraView.cameraUp[2].value = newValue;
+            break;
+        }
+
+        setCameraView(updatedCameraView)
+    }
+
+    const onHandleBlur = (value : string , variable: string) => {
+        
+        const newValue= Number(value)
+        console.log("jib",variable)
+        const updatedCameraView = JSON.parse(JSON.stringify(cameraView));
+        switch(variable){
+            // Perspective value update
+            case "Y-Field of View":
+                updatedCameraView.valuePerspective[0].value = newValue;
+            break;
+            case "Aspect Ratio":
+                updatedCameraView.valuePerspective[1].value = newValue;
+            break;
+            case "Far Plane":
+                updatedCameraView.valuePerspective[2].value = newValue;
+            break;
+            case "Near Plane":
+                updatedCameraView.valuePerspective[2].value = newValue;
+            break;
+
+            // Orthographic value update
+            case "Left":
+                updatedCameraView.valueOrthographic[0].value = newValue;
+            break;
+            case "Right":
+                updatedCameraView.valueOrthographic[1].value = newValue;
+            break;
+            case "Top":
+                updatedCameraView.valueOrthographic[2].value = newValue;
+            break;
+            case "Bottom":
+                updatedCameraView.valueOrthographic[3].value = newValue;
+            break;
+            case "Far":
+                updatedCameraView.valueOrthographic[4].value = newValue;
+            break;
+            case "Near":
+                updatedCameraView.valueOrthographic[5].value = newValue;
+            break;
+        
+            // Camera position value update
+            case "position X":
+                updatedCameraView.cameraPosition[0].value = newValue;
+            break;
+            case "position Y":
+                updatedCameraView.cameraPosition[1].value = newValue;
+            break;
+            case "position Z":
+                updatedCameraView.cameraPosition[2].value = newValue;
+            break;
+
+            // camera Direction value update
+            case "direction X":
+                updatedCameraView.cameraDirection[0].value = newValue;
+            break;
+            case "direction Y":
+                updatedCameraView.cameraDirection[1].value = newValue;
+            break;
+            case "direction Z":
+                updatedCameraView.cameraDirection[2].value = newValue;
+            break;
+
+            // CameraUp value update
+            case "up X":
+                updatedCameraView.cameraUp[0].value = newValue;
+            break;
+            case "up Y":
+                updatedCameraView.cameraUp[1].value = newValue;
+            break;
+            case "up Z":
+                updatedCameraView.cameraUp[2].value = newValue;
+            break;
+        }
+        setCameraView(updatedCameraView)
+    }
+
+    const onHandleReset = () => {
+        setCameraView(cameraViews.find(item => item.id === active))
+    }
+
+    const onHandleSave = () => {
+        const data = cameraView;
+        dispatch(updateChange({data}))
+    }
 
     const getHeaderLeftIcon = () => {
         return (
@@ -45,6 +216,30 @@ export default function CameraEdit (){
 
     const getHeaderRightIcon = () => {
         return(null)
+    }
+
+    const getAction = () => {
+        return(
+            <SelectAction
+      labelId="display-modes-selection-label-id"
+      id="display-modes-selection-id"
+      value={active}
+      onChange={(e : any) => onHandleSelect(Number(e.target.value) )}
+      MenuProps={{
+        disablePortal: true,
+        anchorOrigin: {
+          vertical:"bottom",
+          horizontal:"left",
+       },
+       getContentAnchorEl: null
+      }}
+      >
+       { 
+        cameraViews.map((item) => 
+          <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem> 
+      )}
+      </SelectAction>
+        )
     }
 
     const getBody = () => {
@@ -65,10 +260,10 @@ export default function CameraEdit (){
             onChange={handleProjection}
             aria-label="text alignment"
         >
-            <MuiToggleButton value="perspective" aria-label="left aligned">
+            <MuiToggleButton value={ViewMode.Perspective} aria-label="left aligned">
                 <MuiTypography style={{fontSize:"12px",textTransform:'none'}}>Perspective</MuiTypography>
             </MuiToggleButton>
-            <MuiToggleButton value="orthographic" aria-label="left aligned">
+            <MuiToggleButton value={ViewMode.Orthographic} aria-label="left aligned">
                 <MuiTypography style={{fontSize:"12px",textTransform:'none'}}>Orthographic</MuiTypography>
             </MuiToggleButton>
         </MuiToggleButtonGroup>
@@ -80,12 +275,12 @@ export default function CameraEdit (){
         </MuiTypography>
 
         <MuiGrid container spacing={3}>
-            {   (projection === "perspective" 
+            {   (projection === ViewMode.Perspective 
                     ?
                     cameraView.valuePerspective 
                     : 
                     cameraView.valueOrthographic)
-                .map((item) => 
+                .map((item: any) => 
                     <MuiGrid item xs={12} sm={6}>
 
                         <MuiGrid container direction="column" spacing={1}>
@@ -104,8 +299,8 @@ export default function CameraEdit (){
                             // style={{width: "70px",marginLeft:"5px"}} 
                             type="number" 
                             value={item.value} 
-                            // onChange={(e) => {setStepDisplay(e.target.value)}}
-                            // onBlur = {onHandleBlur}
+                            onChange={(e) => {onHandleChange(e.target.value,item.name)}}
+                            onBlur = {(e) => {onHandleBlur(e.target.value,item.name)}}
                         />
                         </MuiGrid>
                         </MuiGrid>
@@ -119,7 +314,7 @@ export default function CameraEdit (){
            Camera Position
         </MuiTypography>
         <MuiGrid container spacing={1}>
-            {cameraView.cameraPosition.map((item) => 
+            {cameraView.cameraPosition.map((item : any) => 
                     <MuiGrid item xs={12} sm={4}>
                         
                         <MuiGrid container direction="column" spacing={1}>
@@ -136,8 +331,8 @@ export default function CameraEdit (){
                             // style={{width: "70px",marginLeft:"5px"}} 
                             type="number" 
                             value={item.value} 
-                            // onChange={(e) => {setStepDisplay(e.target.value)}}
-                            // onBlur = {onHandleBlur}
+                            onChange={(e) => {onHandleChange(e.target.value,`position ${item.name}`)}}
+                            onBlur = {(e) => {onHandleBlur(e.target.value,`position ${item.name}`)}}
                         />
 
                         {/* <NumericInput
@@ -162,7 +357,7 @@ export default function CameraEdit (){
            Camera Direction
         </MuiTypography>
         <MuiGrid container spacing={1}>
-            {cameraView.cameraDirection.map((item) => 
+            {cameraView.cameraDirection.map((item : any) => 
                     <MuiGrid item xs={12} sm={4}>
                         
                         <MuiGrid container direction="column" spacing={1}>
@@ -179,7 +374,7 @@ export default function CameraEdit (){
                             // style={{width: "70px",marginLeft:"5px"}} 
                             type="number" 
                             value={item.value} 
-                            // onChange={(e) => {setStepDisplay(e.target.value)}}
+                            onChange={(e) => {onHandleChange(e.target.value,`direction ${item.name}`)}}
                             // onBlur = {onHandleBlur}
                         />
 
@@ -205,7 +400,7 @@ export default function CameraEdit (){
            Camera Up
         </MuiTypography>
         <MuiGrid container spacing={1}>
-            {cameraView.cameraUp.map((item) => 
+            {cameraView.cameraUp.map((item : any) => 
                     <MuiGrid item xs={12} sm={4}>
                         
                         <MuiGrid container direction="column" spacing={1}>
@@ -222,7 +417,7 @@ export default function CameraEdit (){
                             // style={{width: "70px",marginLeft:"5px"}} 
                             type="number" 
                             value={item.value} 
-                            // onChange={(e) => {setStepDisplay(e.target.value)}}
+                            onChange={(e) => {onHandleChange(e.target.value,`up ${item.name}`)}}
                             // onBlur = {onHandleBlur}
                         />
 
@@ -259,7 +454,7 @@ export default function CameraEdit (){
                 <div style={{marginTop:"20px", marginBottom:"20px"}}>
                 <MuiButton style={{backgroundColor:"#5958FF",width:"30%", fontSize:"11px" , marginRight:"5px"}} 
                 autoFocus 
-                // onClick={onHandleDelete} 
+                onClick={onHandleSave}
                 // color="primary"
               >
                 Save
@@ -267,7 +462,7 @@ export default function CameraEdit (){
            
             <MuiButton style={{width:"30%", fontSize:"11px"}} 
                 autoFocus 
-                // onClick={onHandleDelete} 
+                onClick={onHandleReset} 
                 // color="primary"
               >
                 Cancel
@@ -283,6 +478,7 @@ export default function CameraEdit (){
         headerLeftIcon = { getHeaderLeftIcon() }
         headerContent={ <Title text={cameraView.name } group="Scene - Camera"/> }
         headerRightIcon = { getHeaderRightIcon() }
+        headerAction = {getAction()}
         body ={ getBody() }
         footer = { getFooter() }
       /> 

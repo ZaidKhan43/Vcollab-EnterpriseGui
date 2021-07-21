@@ -11,7 +11,6 @@ export type cameraView = {
     id : number,
     name : string,
     userDefined : boolean,
-    viewMode : ViewMode,
     valuePerspective : {
         name : string,
         value : number,
@@ -37,7 +36,6 @@ export type cameraView = {
 type settings = {
     defaultCameraParameter : {
         userDefined : boolean,
-        viewMode : ViewMode,
         valuePerspective : {
             name : string,
             value : number,
@@ -60,7 +58,8 @@ type settings = {
         }[]
     }
     activeId : number,
-    userDefineLimit : number
+    userDefineLimit : number,
+    projection : ViewMode,
 }
 
 type scenes = {
@@ -73,7 +72,6 @@ const initialState : scenes = {
         {
             id: 0,
             name: "Front" , 
-            viewMode: ViewMode.Orthographic,
             userDefined: false,
             valuePerspective :  [ 
                 {name:"Y-Field of View", value:100},
@@ -86,8 +84,8 @@ const initialState : scenes = {
                 {name:"Right", value:1000},
                 {name:"Top", value:100},
                 {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
+                {name:"Far", value:100},
+                {name:"Near", value:1000},
             ],
             cameraPosition : [
                 {name:"X" , value:20.0},
@@ -95,20 +93,19 @@ const initialState : scenes = {
                 {name:"Z", value:20.0},
             ],
             cameraDirection:[
-                {name:"Center X", value:10},
-                {name:"Center Y", value:20},
-                {name:"Center Z", value:30},
+                {name:"X", value:10},
+                {name:"Y", value:20},
+                {name:"Z", value:30},
             ],
             cameraUp:[
-                {name:"dx", value:5},
-                {name:"dy", value:3},
-                {name: "dz", value:2},
+                {name:"X", value:5},
+                {name:"Y", value:3},
+                {name: "Z", value:2},
             ],
         },
         {
             id: 1,
             name: "Back" , 
-            viewMode: ViewMode.Orthographic,
             userDefined: false,
             valuePerspective :  [ 
                 {name:"Y-Field of View", value:100},
@@ -121,8 +118,8 @@ const initialState : scenes = {
                 {name:"Right", value:1000},
                 {name:"Top", value:100},
                 {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
+                {name:"Far", value:100},
+                {name:"Near", value:1000},
             ],
             cameraPosition : [
                 {name:"X" , value:20.0},
@@ -130,20 +127,19 @@ const initialState : scenes = {
                 {name:"Z", value:20.0},
             ],
             cameraDirection:[
-                {name:"Center X", value:10},
-                {name:"Center Y", value:20},
-                {name:"Center Z", value:30},
+                {name:"X", value:10},
+                {name:"Y", value:20},
+                {name:"Z", value:30},
             ],
             cameraUp:[
-                {name:"dx", value:5},
-                {name:"dy", value:3},
-                {name: "dz", value:2},
+                {name:"X", value:5},
+                {name:"Y", value:3},
+                {name: "Z", value:2},
             ],
         },
         {
             id: 2,
             name: "Left" , 
-            viewMode: ViewMode.Orthographic,
             userDefined: false,
             valuePerspective :  [ 
                 {name:"Y-Field of View", value:100},
@@ -156,8 +152,8 @@ const initialState : scenes = {
                 {name:"Right", value:1000},
                 {name:"Top", value:100},
                 {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
+                {name:"Far", value:100},
+                {name:"Near", value:1000},
             ],
             cameraPosition : [
                 {name:"X" , value:20.0},
@@ -165,20 +161,19 @@ const initialState : scenes = {
                 {name:"Z", value:20.0},
             ],
             cameraDirection:[
-                {name:"Center X", value:10},
-                {name:"Center Y", value:20},
-                {name:"Center Z", value:30},
+                {name:"X", value:10},
+                {name:"Y", value:20},
+                {name:"Z", value:30},
             ],
             cameraUp:[
-                {name:"dx", value:5},
-                {name:"dy", value:3},
-                {name: "dz", value:2},
+                {name:"X", value:5},
+                {name:"Y", value:3},
+                {name: "Z", value:2},
             ],
         },
         {
             id: 3,
             name: "Right" , 
-            viewMode: ViewMode.Orthographic,
             userDefined: false,
             valuePerspective :  [ 
                 {name:"Y-Field of View", value:100},
@@ -191,8 +186,8 @@ const initialState : scenes = {
                 {name:"Right", value:1000},
                 {name:"Top", value:100},
                 {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
+                {name:"Far", value:100},
+                {name:"Near", value:1000},
             ],
             cameraPosition : [
                 {name:"X" , value:20.0},
@@ -200,20 +195,19 @@ const initialState : scenes = {
                 {name:"Z", value:20.0},
             ],
             cameraDirection:[
-                {name:"Center X", value:10},
-                {name:"Center Y", value:20},
-                {name:"Center Z", value:30},
+                {name:"X", value:10},
+                {name:"Y", value:20},
+                {name:"Z", value:30},
             ],
             cameraUp:[
-                {name:"dx", value:5},
-                {name:"dy", value:3},
-                {name: "dz", value:2},
+                {name:"X", value:5},
+                {name:"Y", value:3},
+                {name: "Z", value:2},
             ],
         },
         {
             id: 4,
             name: "Top" , 
-            viewMode: ViewMode.Orthographic,
             userDefined: false,
             valuePerspective :  [ 
                 {name:"Y-Field of View", value:100},
@@ -226,8 +220,8 @@ const initialState : scenes = {
                 {name:"Right", value:1000},
                 {name:"Top", value:100},
                 {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
+                {name:"Far", value:100},
+                {name:"Near", value:1000},
             ],
             cameraPosition : [
                 {name:"X" , value:20.0},
@@ -235,20 +229,19 @@ const initialState : scenes = {
                 {name:"Z", value:20.0},
             ],
             cameraDirection:[
-                {name:"Center X", value:10},
-                {name:"Center Y", value:20},
-                {name:"Center Z", value:30},
+                {name:"X", value:10},
+                {name:"Y", value:20},
+                {name:"Z", value:30},
             ],
             cameraUp:[
-                {name:"dx", value:5},
-                {name:"dy", value:3},
-                {name: "dz", value:2},
+                {name:"X", value:5},
+                {name:"Y", value:3},
+                {name: "Z", value:2},
             ],
         },
         {
             id: 5,
             name: "Bottom" , 
-            viewMode: ViewMode.Orthographic,
             userDefined: false,
             valuePerspective :  [ 
                 {name:"Y-Field of View", value:100},
@@ -261,8 +254,8 @@ const initialState : scenes = {
                 {name:"Right", value:1000},
                 {name:"Top", value:100},
                 {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
+                {name:"Far", value:100},
+                {name:"Near", value:1000},
             ],
             cameraPosition : [
                 {name:"X" , value:20.0},
@@ -270,20 +263,19 @@ const initialState : scenes = {
                 {name:"Z", value:20.0},
             ],
             cameraDirection:[
-                {name:"Center X", value:10},
-                {name:"Center Y", value:20},
-                {name:"Center Z", value:30},
+                {name:"X", value:10},
+                {name:"Y", value:20},
+                {name:"Z", value:30},
             ],
             cameraUp:[
-                {name:"dx", value:5},
-                {name:"dy", value:3},
-                {name: "dz", value:2},
+                {name:"X", value:5},
+                {name:"Y", value:3},
+                {name: "Z", value:2},
             ],
         },
         {
             id: 6,
             name: "Isometric" , 
-            viewMode: ViewMode.Orthographic,
             userDefined: false,
             valuePerspective :  [ 
                 {name:"Y-Field of View", value:100},
@@ -296,8 +288,8 @@ const initialState : scenes = {
                 {name:"Right", value:1000},
                 {name:"Top", value:100},
                 {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
+                {name:"Far", value:100},
+                {name:"Near", value:1000},
             ],
             cameraPosition : [
                 {name:"X" , value:20.0},
@@ -305,14 +297,14 @@ const initialState : scenes = {
                 {name:"Z", value:20.0},
             ],
             cameraDirection:[
-                {name:"Center X", value:10},
-                {name:"Center Y", value:20},
-                {name:"Center Z", value:30},
+                {name:"X", value:10},
+                {name:"Y", value:20},
+                {name:"Z", value:30},
             ],
             cameraUp:[
-                {name:"dx", value:5},
-                {name:"dy", value:3},
-                {name: "dz", value:2},
+                {name:"X", value:5},
+                {name:"Y", value:3},
+                {name: "Z", value:2},
             ],
         },
     ],
@@ -320,7 +312,6 @@ const initialState : scenes = {
     settings : {
         defaultCameraParameter : {
             userDefined : true,
-            viewMode : ViewMode.Orthographic,
             valuePerspective :  [ 
                 {name:"Y-Field of View", value:100},
                 {name:"Aspect Ratio", value:1000},
@@ -332,8 +323,8 @@ const initialState : scenes = {
                 {name:"Right", value:1000},
                 {name:"Top", value:100},
                 {name:"Bottom", value:100},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
+                {name:"Far", value:100},
+                {name:"Near", value:1000},
             ],
             cameraPosition : [
                 {name:"X" , value:20.0},
@@ -341,18 +332,19 @@ const initialState : scenes = {
                 {name:"Z", value:20.0},
             ],
             cameraDirection:[
-                {name:"Center X", value:10},
-                {name:"Center Y", value:20},
-                {name:"Center Z", value:30},
+                {name:"X", value:10},
+                {name:"Y", value:20},
+                {name:"Z", value:30},
             ],
             cameraUp:[
-                {name:"dx", value:5},
-                {name:"dy", value:3},
-                {name: "dz", value:2},
+                {name:"X", value:5},
+                {name:"Y", value:3},
+                {name: "Z", value:2},
             ],
         },
         activeId : -1,
-        userDefineLimit: 3,  
+        userDefineLimit: 3,
+        projection: ViewMode.Orthographic,  
     }
 }
 
@@ -373,6 +365,21 @@ export const sceneSlice = createSlice({
             }
         },
 
+        pasteCameraView: (state,action) => {
+            console.log("jell")
+            const userDefinedLength : number = state.cameraViews.filter(item => item.userDefined === true).length;
+            let clone = JSON.parse(JSON.stringify(action.payload.data));
+            const newId = state.cameraViews.length;
+            clone.id= newId;
+            clone.userDefined = true;
+            clone.name = `Camera View ${userDefinedLength + 1}`;
+            state.cameraViews = [...state.cameraViews , clone];
+        },
+
+        deteteCameraView:(state, action) => {
+            state.cameraViews =  state.cameraViews.filter(item => item.id !== action.payload.id)
+        },
+
         setActiveId:(state, action) => {
             if(action.payload !== state.settings.activeId)
                 state.settings.activeId = action.payload;
@@ -381,18 +388,20 @@ export const sceneSlice = createSlice({
         },
 
         editViewMode: (state, action) => {
-            const index = state.cameraViews.findIndex(item => item.id === action.payload.id);
-            if( index > -1){
-                let changeItem : cameraView = state.cameraViews[index];
-                console.log(action.payload.value)
-                changeItem.viewMode = action.payload.value;
-                state.cameraViews[index] = changeItem;
+            state.settings.projection = action.payload.value;
+        },
+
+        updateChange: (state, action) => {
+            const data = action.payload.data;
+            const index = state.cameraViews.findIndex(item => item.id === data.id)
+            if(index > -1){
+                state.cameraViews[index] = {...data};
             }
         }
     }
 })
 
-export const {addCameraView, setActiveId , editViewMode} = sceneSlice.actions;
+export const {addCameraView, setActiveId , editViewMode , updateChange, pasteCameraView , deteteCameraView} = sceneSlice.actions;
 
 export default sceneSlice.reducer;
 
