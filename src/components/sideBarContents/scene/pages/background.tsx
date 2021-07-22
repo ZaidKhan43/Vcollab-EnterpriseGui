@@ -162,8 +162,10 @@ export default function Background (){
         return(
             <div className={classes.scrollBar}>
                 {   backgroundMenu === 0 &&
-                    <div >
-                        <MuiPlusIcon onClick={handleAddColor} style={{marginLeft:"-225px", marginBottom:"-20px"}} className={classes.circularSliderButton }/>
+                    <div style={{marginTop:"20px"}}>
+                        <div className={classes.buttonContainer}>
+                            <MuiPlusIcon onClick={handleAddColor} className={classes.buttonComponent }/>
+                        </div>
                         <MuiGrid container spacing={3} style={{marginLeft:"10px",marginTop:"10px"}}>
                             <MuiGrid item xs={12} sm={1}>
                                 {colourSet.map((item : any, index : number) => 
@@ -188,8 +190,9 @@ export default function Background (){
                                 />
                             </MuiGrid>
                         </MuiGrid> 
-                        <MuiMinusIcon  onClick={handleRemoveColor} style={{marginLeft:"-225px", marginTop:"5px"}} className={classes.circularSliderButton}/>
-                                              
+                        <div className={classes.buttonContainer}>
+                            <MuiMinusIcon  onClick={handleRemoveColor} className={classes.buttonComponent}/>
+                        </div>                      
                     </div>
                 }
 
@@ -237,7 +240,7 @@ export default function Background (){
                         </div>
                 } 
                 
-                <div style={{marginBottom:"5px", marginTop:"50px", marginLeft:"25%", marginRight:"25%"}} >
+                <div className={classes.saveResetButtonContainer} >
                     <MuiGrid container spacing={3} >
                         <MuiGrid item xs={12} sm={6}>
                             <MuiButton disabled={ backgroundChange=== false} style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={handleSave}>

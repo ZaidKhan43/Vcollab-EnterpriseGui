@@ -67,10 +67,24 @@ export default makeStyles((theme) => (
       zIndex: 10,
   },
 
-  circularSliderButton:{
+  buttonComponent:{
     color:theme.palette.text.primary,
     fontSize:"20px", 
 },
+
+buttonContainer:{
+  marginLeft:"-225px", 
+  marginBottom:"-20px",
+  marginTop:"5px",
+},
+
+saveResetButtonContainer:{
+  marginBottom:"5px", 
+  marginTop:"50px", 
+  marginLeft:"75px", 
+  marginRight:"75px"
+},
+
 
 active : {
   outline:"2px solid",
