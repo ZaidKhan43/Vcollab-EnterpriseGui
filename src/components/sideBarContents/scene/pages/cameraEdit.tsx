@@ -22,6 +22,9 @@ import { cameraView,ViewMode, updateChange, } from '../../../../store/sideBar/sc
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 
+import MuiTabs from '@material-ui/core/Tabs';
+import MuiTab from '@material-ui/core/Tab';
+
 export default function CameraEdit (){
 
     const dispatch = useAppDispatch();
@@ -38,8 +41,8 @@ export default function CameraEdit (){
         dispatch(goBack());
     }
 
-    const handleProjection = (e: any) => {
-        setProjection(Number(e.currentTarget.value));
+    const handleProjection = (e: any, value:any) => {
+        setProjection(value);
     }
 
     const onHandleSelect = (newId : number) => {
@@ -63,7 +66,7 @@ export default function CameraEdit (){
                 updatedCameraView.valuePerspective[2].value = newValue;
             break;
             case "Near Plane":
-                updatedCameraView.valuePerspective[2].value = newValue;
+                updatedCameraView.valuePerspective[3].value = newValue;
             break;
 
             // Orthographic value update
@@ -140,7 +143,7 @@ export default function CameraEdit (){
                 updatedCameraView.valuePerspective[2].value = newValue;
             break;
             case "Near Plane":
-                updatedCameraView.valuePerspective[2].value = newValue;
+                updatedCameraView.valuePerspective[3].value = newValue;
             break;
 
             // Orthographic value update
@@ -208,6 +211,8 @@ export default function CameraEdit (){
         dispatch(updateChange({data}))
     }
 
+
+
     const getHeaderLeftIcon = () => {
         return (
             <MuiIconButton onClick={() => onClickBackIcon()} ><BackButton/></MuiIconButton> 
@@ -221,227 +226,171 @@ export default function CameraEdit (){
     const getAction = () => {
         return(
             <SelectAction
-      labelId="display-modes-selection-label-id"
-      id="display-modes-selection-id"
-      value={active}
-      onChange={(e : any) => onHandleSelect(Number(e.target.value) )}
-      MenuProps={{
-        disablePortal: true,
-        anchorOrigin: {
-          vertical:"bottom",
-          horizontal:"left",
-       },
-       getContentAnchorEl: null
-      }}
-      >
-       { 
-        cameraViews.map((item) => 
-          <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem> 
-      )}
-      </SelectAction>
+                labelId="display-modes-selection-label-id"
+                id="display-modes-selection-id"
+                value={active}
+                onChange={(e : any) => onHandleSelect(Number(e.target.value) )}
+                MenuProps={{
+                    disablePortal: true,
+                    anchorOrigin: {
+                        vertical:"bottom",
+                        horizontal:"left",
+                    },
+                    getContentAnchorEl: null
+                }}
+            >
+                { 
+                    cameraViews.map((item) => 
+                        <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem> 
+                )}
+            </SelectAction>
         )
     }
 
     const getBody = () => {
         return(
             <div className={classes.scrollBar}>
-                <div  style={{marginTop:"20px", marginLeft:"10px"}}>
-
-               
-            <div style={{marginBottom:"30px"}}>
-            <MuiTypography variant="h2" style={{textAlign:"left" , marginBottom:"15px"}} noWrap>
-            Projection
-        </MuiTypography>
-        <MuiToggleButtonGroup
-            // style={{marginBottom:"20px",}}
-            size="small" 
-            value={projection}
-            exclusive
-            onChange={handleProjection}
-            aria-label="text alignment"
-        >
-            <MuiToggleButton value={ViewMode.Perspective} aria-label="left aligned">
-                <MuiTypography style={{fontSize:"12px",textTransform:'none'}}>Perspective</MuiTypography>
-            </MuiToggleButton>
-            <MuiToggleButton value={ViewMode.Orthographic} aria-label="left aligned">
-                <MuiTypography style={{fontSize:"12px",textTransform:'none'}}>Orthographic</MuiTypography>
-            </MuiToggleButton>
-        </MuiToggleButtonGroup>
-        </div>
-
-        <div style={{marginBottom:"30px"}}>
-        <MuiTypography variant="h2" style={{textAlign:"left", marginBottom:"15px"}} noWrap>
-            View Frustum
-        </MuiTypography>
-
-        <MuiGrid container spacing={3}>
-            {   (projection === ViewMode.Perspective 
-                    ?
-                    cameraView.valuePerspective 
-                    : 
-                    cameraView.valueOrthographic)
-                .map((item: any) => 
-                    <MuiGrid item xs={12} sm={6}>
-
-                        <MuiGrid container direction="column" spacing={1}>
-                            <MuiGrid item>
-                        
-                        <MuiTypography variant="caption"> 
-                            {item.name}
+                <div className={classes.cameraEditPageContainer}>
+                    <div className={classes.cameraEditCategoryContainer}>
+                        <MuiTypography variant="h2" className={classes.cameraEditCategoryHeader} noWrap>
+                            Camera Position
                         </MuiTypography>
-                        </MuiGrid>
+                        <MuiGrid container spacing={1}>
+                            {cameraView.cameraPosition.map((item : any) => 
+                                <MuiGrid item xs={12} sm={4}>
+                                    <MuiGrid container direction="column" spacing={1}>
+                                        <MuiGrid item>
+                                            <MuiTypography variant="caption" > 
+                                                {item.name}
+                                            </MuiTypography>
+                                        </MuiGrid>
+                                        <MuiGrid item>
+                                            <input
+                                                readOnly={!cameraView.userDefined} 
+                                                className={classes.inputEquation} 
+                                                type="number" 
+                                                value={item.value} 
+                                                onChange={(e) => {onHandleChange(e.target.value,`position ${item.name}`)}}
+                                                onBlur = {(e) => {onHandleBlur(e.target.value,`position ${item.name}`)}}
+                                            />
+                                        </MuiGrid>
 
-                        <MuiGrid item>
-                        <input
-                            readOnly={!cameraView.userDefined}
-                            // inputProps={{style: { textAlign: 'center', padding:"1px",  }, }} 
-                            className={classes.inputEquation} 
-                            // style={{width: "70px",marginLeft:"5px"}} 
-                            type="number" 
-                            value={item.value} 
-                            onChange={(e) => {onHandleChange(e.target.value,item.name)}}
-                            onBlur = {(e) => {onHandleBlur(e.target.value,item.name)}}
-                        />
+                                    </MuiGrid>
+                                </MuiGrid>
+                            )}
                         </MuiGrid>
-                        </MuiGrid>
-                    </MuiGrid>
-            )}
-        </MuiGrid>
-        </div>
+                    </div>
 
-        <div style={{marginBottom:"30px"}}>
-        <MuiTypography variant="h2" style={{textAlign:"left", marginBottom:"15px"}} noWrap>
-           Camera Position
-        </MuiTypography>
-        <MuiGrid container spacing={1}>
-            {cameraView.cameraPosition.map((item : any) => 
-                    <MuiGrid item xs={12} sm={4}>
-                        
-                        <MuiGrid container direction="column" spacing={1}>
-                            <MuiGrid item>
-                        <MuiTypography variant="caption" > 
-                            {item.name}
+                    <div className={classes.cameraEditCategoryContainer}>
+                        <MuiTypography variant="h2" className={classes.cameraEditCategoryHeader} noWrap>
+                            Camera Direction
                         </MuiTypography>
+                        <MuiGrid container spacing={1}>
+                            {cameraView.cameraDirection.map((item : any) => 
+                                <MuiGrid item xs={12} sm={4}>
+                                    <MuiGrid container direction="column" spacing={1}>
+                                        <MuiGrid item>
+                                            <MuiTypography variant="caption" > 
+                                                {item.name}
+                                            </MuiTypography>
+                                        </MuiGrid>
+                                        <MuiGrid item>
+                                            <input
+                                                readOnly={!cameraView.userDefined}
+                                                className={classes.inputEquation} 
+                                                type="number" 
+                                                value={item.value} 
+                                                onChange={(e) => {onHandleChange(e.target.value,`direction ${item.name}`)}}
+                                                onBlur = {(e) => onHandleBlur(e.target.value,`direction ${item.name}`)}
+                                            />
+                                        </MuiGrid>
+                                    </MuiGrid>
+                                </MuiGrid>
+                            )}
                         </MuiGrid>
-                        <MuiGrid item>
-                        <input
-                            readOnly={!cameraView.userDefined}
-                            // inputProps={{style: { textAlign: 'center', padding:"1px",  }, }} 
-                            className={classes.inputEquation} 
-                            // style={{width: "70px",marginLeft:"5px"}} 
-                            type="number" 
-                            value={item.value} 
-                            onChange={(e) => {onHandleChange(e.target.value,`position ${item.name}`)}}
-                            onBlur = {(e) => {onHandleBlur(e.target.value,`position ${item.name}`)}}
-                        />
+                    </div>
 
-                        {/* <NumericInput
-                            className={classes.inputEquation}
-                            value={item.value}
-                            button={"no"}
-                            margin="dense"
-                            noStyle
-                            // onChange={(value : any) => onHandleTextBox(value,item.name,projection)} 
-                        /> */}
-                        </MuiGrid>
-
-                        </MuiGrid>
-                    </MuiGrid>
-            )}
-        </MuiGrid>
-
-        </div>
-
-        <div style={{marginBottom:"30px"}}>
-        <MuiTypography variant="h2" style={{textAlign:"left", marginBottom:"15px"}} noWrap>
-           Camera Direction
-        </MuiTypography>
-        <MuiGrid container spacing={1}>
-            {cameraView.cameraDirection.map((item : any) => 
-                    <MuiGrid item xs={12} sm={4}>
-                        
-                        <MuiGrid container direction="column" spacing={1}>
-                            <MuiGrid item>
-                        <MuiTypography variant="caption" > 
-                            {item.name}
+                    <div className={classes.cameraEditCategoryContainer}>
+                        <MuiTypography variant="h2" className={classes.cameraEditCategoryHeader} noWrap>
+                            Camera Up
                         </MuiTypography>
+                        <MuiGrid container spacing={1}>
+                            {cameraView.cameraUp.map((item : any) => 
+                                <MuiGrid item xs={12} sm={4}>      
+                                    <MuiGrid container direction="column" spacing={1}>
+                                        <MuiGrid item>
+                                            <MuiTypography variant="caption" > 
+                                                {item.name}
+                                            </MuiTypography>
+                                        </MuiGrid>
+                                        <MuiGrid item>
+                                            <input
+                                                readOnly={!cameraView.userDefined}
+                                                className={classes.inputEquation} 
+                                                type="number" 
+                                                value={item.value} 
+                                                onChange={(e) => {onHandleChange(e.target.value,`up ${item.name}`)}}
+                                                onBlur = {(e) => onHandleBlur(e.target.value,`up ${item.name}`)}
+                                            />
+                                        </MuiGrid>
+                                    </MuiGrid>
+                                </MuiGrid>
+                            )}
                         </MuiGrid>
-                        <MuiGrid item>
-                        <input
-                            readOnly={!cameraView.userDefined}
-                            // inputProps={{style: { textAlign: 'center', padding:"1px",  }, }} 
-                            className={classes.inputEquation} 
-                            // style={{width: "70px",marginLeft:"5px"}} 
-                            type="number" 
-                            value={item.value} 
-                            onChange={(e) => {onHandleChange(e.target.value,`direction ${item.name}`)}}
-                            // onBlur = {onHandleBlur}
-                        />
+                    </div>
 
-                        {/* <NumericInput
-                            className={classes.inputEquation}
-                            value={item.value}
-                            button={"no"}
-                            margin="dense"
-                            noStyle
-                            // onChange={(value : any) => onHandleTextBox(value,item.name,projection)} 
-                        /> */}
-                        </MuiGrid>
-
-                        </MuiGrid>
-                    </MuiGrid>
-            )}
-        </MuiGrid>
-
-        </div>
-
-        <div style={{marginBottom:"30px"}}>
-        <MuiTypography variant="h2" style={{textAlign:"left", marginBottom:"15px"}} noWrap>
-           Camera Up
-        </MuiTypography>
-        <MuiGrid container spacing={1}>
-            {cameraView.cameraUp.map((item : any) => 
-                    <MuiGrid item xs={12} sm={4}>
-                        
-                        <MuiGrid container direction="column" spacing={1}>
-                            <MuiGrid item>
-                        <MuiTypography variant="caption" > 
-                            {item.name}
+                    <div className={classes.cameraEditCategoryContainer}>
+                        <MuiTypography className={classes.cameraEditCategoryHeader} noWrap>
+                            View Frustum
                         </MuiTypography>
-                        </MuiGrid>
-                        <MuiGrid item>
-                        <input
-                            readOnly={!cameraView.userDefined}
-                            // inputProps={{style: { textAlign: 'center', padding:"1px",  }, }} 
-                            className={classes.inputEquation} 
-                            // style={{width: "70px",marginLeft:"5px"}} 
-                            type="number" 
-                            value={item.value} 
-                            onChange={(e) => {onHandleChange(e.target.value,`up ${item.name}`)}}
-                            // onBlur = {onHandleBlur}
-                        />
+                        <div style={{marginLeft:"-10px",}}>
+                            <MuiTabs  
+                                value={projection}
+                                aria-label="simple tabs example"
+                                onChange={handleProjection}
+                                TabIndicatorProps={{style:{backgroundColor:"currentColor"}}}
+                                centered
+                            >
+                                <MuiTab style={{textTransform:"none"}} label="Perspective"/>
+                                <MuiTab style={{textTransform:"none"}} label="Orthographic"/>
+                            </MuiTabs>          
+                        </div>                          
 
-                        {/* <NumericInput
-                            className={classes.inputEquation}
-                            value={item.value}
-                            button={"no"}
-                            margin="dense"
-                            noStyle
-                            // onChange={(value : any) => onHandleTextBox(value,item.name,projection)} 
-                        /> */}
-                        </MuiGrid>
-
-                        </MuiGrid>
-                    </MuiGrid>
-            )}
-        </MuiGrid>
-
-        </div>
-
-        </div>
-        </div>
-        )
-    }
+                        <div style={{marginTop:"20px"}}>
+                            <MuiGrid container spacing={3}>
+                                {   (projection === ViewMode.Perspective 
+                                        ?
+                                            cameraView.valuePerspective 
+                                        : 
+                                            cameraView.valueOrthographic)
+                                    .map((item: any) => 
+                                        <MuiGrid item xs={12} sm={6}>
+                                            <MuiGrid container direction="column" spacing={1}>
+                                                <MuiGrid item> 
+                                                    <MuiTypography variant="caption"> 
+                                                        {item.name}
+                                                    </MuiTypography>
+                                                </MuiGrid>
+                                                <MuiGrid item>
+                                                    <input
+                                                        readOnly={!cameraView.userDefined}
+                                                        className={classes.inputEquation} 
+                                                        type="number" 
+                                                        value={item.value} 
+                                                        onChange={(e) => {onHandleChange(e.target.value,item.name)}}
+                                                        onBlur = {(e) => {onHandleBlur(e.target.value,item.name)}}
+                                                    />
+                                                </MuiGrid>
+                                            </MuiGrid>
+                                        </MuiGrid>
+                	                )}
+                                </MuiGrid>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
 
     const getFooter = () => {
         return(
