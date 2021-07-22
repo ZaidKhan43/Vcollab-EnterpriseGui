@@ -33,6 +33,11 @@ export type cameraView = {
     }[]
 }
 
+type colorList = {
+    id : number,
+    color : string,
+}
+
 type settings = {
     defaultCameraParameter : {
         userDefined : boolean,
@@ -60,11 +65,14 @@ type settings = {
     activeId : number,
     userDefineLimit : number,
     projection : ViewMode,
+    colorLimit : number,
 }
 
 type scenes = {
     cameraViews : cameraView[],
     settings : settings,
+    colorList : colorList[],
+    file: any,
 }
 
 const initialState : scenes = {
@@ -309,6 +317,9 @@ const initialState : scenes = {
         },
     ],
 
+    colorList : [{ id:1, color:"#a0a0fc"} , {id:2, color:"#ffffff"}],
+    file : null ,
+
     settings : {
         defaultCameraParameter : {
             userDefined : true,
@@ -345,6 +356,7 @@ const initialState : scenes = {
         activeId : -1,
         userDefineLimit: 3,
         projection: ViewMode.Orthographic,  
+        colorLimit : 4,
     }
 }
 
@@ -397,11 +409,19 @@ export const sceneSlice = createSlice({
             if(index > -1){
                 state.cameraViews[index] = {...data};
             }
-        }
+        },
+
+        updateBackgroundColor : (state, action) => {
+            state.colorList = action.payload;
+        },
+
+        updateBackgroundImage : (state, action) => {
+            state.file = action.payload;
+        },
     }
 })
 
-export const {addCameraView, setActiveId , editViewMode , updateChange, pasteCameraView , deteteCameraView} = sceneSlice.actions;
+export const {addCameraView, setActiveId , editViewMode , updateChange, pasteCameraView , deteteCameraView , updateBackgroundColor , updateBackgroundImage } = sceneSlice.actions;
 
 export default sceneSlice.reducer;
 

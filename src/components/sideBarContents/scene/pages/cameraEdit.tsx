@@ -35,7 +35,7 @@ export default function CameraEdit (){
 
     const cameraViews : cameraView[] = useAppSelector(state => state.scene.cameraViews)
 
-    const [cameraView,setCameraView] : cameraView = useState(cameraViews.find(item => item.id === active))
+    const [cameraView,setCameraView] : any = useState(cameraViews.find(item => item.id === active))
 
     const onClickBackIcon = () => {
         dispatch(goBack());
@@ -257,7 +257,7 @@ export default function CameraEdit (){
                         </MuiTypography>
                         <MuiGrid container spacing={1}>
                             {cameraView.cameraPosition.map((item : any) => 
-                                <MuiGrid item xs={12} sm={4}>
+                                <MuiGrid  key={ 'divParent_' + item.id }  item xs={12} sm={4}>
                                     <MuiGrid container direction="column" spacing={1}>
                                         <MuiGrid item>
                                             <MuiTypography variant="caption" > 
@@ -287,7 +287,7 @@ export default function CameraEdit (){
                         </MuiTypography>
                         <MuiGrid container spacing={1}>
                             {cameraView.cameraDirection.map((item : any) => 
-                                <MuiGrid item xs={12} sm={4}>
+                                <MuiGrid  key={ 'divParent_' + item.id }  item xs={12} sm={4}>
                                     <MuiGrid container direction="column" spacing={1}>
                                         <MuiGrid item>
                                             <MuiTypography variant="caption" > 
@@ -316,7 +316,7 @@ export default function CameraEdit (){
                         </MuiTypography>
                         <MuiGrid container spacing={1}>
                             {cameraView.cameraUp.map((item : any) => 
-                                <MuiGrid item xs={12} sm={4}>      
+                                <MuiGrid  key={ 'divParent_' + item.id }  item xs={12} sm={4}>      
                                     <MuiGrid container direction="column" spacing={1}>
                                         <MuiGrid item>
                                             <MuiTypography variant="caption" > 
@@ -364,7 +364,7 @@ export default function CameraEdit (){
                                         : 
                                             cameraView.valueOrthographic)
                                     .map((item: any) => 
-                                        <MuiGrid item xs={12} sm={6}>
+                                        <MuiGrid key={ 'divParent_' + item.id } item xs={12} sm={6}>
                                             <MuiGrid container direction="column" spacing={1}>
                                                 <MuiGrid item> 
                                                     <MuiTypography variant="caption"> 

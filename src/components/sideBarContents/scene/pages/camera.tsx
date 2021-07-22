@@ -145,7 +145,7 @@ export default function Camera (){
                     <MuiMenuList>
                         {
                             cameraList.filter(item => item.userDefined !== true).map(item =>
-                                <MuiMenuItem selected={active === item.id} onClick={() => onHandleCamera(item.id)}>
+                                <MuiMenuItem  key={ 'divParent_' + item.id }  selected={active === item.id} onClick={() => onHandleCamera(item.id)}>
                                 <MuiTypography>
                                     {item.name}
                                 </MuiTypography>
@@ -163,7 +163,7 @@ export default function Camera (){
                         <MuiMenuList>
                         {
                             cameraList.filter(item => item.userDefined === true).map(item =>
-                                <MuiMenuItem selected={active === item.id} onClick={() => onHandleCamera(item.id)}>
+                                <MuiMenuItem  key={ 'divParent_' + item.id }  selected={active === item.id} onClick={() => onHandleCamera(item.id)}>
                                 <MuiTypography>
                                     {item.name}
                                 </MuiTypography>

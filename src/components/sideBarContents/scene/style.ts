@@ -62,6 +62,20 @@ export default makeStyles((theme) => (
       textAlign:"left",
       marginBottom:"10px"
     },
-    
+
+    colorPicker:{
+      zIndex: 10,
+  },
+
+  circularSliderButton:{
+    color:theme.palette.text.primary,
+    fontSize:"20px", 
+},
+
+active : {
+  outline:"2px solid",
+  outlineColor:theme.palette.text.primary,
+},
+
 }
 ));
