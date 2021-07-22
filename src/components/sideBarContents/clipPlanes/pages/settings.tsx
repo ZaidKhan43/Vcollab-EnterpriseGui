@@ -110,7 +110,7 @@ export default function ClipPlanes(){
   
   const onHandleClip: ( functionName: any , indeterminate : boolean , boolean : boolean) => any = (functionName, indeterminate, boolean) => {
   
-    const funOne = (index : any) => {
+    const changeBoolean = (index : any) => {
       switch (functionName){ 
         case "showClip":
           if(indeterminate)          
@@ -151,18 +151,18 @@ export default function ClipPlanes(){
   }
     
   if(activeId >= 0)
-    funOne(planes.findIndex(item => item.id === activeId));
+  changeBoolean(planes.findIndex(item => item.id === activeId));
  
     if(activeId === -1){
       planes.forEach((item :any) => {
-        funOne(planes.findIndex(element => item.id === element.id))
+        changeBoolean(planes.findIndex(element => item.id === element.id))
       })
     }
 
     if(activeId === -2){
       planes.forEach((item: any) => {
         if(item.selected === true)
-          funOne(planes.findIndex(element => item.id === element.id))
+        changeBoolean(planes.findIndex(element => item.id === element.id))
       })
     }
 
@@ -270,6 +270,10 @@ export default function ClipPlanes(){
 
    
   const onHandleEnabled = (indeterminate: boolean , boolean: boolean) => {
+    
+    setEditMode(false)
+    dispatch(setSelectionMode({activeId : -1 , selectionMode : 0}))
+
     if( activeId >= 0){
       if(indeterminate)          
           dispatch(editEnabled({id:planes[indexOfActive].id,isEnabled:false}));
@@ -312,6 +316,11 @@ export default function ClipPlanes(){
   }
 
   const onHandleSelect = (newId : number) => {
+
+    dispatch(setSelectionMode({activeId : -1 , selectionMode : 0}))
+    const click : any  = planes.find(item => item.id === newId);
+    dispatch(setActive({clicked: click}))
+    
     setEditMode(false)
     setActiveId(newId)
     const indexOfNewId = planes.findIndex(item => item.id === newId)

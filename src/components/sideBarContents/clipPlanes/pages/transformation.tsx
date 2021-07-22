@@ -22,7 +22,7 @@ import MuiInput from '@material-ui/core/Input';
 
 import {Routes} from "../../../../routes"
 
-import { setSectionPlaneData, editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMaxGUI, selectActivePlane, selectedPlane} from '../../../../store/sideBar/clipSlice';
+import { setSectionPlaneData, editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMaxGUI, selectActivePlane, selectedPlane , setActive} from '../../../../store/sideBar/clipSlice';
 import RotateSlider from '../shared/rotateSlider';
 import TranslateSlider from '../shared/translateSlider';
 
@@ -99,6 +99,9 @@ export default function ClipPlanes(props : any){
   }
 
   const onHandleSelect = (id : number) => {
+
+    const click : any  = planes.find(item => item.id === id);
+    dispatch(setActive({clicked: click}))
     setActiveId(id)
   }
 
