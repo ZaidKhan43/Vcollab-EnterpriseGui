@@ -61,10 +61,10 @@ export default function Background (){
             setSelectedColor(item)
     }
 
-    const handleChangeComplete = (color : any) => {
+    const handleChangeComplete = (color : {r : number , g:number, b:number, a?:number}) => {
         const index = colourSet.findIndex((item) => item.id === selectedColor.id);
         const newArray=[...colourSet];
-        newArray[index].color= color.rgb;
+        newArray[index].color= color;
         setColourSet(newArray);
     }
 

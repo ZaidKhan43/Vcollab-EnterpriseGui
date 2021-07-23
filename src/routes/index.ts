@@ -4,6 +4,7 @@ export enum Routes {
     GEOMETRY_ASSEMBLY_TREE = "/geometry/assembly_tree",
     GEOMETRY_SEARCH = "/geometry/search",
     GEOMETRY_DISPLAY_MODES = "/geometry/display_modes",
+    GEOMERTY_MATERIAL_COLOR = "/geometry/material_color",
 
     CLIPPLANES ="/clipplanes",
     CLIPPLANES_LIST = "/clipplanes/list",

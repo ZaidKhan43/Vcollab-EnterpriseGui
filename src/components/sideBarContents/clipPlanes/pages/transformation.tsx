@@ -64,7 +64,23 @@ export default function ClipPlanes(props : any){
   const clipCordZ = planes[indexofActive].clipCordZ;
   const clipConstD = planes[indexofActive].clipConstD;
   
-  const stepValue = (translateMax - translateMin) / 100;
+  
+  const [stepValue, setStepValue] = useState((translateMax - translateMin) / 100);
+
+  const [stepValueDisplay, setStepValueDisplay] = useState<string | number>(stepValue)
+  
+  useEffect(() => {
+        setStepValue((translateMax - translateMin) / 100)
+        setStepValueDisplay((translateMax - translateMin) / 100)
+      },[activeId]);
+
+  const onHandleBlurStepValue = () => {
+    if(stepValueDisplay)
+    setStepValue(Number(stepValueDisplay));
+    
+    else
+      setStepValueDisplay(Number(stepValue));  
+  }
 
   const onHandleDirection = () => {
     const id= planes[indexofActive].id
@@ -245,7 +261,34 @@ export default function ClipPlanes(props : any){
             valueMax={translateMax} onHandleChange={onHandleTranslate}
             stepValue= {stepValue}
             onHandleTextbox={onHandleTranslateTextbox} onHandleCommited={onHandleTranslateCommitted}
+            startPoint = {true}
           />
+          
+          
+          <MuiGrid container>
+
+          <MuiGrid item xs={12} sm={4}>
+
+</MuiGrid>
+
+          <MuiGrid item xs={12} sm={4}>
+      <MuiTypography style={{ fontSize: "14px",}}>Step Value :</MuiTypography>
+    </MuiGrid>
+
+
+    <MuiGrid item xs={12} sm={3} >
+    <input
+    readOnly={props.editMode}
+    // inputProps={{style: { textAlign: 'center', padding:"1px",  }, }} 
+    className={`${classes.inputTranslate} + ${props.editMode && classes.disabled}`} 
+    style={{width: "70px",marginLeft:"5px"}} 
+    type="number" 
+    value={stepValueDisplay} 
+    onChange={(e) => {setStepValueDisplay(e.target.value)}}  
+    onBlur = {onHandleBlurStepValue}
+  />
+    </MuiGrid>
+  </MuiGrid>
       </div>
       
       <div className={classes.settingItemContainer}>

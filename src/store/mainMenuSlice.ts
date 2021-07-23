@@ -96,7 +96,7 @@ const initialState: MainMenu ={
                     id: '14',
                     name: "Material Color",
                     type:MainMenuItems.GEOMETRY_MATERIAL_COLOR,
-                    path: Routes.HOME,
+                    path: Routes.GEOMERTY_MATERIAL_COLOR,
                     disabled: false,
                   },
                   {

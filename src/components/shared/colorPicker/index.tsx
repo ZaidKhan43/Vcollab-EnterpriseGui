@@ -1,19 +1,22 @@
 import { SketchPicker } from 'react-color';
 
+type Color = {
+    r:number,
+    g:number,
+    b:number,
+    a?:number,
+}
+
 interface ColorPickerProps {
-    color : {
-        r:number,
-        g:number,
-        b:number,
-        a:number,
-    },
-    onChangeComplete : () => {},
+    color : Color,
+    onChangeComplete ?: (color : Color) => void,
 }
 
 export default function ColorPicker(props : ColorPickerProps) {
     return(
         <SketchPicker  
-               {...props}   
+               {...props} 
+               onChangeComplete = { (color) => props.onChangeComplete ? props.onChangeComplete({r : color.rgb.r , g: color.rgb.g, b: color.rgb.b, a:color.rgb.a}) : null}
                presetColors={[]}
                disableAlpha ={true}                 
         />

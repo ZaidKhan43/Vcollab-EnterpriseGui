@@ -104,4 +104,32 @@ export default makeStyles((theme) => (
     marginTop:"10px",
   },
 
+  inputTranslate :{
+    color:theme.palette.text.primary,
+     background:"none",
+    border: "1px solid",
+    borderColor: theme.palette.text.primary ,
+    textAlign:"center",
+    width:"70%",
+    fontSize:"16px",
+    zIndex: 10,
+    size: 4,
+    
+    '&[type=number]': {
+      '-moz-appearance': 'textfield',
+    },
+    '&::-webkit-outer-spin-button': {
+      '-webkit-appearance': 'none',
+      margin: 0,
+    },
+    '&::-webkit-inner-spin-button': {
+      '-webkit-appearance': 'none',
+      margin: 0,
+    },
+  },
+  
+  disabled: {
+  background: theme.palette.text.disabled,
+  },
+
 }));

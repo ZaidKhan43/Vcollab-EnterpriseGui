@@ -11,4 +11,6 @@ export default makeStyles((theme) => ({
         width: '100%',
        // color:colors.secondaryText,
       },
+
+    
 }));
