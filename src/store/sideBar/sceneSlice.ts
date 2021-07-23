@@ -35,7 +35,12 @@ export type cameraView = {
 
 type colorList = {
     id : number,
-    color : string,
+    color : {
+        r : number,
+        g : number,
+        b : number,
+        a : number,
+    },
 }
 
 type settings = {
@@ -317,7 +322,7 @@ const initialState : scenes = {
         },
     ],
 
-    colorList : [{ id:1, color:"#a0a0fc"} , {id:2, color:"#ffffff"}],
+    colorList : [{ id:1, color:{r:160, g:160, b:252, a:1}} , {id:2, color:{r:255, g:255, b:255, a:1}}],
     file : null ,
 
     settings : {

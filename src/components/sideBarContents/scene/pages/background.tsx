@@ -47,7 +47,7 @@ export default function Background (){
     const handleAddColor = () => {
         if(colourSet.length < 3){
             const idNew = colourSet.length + 1;
-            const newArray : any = [...colourSet, {id: idNew , color:"#ffffff"}];
+            const newArray : any = [...colourSet, {id: idNew , color:{r:255,g:255,b:255,a:1}}];
             setColourSet(newArray);
             setSelectedColor(newArray[newArray.length - 1])
         }
@@ -63,7 +63,7 @@ export default function Background (){
     const handleChangeComplete = (color : any) => {
         const index = colourSet.findIndex((item) => item.id === selectedColor.id);
         const newArray=[...colourSet];
-        newArray[index].color= color.hex;
+        newArray[index].color= color.rgb;
         setColourSet(newArray);
     }
 
@@ -174,7 +174,7 @@ export default function Background (){
                                         className={selectedColor ? item.id !== selectedColor.id ? classes.colorPicker : classes.active : classes.colorPicker} 
                                         style={{height:226/colourSet.length, 
                                             width:"30px",
-                                            backgroundColor:item.color ,
+                                            backgroundColor:`rgb(${item.color.r},${item.color.g},${item.color.b})` ,
                                         }}
                                         onClick={() => handleColorSelector(item)}
                                     >
@@ -183,7 +183,7 @@ export default function Background (){
                             </MuiGrid>
                             <MuiGrid item xs={12} sm={2} style={{marginLeft:"5px"}}>
                                 <SketchPicker  
-                                    color={selectedColor ? selectedColor.color : "#ffffff"}
+                                    color={selectedColor ? selectedColor.color : "rgb((255,255,255)"}
                                     onChangeComplete={selectedColor && handleChangeComplete }
                                     presetColors={[]}
                                     disableAlpha ={true}
