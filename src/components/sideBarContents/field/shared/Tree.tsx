@@ -1,12 +1,21 @@
-import React from 'react'
-import Table, {Cell, Column, ColumnGroup} from '../../../shared/RsTable'
-function Tree(props:any) {
+import React, { FC } from 'react'
+import RsTreeSearch, {RsTreeSearchProps} from '../../../shared/RsTreeWithSearch'
+import Title from '../../../shared/RsTreeWithSearch/utilComponents/TitleNode'
+import Grid from '@material-ui/core/Grid'
+function Tree(props:RsTreeSearchProps) {
     return (
-        <Table {...props} >
-            {
-                props.children
-            }
-        </Table>
+        <RsTreeSearch {...props} renderNode={
+            rowData =>
+            <Grid container alignItems='center'>
+                <Grid item>
+                <div style={{width:10}}></div>
+                </Grid>
+                <Grid item>
+                <Title rowData = {rowData}></Title>
+                </Grid>
+            </Grid>
+        }
+        />
     )
 }
 

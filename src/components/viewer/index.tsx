@@ -9,6 +9,7 @@ import {saveTree, fetchSearchHints,setHightLightedNodesAsync } from "../../store
 import {fetchSectionPlaneData, handlePlaneSelection} from "../../store/sideBar/clipSlice";
 import { addViewer } from '../../store/appSlice';
 import ProbeLabel from "../probe";
+import { fetchFieldData } from '../../store/sideBar/fieldSlice';
 
 
 
@@ -71,6 +72,11 @@ function Viewer(){
             dispatch(saveTree({tree:treeData.models,rootIds:treeData.rootNodeIds}));
             dispatch(fetchSearchHints());
             }
+          
+           // fetch field data
+           setTimeout(() => {
+            dispatch(fetchFieldData({data:""}))
+           },3000)
 
            // fetch section data
            setTimeout(() => {

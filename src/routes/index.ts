@@ -7,6 +7,8 @@ export enum Routes {
 
     FIELD = "/field",
     FIELD_VARIABLES = "/field/variables",
+    FIELD_STEPS_AND_SUBCASES = "/field/steps_and_subcases",
+    FIELD_DERIVED_TYPES = "/field/derived_types",
 
     CLIPPLANES ="/clipplanes",
     CLIPPLANES_LIST = "/clipplanes/list",

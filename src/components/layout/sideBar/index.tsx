@@ -1,5 +1,5 @@
 import { useLayoutEffect } from 'react';
-import {Switch, Route} from 'react-router';
+import {Switch, Route, useParams} from 'react-router-dom';
 import {Routes} from '../../../routes';
 import MuiDrawer from '@material-ui/core/Drawer';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
@@ -23,7 +23,6 @@ import Settings from '../../sideBarContents/settings';
 import Notifications from '../../sideBarContents/notifications';
 
 export default function Sidebar(){
-    
     const classes = styles();
     const isSidebarVisible = useAppSelector(selectSidebarVisibility);
     const dispatch = useAppDispatch();  
@@ -51,7 +50,7 @@ export default function Sidebar(){
         <Route path={Routes.CLIPPLANES} >
         <ClipPlanes/>
         </Route>
-        <Route>
+        {/* <Route>
         <Colormaps />
         </Route>
         <Route>
@@ -65,7 +64,7 @@ export default function Sidebar(){
         </Route>
         <Route>
         <Notifications />     
-        </Route>
+        </Route> */}
       </Switch>)
       
     };

@@ -7,12 +7,10 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Clear';
 import React, { useRef } from 'react'
-import {useAppDispatch} from '../../../../store/storeHooks'
-import {removeSearchHint, setSearchString} from '../../../../store/sideBar/productTreeSlice'
 
-//@ts-expect-error
+//@ts-ignore
 import ResizePanel from 'react-resize-panel'
-import useContainer from '../../../../customHooks/useContainer'
+import AutoSizer from '../autoSize'
 import { makeStyles } from '@material-ui/core/styles'
 import clsx from 'clsx'
 
@@ -67,24 +65,16 @@ function Footer() {
 }
 
 function Body(props:SearchHintsProps) {
-    const dispatch = useAppDispatch();
     const classes = useStyles();
-    const handleClick = (s:string) => {
-        props.setInput(s);
-        dispatch(setSearchString(s));
-    }
-    const handleDelete = (s:string) => {
-        dispatch(removeSearchHint({data:s}));
-    }
     return(
         <List component='div' aria-label="search hints list" >
             {
                 props.data.map((item) => {
                     return(
-                        <ListItem onClick={() => handleClick(item)} button classes={{root:classes.listItem}}>
+                        <ListItem onClick={() => props.onClick(item)} button classes={{root:classes.listItem}}>
                         <ListItemText >{item}</ListItemText>
                         <ListItemSecondaryAction>
-                        <IconButton onClick={() => handleDelete(item)} size='small' edge="end" aria-label="delete">
+                        <IconButton onClick={() => props.onDelete(item)} size='small' edge="end" aria-label="delete">
                         <DeleteIcon ></DeleteIcon>
                         </IconButton>
                         </ListItemSecondaryAction>
@@ -98,20 +88,24 @@ function Body(props:SearchHintsProps) {
 
 type SearchHintsProps = {
     data: string[],
-    setInput: (s:string) => void
+    onClick: (s:string) => void
+    onDelete: (s:string) => void
 }
 function SearchHints(props:SearchHintsProps) {
-    const containerRef = useRef(null);
-    /* eslint-disable-next-line */
-    const [containerWidth,containerHeight] = useContainer(containerRef,[]);
     const classes = useStyles();
     return (
         <div>
         <ResizePanel direction='s' handleClass= {classes.customHandle} style={{height:100,maxHeight:window.innerHeight*0.3}}>
-            <div ref={containerRef} style={{height:'100%',maxHeight:window.innerHeight*0.3}}>
-                <div style={{marginBottom:-5,height: (containerHeight ? containerHeight : 0)}} className={classes.root} >
-                <Body data={props.data} setInput={props.setInput}></Body>
-                </div>
+            <div style={{height:'100%',maxHeight:window.innerHeight*0.3}}>
+                <AutoSizer>
+                    {
+                        ({width,height}:{width:number,height:number}) => (
+                            <div style={{marginBottom:-5,height:height as number}} className={classes.root} >
+                            <Body data={props.data} onClick={props.onClick} onDelete={props.onDelete}></Body>
+                            </div>
+                        )
+                    }
+                </AutoSizer>
             </div>
         </ResizePanel>
         <Footer/>

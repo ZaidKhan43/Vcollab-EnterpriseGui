@@ -29,8 +29,8 @@ const useStyles = makeStyles(theme => ({
 function RsTable(props:any) {
     const classes = useStyles();
     return (
-        <Table {...props}>
-            {
+        <Table {...props} >
+            { 
                 props.children
             }
         </Table>

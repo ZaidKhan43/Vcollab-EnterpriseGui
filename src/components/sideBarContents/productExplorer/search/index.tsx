@@ -3,8 +3,8 @@ import useContainer from '../../../../customHooks/useContainer';
 import Table,{ Column,HeaderCell,Cell } from '../../../shared/RsTable';
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
 import SearchItem from './SearchItem'
-import SearchHints from './SearchHints'
-import {selectSearchHints,selectPrevSearches,setCheckedNodesAsync,selectProductTreeData, setSearchString, TreeNode as ITreeNode, selectSearchResults} from "../../../../store/sideBar/productTreeSlice"
+import SearchHints from '../../../shared/hintsPanel'
+import {selectSearchHints, removeSearchHint, selectPrevSearches,setCheckedNodesAsync,selectProductTreeData, setSearchString, TreeNode as ITreeNode, selectSearchResults} from "../../../../store/sideBar/productTreeSlice"
 import Checkbox from "@material-ui/core/Checkbox"
 import {makeStyles} from '@material-ui/core/styles'
 
@@ -51,12 +51,18 @@ function Search(props:any) {
         })
         setSelectAll(state);
     }
+     const handleHintsClick = (s:string) => {
+        dispatch(setSearchString(s));
+    }
+    const handleHintsDelete = (s:string) => {
+        dispatch(removeSearchHint({data:s}));
+    }
     const overrideStyles = useRTreeOverrideStyles();
     return (
         <div ref = {containerRef} style={{height:'100%', overflow:'hidden'}} >
           <div ref = {headerRef} >
 
-            <SearchHints data = {generateOptions()} setInput={setSearchString}></SearchHints>
+            <SearchHints data = {generateOptions()} onClick={handleHintsClick} onDelete={handleHintsDelete}></SearchHints>
             {
             result.length !== 0 ?
             <div>
@@ -80,12 +86,10 @@ function Search(props:any) {
                         if(attr && Object.keys(attr).length > 0)
                         {
                             let height = 30 * (Object.keys(attr).length+1);
-                            console.log("height",height)
                             return height;
                         }
                         else{
                             let height = 45;
-                            console.log("height",height)
                             return height;
                         }
                         

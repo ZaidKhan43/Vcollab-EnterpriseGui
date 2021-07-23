@@ -132,7 +132,7 @@ const initialState: MainMenu ={
                     id:'22',
                     name: "Steps & Subcases",
                     type:MainMenuItems.FIELD_STEPS_AND_SUBCASES,
-                    path:Routes.HOME,
+                    path:Routes.FIELD_STEPS_AND_SUBCASES,
                     disabled: false,
                   },
                   {
@@ -146,7 +146,7 @@ const initialState: MainMenu ={
                     id:'24',
                     name: "Derived Types",
                     type:MainMenuItems.FIELD_DERIVED_TYPES,
-                    path:Routes.HOME,
+                    path:Routes.FIELD_DERIVED_TYPES,
                     disabled: false,
                   },
             ]

@@ -108,7 +108,6 @@ function RTree(props:any) {
               let state = treeData[rowData.id].state;
               return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
             }}
-            affixHorizontalScrollbar
           >
             <Column width={900} treeCol={true} align='left' verticalAlign='middle' >
             {/*

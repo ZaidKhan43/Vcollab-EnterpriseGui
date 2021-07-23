@@ -3,15 +3,13 @@ import {goBack, push} from 'connected-react-router/immutable';
 import SideBarContainer from "../../../layout/sideBar/sideBarContainer"
 import { useAppDispatch, useAppSelector } from '../../../../store/storeHooks';
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
-import SearchBox from '../../../shared/searchBox';
-import Body from '../components/variables/Body';
-import Footer from '../components/variables/Footer';
+import Body from '../components/step&subcase/Body';
 import Back from '../shared/BackIcon';
-import Add from '../shared/Add';
 import Select from '../shared/SelectModel';
+import Add from '../shared/Add';
 import { addUserFieldState, FieldType } from '../../../../store/sideBar/fieldSlice';
 
-function Variable() {
+function Steps() {
     const dispatch = useAppDispatch();
 
     //header
@@ -23,18 +21,13 @@ function Variable() {
         <Back onClick={() => onClickBackIcon()}/>
         );
     }
-    const handleAdd = () => {
-        dispatch(addUserFieldState({fieldType:FieldType.Variable}))
-    }
-    const getHeaderRightIcon= () => {
-        return (
-        <Add onClick={() => handleAdd()}/>
-        )
+    const handleAdd=() => {
+        dispatch(addUserFieldState({fieldType:FieldType.Step}))
     }
 
     const getHeaderContent = () => {
 
-        return (<Title text="Variables" group="Field"/>)
+        return (<Title text="Steps & Subcases" group="Field"/>)
     }
 
     const getAction = () => {
@@ -48,13 +41,13 @@ function Variable() {
     return (
         <SideBarContainer
             headerLeftIcon = {getHeaderLeftIcon()}
-            headerRightIcon = {getHeaderRightIcon()}
+            headerRightIcon = {<Add onClick={handleAdd} />}
             headerContent = {getHeaderContent()}
             headerAction = {getAction()}
             body = {getBody()}
-            footer = {<Footer/>}
+            footer = {null}
         />
     )
 }
 
-export default Variable
+export default Steps
