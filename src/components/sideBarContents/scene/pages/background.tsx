@@ -13,6 +13,7 @@ import MuiTab from '@material-ui/core/Tab';
 import MuiGrid from '@material-ui/core/Grid';
 import MuiButton from '@material-ui/core/Button';
 import MuiPlusIcon from '@material-ui/icons/Add';
+import ColorPicker from '../../../shared/colorPicker';
 import { SketchPicker } from 'react-color';
 import MuiMinusIcon from '@material-ui/icons/Remove';
 import Dropzone from 'react-dropzone';
@@ -182,12 +183,11 @@ export default function Background (){
                                 )}
                             </MuiGrid>
                             <MuiGrid item xs={12} sm={2} style={{marginLeft:"5px"}}>
-                                <SketchPicker  
-                                    color={selectedColor ? selectedColor.color : "rgb((255,255,255)"}
+                                <ColorPicker
+                                    color={selectedColor ? selectedColor.color : {r:255, g:255, b:255, a:1}}
                                     onChangeComplete={selectedColor && handleChangeComplete }
-                                    presetColors={[]}
-                                    disableAlpha ={true}
                                 />
+                               
                             </MuiGrid>
                         </MuiGrid> 
                         <div className={classes.buttonContainer}>
