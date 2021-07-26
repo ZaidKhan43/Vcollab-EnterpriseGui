@@ -13,4 +13,10 @@ export default makeStyles((theme) => ({
       },
 
     
+      active : {
+        border:"2px solid",
+        borderColor:theme.palette.text.primary,
+        borderRadius:"5px"
+    },
+
 }));

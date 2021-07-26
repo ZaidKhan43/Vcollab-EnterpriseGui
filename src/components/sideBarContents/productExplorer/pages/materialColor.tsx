@@ -20,6 +20,8 @@ import TranslateSlider from '../translateSlider/trasnslateSlider';
 
 import {useState} from "react"
 
+import styles from '../style';
+
 export default function MaterialColor() {
 
     type colorList = {
@@ -32,6 +34,8 @@ export default function MaterialColor() {
             a?:number,
         },
     }
+
+    const classes = styles();
 
     const applyTo = useAppSelector(selectApplyTo);
 
@@ -143,7 +147,7 @@ export default function MaterialColor() {
                         <MuiTypography variant="caption"> 
                                 {item.name}
                             </MuiTypography>
-                            <div style={{backgroundColor:`rgb(${item.color.r},${item.color.g},${item.color.b})` , width:"60px" , height:"19px", borderRadius:"4px"}}
+                            <div className={selectedColor && selectedColor.id === item.id && classes.active} style={{backgroundColor:`rgb(${item.color.r},${item.color.g},${item.color.b})` , width:"60px" , height:"19px", borderRadius:"5px"}}
                             onClick={() => handleColorSelector(item)}></div>
                         </MuiGrid>
                             )
@@ -152,10 +156,21 @@ export default function MaterialColor() {
                         
                     </MuiGrid>
                 </div>
+                {
+                    selectedColor
+                    ?
+                    <div style={{marginLeft:"10%"}}>
+                        <ColorPicker color={selectedColor ? selectedColor.color : {r:255, g:255, b:255, a:1}} onChangeComplete={handleChangeComplete}/>
+                    </div>
+                    :
+                    <div style={{marginLeft:"10%", width:"75%", height:"220px", border:"2px dotted" , borderRadius:"5px"}}>
+                    <MuiTypography style={{marginTop:"47%"}}>
+                        Select a color
+                    </MuiTypography>
+                    </div>
 
-                <div style={{marginLeft:"10%"}}>
-                    <ColorPicker color={selectedColor ? selectedColor.color : {r:255, g:255, b:255, a:1}} onChangeComplete={handleChangeComplete}/>
-                </div>
+                }
+                
 
                 <div style={{marginTop:"40px", marginBottom:"20px"}}>
                     <MuiTypography style={{textAlign:"left"}}>Shininess</MuiTypography>
