@@ -30,9 +30,8 @@ function RsTreeSearch(props: RsTreeSearchProps) {
         setData(treeData);
         setExpanded(expandedKeys)
     },[props.data, results])
-    
+
     const handleSearchResult = (results:any[]) => {
-        console.log("res",results)
         let filtered = results.map(result => {
             let node =  JSON.parse(JSON.stringify(result.item));
             if(result.matches)
@@ -62,11 +61,15 @@ function RsTreeSearch(props: RsTreeSearchProps) {
                 rowKey =  {props.rowKey}
                 data = {data}
                 defaultExpandedRowKeys = {expanded?expanded:[]}
+                shouldUpdateScroll={false}
                 width = {props.width}
                 height = {props.height - searchBarHeight}
                 onExpandChange = {props.onExpandChange}
+                onRowClick = {props.onRowClick}
                 renderNode = {props.renderNode}
                 rowClassName = {props.rowClassName}
+                setNodeStateReducer = {props.setNodeStateReducer}
+                selectOnlyLeaf = {props.selectOnlyLeaf}
             />
         </div>
     )

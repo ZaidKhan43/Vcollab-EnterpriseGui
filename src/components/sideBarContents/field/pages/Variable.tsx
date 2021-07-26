@@ -5,15 +5,25 @@ import { useAppDispatch, useAppSelector } from '../../../../store/storeHooks';
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
 import SearchBox from '../../../shared/searchBox';
 import Body from '../components/variables/Body';
-import Footer from '../components/variables/Footer';
+import Footer from '../shared/Footer';
 import Back from '../shared/BackIcon';
 import Add from '../shared/Add';
 import Select from '../shared/SelectModel';
-import { addUserFieldState, FieldType } from '../../../../store/sideBar/fieldSlice';
+import { addUserFieldState, FieldType, selectVariables, Source } from '../../../../store/sideBar/fieldSlice';
+import FieldEdit from './FieldEdit'
+import { useState, useEffect } from 'react';
 
 function Variable() {
     const dispatch = useAppDispatch();
+    const [isEdit,setIsEdit] = useState(false);
+    const variables = useAppSelector(selectVariables)
+    const selected = Object.values(variables).filter(item => item.state.selected === true);
 
+    useEffect(() => {
+        return () => {
+            setIsEdit(false)
+        }
+    },[])
     //header
     const onClickBackIcon = () => {
         dispatch(goBack())
@@ -45,14 +55,30 @@ function Variable() {
         return <Body/>
     }
 
+    const getFooter = () => {
+        return( selected.length === 1 && selected[0].source === Source.USER ?
+        <Footer onEdit={handleEdit} onDelete = {handleDelete}/> :
+        null)
+    }
+
+    const handleEdit = () => {
+        setIsEdit(true)
+    }
+
+    const handleDelete = () => {
+
+    }
     return (
+        isEdit ?
+        <FieldEdit field={variables} fieldType={FieldType.Variable} back={() => setIsEdit(false)}></FieldEdit>
+        :
         <SideBarContainer
             headerLeftIcon = {getHeaderLeftIcon()}
             headerRightIcon = {getHeaderRightIcon()}
             headerContent = {getHeaderContent()}
             headerAction = {getAction()}
             body = {getBody()}
-            footer = {<Footer/>}
+            footer = {getFooter()}
         />
     )
 }

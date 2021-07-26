@@ -12,16 +12,6 @@ function Body() {
     
     const [searchText, setSearchText] = useState("");
 
-    const handleExpand = (expanded:boolean, rowData: any) => {
-        if(derived)
-        {
-            let node = derived[rowData.id];
-            let nodeState = {...node.state}
-            nodeState.expanded = expanded;
-            dispatch(setDerivedNodeState({nodeId:node.id, nodeState}))
-        }
-        
-    }
     return (
         <AutoSizer>
             {
@@ -35,7 +25,7 @@ function Body() {
                             searchAttribKeys = {["name"]}
                             searchText = {searchText}
                             width = {300}
-                            onExpandChange = {handleExpand}
+                            setNodeStateReducer = {setDerivedNodeState}
                             searchPlaceholder = "Search DerivedTypes"
                         />
                     </div>   

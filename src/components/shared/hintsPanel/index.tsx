@@ -16,23 +16,23 @@ import clsx from 'clsx'
 
 const useStyles = makeStyles(theme => ({
     root: {
-        overflowY: "scroll",
-        overflowX:"hidden",
-        width:"100%",
-        height:"100%",
-        scrollbarColor: "rgba(0,0,0,.3) rgba(0,0,0,0.00) ",
-        scrollbarWidth: 'thin',
-        '&::-webkit-scrollbar': {
-          width: '0.4em'
-        },
-        '&::-webkit-scrollbar-track': {
-          boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
-          webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
-        },
-        '&::-webkit-scrollbar-thumb': {
-          backgroundColor: 'rgba(0,0,0,.3)',
-          outline: '1px solid slategrey'
-        },
+         overflowY: "hidden",
+         overflowX:"hidden",
+        // width: "100%",
+        // height:"100%",
+        // scrollbarColor: "rgba(0,0,0,.3) rgba(0,0,0,0.00) ",
+        // scrollbarWidth: 'thin',
+        // '&::-webkit-scrollbar': {
+        //   width: '0.4em'
+        // },
+        // '&::-webkit-scrollbar-track': {
+        //   boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+        //   webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+        // },
+        // '&::-webkit-scrollbar-thumb': {
+        //   backgroundColor: 'rgba(0,0,0,.3)',
+        //   outline: '1px solid slategrey'
+        // },
     },
     customHandle: {
         height:2
@@ -67,17 +67,21 @@ function Footer() {
 function Body(props:SearchHintsProps) {
     const classes = useStyles();
     return(
-        <List component='div' aria-label="search hints list" >
+        <List style={props.style} component='div' aria-label="search hints list" >
             {
                 props.data.map((item) => {
                     return(
                         <ListItem onClick={() => props.onClick(item)} button classes={{root:classes.listItem}}>
                         <ListItemText >{item}</ListItemText>
-                        <ListItemSecondaryAction>
-                        <IconButton onClick={() => props.onDelete(item)} size='small' edge="end" aria-label="delete">
-                        <DeleteIcon ></DeleteIcon>
-                        </IconButton>
-                        </ListItemSecondaryAction>
+                        {
+                            props.showDelete ?
+                            <ListItemSecondaryAction>
+                            <IconButton onClick={() => props.onDelete(item)} size='small' edge="end" aria-label="delete">
+                            <DeleteIcon ></DeleteIcon>
+                            </IconButton>
+                            </ListItemSecondaryAction>
+                            :null
+                        }
                         </ListItem>
                     )
                 })
@@ -87,7 +91,9 @@ function Body(props:SearchHintsProps) {
 }
 
 type SearchHintsProps = {
+    style?:any,
     data: string[],
+    showDelete?: boolean,
     onClick: (s:string) => void
     onDelete: (s:string) => void
 }
@@ -96,17 +102,7 @@ function SearchHints(props:SearchHintsProps) {
     return (
         <div>
         <ResizePanel direction='s' handleClass= {classes.customHandle} style={{height:100,maxHeight:window.innerHeight*0.3}}>
-            <div style={{height:'100%',maxHeight:window.innerHeight*0.3}}>
-                <AutoSizer>
-                    {
-                        ({width,height}:{width:number,height:number}) => (
-                            <div style={{marginBottom:-5,height:height as number}} className={classes.root} >
-                            <Body data={props.data} onClick={props.onClick} onDelete={props.onDelete}></Body>
-                            </div>
-                        )
-                    }
-                </AutoSizer>
-            </div>
+            <Body style={{height:"100%", overflow:'hidden'}} data={props.data} onClick={props.onClick} onDelete={props.onDelete}></Body> 
         </ResizePanel>
         <Footer/>
         </div>

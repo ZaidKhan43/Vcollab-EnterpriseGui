@@ -7,6 +7,7 @@ import Body from '../components/step&subcase/Body';
 import Back from '../shared/BackIcon';
 import Select from '../shared/SelectModel';
 import Add from '../shared/Add';
+import Footer from '../shared/Footer';
 import { addUserFieldState, FieldType } from '../../../../store/sideBar/fieldSlice';
 
 function Steps() {
@@ -38,6 +39,13 @@ function Steps() {
         return <Body/>
     }
 
+    const handleEdit = () => {
+
+    }
+
+    const handleDelete = () => {
+
+    }
     return (
         <SideBarContainer
             headerLeftIcon = {getHeaderLeftIcon()}
@@ -45,7 +53,7 @@ function Steps() {
             headerContent = {getHeaderContent()}
             headerAction = {getAction()}
             body = {getBody()}
-            footer = {null}
+            footer = {<Footer onEdit={handleEdit} onDelete = {handleDelete}/>}
         />
     )
 }

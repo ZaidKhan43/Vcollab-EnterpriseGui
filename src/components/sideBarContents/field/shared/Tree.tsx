@@ -4,7 +4,9 @@ import Title from '../../../shared/RsTreeWithSearch/utilComponents/TitleNode'
 import Grid from '@material-ui/core/Grid'
 function Tree(props:RsTreeSearchProps) {
     return (
-        <RsTreeSearch {...props} renderNode={
+        <RsTreeSearch {...props} 
+            selectOnlyLeaf
+            renderNode={
             rowData =>
             <Grid container alignItems='center'>
                 <Grid item>

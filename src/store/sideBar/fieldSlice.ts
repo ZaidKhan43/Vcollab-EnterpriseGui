@@ -7,7 +7,7 @@ type FieldState = {
     data: FieldData
 }
 
-enum Source {
+export enum Source {
     SYSTEM,
     USER
 }
@@ -17,16 +17,20 @@ export enum FieldType {
     Step,
     Derived
 }
-interface Variable extends Node {
+
+export interface Field extends Node {
     source:Source
 }
-
-interface Step extends Node {
-    source:Source
+interface Variable extends Field {
+    
 }
 
-interface DerivedType extends Node {
-    source:Source
+interface Step extends Field {
+    
+}
+
+interface DerivedType extends Field {
+    
 }
 
 type FieldData = {
@@ -59,7 +63,7 @@ const initialState : FieldState = {
                 id: "0",
                 pid: "-1",
                 name: "Input",
-                state: {expanded:true},
+                state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: ["01","02","03"]
             },
@@ -67,7 +71,7 @@ const initialState : FieldState = {
                 id: "01",
                 pid: "0",
                 name: "Material ID",
-                state: {expanded:true, },
+                state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
             },
@@ -75,7 +79,7 @@ const initialState : FieldState = {
                 id: "02",
                 pid: "0",
                 name: "Constraints",
-                state: {expanded:true, },
+                state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
             },
@@ -83,7 +87,7 @@ const initialState : FieldState = {
                 id: "03",
                 pid: "0",
                 name: "Pressure Loads",
-                state: {expanded:true, },
+                state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
             },
@@ -91,7 +95,7 @@ const initialState : FieldState = {
                 id:"1",
                 pid:"-1",
                 name: "Results",
-                state: {expanded:true, },
+                state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: ["11","12","13" ,"14", "15", "16"]
             },
@@ -99,7 +103,7 @@ const initialState : FieldState = {
                 id:"11",
                 pid:"1",
                 name: "Displacement",
-                state: {expanded:true, },
+                state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
             },
@@ -107,7 +111,7 @@ const initialState : FieldState = {
                 id:"12",
                 pid:"1",
                 name: "Reaction Force",
-                state: {expanded:true, },
+                state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
             },
@@ -115,7 +119,7 @@ const initialState : FieldState = {
                 id:"13",
                 pid:"1",
                 name: "Stress",
-                state: {expanded:true, },
+                state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
             },
@@ -123,7 +127,7 @@ const initialState : FieldState = {
                 id:"14",
                 pid:"1",
                 name: "Displacement 2 adfadfadfadfadadfadfadfadfadfadfadfadfadfadfdaf",
-                state: {expanded:true, },
+                state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
             },
@@ -131,7 +135,7 @@ const initialState : FieldState = {
                 id:"15",
                 pid:"1",
                 name: "Reaction Force 2",
-                state: {expanded:true, },
+                state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
             },
@@ -139,7 +143,7 @@ const initialState : FieldState = {
                 id:"16",
                 pid:"1",
                 name: "Stress 2",
-                state: {expanded:true, },
+                state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
             },
@@ -147,7 +151,7 @@ const initialState : FieldState = {
                 id:"userDefined",
                 pid:"-1",
                 name: "User Defined",
-                state:{expanded:true, },
+                state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
             }
@@ -159,7 +163,7 @@ const initialState : FieldState = {
                 children: ["01","02","03","04","05","06"],
                 pid: "-1",
                 source: Source.SYSTEM,
-                state: {expanded:true}
+                state: {expanded:true,selected:false},
             },
             "01" : {
                 id: "01",
@@ -167,7 +171,7 @@ const initialState : FieldState = {
                 children: [],
                 pid: "0",
                 source: Source.SYSTEM,
-                state: {expanded:true}
+                state: {expanded:true,selected:false},
             },
             "02" : {
                 id: "02",
@@ -175,7 +179,7 @@ const initialState : FieldState = {
                 children: [],
                 pid: "0",
                 source: Source.SYSTEM,
-                state: {expanded:true}
+                state: {expanded:true,selected:false},
             },
             "03" : {
                 id: "03",
@@ -183,7 +187,7 @@ const initialState : FieldState = {
                 children: [],
                 pid: "0",
                 source: Source.SYSTEM,
-                state: {expanded:true}
+                state: {expanded:true,selected:false},
             },
             "04" : {
                 id: "04",
@@ -191,7 +195,7 @@ const initialState : FieldState = {
                 children: [],
                 pid: "0",
                 source: Source.SYSTEM,
-                state: {expanded:true}
+                state: {expanded:true,selected:false},
             },
             "05" : {
                 id: "05",
@@ -199,7 +203,7 @@ const initialState : FieldState = {
                 children: [],
                 pid: "0",
                 source: Source.SYSTEM,
-                state: {expanded:true}
+                state: {expanded:true,selected:false},
             },
             "06" : {
                 id: "06",
@@ -207,7 +211,7 @@ const initialState : FieldState = {
                 children: [],
                 pid: "0",
                 source: Source.SYSTEM,
-                state: {expanded:true}
+                state: {expanded:true,selected:false},
             },
             "2" : {
                 id: "2",
@@ -215,7 +219,7 @@ const initialState : FieldState = {
                 children: ["21","22","23","24","25","26"],
                 pid: "-1",
                 source: Source.SYSTEM,
-                state: {expanded:true}
+                state: {expanded:true,selected:false},
             },
             "21" : {
                 id: "21",
@@ -223,7 +227,7 @@ const initialState : FieldState = {
                 children: [],
                 pid: "2",
                 source: Source.SYSTEM,
-                state: {expanded:true}
+                state: {expanded:true,selected:false},
             },
             "22" : {
                 id: "22",
@@ -231,7 +235,7 @@ const initialState : FieldState = {
                 children: [],
                 pid: "2",
                 source: Source.SYSTEM,
-                state: {expanded:true}
+                state: {expanded:true,selected:false},
             },
             "23" : {
                 id: "23",
@@ -239,7 +243,7 @@ const initialState : FieldState = {
                 children: [],
                 pid: "2",
                 source: Source.SYSTEM,
-                state: {expanded:true}
+                state: {expanded:true,selected:false},
             },
             "24" : {
                 id: "24",
@@ -247,7 +251,7 @@ const initialState : FieldState = {
                 children: [],
                 pid: "2",
                 source: Source.SYSTEM,
-                state: {expanded:true}
+                state: {expanded:true,selected:false},
             },
             "25" : {
                 id: "25",
@@ -255,7 +259,7 @@ const initialState : FieldState = {
                 children: [],
                 pid: "2",
                 source: Source.SYSTEM,
-                state: {expanded:true}
+                state: {expanded:true,selected:false},
             },
             "26" : {
                 id: "26",
@@ -263,7 +267,7 @@ const initialState : FieldState = {
                 children: [],
                 pid: "2",
                 source: Source.SYSTEM,
-                state: {expanded:true}
+                state: {expanded:true,selected:false},
             },
             "userDefined" : {
                 id:"userDefined",
@@ -271,7 +275,7 @@ const initialState : FieldState = {
                 children: [],
                 pid:"-1",
                 source: Source.USER,
-                state: {expanded:true}
+                state: {expanded:true,selected:false},
             } 
         },
         derivedTypes: {
@@ -279,7 +283,7 @@ const initialState : FieldState = {
                     id: "0",
                     pid: "-1",
                     name: "Vector",
-                    state: {expanded:true},
+                    state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: ["01","02","03","04"]
                 },
@@ -287,7 +291,7 @@ const initialState : FieldState = {
                     id: "01",
                     pid: "0",
                     name: "X Component",
-                    state: {expanded:true, },
+                    state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
                 },
@@ -295,7 +299,7 @@ const initialState : FieldState = {
                     id: "02",
                     pid: "0",
                     name: "Y Component",
-                    state: {expanded:true, },
+                    state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
                 },
@@ -303,7 +307,7 @@ const initialState : FieldState = {
                     id: "03",
                     pid: "0",
                     name: "Z Component",
-                    state: {expanded:true, },
+                    state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
                 },
@@ -311,7 +315,7 @@ const initialState : FieldState = {
                     id: "04",
                     pid:"0",
                     name: "Magnitude",
-                    state: {expanded:true},
+                    state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children:[]
                 },
@@ -319,7 +323,7 @@ const initialState : FieldState = {
                     id:"1",
                     pid:"-1",
                     name: "SixDOF",
-                    state: {expanded:true, },
+                    state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: ["11","12"]
                 },
@@ -327,7 +331,7 @@ const initialState : FieldState = {
                     id:"11",
                     pid:"1",
                     name: "Translation Vector",
-                    state: {expanded:true, },
+                    state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
                 },
@@ -335,7 +339,7 @@ const initialState : FieldState = {
                     id:"12",
                     pid:"1",
                     name: "Rotation Vector",
-                    state: {expanded:true, },
+                    state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
                 },
@@ -343,7 +347,7 @@ const initialState : FieldState = {
                     id:"2",
                     pid:"-1",
                     name: "Stress Tensor",
-                    state: {expanded:true},
+                    state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: ["21","22","23"]
                 },
@@ -351,7 +355,7 @@ const initialState : FieldState = {
                     id:"21",
                     pid:"2",
                     name: "Normal Stress",
-                    state: {expanded:true},
+                    state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
                 },
@@ -359,7 +363,7 @@ const initialState : FieldState = {
                     id:"22",
                     pid:"2",
                     name: "Shear Stress",
-                    state: {expanded:true},
+                    state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
                 },
@@ -367,7 +371,7 @@ const initialState : FieldState = {
                     id:"23",
                     pid:"2",
                     name: "Tensor Mean",
-                    state: {expanded:true},
+                    state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
                 },
@@ -375,7 +379,7 @@ const initialState : FieldState = {
                     id:"userDefined",
                     pid:"-1",
                     name: "User Defined",
-                    state:{expanded:true, },
+                    state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
                 }

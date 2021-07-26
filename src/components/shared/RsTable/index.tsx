@@ -26,14 +26,51 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
+//@ts-ignore
+export class TableWrapper extends Table {
+  componentDidUpdate(prevProps:any, prevState:any) {
+    const { data, height } = prevProps;
+//@ts-ignore
+    if (data !== this.props.data) {
+      //@ts-ignore
+      this.calculateRowMaxHeight();
+      //@ts-ignore
+      this.props.onDataUpdated?.(this.props.data, this.scrollTo);
+
+    } else {
+      //@ts-ignore
+      this.updatePosition();
+    }
+
+    if (
+      //@ts-ignore
+      data !== this.props.data ||
+      //@ts-ignore
+      height !== this.props.height ||
+      //@ts-ignore
+      prevState.contentHeight !== this.state.contentHeight ||
+      //@ts-ignore
+      prevState.expandedRowKeys !== this.state.expandedRowKeys ||
+      //@ts-ignore
+      prevProps.expandedRowKeys !== this.props.expandedRowKeys
+    ) {
+      //@ts-ignore
+      this.calculateTableContextHeight(prevProps);
+    }
+    //@ts-ignore
+    this.calculateTableContentWidth(prevProps);
+  }
+}
+
 function RsTable(props:any) {
     const classes = useStyles();
     return (
-        <Table {...props} >
+      //@ts-ignore
+        <TableWrapper {...props} bordered={false} cellBordered={false} hover={false}>
             { 
                 props.children
             }
-        </Table>
+        </TableWrapper>
     )
 }
 

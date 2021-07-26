@@ -25,6 +25,7 @@ const createTree = (rootId:string, data:{[id:string]:any}):any => {
     let treeNode: {[id:string]:any} = {
         id: root.id,
         title: root.name,
+        state: root.state,
         children: [] as any[]
     }
     

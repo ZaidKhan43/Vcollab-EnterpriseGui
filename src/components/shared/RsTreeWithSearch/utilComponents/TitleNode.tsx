@@ -7,7 +7,7 @@ const useStyles = makeStyles( theme => ({
     highlight: {
         color: theme.palette.getContrastText(theme.palette.info.main),
         backgroundColor: theme.palette.info.main
-    }
+    },
 }))
 
 const Title = (props:any) => {

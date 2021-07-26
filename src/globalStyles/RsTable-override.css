@@ -38,12 +38,7 @@
     top: 0;
     border-bottom: none;
   }
-  /* .rs-table-hover .rs-table-row:not(.rs-table-row-header):hover, .rs-table-hover .rs-table-row:hover .rs-table-cell-group, .rs-table-hover .rs-table-row:hover .rs-table-cell {
-    background: none;
-  }
-  .rs-table-hover .rs-table-row:hover .rs-table-cell-group {
-    background: transparent;
-  } */
+
   .rs-table-row-header {
     background: #f5f5f500;
   }

@@ -9,19 +9,8 @@ import { useState } from 'react'
 function Body() {
     const dispatch = useAppDispatch();
     const variables = useAppSelector(selectVariables);
-    
     const [searchText, setSearchText] = useState("");
 
-    const handleExpand = (expanded:boolean, rowData: any) => {
-        if(variables)
-        {
-            let node = variables[rowData.id];
-            let nodeState = {...node.state}
-            nodeState.expanded = expanded;
-            dispatch(setVariableNodeState({nodeId:node.id, nodeState}))
-        }
-        
-    }
     return (
         <AutoSizer>
             {
@@ -34,8 +23,8 @@ function Body() {
                             onChangeSearch = {(s:string,r:any) => {setSearchText(s);} }
                             searchAttribKeys = {["name"]}
                             searchText = {searchText}
+                            setNodeStateReducer = {setVariableNodeState}
                             width = {300}
-                            onExpandChange = {handleExpand}
                             searchPlaceholder = "Search Variables"
                         />
                     </div>   
