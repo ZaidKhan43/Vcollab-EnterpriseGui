@@ -14,6 +14,15 @@ export enum Routes {
     CLIPPLANES_LIST = "/clipplanes/list",
     CLIPPLANES_SETTINGS = "/clipplanes/settings",
     CLIPPLANES_TRANSFORMATION = "/clipplanes/transfromation",
+
+
+    SCENE ="/scene",
+    SCENE_AXIS_TRAID = "/scene/axistraid",
+
+    SETTINGS = "/settings",
+    SETTINGS_THEME = "/settings/theme",
+    SETTINGS_MOUSE_CONTROLS ="/settings/mousecontrols",
+    SETTINGS_MOUSE_CONTROLS_EDIT ="/settings/mousecontrols/edit"
     
 
 }

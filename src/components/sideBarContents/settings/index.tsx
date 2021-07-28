@@ -1,57 +1,26 @@
-import MuiTypography from '@material-ui/core/Typography';
-import MuiIconButton from '@material-ui/core/IconButton';
-import MuiToolTip from '@material-ui/core/Tooltip';
-import MuiBackIcon from '@material-ui/icons/ArrowBack'
+import {Switch,Route} from 'react-router'
+import {Routes} from'../../../routes'
+import ColorTheme from'./pages/ColorTheme'
+import MouseControls from'./pages/MouseControl'
+import MouseControlEdit from './pages/MouseControlEdit'
 
-import { useAppDispatch } from "../../../store/storeHooks";
-import {setSidebarActiveContent} from "../../../store/appSlice";
-import SideBarContainer from '../../layout/sideBar/sideBarContainer';
-import { sideBarContentTypes } from "../../../config";
-import styles from './style';
+export default function ApplicationSettings() {
 
-export default function Annotations(){
+  return (
 
-    const classes = styles();
-    const dispatch = useAppDispatch();  
+    <Switch>
 
-    const onClickBackIcon = () =>{
-        dispatch(setSidebarActiveContent(sideBarContentTypes.mainMenu));
-    }
+          <Route path={Routes.SETTINGS_THEME}>
+            <ColorTheme/>
+          </Route>
+          <Route exact path={Routes.SETTINGS_MOUSE_CONTROLS}>
+            <MouseControls/>
+          </Route>
+          <Route path={Routes.SETTINGS_MOUSE_CONTROLS_EDIT}>
+              <MouseControlEdit/>
+          </Route>
 
-    const getHeaderLeftIcon= () => {
-        return (
-        <MuiToolTip title='Back'>
-        <MuiIconButton
-        className={classes.backIcon}
-        onClick={() => onClickBackIcon()}><MuiBackIcon/></MuiIconButton>
-        </MuiToolTip>
-        );
-    }
-  
-    const getHeaderContent = () => {
-        return (
-        <MuiTypography className={classes.heading} variant='h1' noWrap>
-            Settings
-        </MuiTypography>)  
-    }
-  
-    const getHeaderRightIcon = () => {
-        return null;
-    }
+    </Switch>
 
-    const getBody = () => {
-        return (<div style={{ height: "500px", display: "inline-flex", alignItems: "center" }}>Coming Soon</div>)
-    }      
-  
-    const getFooter = () => {
-        return null;  
-    }
-
-    return (<SideBarContainer
-        headerLeftIcon = { getHeaderLeftIcon() }
-        headerContent={ getHeaderContent() }
-        headerRightIcon = { getHeaderRightIcon() }
-        body ={ getBody() }
-        footer = { getFooter() }
-        />)
+  )
 }

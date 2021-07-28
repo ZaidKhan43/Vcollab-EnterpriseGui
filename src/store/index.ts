@@ -10,6 +10,8 @@ import clipSlice from './sideBar/clipSlice';
 import colormapSlice from './colormapSlice';
 import probeSlice from './probeSlice';
 import mainMenuSlice  from './mainMenuSlice';
+import sceneSlice from './sideBar/scene'
+import settingSlice from './sideBar/settings'
 
 export const history = createHashHistory({
   hashType: 'slash',
@@ -20,13 +22,15 @@ const store = configureStore({
         router: connectRouter(history),
         app: appSlice,
         mainMenu: mainMenuSlice,
+        scene: sceneSlice,
         field: fieldSlice,
         clipPlane: clipSlice,
         productTree: productTreeSlice,
         probe: probeSlice,
         displayModes: displayModesSlice,
         toast: toastSlice,
-        colormaps: colormapSlice
+        colormaps: colormapSlice,
+        settings: settingSlice
       }),
     middleware: getDefaultMiddleware({
       serializableCheck: {

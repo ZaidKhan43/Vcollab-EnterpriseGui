@@ -56,7 +56,9 @@ export enum MainMenuItems {
 
     MESSAGES,
 
-    SETTINGS
+    SETTINGS,
+    SETTINGS_THEME, 
+    SETTINGS_MOUSE_CONTROLS
 
 }
 
@@ -175,7 +177,7 @@ const initialState: MainMenu ={
                     id:'33',
                     name: "Axis Triad",
                     type:MainMenuItems.SCENE_AXIS_TRIAD,
-                    path:Routes.HOME,
+                    path:Routes.SCENE_AXIS_TRAID,
                     disabled: false
                 },
                 {
@@ -263,7 +265,26 @@ const initialState: MainMenu ={
             expanded: false,
             name: "Application Settings",
             type: MainMenuItems.SETTINGS,
-            children: []
+            children: [
+                {
+
+                    id:'111',
+                    name: "Color Theme",
+                    type:MainMenuItems.SETTINGS_THEME,
+                    path:Routes.SETTINGS_THEME ,
+                    disabled: false,
+                },
+                {
+
+                    id:'112',
+                    name: "Mouse Controls",
+                    type:MainMenuItems.SETTINGS_MOUSE_CONTROLS,
+                    path:Routes.SETTINGS_MOUSE_CONTROLS,
+                    disabled: false,
+                }
+
+                    
+            ]
         }
     ]
 }

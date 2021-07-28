@@ -20,9 +20,11 @@ import ClipPlanes from '../../sideBarContents/clipPlanes';
 import Views from '../../sideBarContents/views';
 import Annotations from '../../sideBarContents/annotations';
 import Settings from '../../sideBarContents/settings';
+import Scene from '../../sideBarContents/scene';
 import Notifications from '../../sideBarContents/notifications';
 
 export default function Sidebar(){
+    
     const classes = styles();
     const isSidebarVisible = useAppSelector(selectSidebarVisibility);
     const dispatch = useAppDispatch();  
@@ -58,11 +60,14 @@ export default function Sidebar(){
         </Route>
         <Route>
         <Annotations />
-        </Route>
-        <Route>
-        <Settings />
-        </Route>
-        <Route>
+        </Route> */}
+        <Route path={Routes.SCENE}>
+        <Scene/>
+         </Route>
+        <Route path={Routes.SETTINGS}>
+        <Settings/>
+         </Route>
+       {/* <Route>
         <Notifications />     
         </Route> */}
       </Switch>)

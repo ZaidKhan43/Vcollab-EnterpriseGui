@@ -4,18 +4,45 @@ import { ThemeProvider} from '@material-ui/core/styles';
 //Custom theme 
 import darkMode from '../../../theme/dark';
 import lightMode from  '../../../theme/light';
+import lightModePlus from  '../../../theme/lightplus';
 
 // Redux Selector
-import {  selectDarkModeEnable } from '../../../store/appSlice';
+import {  selectActiveTheme } from '../../../store/sideBar/settings';
 import { useAppSelector } from '../../../store/storeHooks';
 
 
 //Enabling darkmode and light mode
 export default function CustomThemeProvider(props : any) {
 
-  const isDarkModeEnable = useAppSelector(selectDarkModeEnable);
-  const selectedTheme = createMuiTheme( isDarkModeEnable ? darkMode : lightMode);
-  const responsiveTheme = responsiveFontSizes(selectedTheme);
+  const getTheme=(id:string)=>{
+
+          switch(id) {
+
+            case '1' :
+
+              return darkMode
+
+            case '2' :
+              
+              return lightMode
+
+            case '3' :
+              
+              return lightModePlus
+
+             default :
+             
+              return darkMode
+
+          }
+
+  }
+
+   const activeThemeId    = useAppSelector(selectActiveTheme);
+   const selectedTheme    = createMuiTheme( getTheme(activeThemeId) );
+   const responsiveTheme  = responsiveFontSizes(selectedTheme);
+
+
 
   return (
       <ThemeProvider theme={ responsiveTheme }> 
