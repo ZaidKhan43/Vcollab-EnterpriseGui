@@ -86,11 +86,11 @@ export default makeStyles((theme) => (
 
   settingPageContainer:{
     marginRight:"50px", 
-    marginLeft:"5px",
+    marginLeft:"10px",
   },
 
   translatePageContainer:{ 
-    marginLeft:"5px",
+    marginLeft:"10px",
   },
 
   settingItemContainer:{
