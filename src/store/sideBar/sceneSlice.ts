@@ -78,6 +78,15 @@ type scenes = {
     settings : settings,
     colorList : colorList[],
     file: any,
+    axisTriodList : axisTriodList[],
+}
+
+
+export type axisTriodList = {
+    id:any
+    text:string,
+    selected:boolean,
+    applied:boolean,
 }
 
 const initialState : scenes = {
@@ -321,9 +330,18 @@ const initialState : scenes = {
             ],
         },
     ],
-
+    
     colorList : [{ id:1, color:{r:160, g:160, b:252, a:1}} , {id:2, color:{r:255, g:255, b:255, a:1}}],
     file : null ,
+    axisTriodList:[
+        {id:'1',text:'Top Right',selected:false,applied:false},
+        {id:'2',text:'Top Left',selected:false,applied:false},
+        {id:'3',text:'Middle Right',selected:false,applied:false},
+        {id:'4',text:'Middle Left',selected:false,applied:false},
+        {id:'5',text:'Bottom Left',selected:false,applied:false},
+        {id:'6',text:'Bottom Right',selected:false,applied:false},
+        {id:'7',text:'Custom',selected:false,applied:false}
+    ],
 
     settings : {
         defaultCameraParameter : {
@@ -422,14 +440,35 @@ export const sceneSlice = createSlice({
         updateBackgroundImage : (state, action) => {
             state.file = action.payload;
         },
+
+        setApplyItem:(state, action:PayloadAction<any>)=>{
+            state.axisTriodList.forEach((item)=>{    
+              if(item.id === action.payload) {
+                item.selected = true
+              }
+              else{
+                item.selected = false
+              }
+    // Apply selected item             
+              if(item.selected === true) {
+                item.applied = true
+                item.selected = false // 
+              }
+              else {
+                item.applied = false
+                }
+            })
+        },
     }
 })
 
-export const {addCameraView, setActiveId , editViewMode , updateChange, pasteCameraView , deteteCameraView , updateBackgroundColor , updateBackgroundImage } = sceneSlice.actions;
+export const {addCameraView, setActiveId , editViewMode , updateChange, pasteCameraView , deteteCameraView , updateBackgroundColor , updateBackgroundImage , setApplyItem} = sceneSlice.actions;
 
 export default sceneSlice.reducer;
 
 //selectors
+
+export const selectAxisTriodList = (state:RootState) => state.scene.axisTriodList;
 
 export const selectedCameraView = (state : RootState) => {
     const clickedValues = state.scene.cameraViews.filter(item => item.id === state.scene.settings.activeId);
