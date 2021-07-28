@@ -393,6 +393,13 @@ export default function CameraEdit (){
         }
 
     const getFooter = () => {
+
+        let change = false;
+
+        const cameraViewRedux = cameraViews.find(item => item.id === active);
+
+        if(JSON.stringify(cameraViewRedux) !== JSON.stringify(cameraView))
+            change = true;
         return(
             <div>
             {
@@ -402,6 +409,7 @@ export default function CameraEdit (){
                 :
                 <div style={{marginTop:"20px", marginBottom:"20px"}}>
                 <MuiButton style={{backgroundColor:"#5958FF",width:"30%", fontSize:"11px" , marginRight:"5px"}} 
+                disabled={!change}
                 autoFocus 
                 onClick={onHandleSave}
                 // color="primary"
@@ -412,9 +420,10 @@ export default function CameraEdit (){
             <MuiButton style={{width:"30%", fontSize:"11px"}} 
                 autoFocus 
                 onClick={onHandleReset} 
+                disabled={!change}
                 // color="primary"
               >
-                Cancel
+                Reset
               </MuiButton>
               </div>
             }
