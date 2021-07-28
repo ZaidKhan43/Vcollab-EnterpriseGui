@@ -13,7 +13,7 @@ interface FormulaProps {
 
 const useStyles = makeStyles( theme => ({
     root: {
-        margin: theme.spacing(1)
+        margin: theme.spacing(2)
     }
 }))
 function Formula(props:FormulaProps) {
@@ -37,7 +37,7 @@ function Formula(props:FormulaProps) {
                 setValue(value + " " + newValue);
                 else{
                     let beforeDollar = value.substr(0,index);
-                    setValue(beforeDollar + " " + newValue)
+                    setValue(beforeDollar + newValue)
                 }
               } else if (newValue && newValue.inputValue) {
                 // Create a new value from the user input
