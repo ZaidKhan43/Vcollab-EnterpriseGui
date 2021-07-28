@@ -24,7 +24,7 @@ import {Routes} from "../../../../routes"
 
 import { setSectionPlaneData, editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMaxGUI, selectActivePlane, selectedPlane , setActive} from '../../../../store/sideBar/clipSlice';
 import RotateSlider from '../shared/rotateSlider';
-import TranslateSlider from '../shared/translateSlider';
+import TranslateSlider from '../../../shared/translateSlider';
 
 import MuiFormControl from '@material-ui/core/FormControl'
 import MuiInputLabel from '@material-ui/core/InputLabel'
@@ -263,13 +263,14 @@ export default function ClipPlanes(props : any){
             onHandleTextbox={onHandleTranslateTextbox} onHandleCommited={onHandleTranslateCommitted}
             startPoint = {true}
           />
-          
-          
+    
+          <div style={{marginTop: "12px", marginLeft:"5px"}}>
+
+
           <MuiGrid container>
 
           <MuiGrid item xs={12} sm={4}>
-
-</MuiGrid>
+          </MuiGrid>
 
           <MuiGrid item xs={12} sm={4}>
       <MuiTypography style={{ fontSize: "14px",}}>Step Value :</MuiTypography>
@@ -278,9 +279,8 @@ export default function ClipPlanes(props : any){
 
     <MuiGrid item xs={12} sm={3} >
     <input
-    readOnly={props.editMode}
     // inputProps={{style: { textAlign: 'center', padding:"1px",  }, }} 
-    className={`${classes.inputTranslate} + ${props.editMode && classes.disabled}`} 
+    className={classes.inputTranslate} 
     style={{width: "70px",marginLeft:"5px"}} 
     type="number" 
     value={stepValueDisplay} 
@@ -289,6 +289,7 @@ export default function ClipPlanes(props : any){
   />
     </MuiGrid>
   </MuiGrid>
+  </div>
       </div>
       
       <div className={classes.settingItemContainer}>

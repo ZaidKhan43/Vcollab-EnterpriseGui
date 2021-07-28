@@ -382,8 +382,7 @@ export const sceneSlice = createSlice({
             }
         },
 
-        pasteCameraView: (state,action) => {
-            console.log("jell")
+        pasteCameraView: (state,action :  PayloadAction<{data: cameraView}>) => {
             const userDefinedLength : number = state.cameraViews.filter(item => item.userDefined === true).length;
             let clone = JSON.parse(JSON.stringify(action.payload.data));
             const newId = state.cameraViews.length;
@@ -393,22 +392,22 @@ export const sceneSlice = createSlice({
             state.cameraViews = [...state.cameraViews , clone];
         },
 
-        deteteCameraView:(state, action) => {
+        deteteCameraView:(state, action: PayloadAction<{id : number}>) => {
             state.cameraViews =  state.cameraViews.filter(item => item.id !== action.payload.id)
         },
 
-        setActiveId:(state, action) => {
+        setActiveId:(state, action :  PayloadAction<number>) => {
             if(action.payload !== state.settings.activeId)
                 state.settings.activeId = action.payload;
             else
                 state.settings.activeId = -1;
         },
 
-        editViewMode: (state, action) => {
+        editViewMode: (state, action:  PayloadAction<{value : ViewMode}>) => {
             state.settings.projection = action.payload.value;
         },
 
-        updateChange: (state, action) => {
+        updateChange: (state, action :  PayloadAction<{data : cameraView}>) => {
             const data = action.payload.data;
             const index = state.cameraViews.findIndex(item => item.id === data.id)
             if(index > -1){
@@ -416,7 +415,7 @@ export const sceneSlice = createSlice({
             }
         },
 
-        updateBackgroundColor : (state, action) => {
+        updateBackgroundColor : (state, action : PayloadAction<colorList[]>) => {
             state.colorList = action.payload;
         },
 

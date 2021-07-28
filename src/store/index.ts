@@ -10,6 +10,7 @@ import colormapSlice from './colormapSlice';
 import probeSlice from './probeSlice';
 import mainMenuSlice  from './mainMenuSlice';
 import sceneSlice from './sideBar/sceneSlice';
+import materialColorSlice from './sideBar/materialColorSlice';
 
 export const history = createBrowserHistory();
 const store = configureStore({
@@ -24,6 +25,7 @@ const store = configureStore({
         toast: toastSlice,
         colormaps: colormapSlice,
         scene: sceneSlice,
+        materialColor: materialColorSlice,
       }),
     middleware: getDefaultMiddleware({
       serializableCheck: {
