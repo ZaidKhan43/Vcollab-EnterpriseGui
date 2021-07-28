@@ -10,7 +10,8 @@ import clipSlice from './sideBar/clipSlice';
 import colormapSlice from './colormapSlice';
 import probeSlice from './probeSlice';
 import mainMenuSlice  from './mainMenuSlice';
-import sceneSlice from './sideBar/scene'
+import sceneSlice from './sideBar/sceneSlice';
+import materialColorSlice from './sideBar/materialColorSlice';
 import settingSlice from './sideBar/settings'
 
 export const history = createHashHistory({
@@ -23,6 +24,7 @@ const store = configureStore({
         app: appSlice,
         mainMenu: mainMenuSlice,
         scene: sceneSlice,
+        materialColor: materialColorSlice,
         field: fieldSlice,
         clipPlane: clipSlice,
         productTree: productTreeSlice,

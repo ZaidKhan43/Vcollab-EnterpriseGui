@@ -12,12 +12,14 @@ import TransformIcon from '../../../icons/transform';
 import {useAppSelector,useAppDispatch } from '../../../../store/storeHooks';
 import { useState} from "react";
 
+import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
+
 import MuiInput from '@material-ui/core/Input';
 
 import MuiCheckbox from '@material-ui/core/Checkbox';
 
-import Switch from "react-switch";
-import Toggle from 'react-toggle';
+// import Switch from "react-switch";
+// import Toggle from 'react-toggle';
 import "react-toggle/style.css";
 
 
@@ -38,19 +40,26 @@ import {goBack, push} from 'connected-react-router/immutable';
 import {plane,SelectionMode,selectActivePlane, setSectionPlaneData, addPlane, editEnabled, setActive, editShowClip, editEdgeClip, editShowCap, editPlaneName, removePlane, duplicatePlane, saveSelectedPlane , editEquation , setChildPlane , setMasterPlane, setSelectionMode, selectedPlane,} from "../../../../store/sideBar/clipSlice";
 
 //Plane Equation
-import {selectActiveViewerID} from "../../../../store/appSlice";
+// import {selectActiveViewerID} from "../../../../store/appSlice";
 import clsx from 'clsx';
 import MuiGrid from '@material-ui/core/Grid';
 import MuiButton from '@material-ui/core/Button';
 import Triangle from '../../../../components/icons/triangle'
 import ThreePoints from '../../../../components/icons/threePoints'
-import MuiFormControl from '@material-ui/core/FormControl'
-import MuiInputLabel from '@material-ui/core/InputLabel'
+// import MuiFormControl from '@material-ui/core/FormControl'
+// import MuiInputLabel from '@material-ui/core/InputLabel'
 import MuiSelect from '@material-ui/core/Select';
 import MuiMenuItem from '@material-ui/core/MenuItem';
-import { isTypeNode } from 'typescript';
+// import { isTypeNode } from 'typescript';
 import { useEffect } from 'react';
 //palne Equation
+
+import MuiTooltip from '@material-ui/core/Tooltip'
+
+// import MuiMenuItem from '@material-ui/core/MenuItem';
+import MuiMenuList from '@material-ui/core/MenuList';
+import MuiListItemIcon from '@material-ui/core/ListItemIcon';
+import MuiListItemText from '@material-ui/core/ListItemText';
 
 export default function ClipPlanes(){
 
@@ -101,7 +110,7 @@ export default function ClipPlanes(){
   
   const onHandleClip: ( functionName: any , indeterminate : boolean , boolean : boolean) => any = (functionName, indeterminate, boolean) => {
   
-    const funOne = (index : any) => {
+    const changeBoolean = (index : any) => {
       switch (functionName){ 
         case "showClip":
           if(indeterminate)          
@@ -142,18 +151,18 @@ export default function ClipPlanes(){
   }
     
   if(activeId >= 0)
-    funOne(planes.findIndex(item => item.id === activeId));
+  changeBoolean(planes.findIndex(item => item.id === activeId));
  
     if(activeId === -1){
       planes.forEach((item :any) => {
-        funOne(planes.findIndex(element => item.id === element.id))
+        changeBoolean(planes.findIndex(element => item.id === element.id))
       })
     }
 
     if(activeId === -2){
       planes.forEach((item: any) => {
         if(item.selected === true)
-          funOne(planes.findIndex(element => item.id === element.id))
+        changeBoolean(planes.findIndex(element => item.id === element.id))
       })
     }
 
@@ -261,6 +270,10 @@ export default function ClipPlanes(){
 
    
   const onHandleEnabled = (indeterminate: boolean , boolean: boolean) => {
+    
+    setEditMode(false)
+    dispatch(setSelectionMode({activeId : -1 , selectionMode : 0}))
+
     if( activeId >= 0){
       if(indeterminate)          
           dispatch(editEnabled({id:planes[indexOfActive].id,isEnabled:false}));
@@ -303,6 +316,11 @@ export default function ClipPlanes(){
   }
 
   const onHandleSelect = (newId : number) => {
+
+    dispatch(setSelectionMode({activeId : -1 , selectionMode : 0}))
+    const click : any  = planes.find(item => item.id === newId);
+    dispatch(setActive({clicked: click}))
+    
     setEditMode(false)
     setActiveId(newId)
     const indexOfNewId = planes.findIndex(item => item.id === newId)
@@ -319,6 +337,25 @@ export default function ClipPlanes(){
     );
   }
 
+  const getHeaderRightIcon = () => {
+    return(
+      <div>
+          <MuiGrid container item direction='column' justify='flex-start' style={{marginLeft:"-5px"}}>
+                    <MuiGrid item>
+                    <MuiTooltip title="Transform">
+                    <MuiIconButton disabled={enabledPlanes.length> 0 ? false : true}  onClick={() => onHandleTransform()}> 
+                    <TransformIcon/>
+                </MuiIconButton>
+                </MuiTooltip>
+                    </MuiGrid>
+                    {/* <MuiGrid item>
+                        <MuiTypography  variant='h5'>Transform</MuiTypography>    
+                    </MuiGrid> */}
+                  </MuiGrid>
+      </div>
+    ) 
+  }
+
   const Test = function(){
     useEffect(() => {
       console.log("mounted")
@@ -328,29 +365,25 @@ export default function ClipPlanes(){
 
   const getAction = () => {
     return (
-      <MuiFormControl style={{width:"100%", marginLeft:"10px"}}>
-                    <MuiInputLabel id="demo-simple-select-helper-label" style={{color:"currentcolor", marginLeft:"5px",}}>Selected Plane</MuiInputLabel>
-                      	<MuiSelect 
-                          MenuProps={{
-                            disablePortal: true,
-                            anchorOrigin: {
-                              vertical:"bottom",
-                              horizontal:"left",
-                           },
-                           getContentAnchorEl: null
-                          }}
-                          style={{width:"95%",textAlign: "center",marginTop:"24px",border: "1px solid currentColor",}}
-                          labelId="demo-simple-select-label"
-                          id="demo-simple-select"
-                          value={activeId}
-                          onChange={(e) => onHandleSelect(Number(e.target.value) )}
-                        >
-                          { 
-                            toSelectList.map((item) => 
-                              <MuiMenuItem className={item.enabled ? `${classes.listItem}` : `${classes.listItem} + ${classes.listItemDisabled}`} value={item.id}>{item.name}</MuiMenuItem> 
-                          )}
-                       </MuiSelect>
-                      </MuiFormControl>
+      <SelectAction
+      labelId="display-modes-selection-label-id"
+      id="display-modes-selection-id"
+      value={activeId}
+      onChange={(e : any) => onHandleSelect(Number(e.target.value) )}
+      MenuProps={{
+        disablePortal: true,
+        anchorOrigin: {
+          vertical:"bottom",
+          horizontal:"left",
+       },
+       getContentAnchorEl: null
+      }}
+      >
+       { 
+        toSelectList.map((item) => 
+          <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem> 
+      )}
+      </SelectAction>
     );
   }
 
@@ -477,143 +510,137 @@ export default function ClipPlanes(){
 
     return (
       <div className={classes.scrollBar}>
-            <MuiTypography className={classes.listSub} style={{ marginBottom:"10px"}} variant='h1' noWrap>
-                Options
-            </MuiTypography>
+        
+        <div className={classes.settingPageContainer}>
+          
+          <div className={classes.settingItemContainer}>
+            <MuiMenuItem style={{marginTop:"-10px"}} onClick={() => onHandleEnabled(indeterminateEnablePlane,enablePlane)} >
+              <MuiListItemIcon>
+                <MuiCheckbox color="default" indeterminate={indeterminateEnablePlane} checked ={enablePlane} />
+              </MuiListItemIcon>
+              <MuiListItemText >
+                Enable
+              </MuiListItemText>
+            </MuiMenuItem>
+          </div>
 
-            <MuiTypography className={classes.listItemOption} noWrap onClick={() => onHandleEnabled(indeterminateEnablePlane,enablePlane)}>
-                  <MuiCheckbox color="default" indeterminate={indeterminateEnablePlane} checked ={enablePlane} />
-                    Enable
-                  </MuiTypography>
-
-              <MuiTypography className={classes.listSub} style={{marginLeft:"10px"}} noWrap>
-                Plane Equation 
-                { activeId >= 0 && planes[indexOfActive].enabled === true
-                  ?
-                    <MuiToggleButton
-                      className={classes.editButton}
-                      value="check"
-                      selected={!editMode}
-                      onChange={handleEditShow}
-                    >
-                      <MuiEditIconEquation style={{fontSize:"15px"}}/>
-                    </MuiToggleButton>
-                  :
+          <div className={classes.settingItemContainer}>
+            <MuiTypography variant="h2" className={classes.settingPageCaption} noWrap>
+              Plane Equation 
+              { activeId >= 0 && planes[indexOfActive].enabled === true
+                ?
+                  <MuiToggleButton 
+                    className={classes.editButton}
+                    value="check"
+                    selected={!editMode}
+                    onChange={handleEditShow}
+                  >
+                    <MuiEditIconEquation style={{fontSize:"15px"}}/>
+                  </MuiToggleButton>
+                :
                     null
-                }
-              </MuiTypography>
-         
-              <div style={{ display: "flex",alignItems: "center",
-                justifyContent: "flex-start",marginLeft:"5px", marginRight:"5%",
-                marginTop:"5px", }}
-                // onBlur={handleValidation}
-              >
-                <div>
-                  { editMode === false
-                    ?
-                      <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginLeft:"5px",marginTop:"-5px"}} className={activeId >= 0 ? `${classes.disabledTextBox}` : `${classes.disabledTextBox} + ${classes.disabled}`} 
-                        value={activeId === -1 ?"":`${Math.round(clipInputX*1000)/1000}X ${Math.sign(clipInputY)===1 || Math.sign(clipInputY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputY*1000)/1000)}Y ${Math.sign(clipInputZ) === 1 || Math.sign(clipInputZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputZ*1000)/1000)}Z = ${Math.round(clipInputD*1000)/1000}`}
-                      />
-
-                    :
-                      <div className={classes.inputEqnBorder}>
-                        <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputX} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordX")} onBlur={onHandleEquationBlur}/>X+
-                        <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputY} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordY")} onBlur={onHandleEquationBlur}/>Y+
-                        <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputZ} onChange={(e : any) => OnHandleEquation(e.target.value, "clipCordZ")} onBlur={onHandleEquationBlur}/>Z =
-                        <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputD}  onChange={(e : any) => OnHandleEquation(e.target.value, "clipConstD")} onBlur={onHandleEquationBlur} />
-                      </div>
-                  }
-                  <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginLeft:"-10px", marginBottom:"20px"}}>
-                    <MuiGrid item xs={12} sm={6} >
-                      <MuiButton disabled={editMode ? false : true}  className={clsx({ [classes.button]: clipPlaneMode === SelectionMode.FACE  })} size="small"  startIcon={<Triangle />}  onClick={() => onHandleSelectMode(SelectionMode.FACE)}>
-                        <MuiTypography style={{fontSize:"12px",textTransform:"none"}} >
-                          Select Surface
-                        </MuiTypography> 
-                      </MuiButton>
-                    </MuiGrid>
-                    <MuiGrid item xs={12} sm={6} style={{left: "50%",}} >
-                      <MuiButton disabled={editMode ? false : true}  className={clsx({ [classes.button]: clipPlaneMode === SelectionMode.THREE_PT })} size="small" startIcon={<ThreePoints/>}   onClick={() => onHandleSelectMode(SelectionMode.THREE_PT)}>
-                        <MuiTypography  style={{fontSize:"12px",textTransform:"none"}}>
-                          Select Points
-                        </MuiTypography>  
-                      </MuiButton>
-                    </MuiGrid>
-                  </MuiGrid>
-                  <MuiTypography className={classes.listSub} noWrap>
-                Master Plane Coordinates
-                </MuiTypography> 
-                  {/* <MuiFormControl style={{width:"100%", marginLeft:"10px"}}> */}
-                    {/* <MuiInputLabel id="demo-simple-select-helper-label" style={{color:"currentcolor", marginLeft:"5px",}}>Master corodinate system</MuiInputLabel> */}
-                    
-                    
-                      	<MuiSelect 
-                           disabled={editMode ? false : true} 
-                          MenuProps={{
-                            disablePortal: true,
-                            anchorOrigin: {
-                              vertical:"bottom",
-                              horizontal:"left",
-                           },
-                           getContentAnchorEl: null
-                          }}
-                          style={{width:"95%", marginLeft:"-5px",border: "1px solid currentColor",}}
-                          labelId="demo-simple-select-label"
-                          id="demo-simple-select"
-                          value={masterPlane.id}
-                          onChange={(e) => onHandleSlicePlane(e.target.value , masterPlaneList)}
-                        >
-                          {
-                            masterPlaneList.map((item) => 
-                              <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
-                          )}
-                       </MuiSelect>
-                      {/* </MuiFormControl> */}
-                    </div>
+              }
+            </MuiTypography>
+            { editMode === false
+              ?
+                <MuiInput disabled inputProps={{style: { textAlign: 'center' },}} style={{marginTop:"-5px"}} className={ `${classes.disabledTextBox}`} 
+                  value={activeId === -1 ?"":`${Math.round(clipInputX*1000)/1000}X ${Math.sign(clipInputY)===1 || Math.sign(clipInputY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputY*1000)/1000)}Y ${Math.sign(clipInputZ) === 1 || Math.sign(clipInputZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipInputZ*1000)/1000)}Z = ${Math.round(clipInputD*1000)/1000}`}
+                />
+              :
+                <div className={classes.inputEqnBorder}>
+                  <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputX} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordX")} onBlur={onHandleEquationBlur}/>X+
+                  <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputY} onChange={(e : any) => OnHandleEquation(e.target.value,"clipCordY")} onBlur={onHandleEquationBlur}/>Y+
+                  <input className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputZ} onChange={(e : any) => OnHandleEquation(e.target.value, "clipCordZ")} onBlur={onHandleEquationBlur}/>Z =
+                  <input  className={classes.inputEqn} style={{width: "40px"}} type="number" value={clipInputD}  onChange={(e : any) => OnHandleEquation(e.target.value, "clipConstD")} onBlur={onHandleEquationBlur} />
                 </div>
-              <div style={{marginTop:"15px"}}>
-                <MuiTypography className={classes.listItemOption} onClick={() =>onHandleClip("showClip",indeterminateShowClip,displayShowClip)} noWrap >
+            }
+            <MuiGrid container  spacing={3} style={{marginTop:"-4px", marginBottom:"20px"}}>
+              <MuiGrid item xs={12} sm={6} >
+                <MuiButton disabled={editMode ? false : true}  className={clsx({ [classes.button]: clipPlaneMode === SelectionMode.FACE  })} size="small"  startIcon={<Triangle />}  onClick={() => onHandleSelectMode(SelectionMode.FACE)}>
+                  <MuiTypography variant="h5" style={{textTransform:"none"}} >
+                    Select Surface
+                  </MuiTypography> 
+                </MuiButton>
+              </MuiGrid>
+              <MuiGrid item xs={12} sm={6}  >
+                <MuiButton disabled={editMode ? false : true}  className={clsx({ [classes.button]: clipPlaneMode === SelectionMode.THREE_PT })} size="small" startIcon={<ThreePoints/>}   onClick={() => onHandleSelectMode(SelectionMode.THREE_PT)}>
+                  <MuiTypography variant="h5"  style={{textTransform:"none"}}>
+                    Select Points
+                  </MuiTypography>  
+                </MuiButton>
+              </MuiGrid>
+            </MuiGrid>
+          </div>
+          
+          <div className={classes.settingItemContainer}>
+            <MuiTypography variant="h2" className={classes.settingPageCaption} noWrap>        
+              Master Plane Coordinates
+            </MuiTypography> 
+            <MuiSelect 
+              disabled={editMode ? false : true} 
+              MenuProps={{
+                disablePortal: true,
+                anchorOrigin: {
+                  vertical:"bottom",
+                  horizontal:"left",
+                },
+                getContentAnchorEl: null
+              }}
+              style={{width:"100%",border: "1px solid currentColor",}}
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={masterPlane.id}
+              onChange={(e) => onHandleSlicePlane(e.target.value , masterPlaneList)}
+            >
+              {
+                masterPlaneList.map((item) => 
+                  <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
+              )}
+            </MuiSelect>
+          </div>
+                  
+          <div className={classes.settingItemContainer}>          
+            <MuiMenuList>
+              <MuiMenuItem onClick={() =>onHandleClip("showClip",indeterminateShowClip,displayShowClip)} >
+                <MuiListItemIcon>
                   <MuiCheckbox color="default" indeterminate={indeterminateShowClip} checked ={displayShowClip} />
-                    Show Clip Plane
-                  </MuiTypography>
-                  <MuiTypography className={classes.listItemOption} onClick={() =>onHandleClip("showEdge",indeterminateShowEdge,displayShowEdge)} noWrap>
-                    <MuiCheckbox color="default" indeterminate={indeterminateShowEdge} checked={displayShowEdge}/>
+                </MuiListItemIcon>
+                <MuiListItemText > 
+                  Show Clip Plane
+                </MuiListItemText>
+              </MuiMenuItem>
+              <MuiMenuItem onClick={() =>onHandleClip("showEdge",indeterminateShowEdge,displayShowEdge)} >
+                <MuiListItemIcon>
+                  <MuiCheckbox color="default" indeterminate={indeterminateShowEdge} checked={displayShowEdge}/>
+                </MuiListItemIcon>
+                <MuiListItemText > 
                     Show Edge
-                  </MuiTypography>
-                  <MuiTypography className={classes.listItemOption}   onClick={() =>onHandleClip("showCap",indeterminateShowCap,displayShowCap)} noWrap>
-                    <MuiCheckbox color="default" indeterminate={indeterminateShowCap} checked={displayShowCap}/>
-                    Show Cap
-                  </MuiTypography>
-                </div>
-            </div> 
+                </MuiListItemText>
+              </MuiMenuItem>
+              <MuiMenuItem onClick={() =>onHandleClip("showCap",indeterminateShowCap,displayShowCap)} >
+                <MuiListItemIcon>
+                  <MuiCheckbox color="default" indeterminate={indeterminateShowCap} checked={displayShowCap} />
+                </MuiListItemIcon>
+                <MuiListItemText >
+                  Show Cap
+                </MuiListItemText>
+              </MuiMenuItem>
+            </MuiMenuList>
+          </div>    
+        
+        </div>
+      </div> 
     )
   }
 
-
-  const getFooter = () => {
-
-    return(
-      <div style={{marginLeft:"10px", marginRight:"10px",}}>
-          <MuiGrid container item direction='column' justify='flex-start'>
-                    <MuiGrid item>
-                    <MuiIconButton disabled={enabledPlanes.length> 0 ? false : true}  onClick={() => onHandleTransform()}> 
-                    <TransformIcon/>
-                </MuiIconButton>
-                    </MuiGrid>
-                    <MuiGrid item>
-                        <MuiTypography  variant='h5'>Transformation</MuiTypography>    
-                    </MuiGrid>
-                  </MuiGrid>
-      </div>
-    ) 
-  }
 
   return (
           <SideBarContainer
             headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ <Title text={"Settings" } group="Clip Planes"/> }
             headerAction = {getAction()}
+            headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }
-            footer = { getFooter() }
           /> 
   )
 }

@@ -41,7 +41,7 @@ function DisplayMode(props : any)
             <MuiMenuList id='display-menu-list'  >
                 {popupMenuDisplayMode.map((item :any,index : any)=>(
                     <MuiMenuItem className={classes.menuItem}  key={index} onClick={()=>{ setDisplayMode(item)}} disabled = {item.disabled === true}>
-                        <MuiIcon className={classes.icon}><item.icon/></MuiIcon>
+                        <item.icon/>
                         <MuiTypography  className={classes.listItem} variant='h2'>{item.title} </MuiTypography>
                         <MuiTypography  className={classes.listItemSize} variant='subtitle1'>{formatDownloadSize((item.downloadMetricValue ? item.downloadMetricValue : 0) )}</MuiTypography>
                     </MuiMenuItem>

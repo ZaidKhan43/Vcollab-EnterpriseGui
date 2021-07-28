@@ -17,10 +17,10 @@ import ProductExplorer from '../../sideBarContents/productExplorer';
 import Field from '../../sideBarContents/field';
 import Colormaps from '../../sideBarContents/colormaps';
 import ClipPlanes from '../../sideBarContents/clipPlanes';
+import Scene from "../../sideBarContents/scene";
 import Views from '../../sideBarContents/views';
 import Annotations from '../../sideBarContents/annotations';
 import Settings from '../../sideBarContents/settings';
-import Scene from '../../sideBarContents/scene';
 import Notifications from '../../sideBarContents/notifications';
 
 export default function Sidebar(){

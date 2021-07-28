@@ -3,6 +3,7 @@ import MuiIconButton from '@material-ui/core/IconButton';
 import {goBack, push} from 'connected-react-router/immutable';
 import {Routes} from "../../../../routes"
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
 import MuiTypography from '@material-ui/core/Typography';
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
@@ -30,6 +31,11 @@ import TransformIcon from '../../../icons/transform';
 // import MuiErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined';
 
 import AddIcon from "../../../icons/plus";
+
+import MuiListItemIcon from '@material-ui/core/ListItemIcon';
+import MuiListItemText from '@material-ui/core/ListItemText';
+import MuiMenuItem from '@material-ui/core/MenuItem';
+import MuiMenuList from '@material-ui/core/MenuList';
 
 // import DialogBox from "../../../shared/dialogBox"
 
@@ -60,8 +66,17 @@ import MuiButton from '@material-ui/core/Button';
 // import MuiMenuItem from '@material-ui/core/MenuItem';
 // import { isTypeNode } from 'typescript';
 import { useEffect } from 'react';
+
+import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
+import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
+
+
 // import { TypeDivider } from '@material-ui/core/styles/createPalette';
 //palne Equation
+
+import MuiMoreVertIcon from '@material-ui/icons/MoreVert';
+import MuiToolTip from '@material-ui/core/Tooltip';
+import Popper from '../../../shared/popper'
 
 export default function List(){
 
@@ -143,16 +158,19 @@ export default function List(){
   }
 
 
-  const onHandleCopy: (item: any) => any = (item) => {
+  const onHandleCopy = () => {
     setCopied(true);
-    setCopy(item);
+    const copyItem = planes.find(item => item.id === clickedValues[0].id);
+    if(copyItem)
+      setCopy(copyItem);
   }
 
-  const onHandlePaste:(item: any)=> any = (item) => {
+  const onHandlePaste = () => {
     if(planes.length < limit)
     {
       // dispatch(pastePlane(item))
-      dispatch(duplicatePlane({pastedPlane: item}));
+      if(copy)
+      dispatch(duplicatePlane({pastedPlane: copy}));
     }
   }
 
@@ -242,71 +260,49 @@ export default function List(){
     // console.log("selected",clickedValues)
     return (
       <div className={classes.scrollBar}>
-        <div className={classes.heading} style={{marginBottom:"-10px", marginTop:"-10px"}}>
-          
-        </div>
         <div>
-          {
-            planes.map((item, index : number) => 
-              <div key={ 'divRoot_' + index }>
-                { editPlane !== item.id 
-                  ?
-                  <div key={ 'divChild_' + index }  
-                    className={
-                                  item.selected && editPlane === -1
-                                    ? 
-                                    classes.listItemClicked 
-                                    :
-                                    classes.listItem      
-                              }  
-                  >
-                    {/* <MuiCheckbox color="default"  checked={item.enabled} onChange={() => onHandleCheck(item)}/> */}
-                    <div style={{ display: "flex", alignItems: "left", width:"75%"}} onClick={(event)=> onHandleClick(event,item)}>
-                      <MuiTypography className={classes.listItemText} onDoubleClick={() => {setEditPlane(item.id); SetEditName(item.name);}} >
-                        {item.name}
-                      </MuiTypography>
-                    </div>    
-                    <Toggle
-                      checked={item.enabled}
-                      // trackColor={{true: 'red', false: 'grey'}}
-                      // icons={false}
-                      onChange={() => onHandleCheck(!item.enabled,item)}/>
-                    {/* <Switch
-                      borderRadius={8}
-                      onColor='#2E2E33'
-                      offColor='#2E2E33'
-                      boxShadow={item.enabled ?"-12px 0px  0px 0px #707070" : "12px 0px  0px 0px #707070" }
-                      offHandleColor="#707070"
-                      onHandleColor="#707070"
-                      activeBoxShadow="0px 0px  px 2px #fffc35"
-                      height={25}
-                      width={70}
-                      checked={item.enabled} onChange={(toCheck:boolean) => onHandleCheck(toCheck,item)}
-                      uncheckedIcon={<div style={{display: "flex",justifyContent: "center",alignItems: "center",color:"grey"}}>On</div>}
-                      uncheckedHandleIcon={<div style={{ display: "flex",justifyContent: "center",alignItems: "center",color:"white",marginLeft:"10px"}}>Off</div>}
-                      checkedIcon={<div style={{display: "flex",justifyContent: "center",alignItems: "center",color:"grey"}}>On</div>}
-                      checkedHandleIcon={<div style={{ display: "flex",justifyContent: "center",alignItems: "center",color:"white",marginLeft:"-10px"}}>Off</div>}
-                    /> */}
-                  </div>
-                :
-                  <div key={ 'divChild_' + index } className={classes.listItemClicked}>
-                 <MuiTypography className={classes.listItemText} >
-                  <MuiInput value={editName}
+
+                    <MuiMenuList>
+                    {
+                        planes.map((item:any, index: number) => 
+                      <div>
+                        { editPlane !== item.id 
+                          ?
+                          <MuiMenuItem selected={item.selected}   key={item.id} alignItems='center' onClick={(event)=> onHandleClick(event,item)}>
+                          <MuiListItemText onDoubleClick={() => {setEditPlane(item.id); SetEditName(item.name);}} > {item.name}
+                          </MuiListItemText>
+                          <MuiListItemIcon>
+                              <Toggle
+                    checked={item.enabled}
+                    onChange={() => onHandleCheck(!item.enabled,item)}/>
+                          </MuiListItemIcon>
+                          </MuiMenuItem>
+                      : 
+                      <MuiMenuItem>
+                  <MuiInput value={editName}  key={item.id}
                   onChange={onHandlePlateNameEdit}
                   onKeyDown={(e) => onHandlePlateKey(e, item)}/>
-                </MuiTypography>
-               </div>
+                      </MuiMenuItem> 
+                        }
+                        </div>
+                    )}
+                    </MuiMenuList>
 
-                }
-                
-              </div>
-            )
-          }
         </div>
       </div>
     )
   }
 
+  const [openMoreOption,setOpenMoreOption] = useState(false)
+  const [anchorElMoreOption, setAnchorElMoreOption] = useState(null);
+  const handleClickMoreOption = (e : any) => {
+    setOpenMoreOption(!openMoreOption)
+    setAnchorElMoreOption( e.currentTarget );
+  }
+
+  const onClickAwayMoreOption = () => {
+    setOpenMoreOption(false)
+  }
 
   const getFooter = () => {
 
@@ -321,68 +317,64 @@ export default function List(){
         <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
           { !openDelete
             ?
-            
-              <div style={{display: "flex",alignItems: "center",justifyContent: "space-between",}}>
-                  <MuiGrid container item direction='column' justify='flex-start'>
-                    <MuiGrid item>
-                    <MuiIconButton disabled={clickedValues.length ===  1 && editPlane === -1 ? false : true} onClick={() => onHandleEdit()}> 
-                  <MuiEditIcon/>
-                </MuiIconButton>
-                    </MuiGrid>
-                    <MuiGrid item>
-                        <MuiTypography  variant='h5'>Settings</MuiTypography>    
-                    </MuiGrid>
-                  </MuiGrid>
 
-                  <MuiGrid container item direction='column' justify='flex-start'>
-                    <MuiGrid item>
-                    <MuiIconButton disabled = {clickedValues.length ===  1 && clickedValues[0].enabled && editPlane === -1 ? false : true}  onClick={() => onHandleTransform()}> 
+            <OptionContainer>
+            <Option label="Settings" icon={<MuiIconButton disabled={clickedValues.length ===  1 && editPlane === -1 ? false : true} onClick={() => onHandleEdit()}>
+                <MuiEditIcon/>
+              </MuiIconButton>} 
+            />
+            <Option label="Transform" icon={ <MuiIconButton disabled = {clickedValues.length ===  1 && clickedValues[0].enabled && editPlane === -1 ? false : true}  onClick={() => onHandleTransform()}> 
                     <TransformIcon/>
-                </MuiIconButton>
-                    </MuiGrid>
-                    <MuiGrid item>
-                        <MuiTypography  variant='h5'>Transformation</MuiTypography>    
-                    </MuiGrid>
-                  </MuiGrid>
-
-                  <MuiGrid container item direction='column' justify='flex-start'>
-                    <MuiGrid item>
-                    <MuiIconButton disabled = {clickedValues.length === 1 && editPlane === -1 ? false : true} onClick={() => onHandleCopy(planes.find((item : any )=> 
+                </MuiIconButton>}
+            />
+            {/* <Option label="Copy" icon={<MuiIconButton disabled = {clickedValues.length === 1 && editPlane === -1 ? false : true} onClick={() => onHandleCopy(planes.find((item : any )=> 
                   item.id === clickedValues[0].id))}
                 > 
                   <MuiFileCopyOutlinedIcon />
-                </MuiIconButton>
-                    </MuiGrid>
-                    <MuiGrid item>
-                        <MuiTypography  variant='h5'>Copy</MuiTypography>    
-                    </MuiGrid>
-                  </MuiGrid>
-
-                  <MuiGrid container item direction='column' justify='flex-start'>
-                    <MuiGrid item>
-                    <MuiIconButton  disabled = {copied && planes.length !== limit ? false : true} onClick={() => onHandlePaste(copy)}>
+                </MuiIconButton>}
+            />
+            <Option label="Paste" icon={  <MuiIconButton  disabled = {copied && planes.length !== limit ? false : true} onClick={() => onHandlePaste(copy)}>
                   <MuiPaste/>
-                </MuiIconButton> 
-                    </MuiGrid>
-                    <MuiGrid item>
-                        <MuiTypography  variant='h5'>Paste</MuiTypography>    
-                    </MuiGrid>
-                  </MuiGrid>
-
-                  <MuiGrid container item direction='column' justify='flex-start'>
-                    <MuiGrid item>
-                    <MuiIconButton disabled ={clickedValues.length === 1 && deleteMaster === false && editPlane === -1 ? false : true} style={{ }}  onClick={onHandleDeleteButton} > 
+                </MuiIconButton> }
+            /> */}
+            <Option label="Delete" icon={<MuiIconButton disabled ={clickedValues.length === 1 && deleteMaster === false && editPlane === -1 ? false : true} style={{ }}  onClick={onHandleDeleteButton} > 
                   <MuiDeleteForeverOutlinedIcon/>
-                </MuiIconButton>  
-                    </MuiGrid>
-                    <MuiGrid item>
-                        <MuiTypography  variant='h5'>Delete</MuiTypography>    
-                    </MuiGrid>
-                  </MuiGrid>
-                
-                 
-               
-              </div>
+                </MuiIconButton> }
+            />
+
+            <Option label="More" icon={
+              <ClickAwayListener onClickAway={onClickAwayMoreOption}>
+                <div>
+              <MuiIconButton aria-label="changle visibility" onClick={handleClickMoreOption}>
+                <MuiMoreVertIcon/>
+              </MuiIconButton>
+              
+              <Popper open={openMoreOption} anchorEl={anchorElMoreOption} placement={"top-end"} disablePortal id="display-menu">
+              <MuiMenuList id="simple-menu">
+                <MuiMenuItem alignItems='center' disabled={clickedValues.length === 1 && editPlane === -1 ? false : true} onClick={onHandleCopy} >
+                  <MuiListItemIcon>
+                    <MuiFileCopyOutlinedIcon />
+                  </MuiListItemIcon>
+                  <MuiListItemText>
+                    Copy
+                  </MuiListItemText>
+                </MuiMenuItem>
+                <MuiMenuItem alignItems='center' disabled={copied && planes.length !== limit ? false : true} onClick={onHandlePaste} >
+                  <MuiListItemIcon>
+                    <MuiPaste />
+                  </MuiListItemIcon>
+                  <MuiListItemText>
+                    Paste
+                  </MuiListItemText>
+                </MuiMenuItem>
+                </MuiMenuList>
+              </Popper>
+            </div>
+          </ClickAwayListener>    
+        }
+                  
+            />
+        </OptionContainer>
             :
               <div style={{marginBottom:"5px", marginTop:"5px"}}>
                 <MuiTypography style={{marginBottom:"5px", fontSize:"14px"}}>

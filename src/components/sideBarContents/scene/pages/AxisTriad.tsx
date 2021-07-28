@@ -9,7 +9,7 @@ import AxisPosition from '../components/AxisTriadPosition'
 import {goBack} from 'connected-react-router/immutable';
 
 
-import {selectlistItems,setApplyItem } from '../../../../store/sideBar/scene';
+import {selectAxisTriodList,setApplyItem } from '../../../../store/sideBar/sceneSlice';
 import { useAppDispatch,useAppSelector } from '../../../../store/storeHooks';
 
 import useStyles from './axistriadstyle';
@@ -18,7 +18,7 @@ export default function AxisTriad() {
 
 const classes = useStyles(); 
 
-const listItems = useAppSelector(selectlistItems);
+const listItems = useAppSelector(selectAxisTriodList);
 const dispatch = useAppDispatch();
 
 const onClickBackIcon = () =>{

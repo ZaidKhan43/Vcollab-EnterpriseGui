@@ -21,7 +21,7 @@ import More from '../../icons/more';
 
 import { selectModelName, selectFullscreenStatus,selectSidebarVisibility, 
   selectActiveViewerID,setFullscreenState, setSidebarVisibility ,  
-  setPopupMenuActiveContent, setPopupMenuDisplayMode } from '../../../store/appSlice';
+  setPopupMenuActiveContent, setPopupMenuDisplayMode , selectPopupMenuDisplayMode } from '../../../store/appSlice';
 import {enableProbe} from '../../../store/probeSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
 
@@ -45,6 +45,7 @@ function AppBar() {
 
     const [anchorEl, setAnchorEl] = useState(null);
     const [clickedMenu, setClickedMenu] = useState<string>(popupMenuContentTypes.none);
+    const popupMenuDisplayMode = useAppSelector(state => state.app.popupMenuActiveContent);
     
     const OnClickFullscreen = function(){
       dispatch(setFullscreenState(!isFullscreenEnabled));
@@ -94,9 +95,20 @@ function AppBar() {
             dispatch(setPopupMenuDisplayMode(response));
           });         
       }
+
+      // Inactive the dropdown while click the active dropdown menu button
+
+      if(selectedMode !== popupMenuContentTypes.none && selectedMode === popupMenuDisplayMode){
+        setClickedMenu(popupMenuContentTypes.none);
+        // setAnchorEl( evt.currentTarget );
+        dispatch(setPopupMenuActiveContent(popupMenuContentTypes.none)); 
+      }
+
+      else{
       setClickedMenu(selectedMode);
       setAnchorEl( evt.currentTarget );
       dispatch(setPopupMenuActiveContent(selectedMode)); 
+      }
     }
   
     return (

@@ -15,6 +15,8 @@ import MuiMinusIcon from '@material-ui/icons/Remove';
 import MuiIconButton from '@material-ui/core/IconButton';
 import { ClassRounded } from '@material-ui/icons';
 
+import MuiGrid from '@material-ui/core/Grid';
+
 export default function RotateSlider( props : any ){
 
     // const [value, setValue] = useState(props.value)
@@ -43,7 +45,9 @@ export default function RotateSlider( props : any ){
     }
 //console.log(value)
     return(
-        <div className={classes.rotate}>
+        <MuiGrid container spacing={2} direction='column' >
+
+        <MuiGrid item>
             <CircularSlider 
                 knobDraggable={true}
                 dataIndex={Math.round(props.value)}
@@ -83,8 +87,9 @@ export default function RotateSlider( props : any ){
                     </div>
                 }
             />
-            
-            <MuiTypgraphy className={classes.caption} noWrap>{props.label}</MuiTypgraphy>
-        </div>
+
+            </MuiGrid>
+            <MuiTypgraphy className={classes.caption} variant="caption" noWrap>{props.label}</MuiTypgraphy>
+            </MuiGrid>
     )
 }

@@ -98,7 +98,7 @@ const initialState: MainMenu ={
                     id: '14',
                     name: "Material Color",
                     type:MainMenuItems.GEOMETRY_MATERIAL_COLOR,
-                    path: Routes.HOME,
+                    path: Routes.GEOMERTY_MATERIAL_COLOR,
                     disabled: false,
                   },
                   {
@@ -163,28 +163,28 @@ const initialState: MainMenu ={
                     id:'31',
                     name: "Camera",
                     type:MainMenuItems.SCENE_CAMERA,
-                    path:Routes.HOME,
+                    path:Routes.SCENE_CAMERA,
                     disabled:false
                 },
                 {
                     id:'32',
                     name: "Background",
                     type:MainMenuItems.SCENE_BACKGROUND,
-                    path:Routes.HOME,
+                    path:Routes.SCENE_BACKGROUND,
                     disabled: false,
                 },
                 {
                     id:'33',
                     name: "Axis Triad",
                     type:MainMenuItems.SCENE_AXIS_TRIAD,
-                    path:Routes.SCENE_AXIS_TRAID,
+                    path:Routes.SCENE_AXIS_TRIAD,
                     disabled: false
                 },
                 {
                     id:'34',
                     name: "Light",
                     type:MainMenuItems.SCENE_LIGHT,
-                    path:Routes.HOME,
+                    path:Routes.SCENE_LIGHT,
                     disabled: false
                 },
             ]

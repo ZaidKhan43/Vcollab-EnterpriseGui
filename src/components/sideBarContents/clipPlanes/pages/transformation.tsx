@@ -16,13 +16,15 @@ import MuiGrid from '@material-ui/core/Grid';
 import FlipDirectionLeft from "../../../../components/icons/flipDirectionLeft";
 import FlipDirectionRight from "../../../../components/icons/flipDirectionRight";
 
+import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
+
 import MuiInput from '@material-ui/core/Input';
 
 import {Routes} from "../../../../routes"
 
-import { setSectionPlaneData, editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMaxGUI, selectActivePlane, selectedPlane} from '../../../../store/sideBar/clipSlice';
+import { setSectionPlaneData, editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMaxGUI, selectActivePlane, selectedPlane , setActive} from '../../../../store/sideBar/clipSlice';
 import RotateSlider from '../shared/rotateSlider';
-import TranslateSlider from '../shared/translateSlider';
+import TranslateSlider from '../../../shared/translateSlider';
 
 import MuiFormControl from '@material-ui/core/FormControl'
 import MuiInputLabel from '@material-ui/core/InputLabel'
@@ -30,6 +32,8 @@ import MuiSelect from '@material-ui/core/Select';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 
 import MuiEditIcon from '@material-ui/icons/EditOutlined';
+
+import MuiTooltip from '@material-ui/core/Tooltip'
 
 export default function ClipPlanes(props : any){
 
@@ -60,7 +64,23 @@ export default function ClipPlanes(props : any){
   const clipCordZ = planes[indexofActive].clipCordZ;
   const clipConstD = planes[indexofActive].clipConstD;
   
-  const stepValue = (translateMax - translateMin) / 100;
+  
+  const [stepValue, setStepValue] = useState((translateMax - translateMin) / 100);
+
+  const [stepValueDisplay, setStepValueDisplay] = useState<string | number>(stepValue)
+  
+  useEffect(() => {
+        setStepValue((translateMax - translateMin) / 100)
+        setStepValueDisplay((translateMax - translateMin) / 100)
+      },[activeId]);
+
+  const onHandleBlurStepValue = () => {
+    if(stepValueDisplay)
+    setStepValue(Number(stepValueDisplay));
+    
+    else
+      setStepValueDisplay(Number(stepValue));  
+  }
 
   const onHandleDirection = () => {
     const id= planes[indexofActive].id
@@ -95,6 +115,9 @@ export default function ClipPlanes(props : any){
   }
 
   const onHandleSelect = (id : number) => {
+
+    const click : any  = planes.find(item => item.id === id);
+    dispatch(setActive({clicked: click}))
     setActiveId(id)
   }
 
@@ -141,77 +164,136 @@ export default function ClipPlanes(props : any){
       <MuiIconButton onClick={() => onHandleBack()}><BackButton/></MuiIconButton>
     );
   }
+
+  const getHeaderRightIcon = () => {
+    return(
+      <div>
+      <MuiGrid container item direction='column' justify='flex-start'>
+                <MuiGrid item>
+                  <MuiTooltip title="Settings">
+                <MuiIconButton   onClick={() => onHandleTransform()}> 
+                <MuiEditIcon/>
+            </MuiIconButton>
+            </MuiTooltip>
+                </MuiGrid>
+                {/* <MuiGrid item>
+                        <MuiTypography  variant='h5'>Transform</MuiTypography>    
+                    </MuiGrid> */}
+              </MuiGrid>
+            </div>
+    )
+  }
+
   const getAction = () => {
     return(
-      <MuiFormControl style={{width:"100%", marginLeft:"10px"}}>
-        <MuiInputLabel id="demo-simple-select-helper-label" style={{color:"currentcolor", marginLeft:"5px",}}>Selected Plane</MuiInputLabel>
-          <MuiSelect 
-            MenuProps={{
-              disablePortal: true,
-              anchorOrigin: {
-                vertical:"bottom",
-                horizontal:"left",
-               },
-              getContentAnchorEl: null
-            }}
-          style={{width:"95%", textAlign: "center",border: "1px solid currentColor",}}
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={activeId}
-          onChange={(e) => onHandleSelect(Number(e.target.value) )}
-        >
-          {
+      <SelectAction
+      labelId="display-modes-selection-label-id"
+      id="display-modes-selection-id"
+      value={activeId}
+      onChange={(e : any) => onHandleSelect(Number(e.target.value) )}
+      MenuProps={{
+        disablePortal: true,
+        anchorOrigin: {
+          vertical:"bottom",
+          horizontal:"left",
+       },
+       getContentAnchorEl: null
+      }}
+      >
+        {
             planes.map((item) => 
               <MuiMenuItem disabled={item.enabled ? false : true} value={item.id}>{item.name}</MuiMenuItem>  
           )}
-        </MuiSelect>
-      </MuiFormControl>
+      </SelectAction>
     )
   }
     
   const getBody = () => {
     //console.log("getBody",rotate)
     return (
-      <div 
-      className={classes.scrollBar}
-      > 
+      <div className={classes.scrollBar}> 
 
-           {/* <MuiTypography className={classes.heading} style={{ marginTop:"20px"}} variant='h1' noWrap>
-                Options
-            </MuiTypography>  */}
-      <MuiTypography className={classes.listSub}  style={{marginTop:"10px"}} noWrap>
-          Plane Equation
-        </MuiTypography>
-        <MuiInput disabled inputProps={{style: { textAlign: 'center' ,},}} className={classes.disabledTextBox} style={{marginLeft:"0px"}} value={`${Math.round(clipCordX*1000)/1000}X ${Math.sign(clipCordY)===1 || Math.sign(clipCordY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordY*1000)/1000)}Y ${Math.sign(clipCordZ) === 1 || Math.sign(clipCordZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordZ*1000)/1000)}Z = ${Math.round(clipConstD*1000)/1000}`}/>
-        <MuiTypography className={classes.listSub}  style={{marginTop:"10%"}} noWrap>
-          Coordinate System
-        </MuiTypography>
-        <MuiGrid container spacing={3}>
-          <MuiGrid item xs={12} sm={6}>
-            <MuiIconButton style={{width:"60px",height: "90px", }}   onClick={() => onHandleDirection()}>
-              { clipNormalInverted === false 
-               ? 
-                <FlipDirectionLeft/>
-               :
-                <FlipDirectionRight/>
-              }
-            </MuiIconButton>
-            <MuiTypography className={classes.caption}  noWrap>Flip Direction</MuiTypography>
+      <div className={classes.translatePageContainer}>
+
+        <div className={classes.settingItemContainer}>
+          <MuiTypography variant="h2" className={classes.settingPageCaption} noWrap>
+            Plane Equation
+          </MuiTypography>
+          <div style={{width:"90%", margin:"auto"}}>
+            <MuiInput disabled inputProps={{style: { textAlign: 'center' ,},}} className={classes.disabledTextBox} value={`${Math.round(clipCordX*1000)/1000}X ${Math.sign(clipCordY)===1 || Math.sign(clipCordY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordY*1000)/1000)}Y ${Math.sign(clipCordZ) === 1 || Math.sign(clipCordZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordZ*1000)/1000)}Z = ${Math.round(clipConstD*1000)/1000}`}/>
+          </div>
+        </div>
+
+        <div className={classes.settingItemContainer}>
+          <MuiTypography variant="h2" className={classes.settingPageCaption} noWrap>
+            Coordinate System
+          </MuiTypography>
+          <MuiGrid container spacing={3}>
+            <MuiGrid item xs={12} sm={6}>
+              <MuiGrid container spacing={1} direction='column' >
+                <MuiGrid item>
+                  <MuiIconButton style={{width:"60px",height: "90px", }}   onClick={() => onHandleDirection()}>
+                    { clipNormalInverted === false 
+                      ? 
+                        <FlipDirectionLeft/>
+                      :
+                        <FlipDirectionRight/>
+                    }
+                </MuiIconButton>
+              </MuiGrid>
+              <MuiGrid item>
+                <MuiTypography className={classes.caption} variant="caption" noWrap>Flip Direction</MuiTypography>
+              </MuiGrid>
+            </MuiGrid>
           </MuiGrid>
           <MuiGrid item xs={12} sm={6}>
             <RotateSlider value={rotate} handleChange={onHandleRotate} label={"Rotate"}/>
           </MuiGrid>
         </MuiGrid>
-        <div style={{marginTop:"10%"}}>
-          <TranslateSlider 
-            name={"Translate"}
+      </div>
+
+      <div className={classes.settingItemContainer}>
+      <MuiTypography className={classes.settingPageCaption}>
+          Translate
+        </MuiTypography>
+          <TranslateSlider  
             value={translate} valueMin={translateMin} 
             valueMax={translateMax} onHandleChange={onHandleTranslate}
             stepValue= {stepValue}
             onHandleTextbox={onHandleTranslateTextbox} onHandleCommited={onHandleTranslateCommitted}
+            startPoint = {true}
           />
-        </div>
-        <MuiTypography className={classes.listSub} style={{marginTop:"10%"}} noWrap>Rotate</MuiTypography>
+    
+          <div style={{marginTop: "12px", marginLeft:"5px"}}>
+
+
+          <MuiGrid container>
+
+          <MuiGrid item xs={12} sm={4}>
+          </MuiGrid>
+
+          <MuiGrid item xs={12} sm={4}>
+      <MuiTypography style={{ fontSize: "14px",}}>Step Value :</MuiTypography>
+    </MuiGrid>
+
+
+    <MuiGrid item xs={12} sm={3} >
+    <input
+    // inputProps={{style: { textAlign: 'center', padding:"1px",  }, }} 
+    className={classes.inputTranslate} 
+    style={{width: "70px",marginLeft:"5px"}} 
+    type="number" 
+    value={stepValueDisplay} 
+    onChange={(e) => {setStepValueDisplay(e.target.value)}}  
+    onBlur = {onHandleBlurStepValue}
+  />
+    </MuiGrid>
+  </MuiGrid>
+  </div>
+      </div>
+      
+      <div className={classes.settingItemContainer}>
+      <MuiTypography variant="h2" className={classes.settingPageCaption} noWrap>Rotate</MuiTypography>
           <MuiGrid container spacing={3}>
             <MuiGrid item xs={12} sm={6}>
             <RotateSlider value={axisX} handleChange={onHandleRotateX}  label={"X-Axis"}/>
@@ -220,34 +302,20 @@ export default function ClipPlanes(props : any){
             <RotateSlider value={axisY} handleChange={onHandleRotateY}  label={"Y-Axis"}/>
             </MuiGrid>
           </MuiGrid>  
+      </div>
+      </div>
           </div>
+
     )
   } 
 
-    const getFooter = () => {
-      return(
-        <div style={{marginLeft:"10px", marginRight:"10px",}}>
-        <MuiGrid container item direction='column' justify='flex-start'>
-                  <MuiGrid item>
-                  <MuiIconButton   onClick={() => onHandleTransform()}> 
-                  <MuiEditIcon/>
-              </MuiIconButton>
-                  </MuiGrid>
-                  <MuiGrid item>
-                      <MuiTypography  variant='h5'>Settings</MuiTypography>    
-                  </MuiGrid>
-                </MuiGrid>
-              </div>
-      )
-    }
-   
     return(
         <SideBarContainer
       headerLeftIcon = { getHeaderLeftIcon() }
       headerContent={ <Title text={"Transformation" } group="Clip Planes"/> }
       headerAction = {getAction()}
+      headerRightIcon = { getHeaderRightIcon() }
       body ={ getBody() }
-      footer = { getFooter() }
     />
     )
 }
