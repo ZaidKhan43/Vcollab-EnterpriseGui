@@ -101,6 +101,8 @@ export default function Background (){
     }
 
     const onDrop = (acceptedFiles : any , rejected : any) => {
+
+        console.log(acceptedFiles)
         
         if (Object.keys(rejected).length !== 0) {
             return;

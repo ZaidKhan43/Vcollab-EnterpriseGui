@@ -6,7 +6,7 @@ import Background from './pages/background'
 import AxisTriad from './pages/AxisTriad'
 import Light from './pages/light'
 import CameraEdit  from './pages/cameraEdit'
-import Views from './pages/indexOne'
+import Views from './pages/views'
 
 
 function ClipPlanes() {
