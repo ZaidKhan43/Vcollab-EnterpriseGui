@@ -14,6 +14,7 @@ export type MainMenuItem = {
     id:string,
     name: string,
     type: MainMenuItems,
+    path: Routes,
     expanded: boolean,
     children: MainMenuItemChild[]
 }
@@ -70,6 +71,7 @@ const initialState: MainMenu ={
             expanded: false,
             name: "Geometry",
             type: MainMenuItems.GEOMETRY,
+            path: Routes.GEOMETRY,
             children: [
                 {
                     id: '11',
@@ -120,6 +122,7 @@ const initialState: MainMenu ={
             expanded: false,
             name: "Field",
             type: MainMenuItems.FIELD,
+            path: Routes.HOME,
             children: [
                 {
                     id: '21',
@@ -156,6 +159,7 @@ const initialState: MainMenu ={
             expanded:false,
             name: "Scene",
             type: MainMenuItems.SCENE,
+            path:Routes.SCENE,
             children: [
                 {
                     id:'31',
@@ -192,6 +196,7 @@ const initialState: MainMenu ={
             expanded:false,
             name: "Color Maps",
             type:MainMenuItems.COLOR_MAPS,
+            path:Routes.HOME,
             children:[]
         },
         {
@@ -199,6 +204,7 @@ const initialState: MainMenu ={
             expanded: false,
             name: "Clip Plane",
             type: MainMenuItems.CLIP_PLANE,
+            path:Routes.CLIPPLANES,
             children: [
                 {
                     id:'51',
@@ -228,6 +234,7 @@ const initialState: MainMenu ={
             expanded: false,
             name: "Labels",
             type: MainMenuItems.LABELS,
+            path:Routes.HOME,
             children: [],
         },
         {
@@ -235,6 +242,7 @@ const initialState: MainMenu ={
             expanded: false,
             name: "Transformations",
             type: MainMenuItems.TRANSFORMATIONS,
+            path:Routes.HOME,
             children: []
         },
         {
@@ -242,6 +250,7 @@ const initialState: MainMenu ={
             expanded: false,
             name: "Animations",
             type: MainMenuItems.ANIMATIONS,
+            path:Routes.HOME,
             children: []   
         },
         {
@@ -249,6 +258,7 @@ const initialState: MainMenu ={
             expanded: false,
             name: "Slides",
             type: MainMenuItems.SLIDES, 
+            path:Routes.HOME,
             children: []
         },
         {
@@ -256,6 +266,7 @@ const initialState: MainMenu ={
             expanded: false,
             name: "Messages",
             type: MainMenuItems.MESSAGES,
+            path:Routes.MESSAGES,
             children:[]
         },
         {
@@ -263,6 +274,7 @@ const initialState: MainMenu ={
             expanded: false,
             name: "Application Settings",
             type: MainMenuItems.SETTINGS,
+            path:Routes.HOME,
             children: []
         }
     ]

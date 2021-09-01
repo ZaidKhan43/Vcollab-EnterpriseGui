@@ -71,6 +71,7 @@ const getMainMenuData = (mainMenu:MainMenuType) => {
       let newItem = {
         id: item.id,
         title: item.name,
+        path: item.path,
         icon: getIcon(item.type),
         expanded: item.expanded,
         list: [] as any[]
@@ -113,6 +114,9 @@ export default function MainMenu(){
     }
 
     const getBody = () => {
+
+      console.log(mainMenuData)
+
       return (  
        <> 
       <Divider className={classes.divider} />
@@ -122,7 +126,7 @@ export default function MainMenu(){
           <MuiAccordion 
             key = {item.id}
             expanded = {item.expanded}
-            onChange = {() => handleChange(item.id)}
+            onChange = {() =>  {handleChange(item.id); item.list.length<1 && handleOnClick(item.path)}}
             classes = {{expanded:classes.accordianExpanded}}
             TransitionProps={{ unmountOnExit: true }}>
                     <MuiAccordionSummary

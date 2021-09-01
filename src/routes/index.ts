@@ -18,5 +18,7 @@ export enum Routes {
     SCENE_AXIS_TRIAD = "/scene/axis_triad",
     SCENE_LIGHT = "/scene/light",
 
+    MESSAGES = "/messages",
+
     
 }
