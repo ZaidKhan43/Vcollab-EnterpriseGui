@@ -7,8 +7,12 @@ import Box from '@material-ui/core/Box';
 import MuiButton from '@material-ui/core/Button';
 import MuiCancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import MuiCheckCircleOutlineOutlinedIcon from '@material-ui/icons/CheckCircleOutlineOutlined';
+import MuiPauseCircleOutlineIcon from '@material-ui/icons/PauseCircleOutline';
 import moment from 'moment';
 import {useState} from 'react';
+import ProcessIndicator from './processIndicator';
+
+import {iconType, notificationType} from '../../../../store/sideBar/messageSlice';
 
 export default function Card(props:any){
     const {item, handleCollapse, handlePause, handleCancel} = props;
@@ -38,23 +42,116 @@ export default function Card(props:any){
                 }
             }
         } 
-
        setTime(time)
     }
 
+    const fileSize = (size : number) => {
+        if (size >= 1024) {
+          const kbSize = size / 1024
+          if (kbSize >= 1024) {
+            const mbSize = kbSize / 1024
+            if(mbSize >= 1024){
+              const gbSize = mbSize / 1024;
+              return `${ (Math.round(gbSize * Math.pow(10, 2)) / Math.pow(10, 2)).toFixed(2)} GB`
+            }
+            return `${ (Math.round(mbSize * Math.pow(10, 2)) / Math.pow(10, 2)).toFixed(2)} MB`
+          }
+          return `${Math.round(kbSize)} kB`
+        }
+        return `${size} B`
+      }
+
+
     const [time,setTime] = useState<string>("Just now");
     const [interval, setInterval] = useState(1000)
+
 
     setTimeout( () => {
         changeTimeFinder(item.time)
       }, interval);
 
+
     const getIcon = () => {
+        if(item.card.icon === iconType.COMPLETED)
+            return(
+                <div style={{marginLeft:"20px", marginRight:"15px"}}>
+                    <MuiCheckCircleOutlineOutlinedIcon  fontSize="large"/>
+                </div>
+            )
+            
+        if(item.card.icon === iconType.APPLIED)
+            return(
+                <div style={{marginLeft:"20px", marginRight:"15px"}}>
+                    <MuiCheckCircleOutlineOutlinedIcon  fontSize="large"/>
+                </div>
+            )
+        
+            if(item.card.icon === iconType.CANCELLED)
+            return(
+                <div style={{marginLeft:"20px", marginRight:"15px"}}>
+                    <MuiCancelOutlinedIcon  fontSize="large"/>
+                </div>
+            )
+
+            if(item.card.icon === iconType.PAUSE)
+            return(
+                <div style={{marginLeft:"20px", marginRight:"15px"}}>
+                <MuiPauseCircleOutlineIcon  fontSize="large"/>
+            </div>
+            )
+        
+        if(item.card.icon === iconType.TRANSFERING)
+        return(
+            <ProcessIndicator process= {Math.round(item.card.data.transfferedSize / item.card.data.totalSize * 100)}/>
+        )
+
     }
 
-    const now = moment(Date());
-    const then = moment(item.time)
-    const changeTime = now.diff(then,"seconds")
+    const transferCard = () => {
+        return(
+            <MuiGrid container direction="column">
+                <MuiGrid item  style={{marginTop:"10px"}}>
+                    <Typography variant="h3" align="left">
+                        { item.card.icon === iconType.COMPLETED 
+                           ?
+                                `${fileSize(item.card.data.transfferedSize)}`
+                            :
+                                `${fileSize(item.card.data.transfferedSize)} / ${fileSize(item.card.data.totalSize)}, ${item.card.data.timeLeft}`
+                        }
+                    </Typography>
+                </MuiGrid>
+                <MuiGrid item>
+                    {   item.card.icon === iconType.COMPLETED 
+                        ?
+                            null
+                        :
+                            <MuiGrid container>
+                                <MuiGrid item>
+                                    <MuiButton style={{width:"20%", fontSize:"12px"}}
+                                        onClick={() => handlePause(item.id, item.card.data.pause)} 
+                                        color="primary"
+                                    >
+                                        {item.card.data.pause ? "Continue" : "Pause"}
+                                    </MuiButton>
+                                </MuiGrid>
+                                <MuiGrid item>
+                                    <MuiButton style={{width:"20%", fontSize:"12px"}}
+                                        onClick={() => handleCancel(item.id)} 
+                                        color="primary"
+                                    >
+                                        Cancel
+                                    </MuiButton>
+                                </MuiGrid>
+                            </MuiGrid>
+                        }
+                    </MuiGrid>
+                </MuiGrid>
+            )
+        }
+
+    // const now = moment(Date());
+    // const then = moment(item.time)
+    // const changeTime = now.diff(then,"seconds")
 
     
        
@@ -75,37 +172,10 @@ return(
                     </MuiGrid>
                 </MuiGrid>        
             </MuiGrid>
-        <MuiGrid item style={{marginTop:"10px"}}>
-            <MuiGrid container>
-                <MuiGrid item xs={4}>
-                    {item.cancel 
-                        ?
-                            <div style={{marginLeft:"20px", marginRight:"15px"}}>
-                                <MuiCancelOutlinedIcon  fontSize="large"/>
-                            </div>
-                        :
-                            item.completed === false 
-                                ?
-                                    <Box position="relative" display="inline-flex">
-                                        <CircularProgress variant="determinate" value={item.process} />
-                                        <Box
-                                            top={0}
-                                            left={0}
-                                            bottom={0}
-                                            right={0}
-                                            position="absolute"
-                                            display="flex"
-                                            alignItems="center"
-                                            justifyContent="center"
-                                        >
-                                            <Typography variant="caption" component="div" color="textSecondary">{`${item.process}%`}</Typography>
-                                        </Box>
-                                    </Box>
-                                :
-                                    <div style={{marginLeft:"20px", marginRight:"15px"}}>
-                                        <MuiCheckCircleOutlineOutlinedIcon  fontSize="large"/>
-                                    </div>
-                        }
+            <MuiGrid item style={{marginTop:"10px"}}>
+                <MuiGrid container>
+                    <MuiGrid item xs={4}>
+                        {getIcon()}
                     </MuiGrid>
                     <MuiGrid item xs={8}>
                         <MuiGrid container direction="column">
@@ -115,55 +185,18 @@ return(
                                 </Typography>
                             </MuiGrid>
                         </MuiGrid>
-                            {item.card.data.cancel
-                                ?
-                                    null
-
-                                :
-                                    <MuiGrid container direction="column">
-                                        <MuiGrid item  style={{marginTop:"10px"}}>
-                                            {
-                                                item.type===0 &&
-                                                    <Typography variant="h3" align="left">
-                                                        { item.completed 
-                                                           ?
-                                                                "4.0MB"
-                                                            :
-                                                                " 2.0MB / 4.0MB, 3 Sec Left"
-                                                        }
-                                                    </Typography>
-                                            }
-           
-                                        </MuiGrid>
-                                        {
-                                            item.completed
-                                                ?
-                                                    null
-                                                :
-                                                    <MuiGrid item >
-                                                        <MuiGrid container>
-                                                            <MuiGrid item>
-                                                                <MuiButton style={{width:"20%", fontSize:"12px"}}
-                                                                    onClick={() => handlePause(item.id, item.card.data.pause)} 
-                                                                    color="primary"
-                                                                >
-                                                            {item.card.data.pause ? "Continue" : "Pause"}
-                                                        </MuiButton>
-                                                    </MuiGrid>
-                                                    <MuiGrid item>
-                                                        <MuiButton style={{width:"20%", fontSize:"12px"}}
-                                                            onClick={() => handleCancel(item.id)} 
-                                                            color="primary"
-                                                        >
-                                                            Cancel
-                                                        </MuiButton>
-                                                    </MuiGrid>
-                                                </MuiGrid>
-                                            </MuiGrid>   
-                                        }
-                                    </MuiGrid> 
-                                }
-                            </MuiGrid>
+                        <MuiGrid>
+                        {
+                            item.card.type === notificationType.NETWORK_TRANSFER_MESSAGE
+                            ?
+                            <span>
+                            {transferCard()}
+                            </span>
+                            :
+                            null
+                        }
+                        </MuiGrid>
+                        </MuiGrid>
                         </MuiGrid>
                     </MuiGrid>
                 </MuiGrid>

@@ -3,9 +3,11 @@ import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 
 export default function Card(props:any){
+
+    console.log(props.process)
     return(
         <Box position="relative" display="inline-flex">
-                                        <CircularProgress variant="determinate" value={item.process} />
+                                        <CircularProgress variant="determinate" value={props.process} />
                                         <Box
                                             top={0}
                                             left={0}
@@ -16,7 +18,7 @@ export default function Card(props:any){
                                             alignItems="center"
                                             justifyContent="center"
                                         >
-                                            <Typography variant="caption" component="div" color="textSecondary">{`${item.process}%`}</Typography>
+                                            <Typography variant="caption" component="div" color="textSecondary">{`${props.process}%`}</Typography>
                                         </Box>
                                     </Box>
     )

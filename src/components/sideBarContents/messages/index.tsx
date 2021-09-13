@@ -177,7 +177,7 @@ export default function Annotations(){
     const getBody = () => {
         // console.log(notificationList)
         return (
-            <div>
+            <div className={classes.scrollBar}>
                 {notificationList.map((item: any,index:number) => 
                     <div  style={{marginTop:"20px"}}>
                         {   !item.collapsed

@@ -8,12 +8,11 @@ export enum notificationType {
 }
 
 export enum iconType {
-    DOWNLOADING = 0,
-    UPLOADING = 1,
-    PAUSE = 2,
-    CANCELLED = 3,
-    APPLIED = 4,
-    COMPLETED = 5,
+    TRANSFERING = 0,
+    PAUSE = 1,
+    CANCELLED = 2,
+    APPLIED = 3,
+    COMPLETED = 4,
 }
 
 type networkData = {
@@ -54,7 +53,7 @@ const initialState : messages = {
             card:{
                 type:notificationType.NETWORK_TRANSFER_MESSAGE,
                 title:"Downloading Simplified Mesh",
-                icon:iconType.DOWNLOADING,
+                icon:iconType.TRANSFERING,
                 data:{
                     totalSize:2024,
                     transfferedSize:1024,
@@ -131,6 +130,11 @@ export const messageSlice = createSlice({
                 let changeItem = state.notificationLists[index];
                 if(changeItem.card.type === notificationType.NETWORK_TRANSFER_MESSAGE){
                     changeItem.card.data.pause = action.payload.value;
+                    if(action.payload.value === true)
+                        changeItem.card.icon = iconType.PAUSE;
+                    else
+                        changeItem.card.icon = iconType.TRANSFERING;
+                        
                     state.notificationLists[index] = changeItem;
                 }
                
@@ -143,6 +147,7 @@ export const messageSlice = createSlice({
                 let changeItem = state.notificationLists[index];
                 if(changeItem.card.type === notificationType.NETWORK_TRANSFER_MESSAGE){
                     changeItem.card.data.cancel = true;
+                    changeItem.card.icon = iconType.CANCELLED;
                     state.notificationLists[index] = changeItem;
                 }
             }
