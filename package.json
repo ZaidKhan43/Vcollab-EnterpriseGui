@@ -54,6 +54,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "deploy": "npm run build && node buildScripts/deployDemo.js",
+    "testScript": " node buildScripts/deployDemo.js",
     "del_bak": "del /s /q *.bak"
   },
   "eslintConfig": {

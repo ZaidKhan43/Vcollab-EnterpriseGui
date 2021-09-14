@@ -42,7 +42,7 @@ export default function List(props:IListProps) {
 
   return (
 
-         <div>   
+         <div className={classes.Scrollbar}>   
                 <MuiList >
                   <MuiListItem > 
                     
@@ -70,7 +70,7 @@ export default function List(props:IListProps) {
 
                 </MuiListItem> 
 
-                <div className={classes.scrollbar}>
+                <div >
 
                   {
 

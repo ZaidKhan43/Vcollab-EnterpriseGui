@@ -10,7 +10,7 @@ import {fetchSectionPlaneData, handlePlaneSelection} from "../../store/sideBar/c
 import { addViewer } from '../../store/appSlice';
 import ProbeLabel from "../probe";
 import { fetchFieldData } from '../../store/sideBar/fieldSlice';
-
+import { fetchMouseData } from '../../store/sideBar/settings';
 
 
 function Viewer(){
@@ -21,7 +21,7 @@ function Viewer(){
     const dispatch = useAppDispatch(); 
     const tree = useRef();
 
-    /*
+    
     //To get the queryString Name from url
     const getParameterByName = (name : string) => {
       name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -31,7 +31,7 @@ function Viewer(){
         ? ""
         : decodeURIComponent(results[1].replace(/\+/g, " "));
     }
-    */
+    
       
     const loadModel = useCallback((api : string, url : string, activeViewerID : string) => {
       viewerAPIProxy.loadModel(api, url, activeViewerID )
@@ -83,6 +83,11 @@ function Viewer(){
             dispatch(fetchSectionPlaneData());
            },3000)
            
+           // fetch mouseData 
+           setTimeout(() => {
+            dispatch(fetchMouseData())
+           },3000)
+           
            //console.log("Showing Model : " + response1);   
             /*       
             setTimeout(() => {
@@ -105,19 +110,19 @@ function Viewer(){
             setMount(true);
             //this.props.saveModelLoadingStatus("");
             let viewerDivID = viewerRefs.current?.id || '';
-            let api = "http://localhost:8181/api/1.0/model";
+            //let api = "http://localhost:8181/api/1.0/model";
             //let url = "file://samples/bracket.cax";
             //let url = "file://samples/airbag.cax";
             //let url = "file://samples/heater.cax";
             //let url = "file://samples/merged.cax";
             //let url = "file://samples/F30_model.cax";
             //let url = "file%3A%2F%2FC%3A%5CWORK%5Centerprise-1.1-win64%5Csamples%5Cbracket.cax";
-            let url = "file%3A%2F%2FE%3A%5Ccaxserver%5CAssembly.cax";
+            //let url = "file%3A%2F%2FE%3A%5Ccaxserver%5CAssembly.cax";
       
             //let api = "http://100.26.229.30:8181/api/1.0/model";
             //let url = "file%3A%2F%2FC%3A%5CUsers%5CAdministrator%5CDownloads%5Centerprise-1.1-win64%5Csamples%5CF30_model.cax";           
             
-            /*
+            
             let url = getParameterByName("url");
             if (url === "") {
               alert("URL querystring is missing.");
@@ -129,7 +134,7 @@ function Viewer(){
               alert("API querystring is missing.");
               return;
             }   
-            */    
+               
       
             let viewerID = viewerAPIProxy.createViewer(viewerDivID);
             dispatch(addViewer({name : viewerDomID, id: viewerID }));

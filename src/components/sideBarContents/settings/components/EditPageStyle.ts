@@ -9,7 +9,7 @@ export default makeStyles((theme)=>({
     
     selectDropDown:{
 
-        fontSize:"14px"
+        fontSize:"12px",
     },
     alignMenuItem:{
 
@@ -19,6 +19,5 @@ export default makeStyles((theme)=>({
         alignItems:'stretch',
         
     }
-
 
 }));

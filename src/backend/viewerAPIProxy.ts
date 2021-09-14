@@ -44,6 +44,20 @@ export function setDisplayMode(activeViewerID:string, displayModeId:string, node
 export function setHighlightedNodes(activeViewerID:string, toShow: boolean, nodeIds:string[]) {
     return viewerMgr.setHighlightedNodes(nodeIds,toShow,activeViewerID);
 }
+export function setMouseBindings(activeViewerID:string, json:any) {
+    console.log(json);
+    return viewerMgr.setMouseInputMapping(json,activeViewerID);
+}
+export function getMouseData(activeViewerID:string) :any {
+    let data = viewerMgr.getMouseInputData(activeViewerID);
+    console.log(JSON.stringify(data));
+    return data;
+}
+export function getSystemMouseMappings(activeViewerID:string):any[] {
+    let data = viewerMgr.getSystemMouseMappings(activeViewerID);
+    //console.log(JSON.stringify(data));
+    return data;
+}
 // part Manipulation
 export function enablePickAndMove(activeViewerID:string, toEnable:boolean) {
     return viewerMgr.enablePickAndMove(toEnable,activeViewerID);

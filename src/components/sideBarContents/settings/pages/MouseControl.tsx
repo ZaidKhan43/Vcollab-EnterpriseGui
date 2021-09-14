@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useState,useEffect} from 'react';
 
 //buttons
 
@@ -38,7 +38,7 @@ import {
     selectActiveMenuId,
     setcopyItem,
     pasteItem,
-    setApplyItem,
+    applyMouseData,
     deleteItem,
     setMenuItemEditable,
     setMenuItemEditableText,
@@ -64,8 +64,6 @@ const menuItems = useAppSelector(selectmenuItems);
 
 const activeUserId = useAppSelector(selectActiveMenuId);
 
-
-
 const onClickBackIcon = () =>{
   dispatch(goBack());
 }    
@@ -89,30 +87,29 @@ const getHeaderRightIcon=()=> {
 
 const getBody=()=> {
 
- const items = menuItems
+    const items = menuItems
 
-const onSelectMenuList = (
-  id:string,
-  isSelected:boolean
+    const onSelectMenuList = (
+      id:string,
+      isSelected:boolean
 
-) => {
+    ) => {
 
-  dispatch(setSelectedItem({id,isSelected}));
+      dispatch(setSelectedItem({id,isSelected}));
 
-};
+    };
 
-const onClickSetMenuListEditable =(id:string , edit:boolean) =>{
+    const onClickSetMenuListEditable =(id:string , edit:boolean) =>{
 
-  dispatch(setMenuItemEditable({edit:edit,activeMenuId:id}));
+      dispatch(setMenuItemEditable({edit:edit,activeMenuId:id}));
 
-}
-const onClickUpdateListName=(id:string ,value:string)=>{
+    }
+    const onClickUpdateListName=(id:string ,value:string)=>{
 
- 
-  dispatch(setMenuItemEditableText({text:value,activeMenuId:id}));
-  
-};
-
+    
+      dispatch(setMenuItemEditableText({text:value,activeMenuId:id}));
+      
+    };
 
     return (
 
@@ -127,7 +124,7 @@ const getFooter =() => {
 
 const onHandleApply =() => {
 
-    dispatch(setApplyItem());
+    dispatch(applyMouseData());
 }  
 
 const onHandleEdit=() => {

@@ -2138,6 +2138,18 @@ function __generator$1(thisArg, body) {
     }
 }
 
+function __values$1(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+}
+
 function __read$1(o, n) {
     var m = typeof Symbol === "function" && o[Symbol.iterator];
     if (!m) return o;
@@ -2310,6 +2322,28 @@ var AppObjects = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(AppObjects, "input", {
+        get: function () {
+            return this._input;
+        },
+        set: function (object) {
+            if (object !== null || undefined)
+                this._input = object;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(AppObjects, "commands", {
+        get: function () {
+            return this._commands;
+        },
+        set: function (object) {
+            if (object !== null || undefined)
+                this._commands = object;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(AppObjects, "mouseControl", {
         get: function () {
             return this._mouseControl;
@@ -2344,6 +2378,7 @@ var AppObjects = /** @class */ (function () {
         configurable: true
     });
     AppObjects._serverConnection = null;
+    AppObjects._commands = null;
     AppObjects._dataManager = null;
     AppObjects._sceneManager = null;
     AppObjects._renderer = null;
@@ -2351,6 +2386,7 @@ var AppObjects = /** @class */ (function () {
     AppObjects._sectionManager = null;
     AppObjects._labelManager = null;
     AppObjects._partManipulator = null;
+    AppObjects._input = null;
     AppObjects._mouseControl = null;
     AppObjects._externalEventDispatcher = null;
     AppObjects._keyboardControl = null;
@@ -7772,6 +7808,24 @@ var MathUtils;
         return out;
     }
     MathUtils.getMidPoint = getMidPoint;
+    function arraysEqual(a, b) {
+        if (a === b)
+            return true;
+        if (a == null || b == null)
+            return false;
+        if (a.length !== b.length)
+            return false;
+        // If you don't care about the order of the elements inside
+        // the array, you should sort both arrays here.
+        // Please note that calling sort on an array will modify that array.
+        // you might want to clone your array first.
+        for (var i = 0; i < a.length; ++i) {
+            if (a[i] !== b[i])
+                return false;
+        }
+        return true;
+    }
+    MathUtils.arraysEqual = arraysEqual;
 })(MathUtils || (MathUtils = {}));var EventDispatcher = /** @class */ (function () {
     function EventDispatcher() {
         this._listeners = {};
@@ -9241,10 +9295,13 @@ var Renderer2D = /** @class */ (function () {
         if (mesh.indices) {
             var GLDrawType = mesh.indices.getType();
             mesh.indices.bind();
-            AppState$1.GLContext.drawElements(mesh.rendingMode, mesh.indices.getDataArrayCount(), GLDrawType, 0);
+            var indicesCount = mesh.indices.getDataArrayCount();
+            alert(indicesCount);
+            AppState$1.GLContext.drawElements(mesh.rendingMode, indicesCount, GLDrawType, 0);
         }
         else {
-            AppState$1.GLContext.drawArrays(mesh.rendingMode, 0, mesh.attribs.position.getDataArrayCount() / vertexSize);
+            var verticesCount = mesh.attribs.position.getDataArrayCount() / vertexSize;
+            AppState$1.GLContext.drawArrays(mesh.rendingMode, 0, verticesCount);
         }
     };
     Renderer.prototype.renderBufferAsGizmo = function (mesh, worldMatrix, shader, color) {
@@ -12466,16 +12523,13 @@ var MouseControl = /** @class */ (function (_super) {
         _this.lastMouseX = 0;
         _this.lastMouseY = 0;
         //call back functions 
-        _this.container.onmousedown = _this.handleContainerMouseDown.bind(_this);
-        _this.container.onmouseup = _this.handleContainerMouseUp.bind(_this);
-        _this.container.onmousemove = _this.handleContainerMouseMove.bind(_this);
-        _this.container.ondblclick = _this.handleContatinerDoubleClick.bind(_this);
-        _this.container.addEventListener('contextmenu', _this.contextmenu.bind(_this), false);
+        //this.container.onmousedown = this.handleContainerMouseDown.bind(this);
+        //this.container.onmouseup = this.handleContainerMouseUp.bind(this);
+        //this.container.onmousemove = this.handleContainerMouseMove.bind(this);
+        //this.container.ondblclick = this.handleContatinerDoubleClick.bind(this);
+        //this.container.addEventListener( 'contextmenu', this.contextmenu.bind(this), false );
         //mousewheel Event
-        if (_this.container.addEventListener) {
-            _this.container.addEventListener('mousewheel', _this.scroll.bind(_this), false);
-            _this.container.addEventListener('DOMMouseScroll', _this.scroll.bind(_this), false);
-        }
+        if (_this.container.addEventListener) ;
         _this.rotationPointNode = null;
         return _this;
     }
@@ -14193,9 +14247,9 @@ var Label3D = /** @class */ (function () {
         return index;
     };
     PointCloudMesh.prototype.update = function (position, color, indices) {
-        this.attribs.position.updateData((position).buffer);
-        this.attribs.color.updateData((color).buffer);
-        this.indices.updateData(indices.buffer);
+        this.attribs.position.updateData(position);
+        this.attribs.color.updateData(color);
+        this.indices.updateData(indices);
     };
     return PointCloudMesh;
 }(CoreMesh));var PointCloudNode = /** @class */ (function (_super) {
@@ -14223,7 +14277,729 @@ var Label3D = /** @class */ (function () {
         pointCloudMesh.update(newPos, newCol, new Uint32Array([newPos.length / 3 - 1]));
     };
     return PointCloudNode;
-}(ShapeNode));var App = /** @class */ (function () {
+}(ShapeNode));var MouseButton$1;
+(function (MouseButton) {
+    MouseButton[MouseButton["NONE"] = 0] = "NONE";
+    MouseButton[MouseButton["LEFT"] = 1] = "LEFT";
+    MouseButton[MouseButton["RIGHT"] = 2] = "RIGHT";
+    MouseButton[MouseButton["MIDDLE"] = 4] = "MIDDLE";
+    MouseButton[MouseButton["LEFT_RIGHT"] = 3] = "LEFT_RIGHT";
+    MouseButton[MouseButton["LEFT_MIDDLE"] = 5] = "LEFT_MIDDLE";
+    MouseButton[MouseButton["MIDDLE_RIGHT"] = 6] = "MIDDLE_RIGHT";
+    MouseButton[MouseButton["LEFT_MIDDLE_RIGHT"] = 7] = "LEFT_MIDDLE_RIGHT";
+})(MouseButton$1 || (MouseButton$1 = {}));
+var MouseState;
+(function (MouseState) {
+    MouseState["NONE"] = "normal";
+    MouseState["DRAGGING"] = "isDragging";
+    MouseState["SCROLLING"] = "isScrolling";
+    MouseState["DRAG_VERTICAL"] = "vertical";
+    MouseState["DRAG_HORIZONTAL"] = "horizontal";
+})(MouseState || (MouseState = {}));
+var MouseModifier;
+(function (MouseModifier) {
+    MouseModifier["ALT"] = "altKey";
+    MouseModifier["CTRL"] = "ctrlKey";
+    MouseModifier["META"] = "metaKey";
+    MouseModifier["SHIFT"] = "shiftKey";
+    MouseModifier["CAPSLOCK"] = "CapsLock";
+    MouseModifier["NUMLOCK"] = "NumLock";
+    MouseModifier["SCROLLLOCK"] = "ScrollLock";
+})(MouseModifier || (MouseModifier = {}));
+var MouseInput = /** @class */ (function () {
+    function MouseInput(container, inputMap) {
+        this.container = container;
+        this.lastXY = [0, 0];
+        this.newXY = [0, 0];
+        this.wheelDelta = 0;
+        this.buttonsPressed = MouseButton$1.NONE;
+        this.modifiers = new Map();
+        this.state = MouseState.NONE;
+        this.isVerticalDrag = true;
+        this.timer = null;
+        this.waitTime = 300;
+        this.inputMap = inputMap;
+    }
+    MouseInput.prototype.registerEvents = function () {
+        this.container.addEventListener("click", function (event) {
+            event.preventDefault();
+        });
+        this.container.addEventListener("dblclick", function (event) {
+            event.preventDefault();
+        });
+        this.container.addEventListener("contextmenu", function (event) {
+            event.preventDefault();
+        });
+        this.container.addEventListener("wheel", this.handleScroll.bind(this));
+        this.container.addEventListener('DOMMouseScroll', this.handleScroll.bind(this), false);
+        this.container.addEventListener("mousedown", this.handleMouseDown.bind(this));
+        this.container.addEventListener("mousemove", this.handleMouseMove.bind(this));
+        this.container.addEventListener("mouseup", this.handleMouseUp.bind(this));
+    };
+    Object.defineProperty(MouseInput.prototype, "IsVerticalDrag", {
+        get: function () {
+            return this.isVerticalDrag;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    MouseInput.prototype.getKeys = function () {
+        var e_1, _a, e_2, _b;
+        var keys = [];
+        try {
+            for (var _c = __values$1(Object.entries(MouseButton$1)), _d = _c.next(); !_d.done; _d = _c.next()) {
+                var _e = __read$1(_d.value, 2), key = _e[0], value = _e[1];
+                if (Number.isNaN(parseInt(key)))
+                    keys.push(this.getKeyObject(MouseButton$1[key]));
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (_d && !_d.done && (_a = _c.return)) _a.call(_c);
+            }
+            finally { if (e_1) throw e_1.error; }
+        }
+        try {
+            for (var _f = __values$1(Object.entries(MouseModifier)), _g = _f.next(); !_g.done; _g = _f.next()) {
+                var _h = __read$1(_g.value, 2), key = _h[0], value = _h[1];
+                if (Number.isNaN(parseInt(key)))
+                    keys.push(this.getModifierObject(MouseModifier[key]));
+            }
+        }
+        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+        finally {
+            try {
+                if (_g && !_g.done && (_b = _f.return)) _b.call(_f);
+            }
+            finally { if (e_2) throw e_2.error; }
+        }
+        return keys;
+    };
+    MouseInput.prototype.getKeyObject = function (key) {
+        var out = {};
+        switch (key) {
+            case MouseButton$1.NONE:
+                out = { name: "None", code: MouseButton$1.NONE.toString() };
+                break;
+            case MouseButton$1.LEFT:
+                out = { name: "Left", code: MouseButton$1.LEFT.toString() };
+                break;
+            case MouseButton$1.RIGHT:
+                out = { name: "Right", code: MouseButton$1.RIGHT.toString() };
+                break;
+            case MouseButton$1.MIDDLE:
+                out = { name: "Middle", code: MouseButton$1.MIDDLE.toString() };
+                break;
+            case MouseButton$1.MIDDLE_RIGHT:
+                out = { name: "Middle right", code: MouseButton$1.MIDDLE_RIGHT.toString() };
+                break;
+            case MouseButton$1.LEFT_MIDDLE:
+                out = { name: "Left middle", code: MouseButton$1.LEFT_MIDDLE.toString() };
+                break;
+            case MouseButton$1.LEFT_MIDDLE_RIGHT:
+                out = { name: "Left middle right", code: MouseButton$1.LEFT_MIDDLE_RIGHT.toString() };
+                break;
+            case MouseButton$1.LEFT_RIGHT:
+                out = { name: "Left right", code: MouseButton$1.LEFT_RIGHT.toString() };
+                break;
+        }
+        return out;
+    };
+    MouseInput.prototype.getModifierObject = function (key) {
+        var out = {};
+        switch (key) {
+            case MouseModifier.CTRL:
+                out = { name: "Ctrl", code: MouseModifier.CTRL };
+                break;
+            case MouseModifier.ALT:
+                out = { name: "Alt", code: MouseModifier.ALT };
+                break;
+            case MouseModifier.SHIFT:
+                out = { name: "Shift", code: MouseModifier.SHIFT };
+                break;
+            case MouseModifier.META:
+                out = { name: "Meta", code: MouseModifier.META };
+                break;
+            case MouseModifier.CAPSLOCK:
+                out = { name: "Capslock", code: MouseModifier.CAPSLOCK };
+                break;
+            case MouseModifier.NUMLOCK:
+                out = { name: "Numslock", code: MouseModifier.NUMLOCK };
+                break;
+            case MouseModifier.SCROLLLOCK:
+                out = { name: "Scroll lock", code: MouseModifier.SCROLLLOCK };
+                break;
+        }
+        return out;
+    };
+    MouseInput.prototype.getControls = function () {
+        return [
+            {
+                id: '1',
+                keys: this.getKeyObject(MouseButton$1.LEFT),
+                modifiers: [
+                    this.getModifierObject(MouseModifier.CTRL),
+                    this.getModifierObject(MouseModifier.ALT)
+                ]
+            },
+            {
+                id: '2',
+                keys: this.getKeyObject(MouseButton$1.MIDDLE),
+                modifiers: [
+                    this.getModifierObject(MouseModifier.CTRL),
+                    this.getModifierObject(MouseModifier.ALT)
+                ]
+            },
+            {
+                id: '3',
+                keys: this.getKeyObject(MouseButton$1.NONE),
+                modifiers: []
+            },
+            {
+                id: '4',
+                keys: this.getKeyObject(MouseButton$1.RIGHT),
+                modifiers: [
+                    this.getModifierObject(MouseModifier.CTRL),
+                    this.getModifierObject(MouseModifier.ALT)
+                ]
+            },
+            {
+                id: '5',
+                keys: this.getKeyObject(MouseButton$1.MIDDLE),
+                modifiers: []
+            },
+            {
+                id: '6',
+                keys: this.getKeyObject(MouseButton$1.MIDDLE),
+                modifiers: [
+                    this.getModifierObject(MouseModifier.CTRL),
+                ]
+            },
+            {
+                id: '7',
+                keys: this.getKeyObject(MouseButton$1.MIDDLE),
+                modifiers: [this.getModifierObject(MouseModifier.SHIFT)]
+            },
+            {
+                id: '8',
+                keys: this.getKeyObject(MouseButton$1.LEFT),
+                modifiers: [this.getModifierObject(MouseModifier.CTRL)]
+            },
+            {
+                id: '9',
+                keys: this.getKeyObject(MouseButton$1.RIGHT),
+                modifiers: [this.getModifierObject(MouseModifier.CTRL)]
+            },
+            {
+                id: '10',
+                keys: this.getKeyObject(MouseButton$1.MIDDLE_RIGHT),
+                modifiers: []
+            },
+            {
+                id: '11',
+                keys: this.getKeyObject(MouseButton$1.LEFT_MIDDLE),
+                modifiers: []
+            },
+            {
+                id: '12',
+                keys: this.getKeyObject(MouseButton$1.LEFT),
+                modifiers: []
+            },
+            {
+                id: '13',
+                keys: this.getKeyObject(MouseButton$1.RIGHT),
+                modifiers: []
+            }
+        ];
+    };
+    MouseInput.prototype.getActions = function () {
+        return AppObjects.input.Actions.filter(ActionType.MOUSE).map(function (item, index) {
+            return { id: (index + 1).toString(), name: item.name, when: item.when };
+        });
+    };
+    Object.defineProperty(MouseInput.prototype, "LastXY", {
+        get: function () {
+            return __spread$1(this.lastXY);
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(MouseInput.prototype, "NewXY", {
+        get: function () {
+            return __spread$1(this.newXY);
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(MouseInput.prototype, "WheelDelta", {
+        get: function () {
+            return this.wheelDelta;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    MouseInput.prototype.isMatch = function (binding, event) {
+        var keys = binding.keyCombination;
+        var when = binding.when;
+        var isKeyFound = keys[0] === this.buttonsPressed ? true : false;
+        var bindingModifiers = [
+            binding.modifiers.includes(MouseModifier.CTRL) ? true : false,
+            binding.modifiers.includes(MouseModifier.SHIFT) ? true : false,
+            binding.modifiers.includes(MouseModifier.ALT) ? true : false,
+            binding.modifiers.includes(MouseModifier.META) ? true : false,
+        ];
+        var pressedModifiers = [
+            this.modifiers.has(MouseModifier.CTRL) ? this.modifiers.get(MouseModifier.CTRL) : false,
+            this.modifiers.has(MouseModifier.SHIFT) ? this.modifiers.get(MouseModifier.SHIFT) : false,
+            this.modifiers.has(MouseModifier.ALT) ? this.modifiers.get(MouseModifier.ALT) : false,
+            this.modifiers.has(MouseModifier.META) ? this.modifiers.get(MouseModifier.META) : false,
+        ];
+        var isModifierSatisfy = MathUtils.arraysEqual(bindingModifiers, pressedModifiers);
+        globalThis.isDragging = this.state === MouseState.DRAGGING;
+        globalThis.isScrolling = this.state === MouseState.SCROLLING;
+        globalThis.vertical = this.isVerticalDrag;
+        globalThis.horizontal = !this.isVerticalDrag;
+        var isWhen = Function("return " + when)();
+        if (isKeyFound && isModifierSatisfy && isWhen) {
+            console.log(binding);
+            console.log(isKeyFound, isModifierSatisfy, isWhen);
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+    MouseInput.prototype.processInput = function (event) {
+        var e_3, _a;
+        var commands = AppObjects.commands;
+        try {
+            for (var _b = __values$1(this.inputMap.Mapping.entries()), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var _d = __read$1(_c.value, 2), action = _d[0], binding = _d[1];
+                if (this.isMatch(binding, event) && commands.has(action)) {
+                    commands.get(action).execute();
+                }
+            }
+        }
+        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_3) throw e_3.error; }
+        }
+    };
+    MouseInput.prototype.updateKeys = function (event) {
+        if (event.buttons !== undefined) {
+            this.buttonsPressed = event.buttons;
+            this.modifiers.set(MouseModifier.ALT, event[MouseModifier.ALT]);
+            this.modifiers.set(MouseModifier.CTRL, event[MouseModifier.CTRL]);
+            this.modifiers.set(MouseModifier.SHIFT, event[MouseModifier.SHIFT]);
+            this.modifiers.set(MouseModifier.META, event[MouseModifier.META]);
+        }
+    };
+    MouseInput.prototype.getMousePos = function (event) {
+        var contatinerPos = MathUtils.getContainerBox(this.container);
+        var containerTop = contatinerPos[0];
+        var containerLeft = contatinerPos[1];
+        var newX = event.clientX - containerLeft;
+        var newY = event.clientY - containerTop;
+        return [newX, newY];
+    };
+    MouseInput.prototype.handleScroll = function (event) {
+        event.preventDefault();
+        this.state = MouseState.SCROLLING;
+        this.wheelDelta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+        this.newXY = this.getMousePos(event);
+        this.updateKeys(event);
+        this.processInput(event);
+        this.lastXY = __spread$1(this.newXY);
+        this.state = MouseState.NONE;
+    };
+    MouseInput.prototype.handleMouseMove = function (event) {
+        this.state = MouseState.DRAGGING;
+        this.newXY = this.getMousePos(event);
+        var dir = fromValues$1$1(this.newXY[0] - this.lastXY[0], this.newXY[1] - this.lastXY[1], 0);
+        normalize$1(dir, dir);
+        this.isVerticalDrag = Math.abs(dot$1(dir, fromValues$1$1(1, 0, 0))) > 0.5 ? false : true;
+        console.log(this.isVerticalDrag, dir);
+        this.updateKeys(event);
+        this.processInput(event);
+        this.lastXY = __spread$1(this.newXY);
+        this.state = MouseState.NONE;
+    };
+    MouseInput.prototype.handleMouseDown = function (event) {
+        this.newXY = this.getMousePos(event);
+        this.updateKeys(event);
+        this.processInput(event);
+        this.lastXY = __spread$1(this.newXY);
+        this.state = MouseState.NONE;
+    };
+    MouseInput.prototype.handleMouseUp = function (event) {
+        var _this = this;
+        if (event.detail === 1) {
+            this.timer = setTimeout(function () {
+                _this.updateKeys(event);
+                _this.processInput(event);
+            }, this.waitTime);
+        }
+        else if (event.detail === 2) {
+            clearTimeout(this.timer);
+            this.updateKeys(event);
+            this.processInput(event);
+        }
+        this.state = MouseState.NONE;
+    };
+    return MouseInput;
+}());var ActionName;
+(function (ActionName) {
+    ActionName["PAN"] = "PAN";
+    ActionName["ROTATE"] = "ROTATE";
+    ActionName["ZOOM_IN"] = "ZOOM_IN";
+    ActionName["ZOOM_OUT"] = "ZOOM_OUT";
+    ActionName["POINT_ZOOM_IN"] = "POINT_ZOOM_IN";
+    ActionName["POINT_ZOOM_OUT"] = "POINT_ZOOM_OUT";
+})(ActionName || (ActionName = {}));
+var ActionType;
+(function (ActionType) {
+    ActionType[ActionType["MOUSE"] = 0] = "MOUSE";
+    ActionType[ActionType["KEYBOARD"] = 1] = "KEYBOARD";
+})(ActionType || (ActionType = {}));
+/*
+    This class contains a mapping to unique ActionName and data of that action. The IAction interface
+    will be used to store data for that action. eg., when the action should be processed and so on.
+    Like commands Class this class will be used to add new Actions and its data only
+ */
+var Actions = /** @class */ (function () {
+    function Actions() {
+        this.map = new Map([
+            //#region Mouse
+            [ActionName.PAN, { name: ActionName.PAN, type: ActionType.MOUSE, when: MouseState.DRAGGING },],
+            [ActionName.ROTATE, { name: ActionName.ROTATE, type: ActionType.MOUSE, when: MouseState.DRAGGING }],
+            [ActionName.ZOOM_IN, { name: ActionName.ZOOM_IN, type: ActionType.MOUSE, when: MouseState.DRAGGING }],
+            [ActionName.ZOOM_OUT, { name: ActionName.ZOOM_OUT, type: ActionType.MOUSE, when: MouseState.DRAGGING }],
+            [ActionName.POINT_ZOOM_IN, { name: ActionName.POINT_ZOOM_IN, type: ActionType.MOUSE, when: MouseState.SCROLLING }],
+            [ActionName.POINT_ZOOM_OUT, { name: ActionName.POINT_ZOOM_OUT, type: ActionType.MOUSE, when: MouseState.SCROLLING }],
+        ]);
+    }
+    Actions.prototype.getData = function (name) {
+        return this.map.get(name);
+    };
+    Actions.prototype.getAll = function () {
+        return __spread$1(this.map.values());
+    };
+    Actions.prototype.filter = function (type) {
+        return __spread$1(this.map.values()).filter(function (act) { return act.type === type; });
+    };
+    return Actions;
+}());var Default$1 = function () {
+    var map = new Map();
+    map.set(ActionName.ROTATE, {
+        keyCombination: [MouseButton$1.LEFT],
+        modifiers: [],
+        when: MouseState.DRAGGING
+    });
+    map.set(ActionName.PAN, {
+        keyCombination: [MouseButton$1.RIGHT],
+        modifiers: [],
+        when: MouseState.DRAGGING
+    });
+    map.set(ActionName.POINT_ZOOM_IN, {
+        keyCombination: [MouseButton$1.NONE],
+        modifiers: [],
+        when: MouseState.SCROLLING
+    });
+    map.set(ActionName.POINT_ZOOM_OUT, {
+        keyCombination: [MouseButton$1.NONE],
+        modifiers: [],
+        when: MouseState.SCROLLING
+    });
+    map.set(ActionName.ZOOM_IN, {
+        keyCombination: [MouseButton$1.MIDDLE],
+        modifiers: [],
+        when: MouseState.DRAGGING + " "
+    });
+    map.set(ActionName.ZOOM_OUT, {
+        keyCombination: [MouseButton$1.MIDDLE],
+        modifiers: [],
+        when: "" + MouseState.DRAGGING
+    });
+    return map;
+};var InputMap = /** @class */ (function () {
+    function InputMap() {
+        this.map = Default$1();
+    }
+    Object.defineProperty(InputMap.prototype, "Mapping", {
+        get: function () {
+            return this.map;
+        },
+        set: function (map) {
+            this.map = map;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    return InputMap;
+}());
+function JsonToInputMap(json) {
+    var e_1, _a;
+    var map = new Map();
+    try {
+        for (var _b = __values$1(Object.entries(json)), _c = _b.next(); !_c.done; _c = _b.next()) {
+            var _d = __read$1(_c.value, 2), action = _d[0], binding = _d[1];
+            map.set(action, {
+                keyCombination: binding.keyCombination,
+                modifiers: binding.modifiers,
+                when: binding.when
+            });
+        }
+    }
+    catch (e_1_1) { e_1 = { error: e_1_1 }; }
+    finally {
+        try {
+            if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+        }
+        finally { if (e_1) throw e_1.error; }
+    }
+    return map;
+}var mouseMappings = [
+    {
+        id: '1',
+        name: 'Vcollab',
+        default: true,
+        mapping: [
+            { id: '1', control: '13', action: '1', when: MouseState.DRAGGING },
+            { id: '2', control: '12', action: '2', when: MouseState.DRAGGING },
+            { id: '3', control: '3', action: '5', when: MouseState.SCROLLING },
+            { id: '4', control: '3', action: '6', when: MouseState.SCROLLING },
+            { id: '5', control: '5', action: '3', when: MouseState.DRAGGING },
+            { id: '6', control: '5', action: '4', when: MouseState.DRAGGING }
+        ]
+    },
+    {
+        id: '2',
+        name: 'Abaqus',
+        default: false,
+        mapping: [
+            { id: '1', control: '2', action: '1', when: MouseState.DRAGGING },
+            { id: '2', control: '1', action: '2', when: MouseState.DRAGGING },
+            { id: '3', control: '3', action: '5', when: MouseState.SCROLLING },
+            { id: '4', control: '3', action: '6', when: MouseState.SCROLLING },
+            { id: '5', control: '4', action: '3', when: MouseState.DRAGGING },
+            { id: '6', control: '4', action: '4', when: MouseState.DRAGGING }
+        ]
+    },
+    {
+        id: '3',
+        name: 'SolidWorks',
+        default: false,
+        mapping: [
+            { id: '1', control: '6', action: '1', when: MouseState.DRAGGING },
+            { id: '2', control: '5', action: '2', when: MouseState.DRAGGING },
+            { id: '3', control: '3', action: '5', when: MouseState.SCROLLING },
+            { id: '4', control: '3', action: '6', when: MouseState.SCROLLING },
+            { id: '5', control: '7', action: '3', when: MouseState.DRAGGING },
+            { id: '6', control: '7', action: '4', when: MouseState.DRAGGING }
+        ]
+    },
+    {
+        id: '4',
+        name: 'HyperView',
+        default: false,
+        mapping: [
+            { id: '1', control: '6', action: '1', when: MouseState.DRAGGING },
+            { id: '2', control: '5', action: '2', when: MouseState.DRAGGING },
+            { id: '3', control: '3', action: '5', when: MouseState.SCROLLING },
+            { id: '4', control: '3', action: '6', when: MouseState.SCROLLING },
+            { id: '5', control: '7', action: '3', when: MouseState.DRAGGING },
+            { id: '6', control: '7', action: '4', when: MouseState.DRAGGING }
+        ]
+    },
+    {
+        id: '5',
+        name: 'ProEngineer',
+        default: false,
+        mapping: [
+            { id: '1', control: '7', action: '1', when: MouseState.DRAGGING },
+            { id: '2', control: '5', action: '2', when: MouseState.DRAGGING },
+            { id: '3', control: '3', action: '5', when: MouseState.SCROLLING },
+            { id: '4', control: '3', action: '6', when: MouseState.SCROLLING },
+            { id: '5', control: '6', action: '3', when: MouseState.DRAGGING },
+            { id: '6', control: '6', action: '4', when: MouseState.DRAGGING }
+        ]
+    },
+    {
+        id: '6',
+        name: 'NX',
+        default: false,
+        mapping: [
+            { id: '1', control: '10', action: '1', when: MouseState.DRAGGING },
+            { id: '2', control: '5', action: '2', when: MouseState.DRAGGING },
+            { id: '3', control: '3', action: '5', when: MouseState.SCROLLING },
+            { id: '4', control: '3', action: '6', when: MouseState.SCROLLING },
+            { id: '5', control: '11', action: '3', when: MouseState.DRAGGING },
+            { id: '6', control: '11', action: '4', when: MouseState.DRAGGING }
+        ]
+    }
+];var Input = /** @class */ (function () {
+    function Input(container) {
+        this.container = container;
+        this.actions = new Actions();
+        this.mouseInputMap = new InputMap();
+        this.mouse = new MouseInput(container, this.mouseInputMap);
+        this.registerEvents();
+    }
+    Input.prototype.registerEvents = function () {
+        this.mouse.registerEvents();
+    };
+    Object.defineProperty(Input.prototype, "Actions", {
+        get: function () {
+            return this.actions;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Object.defineProperty(Input.prototype, "Mouse", {
+        get: function () {
+            return this.mouse;
+        },
+        enumerable: false,
+        configurable: true
+    });
+    Input.prototype.setMouseMappings = function (json) {
+        var out = JsonToInputMap(json);
+        if (out instanceof Object) {
+            this.mouseInputMap.Mapping = out;
+            return true;
+        }
+        else {
+            return false;
+        }
+    };
+    Input.prototype.getSystemMouseMappings = function () {
+        return mouseMappings;
+    };
+    return Input;
+}());/*
+    This class is the commands registry. It has mapping to action name and the command to be executed.
+    Mostly this class wont be changed dynamically, as its only purpose is to add new commands and map it
+    to a unique action name provided by the 'ActionName' enum
+*/
+var Commands = /** @class */ (function () {
+    function Commands() {
+        this.map = new Map([
+            [ActionName.ROTATE, {
+                    execute: function () {
+                        var _a;
+                        if ((_a = AppObjects.input) === null || _a === void 0 ? void 0 : _a.Mouse) {
+                            var _b = __read$1(AppObjects.input.Mouse.LastXY, 2), lastX = _b[0], lastY = _b[1];
+                            var _c = __read$1(AppObjects.input.Mouse.NewXY, 2), newX = _c[0], newY = _c[1];
+                            AppObjects.renderer.camControl.onMouseRotation(newX, newY, lastX, lastY);
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                }],
+            [ActionName.PAN, {
+                    execute: function () {
+                        var _a;
+                        if ((_a = AppObjects.input) === null || _a === void 0 ? void 0 : _a.Mouse) {
+                            var _b = __read$1(AppObjects.input.Mouse.LastXY, 2), lastX = _b[0], lastY = _b[1];
+                            var _c = __read$1(AppObjects.input.Mouse.NewXY, 2), newX = _c[0], newY = _c[1];
+                            AppObjects.renderer.camControl.onMousePanRotation(newX, newY, lastX, lastY);
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                }],
+            [ActionName.POINT_ZOOM_IN, {
+                    execute: function () {
+                        var _a;
+                        if ((_a = AppObjects.input) === null || _a === void 0 ? void 0 : _a.Mouse) {
+                            AppObjects.renderer.camControl.setZoomType(ZoomType.MOUSE_WHEEL);
+                            var _b = __read$1(AppObjects.input.Mouse.NewXY, 2), newX = _b[0], newY = _b[1];
+                            var delta = AppObjects.input.Mouse.WheelDelta;
+                            if (delta > 0)
+                                AppObjects.renderer.camControl.pointZoomIn(newX, newY, 1);
+                            else
+                                return false;
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                }],
+            [ActionName.POINT_ZOOM_OUT, {
+                    execute: function () {
+                        var _a;
+                        if ((_a = AppObjects.input) === null || _a === void 0 ? void 0 : _a.Mouse) {
+                            AppObjects.renderer.camControl.setZoomType(ZoomType.MOUSE_WHEEL);
+                            var _b = __read$1(AppObjects.input.Mouse.NewXY, 2), newX = _b[0], newY = _b[1];
+                            var delta = AppObjects.input.Mouse.WheelDelta;
+                            if (delta < 0)
+                                AppObjects.renderer.camControl.pointZoomOut(newX, newY, 1);
+                            else
+                                return false;
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                }],
+            [ActionName.ZOOM_IN, {
+                    execute: function () {
+                        var _a;
+                        if ((_a = AppObjects.input) === null || _a === void 0 ? void 0 : _a.Mouse) {
+                            AppObjects.renderer.camControl.setZoomType(ZoomType.MIDDLE_ZOOM);
+                            var _b = __read$1(AppObjects.input.Mouse.NewXY, 2), newX = _b[0], newY = _b[1];
+                            var _c = __read$1(AppObjects.input.Mouse.LastXY, 2), lastX = _c[0], lastY = _c[1];
+                            var delta = AppObjects.input.Mouse.IsVerticalDrag ? lastY - newY : lastX - newX;
+                            if (delta > 0)
+                                AppObjects.renderer.camControl.zoomIn(delta);
+                            else
+                                return false;
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                }],
+            [ActionName.ZOOM_OUT, {
+                    execute: function () {
+                        var _a;
+                        if ((_a = AppObjects.input) === null || _a === void 0 ? void 0 : _a.Mouse) {
+                            AppObjects.renderer.camControl.setZoomType(ZoomType.MIDDLE_ZOOM);
+                            var _b = __read$1(AppObjects.input.Mouse.NewXY, 2), newX = _b[0], newY = _b[1];
+                            var _c = __read$1(AppObjects.input.Mouse.LastXY, 2), lastX = _c[0], lastY = _c[1];
+                            var delta = AppObjects.input.Mouse.IsVerticalDrag ? lastY - newY : lastX - newX;
+                            if (delta < 0)
+                                AppObjects.renderer.camControl.zoomOut(Math.abs(delta));
+                            else
+                                return false;
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
+                }],
+        ]);
+    }
+    Commands.prototype.has = function (action) {
+        return this.map.has(action);
+    };
+    Commands.prototype.get = function (action) {
+        return this.map.get(action);
+    };
+    return Commands;
+}());var App = /** @class */ (function () {
     function App(_containerID, _connectorObject) {
         this.containerID = _containerID;
         this.externalConnector = _connectorObject;
@@ -14260,10 +15036,14 @@ var Label3D = /** @class */ (function () {
         AppObjects.partManipulator = this.partManipulator;
         this.labelManager = new LabelManager$1();
         AppObjects.labelManager = this.labelManager;
+        this.input = new Input(containerDom);
+        AppObjects.input = this.input;
         this.mouseControl = new MouseControl(this.renderer.camControl);
         AppObjects.mouseControl = this.mouseControl;
         this.keyboardControl = new KeyboardControl(containerDom, this);
         AppObjects.keyboardControl = this.keyboardControl;
+        this.commands = new Commands();
+        AppObjects.commands = this.commands;
         this.renderer.startRenderLoop();
         return true;
     };
@@ -14912,6 +15692,17 @@ var Label3D = /** @class */ (function () {
         return renderNodes.filter(function (node) { return node.visible == false; })
             .map(function (node) { return node.index; });
     };
+    //#region input
+    App.prototype.setMouseInputMapping = function (json) {
+        return this.input.setMouseMappings(json);
+    };
+    App.prototype.getMouseInputData = function () {
+        return { controls: this.input.Mouse.getControls(), actions: this.input.Mouse.getActions() };
+    };
+    App.prototype.getSystemMouseMappings = function () {
+        return this.input.getSystemMouseMappings();
+    };
+    //#endregion
     //#region probing && selection API
     App.prototype.getRenderNodesFromId = function (nodeIndexList) {
         var nodes = this.sceneManager.getRenderNodes();
@@ -15159,6 +15950,17 @@ var vctViewer = /** @class */ (function () {
         this.appli.downloadNetworkMetrics();
     };
     //#endregion
+    //#region input
+    vctViewer.prototype.setMouseInputMappings = function (json) {
+        return this.appli.setMouseInputMapping(json);
+    };
+    vctViewer.prototype.getMouseInputData = function () {
+        return this.appli.getMouseInputData();
+    };
+    vctViewer.prototype.getSystemMouseMappings = function () {
+        return this.appli.getSystemMouseMappings();
+    };
+    // 
     vctViewer.prototype.pickFromNodes = function (nodes, mouseXY) {
         this.appli.pickFromNodes(nodes, mouseXY);
     };
@@ -15351,7 +16153,7 @@ var vctViewer = /** @class */ (function () {
             event.clientY - rect.top
         ];
         var data = this.probeFromNodes({ xyFromTop: xyFromTop, width: rect.width, height: rect.height });
-        console.log("probeData", data);
+        //console.log("probeData",data);
         this.handleHighlight(data);
     };
     Viewer.prototype.handleHighlight = function (probeData) {
@@ -15383,6 +16185,17 @@ var vctViewer = /** @class */ (function () {
         if (onlyVisible === void 0) { onlyVisible = true; }
         var bbox = this.renderApp.getSceneBoundingBox(onlyVisible);
         return bbox.clone();
+    };
+    //#endregion
+    //#region Input
+    Viewer.prototype.setMouseInputMapping = function (json) {
+        return this.renderApp.setMouseInputMappings(json);
+    };
+    Viewer.prototype.getMouseInputData = function () {
+        return this.renderApp.getMouseInputData();
+    };
+    Viewer.prototype.getSystemMouseMappings = function () {
+        return this.renderApp.getSystemMouseMappings();
     };
     //#endregion
     //#region product tree
@@ -15861,7 +16674,7 @@ var vctViewer = /** @class */ (function () {
         else {
             var repIds = this.productTree.getRenderNodeIdsFromNodeIds(selectedNodes);
             this.renderApp.fitView(repIds);
-            console.log("fitView for", repIds);
+            //console.log("fitView for",repIds);
         }
         return 'SUCCESS';
     };
@@ -17976,6 +18789,29 @@ var ViewerManager = /** @class */ (function () {
         Logger.setExternalLogger(externalLogger);
     };
     //#endregion
+    //#region Input
+    ViewerManager.prototype.setMouseInputMapping = function (json, viewerUUID) {
+        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if (viewer) {
+            return viewer.setMouseInputMapping(json);
+        }
+        return false;
+    };
+    ViewerManager.prototype.getMouseInputData = function (viewerUUID) {
+        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if (viewer) {
+            return viewer.getMouseInputData();
+        }
+        return null;
+    };
+    ViewerManager.prototype.getSystemMouseMappings = function (viewerUUID) {
+        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        if (viewer) {
+            return viewer.getSystemMouseMappings();
+        }
+        return null;
+    };
+    //#endregion 
     //#region part and product tree
     ViewerManager.prototype.getProductTree = function (viewerUUID) {
         var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);

@@ -1,7 +1,7 @@
 import MuiGrid from'@material-ui/core/Grid';
 import MuiIconButton from '@material-ui/core/IconButton';
 import MuiButton from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid'
+import Grid from '@material-ui/core/Grid';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 import ListSubheader from '@material-ui/core/ListSubheader';
 
@@ -16,14 +16,15 @@ import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import {goBack} from 'connected-react-router/immutable';
 
 import  {Source} from '../../../../components/shared/List/List';
-import Title from'../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title'
-import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction'
+import Title from'../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
+import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
 import Input from '../components/ActionControlEdit'; 
-import FooterOptionsContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
-import FooterOption from'../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
+import FooterOptionsContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer';
+import FooterOption from'../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option';
 
 import {
   selectUserProvided,
+  selectSystemProvided,
   addItemToMouseControlsList,
   selectisResetMouseControlList,
   selectActiveMenuId,
@@ -42,8 +43,6 @@ import {
   setControlReadOnly,
   selectdefaultMouseControlList
 
-
-
 } from '../../../../store/sideBar/settings';
 
 import { useAppSelector,useAppDispatch } from '../../../../store/storeHooks';
@@ -54,6 +53,7 @@ const dispatch = useAppDispatch();
 
 const isResetMouseControlList = useAppSelector(selectisResetMouseControlList);
 const menuItemList = useAppSelector(selectmenuItems);
+const systemProvided = useAppSelector(selectSystemProvided);
 const userProvided = useAppSelector(selectUserProvided);
 const actions = useAppSelector(selectactions);
 const controls = useAppSelector(selectcontrols);
@@ -61,7 +61,6 @@ const activeMenuId = useAppSelector(selectActiveMenuId);
 const itemSaved = useAppSelector(selectItemSaved);
 const isControlReadyOnly = useAppSelector(selectIsControlReadOnly);
 const defaultMouseControls = useAppSelector(selectdefaultMouseControlList);
-
 
 const [menuItem, setItem] = useState(activeMenuId);
 
@@ -214,6 +213,7 @@ const getBody=()=>{
  
 const getSelectedUserData = (id:string) => {
 
+
   let userData:any[] =[];
 
   menuItemList?.map((item)=>{
@@ -236,9 +236,17 @@ const getSelectedUserData = (id:string) => {
        }
        else {
       
-           const controlAndAction = getControlandActions(defaultMouseControls.list);
+        systemProvided.forEach((item) => {
+
+          if(item.id === id) {
+
+      
+           const controlAndAction = getControlandActions(item.list);
       
            userData = controlAndAction;
+      
+          }
+        })
 
 
        }
@@ -252,44 +260,44 @@ const getSelectedUserData = (id:string) => {
 
 const getControlandActions = (list:MouseControlListItem[]) => {
 
-  let listData:any[] = [];
 
-  list.forEach((item)=> {
+let listData:any[] = [];
 
-  const control = controls.filter((controlItem) => {
+list.forEach((item)=> {
+
+const control = controls.filter((controlItem) => {
 
     if(controlItem.id === item.control ) {
-
 
       return true;
 
     }
 
-    })
-
-
-
-   const action = actions.filter((actionItem) =>{
-
-    if(actionItem.id === item.action) {
-
-      return true
-    }
-
-
-   }) 
-
-   listData.push({rowId:item.id,control:control[0],action:action[0]});
-
-
   })
 
-  return listData;
+
+const action = actions.filter((actionItem) => {
+
+if(actionItem.id === item.action) {
+
+  return true
+}
+
+}) 
+
+
+  listData.push({rowId:item.id,control:control[0],action:action[0]});
+
+
+})
+
+return listData;
 
 
 }
  
 let selectedUserData = getSelectedUserData(activeMenuId);
+
 
 
   return (
@@ -306,11 +314,11 @@ let selectedUserData = getSelectedUserData(activeMenuId);
 
             <MuiGrid item xs={6}>
 
-            <div  style={{textAlign:'center',marginLeft:'-60px'}}>Actions</div> 
+              {isControlReadyOnly ? <div  style={{textAlign:'center',marginLeft:'-10px'}}>Actions</div> :<div  style={{textAlign:'center',marginLeft:'-60px'}}>Actions</div> }
 
-        </MuiGrid>
+            </MuiGrid>
 
-    </MuiGrid>
+     </MuiGrid>
 
                {
                  selectedUserData?.map((item:{rowId:string,control:Control,action:Action}) => {
@@ -370,7 +378,6 @@ return (
     footer={getFooter()}
   />
   
-
 )
 
 }

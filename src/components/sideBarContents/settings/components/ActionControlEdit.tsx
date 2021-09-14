@@ -7,6 +7,7 @@ import MuiList from '@material-ui/core/List';
 import MuiListItem from '@material-ui/core/ListItem';
 import MuiListItemText from '@material-ui/core/ListItemText';
 import MuiArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import MuiTooltip from '@material-ui/core/Tooltip';
 //import MuiButton from '@material-ui/core/Button';
 
 
@@ -29,8 +30,8 @@ import {useAppSelector ,useAppDispatch} from '../../../../store/storeHooks';
 import {
     selectactions,
     selectcontrols,
-    setControls,
-    setActions,
+    setUserControls,
+    setUserActions,
     deleteItemToMouseControlList,
     selectActiveMenuId,
     Control,
@@ -99,9 +100,9 @@ useEffect(()=> {
        const controlItemId = controlItem;
        const actionItemId = actionItem;
    
-       dispatch(setControls({controlItemId,rowId,activeMenuId}));
+       dispatch(setUserControls({controlItemId,rowId,activeMenuId}));
    
-       dispatch(setActions({actionItemId,rowId,activeMenuId}));
+       dispatch(setUserActions({actionItemId,rowId,activeMenuId}));
 
        dispatch(setItemSave(false));
    
@@ -200,6 +201,7 @@ const EmpetyDiv=() => {
     )
 }
 
+
     return (
                isControlReadyOnly?
                (<div >
@@ -214,10 +216,36 @@ const EmpetyDiv=() => {
 
                                         if(item.id === controlItem) {
 
-                                            return (
+                                            let displayText = ''
 
-                                                <MuiListItemText primary={item.text}></MuiListItemText>
-                                            )
+                                            item.modifiers.map((keyNames)=>{
+
+                                                displayText = displayText+keyNames.name+"+"
+
+                                            })
+
+                                                const text = displayText+item.keys.name;
+                                                let short = text.slice(0,10);
+
+                                                if(short.length >= 10) {
+
+                                                   short = short.slice(0,10)+".."
+
+
+                                                }
+                                                else {
+                                                    short =  short.slice(0,10)
+
+                                                }
+
+                                                return(
+              
+                                                    <MuiTooltip title={text} placement="top">
+                                                    <MuiListItemText  primary={short}></MuiListItemText>
+                                                    </MuiTooltip>
+
+                                                )
+
 
                                         }
                                     }
@@ -232,9 +260,24 @@ const EmpetyDiv=() => {
 
                                             if(item.id === actionItem) {
 
-                                                return (
+                                                const text = item.name;
+                                                let short = text.slice(0,8);
 
-                                                    <MuiListItemText style={{marginLeft:'20px'}} primary={item.text}></MuiListItemText>
+                                                if(short.length >= 8) {
+
+                                                   short = short.slice(0,8)+".."
+
+
+                                                }
+                                                else {
+                                                    short =  short.slice(0,10)
+
+                                                }
+
+                                                return (
+                                                   <MuiTooltip title={item.name} placement="top">
+                                                    <MuiListItemText style={{marginLeft:'50px'}} primary={short}></MuiListItemText>
+                                                   </MuiTooltip>
                                                 )
                                                 
                                             }
@@ -257,6 +300,44 @@ const EmpetyDiv=() => {
                                             onOpen={handleLeftOpen}
                                             input={<CustomizedInput />}
                                             value={controlItem}
+                                            renderValue={() => <div>{controls?.map((item)=> {
+
+                                                if(item.id === controlItem) {
+
+                                                let displayText = ''
+
+                                                item.modifiers.map((keyNames)=>{
+
+                                                    displayText = displayText+keyNames.name+"+"
+
+                                                })
+
+
+                                                    const text = displayText+item.keys.name;
+                                                    let short = text.slice(0,10);
+
+                                                    if(short.length >= 10) {
+
+                                                       short = short.slice(0,10)+".."
+
+
+                                                    }
+                                                    else {
+                                                        short =  short.slice(0,10)
+
+                                                    }
+
+                                                    return(
+
+                                                       short
+
+                                                    )
+                                            }
+
+                                            }
+                                        
+                                            
+                                            )}</div>}
                                             onChange={(e)=>handleControlChange(e,props.item.rowId)}
                                             IconComponent={controlMouseOver?MuiArrowDropDownIcon:EmpetyDiv}
                                             onMouseOver={()=>setControlMouseOver(true)} 
@@ -272,10 +353,24 @@ const EmpetyDiv=() => {
                                             }}
 
                                             >
-                                                {controls?.map((item)=>
+                                                {controls?.map((item)=> {
+
+                                                    let displayText = ''
+
+                                                    item.modifiers.map((keyNames)=>{
+
+                                                        displayText = displayText+keyNames.name+"+"
+
+                                                    })
+
+                                                        return(
+                                                            <MuiMenuItem value={item.id} 
+                                                            >{displayText+item.keys.name}</MuiMenuItem>
+
+                                                        )
+                                                }
                                             
-                                                <MuiMenuItem value={item.id} 
-                                                >{item.text}</MuiMenuItem>
+                                                
                                                 )}
 
                                             </MuiSelect>
@@ -289,6 +384,35 @@ const EmpetyDiv=() => {
                                             onOpen={handleRightOpen}
                                             input={<CustomizedInput />}
                                             value={actionItem}
+                                            renderValue={() => <div>{actions?.map((item)=> {
+
+                                                if(item.id === actionItem) {
+
+                                                    let short = item.name.slice(0,8);
+
+                                                    if(short.length >= 8) {
+
+                                                       short = short.slice(0,10)+".."
+
+
+                                                    }
+                                                    else {
+                                                        short =  short.slice(0,10)
+
+                                                    }
+
+                                                    return(
+
+                                                       short
+
+                                                    )
+                                                
+                                            }
+
+                                            }
+                                        
+                                            
+                                            )}</div>}
                                             onChange={(e)=>handleActionsChange(e,props.item.rowId)}
                                             IconComponent={actionMouseOver?MuiArrowDropDownIcon:EmpetyDiv}
                                             onMouseOver={()=>setActionMouseOver(true)} 
@@ -307,7 +431,7 @@ const EmpetyDiv=() => {
 
                                                     <MuiMenuItem  value={item.id}>
                                                         <div className={classes.alignMenuItem}>
-                                                            <div >{item.text}</div>
+                                                            <div >{item.name}</div>
                                                         </div>
 
                                                     </MuiMenuItem>
