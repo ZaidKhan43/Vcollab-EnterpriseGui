@@ -77,6 +77,7 @@
     ]
   },
   "devDependencies": {
-    "@types/autosuggest-highlight": "^3.1.1"
+    "@types/autosuggest-highlight": "^3.1.1",
+    "ncp": "^2.0.0"
   }
 }
