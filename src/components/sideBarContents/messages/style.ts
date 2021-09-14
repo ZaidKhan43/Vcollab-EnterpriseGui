@@ -31,4 +31,30 @@ export default makeStyles((theme) => ({
           outline: '1px solid slategrey'
         },
       },
+
+      card:{
+        marginTop:"20px",
+        paddingBottom:"5px",
+        borderBottom: "1px solid "
+      },
+
+      cardTopPadding:{
+        paddingTop:"10px",
+      },
+
+      simpleIcon:{
+        marginLeft:"34px",
+        marginRight:"15px",
+        marginTop:"-7px",
+      },
+
+      transferIcon:{
+        marginLeft:"20px",
+        marginRight:"15px",
+      },
+
+      buttonStyle:{
+        width:"20%",
+        fontSize:"12px",
+      },
 }));

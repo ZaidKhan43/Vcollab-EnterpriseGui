@@ -1,12 +1,9 @@
-import MuiTypography from '@material-ui/core/Typography';
 import MuiIconButton from '@material-ui/core/IconButton';
-import MuiToolTip from '@material-ui/core/Tooltip';
-import MuiBackIcon from '@material-ui/icons/ArrowBack'
 
 import SideBarContainer from '../../layout/sideBar/sideBarContainer';
 import styles from './style';
 
-import {goBack, push} from 'connected-react-router/immutable';
+import {goBack} from 'connected-react-router/immutable';
 import Title from '../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
 
 import SelectAction from '../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
@@ -16,22 +13,22 @@ import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
 import {editPause, editCancel, editCollapse, editSearch, filteredNotificationList} from "../../../store/sideBar/messageSlice";
 
 import BackButton from '../../../components/icons/back';
-import MuiCheckCircleOutlineOutlinedIcon from '@material-ui/icons/CheckCircleOutlineOutlined';
 import MuiGrid from '@material-ui/core/Grid';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
-import Box from '@material-ui/core/Box';
-import MuiButton from '@material-ui/core/Button';
-import MuiCancelOutlinedIcon from '@material-ui/icons/CancelOutlined';
 import Collapse from '@material-ui/core/Collapse';
-import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 
-import Card from './components/card'
+import CardSimple from './components/cardSimple';
+import CardTransfer from './components/cardTransfer';
+import {notificationType, notificationList} from '../../../store/sideBar/messageSlice';
+
 export default function Annotations(){
 
     const dispatch = useAppDispatch(); 
     const classes = styles();
+
+    const notificationList= useAppSelector(filteredNotificationList )
+    const [activeId, setActiveId] = useState(0);
 
     const toSelectList = [
         {
@@ -47,32 +44,6 @@ export default function Annotations(){
             name:"Display Modes",
         },
     ]
-
-    // const getNotificationList = (notificationList : any) => {
-    //     let data:any[] = [];
-    //     notificationList.forEach((item:any) => {
-    //         let newItem = {
-    //             id: item.id,
-    //             time:item.time,
-    //             title: item.card.title,
-    //             type:item.type,
-    //             // icon: getIcon(item.type, item.complete, item.pause, item.cancel),
-    //             pause: item.card.data.pause,
-    //             cancel: item.card.data.cancel,
-    //             timeLeft:item.card.data.timeLeft,
-    //             totalSize:item.card.data.totalSize,
-    //             transferredSize : item.card.data.transferredSize,
-    //             completed: item.card.data.totalSize === item.card.data.transferredSize ? true : false,
-    //             collapse: item.collapsed,
-    //             tags: item.tags,
-    //         }
-    //         data.push(newItem);
-    //     })
-    //     return data;
-    // }
-
-    const notificationList= useAppSelector(filteredNotificationList )
-    const [activeId, setActiveId] = useState(0);
 
     const onClickBackIcon = () =>{
         dispatch(goBack());
@@ -90,7 +61,7 @@ export default function Annotations(){
     }
 
     const onHandlePause = (id : number, pause : boolean) => {
-        console.log(id,pause)
+        // console.log(id,pause)
         if(pause)
             dispatch(editPause({id:id, value: false}));
         else
@@ -98,7 +69,6 @@ export default function Annotations(){
     }
 
     const onHandleCollapse = (id : number, boolean: boolean) => {
-
         if(boolean)
         dispatch(editCollapse({id, value: false}))
 
@@ -158,19 +128,35 @@ export default function Annotations(){
             if(index > 0 && notificationList[index -1].collapsed === false){
                 return(null);
             }
+
             return(
-                <MuiGrid container onClick={() => { countHide === 1 ? onHandleCollapse(id,false) :hiddenId.map(item => onHandleCollapse(item,false))}}>
-                    <MuiGrid item xs={1}></MuiGrid>
-                    <MuiGrid item xs={9}>
-                        <Typography >
-                            {`${countHide} Notification`} 
-                        </Typography>
+                <div className={classes.card}>
+                    <MuiGrid container onClick={() => { countHide === 1 ? onHandleCollapse(id,false) :hiddenId.map(item => onHandleCollapse(item,false))}}>
+                        <MuiGrid item xs={1}></MuiGrid>
+                        <MuiGrid item xs={9}>
+                            <Typography >
+                                {`${countHide} Notification`} 
+                            </Typography>
+                        </MuiGrid>
+                        <MuiGrid item>
+                            <ExpandMore />
+                        </MuiGrid>
                     </MuiGrid>
-                    <MuiGrid item>
-                        <ExpandMore />
-                    </MuiGrid>
-                </MuiGrid>
+                </div>
             )
+        }
+    }
+
+    const getCard = (item : notificationList) => {
+        switch(item.card.type){
+            case(notificationType.SIMPLE_MESSAGE):
+                return(
+                    <CardSimple item={item} handleCollapse={onHandleCollapse}/>
+                )
+            case(notificationType.NETWORK_TRANSFER_MESSAGE):
+                return(
+                    <CardTransfer item={item} handleCollapse={onHandleCollapse} handlePause={onHandlePause} handleCancel={onHandleCancel}/>
+                )
         }
     }
 
@@ -179,15 +165,17 @@ export default function Annotations(){
         return (
             <div className={classes.scrollBar}>
                 {notificationList.map((item: any,index:number) => 
-                    <div  style={{marginTop:"20px"}}>
+                    <span>
                         {   !item.collapsed
                             && 
                                 newCollapse(item.id)
                         }
                         <Collapse in={item.collapsed} >
-                            <Card item={item} handleCollapse={onHandleCollapse} handlePause={onHandlePause} handleCancel={onHandleCancel}/>
+                            <div className={classes.card}>
+                            {getCard(item)}
+                            </div>
                         </Collapse>
-                    </div>
+                    </span>
                 )}
             </div>
         )

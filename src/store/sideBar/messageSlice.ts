@@ -27,7 +27,7 @@ type simpleData = {
     body: string[],
 }
 
-interface notificationList {
+export type notificationList= {
     id: number,
     time: Date,
     card:{
@@ -84,7 +84,7 @@ const initialState : messages = {
             time: new Date(),
             card:{
                 type:notificationType.NETWORK_TRANSFER_MESSAGE,
-                title:"Downloaded Show Mesh",
+                title:"Downloading Show Mesh",
                 icon:iconType.COMPLETED,
                 data:{
                     totalSize:2024,
@@ -102,11 +102,30 @@ const initialState : messages = {
             time: new Date(),
             card:{
                 type:notificationType.NETWORK_TRANSFER_MESSAGE,
-                title:"Paused Simplified Mesh",
+                title:"Downloading Simplified Mesh",
                 icon: iconType.PAUSE,
                 data:{
                     totalSize:4048,
                     transfferedSize:1028,
+                    timeLeft:"4 Minutes Left",
+                    pause:true,
+                    cancel:false,
+                },
+            },
+            collapsed:true,
+            tags:["Display Modes"],
+        },
+
+        {
+            id:4,
+            time: new Date(),
+            card:{
+                type:notificationType.NETWORK_TRANSFER_MESSAGE,
+                title:"Downloading Simplified Mesh",
+                icon: iconType.COMPLETED,
+                data:{
+                    totalSize:4048,
+                    transfferedSize:4048,
                     timeLeft:"4 Minutes Left",
                     pause:true,
                     cancel:false,
