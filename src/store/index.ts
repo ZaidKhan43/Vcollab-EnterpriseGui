@@ -13,6 +13,7 @@ import mainMenuSlice  from './mainMenuSlice';
 import sceneSlice from './sideBar/sceneSlice';
 import materialColorSlice from './sideBar/materialColorSlice';
 import settingSlice from './sideBar/settings'
+import messageSlice from './sideBar/messageSlice';
 
 export const history = createHashHistory({
   hashType: 'slash',
@@ -32,7 +33,8 @@ const store = configureStore({
         displayModes: displayModesSlice,
         toast: toastSlice,
         colormaps: colormapSlice,
-        settings: settingSlice
+        settings: settingSlice,
+        message: messageSlice,
       }),
     middleware: getDefaultMiddleware({
       serializableCheck: {

@@ -5,6 +5,7 @@ import AssemblyTree from './pages/AssemblyTree'
 import Search from './pages/Search'
 import DisplayModes from './pages/DisplayModes'
 import { useEffect } from 'react'
+import MaterialColor from './pages/materialColor'
 function ProductExplorer() {
     
     return (
@@ -17,6 +18,9 @@ function ProductExplorer() {
             </Route>
             <Route path={Routes.GEOMETRY_DISPLAY_MODES}>
                 <DisplayModes/>
+            </Route>
+            <Route path={Routes.GEOMERTY_MATERIAL_COLOR}>
+                <MaterialColor/>
             </Route>
         </Switch>
         

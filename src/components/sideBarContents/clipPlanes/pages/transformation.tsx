@@ -219,7 +219,7 @@ export default function ClipPlanes(props : any){
           <MuiTypography variant="h2" className={classes.settingPageCaption} noWrap>
             Plane Equation
           </MuiTypography>
-          <div style={{width:"90%", margin:"auto"}}>
+          <div style={{width:"90%"}}>
             <MuiInput disabled inputProps={{style: { textAlign: 'center' ,},}} className={classes.disabledTextBox} value={`${Math.round(clipCordX*1000)/1000}X ${Math.sign(clipCordY)===1 || Math.sign(clipCordY) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordY*1000)/1000)}Y ${Math.sign(clipCordZ) === 1 || Math.sign(clipCordZ) === 0 ? "+" : "-"} ${Math.abs(Math.round(clipCordZ*1000)/1000)}Z = ${Math.round(clipConstD*1000)/1000}`}/>
           </div>
         </div>
@@ -242,7 +242,9 @@ export default function ClipPlanes(props : any){
                 </MuiIconButton>
               </MuiGrid>
               <MuiGrid item>
-                <MuiTypography className={classes.caption} variant="caption" noWrap>Flip Direction</MuiTypography>
+                <MuiTypography className={classes.caption} variant="caption" noWrap>
+                  Flip Direction
+                </MuiTypography>
               </MuiGrid>
             </MuiGrid>
           </MuiGrid>
@@ -253,7 +255,7 @@ export default function ClipPlanes(props : any){
       </div>
 
       <div className={classes.settingItemContainer}>
-      <MuiTypography className={classes.settingPageCaption}>
+      <MuiTypography variant="h2" className={classes.settingPageCaption}>
           Translate
         </MuiTypography>
           <TranslateSlider  

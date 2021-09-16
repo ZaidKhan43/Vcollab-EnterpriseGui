@@ -101,6 +101,9 @@ export default function List(){
 
   const [deleteMessage, setDeleteMessage] = useState<string>("");
 
+  const [openMoreOption,setOpenMoreOption] = useState(false)
+  const [anchorElMoreOption, setAnchorElMoreOption] = useState(null);
+
   const mainMenu = useAppSelector(selectMainMenu);
    
   // disable and inable the clipPlane menu items
@@ -293,8 +296,6 @@ export default function List(){
     )
   }
 
-  const [openMoreOption,setOpenMoreOption] = useState(false)
-  const [anchorElMoreOption, setAnchorElMoreOption] = useState(null);
   const handleClickMoreOption = (e : any) => {
     setOpenMoreOption(!openMoreOption)
     setAnchorElMoreOption( e.currentTarget );

@@ -21,7 +21,7 @@ import Scene from "../../sideBarContents/scene";
 import Views from '../../sideBarContents/views';
 import Annotations from '../../sideBarContents/annotations';
 import Settings from '../../sideBarContents/settings';
-import Notifications from '../../sideBarContents/notifications';
+import Messages from '../../sideBarContents/messages';
 
 export default function Sidebar(){
     
@@ -53,6 +53,10 @@ export default function Sidebar(){
         <ClipPlanes/>
         </Route>
         {/* <Route>
+        <Route path={Routes.MESSAGES}>
+        <Messages />     
+        </Route>
+        <Route>
         <Colormaps />
         </Route>
         <Route>

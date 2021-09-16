@@ -26,7 +26,9 @@ export enum Routes {
     SETTINGS = "/settings",
     SETTINGS_THEME = "/settings/theme",
     SETTINGS_MOUSE_CONTROLS ="/settings/mousecontrols",
-    SETTINGS_MOUSE_CONTROLS_EDIT ="/settings/mousecontrols/edit"
-    
+    SETTINGS_MOUSE_CONTROLS_EDIT ="/settings/mousecontrols/edit",
 
+    MESSAGES = "/messages",
+
+    
 }

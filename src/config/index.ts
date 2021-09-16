@@ -36,6 +36,7 @@ export const sideBarContentTypes = {
   annotations : 'annotations',
   settings : 'settings',
   notifications : 'notifications',
+  // scene : "scene",
 };
 
 
