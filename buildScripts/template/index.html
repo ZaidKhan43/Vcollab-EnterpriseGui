@@ -29,6 +29,7 @@
 				var para = document.createElement("p");
 				var aLink = document.createElement('a'); 
 				aLink.href = item.url;
+        item.url.replace("viewer.html?","viewer.html/?");
 				aLink.target = "renderer";
                 var link = document.createTextNode(item.name); 
                 aLink.appendChild(link);  
