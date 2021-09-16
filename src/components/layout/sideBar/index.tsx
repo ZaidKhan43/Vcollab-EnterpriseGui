@@ -52,10 +52,10 @@ export default function Sidebar(){
         <Route path={Routes.CLIPPLANES} >
         <ClipPlanes/>
         </Route>
-        {/* <Route>
         <Route path={Routes.MESSAGES}>
         <Messages />     
         </Route>
+        {/* <Route>
         <Route>
         <Colormaps />
         </Route>
@@ -71,9 +71,6 @@ export default function Sidebar(){
         <Route path={Routes.SETTINGS}>
         <Settings/>
          </Route>
-       {/* <Route>
-        <Notifications />     
-        </Route> */}
       </Switch>)
       
     };
