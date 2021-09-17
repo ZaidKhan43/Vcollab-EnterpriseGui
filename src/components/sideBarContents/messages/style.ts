@@ -57,4 +57,8 @@ export default makeStyles((theme) => ({
         width:"20%",
         fontSize:"12px",
       },
+
+      simpleCard:{
+        marginLeft:"14px",
+      }
 }));

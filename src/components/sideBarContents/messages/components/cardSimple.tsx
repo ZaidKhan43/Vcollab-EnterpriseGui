@@ -32,7 +32,7 @@ export default function CardSimple(props:any){
                         </MuiGrid>
                         <MuiGrid item xs={8}>
                             <MuiGrid container direction="column">
-                                <MuiGrid item>
+                                <MuiGrid item className={classes.simpleCard}>
                                     <Typography variant="h2" align="left">
                                         {item.card.title}
                                     </Typography>
