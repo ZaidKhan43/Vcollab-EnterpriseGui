@@ -1,7 +1,7 @@
-import MuiIconButton from '@material-ui/core/IconButton';
-
 import SideBarContainer from '../../layout/sideBar/sideBarContainer';
 import styles from './style';
+
+import {useEffect} from 'react';
 
 import {goBack} from 'connected-react-router/immutable';
 import Title from '../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
@@ -21,6 +21,7 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import CardSimple from './components/cardSimple';
 import CardTransfer from './components/cardTransfer';
 import {notificationType, notificationList} from '../../../store/sideBar/messageSlice';
+import MuiIconButton from '@material-ui/core/IconButton';
 
 export default function Annotations(){
 
@@ -31,6 +32,10 @@ export default function Annotations(){
     const [activeId, setActiveId] = useState(0);
 
     const toSelectList = [
+        {
+            id: -1,
+            name:"Custom",
+        },
         {
             id:0,
             name:"All",
@@ -43,7 +48,22 @@ export default function Annotations(){
             id:2,
             name:"Display Modes",
         },
+
+        {
+            id: 3,
+            name:"Network Transfer",
+        }
     ]
+
+    useEffect(() => {
+        const nati = notificationList.filter(item => item.collapsed);
+        if(nati.length !== notificationList.length)
+            setActiveId(-1);
+            if(nati.length === notificationList.length)
+                {
+                    setActiveId(0);
+                }
+      },[notificationList]);
 
     const onClickBackIcon = () =>{
         dispatch(goBack());
@@ -74,6 +94,8 @@ export default function Annotations(){
 
         else
         dispatch(editCollapse({id, value: true}))
+
+        setActiveId(-1);
     }
 
     const onHandleCancel = (id: number) => {
@@ -97,9 +119,14 @@ export default function Annotations(){
                 }}
             >
                 { 
+                    activeId === -1 
+                    ?
                     toSelectList.map((item) => 
-                        <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem> 
-                )}
+                        <MuiMenuItem disabled={item.id=== -1} value={item.id}>{item.name}</MuiMenuItem> )
+                    :
+                    toSelectList.filter(item => item.id !== -1).map((item) => 
+                        <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem> )
+                }
             </SelectAction>
         );
     }
@@ -133,13 +160,15 @@ export default function Annotations(){
                 <div className={classes.card}>
                     <MuiGrid container onClick={() => { countHide === 1 ? onHandleCollapse(id,false) :hiddenId.map(item => onHandleCollapse(item,false))}}>
                         <MuiGrid item xs={1}></MuiGrid>
-                        <MuiGrid item xs={9}>
+                        <MuiGrid item xs={9} className={classes.notification}>
                             <Typography >
                                 {`${countHide} Notification`} 
                             </Typography>
                         </MuiGrid>
                         <MuiGrid item>
-                            <ExpandMore />
+                            <MuiIconButton size="small">
+                                <ExpandMore />
+                            </MuiIconButton>
                         </MuiGrid>
                     </MuiGrid>
                 </div>

@@ -63,7 +63,7 @@ const initialState : messages = {
                 },
             },
             collapsed:true,
-            tags:["Display Modes"],
+            tags:["Display Modes", "Network Transfer"],
         },
         {
             id:1,
@@ -95,7 +95,7 @@ const initialState : messages = {
                 },
             },
             collapsed:true,
-            tags:["Display Modes"],
+            tags:["Display Modes", "Network Transfer"],
         },
         {
             id:3,
@@ -113,7 +113,7 @@ const initialState : messages = {
                 },
             },
             collapsed:true,
-            tags:["Display Modes"],
+            tags:["Display Modes", "Network Transfer"],
         },
 
         {
@@ -132,7 +132,7 @@ const initialState : messages = {
                 },
             },
             collapsed:true,
-            tags:["Display Modes"],
+            tags:["Display Modes", "Network Transfer"],
         },
     ],
 
@@ -183,6 +183,25 @@ export const messageSlice = createSlice({
 
         editSearch :(state,action : PayloadAction<string>) => {
             state.search = action.payload; 
+            if(action.payload === "All"){
+                state.notificationLists.forEach( (item, index) => {
+                    item.collapsed = true;
+                    state.notificationLists[index] = item;
+                })
+            }
+
+            else{
+             state.notificationLists.forEach( (item, index) => {
+                if(item.tags.includes(action.payload)){
+                    item.collapsed = true;
+                    state.notificationLists[index] = item;
+                }
+                else{
+                    item.collapsed = false;
+                    state.notificationLists[index] = item;
+                }
+            })
+            }
         },
     }
 })
@@ -195,14 +214,6 @@ export const {editPause , editCancel , editCollapse, editSearch} = messageSlice.
 
 export const filteredNotificationList = (state : RootState) => {
 
-    const search = state.message.search;
-    let filteredNotificationList : notificationList[];
-    if(search === "All")
-        filteredNotificationList = state.message.notificationLists
-    else
-        filteredNotificationList = state.message.notificationLists.filter(item => item.tags.includes(search))
-    // return(notificationList)
-
-    const sortedNotificationList = sortWith([descend(prop("time"))], filteredNotificationList);
+    const sortedNotificationList = sortWith([descend(prop("time"))], state.message.notificationLists);
     return(sortedNotificationList)
   }

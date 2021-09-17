@@ -3,6 +3,7 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import Typography from '@material-ui/core/Typography';
 import MuiCheckCircleOutlineOutlinedIcon from '@material-ui/icons/CheckCircleOutlineOutlined';
 import DisplayTime from './displayTime';
+import MuiIconButton from '@material-ui/core/IconButton';
 import styles from '../style';
 
 export default function CardSimple(props:any){
@@ -15,11 +16,13 @@ export default function CardSimple(props:any){
                 <MuiGrid item xs={3}> </MuiGrid>
                 <MuiGrid item xs={9} >
                     <MuiGrid container>
-                        <MuiGrid item  xs={9}>
+                        <MuiGrid item  xs={9} className={classes.timeDisplay}>
                             <DisplayTime time={item.time} />
                         </MuiGrid>
-                        <MuiGrid item>
-                            <ExpandLess onClick={() => handleCollapse(item.id, true)}/>
+                        <MuiGrid className={classes.arrowButton}>
+                            <MuiIconButton size="small">
+                                <ExpandLess onClick={() => handleCollapse(item.id, true)}/>
+                            </MuiIconButton>
                         </MuiGrid>
                     </MuiGrid>        
                 </MuiGrid>

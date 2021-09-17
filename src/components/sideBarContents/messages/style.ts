@@ -34,7 +34,7 @@ export default makeStyles((theme) => ({
 
       card:{
         marginTop:"20px",
-        paddingBottom:"5px",
+        paddingBottom:"15px",
         borderBottom: "1px solid "
       },
 
@@ -50,7 +50,7 @@ export default makeStyles((theme) => ({
 
       transferIcon:{
         marginLeft:"20px",
-        marginRight:"15px",
+        marginRight:"10px"
       },
 
       buttonStyle:{
@@ -59,6 +59,21 @@ export default makeStyles((theme) => ({
       },
 
       simpleCard:{
-        marginLeft:"14px",
+        marginLeft:"15px",
+      },
+
+      timeDisplay:{
+        marginLeft:"23px"
+      },
+      transferCard: {
+        marginLeft:"0px",
+      },
+      notification:{
+        marginLeft:"15px"
+      },
+
+      arrowButton:{
+        marginTop:"-5px"
       }
+
 }));

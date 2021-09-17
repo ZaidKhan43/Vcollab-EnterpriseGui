@@ -11,6 +11,8 @@ import DisplayTime from './displayTime';
 import {iconType} from '../../../../store/sideBar/messageSlice';
 import styles from '../style';
 
+import MuiIconButton from '@material-ui/core/IconButton';
+
 export default function CardTransfer(props:any){
     const {item, handleCollapse, handlePause, handleCancel} = props;
     const classes = styles();
@@ -67,13 +69,15 @@ export default function CardTransfer(props:any){
             <MuiGrid item xs={3}> </MuiGrid>
             <MuiGrid item xs={9} >
                 <MuiGrid container>
-                    <MuiGrid item  xs={9}>
+                    <MuiGrid item  xs={9} className={classes.timeDisplay}>
                         <Typography variant="h3" align="left">
                             <DisplayTime time={item.time}/>
                         </Typography>
                     </MuiGrid>
-                    <MuiGrid item>
-                        <ExpandLess onClick={() => handleCollapse(item.id, true)}/>
+                    <MuiGrid item className={classes.arrowButton}>
+                        <MuiIconButton size="small">
+                            <ExpandLess onClick={() => handleCollapse(item.id, true)}/>
+                        </MuiIconButton>
                     </MuiGrid>
                 </MuiGrid>        
             </MuiGrid>
@@ -84,8 +88,8 @@ export default function CardTransfer(props:any){
                     </MuiGrid>
                     <MuiGrid item xs={8}>
                         <MuiGrid container direction="column">
-                            <MuiGrid item>
-                                <Typography variant="h2" align="left">
+                            <MuiGrid item >
+                                <Typography variant="h2" align="left" className={classes.transferCard}>
                                     {item.card.title}
                                 </Typography>
                             </MuiGrid>
@@ -94,16 +98,20 @@ export default function CardTransfer(props:any){
                             <MuiGrid container direction="column">
                                 <MuiGrid item className={classes.cardTopPadding}>
                                     <Typography variant="h3" align="left">
-                                        { item.card.icon === iconType.COMPLETED 
+                                        { item.card.data.cancel 
                                             ?
-                                                `${fileSize(item.card.data.transfferedSize)}`
+                                                `${fileSize(item.card.data.transfferedSize)} / ${fileSize(item.card.data.totalSize)}`
                                             :
-                                                `${fileSize(item.card.data.transfferedSize)} / ${fileSize(item.card.data.totalSize)}, ${item.card.data.timeLeft}`
+                                                item.card.icon === iconType.COMPLETED 
+                                                    ?
+                                                        `${fileSize(item.card.data.transfferedSize)}`
+                                                    :
+                                                        `${fileSize(item.card.data.transfferedSize)} / ${fileSize(item.card.data.totalSize)}, ${item.card.data.timeLeft}`
                                         }
                                     </Typography>
                                 </MuiGrid>
                                 <MuiGrid item>
-                                    {   item.card.icon === iconType.COMPLETED 
+                                    {   item.card.icon === iconType.COMPLETED || item.card.data.cancel
                                         ?
                                             null
                                         :
