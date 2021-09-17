@@ -21,6 +21,7 @@ import Views from '../../sideBarContents/views';
 import Annotations from '../../sideBarContents/annotations';
 import Settings from '../../sideBarContents/settings';
 import Messages from '../../sideBarContents/messages';
+import Labels from '../../sideBarContents/labels';
 
 export default function Sidebar(){
     
@@ -53,6 +54,9 @@ export default function Sidebar(){
         </Route>
         <Route path={Routes.MESSAGES}>
         <Messages />     
+        </Route>
+        <Route path={Routes.LABELS}>
+        <Labels />     
         </Route>
         <Route>
         <Colormaps />
