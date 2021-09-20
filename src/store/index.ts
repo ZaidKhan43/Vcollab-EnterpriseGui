@@ -12,6 +12,7 @@ import mainMenuSlice  from './mainMenuSlice';
 import sceneSlice from './sideBar/sceneSlice';
 import materialColorSlice from './sideBar/materialColorSlice';
 import messageSlice from './sideBar/messageSlice';
+import labelSlice from './sideBar/labelSlice';
 
 export const history = createBrowserHistory();
 const store = configureStore({
@@ -28,6 +29,7 @@ const store = configureStore({
         scene: sceneSlice,
         materialColor: materialColorSlice,
         message: messageSlice,
+        label: labelSlice,
       }),
     middleware: getDefaultMiddleware({
       serializableCheck: {

@@ -7,10 +7,7 @@ import styles from './styles'
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import BackButton from '../../../icons/back';
 
-
-import {useAppDispatch} from '../../../../store/storeHooks';
-import MuiTypography from '@material-ui/core/Typography';
-import MuiGrid from '@material-ui/core/Grid';
+import {useAppSelector,useAppDispatch } from '../../../../store/storeHooks';
 
 import AddIcon from "../../../icons/plus";
 import { useState} from "react";
@@ -30,40 +27,18 @@ import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilC
 
 import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
 import MuiEditIcon from '@material-ui/icons/EditOutlined';
-import { SignalCellularConnectedNoInternet3BarSharp } from '@material-ui/icons';
+
+import {createNote, editSelect, editShow, delete2DNote} from '../../../../store/sideBar/labelSlice';
+import { useSelector } from 'react-redux';
 
 export default function Notes2D(){
     
     const classes = styles();
     const dispatch = useAppDispatch(); 
     
-    const [noteList, setNoteList] = useState([
-        {
-            id: 0,
-            name: "Note 1",
-            show: true,
-            select: false,
-        },
-        {
-            id: 1,
-            name: "Note 2",
-            show: true,
-            select: false,
-        },
-        {
-            id: 2,
-            name: "Note 3",
-            show: false,
-            select: false,
-        },
-        {
-            id: 3,
-            name: "Note 4",
-            show:   false,
-            select: true,
-        },
-    ])
-
+    const noteList= useAppSelector((state) =>  state.label.note2D.note2DList);
+    const listLimit = useAppSelector((state) => state.label.note2D.note2DSettings.limit)
+        
     const selectedNotes = noteList.filter(item => item.select === true)
     
     const onClickBackIcon = () =>{
@@ -78,49 +53,26 @@ export default function Notes2D(){
 
   const getHeaderRightIcon = () => {
     return (
-        <MuiIconButton onClick={onHandleAdd}>
+        <MuiIconButton disabled={noteList.length >= listLimit} onClick={onHandleAdd}>
                    <AddIcon/>
                  </MuiIconButton> 
     )
   }
 
   const onHandleAdd = () => {
-    const newId = noteList[noteList.length - 1].id + 1;
-      const newNote = {
-          id: newId,
-          name:`Note ${newId + 1}`,
-          select: false,
-          show: false,
-      }
-
-      setNoteList([...noteList, newNote])
+    dispatch(createNote());
   }
 
-    const onHandleCheckbox = (id : number, value : boolean) => {
-      const index = noteList.findIndex( item => item.id === id);
-      if(index >= 0){
-            let newArray = [...noteList];
-            let changeItem = noteList[index];
-            changeItem.select = !value;
-            newArray[index] = changeItem;    
-            setNoteList([...newArray])
-        }
+    const onHandledSelect = (id : number, value : boolean) => {
+      dispatch(editSelect({id : id,value :!value}))
     }
 
     const onHandleShow = (id: number , value : boolean) => {
-        const index = noteList.findIndex( item => item.id === id);
-        if(index >= 0){
-              let newArray = [...noteList];
-              let changeItem = noteList[index];
-              changeItem.show = !value;
-              newArray[index] = changeItem;    
-              setNoteList([...newArray])
-          }
+        dispatch(editShow({id : id,value :!value}))
     }
 
     const onHandleDeleteButton = ()=> {
-      const afterDeletion = noteList.filter(item => item.select !== true);
-      setNoteList([...afterDeletion])
+      dispatch(delete2DNote())
     }
     
   const getBody = () => {
@@ -135,7 +87,7 @@ export default function Notes2D(){
                     <div>
                         <MuiListItem key={item.id} role={undefined}>
             <MuiListItemIcon>
-              <MuiCheckbox edge="start" checked={item.select} color="primary" onChange={() => onHandleCheckbox(item.id, item.select)}/>
+              <MuiCheckbox edge="start" checked={item.select} color="primary" onChange={() => onHandledSelect(item.id, item.select)}/>
             </MuiListItemIcon>
             <MuiListItemText primary={item.name} />
             <MuiListItemSecondaryAction>
