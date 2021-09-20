@@ -10,7 +10,7 @@ import SelectAction from '../../layout/sideBar/sideBarContainer/sideBarHeader/ut
 import MuiMenuItem from '@material-ui/core/MenuItem';
 import { useState} from "react";
 import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
-import {editPause, editCancel, editCollapse, editSearch, filteredNotificationList} from "../../../store/sideBar/messageSlice";
+import {editPause, editCancel, editCollapse, editSearch, sortedNotification,NotificationType,NotificationList} from "../../../store/sideBar/messageSlice";
 
 import BackButton from '../../../components/icons/back';
 import MuiGrid from '@material-ui/core/Grid';
@@ -20,7 +20,6 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 
 import CardSimple from './components/cardSimple';
 import CardTransfer from './components/cardTransfer';
-import {notificationType, notificationList} from '../../../store/sideBar/messageSlice';
 import MuiIconButton from '@material-ui/core/IconButton';
 
 export default function Annotations(){
@@ -28,7 +27,7 @@ export default function Annotations(){
     const dispatch = useAppDispatch(); 
     const classes = styles();
 
-    const notificationList= useAppSelector(filteredNotificationList )
+    const notificationList= useAppSelector(sortedNotification )
     const [activeId, setActiveId] = useState(0);
 
     const toSelectList = [
@@ -56,13 +55,20 @@ export default function Annotations(){
     ]
 
     useEffect(() => {
-        const nati = notificationList.filter(item => item.collapsed);
-        if(nati.length !== notificationList.length)
-            setActiveId(-1);
-            if(nati.length === notificationList.length)
-                {
-                    setActiveId(0);
-                }
+        const list = notificationList.filter(item => item.collapsed).map(item => item.id);
+       
+        const ongoingNetworkTransfer = notificationList.filter(item => item.card.type=== NotificationType.NETWORK_TRANSFER_MESSAGE && item.card.data.cancel === false && item.card.data.totalSize !== item.card.data.transfferedSize).map(item => item.id);    
+        const colorMaps = notificationList.filter(item => (item.tags.includes("Color Maps"))=== true).map(item => item.id);
+        const displayModes = notificationList.filter(item => (item.tags.includes("Display Modes"))=== true).map(item => item.id);
+        
+        if(list.length === notificationList.length)
+            setActiveId(0);
+        if(JSON.stringify(list) === JSON.stringify(ongoingNetworkTransfer))
+            setActiveId(3);
+        if(JSON.stringify(list) === JSON.stringify(colorMaps))
+            setActiveId(1);
+        if(JSON.stringify(list) === JSON.stringify(displayModes))
+            setActiveId(2);
       },[notificationList]);
 
     const onClickBackIcon = () =>{
@@ -176,13 +182,13 @@ export default function Annotations(){
         }
     }
 
-    const getCard = (item : notificationList) => {
+    const getCard = (item : NotificationList) => {
         switch(item.card.type){
-            case(notificationType.SIMPLE_MESSAGE):
+            case(NotificationType.SIMPLE_MESSAGE):
                 return(
                     <CardSimple item={item} handleCollapse={onHandleCollapse}/>
                 )
-            case(notificationType.NETWORK_TRANSFER_MESSAGE):
+            case(NotificationType.NETWORK_TRANSFER_MESSAGE):
                 return(
                     <CardTransfer item={item} handleCollapse={onHandleCollapse} handlePause={onHandlePause} handleCancel={onHandleCancel}/>
                 )
