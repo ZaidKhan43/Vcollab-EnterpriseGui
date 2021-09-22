@@ -14,9 +14,9 @@ import {editPause, editCancel, editCollapse, editSearch, sortedNotification,Noti
 
 import BackButton from '../../../components/icons/back';
 import MuiGrid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import Collapse from '@material-ui/core/Collapse';
-import ExpandMore from '@material-ui/icons/ExpandMore';
+import MuiTypography from '@material-ui/core/Typography';
+import MuiCollapse from '@material-ui/core/Collapse';
+import MuiExpandMore from '@material-ui/icons/ExpandMore';
 
 import CardSimple from './components/cardSimple';
 import CardTransfer from './components/cardTransfer';
@@ -167,13 +167,13 @@ export default function Annotations(){
                     <MuiGrid container onClick={() => { countHide === 1 ? onHandleCollapse(id,false) :hiddenId.map(item => onHandleCollapse(item,false))}}>
                         <MuiGrid item xs={1}></MuiGrid>
                         <MuiGrid item xs={9} className={classes.notification}>
-                            <Typography >
+                            <MuiTypography >
                                 {`${countHide} Notification`} 
-                            </Typography>
+                            </MuiTypography>
                         </MuiGrid>
                         <MuiGrid item>
                             <MuiIconButton size="small">
-                                <ExpandMore />
+                                <MuiExpandMore />
                             </MuiIconButton>
                         </MuiGrid>
                     </MuiGrid>
@@ -200,16 +200,16 @@ export default function Annotations(){
         return (
             <div className={classes.scrollBar}>
                 {notificationList.map((item: any,index:number) => 
-                    <span>
+                    <span key={'divParent_' + item.id}>
                         {   !item.collapsed
                             && 
                                 newCollapse(item.id)
                         }
-                        <Collapse in={item.collapsed} >
+                        <MuiCollapse in={item.collapsed} >
                             <div className={classes.card}>
                             {getCard(item)}
                             </div>
-                        </Collapse>
+                        </MuiCollapse>
                     </span>
                 )}
             </div>

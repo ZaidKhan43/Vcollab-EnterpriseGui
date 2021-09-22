@@ -5,6 +5,7 @@ import { Routes } from '../../../routes'
 import Notes2D from './pages/notes2D' 
 import Labels3D from './pages/labels3D'
 import Measurements from './pages/measurements'
+import EditNotes2D from './pages/editNotes2D';
 
 function ClipPlanes() {
     
@@ -12,6 +13,9 @@ function ClipPlanes() {
         <Switch>
             <Route path={Routes.LABELS_2D_NOTES}>
                 <Notes2D/>
+            </Route>
+            <Route path={Routes.LABEL_2D_EDITS}>
+                <EditNotes2D/>
             </Route>
             <Route path={Routes.LABELS_3D_LABELS}>
                 <Labels3D/>

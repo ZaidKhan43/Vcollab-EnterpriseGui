@@ -1,8 +1,9 @@
 import MuiIconButton from '@material-ui/core/IconButton';
-import {goBack} from 'connected-react-router/immutable';
+import {goBack,push} from 'connected-react-router/immutable';
+import {Routes} from "../../../../routes"
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
 
-import styles from './styles'
+import styles from './style'
 
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import BackButton from '../../../icons/back';
@@ -39,7 +40,7 @@ export default function Notes2D(){
     const noteList= useAppSelector((state) =>  state.label.note2D.note2DList);
     const listLimit = useAppSelector((state) => state.label.note2D.note2DSettings.limit)
         
-    const selectedNotes = noteList.filter(item => item.select === true)
+    const selectedNotes = noteList.filter(item => item.selected === true)
     
     const onClickBackIcon = () =>{
         dispatch(goBack());
@@ -75,6 +76,10 @@ export default function Notes2D(){
       dispatch(delete2DNote())
     }
     
+    const onHandleEdit = () => {
+      dispatch(push(Routes.LABEL_2D_EDITS))
+    }
+
   const getBody = () => {
 
     // console.log("selected",clickedValues)
@@ -84,10 +89,10 @@ export default function Notes2D(){
            <MuiList>
                {
                    noteList.map(item => 
-                    <div>
+                    <div key={'divParent_' + item.id}>
                         <MuiListItem key={item.id} role={undefined}>
             <MuiListItemIcon>
-              <MuiCheckbox edge="start" checked={item.select} color="primary" onChange={() => onHandledSelect(item.id, item.select)}/>
+              <MuiCheckbox edge="start" checked={item.selected} color="primary" onChange={() => onHandledSelect(item.id, item.selected)}/>
             </MuiListItemIcon>
             <MuiListItemText primary={item.name} />
             <MuiListItemSecondaryAction>
@@ -114,7 +119,7 @@ export default function Notes2D(){
     return(
         <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
             <OptionContainer>
-            <Option label="Edit" icon={<MuiIconButton disabled={selectedNotes.length ===  1 ? false : true} onClick={() => alert("Edit Page")}>
+            <Option label="Edit" icon={<MuiIconButton disabled={selectedNotes.length ===  1 ? false : true} onClick={onHandleEdit}>
                 <MuiEditIcon/>
               </MuiIconButton>} 
             />

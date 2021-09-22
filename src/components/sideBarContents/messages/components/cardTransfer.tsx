@@ -8,14 +8,22 @@ import MuiPauseCircleOutlineIcon from '@material-ui/icons/PauseCircleOutline';
 import ProcessIndicator from './processIndicator';
 import DisplayTime from './displayTime';
 
-import {IconType} from '../../../../store/sideBar/messageSlice';
+import {IconType,fileTransferUpdate} from '../../../../store/sideBar/messageSlice';
 import styles from '../style';
 
 import MuiIconButton from '@material-ui/core/IconButton';
 
+import {useAppDispatch } from '../../../../store/storeHooks';
+
 export default function CardTransfer(props:any){
     const {item, handleCollapse, handlePause, handleCancel} = props;
     const classes = styles();
+    const dispatch = useAppDispatch(); 
+
+    setTimeout( () => {
+        if(item.card.data.transfferedSize < item.card.data.totalSize)
+            dispatch(fileTransferUpdate())
+      }, 2000);
     
     const fileSize = (size : number) => {
         if (size >= 1024) {
@@ -100,7 +108,7 @@ export default function CardTransfer(props:any){
                                     <Typography variant="h3" align="left">
                                         { item.card.data.cancel 
                                             ?
-                                                `${fileSize(item.card.data.transfferedSize)} / ${fileSize(item.card.data.totalSize)}`
+                                                "Cancelled"
                                             :
                                                 item.card.icon === IconType.COMPLETED 
                                                     ?

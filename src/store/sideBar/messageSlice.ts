@@ -145,7 +145,7 @@ export const messageSlice = createSlice({
             if(index >= 0){
                 let changeItem = state.notificationLists[index];
                 if(changeItem.card.type === NotificationType.NETWORK_TRANSFER_MESSAGE){
-                    changeItem.card.data.pause = action.payload.value;
+                    (changeItem.card.data as NetworkData).pause = action.payload.value;
                     if(action.payload.value === true)
                         changeItem.card.icon = IconType.PAUSE;
                     else
@@ -162,7 +162,7 @@ export const messageSlice = createSlice({
             if(index >= 0){
                 let changeItem = state.notificationLists[index];
                 if(changeItem.card.type === NotificationType.NETWORK_TRANSFER_MESSAGE){
-                    changeItem.card.data.cancel = true;
+                    (changeItem.card.data as NetworkData).cancel = true;
                     changeItem.card.icon = IconType.CANCELLED;
                     state.notificationLists[index] = changeItem;
                 }
@@ -189,7 +189,8 @@ export const messageSlice = createSlice({
             else{
                 if(action.payload === "Network Transfer"){
                     state.notificationLists.forEach( (item, index) => {
-                        if(item.card.type === NotificationType.NETWORK_TRANSFER_MESSAGE && item.card.data.cancel === false && item.card.data.totalSize !== item.card.data.transfferedSize){
+                        const data = item.card.data as NetworkData;
+                        if(item.card.type === NotificationType.NETWORK_TRANSFER_MESSAGE && data.cancel === false && data.totalSize !== data.transfferedSize){
                             item.collapsed = true;
                             state.notificationLists[index] = item;
                         }
@@ -214,12 +215,31 @@ export const messageSlice = createSlice({
                 }
             }
         },
+
+        fileTransferUpdate:(state) => {
+            state.notificationLists.forEach((item,index) => {
+                const data = item.card.data as NetworkData;
+                if(item.card.type === NotificationType.NETWORK_TRANSFER_MESSAGE && data.pause === false && data.cancel === false ){
+                    const onePercentage = parseInt((data.totalSize / 100).toString());
+
+                    if(data.transfferedSize + onePercentage < data.totalSize)
+                        data.transfferedSize = data.transfferedSize + onePercentage;
+                    else
+                        data.transfferedSize = data.totalSize
+
+                    if(data.transfferedSize === data.totalSize)
+                        item.card.icon = IconType.COMPLETED;
+
+                    state.notificationLists[index] = item;
+                }
+            })
+        },
     }
 })
 
 
 export default messageSlice.reducer;
-export const {editPause , editCancel , editCollapse, editSearch} = messageSlice.actions;
+export const {editPause , editCancel , editCollapse, editSearch, fileTransferUpdate} = messageSlice.actions;
 
 //selectors
 

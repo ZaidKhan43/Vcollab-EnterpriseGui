@@ -25,6 +25,28 @@ export default makeStyles((theme) => (
     },
   },
 
+  pageCaption:{
+    textAlign:"left",
+    marginBottom:"15px",
+    marginTop:"10px",
+  },
+
+  editPageFooter:{
+    marginTop:"20px", 
+    marginBottom:"20px",
+  },
+
+  saveButton:{
+    backgroundColor:"#5958FF",
+    width:"30%", 
+    fontSize:"11px" , 
+    marginRight:"5px"
+  },
+
+  resetButton:{
+    width:"30%",
+    fontSize:"11px"
+  }
 
 
 }));
