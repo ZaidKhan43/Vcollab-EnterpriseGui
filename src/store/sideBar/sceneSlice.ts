@@ -1,6 +1,6 @@
 import { PlaylistAddOutlined } from '@material-ui/icons';
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
-import { getCameraStdViews, setCameraInfo, setCameraProjection } from '../../backend/viewerAPIProxy';
+import { getCameraStdViews, setBackground, setCameraInfo, setCameraProjection } from '../../backend/viewerAPIProxy';
 import {perspectiveToOrtho,orthoToPerspective} from '../../components/utils/camera'
 import type { RootState } from '../index';
 
@@ -150,6 +150,7 @@ const initialState : Scenes = {
     }
 }
 
+//camera apis
 export const fetchCameraStdViews = createAsyncThunk(
     'scene/fetchCameraStdViews',
     async (data,{dispatch, getState}) => {
@@ -196,6 +197,26 @@ export const setProjectionAsync = createAsyncThunk(
         const viewerId = state.app.viewers[state.app.activeViewer || ''];
         setCameraProjection(viewerId,data);
         dispatch(sceneSlice.actions.editViewMode({value:data}));
+    }
+)
+//color apis
+export const setBackgroundColorAsync = createAsyncThunk(
+    'scene/setBackgroundColorAsync',
+    async (data:ColorList[], {dispatch,getState}) => {
+        const state = getState() as RootState;
+        const viewerId = state.app.viewers[state.app.activeViewer || ''];
+        setBackground(viewerId,0,data.map(e => [e.color.r,e.color.g,e.color.b,e.color.a]));
+        dispatch(sceneSlice.actions.updateBackgroundColor(data));
+    }
+)
+
+export const setBackgroundImageAsync = createAsyncThunk(
+    'scene/setBackgroundImageAsync',
+    async (data:any, {dispatch,getState}) => {
+        const state = getState() as RootState;
+        const viewerId = state.app.viewers[state.app.activeViewer || ''];
+        setBackground(viewerId,1,data);
+        dispatch(sceneSlice.actions.updateBackgroundImage(data));
     }
 )
 export const sceneSlice = createSlice({
@@ -351,7 +372,7 @@ export const sceneSlice = createSlice({
     }
 })
 
-export const {addCameraView, setActiveId ,  updateChange, pasteCameraView , deleteCameraView, updateBackgroundColor , updateBackgroundImage , setApplyItem} = sceneSlice.actions;
+export const {addCameraView, setActiveId ,  updateChange, pasteCameraView , deleteCameraView, setApplyItem} = sceneSlice.actions;
 
 export default sceneSlice.reducer;
 

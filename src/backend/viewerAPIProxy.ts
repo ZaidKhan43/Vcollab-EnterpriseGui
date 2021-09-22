@@ -58,14 +58,19 @@ export function getSystemMouseMappings(activeViewerID:string):any[] {
     //console.log(JSON.stringify(data));
     return data;
 }
+export function setBackground(activeViewerID:string,type:number,data:any){
+    viewerMgr.setBackground(activeViewerID,type,data);
+}
 //#region Camera
 export function getCameraStdViews(activeViewerID:string) : any {
+    console.log(viewerMgr.getCameraStdViews(activeViewerID));
     return viewerMgr.getCameraStdViews(activeViewerID);
 }
 export function setCameraProjection(activeViewerID:string, camType: number) {
     viewerMgr.setCameraProjection(camType,activeViewerID);
 }
 export function getCameraInfo(activeViewerID:string, camType:number) {
+    console.log(viewerMgr.getCameraInfo(camType,activeViewerID));
     return viewerMgr.getCameraInfo(camType,activeViewerID);
 }
 export function setCameraInfo(activeViewerID:string, camData:any) {

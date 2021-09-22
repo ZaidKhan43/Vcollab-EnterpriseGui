@@ -243,7 +243,12 @@ var downloadMetricTypes = {
     NONE: "NONE",
     SIZE: "SIZE",
     TIME: "TIME",
-};var ModelTree = /** @class */ (function () {
+};
+var BackgroundType;
+(function (BackgroundType) {
+    BackgroundType[BackgroundType["GRADIENT"] = 0] = "GRADIENT";
+    BackgroundType[BackgroundType["IMAGE"] = 1] = "IMAGE";
+})(BackgroundType || (BackgroundType = {}));var ModelTree = /** @class */ (function () {
     function ModelTree(treeMap, modelIds) {
         this.models = treeMap;
         this.rootNodeIds = modelIds;
@@ -2365,8 +2370,8 @@ function __spread$1() {
     //static DefaultColorPlotState : boolean = true; 
     AppState.isSceneLoaded = false;
     AppState._BGTYPE = AppConstants.BackgroundType.GRADIENT;
-    AppState._BGColor1 = '#9F9FFF';
-    AppState._BGColor2 = '#FFFFFF';
+    AppState._BGColor1 = [159, 159, 255, 1];
+    AppState._BGColor2 = [255, 255, 255, 1];
     AppState.resultSet = '';
     AppState.BaseUrl = null;
     AppState.showFPS = false;
@@ -8761,7 +8766,8 @@ var Renderer2D = /** @class */ (function () {
         this.container.insertBefore(this.canvasBackPlane, this.container.firstChild); // fix for IE11
         //this.container.prepend(this.canvasBackPlane);
         this.backPlane2dctx = this.canvasBackPlane.getContext('2d');
-        this.setBackground();
+        this.backgroundType = AppConstants.BackgroundType.IMAGE;
+        this.setBackground(this.backgroundType, [AppState$1._BGColor1, AppState$1._BGColor2]);
         //let gradientcolor1 = '#9F9FFF';
         //let gradientcolor2 = '#FFFFFF';
         //this.canvasBackPlane.style.background = 'linear-gradient(' + gradientcolor1 + ', ' + gradientcolor2 + ')';
@@ -8802,22 +8808,36 @@ var Renderer2D = /** @class */ (function () {
             //if(backPlane.background)
             //    this.canvasBackPlane.style.background = backPlane.background;
         }
-        this.setBackground();
+        this.updateBackground();
     };
-    Renderer2D.prototype.setBackground = function () {
-        if (AppState$1._BGTYPE === AppConstants.BackgroundType.LINEAR) {
+    Renderer2D.prototype.updateBackground = function () {
+        this.setBackground(this.backgroundType, this.backgroundData);
+    };
+    Renderer2D.prototype.setBackground = function (type, data) {
+        this.backgroundType = type;
+        this.backgroundData = data;
+        if (type === AppConstants.BackgroundType.LINEAR) {
             console.warn('Not Implemented');
         }
-        else if (AppState$1._BGTYPE === AppConstants.BackgroundType.GRADIENT) {
-            var grd = this.backPlane2dctx.createLinearGradient(0, 0, 0, this.canvasBackPlane.height);
-            grd.addColorStop(0, AppState$1._BGColor1);
-            grd.addColorStop(1, AppState$1._BGColor2);
-            this.backPlane2dctx.fillStyle = grd;
+        else if (type === AppConstants.BackgroundType.GRADIENT) {
+            var grd_1 = this.backPlane2dctx.createLinearGradient(0, 0, 0, this.canvasBackPlane.height);
+            if (data instanceof Array) {
+                data.forEach(function (e, idx) {
+                    grd_1.addColorStop(idx / (data.length - 1), "rgba(" + e[0] + "," + e[1] + "," + e[2] + "," + e[3] + ")");
+                });
+            }
+            this.backPlane2dctx.fillStyle = grd_1;
             this.backPlane2dctx.rect(0, 0, this.canvasBackPlane.width, this.canvasBackPlane.height);
             this.backPlane2dctx.fill();
         }
-        else if (AppState$1._BGTYPE === AppConstants.BackgroundType.IMAGE) {
-            console.warn('Not Implemented');
+        else if (type === AppConstants.BackgroundType.IMAGE) {
+            var img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.src = data;
+            var self_1 = this;
+            img.addEventListener('load', function () {
+                self_1.backPlane2dctx.drawImage(this, 0, 0, this.width, this.height, 0, 0, self_1.canvasBackPlane.width, self_1.canvasBackPlane.height);
+            }, false);
         }
         else {
             console.warn('Not Implemented');
@@ -9393,6 +9413,12 @@ var Renderer2D = /** @class */ (function () {
     Renderer.prototype.clearColor = function () {
         this.GLContext.enable(this.GLContext.DEPTH_TEST);
         this.GLContext.clear(this.GLContext.DEPTH_BUFFER_BIT | this.GLContext.COLOR_BUFFER_BIT | this.GLContext.STENCIL_BUFFER_BIT);
+    };
+    Renderer.prototype.setBackgroundColor = function (type, data) {
+        this.renderer2D.setBackground(type, data);
+    };
+    Renderer.prototype.setBackgroundImage = function (data) {
+        this.renderer2D.setBackground(AppConstants.BackgroundType.IMAGE, data);
     };
     Renderer.prototype.render = function () {
         var _this = this;
@@ -15389,6 +15415,12 @@ var Commands = /** @class */ (function () {
         else
             this.renderer.camControl.fitView();
     };
+    App.prototype.setBackgroundColor = function (colors) {
+        this.renderer.setBackgroundColor(AppConstants.BackgroundType.GRADIENT, colors);
+    };
+    App.prototype.setBackgroundImage = function (data) {
+        this.renderer.setBackgroundImage(data);
+    };
     App.prototype.setDisplayMode = function (value, arr) {
         var scenes = this.sceneManager.getScenes();
         scenes.forEach(function (scene) {
@@ -16069,6 +16101,12 @@ var vctViewer = /** @class */ (function () {
         if (selectedNodeIds === void 0) { selectedNodeIds = []; }
         this.appli.fitView(selectedNodeIds);
     };
+    vctViewer.prototype.setBackgroundColor = function (colors) {
+        this.appli.setBackgroundColor(colors);
+    };
+    vctViewer.prototype.setBackgroundImage = function (data) {
+        this.appli.setBackgroundImage(data);
+    };
     vctViewer.prototype.setDisplayMode = function (displayModeValue, arr) {
         if (arr === void 0) { arr = []; }
         this.appli.setDisplayMode(displayModeValue, arr);
@@ -16436,6 +16474,12 @@ var vctViewer = /** @class */ (function () {
         if (onlyVisible === void 0) { onlyVisible = true; }
         var bbox = this.renderApp.getSceneBoundingBox(onlyVisible);
         return bbox.clone();
+    };
+    Viewer.prototype.setBackground = function (type, data) {
+        if (type === BackgroundType.GRADIENT)
+            this.renderApp.setBackgroundColor(data);
+        else if (type === BackgroundType.IMAGE)
+            this.renderApp.setBackgroundImage(data);
     };
     //#endregion
     //#region Camera
@@ -19148,7 +19192,7 @@ var ViewerManager = /** @class */ (function () {
         return "Invalid viewer ID";
     };
     ViewerManager.prototype.showModel = function (viewerUUID) {
-        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        var viewer = this.getViewer(viewerUUID);
         if (viewer) {
             return viewer.showModel();
         }
@@ -19159,6 +19203,10 @@ var ViewerManager = /** @class */ (function () {
     };
     ViewerManager.prototype.setExternalLogger = function (externalLogger) {
         Logger.setExternalLogger(externalLogger);
+    };
+    ViewerManager.prototype.setBackground = function (viewerUUID, type, data) {
+        var viewer = this.getViewer(viewerUUID);
+        viewer.setBackground(type, data);
     };
     //#endregion
     //#region Camera
