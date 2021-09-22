@@ -208,7 +208,7 @@ export default function CameraEdit (){
 
     const onHandleSave = () => {
         const data = cameraView;
-        dispatch(updateChange({data}))
+        dispatch(updateChange({data,tab:projection}))
     }
 
 

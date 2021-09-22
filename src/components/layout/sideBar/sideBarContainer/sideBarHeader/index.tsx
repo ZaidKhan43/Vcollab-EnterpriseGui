@@ -34,7 +34,7 @@ const HeaderSecondRow = (props:any) => {
     return(
   <Grid container alignItems='center' className={classes.action}>
   { props.action ?
-        <Grid item style={{width:'90%', margin:'auto', marginTop:'10px'}}>
+        <Grid item style={{width:'90%', margin:'auto'}}>
             {props.action}
         </Grid>
         :null
@@ -47,7 +47,7 @@ const HeaderSecondRow = (props:any) => {
 export default function SideBarHeader(props : any) {
 
   return (
-      <Grid container direction='column' >
+      <Grid ref={props.targetRef} container direction='column' >
           <Grid item xs={12} alignItems='center' >
           <HeaderFirstRow {...props}/>
           </Grid>

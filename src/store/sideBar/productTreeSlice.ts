@@ -504,6 +504,7 @@ export const {
 
 //Define the selectors
 export const selectProductTreeData = (state:RootState) => state.productTree.data
+export const selectModels = (state:RootState) => state.productTree.rootIds.map((id) => state.productTree.data[id]);
 export const selectCurrentState = (state:RootState) => state.productTree.currentState
 export const selectRootIds = (state:RootState) => state.productTree.rootIds
 export const selectSearchHints = (state:RootState) => Object.keys(state.productTree.searchHints)

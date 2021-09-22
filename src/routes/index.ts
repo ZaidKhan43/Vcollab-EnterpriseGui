@@ -6,6 +6,11 @@ export enum Routes {
     GEOMETRY_DISPLAY_MODES = "/geometry/display_modes",
     GEOMERTY_MATERIAL_COLOR = "/geometry/material_color",
 
+    FIELD = "/field",
+    FIELD_VARIABLES = "/field/variables",
+    FIELD_STEPS_AND_SUBCASES = "/field/steps_and_subcases",
+    FIELD_DERIVED_TYPES = "/field/derived_types",
+
     CLIPPLANES ="/clipplanes",
     CLIPPLANES_LIST = "/clipplanes/list",
     CLIPPLANES_SETTINGS = "/clipplanes/settings",
@@ -25,6 +30,9 @@ export enum Routes {
     LABEL_2D_EDITS = "/labels/2d_notes_edit",
     LABELS_3D_LABELS = "/labels/3d_labels",
     LABELS_MEASUREMENTS = "/labels/measurements",
+    SETTINGS = "/settings",
+    SETTINGS_THEME = "/settings/theme",
+    SETTINGS_MOUSE_CONTROLS ="/settings/mousecontrols",
+    SETTINGS_MOUSE_CONTROLS_EDIT ="/settings/mousecontrols/edit",
 
-    
 }

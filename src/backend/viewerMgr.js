@@ -123068,7 +123068,8 @@ class EventDispatcher {
 
 const viewerEvents = {
     MODEL_DOWNLOAD_STATUS_UPDATE : "MODEL_DOWNLOAD_STATUS_UPDATE",
-    MODEL_PART_HIGHLIGHTED : "MODEL_PART_HIGHLIGHTED"
+    MODEL_PART_HIGHLIGHTED : "MODEL_PART_HIGHLIGHTED",
+	SECTION_PLANE_SELECTED:"SECTION_PLANE_SELECTED",
 };
 
 const globalEvents = {
@@ -123422,7 +123423,7 @@ class ViewerManager {
         else
         return "Invalid viewer id";
     }
-    setSectionPlaneEquation(planeId,transform,viewerUUID,initTransform=undefined){
+    setSectionPlaneEquation(planeId,transform,viewerUUID,initTransform){
         let viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
         if(viewer)
         {
@@ -123515,6 +123516,36 @@ class ViewerManager {
         }
         return "Invalid viewer ID";
     }
+
+	setMouseInputMapping(json,activeViewerID){
+		return(null)
+	}
+
+	getMouseInputData(activeViewerID){
+		return(null)
+	}
+	getSystemMouseMappings(activeViewerID){
+		return([])
+	}
+	getCameraStdViews(activeViewerID){
+		return([])
+	}
+
+	setCameraProjection(camType,activeViewerID){
+		return(null)
+	}
+
+	getCameraInfo(camType,activeViewerID){
+		return(null)
+	}
+
+	setCameraInfo(camData,activeViewerID){
+		return(null)
+	}
+
+	probeFromNodes(pointerData,activeViewerID){
+		return(null)
+	}
 }
 var viewerMgr = (new ViewerManager);
 

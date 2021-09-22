@@ -9,31 +9,33 @@ import { sideBarHeaderHeight } from '../../../../config';
 export default function SideBarContainer(props : any) {
 
   const classes = styles();
-  const targetRef = createRef<HTMLDivElement>();
+  const HeaderTargetRef = createRef<any>();
+  const FooterTargetRef = createRef<HTMLDivElement>();
   const [bodyHeight, setbodyHeight] = useState(sideBarHeaderHeight)
 
   useLayoutEffect(() => {
-    if (targetRef?.current?.clientHeight) {
-      const height = targetRef.current.clientHeight;
-      setbodyHeight(height + sideBarHeaderHeight);
+    let headerHeight = sideBarHeaderHeight;
+    let footerHeight = 0;
+    if(HeaderTargetRef?.current?.clientHeight) {
+      headerHeight = HeaderTargetRef.current.clientHeight;
     }
-   else
-    {
-      setbodyHeight(sideBarHeaderHeight);
+    if (FooterTargetRef?.current?.clientHeight) {
+      footerHeight = FooterTargetRef.current.clientHeight;
     }
-  }, [targetRef, setbodyHeight] );
+    setbodyHeight(headerHeight+footerHeight);
+  }, [FooterTargetRef, HeaderTargetRef, setbodyHeight] );
 
 
 
   
   return (
     <div className={classes.sideBarContainer}>
-      <SideBarHeader leftIcon = {props.headerLeftIcon}  content = {props.headerContent} rightIcon = {props.headerRightIcon} action = {props.headerAction}/>
+      <SideBarHeader targetRef = {HeaderTargetRef} leftIcon = {props.headerLeftIcon}  content = {props.headerContent} rightIcon = {props.headerRightIcon} action = {props.headerAction}/>
       <div className={classes.divider}></div>
 
       <div  className={classes.sideBarContainer}>
         <SideBarBody height = { bodyHeight } >  {props.body} </SideBarBody>
-        <SideBarFooter targetRef = { targetRef } >{props.footer}</SideBarFooter>
+        <SideBarFooter targetRef = { FooterTargetRef } >{props.footer}</SideBarFooter>
       </div>
     </div>
   );

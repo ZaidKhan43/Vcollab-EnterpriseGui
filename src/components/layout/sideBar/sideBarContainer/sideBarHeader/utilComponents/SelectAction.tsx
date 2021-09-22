@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
 function SelectAction(props:any) {
     
     return (
-        <FormControl style={{width:'100%', margin:'auto'}}>
+        <FormControl style={{width:'100%', margin:'auto',padding:2}}>
             <InputLabel>Apply To</InputLabel>
             <Select
             {...props}

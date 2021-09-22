@@ -60,7 +60,9 @@ export enum MainMenuItems {
 
     MESSAGES,
 
-    SETTINGS
+    SETTINGS,
+    SETTINGS_THEME, 
+    SETTINGS_MOUSE_CONTROLS
 
 }
 
@@ -131,14 +133,14 @@ const initialState: MainMenu ={
                     id: '21',
                     name: "Variables",
                     type:MainMenuItems.FIELD_VARIABLES,
-                    path:Routes.HOME,
+                    path:Routes.FIELD_VARIABLES,
                     disabled: false,
                   },
                   {
                     id:'22',
                     name: "Steps & Subcases",
                     type:MainMenuItems.FIELD_STEPS_AND_SUBCASES,
-                    path:Routes.HOME,
+                    path:Routes.FIELD_STEPS_AND_SUBCASES,
                     disabled: false,
                   },
                   {
@@ -152,7 +154,7 @@ const initialState: MainMenu ={
                     id:'24',
                     name: "Derived Types",
                     type:MainMenuItems.FIELD_DERIVED_TYPES,
-                    path:Routes.HOME,
+                    path:Routes.FIELD_DERIVED_TYPES,
                     disabled: false,
                   },
             ]
@@ -300,7 +302,26 @@ const initialState: MainMenu ={
             name: "Application Settings",
             type: MainMenuItems.SETTINGS,
             path:Routes.HOME,
-            children: []
+            children: [
+                {
+
+                    id:'111',
+                    name: "Color Theme",
+                    type:MainMenuItems.SETTINGS_THEME,
+                    path:Routes.SETTINGS_THEME ,
+                    disabled: false,
+                },
+                {
+
+                    id:'112',
+                    name: "Mouse Controls",
+                    type:MainMenuItems.SETTINGS_MOUSE_CONTROLS,
+                    path:Routes.SETTINGS_MOUSE_CONTROLS,
+                    disabled: false,
+                }
+
+                    
+            ]
         }
     ]
 }

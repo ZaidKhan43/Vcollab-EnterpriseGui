@@ -1,5 +1,5 @@
 import { mat4 } from 'gl-matrix';
-import viewerMgr from './viewerMgr';
+import viewerMgr, {StdView} from './viewerMgr';
 
 export function createViewer(viewerDivID : string){
     return viewerMgr.createViewer(viewerDivID);
@@ -44,6 +44,35 @@ export function setDisplayMode(activeViewerID:string, displayModeId:string, node
 export function setHighlightedNodes(activeViewerID:string, toShow: boolean, nodeIds:string[]) {
     return viewerMgr.setHighlightedNodes(nodeIds,toShow,activeViewerID);
 }
+export function setMouseBindings(activeViewerID:string, json:any) {
+    console.log(json);
+    return viewerMgr.setMouseInputMapping(json,activeViewerID);
+}
+export function getMouseData(activeViewerID:string) :any {
+    let data = viewerMgr.getMouseInputData(activeViewerID);
+    console.log(JSON.stringify(data));
+    return data;
+}
+export function getSystemMouseMappings(activeViewerID:string):any[] {
+    let data = viewerMgr.getSystemMouseMappings(activeViewerID);
+    //console.log(JSON.stringify(data));
+    return data;
+}
+//#region Camera
+export function getCameraStdViews(activeViewerID:string) : any {
+    return viewerMgr.getCameraStdViews(activeViewerID);
+}
+export function setCameraProjection(activeViewerID:string, camType: number) {
+    viewerMgr.setCameraProjection(camType,activeViewerID);
+}
+export function getCameraInfo(activeViewerID:string, camType:number) {
+    return viewerMgr.getCameraInfo(camType,activeViewerID);
+}
+export function setCameraInfo(activeViewerID:string, camData:any) {
+    viewerMgr.setCameraInfo(camData,activeViewerID);
+    console.log(camData);
+}
+//#endregion
 // part Manipulation
 export function enablePickAndMove(activeViewerID:string, toEnable:boolean) {
     return viewerMgr.enablePickAndMove(toEnable,activeViewerID);
@@ -75,7 +104,11 @@ export function getDisplayResult(activeViewerID:string) {
 export function applyResult(resultId:string, stepId:string, derivedTypeId:string, activeViewerID:string) {
     return viewerMgr.applyResult(resultId,stepId,derivedTypeId, activeViewerID);
 }
-
+//#region Probe
+export function probe(pointerData:{xyFromTop:number[], width:number,height:number},activeViewerID:string) {
+    return viewerMgr.probeFromNodes(pointerData,activeViewerID);
+}
+//#endregion
 //#region Section
 export function getSectionGUIData(activeViewerID:string) {
     return viewerMgr.getSectionGUIData(activeViewerID);
@@ -104,9 +137,4 @@ export function setSectionPlaneGUIData(planeId:number,selectedPlaneOptions:any, 
     viewerMgr.setSectionPlaneGUIData(planeId,selectedPlaneOptions,activeViewerID);
     return 'SUCCESS'
 }
-
-export function probe(pointerData:{xyFromTop:number[], width:number,height:number},activeViewerID:string) {
-    return {};
-}
-
 //#endregion

@@ -1,30 +1,16 @@
 import React, {useState, useEffect, useRef} from 'react'
 import useContainer from '../../../../customHooks/useContainer';
-import { Table, Column,HeaderCell,Cell } from 'rsuite-table';
+import Table,{ Column,HeaderCell,Cell } from '../../../shared/RsTable';
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
 import SearchItem from './SearchItem'
-import SearchHints from './SearchHints'
-import {selectSearchHints,selectPrevSearches,setCheckedNodesAsync,selectProductTreeData, setSearchString, TreeNode as ITreeNode, selectSearchResults} from "../../../../store/sideBar/productTreeSlice"
+import SearchHints from '../../../shared/hintsPanel'
+import {selectSearchHints, removeSearchHint, selectPrevSearches,setCheckedNodesAsync,selectProductTreeData, setSearchString, TreeNode as ITreeNode, selectSearchResults} from "../../../../store/sideBar/productTreeSlice"
 import Checkbox from "@material-ui/core/Checkbox"
 import {makeStyles} from '@material-ui/core/styles'
 
 const useRTreeOverrideStyles = makeStyles((theme) => ({
   tree: {
-      '& .rs-table-scrollbar': {
-        background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.05)':'rgba(25, 25, 25, 0.05)',
-        position: 'absolute'
-      },
-      '& .rs-table-scrollbar-active': {
-        background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.1)':'rgba(25, 25, 25, 0.1)'
-      },
-      '& .rs-table-scrollbar-handle': {
-        position: 'absolute',
-        background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.5)':'rgba(25, 25, 25, 0.5)',
-        borderRadius: '4px'
-      },
-      '':{
-
-      }
+      
   }
 })) 
 
@@ -65,12 +51,18 @@ function Search(props:any) {
         })
         setSelectAll(state);
     }
+     const handleHintsClick = (s:string) => {
+        dispatch(setSearchString(s));
+    }
+    const handleHintsDelete = (s:string) => {
+        dispatch(removeSearchHint({data:s}));
+    }
     const overrideStyles = useRTreeOverrideStyles();
     return (
         <div ref = {containerRef} style={{height:'100%', overflow:'hidden'}} >
           <div ref = {headerRef} >
 
-            <SearchHints data = {generateOptions()} setInput={setSearchString}></SearchHints>
+            <SearchHints data = {generateOptions()} onClick={handleHintsClick} onDelete={handleHintsDelete}></SearchHints>
             {
             result.length !== 0 ?
             <div>
@@ -85,7 +77,6 @@ function Search(props:any) {
             {/*
  // @ts-ignore */}
             <Table height={containerHeight? containerHeight - headerHeight : 0}
-                   className={overrideStyles.tree}
                    data={result}
                    id="searchList"
                    showHeader={false}
@@ -95,12 +86,10 @@ function Search(props:any) {
                         if(attr && Object.keys(attr).length > 0)
                         {
                             let height = 30 * (Object.keys(attr).length+1);
-                            console.log("height",height)
                             return height;
                         }
                         else{
                             let height = 45;
-                            console.log("height",height)
                             return height;
                         }
                         

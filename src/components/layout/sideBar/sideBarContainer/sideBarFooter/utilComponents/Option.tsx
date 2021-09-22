@@ -11,7 +11,7 @@ interface IOptionProp {
 
 const useStyles = makeStyles(theme => createStyles({
     iconText: {
-        height:'50px'
+        marginBottom: 2
     }
 }))
 

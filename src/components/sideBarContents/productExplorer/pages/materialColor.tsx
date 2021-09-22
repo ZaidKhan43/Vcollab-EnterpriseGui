@@ -21,7 +21,7 @@ import TranslateSlider from '../../../shared/translateSlider';
 
 import {useState} from "react"
 
-import styles from '../style';
+import styles from '../styles/materialColor';
 
 export default function MaterialColor() {
 

@@ -1,6 +1,9 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
+import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
+import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
+import Table, {Cell,Column,ColumnGroup,HeaderCell} from '../../../shared/RsTable'
+import clsx from 'clsx'
 import useContainer from '../../../../customHooks/useContainer';
-import { Table ,Column, ColumnGroup, HeaderCell, Cell, } from 'rsuite-table';
 import {useAppSelector , useAppDispatch} from '../../../../store/storeHooks'
 import {selectProductTreeData, selectRootIds, setCheckedNodesAsync, setHightLightedNodesAsync, expandNode, TreeNode as ITreeNode} from '../../../../store/sideBar/productTreeSlice'
 import TreeNode from "./TreeNode"
@@ -9,19 +12,10 @@ import ShowHideCell from "./ShowHide"
 import { makeStyles } from '@material-ui/core/styles';
 
 const useRTreeOverrideStyles = makeStyles((theme) => ({
-  tree: {
-      '& .rs-table-scrollbar': {
-        background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.05)':'rgba(25, 25, 25, 0.05)',
-        position: 'absolute'
-      },
-      '& .rs-table-scrollbar-active': {
-        background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.1)':'rgba(25, 25, 25, 0.1)'
-      },
-      '& .rs-table-scrollbar-handle': {
-        position: 'absolute',
-        background: theme.palette.type === 'dark' ? 'rgba(230, 230, 230, 0.5)':'rgba(25, 25, 25, 0.5)',
-        borderRadius: '4px'
-      }
+  row: {
+    '& .rs-table-cell-content': {
+      display: 'flex !important'
+    }
   },
   rightColumn: {
       '& .rs-table-cell-group-fixed-right': {
@@ -93,7 +87,6 @@ function RTree(props:any) {
           /*
 // @ts-ignore */}
           <Table
-            className = {overrideClasses.tree}
             isTree
             defaultExpandedRowKeys = {expandedNodes}
             rowKey="id"
@@ -107,14 +100,14 @@ function RTree(props:any) {
             onExpandChange={(isOpen:boolean, rowData:any) => {
               handleExpand(isOpen, rowData.id);
             }}
-            rowClassName={overrideClasses.rightColumn}
+            rowClassName={clsx(overrideClasses.row,overrideClasses.rightColumn)}
             renderTreeToggle={(icon, rowData:any) => {
               if (rowData.children && rowData.children.length === 0) {
-                return <div></div>;
+                return null;
               }
-              return <div>{icon}</div>;
+              let state = treeData[rowData.id].state;
+              return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
             }}
-            affixHorizontalScrollbar
           >
             <Column width={900} treeCol={true} align='left' verticalAlign='middle' >
             {/*

@@ -1,5 +1,5 @@
 import { useLayoutEffect } from 'react';
-import {Switch, Route} from 'react-router';
+import {Switch, Route, useParams} from 'react-router-dom';
 import {Routes} from '../../../routes';
 import MuiDrawer from '@material-ui/core/Drawer';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
@@ -14,6 +14,7 @@ import { sideBarContentTypes } from '../../../config';
 
 import MainMenu from '../../sideBarContents/mainMenu';
 import ProductExplorer from '../../sideBarContents/productExplorer';
+import Field from '../../sideBarContents/field';
 import Colormaps from '../../sideBarContents/colormaps';
 import ClipPlanes from '../../sideBarContents/clipPlanes';
 import Scene from "../../sideBarContents/scene";
@@ -49,6 +50,9 @@ export default function Sidebar(){
         <Route  path={Routes.SCENE}>
           <Scene/>
         </Route>
+        <Route path={Routes.FIELD}>
+          <Field/>
+        </Route>
         <Route path={Routes.CLIPPLANES} >
         <ClipPlanes/>
         </Route>
@@ -67,10 +71,12 @@ export default function Sidebar(){
         <Route>
         <Annotations />
         </Route>
-        <Route>
-        <Settings />
-        </Route>
-       
+        <Route path={Routes.SCENE}>
+        <Scene/>
+         </Route>
+        <Route path={Routes.SETTINGS}>
+        <Settings/>
+         </Route>
       </Switch>)
       
     };
