@@ -9,7 +9,7 @@ export enum ViewMode {
     Orthographic = 1,
   }
 
-export type cameraView = {
+export type CameraView = {
     id : number,
     name : string,
     userDefined : boolean,
@@ -35,7 +35,7 @@ export type cameraView = {
     }[]
 }
 
-type colorList = {
+type ColorList = {
     id : number,
     color : {
         r : number,
@@ -45,7 +45,7 @@ type colorList = {
     },
 }
 
-type settings = {
+type Settings = {
     idGenerator: number,
     defaultCameraParameter : {
         userDefined : boolean,
@@ -76,23 +76,23 @@ type settings = {
     colorLimit : number,
 }
 
-type scenes = {
-    cameraViews : cameraView[],
-    settings : settings,
-    colorList : colorList[],
+type Scenes = {
+    cameraViews : CameraView[],
+    settings : Settings,
+    colorList : ColorList[],
     file: any,
-    axisTriodList : axisTriodList[],
+    axisTriodList : AxisTriodList[],
 }
 
 
-export type axisTriodList = {
+export type AxisTriodList = {
     id:any
     text:string,
     selected:boolean,
     applied:boolean,
 }
 
-const initialState : scenes = {
+const initialState : Scenes = {
     cameraViews : [
         
     ],
@@ -202,19 +202,20 @@ export const sceneSlice = createSlice({
     name: "scene",
     initialState : initialState,
     reducers: {
+        //camera
         addCameraView : (state) => {
             if(state.cameraViews.filter(item => item.userDefined === true).length < state.settings.userDefineLimit){
                 const userDefinedLength = state.cameraViews.filter(item => item.userDefined === true).length;
                 const id : number = ++state.settings.idGenerator;
                 const name : string = `Camera View ${userDefinedLength + 1}`;
-                const newCameraView : cameraView = {
+                const newCameraView : CameraView = {
                 ...state.settings.defaultCameraParameter,id, name, userDefined:true
             }
             state.cameraViews = [...state.cameraViews, newCameraView];
             }
         },
 
-        pasteCameraView: (state,action :  PayloadAction<{data: cameraView}>) => {
+        pasteCameraView: (state,action :  PayloadAction<{data: CameraView}>) => {
             const userDefinedLength : number = state.cameraViews.filter(item => item.userDefined === true).length;
             let clone = JSON.parse(JSON.stringify(action.payload.data));
             const newId = ++state.settings.idGenerator;
@@ -224,7 +225,7 @@ export const sceneSlice = createSlice({
             state.cameraViews = [...state.cameraViews , clone];
         },
 
-        deteteCameraView:(state, action: PayloadAction<{id : number}>) => {
+        deleteCameraView:(state, action: PayloadAction<{id : number}>) => {
             state.cameraViews =  state.cameraViews.filter(item => item.id !== action.payload.id)
         },
 
@@ -239,7 +240,7 @@ export const sceneSlice = createSlice({
             state.settings.projection = action.payload.value;
         },
         
-        updateChange: (state, action :  PayloadAction<{data : cameraView, tab : ViewMode}>) => {
+        updateChange: (state, action :  PayloadAction<{data : CameraView, tab : ViewMode}>) => {
             const {data,tab} = action.payload;
             const index = state.cameraViews.findIndex(item => item.id === data.id)
             if(index > -1){
@@ -274,14 +275,15 @@ export const sceneSlice = createSlice({
             }
         },
 
-        updateBackgroundColor : (state, action : PayloadAction<colorList[]>) => {
+        //background
+        updateBackgroundColor : (state, action : PayloadAction<ColorList[]>) => {
             state.colorList = action.payload;
         },
 
         updateBackgroundImage : (state, action) => {
             state.file = action.payload;
         },
-
+        // axisTriad
         setApplyItem:(state, action:PayloadAction<any>)=>{
             state.axisTriodList.forEach((item)=>{    
               if(item.id === action.payload) {
@@ -290,7 +292,7 @@ export const sceneSlice = createSlice({
               else{
                 item.selected = false
               }
-    // Apply selected item             
+        // Apply selected item             
               if(item.selected === true) {
                 item.applied = true
                 item.selected = false // 
@@ -349,7 +351,7 @@ export const sceneSlice = createSlice({
     }
 })
 
-export const {addCameraView, setActiveId ,  updateChange, pasteCameraView , deteteCameraView , updateBackgroundColor , updateBackgroundImage , setApplyItem} = sceneSlice.actions;
+export const {addCameraView, setActiveId ,  updateChange, pasteCameraView , deleteCameraView, updateBackgroundColor , updateBackgroundImage , setApplyItem} = sceneSlice.actions;
 
 export default sceneSlice.reducer;
 
