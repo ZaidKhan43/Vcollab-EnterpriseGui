@@ -156,7 +156,10 @@ export const fetchCameraStdViews = createAsyncThunk(
         const state = getState() as RootState;
         const viewerId = state.app.viewers[state.app.activeViewer || ''];
         let r:any[] = getCameraStdViews(viewerId);
-        return r;
+        r.forEach(item => 
+            item.perspective.aspect = Math.random() + item.perspective.aspect)
+        console.log(r)
+            return r;
     }
 )
 
