@@ -31,7 +31,7 @@ import MuiToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import { Routes } from '../../../../routes/index'
 import styles from '../style';
 
-import { cameraView ,addCameraView , setActiveId, ViewMode , editViewMode , pasteCameraView , deteteCameraView} from '../../../../store/sideBar/sceneSlice';
+import { cameraView ,addCameraView , setActiveId, ViewMode , setProjectionAsync , pasteCameraView , deteteCameraView, setCameraInfoAsync} from '../../../../store/sideBar/sceneSlice';
 
 export default function Camera (){
 
@@ -86,10 +86,12 @@ export default function Camera (){
 
     const onHandleViewMode = (e : any) => {
         const value = Number(e.currentTarget.value);
-        dispatch(editViewMode({value}))
+        dispatch(setProjectionAsync(value))
     }
 
-    
+    const onHandleApply = () => {
+        dispatch(setCameraInfoAsync())
+    } 
 
     const onHandleEdit = () => {
         dispatch(push(Routes.SCENE_CAMERA_EDIT));  
@@ -195,7 +197,7 @@ export default function Camera (){
                         <div style={{marginTop:"20px", marginBottom:"20px"}}>
                             <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
                                 autoFocus 
-                                // onClick={onHandleDelete} 
+                                onClick={onHandleApply} 
                                 // color="primary"
                             >
                                 Apply

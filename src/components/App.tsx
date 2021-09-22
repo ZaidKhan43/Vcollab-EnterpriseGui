@@ -15,6 +15,7 @@ import { appBarMinHeight, popupMenuContentTypes } from '../config';
 import SnackBar from "./sideBarContents/messages/SnackBar";
 
 import Viewer from './viewer';
+import { fetchCameraStdViews } from '../store/sideBar/sceneSlice';
 
 function App() {
 
@@ -29,6 +30,7 @@ function App() {
 
   //===========================================================================
   const onResize = useCallback((width ?:number, height ?: number) => {
+    dispatch(fetchCameraStdViews());
     if(height && height > appBarMinHeight)
           dispatch(setAppBarVisibility(true));
       else 

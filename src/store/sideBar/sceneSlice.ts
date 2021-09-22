@@ -1,8 +1,10 @@
 import { PlaylistAddOutlined } from '@material-ui/icons';
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
+import { getCameraStdViews, setCameraInfo, setCameraProjection } from '../../backend/viewerAPIProxy';
+import {perspectiveToOrtho,orthoToPerspective} from '../../components/utils/camera'
 import type { RootState } from '../index';
 
-export enum ViewMode{
+export enum ViewMode {
     Perspective = 0,
     Orthographic = 1,
   }
@@ -44,6 +46,7 @@ type colorList = {
 }
 
 type settings = {
+    idGenerator: number,
     defaultCameraParameter : {
         userDefined : boolean,
         valuePerspective : {
@@ -91,244 +94,7 @@ export type axisTriodList = {
 
 const initialState : scenes = {
     cameraViews : [
-        {
-            id: 0,
-            name: "Front" , 
-            userDefined: false,
-            valuePerspective :  [ 
-                {name:"Y-Field of View", value:100},
-                {name:"Aspect Ratio", value:1000},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            valueOrthographic : [
-                {name:"Left", value:100},
-                {name:"Right", value:1000},
-                {name:"Top", value:100},
-                {name:"Bottom", value:100},
-                {name:"Far", value:100},
-                {name:"Near", value:1000},
-            ],
-            cameraPosition : [
-                {name:"X" , value:20.0},
-                {name:"Y", value:20.0},
-                {name:"Z", value:20.0},
-            ],
-            cameraDirection:[
-                {name:"X", value:10},
-                {name:"Y", value:20},
-                {name:"Z", value:30},
-            ],
-            cameraUp:[
-                {name:"X", value:5},
-                {name:"Y", value:3},
-                {name: "Z", value:2},
-            ],
-        },
-        {
-            id: 1,
-            name: "Back" , 
-            userDefined: false,
-            valuePerspective :  [ 
-                {name:"Y-Field of View", value:100},
-                {name:"Aspect Ratio", value:1000},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            valueOrthographic : [
-                {name:"Left", value:100},
-                {name:"Right", value:1000},
-                {name:"Top", value:100},
-                {name:"Bottom", value:100},
-                {name:"Far", value:100},
-                {name:"Near", value:1000},
-            ],
-            cameraPosition : [
-                {name:"X" , value:20.0},
-                {name:"Y", value:20.0},
-                {name:"Z", value:20.0},
-            ],
-            cameraDirection:[
-                {name:"X", value:10},
-                {name:"Y", value:20},
-                {name:"Z", value:30},
-            ],
-            cameraUp:[
-                {name:"X", value:5},
-                {name:"Y", value:3},
-                {name: "Z", value:2},
-            ],
-        },
-        {
-            id: 2,
-            name: "Left" , 
-            userDefined: false,
-            valuePerspective :  [ 
-                {name:"Y-Field of View", value:100},
-                {name:"Aspect Ratio", value:1000},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            valueOrthographic : [
-                {name:"Left", value:100},
-                {name:"Right", value:1000},
-                {name:"Top", value:100},
-                {name:"Bottom", value:100},
-                {name:"Far", value:100},
-                {name:"Near", value:1000},
-            ],
-            cameraPosition : [
-                {name:"X" , value:20.0},
-                {name:"Y", value:20.0},
-                {name:"Z", value:20.0},
-            ],
-            cameraDirection:[
-                {name:"X", value:10},
-                {name:"Y", value:20},
-                {name:"Z", value:30},
-            ],
-            cameraUp:[
-                {name:"X", value:5},
-                {name:"Y", value:3},
-                {name: "Z", value:2},
-            ],
-        },
-        {
-            id: 3,
-            name: "Right" , 
-            userDefined: false,
-            valuePerspective :  [ 
-                {name:"Y-Field of View", value:100},
-                {name:"Aspect Ratio", value:1000},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            valueOrthographic : [
-                {name:"Left", value:100},
-                {name:"Right", value:1000},
-                {name:"Top", value:100},
-                {name:"Bottom", value:100},
-                {name:"Far", value:100},
-                {name:"Near", value:1000},
-            ],
-            cameraPosition : [
-                {name:"X" , value:20.0},
-                {name:"Y", value:20.0},
-                {name:"Z", value:20.0},
-            ],
-            cameraDirection:[
-                {name:"X", value:10},
-                {name:"Y", value:20},
-                {name:"Z", value:30},
-            ],
-            cameraUp:[
-                {name:"X", value:5},
-                {name:"Y", value:3},
-                {name: "Z", value:2},
-            ],
-        },
-        {
-            id: 4,
-            name: "Top" , 
-            userDefined: false,
-            valuePerspective :  [ 
-                {name:"Y-Field of View", value:100},
-                {name:"Aspect Ratio", value:1000},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            valueOrthographic : [
-                {name:"Left", value:100},
-                {name:"Right", value:1000},
-                {name:"Top", value:100},
-                {name:"Bottom", value:100},
-                {name:"Far", value:100},
-                {name:"Near", value:1000},
-            ],
-            cameraPosition : [
-                {name:"X" , value:20.0},
-                {name:"Y", value:20.0},
-                {name:"Z", value:20.0},
-            ],
-            cameraDirection:[
-                {name:"X", value:10},
-                {name:"Y", value:20},
-                {name:"Z", value:30},
-            ],
-            cameraUp:[
-                {name:"X", value:5},
-                {name:"Y", value:3},
-                {name: "Z", value:2},
-            ],
-        },
-        {
-            id: 5,
-            name: "Bottom" , 
-            userDefined: false,
-            valuePerspective :  [ 
-                {name:"Y-Field of View", value:100},
-                {name:"Aspect Ratio", value:1000},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            valueOrthographic : [
-                {name:"Left", value:100},
-                {name:"Right", value:1000},
-                {name:"Top", value:100},
-                {name:"Bottom", value:100},
-                {name:"Far", value:100},
-                {name:"Near", value:1000},
-            ],
-            cameraPosition : [
-                {name:"X" , value:20.0},
-                {name:"Y", value:20.0},
-                {name:"Z", value:20.0},
-            ],
-            cameraDirection:[
-                {name:"X", value:10},
-                {name:"Y", value:20},
-                {name:"Z", value:30},
-            ],
-            cameraUp:[
-                {name:"X", value:5},
-                {name:"Y", value:3},
-                {name: "Z", value:2},
-            ],
-        },
-        {
-            id: 6,
-            name: "Isometric" , 
-            userDefined: false,
-            valuePerspective :  [ 
-                {name:"Y-Field of View", value:100},
-                {name:"Aspect Ratio", value:1000},
-                {name:"Far Plane", value:100},
-                {name:"Near Plane", value:1000},
-            ],
-            valueOrthographic : [
-                {name:"Left", value:100},
-                {name:"Right", value:1000},
-                {name:"Top", value:100},
-                {name:"Bottom", value:100},
-                {name:"Far", value:100},
-                {name:"Near", value:1000},
-            ],
-            cameraPosition : [
-                {name:"X" , value:20.0},
-                {name:"Y", value:20.0},
-                {name:"Z", value:20.0},
-            ],
-            cameraDirection:[
-                {name:"X", value:10},
-                {name:"Y", value:20},
-                {name:"Z", value:30},
-            ],
-            cameraUp:[
-                {name:"X", value:5},
-                {name:"Y", value:3},
-                {name: "Z", value:2},
-            ],
-        },
+        
     ],
     
     colorList : [{ id:1, color:{r:160, g:160, b:252, a:1}} , {id:2, color:{r:255, g:255, b:255, a:1}}],
@@ -344,6 +110,7 @@ const initialState : scenes = {
     ],
 
     settings : {
+        idGenerator:0,
         defaultCameraParameter : {
             userDefined : true,
             valuePerspective :  [ 
@@ -373,28 +140,75 @@ const initialState : scenes = {
             cameraUp:[
                 {name:"X", value:5},
                 {name:"Y", value:3},
-                {name: "Z", value:2},
+                {name:"Z", value:2},
             ],
         },
         activeId : -1,
         userDefineLimit: 3,
-        projection: ViewMode.Orthographic,  
+        projection: ViewMode.Perspective,  
         colorLimit : 4,
     }
 }
 
+export const fetchCameraStdViews = createAsyncThunk(
+    'scene/fetchCameraStdViews',
+    async (data,{dispatch, getState}) => {
+        const state = getState() as RootState;
+        const viewerId = state.app.viewers[state.app.activeViewer || ''];
+        let r:any[] = getCameraStdViews(viewerId);
+        return r;
+    }
+)
+
+export const setCameraInfoAsync = createAsyncThunk(
+    'scene/setCameraInfoAsync',
+    async (data,{dispatch,getState}) => {
+        const state = getState() as RootState;
+        const viewerId = state.app.viewers[state.app.activeViewer || ''];
+        let activeView = selectedCameraView(state)[0];
+        let camData = {
+            position: [activeView.cameraPosition[0].value,activeView.cameraPosition[1].value,activeView.cameraPosition[2].value],
+            dir: [activeView.cameraDirection[0].value,activeView.cameraDirection[1].value,activeView.cameraDirection[2].value],
+            up: [activeView.cameraUp[0].value,activeView.cameraUp[1].value,activeView.cameraUp[2].value],
+            perspective: 
+            {
+                fov: activeView.valuePerspective[0].value,
+                aspect: activeView.valuePerspective[1].value,
+                far: activeView.valuePerspective[2].value,
+                near: activeView.valuePerspective[3].value
+            },
+            ortho: {
+                left: activeView.valueOrthographic[0].value,
+                right: activeView.valueOrthographic[1].value,
+                top: activeView.valueOrthographic[2].value,
+                bottom: activeView.valueOrthographic[3].value,
+                far: activeView.valueOrthographic[4].value,
+                near: activeView.valueOrthographic[5].value,
+            }
+        }
+        setCameraInfo(viewerId,camData);
+    }
+)
+export const setProjectionAsync = createAsyncThunk(
+    'scene/setProjectionAsync',
+    async (data:ViewMode, {dispatch,getState}) => {
+        const state = getState() as RootState;
+        const viewerId = state.app.viewers[state.app.activeViewer || ''];
+        setCameraProjection(viewerId,data);
+        dispatch(sceneSlice.actions.editViewMode({value:data}));
+    }
+)
 export const sceneSlice = createSlice({
     name: "scene",
     initialState : initialState,
     reducers: {
         addCameraView : (state) => {
             if(state.cameraViews.filter(item => item.userDefined === true).length < state.settings.userDefineLimit){
-                const length = state.cameraViews.length;
                 const userDefinedLength = state.cameraViews.filter(item => item.userDefined === true).length;
-                const id : number = length;
+                const id : number = ++state.settings.idGenerator;
                 const name : string = `Camera View ${userDefinedLength + 1}`;
                 const newCameraView : cameraView = {
-                id, name, ...state.settings.defaultCameraParameter
+                ...state.settings.defaultCameraParameter,id, name, userDefined:true
             }
             state.cameraViews = [...state.cameraViews, newCameraView];
             }
@@ -403,7 +217,7 @@ export const sceneSlice = createSlice({
         pasteCameraView: (state,action :  PayloadAction<{data: cameraView}>) => {
             const userDefinedLength : number = state.cameraViews.filter(item => item.userDefined === true).length;
             let clone = JSON.parse(JSON.stringify(action.payload.data));
-            const newId = state.cameraViews.length;
+            const newId = ++state.settings.idGenerator;
             clone.id= newId;
             clone.userDefined = true;
             clone.name = `Camera View ${userDefinedLength + 1}`;
@@ -424,11 +238,38 @@ export const sceneSlice = createSlice({
         editViewMode: (state, action:  PayloadAction<{value : ViewMode}>) => {
             state.settings.projection = action.payload.value;
         },
-
-        updateChange: (state, action :  PayloadAction<{data : cameraView}>) => {
-            const data = action.payload.data;
+        
+        updateChange: (state, action :  PayloadAction<{data : cameraView, tab : ViewMode}>) => {
+            const {data,tab} = action.payload;
             const index = state.cameraViews.findIndex(item => item.id === data.id)
             if(index > -1){
+                if(tab === ViewMode.Perspective)
+                {
+                    let fov = data.valuePerspective[0].value;
+                    let aspect = data.valuePerspective[1].value; 
+                    let far = data.valuePerspective[2].value;
+                    let near = data.valuePerspective[3].value;
+                    let orthoData = perspectiveToOrtho(fov,aspect,near,far);
+                    data.valueOrthographic[0].value = orthoData.left;
+                    data.valueOrthographic[1].value = orthoData.right;
+                    data.valueOrthographic[2].value = orthoData.top;
+                    data.valueOrthographic[3].value = orthoData.bottom;
+                    data.valueOrthographic[4].value = orthoData.far;
+                    data.valueOrthographic[5].value = orthoData.near;
+                }
+                else{
+                    let left = data.valueOrthographic[0].value;
+                    let right = data.valueOrthographic[1].value; 
+                    let top = data.valueOrthographic[2].value;
+                    let bottom = data.valueOrthographic[3].value;
+                    let far = data.valueOrthographic[4].value;
+                    let near = data.valueOrthographic[5].value;
+                    let perspData = orthoToPerspective(left,right,top,bottom,near,far);
+                    data.valuePerspective[0].value = perspData.fov;
+                    data.valuePerspective[1].value = perspData.aspect;
+                    data.valuePerspective[2].value = perspData.far;
+                    data.valuePerspective[3].value = perspData.near;
+                }
                 state.cameraViews[index] = {...data};
             }
         },
@@ -459,10 +300,56 @@ export const sceneSlice = createSlice({
                 }
             })
         },
+    },
+    extraReducers: builder => {
+        builder.addCase(fetchCameraStdViews.fulfilled, (state, action:PayloadAction<any[]>) => {
+            const r = action.payload;
+            let userViews = state.cameraViews.filter(e => e.userDefined === true);
+            state.cameraViews = [...userViews];
+            r.forEach(e => {
+                let view = {
+                    id: ++state.settings.idGenerator,
+                    name: e.name,
+                    userDefined:false,
+                    valuePerspective: [
+                        {name: "Y-Field of View", value: e.perspective.fov},
+                        {name: "Aspect Ratio",value: e.perspective.aspect},
+                        {name: "Far Plane", value: e.perspective.far},
+                        {name: "Near Plane", value: e.perspective.near}
+                    ],
+                    valueOrthographic: [
+                        {name:"Left", value:e.ortho.left},
+                        {name:"Right", value:e.ortho.right},
+                        {name:"Top", value:e.ortho.top},
+                        {name:"Bottom", value:e.ortho.bottom},
+                        {name:"Far", value:e.ortho.far},
+                        {name:"Near", value:e.ortho.near},
+                    ],
+                    cameraPosition : [
+                        {name:"X" , value:e.position[0]},
+                        {name:"Y", value:e.position[1]},
+                        {name:"Z", value:e.position[2]},
+                    ],
+                    cameraDirection:[
+                        {name:"X", value:e.dir[0]},
+                        {name:"Y", value:e.dir[1]},
+                        {name:"Z", value:e.dir[2]},
+                    ],
+                    cameraUp:[
+                        {name:"X", value:e.up[0]},
+                        {name:"Y", value:e.up[1]},
+                        {name:"Z", value:e.up[2]},
+                    ],
+                }
+                state.cameraViews.push(view);
+            })
+            state.settings.defaultCameraParameter = state.cameraViews[0];
+
+        })
     }
 })
 
-export const {addCameraView, setActiveId , editViewMode , updateChange, pasteCameraView , deteteCameraView , updateBackgroundColor , updateBackgroundImage , setApplyItem} = sceneSlice.actions;
+export const {addCameraView, setActiveId ,  updateChange, pasteCameraView , deteteCameraView , updateBackgroundColor , updateBackgroundImage , setApplyItem} = sceneSlice.actions;
 
 export default sceneSlice.reducer;
 

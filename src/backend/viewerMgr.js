@@ -1028,6 +1028,8 @@ var abstractType = Object.freeze({
  * Common utilities
  * @module glMatrix
  */
+// Configuration Constants
+var EPSILON = 0.000001;
 var ARRAY_TYPE = typeof Float32Array !== 'undefined' ? Float32Array : Array;
 if (!Math.hypot) Math.hypot = function () {
   var y = 0,
@@ -1099,6 +1101,116 @@ function clone(a) {
   out[14] = a[14];
   out[15] = a[15];
   return out;
+}
+/**
+ * Set a mat4 to the identity matrix
+ *
+ * @param {mat4} out the receiving matrix
+ * @returns {mat4} out
+ */
+
+function identity(out) {
+  out[0] = 1;
+  out[1] = 0;
+  out[2] = 0;
+  out[3] = 0;
+  out[4] = 0;
+  out[5] = 1;
+  out[6] = 0;
+  out[7] = 0;
+  out[8] = 0;
+  out[9] = 0;
+  out[10] = 1;
+  out[11] = 0;
+  out[12] = 0;
+  out[13] = 0;
+  out[14] = 0;
+  out[15] = 1;
+  return out;
+}
+/**
+ * Generates a look-at matrix with the given eye position, focal point, and up axis.
+ * If you want a matrix that actually makes an object look at another object, you should use targetTo instead.
+ *
+ * @param {mat4} out mat4 frustum matrix will be written into
+ * @param {ReadonlyVec3} eye Position of the viewer
+ * @param {ReadonlyVec3} center Point the viewer is looking at
+ * @param {ReadonlyVec3} up vec3 pointing up
+ * @returns {mat4} out
+ */
+
+function lookAt(out, eye, center, up) {
+  var x0, x1, x2, y0, y1, y2, z0, z1, z2, len;
+  var eyex = eye[0];
+  var eyey = eye[1];
+  var eyez = eye[2];
+  var upx = up[0];
+  var upy = up[1];
+  var upz = up[2];
+  var centerx = center[0];
+  var centery = center[1];
+  var centerz = center[2];
+
+  if (Math.abs(eyex - centerx) < EPSILON && Math.abs(eyey - centery) < EPSILON && Math.abs(eyez - centerz) < EPSILON) {
+    return identity(out);
+  }
+
+  z0 = eyex - centerx;
+  z1 = eyey - centery;
+  z2 = eyez - centerz;
+  len = 1 / Math.hypot(z0, z1, z2);
+  z0 *= len;
+  z1 *= len;
+  z2 *= len;
+  x0 = upy * z2 - upz * z1;
+  x1 = upz * z0 - upx * z2;
+  x2 = upx * z1 - upy * z0;
+  len = Math.hypot(x0, x1, x2);
+
+  if (!len) {
+    x0 = 0;
+    x1 = 0;
+    x2 = 0;
+  } else {
+    len = 1 / len;
+    x0 *= len;
+    x1 *= len;
+    x2 *= len;
+  }
+
+  y0 = z1 * x2 - z2 * x1;
+  y1 = z2 * x0 - z0 * x2;
+  y2 = z0 * x1 - z1 * x0;
+  len = Math.hypot(y0, y1, y2);
+
+  if (!len) {
+    y0 = 0;
+    y1 = 0;
+    y2 = 0;
+  } else {
+    len = 1 / len;
+    y0 *= len;
+    y1 *= len;
+    y2 *= len;
+  }
+
+  out[0] = x0;
+  out[1] = y0;
+  out[2] = z0;
+  out[3] = 0;
+  out[4] = x1;
+  out[5] = y1;
+  out[6] = z1;
+  out[7] = 0;
+  out[8] = x2;
+  out[9] = y2;
+  out[10] = z2;
+  out[11] = 0;
+  out[12] = -(x0 * eyex + x1 * eyey + x2 * eyez);
+  out[13] = -(y0 * eyex + y1 * eyey + y2 * eyez);
+  out[14] = -(z0 * eyex + z1 * eyey + z2 * eyez);
+  out[15] = 1;
+  return out;
 }/**
  * 3 Dimensional Vector
  * @module vec3
@@ -1122,6 +1234,20 @@ function create$1() {
   return out;
 }
 /**
+ * Creates a new vec3 initialized with values from an existing vector
+ *
+ * @param {ReadonlyVec3} a vector to clone
+ * @returns {vec3} a new 3D vector
+ */
+
+function clone$1(a) {
+  var out = new ARRAY_TYPE(3);
+  out[0] = a[0];
+  out[1] = a[1];
+  out[2] = a[2];
+  return out;
+}
+/**
  * Creates a new vec3 initialized with the given values
  *
  * @param {Number} x X component
@@ -1135,6 +1261,21 @@ function fromValues(x, y, z) {
   out[0] = x;
   out[1] = y;
   out[2] = z;
+  return out;
+}
+/**
+ * Adds two vec3's
+ *
+ * @param {vec3} out the receiving vector
+ * @param {ReadonlyVec3} a the first operand
+ * @param {ReadonlyVec3} b the second operand
+ * @returns {vec3} out
+ */
+
+function add(out, a, b) {
+  out[0] = a[0] + b[0];
+  out[1] = a[1] + b[1];
+  out[2] = a[2] + b[2];
   return out;
 }
 /**
@@ -2826,7 +2967,7 @@ var WEBGLCOMPONENTTYPES = {
  * @module glMatrix
  */
 // Configuration Constants
-var EPSILON = 0.000001;
+var EPSILON$1 = 0.000001;
 var ARRAY_TYPE$1 = typeof Float32Array !== 'undefined' ? Float32Array : Array;
 if (!Math.hypot) Math.hypot = function () {
   var y = 0,
@@ -2906,7 +3047,7 @@ function create$1$1() {
  * @returns {mat4} a new 4x4 matrix
  */
 
-function clone$1(a) {
+function clone$2(a) {
   var out = new ARRAY_TYPE$1(16);
   out[0] = a[0];
   out[1] = a[1];
@@ -2975,7 +3116,7 @@ function fromValues$1(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23
  * @returns {mat4} out
  */
 
-function identity(out) {
+function identity$1(out) {
   out[0] = 1;
   out[1] = 0;
   out[2] = 0;
@@ -3277,7 +3418,7 @@ function rotate(out, a, rad, axis) {
   var b10, b11, b12;
   var b20, b21, b22;
 
-  if (len < EPSILON) {
+  if (len < EPSILON$1) {
     return null;
   }
 
@@ -3824,7 +3965,7 @@ function copy(out, a) {
  * @returns {vec3} out
  */
 
-function add(out, a, b) {
+function add$1(out, a, b) {
   out[0] = a[0] + b[0];
   out[1] = a[1] + b[1];
   out[2] = a[2] + b[2];
@@ -4333,7 +4474,7 @@ function getAxisAngle(out_axis, q) {
   var rad = Math.acos(q[3]) * 2.0;
   var s = Math.sin(rad / 2.0);
 
-  if (s > EPSILON) {
+  if (s > EPSILON$1) {
     out_axis[0] = q[0] / s;
     out_axis[1] = q[1] / s;
     out_axis[2] = q[2] / s;
@@ -4404,7 +4545,7 @@ function slerp(out, a, b, t) {
   } // calculate coefficients
 
 
-  if (1.0 - cosom > EPSILON) {
+  if (1.0 - cosom > EPSILON$1) {
     // standard case (slerp)
     omega = Math.acos(cosom);
     sinom = Math.sin(omega);
@@ -5078,7 +5219,7 @@ function fromValues$4(x, y) {
             var trans_1 = create$2$1();
             matrices.forEach(function (m) {
                 getTranslation(trans_1, m);
-                add(out, out, trans_1);
+                add$1(out, out, trans_1);
             });
             return scale$1(out, out, 1 / matrices.length);
         }
@@ -5146,6 +5287,16 @@ function fromValues$4(x, y) {
         var n = fromValues$1$1(transform[8], transform[9], transform[10]);
         var d = dot$1(n, fromValues$1$1(transform[12], transform[13], transform[14]));
         return [n[0], n[1], n[2], -d];
+    };
+    Utility.orthoToPerspective = function (left, right, top, bottom, near, far) {
+        var fov = 2 * 180 / Math.PI * (Math.atan2(top, near));
+        var aspect = (right - left) / (top - bottom);
+        return {
+            fov: fov,
+            aspect: aspect,
+            near: near,
+            far: far
+        };
     };
 })(Utility$1 || (Utility$1 = {}));var Texture = /** @class */ (function () {
     function Texture(name, textureType) {
@@ -6039,7 +6190,7 @@ var ShapeNode = /** @class */ (function (_super) {
                 TNode.index = node.index;
                 TNode.attributes = node.attributes;
                 var localMatrix = create$1$1();
-                identity(localMatrix);
+                identity$1(localMatrix);
                 if (node.matrix) {
                     console.warn("Matrix transform is not implemented.");
                 }
@@ -6623,7 +6774,7 @@ var Shader = /** @class */ (function () {
         var percent = precentOffset / 100;
         var offset = squaredDistance$1(min, max) * percent * percent;
         sub$1(min, min, fromValues$1$1(offset, offset, offset));
-        add(max, max, fromValues$1$1(offset, offset, offset));
+        add$1(max, max, fromValues$1$1(offset, offset, offset));
         var vertices = new Float32Array([
             //back vertices
             min[0], min[1], min[2],
@@ -6668,7 +6819,7 @@ var Shader = /** @class */ (function () {
         var percent = precentOffset / 100;
         var offset = squaredDistance$1(min, max) * percent * percent;
         sub$1(min, min, fromValues$1$1(offset, offset, offset));
-        add(max, max, fromValues$1$1(offset, offset, offset));
+        add$1(max, max, fromValues$1$1(offset, offset, offset));
         var vertices = new Float32Array([
             //back vertices
             min[0], min[1], min[2],
@@ -7803,7 +7954,7 @@ var MathUtils;
     MathUtils.rad2Deg = rad2Deg;
     function getMidPoint(a, b) {
         var out = create$2$1();
-        add(out, a, b);
+        add$1(out, a, b);
         scale$1(out, out, 0.5);
         return out;
     }
@@ -7978,7 +8129,7 @@ var CameraControl = /** @class */ (function (_super) {
         var point2D = create$3();
         var point3D = create$3();
         var tempMatrix = create$1$1();
-        identity(tempMatrix);
+        identity$1(tempMatrix);
         var viewportArray = [0.0, 0.0, widthHeight[0], widthHeight[1]];
         point3D[0] = point3DArray[0];
         point3D[1] = point3DArray[1];
@@ -8041,6 +8192,9 @@ var CameraControl = /** @class */ (function (_super) {
         else {
             return this.sceneBoundingBox.getCenter();
         }
+    };
+    CameraControl.prototype.setOrthoWindowWidth = function (width) {
+        this.orthoParams.orthoWindowWidth = width;
     };
     CameraControl.prototype.getPosition = function (type) {
         if (type === void 0) { type = this.camType; }
@@ -8114,7 +8268,7 @@ var CameraControl = /** @class */ (function (_super) {
             var v2 = create$2$1();
             scale$1(v2, up, deltaX);
             var axis_in_camera_coord = create$2$1();
-            add(axis_in_camera_coord, v1, v2);
+            add$1(axis_in_camera_coord, v1, v2);
             negate(axis_in_camera_coord, axis_in_camera_coord);
             normalize$1(axis_in_camera_coord, axis_in_camera_coord);
             var rotationPoint = fromValues$1$1(cameraPosition[0], cameraPosition[1], cameraPosition[2]);
@@ -8133,7 +8287,10 @@ var CameraControl = /** @class */ (function (_super) {
             this.translation[0] = (_orthoWindowWidth * deltaX) / width;
             this.translation[1] = (_orthoWindowHeight * deltaY) / height;
             var trans = fromValues$1$1(this.translation[0], this.translation[1], 0);
-            translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, trans);
+            this.orthCamera.camMatrix[12] += trans[0];
+            this.orthCamera.camMatrix[13] += trans[1];
+            //this.orthCamera.camMatrix[14] = this.perspCamera.camMatrix[14];
+            //glmatrix.mat4.translate(this.orthCamera.camMatrix,this.orthCamera.camMatrix,trans);
             AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.CAMERA_MOVED, data: { camType: this.camType } });
         }
     };
@@ -8208,6 +8365,8 @@ var CameraControl = /** @class */ (function (_super) {
         this.params.fWheelFactorNegative *= 1.1;
         this.params.fWheelFactorPositive = 1.0;
         this.params.fWheelFactor = this.params.fWheelFactorNegative;
+        console.log("orthoCam", this.orthCamera.camMatrix);
+        console.log("perspCam", this.perspCamera.camMatrix);
         var zSensitivity = (12 * (this.params.zoomScale * 4) * this.params.zoomSensitivity * this.params.fWheelFactor); // zoomScale = 0.0015 * 0.25;
         var diameter = this.sceneBoundingBox.getRadius() * 2;
         var orthoZoomFactorOld = this.orthoParams.orthoZoomFactor;
@@ -8231,7 +8390,9 @@ var CameraControl = /** @class */ (function (_super) {
             var fYDelta = -iY * fYStep / iHeight;
             this.translation[0] = -fXDelta;
             this.translation[1] = -fYDelta;
-            translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, fromValues$1$1(this.translation[0], this.translation[1], 0));
+            this.orthCamera.camMatrix[12] += this.translation[0];
+            this.orthCamera.camMatrix[13] += this.translation[1];
+            //glmatrix.mat4.translate(this.orthCamera.camMatrix,this.orthCamera.camMatrix,glmatrix.vec3.fromValues(this.translation[0],this.translation[1],0));
         }
         if (this.orthoParams.orthoZoomFactor < 0 && this.orthoParams.orthoZoomFactor < 1000)
             this.orthoParams.orthoZoomFactor = orthoZoomFactorOld;
@@ -8252,6 +8413,7 @@ var CameraControl = /** @class */ (function (_super) {
             finalPoint = scale$1(finalPoint, finalPoint, factor);
         }
         translate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, negate(finalPoint, finalPoint));
+        //this.orthCamera.camMatrix[14] = this.perspCamera.camMatrix[14];
         this.update();
     };
     CameraControl.prototype.pointZoomOut = function (posX, posY, factor) {
@@ -8267,7 +8429,6 @@ var CameraControl = /** @class */ (function (_super) {
         var y = zPos * (Math.tan((this.perspParams.fov / 2.0) * 0.01745329251));
         var x = y * this.perspParams.aspect;
         var _orthoWindowWidth = (x * 2);
-        (x * 2 / this.perspParams.aspect);
         var step = (_orthoWindowWidth * orthoZoomFactorOld) - (_orthoWindowWidth * this.orthoParams.orthoZoomFactor);
         if (_orthoWindowWidth - step > 0 && this.orthoParams.orthoZoomFactor > 0 && this.orthoParams.orthoZoomFactor < 1000) {
             var iWidth = this.canvas.clientWidth;
@@ -8283,7 +8444,8 @@ var CameraControl = /** @class */ (function (_super) {
             var fYDelta = -iY * fYStep / iHeight;
             this.translation[0] = -fXDelta;
             this.translation[1] = -fYDelta;
-            translate(this.orthCamera.camMatrix, this.orthCamera.camMatrix, fromValues$1$1(this.translation[0], this.translation[1], 0));
+            this.orthCamera.camMatrix[12] += this.translation[0];
+            this.orthCamera.camMatrix[13] += this.translation[1];
         }
         if (this.orthoParams.orthoZoomFactor < 0 && this.orthoParams.orthoZoomFactor < 1000)
             this.orthoParams.orthoZoomFactor = orthoZoomFactorOld;
@@ -8428,6 +8590,7 @@ var CameraControl = /** @class */ (function (_super) {
         this.params.fWheelFactorPositive = 1.0;
         this.params.fWheelFactor = 1.0;
         this.params.zoomScale = 0.0015 * 0.25;
+        this.orthoParams.orthoZoomFactor = 1;
     };
     CameraControl.prototype.getCameraMatrix = function (type) {
         var matrix = create$1$1();
@@ -8436,6 +8599,13 @@ var CameraControl = /** @class */ (function (_super) {
         else
             multiply(matrix, matrix, this.orthCamera.camMatrix);
         return matrix;
+    };
+    CameraControl.prototype.setCameraMatrix = function (type, mat) {
+        if (type == CameraType.Perspective)
+            this.perspCamera.camMatrix = clone$2(mat);
+        else
+            this.orthCamera.camMatrix = clone$2(mat);
+        this.update();
     };
     CameraControl.prototype.getCameraMatrix2 = function (type) {
         var matrix = create$1$1();
@@ -8503,7 +8673,7 @@ var CameraControl = /** @class */ (function (_super) {
         fromValues$1$1(0, 0, -zPos);
         //glmatrix.mat4.translate(this.perspCamera.camMatrix,this.perspCamera.camMatrix,trans);
         this.perspCamera.camMatrix[14] += -zPos;
-        this.orthCamera.camMatrix = clone$1(this.perspCamera.camMatrix);
+        this.orthCamera.camMatrix = clone$2(this.perspCamera.camMatrix);
         this.orthoParams.orthoZoomFactor = 1;
         var x = 0;
         var y = 0;
@@ -9347,7 +9517,7 @@ var Renderer2D = /** @class */ (function () {
             if (node.visible) {
                 var c = node.subType === AppConstants.NodeSubType.SECTION_PLANE ? node.getPosition() : node.getBBoxCenter();
                 if (c) {
-                    add(center, center, c);
+                    add$1(center, center, c);
                 }
                 else {
                     return;
@@ -13063,13 +13233,13 @@ var Point = /** @class */ (function () {
         var nearPointWorldE3 = create$2$1();
         sub$1(nearPt, pt, edge1.a);
         MathUtils.projectOnVector(nearPt, E1);
-        add(nearPointWorldE1, edge1.a, nearPt);
+        add$1(nearPointWorldE1, edge1.a, nearPt);
         sub$1(nearPt, pt, edge2.a);
         MathUtils.projectOnVector(nearPt, E2);
-        add(nearPointWorldE2, edge2.a, nearPt);
+        add$1(nearPointWorldE2, edge2.a, nearPt);
         sub$1(nearPt, pt, edge3.a);
         MathUtils.projectOnVector(nearPt, E3);
-        add(nearPointWorldE3, edge3.a, nearPt);
+        add$1(nearPointWorldE3, edge3.a, nearPt);
         var disToE1 = sqrDist$1(pt, nearPointWorldE1);
         var disToE2 = sqrDist$1(pt, nearPointWorldE2);
         var disToE3 = sqrDist$1(pt, nearPointWorldE3);
@@ -13116,7 +13286,7 @@ var Plane = /** @class */ (function () {
         var out = create$2$1();
         copy(out, this.normal);
         scale$1(out, out, -this.distanceToPoint(point));
-        return add(out, out, point);
+        return add$1(out, out, point);
     };
     Plane.from3points = function (rkPoint0, rkPoint1, rkPoint2) {
         var kEdge1 = create$2$1();
@@ -13315,7 +13485,7 @@ var Plane = /** @class */ (function () {
         plane.mesh.mainMesh = new PlaneMesh(name, radius * 2, radius * 2, color);
         plane.mesh.subMeshes['bbox'] = new RectangleMesh(name + "border", radius * 2, radius * 2, [0, 0, 0, 1]);
         plane.mesh.mainMesh.material.transparency = color[3];
-        plane.worldMatrix = clone$1(transform);
+        plane.worldMatrix = clone$2(transform);
         return plane;
     };
     SectionManager.prototype.createPrimaryPlaneFromEqn = function (id, transform, color) {
@@ -13492,7 +13662,7 @@ var Plane = /** @class */ (function () {
                 isPlaneEnabled: false,
                 eqn: planeEqn,
                 plane: planeGroup,
-                initialTransform: clone$1(transform)
+                initialTransform: clone$2(transform)
             };
             this.planeStates.set(id, newPlaneState);
         }
@@ -13677,7 +13847,7 @@ var Plane = /** @class */ (function () {
             var v2 = create$2$1();
             scale$1(v2, up, deltaX);
             var axis_in_camera_coord_1 = create$2$1();
-            add(axis_in_camera_coord_1, v1, v2);
+            add$1(axis_in_camera_coord_1, v1, v2);
             negate(axis_in_camera_coord_1, axis_in_camera_coord_1);
             normalize$1(axis_in_camera_coord_1, axis_in_camera_coord_1);
             selectedNodes.forEach(function (node) {
@@ -13700,7 +13870,7 @@ var Plane = /** @class */ (function () {
         var selectedNodes = AppObjects.renderer.highlightedNodes;
         if (selectedNodes.size > 0) {
             var partCenter_1 = create$2$1();
-            selectedNodes.forEach(function (node) { return add(partCenter_1, partCenter_1, node.getBBoxCenter(true)); });
+            selectedNodes.forEach(function (node) { return add$1(partCenter_1, partCenter_1, node.getBBoxCenter(true)); });
             scale$1(partCenter_1, partCenter_1, 1 / selectedNodes.size);
             var angleAxis_1 = this.getRotAngleAndNormalizedAxis(newX, newY, lastMouseX, lastMouseY);
             if (!angleAxis_1)
@@ -13735,7 +13905,7 @@ var Plane = /** @class */ (function () {
         var selectedNodes = AppObjects.renderer.highlightedNodes;
         var camControl = AppObjects.renderer.camControl;
         var partCenter = create$2$1();
-        selectedNodes.forEach(function (node) { return add(partCenter, partCenter, node.getBBoxCenter(true)); });
+        selectedNodes.forEach(function (node) { return add$1(partCenter, partCenter, node.getBBoxCenter(true)); });
         scale$1(partCenter, partCenter, 1 / selectedNodes.size);
         var CameraMatrix = camControl.getCameraMatrix(CameraType.Perspective);
         invert(CameraMatrix, CameraMatrix);
@@ -13879,7 +14049,7 @@ var LabelState;
         var percent = precentOffset / 100;
         var offset = squaredDistance$1(this.p1, this.p2) * percent * percent;
         sub$1(this.p1, this.p1, fromValues$1$1(offset, offset, offset));
-        add(this.p2, this.p2, fromValues$1$1(offset, offset, offset));
+        add$1(this.p2, this.p2, fromValues$1$1(offset, offset, offset));
         var vertices = new Float32Array([
             this.p1[0], this.p1[1], this.p1[2],
             this.p2[0], this.p2[1], this.p2[2],
@@ -14165,7 +14335,7 @@ var Label3D = /** @class */ (function () {
                 if (this.parentNode)
                     transformMat4(this.lineStartPos, this.lineStartPos, this.parentNode.worldMatrix);
                 var mvMatrix = create$1$1();
-                identity(mvMatrix);
+                identity$1(mvMatrix);
                 var canvas = this.renderer.camControl.canvas;
                 var x = 0;
                 var y = 0;
@@ -14562,8 +14732,6 @@ var MouseInput = /** @class */ (function () {
         globalThis.horizontal = !this.isVerticalDrag;
         var isWhen = Function("return " + when)();
         if (isKeyFound && isModifierSatisfy && isWhen) {
-            console.log(binding);
-            console.log(isKeyFound, isModifierSatisfy, isWhen);
             return true;
         }
         else {
@@ -14622,7 +14790,6 @@ var MouseInput = /** @class */ (function () {
         var dir = fromValues$1$1(this.newXY[0] - this.lastXY[0], this.newXY[1] - this.lastXY[1], 0);
         normalize$1(dir, dir);
         this.isVerticalDrag = Math.abs(dot$1(dir, fromValues$1$1(1, 0, 0))) > 0.5 ? false : true;
-        console.log(this.isVerticalDrag, dir);
         this.updateKeys(event);
         this.processInput(event);
         this.lastXY = __spread$1(this.newXY);
@@ -15679,9 +15846,6 @@ var Commands = /** @class */ (function () {
         var fileName = "vcollab-capture-" + modelname + "-" + datestring + extention;
         Utility$1.SaveToDisk(url.imageDataUrl, fileName, imageType, url.bmpBlob);
     };
-    App.prototype.setProjection = function (mode) {
-        this.renderer.camControl.camType = (mode) ? 1 : 0;
-    };
     App.prototype.getVisibleNodeIds = function () {
         var renderNodes = AppObjects.sceneManager.getRenderNodes();
         return renderNodes.filter(function (node) { return node.visible == true; })
@@ -15692,6 +15856,62 @@ var Commands = /** @class */ (function () {
         return renderNodes.filter(function (node) { return node.visible == false; })
             .map(function (node) { return node.index; });
     };
+    //#region Camera
+    App.prototype.getCameraMatrix = function (camType) {
+        return this.renderer.camControl.getCameraMatrix(camType);
+    };
+    App.prototype.setCameraMatrix = function (camType, mat) {
+        this.renderer.camControl.setCameraMatrix(camType, mat);
+    };
+    App.prototype.getCameraFrustum = function (camType) {
+        var orthoParams = this.renderer.camControl.orthoParams;
+        var perspParams = this.renderer.camControl.perspParams;
+        if (camType === CameraType.Perspective) {
+            return {
+                fov: perspParams.fov,
+                aspect: perspParams.aspect,
+                near: perspParams.near,
+                far: perspParams.far
+            };
+        }
+        else {
+            return {
+                left: orthoParams.left,
+                right: orthoParams.right,
+                top: orthoParams.top,
+                bottom: orthoParams.bottom,
+                near: orthoParams.near,
+                far: orthoParams.far
+            };
+        }
+    };
+    App.prototype.setCameraFrustum = function (data, camType) {
+        var perspParams = this.renderer.camControl.perspParams;
+        var d = camType === CameraType.Perspective ? data : Utility$1.orthoToPerspective(data.left, data.right, data.top, data.bottom, data.near, data.far);
+        perspParams.fov = d.fov;
+        perspParams.aspect = d.aspect;
+        perspParams.near = d.near;
+        perspParams.far = d.far;
+        this.setProjection(this.renderer.camControl.camType);
+        this.renderer.camControl.update();
+    };
+    App.prototype.getProjection = function () {
+        return this.renderer.camControl.camType;
+    };
+    App.prototype.setProjection = function (mode) {
+        this.renderer.camControl.resetZoomFactor();
+        this.renderer.camControl.camType = (mode) ? 1 : 0;
+        if (mode === 1) {
+            var pos = this.renderer.camControl.getPosition(CameraType.Perspective);
+            var rotPoint = this.renderer.camControl.getRotationPoint();
+            var dist$1 = dist(pos, rotPoint);
+            var y = dist$1 * Math.tan(this.renderer.camControl.perspParams.fov / 2 * Math.PI / 180);
+            var x = y * this.renderer.camControl.perspParams.aspect;
+            this.renderer.camControl.setOrthoWindowWidth(2 * x);
+            this.renderer.camControl.update();
+        }
+    };
+    //#endregion
     //#region input
     App.prototype.setMouseInputMapping = function (json) {
         return this.input.setMouseMappings(json);
@@ -15912,9 +16132,6 @@ var vctViewer = /** @class */ (function () {
     vctViewer.prototype.getResultSet = function () {
         return this.appli.getResultSet();
     };
-    vctViewer.prototype.setProjection = function (mode) {
-        this.appli.setProjection(mode);
-    };
     vctViewer.prototype.captureScreen = function () {
         this.appli.captureScreen();
     };
@@ -15942,6 +16159,26 @@ var vctViewer = /** @class */ (function () {
     vctViewer.prototype.getDownloadDataSize = function (nodeIndexList) {
         return this.appli.getDownloadDataSize(nodeIndexList);
     };
+    //#region camera
+    vctViewer.prototype.getCameraMatrix = function (camType) {
+        return this.appli.getCameraMatrix(camType);
+    };
+    vctViewer.prototype.setCameraMatrix = function (camType, mat) {
+        this.appli.setCameraMatrix(camType, mat);
+    };
+    vctViewer.prototype.getCameraFrustum = function (camType) {
+        return this.appli.getCameraFrustum(camType);
+    };
+    vctViewer.prototype.setCameraFrustum = function (data, camType) {
+        this.appli.setCameraFrustum(data, camType);
+    };
+    vctViewer.prototype.getProjection = function () {
+        return this.appli.getProjection();
+    };
+    vctViewer.prototype.setProjection = function (mode) {
+        this.appli.setProjection(mode);
+    };
+    //#endregion
     //#region networking
     vctViewer.prototype.printNetworkMetrics = function () {
         this.appli.printNetworkMetrics();
@@ -16025,7 +16262,21 @@ var vctViewer = /** @class */ (function () {
         return this.appli.removePoint(uid);
     };
     return vctViewer;
-}());var Viewer = /** @class */ (function () {
+}());var perspectiveToOrtho = function (fov, aspect, near, far) {
+    var top, bottom, left, right;
+    top = near * Math.tan(fov / 2 * Math.PI / 180);
+    bottom = -top;
+    right = top * aspect;
+    left = -right;
+    return {
+        left: left,
+        right: right,
+        top: top,
+        bottom: bottom,
+        near: near,
+        far: far
+    };
+};var Viewer = /** @class */ (function () {
     function Viewer(_UUID, _containerID, _connector, _eventDispacther) {
         this.UUID = _UUID;
         this.containerID = _containerID;
@@ -16185,6 +16436,127 @@ var vctViewer = /** @class */ (function () {
         if (onlyVisible === void 0) { onlyVisible = true; }
         var bbox = this.renderApp.getSceneBoundingBox(onlyVisible);
         return bbox.clone();
+    };
+    //#endregion
+    //#region Camera
+    Viewer.prototype.getCameraStdViews = function () {
+        var perspective = this.renderApp.getCameraFrustum(CameraType.Perspective);
+        perspective.fov = 35;
+        perspective.near = 1.0;
+        perspective.far = 1000;
+        var ortho = perspectiveToOrtho(perspective.fov, perspective.aspect, perspective.near, perspective.far);
+        var bbox = this.renderApp.getSceneBoundingBox(false);
+        var r = bbox.getRadius();
+        var c = bbox.getCenter();
+        var offset = 3 * r;
+        var stdViews = [];
+        //front
+        var newMat = create();
+        lookAt(newMat, [c[0], c[1], c[2] + offset], c, [0, 1, 0]);
+        stdViews.push({
+            name: "Front",
+            position: [newMat[12], newMat[13], newMat[14]],
+            dir: [newMat[8], newMat[9], newMat[10]],
+            up: [newMat[4], newMat[5], newMat[6]],
+            perspective: perspective,
+            ortho: ortho
+        });
+        lookAt(newMat, [c[0], c[1], c[2] - offset], c, [0, 1, 0]);
+        stdViews.push({
+            name: "Back",
+            position: [newMat[12], newMat[13], newMat[14]],
+            dir: [newMat[8], newMat[9], newMat[10]],
+            up: [newMat[4], newMat[5], newMat[6]],
+            perspective: perspective,
+            ortho: ortho
+        });
+        lookAt(newMat, [c[0] - offset, c[1], c[2]], c, [0, 1, 0]);
+        stdViews.push({
+            name: "Left",
+            position: [newMat[12], newMat[13], newMat[14]],
+            dir: [newMat[8], newMat[9], newMat[10]],
+            up: [newMat[4], newMat[5], newMat[6]],
+            perspective: perspective,
+            ortho: ortho
+        });
+        lookAt(newMat, [c[0] + offset, c[1], c[2]], c, [0, 1, 0]);
+        stdViews.push({
+            name: "Right",
+            position: [newMat[12], newMat[13], newMat[14]],
+            dir: [newMat[8], newMat[9], newMat[10]],
+            up: [newMat[4], newMat[5], newMat[6]],
+            perspective: perspective,
+            ortho: ortho
+        });
+        lookAt(newMat, [c[0], c[1] + offset, c[2]], c, [0, 0, -1]);
+        stdViews.push({
+            name: "Top",
+            position: [newMat[12], newMat[13], newMat[14]],
+            dir: [newMat[8], newMat[9], newMat[10]],
+            up: [newMat[4], newMat[5], newMat[6]],
+            perspective: perspective,
+            ortho: ortho
+        });
+        lookAt(newMat, [c[0], c[1] - offset, c[2]], c, [0, 0, 1]);
+        stdViews.push({
+            name: "Bottom",
+            position: [newMat[12], newMat[13], newMat[14]],
+            dir: [newMat[8], newMat[9], newMat[10]],
+            up: [newMat[4], newMat[5], newMat[6]],
+            perspective: perspective,
+            ortho: ortho
+        });
+        var pos = clone$1(c);
+        add(pos, pos, fromValues(offset / 2, offset / 2, offset / 2));
+        lookAt(newMat, pos, c, [0, 1, 0]);
+        stdViews.push({
+            name: "Isometric",
+            position: [newMat[12], newMat[13], newMat[14]],
+            dir: [newMat[8], newMat[9], newMat[10]],
+            up: [newMat[4], newMat[5], newMat[6]],
+            perspective: perspective,
+            ortho: ortho
+        });
+        return stdViews;
+    };
+    Viewer.prototype.setCameraInfo = function (camData) {
+        var pos = camData.position;
+        var dir = fromValues(camData.dir[0], camData.dir[1], camData.dir[2]);
+        var up = fromValues(camData.up[0], camData.up[1], camData.up[2]);
+        var left = create$1();
+        cross(left, up, dir);
+        var camMat = this.renderApp.getCameraMatrix(CameraType.Perspective);
+        camMat[0] = left[0];
+        camMat[1] = left[1];
+        camMat[2] = left[2];
+        camMat[4] = up[0];
+        camMat[5] = up[1];
+        camMat[6] = up[2];
+        camMat[8] = dir[0];
+        camMat[9] = dir[1];
+        camMat[10] = dir[2];
+        camMat[12] = pos[0];
+        camMat[13] = pos[1];
+        camMat[14] = pos[2];
+        this.renderApp.setCameraMatrix(CameraType.Perspective, camMat);
+        this.renderApp.setCameraMatrix(CameraType.Ortho, camMat);
+        this.renderApp.setCameraFrustum(camData.perspective, CameraType.Perspective);
+    };
+    Viewer.prototype.getCameraInfo = function (camType) {
+        var mat = this.renderApp.getCameraMatrix(camType);
+        var pos = [mat[12], mat[13], mat[14]];
+        var dir = [mat[8], mat[9], mat[10]];
+        var up = [mat[4], mat[5], mat[6]];
+        var frustum = this.renderApp.getCameraFrustum(camType);
+        return {
+            pos: pos,
+            dir: dir,
+            up: up,
+            frustum: frustum
+        };
+    };
+    Viewer.prototype.setCameraProjection = function (camType) {
+        this.renderApp.setProjection(camType);
     };
     //#endregion
     //#region Input
@@ -18787,6 +19159,24 @@ var ViewerManager = /** @class */ (function () {
     };
     ViewerManager.prototype.setExternalLogger = function (externalLogger) {
         Logger.setExternalLogger(externalLogger);
+    };
+    //#endregion
+    //#region Camera
+    ViewerManager.prototype.getCameraStdViews = function (viewerUUID) {
+        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        return viewer.getCameraStdViews();
+    };
+    ViewerManager.prototype.getCameraInfo = function (camType, viewerUUID) {
+        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        return viewer.getCameraInfo(camType);
+    };
+    ViewerManager.prototype.setCameraInfo = function (camData, viewerUUID) {
+        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        return viewer.setCameraInfo(camData);
+    };
+    ViewerManager.prototype.setCameraProjection = function (camType, viewerUUID) {
+        var viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
+        viewer.setCameraProjection(camType);
     };
     //#endregion
     //#region Input

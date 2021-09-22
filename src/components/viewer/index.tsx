@@ -11,6 +11,7 @@ import { addViewer } from '../../store/appSlice';
 import ProbeLabel from "../probe";
 import { fetchFieldData } from '../../store/sideBar/fieldSlice';
 import { fetchMouseData } from '../../store/sideBar/settings';
+import { fetchCameraStdViews } from '../../store/sideBar/sceneSlice';
 
 
 function Viewer(){
@@ -73,6 +74,10 @@ function Viewer(){
             dispatch(fetchSearchHints());
             }
           
+           // fetch scenes data
+           setTimeout(() => {
+             dispatch(fetchCameraStdViews());
+           },3000)
            // fetch field data
            setTimeout(() => {
             dispatch(fetchFieldData({data:""}))

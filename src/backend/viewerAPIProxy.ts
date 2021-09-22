@@ -1,5 +1,5 @@
 import { mat4 } from 'gl-matrix';
-import viewerMgr from './viewerMgr';
+import viewerMgr, {StdView} from './viewerMgr';
 
 export function createViewer(viewerDivID : string){
     return viewerMgr.createViewer(viewerDivID);
@@ -58,6 +58,21 @@ export function getSystemMouseMappings(activeViewerID:string):any[] {
     //console.log(JSON.stringify(data));
     return data;
 }
+//#region Camera
+export function getCameraStdViews(activeViewerID:string) : any {
+    return viewerMgr.getCameraStdViews(activeViewerID);
+}
+export function setCameraProjection(activeViewerID:string, camType: number) {
+    viewerMgr.setCameraProjection(camType,activeViewerID);
+}
+export function getCameraInfo(activeViewerID:string, camType:number) {
+    return viewerMgr.getCameraInfo(camType,activeViewerID);
+}
+export function setCameraInfo(activeViewerID:string, camData:any) {
+    viewerMgr.setCameraInfo(camData,activeViewerID);
+    console.log(camData);
+}
+//#endregion
 // part Manipulation
 export function enablePickAndMove(activeViewerID:string, toEnable:boolean) {
     return viewerMgr.enablePickAndMove(toEnable,activeViewerID);

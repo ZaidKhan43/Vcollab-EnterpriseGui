@@ -9,7 +9,8 @@ export default makeStyles((theme) => ({
 
     Scrollbar:{
       height:'100%',
-      overflowY:'scroll',
+      overflowY:'auto',
+      overlowX: 'hidden',
       scrollbarColor: "rgba(0,0,0,.3) rgba(0,0,0,0.00) ",
       scrollbarWidth: 'thin',
       '&::-webkit-scrollbar': {
