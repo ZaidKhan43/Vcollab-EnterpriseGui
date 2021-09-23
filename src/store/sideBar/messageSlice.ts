@@ -2,12 +2,12 @@ import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import type { RootState } from '../index';
 import {descend, prop, sortWith} from "ramda";
 
-export enum notificationType {
+export enum NotificationType {
     NETWORK_TRANSFER_MESSAGE = 0,
     SIMPLE_MESSAGE = 1,
 }
 
-export enum iconType {
+export enum IconType {
     TRANSFERING = 0,
     PAUSE = 1,
     CANCELLED = 2,
@@ -15,7 +15,7 @@ export enum iconType {
     COMPLETED = 4,
 }
 
-type networkData = {
+type NetworkData = {
     totalSize: number,
     transfferedSize: number,
     timeLeft: string,
@@ -23,26 +23,25 @@ type networkData = {
     cancel: boolean,
 }
 
-type simpleData = {
+type SimpleData = {
     body: string[],
 }
 
-export type notificationList= {
+export type NotificationList= {
     id: number,
     time: Date,
     card:{
-        icon:iconType,
-        type:notificationType,
+        icon:IconType,
+        type:NotificationType,
         title: string,
-        data: simpleData | networkData,
+        data: SimpleData | NetworkData,
     },
     collapsed:boolean,
     tags: string[],
 }
 
 type messages = {
-    notificationLists : notificationList[],
-    search : string,
+    notificationLists : NotificationList[],
 }
 
 const initialState : messages = {
@@ -51,41 +50,41 @@ const initialState : messages = {
             id:0,
             time: new Date(),
             card:{
-                type:notificationType.NETWORK_TRANSFER_MESSAGE,
-                title:"Downloading Simplified Mesh",
-                icon:iconType.TRANSFERING,
+                type: NotificationType.NETWORK_TRANSFER_MESSAGE,
+                title: "Downloading Simplified Mesh",
+                icon: IconType.TRANSFERING,
                 data:{
-                    totalSize:2024,
-                    transfferedSize:1024,
-                    timeLeft:"4 munites left",
+                    totalSize: 2024,
+                    transfferedSize: 1024,
+                    timeLeft: "4 munites left",
                     pause: false,
                     cancel: false,
                 },
             },
-            collapsed:true,
-            tags:["Display Modes"],
+            collapsed: true,
+            tags: ["Display Modes",],
         },
         {
             id:1,
             time: new Date(),
             card: {
-                type:notificationType.SIMPLE_MESSAGE,
-                title:"Applied ColorPlot",
-                icon:iconType.APPLIED,
+                type: NotificationType.SIMPLE_MESSAGE,
+                title: "Applied ColorPlot",
+                icon: IconType.APPLIED,
                 data:{
-                    body:[],
+                    body: [],
                 },
             },
-            collapsed:true,
-            tags:["Color Maps"],
+            collapsed: true,
+            tags: ["Color Maps"],
         },
         {
             id:2,
             time: new Date(),
             card:{
-                type:notificationType.NETWORK_TRANSFER_MESSAGE,
+                type:NotificationType.NETWORK_TRANSFER_MESSAGE,
                 title:"Downloading Show Mesh",
-                icon:iconType.COMPLETED,
+                icon:IconType.COMPLETED,
                 data:{
                     totalSize:2024,
                     transfferedSize:2024,
@@ -95,15 +94,15 @@ const initialState : messages = {
                 },
             },
             collapsed:true,
-            tags:["Display Modes"],
+            tags:["Display Modes",],
         },
         {
             id:3,
             time: new Date(),
             card:{
-                type:notificationType.NETWORK_TRANSFER_MESSAGE,
+                type:NotificationType.NETWORK_TRANSFER_MESSAGE,
                 title:"Downloading Simplified Mesh",
-                icon: iconType.PAUSE,
+                icon: IconType.PAUSE,
                 data:{
                     totalSize:4048,
                     transfferedSize:1028,
@@ -113,16 +112,16 @@ const initialState : messages = {
                 },
             },
             collapsed:true,
-            tags:["Display Modes"],
+            tags:["Display Modes",],
         },
 
         {
             id:4,
             time: new Date(),
             card:{
-                type:notificationType.NETWORK_TRANSFER_MESSAGE,
+                type:NotificationType.NETWORK_TRANSFER_MESSAGE,
                 title:"Downloading Simplified Mesh",
-                icon: iconType.COMPLETED,
+                icon: IconType.COMPLETED,
                 data:{
                     totalSize:4048,
                     transfferedSize:4048,
@@ -132,11 +131,9 @@ const initialState : messages = {
                 },
             },
             collapsed:true,
-            tags:["Display Modes"],
+            tags:["Display Modes",],
         },
     ],
-
-    search: "All",
 }
 
 export const messageSlice = createSlice({
@@ -147,12 +144,12 @@ export const messageSlice = createSlice({
             const index = state.notificationLists.findIndex((item) => item.id === action.payload.id);
             if(index >= 0){
                 let changeItem = state.notificationLists[index];
-                if(changeItem.card.type === notificationType.NETWORK_TRANSFER_MESSAGE){
-                    changeItem.card.data.pause = action.payload.value;
+                if(changeItem.card.type === NotificationType.NETWORK_TRANSFER_MESSAGE){
+                    (changeItem.card.data as NetworkData).pause = action.payload.value;
                     if(action.payload.value === true)
-                        changeItem.card.icon = iconType.PAUSE;
+                        changeItem.card.icon = IconType.PAUSE;
                     else
-                        changeItem.card.icon = iconType.TRANSFERING;
+                        changeItem.card.icon = IconType.TRANSFERING;
                         
                     state.notificationLists[index] = changeItem;
                 }
@@ -164,9 +161,9 @@ export const messageSlice = createSlice({
             const index = state.notificationLists.findIndex((item) => item.id === action.payload);
             if(index >= 0){
                 let changeItem = state.notificationLists[index];
-                if(changeItem.card.type === notificationType.NETWORK_TRANSFER_MESSAGE){
-                    changeItem.card.data.cancel = true;
-                    changeItem.card.icon = iconType.CANCELLED;
+                if(changeItem.card.type === NotificationType.NETWORK_TRANSFER_MESSAGE){
+                    (changeItem.card.data as NetworkData).cancel = true;
+                    changeItem.card.icon = IconType.CANCELLED;
                     state.notificationLists[index] = changeItem;
                 }
             }
@@ -182,27 +179,72 @@ export const messageSlice = createSlice({
         },
 
         editSearch :(state,action : PayloadAction<string>) => {
-            state.search = action.payload; 
+            if(action.payload === "All"){
+                state.notificationLists.forEach( (item, index) => {
+                    item.collapsed = true;
+                    state.notificationLists[index] = item;
+                })
+            }
+
+            else{
+                if(action.payload === "Network Transfer"){
+                    state.notificationLists.forEach( (item, index) => {
+                        const data = item.card.data as NetworkData;
+                        if(item.card.type === NotificationType.NETWORK_TRANSFER_MESSAGE && data.cancel === false && data.totalSize !== data.transfferedSize){
+                            item.collapsed = true;
+                            state.notificationLists[index] = item;
+                        }
+
+                        else{
+                            item.collapsed = false;
+                            state.notificationLists[index] = item;
+                        }
+                    })
+                }
+                else{ 
+                    state.notificationLists.forEach( (item, index) => {
+                        if(item.tags.includes(action.payload)){
+                            item.collapsed = true;
+                            state.notificationLists[index] = item;
+                        }
+                        else{
+                            item.collapsed = false;
+                            state.notificationLists[index] = item;
+                        }
+                    })
+                }
+            }
+        },
+
+        fileTransferUpdate:(state) => {
+            state.notificationLists.forEach((item,index) => {
+                const data = item.card.data as NetworkData;
+                if(item.card.type === NotificationType.NETWORK_TRANSFER_MESSAGE && data.pause === false && data.cancel === false ){
+                    const onePercentage = parseInt((data.totalSize / 100).toString());
+
+                    if(data.transfferedSize + onePercentage < data.totalSize)
+                        data.transfferedSize = data.transfferedSize + onePercentage;
+                    else
+                        data.transfferedSize = data.totalSize
+
+                    if(data.transfferedSize === data.totalSize)
+                        item.card.icon = IconType.COMPLETED;
+
+                    state.notificationLists[index] = item;
+                }
+            })
         },
     }
 })
 
 
 export default messageSlice.reducer;
-export const {editPause , editCancel , editCollapse, editSearch} = messageSlice.actions;
+export const {editPause , editCancel , editCollapse, editSearch, fileTransferUpdate} = messageSlice.actions;
 
 //selectors
 
-export const filteredNotificationList = (state : RootState) => {
+export const sortedNotification = (state : RootState) => {
 
-    const search = state.message.search;
-    let filteredNotificationList : notificationList[];
-    if(search === "All")
-        filteredNotificationList = state.message.notificationLists
-    else
-        filteredNotificationList = state.message.notificationLists.filter(item => item.tags.includes(search))
-    // return(notificationList)
-
-    const sortedNotificationList = sortWith([descend(prop("time"))], filteredNotificationList);
+    const sortedNotificationList = sortWith([descend(prop("time"))], state.message.notificationLists);
     return(sortedNotificationList)
   }

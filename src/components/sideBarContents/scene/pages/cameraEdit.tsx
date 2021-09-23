@@ -17,7 +17,7 @@ import NumericInput from 'react-numeric-input';
 import styles from '../style';
 
 import MuiButton from '@material-ui/core/Button';
-import { CameraView,ViewMode, updateChange, } from '../../../../store/sideBar/sceneSlice';
+import { CameraView,ViewMode, updateChange, setActiveId} from '../../../../store/sideBar/sceneSlice';
 
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
 import MuiMenuItem from '@material-ui/core/MenuItem';
@@ -37,6 +37,16 @@ export default function CameraEdit (){
 
     const [cameraView,setCameraView] : any = useState(cameraViews.find(item => item.id === active))
 
+    useEffect(() => {
+        const value  =cameraViews.find(item => item.name === cameraView.name)
+        if(value){
+            setCameraView(value)
+            setActive(value.id)
+            dispatch(setActiveId(value.id))
+        }
+        // console.log("hello",cameraViews.find(item => item.id === active));
+      },[cameraViews]);
+      
     const onClickBackIcon = () => {
         dispatch(goBack());
     }
@@ -47,6 +57,7 @@ export default function CameraEdit (){
 
     const onHandleSelect = (newId : number) => {
         setActive(newId)
+        dispatch(setActiveId(newId))
         setCameraView(cameraViews.find(item => item.id === newId))
     }
 

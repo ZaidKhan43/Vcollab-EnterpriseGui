@@ -8,12 +8,22 @@ import MuiPauseCircleOutlineIcon from '@material-ui/icons/PauseCircleOutline';
 import ProcessIndicator from './processIndicator';
 import DisplayTime from './displayTime';
 
-import {iconType} from '../../../../store/sideBar/messageSlice';
+import {IconType,fileTransferUpdate} from '../../../../store/sideBar/messageSlice';
 import styles from '../style';
+
+import MuiIconButton from '@material-ui/core/IconButton';
+
+import {useAppDispatch } from '../../../../store/storeHooks';
 
 export default function CardTransfer(props:any){
     const {item, handleCollapse, handlePause, handleCancel} = props;
     const classes = styles();
+    const dispatch = useAppDispatch(); 
+
+    setTimeout( () => {
+        if(item.card.data.transfferedSize < item.card.data.totalSize)
+            dispatch(fileTransferUpdate())
+      }, 2000);
     
     const fileSize = (size : number) => {
         if (size >= 1024) {
@@ -33,28 +43,28 @@ export default function CardTransfer(props:any){
 
     const getIcon = () => {
         switch(item.card.icon){
-            case(iconType.COMPLETED):
+            case(IconType.COMPLETED):
                 return(
                     <div className={classes.transferIcon}>
                         <MuiCheckCircleOutlineOutlinedIcon  fontSize="large"/>
                     </div>
                 )
             
-            case(iconType.CANCELLED):
+            case(IconType.CANCELLED):
                 return(
                     <div className={classes.transferIcon}>
                         <MuiCancelOutlinedIcon  fontSize="large"/>
                     </div>
                 )
             
-            case(iconType.PAUSE):
+            case(IconType.PAUSE):
                 return(
                     <div className={classes.transferIcon}>
                         <MuiPauseCircleOutlineIcon  fontSize="large"/>
                     </div>
                 )
             
-            case(iconType.TRANSFERING):
+            case(IconType.TRANSFERING):
                 return(
                     <ProcessIndicator process= {Math.round(item.card.data.transfferedSize / item.card.data.totalSize * 100)}/>
                 )
@@ -67,13 +77,15 @@ export default function CardTransfer(props:any){
             <MuiGrid item xs={3}> </MuiGrid>
             <MuiGrid item xs={9} >
                 <MuiGrid container>
-                    <MuiGrid item  xs={9}>
+                    <MuiGrid item  xs={9} className={classes.timeDisplay}>
                         <Typography variant="h3" align="left">
                             <DisplayTime time={item.time}/>
                         </Typography>
                     </MuiGrid>
-                    <MuiGrid item>
-                        <ExpandLess onClick={() => handleCollapse(item.id, true)}/>
+                    <MuiGrid item className={classes.arrowButton}>
+                        <MuiIconButton size="small">
+                            <ExpandLess onClick={() => handleCollapse(item.id, true)}/>
+                        </MuiIconButton>
                     </MuiGrid>
                 </MuiGrid>        
             </MuiGrid>
@@ -84,8 +96,8 @@ export default function CardTransfer(props:any){
                     </MuiGrid>
                     <MuiGrid item xs={8}>
                         <MuiGrid container direction="column">
-                            <MuiGrid item>
-                                <Typography variant="h2" align="left">
+                            <MuiGrid item >
+                                <Typography variant="h2" align="left" className={classes.transferCard}>
                                     {item.card.title}
                                 </Typography>
                             </MuiGrid>
@@ -94,16 +106,20 @@ export default function CardTransfer(props:any){
                             <MuiGrid container direction="column">
                                 <MuiGrid item className={classes.cardTopPadding}>
                                     <Typography variant="h3" align="left">
-                                        { item.card.icon === iconType.COMPLETED 
+                                        { item.card.data.cancel 
                                             ?
-                                                `${fileSize(item.card.data.transfferedSize)}`
+                                                "Cancelled"
                                             :
-                                                `${fileSize(item.card.data.transfferedSize)} / ${fileSize(item.card.data.totalSize)}, ${item.card.data.timeLeft}`
+                                                item.card.icon === IconType.COMPLETED 
+                                                    ?
+                                                        `${fileSize(item.card.data.transfferedSize)}`
+                                                    :
+                                                        `${fileSize(item.card.data.transfferedSize)} / ${fileSize(item.card.data.totalSize)}, ${item.card.data.timeLeft}`
                                         }
                                     </Typography>
                                 </MuiGrid>
                                 <MuiGrid item>
-                                    {   item.card.icon === iconType.COMPLETED 
+                                    {   item.card.icon === IconType.COMPLETED || item.card.data.cancel
                                         ?
                                             null
                                         :
