@@ -59,7 +59,7 @@ export default function Sidebar(){
         <Route path={Routes.LABELS}>
         <Labels />     
         </Route>
-        <Route>
+        {/* <Route>
         <Colormaps />
         </Route>
         <Route>
@@ -67,7 +67,7 @@ export default function Sidebar(){
         </Route>
         <Route>
         <Annotations />
-        </Route>
+        </Route> */}
         <Route path={Routes.SCENE}>
         <Scene/>
          </Route>
