@@ -24,7 +24,7 @@ export const colors = {
   //secondaryHoverTransparent: "#2D9CDB",
   //secondaryText: "#DFDEDE",
 
-  vcollabColor : "rgba(255,0,0,0.15)"
+  vcollabColor : "rgba(160,160,255,1)"
 }
 
 export const sideBarContentTypes = {
