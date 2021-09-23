@@ -31,7 +31,7 @@ import MuiToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import { Routes } from '../../../../routes/index'
 import styles from '../style';
 
-import { cameraView ,addCameraView , setActiveId, ViewMode , setProjectionAsync , pasteCameraView , deteteCameraView, setCameraInfoAsync} from '../../../../store/sideBar/sceneSlice';
+import { CameraView ,addCameraView , setActiveId, ViewMode , setProjectionAsync , pasteCameraView , deleteCameraView, setCameraInfoAsync} from '../../../../store/sideBar/sceneSlice';
 
 export default function Camera (){
 
@@ -42,7 +42,7 @@ export default function Camera (){
     const [copy, setCopy] = useState(-1);
     const [openDelete,setOpenDelete] = useState(false)
 
-    const cameraList : cameraView[] = useAppSelector((state) => state.scene.cameraViews)
+    const cameraList : CameraView[] = useAppSelector((state) => state.scene.cameraViews)
     const active = useAppSelector(state => state.scene.settings.activeId);
     const projection = useAppSelector(state => state.scene.settings.projection)
 
@@ -68,6 +68,7 @@ export default function Camera (){
 
     const onHandlePaste = () => {
         const data = cameraList.find(item => item.id === copy)
+        if(data)
         dispatch(pasteCameraView({data}))
         // setCameraList(newCameraList);
     }
@@ -80,7 +81,7 @@ export default function Camera (){
     const onHandleDelete = () => {
         setOpenDelete(false);
         const id = active;
-        dispatch(deteteCameraView({id}))
+        dispatch(deleteCameraView({id}))
         dispatch(setActiveId(-1))
     }
 

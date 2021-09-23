@@ -19,7 +19,7 @@ import MuiMinusIcon from '@material-ui/icons/Remove';
 import Dropzone from 'react-dropzone';
 import MuiTypography from '@material-ui/core/Typography';
 
-import { updateBackgroundColor , updateBackgroundImage } from "../../../../store/sideBar/sceneSlice";
+import { setBackgroundColorAsync , setBackgroundImageAsync } from "../../../../store/sideBar/sceneSlice";
 
 import styles from '../style';
 
@@ -79,14 +79,14 @@ export default function Background (){
 
     const handleSave = () => {    
        if (backgroundMenu === 0) {
-            dispatch(updateBackgroundColor(colourSet));
+            dispatch(setBackgroundColorAsync(colourSet));
             // setSnackbarContent("Background Colour Applied");
             // setSnackbarBoolean(true);
             setSelectedColor(null);
        }
 
        if (backgroundMenu === 1) {{
-           dispatch(updateBackgroundImage(file));
+           dispatch(setBackgroundImageAsync(file));
        }}
     }
 

@@ -38,7 +38,23 @@
     top: 0;
     border-bottom: none;
   }
+<<<<<<< HEAD
 
+=======
+<<<<<<< HEAD:src/globalStyles/RTreeStylesOverrideDark.css
+  /* .rs-table-hover .rs-table-row:hover {
+    background: transparent;
+  }
+  .rs-table-hover .rs-table-row:hover .rs-table-cell-group {
+    background: transparent;
+  } */
+  .rs-table-hover .rs-table-row:hover .rs-table-cell {
+    
+  }
+=======
+
+>>>>>>> pravin/dev:src/globalStyles/RsTable-override.css
+>>>>>>> pravin/dev
   .rs-table-row-header {
     background: #f5f5f500;
   }
