@@ -1,8 +1,9 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../index';
-import {ITreeNode as TreeNode} from "../../components/shared/RsTreeTable"
+import {TreeNode, ITreeState} from "./shared/ProductExplorer/types";
+import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer} from "./shared/ProductExplorer/reducers";
 import {setPartVisibility, setHighlightedNodes, fitView, getSearchHints} from "../../backend/viewerAPIProxy";
-
+import {traverseNode} from "./shared/ProductExplorer/helpers"
 // Define a type for the slice state
 
 
@@ -12,7 +13,7 @@ export enum ProductTreeStates {
   DisplayModes
 }
 
-type ProductTreeState = {
+interface ProductTreeState extends ITreeState {
     data: any,
     rootIds: string[],
     currentState: ProductTreeStates,
@@ -33,163 +34,7 @@ const initialState: ProductTreeState = {
     searchResults: []
 }
 
-const getNode = (id:string, state:ProductTreeState):TreeNode|undefined => {
-    return state.data[id];
-}
 
-const traverseNode = (rootNodeId:string, state:ProductTreeState, callback:(node:TreeNode)=>void) => {
-    let node = getNode(rootNodeId,state);
-    if(node) {
-      callback(node);
-      if(node.children.length > 0) {
-        node.children.forEach(nodeId => {
-          traverseNode(nodeId,state,callback);
-        })
-      }
-    }
-    
-}
-
-const getCheckedChildCount = (nodes:TreeNode[]) => {
-    let checkedCount = 0;
-    let partialCount = 0;
-    nodes.forEach(node => {
-      if(node.state.checked){
-        checkedCount++;
-      }
-      if(node.state.partiallyChecked){
-        partialCount++;
-      }
-    });
-    return [checkedCount,partialCount];
-}
-
-const getHiddenChildCount =(nodes:any[]) => {
-  let hiddenCount =0;
-  nodes.forEach(node => {
-    if(node.state.visibility){
-      hiddenCount++;
-    }
-  });
-  return hiddenCount;
-}
-const getHighlightChildCount = (nodes:any[]) => {
-  let highlightedCount =0;
-  nodes.forEach(node => {
-    if(node.state.highlighted){
-      highlightedCount++;
-    }
-  });
-  return highlightedCount;
-}
-
-const updateHighlightState = (parent:any,state:ProductTreeState) => {
-  let highlighted = getHighlightChildCount(parent.children.map((c:any) => getNode(c,state)));
-    if(highlighted === parent.children.length && parent.children.length >0){
-      parent.state.highlighted = true;
-    }
-    else{
-      parent.state.highlighted = false;
-    }
-}
-
-const updateVisiblityState = (parent:any,state:ProductTreeState) =>{
-  let hide= getHiddenChildCount(parent.children.map((c:any) => getNode(c,state)));
-      if(hide === 0 && parent.children.length >0){
-        parent.state.visibility =false;
-      }
-      else{
-        parent.state.visibility =true;
-      }
-}
-
-const updateCheckedState = (parent:any,state:ProductTreeState) => {
-  let [checkedCount,partialCount] = getCheckedChildCount(parent.children.map((c:any) => getNode(c,state))); 
-  if(checkedCount === parent.children.length){
-    parent.state.checked = true;
-    parent.state.partiallyChecked = partialCount > 0 ? true: false;
-  }
-  else if(checkedCount === 0){
-    parent.state.checked = false;
-    parent.state.partiallyChecked = false;
-  }
-  else{
-    parent.state.checked = true;
-    parent.state.partiallyChecked = true;
-  }
-}
-
-const updateParent = (node:TreeNode, state:ProductTreeState) => {
-    let parent = node.pid ? getParent(node.pid,state): null;
-    if(parent){
-      updateCheckedState(parent,state);
-      updateVisiblityState(parent,state);
-      updateHighlightState(parent,state);
-      let grandParent = parent.pid ? getParent(parent.pid,state): null;
-      if(grandParent !== null && grandParent !== undefined){
-          updateParent(parent, state);
-      }
-    }
-}
-
-const getParent = (id:string,state:ProductTreeState):TreeNode|undefined => {
-  return state.data[id];
-}
-
-const _checkNode = (toCheck:boolean, node:TreeNode, checkChildren:boolean,state:ProductTreeState) => {
-    node.state.checked = toCheck;
-    node.state.partiallyChecked = false;
-    if(checkChildren === true && node.children) {
-      node.children.map((c:string) => getNode(c,state)).forEach((node:TreeNode|undefined) => node ? _checkNode(toCheck,node,true,state) : null);
-    }
-}
-
-const _hightlightNode = (toHighlight:boolean, node:TreeNode, checkChildren:boolean,state:ProductTreeState) => {
-  node.state.highlighted = toHighlight;
-  if(checkChildren === true && node.children) {
-    node.children.map((c:string) => getNode(c,state)).forEach((node:TreeNode|undefined) => node ? _hightlightNode(toHighlight,node,true,state) : null);
-  }
-}
-
-const RcheckNode = (toCheck:boolean,node:TreeNode, state:ProductTreeState) => {
-
-    _checkNode(toCheck,node,true, state);
-    updateParent(node, state);
-}
-
-const RHighlightNode = (toHighlight:boolean, node:TreeNode, state:ProductTreeState) => {
-    _hightlightNode(toHighlight,node,true,state);
-    updateParent(node,state);
-}
-
-const RinvertNode = (node:TreeNode, state:ProductTreeState) => {
-  
-  if(node.children.length > 0)
-  {
-    node.children.map((c:string) => getNode(c,state)).forEach((e:any) => {
-      RinvertNode(e,state);
-    });
-    const firstNodeId = node.children[0] as string;
-    const firstNode = getNode(firstNodeId,state) as TreeNode;
-    updateParent(firstNode,state);
-  }
-  else{
-    _checkNode(!node.state.checked,node,true,state);
-  }
-}
-
-const setVisibility = (value:boolean,node:TreeNode,checkChildren:boolean,state:ProductTreeState) => {
-    node.state.visibility = value;
-    if(node.children.length > 0 && checkChildren === true){
-    
-      node.children.map((c:string) => getNode(c,state)).forEach((e:TreeNode | undefined) => e ? setVisibility(value,e,true,state) : null)
-    }
-}
-
-const RtoggleVisibility = (toShow:boolean, node:TreeNode,state:ProductTreeState) => {
-  setVisibility(toShow,node,true,state);
-  updateParent(node,state);
-}
 
 export const toggleVisibilityAsync = createAsyncThunk(
   'productTree/toggleVisibilityAsync',
@@ -353,59 +198,13 @@ export const productTreeSlice = createSlice({
   name: 'productTree',
   initialState,
   reducers: {
-    saveTree : (state, action : PayloadAction<{tree:Map<string,TreeNode>,rootIds:string[]}>) => {
-        state.data = action.payload.tree;
-        state.rootIds = action.payload.rootIds;
-    },
-    checkNode : (state, action : PayloadAction<{toCheck:boolean,nodeId:string}>) => {
-        const {toCheck,nodeId} = action.payload;
-        let node = getNode(nodeId,state);
-        if(node)
-        RcheckNode(toCheck, node, state)
-    },
-    highlightNode : (state, action : PayloadAction<{toHighlight:boolean,nodeId:string}>) => {
-      const {toHighlight,nodeId} = action.payload;
-      let node = getNode(nodeId,state);
-      if(node)
-      RHighlightNode(toHighlight, node, state)
-    },
-    invertNode : (state, action : PayloadAction<{nodeId:string}>) => {
-        const {nodeId} = action.payload;
-        let node = getNode(nodeId,state);
-        if(node)
-        RinvertNode(node,state);
-    },
-    expandNode : (state, action: PayloadAction<{toOpen:boolean, nodeId:string}>) => {
-        const {toOpen,nodeId} = action.payload;
-        let node = state.data[nodeId];
-        if(node){
-          node.state.expanded = toOpen;
-        }
-    },
-    toggleVisibility : (state, action : PayloadAction<{toShow:boolean,nodeId:string}>) => {
-        const {toShow,nodeId} = action.payload;
-        let node = getNode(nodeId,state);
-        if(node)
-        RtoggleVisibility(toShow,node,state);
-    },
-    setCheckedVisibility: (state, action:PayloadAction<{toShow:boolean,pids:string[],leafIds:string[]}>) => {
-        const {toShow,pids,leafIds} = action.payload;
-        leafIds.forEach((nodeId:string) => {
-          let node = getNode(nodeId,state);
-          if(node && node.children.length === 0)
-          {
-            setVisibility(toShow,node,true,state);
-          }
-      });
-        pids.forEach((pid:string) => {
-          let node = getNode(pid,state);
-          let firstChild = node? getNode(node.children[0],state) : null;
-          if(firstChild && firstChild.children.length >= 0)
-          {
-            updateParent(firstChild,state);
-          }
-        })
-    },
+    saveTree: saveTreeReducer,
+    checkNode: checkNodeReducer,
+    highlightNode: highlightNodeReducer,
+    invertNode: invertNodeReducer,
+    expandNode: expandNodeReducer,
+    toggleVisibility: toggleVisibilityReducer,
+    setCheckedVisibility: setCheckedVisibilityReducer,
     groupSelectedNodes: (state, action:PayloadAction<{tagName:string}>) => {
        let {tagName} = action.payload; 
        [...Object.values(state.data)].forEach((node:any) => {
