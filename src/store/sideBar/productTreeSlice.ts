@@ -1,16 +1,10 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../index';
+import {ITreeNode as TreeNode} from "../../components/shared/RsTreeTable"
 import {setPartVisibility, setHighlightedNodes, fitView, getSearchHints} from "../../backend/viewerAPIProxy";
 
 // Define a type for the slice state
-export type TreeNode = {
-  id:string,
-  pid:string|null,
-  title:string,
-  children:string[],
-  state:any,
-  attributes:any
-}
+
 
 export enum ProductTreeStates {
   Tree,
