@@ -31,6 +31,8 @@ import MuiToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import { Routes } from '../../../../routes/index'
 import styles from '../style';
 
+import { useEffect } from 'react';
+
 import { CameraView ,addCameraView , setActiveId, ViewMode , setProjectionAsync , pasteCameraView , deleteCameraView, setCameraInfoAsync} from '../../../../store/sideBar/sceneSlice';
 
 export default function Camera (){
@@ -49,6 +51,11 @@ export default function Camera (){
     const clickedView = cameraList.find(item => item.id === active);
     
     const userDefinedLength : number = cameraList.filter(item => item.userDefined === true).length;
+
+
+    useEffect(() => {
+        dispatch(setActiveId(-1))
+      },[cameraList]);
 
     const onHandleCamera = (id : number) => {
             dispatch(setActiveId(id))
