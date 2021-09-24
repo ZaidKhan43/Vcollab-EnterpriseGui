@@ -1,8 +1,6 @@
 import React from 'react'
-import {toggleVisibilityAsync} from '../../../../store/sideBar/productTreeSlice';
-import { useAppDispatch} from "../../../../store/storeHooks";
-import EyeIcon from '../../../icons/eyeIcon';
-import EyeSlashIcon from '../../../icons/eyeSlashIcon';
+import EyeIcon from '../../icons/eyeIcon';
+import EyeSlashIcon from '../../icons/eyeSlashIcon';
 import IconButton  from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
 import {useStyles } from './styles/TreeNodeStyle'
@@ -25,12 +23,13 @@ const VisiblilityIcon = (props:any) => {
     }
 }
 
-function ShowHide(props:any) {
-    const dispatch = useAppDispatch();
-    const handleVisibility = (toShow:boolean,node:any) => {
-        dispatch(toggleVisibilityAsync({toShow, nodeId:node.id}));
+interface ShowHideProps {
+  rowData: any,
+  visibility:boolean,
+  onChangeVisibility: (toShow:boolean,node:any) => void
+}
 
-    }
+function ShowHide(props:ShowHideProps) {
     const classes = useStyles();
     return (
         <Grid container alignItems='center' className={classes.hideText} style={{width:'100%',height:'100%'}}>
@@ -39,7 +38,7 @@ function ShowHide(props:any) {
                 style={{marginLeft:10}}
                 node = {props.rowData} 
                 visibility={props.visibility} 
-                onClick={handleVisibility}></VisiblilityIcon>
+                onClick={props.onChangeVisibility}></VisiblilityIcon>
             </Grid>
         </Grid>
     )
