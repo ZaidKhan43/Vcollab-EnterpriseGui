@@ -31,20 +31,16 @@ export default function CameraEdit (){
     const classes = styles();
 
     const [projection, setProjection] = useState(useAppSelector(state => state.scene.settings.projection));
-    const [active, setActive] = useState(useAppSelector(state => state.scene.settings.activeId));
+    const active = useAppSelector(state => state.scene.settings.activeId);
 
     const cameraViews : CameraView[] = useAppSelector(state => state.scene.cameraViews)
 
     const [cameraView,setCameraView] : any = useState(cameraViews.find(item => item.id === active))
 
     useEffect(() => {
-        const value  =cameraViews.find(item => item.name === cameraView.name)
-        if(value){
-            setCameraView(value)
-            setActive(value.id)
-            dispatch(setActiveId(value.id))
+        if(cameraViews.length > 0){
+            setCameraView(cameraViews.find(item => item.id === active))
         }
-        // console.log("hello",cameraViews.find(item => item.id === active));
       },[cameraViews]);
       
     const onClickBackIcon = () => {
@@ -56,7 +52,6 @@ export default function CameraEdit (){
     }
 
     const onHandleSelect = (newId : number) => {
-        setActive(newId)
         dispatch(setActiveId(newId))
         setCameraView(cameraViews.find(item => item.id === newId))
     }

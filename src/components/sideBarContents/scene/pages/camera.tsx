@@ -45,34 +45,22 @@ export default function Camera (){
     const [openDelete,setOpenDelete] = useState(false)
 
     const cameraList : CameraView[] = useAppSelector((state) => state.scene.cameraViews)
-    const [active,setActive] = useState(useAppSelector(state => state.scene.settings.activeId));
+    const active = useAppSelector(state => state.scene.settings.activeId);
     const projection = useAppSelector(state => state.scene.settings.projection)
     
     const userDefinedLength : number = cameraList.filter(item => item.userDefined === true).length;
     
-    const [activeName, setActiveName] = useState(cameraList.find(item => item.id === active)?.name);
-
-    useEffect(() => {
-        const value  = cameraList.find(item => item.name === activeName)
-        if(value){
-            setActive(value.id)
-            dispatch(setActiveId(value.id))
-        }
-        else
-            dispatch(setActiveId(-1))
-      },[cameraList]);
+    // useEffect(() => {
+    //     if(value){
+    //         setActive(value.id)
+    //         dispatch(setActiveId(value.id))
+    //     }
+    //     else
+    //         dispatch(setActiveId(-1))
+    //   },[cameraList]);
       
 
     const onHandleCamera = (id : number) => {
-        if(id === active){
-            setActive(-1)
-            setActiveName("")
-        }
-        else{
-            setActive(id)
-            setActiveName(cameraList.find(item => item.id === id)?.name)
-        }
-
         dispatch(setActiveId(id))
     }
 

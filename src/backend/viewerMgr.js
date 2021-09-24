@@ -123528,7 +123528,10 @@ class ViewerManager {
 		return([])
 	}
 	getCameraStdViews(activeViewerID){
-		return([
+
+		
+
+		const data =[
 			{
 				"name": "Front",
 				"position": [
@@ -123753,7 +123756,13 @@ class ViewerManager {
 					"far": 1000
 				}
 			}
-		])
+		]
+
+		data.forEach(item => 
+            item.perspective.aspect = Math.random() + item.perspective.aspect)
+        // console.log(r)
+
+		return(data)
 	}
 
 	setCameraProjection(camType,activeViewerID){
