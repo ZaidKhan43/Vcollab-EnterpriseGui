@@ -82,8 +82,11 @@ function RTree(props:TreeTableProps) {
   
       }
       const convertListToTree = (data:Map<string,ITreeNode>,rootIds:string[]) => {
-        let root = [createTreeNode(rootIds[0],data)];
-        return root;
+        let roots:any[] = [];
+        rootIds.forEach(root => {
+          roots.push(createTreeNode(root,data))
+        })
+        return roots;
       }
       treeDataRef.current = treeData;
       if(treeDataRef.current)
