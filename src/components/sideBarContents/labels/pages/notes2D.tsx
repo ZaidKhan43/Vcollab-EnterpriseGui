@@ -30,7 +30,6 @@ import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlin
 import MuiEditIcon from '@material-ui/icons/EditOutlined';
 
 import {createNote, editSelect, editShow, delete2DNote} from '../../../../store/sideBar/labelSlice/label2DSlice';
-import { useSelector } from 'react-redux';
 
 export default function Notes2D(){
     

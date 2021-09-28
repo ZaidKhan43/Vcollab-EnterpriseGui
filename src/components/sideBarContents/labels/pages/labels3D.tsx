@@ -1,5 +1,4 @@
 import MuiIconButton from '@material-ui/core/IconButton';
-import {goBack} from 'connected-react-router/immutable';
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
 
 import styles from './style'
@@ -11,13 +10,22 @@ import BackButton from '../../../icons/back';
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree from '../../../shared/RsTreeTable';
-import {invertNode, expandNode, selectProductTreeData ,selectRootIds, setCheckedVisibility, checkNode, createLabel} from '../../../../store/sideBar/labelSlice/label3DSlice'
+import {invertNode, expandNode, selectProductTreeData ,selectRootIds, setCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength} from '../../../../store/sideBar/labelSlice/label3DSlice'
 
 import EyeIcon from '@material-ui/icons//Visibility';
 import EyeSlashIcon from '@material-ui/icons/VisibilityOff';
 import IconButton  from '@material-ui/core/IconButton';
 
 import AddIcon from "@material-ui/icons/Add";
+
+import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
+import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
+
+import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
+import MuiEditIcon from '@material-ui/icons/EditOutlined';
+
+import {goBack,push} from 'connected-react-router/immutable';
+import {Routes} from "../../../../routes"
 
 export default function Labels3D(){
 
@@ -29,6 +37,7 @@ export default function Labels3D(){
   
   const treeData = useAppSelector(selectProductTreeData);
     const treeRootIds = useAppSelector(selectRootIds);
+    const selectedCount = useAppSelector(selectedLength)
 
   const getHeaderLeftIcon= () => {
     return (
@@ -65,6 +74,10 @@ export default function Labels3D(){
     dispatch(setCheckedVisibility({toShow, pids, leafIds}))
   }
 
+  const onHandleDeleteButton = () => {
+    dispatch(delete3DLabel());
+  }
+
   const renderIcon = (node :any) => {
       
     if(node.pid !== "-1")
@@ -94,7 +107,8 @@ export default function Labels3D(){
 
   const getBody = () => {
 
-    // console.log("selected",clickedValues)
+    console.log("treedata",treeData)
+
     return (
       <div className={classes.scrollBar}>
        <RTree 
@@ -118,6 +132,16 @@ export default function Labels3D(){
 
     return(
         <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
+          <OptionContainer>
+            <Option label="Edit" icon={<MuiIconButton disabled={selectedCount === 1 ? false : true} onClick={() =>dispatch(push(Routes.LABELS_3D_EDITS))}>
+                <MuiEditIcon/>
+              </MuiIconButton>} 
+            />
+             <Option label="Delete" icon={<MuiIconButton disabled={selectedCount >= 1? false : true} onClick={onHandleDeleteButton} > 
+                  <MuiDeleteForeverOutlinedIcon/>
+                </MuiIconButton> }
+            />
+            </OptionContainer>
       </div>
     ) 
   }

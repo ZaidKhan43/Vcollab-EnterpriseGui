@@ -11,14 +11,14 @@ type Labels3DSettings = {
     defaultParameters : Labels3DList,
 } 
 
-interface Labels3DList extends TreeNode {
+export interface Labels3DList extends TreeNode {
     id: string;
     pid: string | null;
     title: string;
     children: string[];
     state: any;
     attributes: any;
-    text: string,
+    label: string,
 }
 
 
@@ -46,7 +46,7 @@ const initialState : InitialState = {
                 visibility : true,
             },
             attributes: {},
-            text: "",
+            label: "",
         },
         "1" :{
             id: "1",
@@ -61,7 +61,7 @@ const initialState : InitialState = {
                 visibility : true,
             },
             attributes: {},
-            text: "",
+            label: "",
         },
         "2" :{
             id: "2",
@@ -76,7 +76,7 @@ const initialState : InitialState = {
                 visibility : true,
             },
             attributes: {},
-            text: "",
+            label: "Lorem ipsum dolor sit amet",
         },
         "3" :{
             id: "3",
@@ -91,7 +91,7 @@ const initialState : InitialState = {
                 visibility : true,
             },
             attributes: {},
-            text: "",
+            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
         },
         "4" :{
             id: "4",
@@ -106,10 +106,10 @@ const initialState : InitialState = {
                 visibility : true,
             },
             attributes: {},
-            text: "",
+            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean neque mi,",
         },
     },
-    rootIds : ["1","0",],
+    rootIds : ["0","1",],
     labels3DSettings :{
         idGenerator:5,
         defaultParameters:{
@@ -125,7 +125,7 @@ const initialState : InitialState = {
                     visibility : true,
                 },
                 attributes: {},
-                text: "",
+                label: "Lorem ipsum dolor sit amet",
         },
     }
 }
@@ -149,21 +149,66 @@ export const label3DSlice = createSlice({
                 let newNote = {...state.labels3DSettings.defaultParameters};
                 newNote.id = `${state.labels3DSettings.idGenerator}`;
                 newNote.pid = `${action.payload}`;
-                newNote.title = newNote.title + ` ${newNote.id +1}`;
+                if(newNote.pid === "0"){
+                    const count = state.data["0"].children.length;
+                    newNote.title = `Point Label ${count+1}`;
+                }
+                else{
+                    const count = state.data["1"].children.length;
+                    newNote.title = `Face Label ${count + 1}`
+                }
                 state.data[`${id}`] =newNote;
 
 
-                state.data["1"].children.push(newNote.id)
+                state.data[`${action.payload}`].children.push(newNote.id)
                 // Object.keys(state.data).find(key => state.data[key] === `${action.payload}`)
                 label3DSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/addNode"})
         },
+
+        delete3DLabel:(state) => {
+            Object.keys(state.data).forEach(key => {
+                if( state.data[key].state.checked === true && state.data[key].pid !== "-1"){
+                    Object.keys(state.data).forEach(key1 => {
+                        if( state.data[key1].pid === "-1")
+                            state.data[key1].children = state.data[key1].children.filter(item => item !== key)
+                      });
+                    delete state.data[key];
+                }
+                label3DSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/deleteNode"})
+              });
+             
+        },
+
+        
     }
 })
 
 export default label3DSlice.reducer;
-export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility , createLabel} = label3DSlice.actions;
+export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility , createLabel, delete3DLabel} = label3DSlice.actions;
 
 //Selectors
 
 export const selectRootIds = (state:RootState) => state.label3D.rootIds
 export const selectProductTreeData = (state:RootState) => state.label3D.data
+export const selectedLength = (state:RootState) => {
+    const array : string[] = [];
+     Object.keys(state.label3D.data).forEach(key => {
+        if (state.label3D.data[key].state.checked === true && state.label3D.data[key].pid !== "-1" )
+            array.push(key)
+     })
+
+     return (array.length);
+}
+
+export const selectedLabel3D = (state: RootState) => {
+    let node;
+    const length = selectedLength(state);
+
+    if(length === 1){
+    Object.keys(state.label3D.data).forEach(key => {
+        if (state.label3D.data[key].state.checked === true && state.label3D.data[key].pid !== "-1" )
+            node = state.label3D.data[key]
+     })
+    }
+    return(node);
+}

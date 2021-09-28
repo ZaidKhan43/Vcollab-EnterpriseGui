@@ -88,6 +88,7 @@ function RTree(props:TreeTableProps) {
         })
         return roots;
       }
+
       treeDataRef.current = treeData;
       if(treeDataRef.current)
       setData(convertListToTree(treeDataRef.current,rootIds));
