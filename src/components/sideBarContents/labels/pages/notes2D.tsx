@@ -29,7 +29,7 @@ import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilC
 import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
 import MuiEditIcon from '@material-ui/icons/EditOutlined';
 
-import {createNote, editSelect, editShow, delete2DNote} from '../../../../store/sideBar/labelSlice';
+import {createNote, editSelect, editShow, delete2DNote} from '../../../../store/sideBar/labelSlice/label2DSlice';
 import { useSelector } from 'react-redux';
 
 export default function Notes2D(){
@@ -37,8 +37,8 @@ export default function Notes2D(){
     const classes = styles();
     const dispatch = useAppDispatch(); 
     
-    const noteList= useAppSelector((state) =>  state.label.note2D.note2DList);
-    const listLimit = useAppSelector((state) => state.label.note2D.note2DSettings.limit)
+    const noteList= useAppSelector((state) =>  state.label2D.note2DList);
+    const listLimit = useAppSelector((state) => state.label2D.note2DSettings.limit)
         
     const selectedNotes = noteList.filter(item => item.selected === true)
     
@@ -90,17 +90,17 @@ export default function Notes2D(){
                {
                    noteList.map(item => 
                     <div key={'divParent_' + item.id}>
-                        <MuiListItem key={item.id} role={undefined}>
+                        <MuiListItem dense key={item.id} role={undefined}>
             <MuiListItemIcon>
               <MuiCheckbox edge="start" checked={item.selected} color="primary" onChange={() => onHandledSelect(item.id, item.selected)}/>
             </MuiListItemIcon>
             <MuiListItemText primary={item.name} />
             <MuiListItemSecondaryAction>
-              <MuiIconButton edge="end" aria-label="comments" onClick={() => onHandleShow(item.id, item.show)}>
+              <MuiIconButton size="small" edge="end" aria-label="comments" onClick={() => onHandleShow(item.id, item.show)}>
                 {item.show ?
-                <MuiVisibilityIcon/>
+                <MuiVisibilityIcon fontSize="small" />
             :
-            <MuiVisibilityOffIcon/>}
+            <MuiVisibilityOffIcon fontSize="small" />}
               </MuiIconButton>
             </MuiListItemSecondaryAction>
           </MuiListItem>

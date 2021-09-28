@@ -43,7 +43,8 @@ interface TreeTableProps {
   onCheck: (toCheck:boolean, nodeId:string) => void,
   onHighlight: (toHighlight:boolean, nodeId:string) => void,
   onChangeVisibility: (toShow:boolean,node:any) => void,
-  onInvert: (node:any) => void
+  onInvert: (node:any) => void,
+  column1?: (node:any) => any
 }
 
 function RTree(props:TreeTableProps) {
@@ -84,9 +85,10 @@ function RTree(props:TreeTableProps) {
         let root = [createTreeNode(rootIds[0],data)];
         return root;
       }
+      treeDataRef.current = treeData;
       if(treeDataRef.current)
       setData(convertListToTree(treeDataRef.current,rootIds));
-    },[rootIds,expandedNodes])
+    },[rootIds,expandedNodes,treeData])
 
     const overrideClasses = useRTreeOverrideStyles();
       return (
@@ -163,6 +165,11 @@ function RTree(props:TreeTableProps) {
                 {
                   rowData => {
                     let node = getNode(rowData.id);
+                    if(props.column1)
+                      return(
+                        props.column1(node)
+                      )
+                    else
                     return (
                       <ShowHideCell rowData = {node} visibility={node?.state.visibility} onChangeVisibility={props.onChangeVisibility}></ShowHideCell>
                     )

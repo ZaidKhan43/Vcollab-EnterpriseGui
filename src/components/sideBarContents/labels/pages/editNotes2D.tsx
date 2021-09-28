@@ -10,7 +10,7 @@ import BackButton from '../../../icons/back';
 import styles from './style';
 
 import { useAppSelector, useAppDispatch} from '../../../../store/storeHooks';
-import {selectedNote2D, editLabel} from '../../../../store/sideBar/labelSlice';
+import {selectedNote2D, editLabel} from '../../../../store/sideBar/labelSlice/label2DSlice';
 
 import MuiTextField from '@material-ui/core/TextField';
 import MuiTypography from '@material-ui/core/Typography';

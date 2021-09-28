@@ -8,12 +8,16 @@ import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import BackButton from '../../../icons/back';
 
 
-import {useAppDispatch} from '../../../../store/storeHooks';
+import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
-import {useState} from 'react';
+import RTree from '../../../shared/RsTreeTable';
+import {invertNode, expandNode, selectProductTreeData ,selectRootIds, setCheckedVisibility, checkNode, createLabel} from '../../../../store/sideBar/labelSlice/label3DSlice'
 
-import MuiCollapse from '@material-ui/core/Collapse';
-import MuiTypography from '@material-ui/core/Typography';
+import EyeIcon from '@material-ui/icons//Visibility';
+import EyeSlashIcon from '@material-ui/icons/VisibilityOff';
+import IconButton  from '@material-ui/core/IconButton';
+
+import AddIcon from "@material-ui/icons/Add";
 
 export default function Labels3D(){
 
@@ -23,72 +27,8 @@ export default function Labels3D(){
     dispatch(goBack());
   }
   
-  enum LabelType{
-    POINT = 0,
-    FACE =  1,
-  };
-
-  const [heading, setHeading] = useState(
-    [
-      {
-        id:0,
-        name:"Point",
-        collapsed: true,
-      },
-      {
-        id:1,
-        name:"Face",
-        collapsed: false,
-      },
-  ]
-  )
-
-  const [label3D, setLabel3d] = useState(
-    [
-      {
-        id:0,
-        name: "Point Label 1",
-        type: LabelType.POINT,
-        selected : true,
-        show : true,
-      },
-      { id:2,
-        name: "Point Label 2",
-        type: LabelType.POINT,
-        selected : false,
-        show : true,
-      },
-      {
-        id:3,
-        name: "Point Label 3",
-        type: LabelType.POINT,
-        selected : false,
-        show : false,
-      },
-      {
-        id:4,
-        name: "Face Label 1",
-        type: LabelType.FACE,
-        selected : false,
-        show : false,
-      },
-      {
-        id:5,
-        name: "Face Label 2",
-        type: LabelType.FACE,
-        selected : false,
-        show : false,
-      },
-      {
-        id:6,
-        name: "Face Label 3",
-        type: LabelType.FACE,
-        selected : false,
-        show : false,
-      }
-
-    ]
-  )
+  const treeData = useAppSelector(selectProductTreeData);
+    const treeRootIds = useAppSelector(selectRootIds);
 
   const getHeaderLeftIcon= () => {
     return (
@@ -102,28 +42,73 @@ export default function Labels3D(){
            </div>
     )
   }
-    
+
+  const handleExpand = (toOpen:boolean,nodeId:string) => {
+    dispatch(expandNode({toOpen,nodeId}));
+  }
+
+  const handleInvert = (node:any) => {
+    dispatch(invertNode({nodeId:node.id}));
+  }
+  
+  const handleCheck = (toCheck:boolean, nodeId:string) => {
+    dispatch(checkNode({toCheck,nodeId}));
+  }
+
+  const handleHighlight = () => {
+    console.log("sadas")
+  }
+
+  const handleVisibility = (toShow:boolean,node:any) => {
+    const leafIds = [node.id];
+    const pids = [node.pid];
+    dispatch(setCheckedVisibility({toShow, pids, leafIds}))
+  }
+
+  const renderIcon = (node :any) => {
+      
+    if(node.pid !== "-1")
+    return (
+        <span style={{marginLeft:"10px", marginTop:"5px"}}>
+          <IconButton size='small' onClick = {() => handleVisibility(!node.state.visibility,node)}>
+              { node.state.visibility
+                ? 
+                  <EyeIcon fontSize='small'/>
+                :
+                  <EyeSlashIcon fontSize='small'/>
+              }
+            </IconButton>
+        </span>
+      )
+    else
+    return (
+      <span style={{marginLeft:"10px", marginTop:"5px"}}>
+        <MuiIconButton size='small' onClick={() => dispatch(createLabel(node.id))}>
+            <AddIcon fontSize='default'/> 
+        </MuiIconButton> 
+      </span>
+    )
+   
+  }
+  
+
   const getBody = () => {
 
     // console.log("selected",clickedValues)
     return (
       <div className={classes.scrollBar}>
-        <div style={{marginLeft:"20px"}}>
-                {heading.map((item: any) => 
-               <span> {   !item.collapsed
-                  && 
-                     <MuiTypography>
-                        {item.name}
-                       </MuiTypography>
-              }
-                        <MuiCollapse in={item.collapsed} >
-                            <div>
-                            {item.name}
-                            </div>
-                        </MuiCollapse>
-                        </span>
-                )}
-        </div>
+       <RTree 
+          treeDataRedux={treeData} 
+          rootIdsRedux={treeRootIds} 
+          onExpand={handleExpand} 
+          onCheck={handleCheck} 
+          onHighlight = {handleHighlight}
+          onChangeVisibility = {handleVisibility}
+          onInvert={handleInvert}
+          column1 = {renderIcon}
+          />
+
+
       </div>
     )
   }

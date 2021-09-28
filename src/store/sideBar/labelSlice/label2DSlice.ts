@@ -1,5 +1,5 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
-import type { RootState } from '../index';
+import type { RootState } from '../../index';
 
 type Note2DList = {
     id: number,
@@ -15,18 +15,13 @@ type Node2DSettings = {
     defaultParameters : Note2DList,
 }
 
-type Note2D = {
-   note2DList : Note2DList[],
-   note2DSettings : Node2DSettings,
-
-}
 
 type InitialState = {
-    note2D : Note2D,
+    note2DList : Note2DList[],
+   note2DSettings : Node2DSettings,
 }
 
 const initialState : InitialState = {
-    note2D : {
         note2DList : 
             [        
                 {
@@ -69,63 +64,62 @@ const initialState : InitialState = {
                 label:"",
             }
         }
-    }
 }
 
-export const labelSlice = createSlice({
-    name: "label",
+export const label2DSlice = createSlice({
+    name: "label2D",
     initialState : initialState,
     reducers: {
         
         createNote: (state) => {
-            if(state.note2D.note2DList.length < state.note2D.note2DSettings.limit){
-                state.note2D.note2DSettings.idGenerator = state.note2D.note2DSettings.idGenerator + 1;
-                let newNote = {...state.note2D.note2DSettings.defaultParameters};
-                newNote.id = state.note2D.note2DSettings.idGenerator;
+            if(state.note2DList.length < state.note2DSettings.limit){
+                state.note2DSettings.idGenerator = state.note2DSettings.idGenerator + 1;
+                let newNote = {...state.note2DSettings.defaultParameters};
+                newNote.id = state.note2DSettings.idGenerator;
                 newNote.name = newNote.name + ` ${newNote.id +1}`;
-                state.note2D.note2DList = [...state.note2D.note2DList , newNote];
+                state.note2DList = [...state.note2DList , newNote];
             }
         },
 
         editSelect : (state,action: PayloadAction<{id:number, value:boolean}>) => {
-            const index= state.note2D.note2DList.findIndex((item) => item.id === action.payload.id);
+            const index= state.note2DList.findIndex((item) => item.id === action.payload.id);
             if ( index >= 0 ) {
-              let changeItem : Note2DList = state.note2D.note2DList[index];
+              let changeItem : Note2DList = state.note2DList[index];
               changeItem.selected = action.payload.value
-              state.note2D.note2DList[index] = changeItem;
+              state.note2DList[index] = changeItem;
             }       
         },
 
         editShow : (state,action: PayloadAction<{id:number, value:boolean}>) => {
-            const index= state.note2D.note2DList.findIndex((item) => item.id === action.payload.id);
+            const index= state.note2DList.findIndex((item) => item.id === action.payload.id);
             if ( index >= 0 ) {
-              let changeItem : Note2DList = state.note2D.note2DList[index];
+              let changeItem : Note2DList = state.note2DList[index];
               changeItem.show = action.payload.value;
-              state.note2D.note2DList[index] = changeItem;
+              state.note2DList[index] = changeItem;
             }       
         },
         delete2DNote: (state) => {
-            state.note2D.note2DList = state.note2D.note2DList.filter(item => item.selected === false);
+            state.note2DList = state.note2DList.filter(item => item.selected === false);
         },
 
         editLabel: (state, action: PayloadAction<{id:number, value:string}>) => {
-            const index= state.note2D.note2DList.findIndex((item) => item.id === action.payload.id);
+            const index= state.note2DList.findIndex((item) => item.id === action.payload.id);
             if ( index >= 0 ) {
-                let changeItem : Note2DList = state.note2D.note2DList[index];
+                let changeItem : Note2DList = state.note2DList[index];
                 changeItem.label = action.payload.value;
-                state.note2D.note2DList[index] = changeItem;
+                state.note2DList[index] = changeItem;
             }
         },
     }
 })
 
-export default labelSlice.reducer;
-export const {createNote, editSelect, editShow,delete2DNote, editLabel} = labelSlice.actions;
+export default label2DSlice.reducer;
+export const {createNote, editSelect, editShow,delete2DNote, editLabel} = label2DSlice.actions;
 
 //Selectors
 
 export const selectedNote2D = (state : RootState) => {
-    const selectedNote = state.label.note2D.note2DList.filter(item => item.selected === true);
+    const selectedNote = state.label2D.note2DList.filter(item => item.selected === true);
     if(selectedNote.length === 1)
         return(selectedNote[0])
   }
