@@ -14,7 +14,7 @@ export enum ProductTreeStates {
 }
 
 interface ProductTreeState extends ITreeState {
-    data: any,
+    data: {[id:string]:TreeNode},
     rootIds: string[],
     currentState: ProductTreeStates,
     searchHints: {[id:string]:any},
