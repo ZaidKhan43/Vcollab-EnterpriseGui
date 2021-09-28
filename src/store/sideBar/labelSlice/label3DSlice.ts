@@ -9,6 +9,8 @@ import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReduc
 type Labels3DSettings = {
     idGenerator : number,
     defaultParameters : Labels3DList,
+    pointCount : number,
+    faceCount: number,
 } 
 
 export interface Labels3DList extends TreeNode {
@@ -127,6 +129,8 @@ const initialState : InitialState = {
                 attributes: {},
                 label: "Lorem ipsum dolor sit amet",
         },
+        pointCount : 1,
+        faceCount : 2,
     }
 }
 
@@ -144,18 +148,18 @@ export const label3DSlice = createSlice({
         setCheckedVisibility: setCheckedVisibilityReducer,
         
         createLabel : (state , action: PayloadAction<number>) => {
-                state.labels3DSettings.idGenerator = state.labels3DSettings.idGenerator + 1;
+                state.labels3DSettings.idGenerator += 1;
                 const id =state.labels3DSettings.idGenerator;
                 let newNote = {...state.labels3DSettings.defaultParameters};
                 newNote.id = `${state.labels3DSettings.idGenerator}`;
                 newNote.pid = `${action.payload}`;
                 if(newNote.pid === "0"){
-                    const count = state.data["0"].children.length;
-                    newNote.title = `Point Label ${count+1}`;
+                    state.labels3DSettings.pointCount+= 1;
+                    newNote.title = `Point Label ${state.labels3DSettings.pointCount}`;
                 }
                 else{
-                    const count = state.data["1"].children.length;
-                    newNote.title = `Face Label ${count + 1}`
+                    state.labels3DSettings.faceCount += 1;
+                    newNote.title = `Face Label ${state.labels3DSettings.faceCount}`
                 }
                 state.data[`${id}`] =newNote;
 
@@ -165,18 +169,27 @@ export const label3DSlice = createSlice({
                 label3DSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/addNode"})
         },
 
+        editLabel: (state, action: PayloadAction<{id:number, value:string}>) => {
+            if( action.payload.id >= 0){
+                const key = `${action.payload.id}`
+                state.data[key].label = action.payload.value;
+            }
+        },
+
         delete3DLabel:(state) => {
             Object.keys(state.data).forEach(key => {
                 if( state.data[key].state.checked === true && state.data[key].pid !== "-1"){
-                    Object.keys(state.data).forEach(key1 => {
-                        if( state.data[key1].pid === "-1")
-                            state.data[key1].children = state.data[key1].children.filter(item => item !== key)
-                      });
                     delete state.data[key];
-                }
-                label3DSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/deleteNode"})
-              });
-             
+                    Object.keys(state.data).forEach(key1 => {
+                        if( state.data[key1].pid === "-1"){
+                            state.data[key1].children = state.data[key1].children.filter(item => item !== key)
+                            label3DSlice.caseReducers.checkNode(state,{payload:{toCheck:false,nodeId: key1}, type: "label3D/deleteNode/reverseCheckValues"});
+                        }
+                    });
+                }    
+            });
+            label3DSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/deleteNode"})
+              
         },
 
         
@@ -184,7 +197,7 @@ export const label3DSlice = createSlice({
 })
 
 export default label3DSlice.reducer;
-export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility , createLabel, delete3DLabel} = label3DSlice.actions;
+export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility , createLabel,editLabel, delete3DLabel} = label3DSlice.actions;
 
 //Selectors
 

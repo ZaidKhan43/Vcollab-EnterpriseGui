@@ -10,9 +10,8 @@ import BackButton from '../../../icons/back';
 import styles from './style';
 
 import { useAppSelector, useAppDispatch} from '../../../../store/storeHooks';
-import {selectedNote2D, editLabel,} from '../../../../store/sideBar/labelSlice/label2DSlice';
 
-import {selectedLabel3D, Labels3DList} from '../../../../store/sideBar/labelSlice/label3DSlice'
+import {selectedLabel3D,editLabel} from '../../../../store/sideBar/labelSlice/label3DSlice'
 
 import MuiTextField from '@material-ui/core/TextField';
 import MuiTypography from '@material-ui/core/Typography';
@@ -22,7 +21,6 @@ import {useState} from 'react';
 
 export default function EditLabels3D(){
 
-  const note2D = useAppSelector(selectedNote2D);
   const label3D = useAppSelector(selectedLabel3D)
   const [labelText,setLabelText] = useState(label3D?label3D.label : "");
 
@@ -37,11 +35,11 @@ export default function EditLabels3D(){
   }
 
   const onHandleReset = () => {
-    setLabelText(note2D?note2D.label : "");
+    setLabelText(label3D?label3D.label : "");
   }
 
   const onHandleSave = () => {
-    dispatch(editLabel({id: note2D ? note2D.id : -1, value: labelText}))
+    dispatch(editLabel({id: label3D ? label3D.id : -1, value: labelText}))
   }
 
   const getHeaderLeftIcon= () => {
@@ -83,7 +81,7 @@ export default function EditLabels3D(){
   const getFooter = () => {
 
     let change = false;
-    if(note2D?.label !== labelText)
+    if(label3D?.label !== labelText)
       change = true;
 
     return(

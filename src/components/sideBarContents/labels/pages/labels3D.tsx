@@ -80,11 +80,11 @@ export default function Labels3D(){
 
   const renderIcon = (node :any) => {
       
-    if(node.pid !== "-1")
+    if(node?.pid !== "-1")
     return (
         <span style={{marginLeft:"10px", marginTop:"5px"}}>
           <IconButton size='small' onClick = {() => handleVisibility(!node.state.visibility,node)}>
-              { node.state.visibility
+              { node?.state.visibility
                 ? 
                   <EyeIcon fontSize='small'/>
                 :
