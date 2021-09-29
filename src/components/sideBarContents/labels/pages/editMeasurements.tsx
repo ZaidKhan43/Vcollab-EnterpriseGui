@@ -10,7 +10,8 @@ import BackButton from '../../../icons/back';
 import styles from './style';
 
 import { useAppSelector, useAppDispatch} from '../../../../store/storeHooks';
-import {selectedNote2D, editLabel} from '../../../../store/sideBar/labelSlice/label2DSlice';
+
+import {selectedMeasurement,editLabel} from '../../../../store/sideBar/labelSlice/measurementsSlice'
 
 import MuiTextField from '@material-ui/core/TextField';
 import MuiTypography from '@material-ui/core/Typography';
@@ -18,10 +19,10 @@ import MuiButton from '@material-ui/core/Button';
 
 import {useState} from 'react';
 
-export default function EditNotes2D(){
+export default function EditMeasurements(){
 
-  const note2D = useAppSelector(selectedNote2D);
-  const [labelText,setLabelText] = useState(note2D?note2D.label : "");
+  const measurement = useAppSelector(selectedMeasurement)
+  const [labelText,setLabelText] = useState(measurement?measurement.label : "");
 
   const classes = styles();
   const dispatch = useAppDispatch();  
@@ -34,11 +35,11 @@ export default function EditNotes2D(){
   }
 
   const onHandleReset = () => {
-    setLabelText(note2D?note2D.label : "");
+    setLabelText(measurement?measurement.label : "");
   }
 
   const onHandleSave = () => {
-    dispatch(editLabel({id: note2D ? note2D.id : -1, value: labelText}))
+    dispatch(editLabel({id: measurement ? measurement.id : -1, value: labelText}))
   }
 
   const getHeaderLeftIcon= () => {
@@ -55,6 +56,8 @@ export default function EditNotes2D(){
   }
     
   const getBody = () => {
+
+    console.log("selected", measurement)
 
     // console.log("selected",clickedValues)
     return (
@@ -78,7 +81,7 @@ export default function EditNotes2D(){
   const getFooter = () => {
 
     let change = false;
-    if(note2D?.label !== labelText)
+    if(measurement?.label !== labelText)
       change = true;
 
     return(
@@ -107,7 +110,7 @@ export default function EditNotes2D(){
   return (
           <SideBarContainer
             headerLeftIcon = { getHeaderLeftIcon() }
-            headerContent={ <Title text={`${note2D?.name}`} group="Labels - 2D Notes"/> }
+            headerContent={ <Title text={`${measurement?.title}`} group="Labels - Measurements"/> }
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }
             footer = { getFooter() }

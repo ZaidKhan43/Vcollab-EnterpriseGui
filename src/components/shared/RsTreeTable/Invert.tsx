@@ -23,7 +23,7 @@ function InvertCell(props:InvertCellProps) {
     
     const classes = useStyles();
     return (
-        props.rowData.children.length > 0 ? 
+        props.rowData?.children?.length > 0 ? 
         <Grid container alignItems='center' className={classes.hideText} style={{height:'100%',width:'100%'}}>
             <Grid item>
                 <IconButton size="small"  onClick = {() => props.onInvert(props.rowData)}>

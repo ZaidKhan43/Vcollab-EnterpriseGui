@@ -46,7 +46,8 @@ type ColorList = {
 }
 
 type Settings = {
-    idGenerator: number,
+    idGeneratorUserDefined : number,
+    idGeneratorSystemDefined : number, 
     defaultCameraParameter : {
         userDefined : boolean,
         valuePerspective : {
@@ -110,7 +111,8 @@ const initialState : Scenes = {
     ],
 
     settings : {
-        idGenerator:0,
+        idGeneratorUserDefined:20,
+        idGeneratorSystemDefined:-1,
         defaultCameraParameter : {
             userDefined : true,
             valuePerspective :  [ 
@@ -157,7 +159,8 @@ export const fetchCameraStdViews = createAsyncThunk(
         const state = getState() as RootState;
         const viewerId = state.app.viewers[state.app.activeViewer || ''];
         let r:any[] = getCameraStdViews(viewerId);
-        return r;
+      
+            return r;
     }
 )
 
@@ -227,7 +230,7 @@ export const sceneSlice = createSlice({
         addCameraView : (state) => {
             if(state.cameraViews.filter(item => item.userDefined === true).length < state.settings.userDefineLimit){
                 const userDefinedLength = state.cameraViews.filter(item => item.userDefined === true).length;
-                const id : number = ++state.settings.idGenerator;
+                const id : number = ++state.settings.idGeneratorUserDefined;
                 const name : string = `Camera View ${userDefinedLength + 1}`;
                 const newCameraView : CameraView = {
                 ...state.settings.defaultCameraParameter,id, name, userDefined:true
@@ -239,7 +242,7 @@ export const sceneSlice = createSlice({
         pasteCameraView: (state,action :  PayloadAction<{data: CameraView}>) => {
             const userDefinedLength : number = state.cameraViews.filter(item => item.userDefined === true).length;
             let clone = JSON.parse(JSON.stringify(action.payload.data));
-            const newId = ++state.settings.idGenerator;
+            const newId = ++state.settings.idGeneratorUserDefined;
             clone.id= newId;
             clone.userDefined = true;
             clone.name = `Camera View ${userDefinedLength + 1}`;
@@ -325,13 +328,15 @@ export const sceneSlice = createSlice({
         },
     },
     extraReducers: builder => {
+
         builder.addCase(fetchCameraStdViews.fulfilled, (state, action:PayloadAction<any[]>) => {
             const r = action.payload;
             let userViews = state.cameraViews.filter(e => e.userDefined === true);
             state.cameraViews = [...userViews];
+            state.settings.idGeneratorSystemDefined = -1;
             r.forEach(e => {
                 let view = {
-                    id: ++state.settings.idGenerator,
+                    id: ++state.settings.idGeneratorSystemDefined,
                     name: e.name,
                     userDefined:false,
                     valuePerspective: [

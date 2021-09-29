@@ -6,6 +6,8 @@ import Notes2D from './pages/notes2D'
 import Labels3D from './pages/labels3D'
 import Measurements from './pages/measurements'
 import EditNotes2D from './pages/editNotes2D';
+import EditLabels3D from './pages/editLabels3D';
+import EditMeasurements from './pages/editMeasurements'
 
 function ClipPlanes() {
     
@@ -20,8 +22,14 @@ function ClipPlanes() {
             <Route path={Routes.LABELS_3D_LABELS}>
                 <Labels3D/>
             </Route>
+            <Route path={Routes.LABELS_3D_EDITS}>
+                <EditLabels3D/>
+            </Route>
             <Route path={Routes.LABELS_MEASUREMENTS}>
                 <Measurements/>
+            </Route>
+            <Route path={Routes.LABELS_MEASUREMENTS_EDITS}>
+                <EditMeasurements/>
             </Route>
         </Switch>
     )

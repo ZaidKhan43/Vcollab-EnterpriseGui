@@ -1,21 +1,43 @@
 import MuiIconButton from '@material-ui/core/IconButton';
-import {goBack} from 'connected-react-router/immutable';
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
 
-
+import styles from './style'
 
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import BackButton from '../../../icons/back';
 
 
-import {useAppDispatch} from '../../../../store/storeHooks';
+import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
+
+import RTree from '../../../shared/RsTreeTable';
+import {invertNode, expandNode, selectProductTreeData ,selectRootIds, setCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength} from '../../../../store/sideBar/labelSlice/measurementsSlice'
+
+import EyeIcon from '@material-ui/icons//Visibility';
+import EyeSlashIcon from '@material-ui/icons/VisibilityOff';
+import IconButton  from '@material-ui/core/IconButton';
+
+import AddIcon from "@material-ui/icons/Add";
+
+import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
+import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
+
+import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
+import MuiEditIcon from '@material-ui/icons/EditOutlined';
+
+import {goBack,push} from 'connected-react-router/immutable';
+import {Routes} from "../../../../routes"
 
 export default function Measurements(){
 
+  const classes = styles();
   const dispatch = useAppDispatch();  
   const onClickBackIcon = () =>{
     dispatch(goBack());
   }
+  
+  const treeData = useAppSelector(selectProductTreeData);
+    const treeRootIds = useAppSelector(selectRootIds);
+    const selectedCount = useAppSelector(selectedLength)
 
   const getHeaderLeftIcon= () => {
     return (
@@ -29,13 +51,78 @@ export default function Measurements(){
            </div>
     )
   }
-    
+
+  const handleExpand = (toOpen:boolean,nodeId:string) => {
+    dispatch(expandNode({toOpen,nodeId}));
+  }
+
+  const handleInvert = (node:any) => {
+    dispatch(invertNode({nodeId:node.id}));
+  }
+  
+  const handleCheck = (toCheck:boolean, nodeId:string) => {
+    dispatch(checkNode({toCheck,nodeId}));
+  }
+
+  const handleHighlight = () => {
+    console.log("sadas")
+  }
+
+  const handleVisibility = (toShow:boolean,node:any) => {
+    const leafIds = [node.id];
+    const pids = [node.pid];
+    dispatch(setCheckedVisibility({toShow, pids, leafIds}))
+  }
+
+  const onHandleDeleteButton = () => {
+    dispatch(delete3DLabel());
+  }
+
+  const renderIcon = (node :any) => {
+      
+    if(node?.pid !== "-1")
+    return (
+        <span style={{marginLeft:"10px", marginTop:"5px"}}>
+          <IconButton size='small' onClick = {() => handleVisibility(!node.state.visibility,node)}>
+              { node?.state.visibility
+                ? 
+                  <EyeIcon fontSize='small'/>
+                :
+                  <EyeSlashIcon fontSize='small'/>
+              }
+            </IconButton>
+        </span>
+      )
+    else
+    return (
+      <span style={{marginLeft:"10px", marginTop:"5px"}}>
+        <MuiIconButton size='small' onClick={() => dispatch(createLabel(node.id))}>
+            <AddIcon fontSize='default'/> 
+        </MuiIconButton> 
+      </span>
+    )
+   
+  }
+  
+
   const getBody = () => {
 
-    // console.log("selected",clickedValues)
+    console.log("treedata",treeData)
+
     return (
-      <div style={{marginTop:"50%"}}>
-        Measurements coming Soon
+      <div className={classes.scrollBar}>
+       <RTree 
+          treeDataRedux={treeData} 
+          rootIdsRedux={treeRootIds} 
+          onExpand={handleExpand} 
+          onCheck={handleCheck} 
+          onHighlight = {handleHighlight}
+          onChangeVisibility = {handleVisibility}
+          onInvert={handleInvert}
+          column1 = {renderIcon}
+          />
+
+
       </div>
     )
   }
@@ -45,6 +132,16 @@ export default function Measurements(){
 
     return(
         <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
+          <OptionContainer>
+            <Option label="Edit" icon={<MuiIconButton disabled={selectedCount === 1 ? false : true} onClick={() =>dispatch(push(Routes.LABELS_MEASUREMENTS_EDITS))}>
+                <MuiEditIcon/>
+              </MuiIconButton>} 
+            />
+             <Option label="Delete" icon={<MuiIconButton disabled={selectedCount >= 1? false : true} onClick={onHandleDeleteButton} > 
+                  <MuiDeleteForeverOutlinedIcon/>
+                </MuiIconButton> }
+            />
+            </OptionContainer>
       </div>
     ) 
   }
