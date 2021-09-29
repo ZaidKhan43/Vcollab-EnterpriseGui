@@ -13,7 +13,7 @@ import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
         setAppBarVisibility, setFullscreenState ,selectModelLoadedState, setPopupMenuActiveContent } from '../store/appSlice';
 import { appBarMinHeight, popupMenuContentTypes } from '../config';
 import SnackBar from "./sideBarContents/messages/SnackBar";
-
+import WindowsContainer from "./layout/windowsContainer";
 import Viewer from './viewer';
 import { fetchCameraStdViews } from '../store/sideBar/sceneSlice';
 
@@ -27,6 +27,7 @@ function App() {
   const isSidebarVisible = useAppSelector(selectSidebarVisibility);
   const dispatch = useAppDispatch();  
   const targetRef = useRef(null);
+  const viewerContainerRef = useRef(null);
 
   //===========================================================================
   const onResize = useCallback((width ?:number, height ?: number) => {
@@ -74,8 +75,9 @@ function App() {
         <><AppBar /><Sidebar /></>
         : null ) }
         <main  className={ clsx(classes.content , {[classes.contentWithSideBar]: isSidebarVisible} , {[classes.contentWithTopBar]: isAppBarVisible}) }>
-          <div className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
+          <div ref = {viewerContainerRef} className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
             <Viewer />
+            <WindowsContainer parentRef={viewerContainerRef}/>
           </div>     
         </main>
         <SnackBar/>
