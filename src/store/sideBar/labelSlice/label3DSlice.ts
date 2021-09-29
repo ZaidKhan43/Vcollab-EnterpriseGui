@@ -113,7 +113,7 @@ const initialState : InitialState = {
     },
     rootIds : ["0","1",],
     labels3DSettings :{
-        idGenerator:5,
+        idGenerator :4,
         defaultParameters:{
                 id: "",
                 pid: null,
@@ -183,11 +183,13 @@ export const label3DSlice = createSlice({
                     Object.keys(state.data).forEach(key1 => {
                         if( state.data[key1].pid === "-1"){
                             state.data[key1].children = state.data[key1].children.filter(item => item !== key)
-                            label3DSlice.caseReducers.checkNode(state,{payload:{toCheck:false,nodeId: key1}, type: "label3D/deleteNode/reverseCheckValues"});
                         }
                     });
                 }    
             });
+            Object.keys(state.data).forEach(key => {
+                label3DSlice.caseReducers.checkNode(state,{payload:{toCheck:false,nodeId: key}, type: "label3D/deleteNode/reverseCheckValues"});
+            })
             label3DSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/deleteNode"})
               
         },

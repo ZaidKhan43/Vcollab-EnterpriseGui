@@ -31,6 +31,7 @@ export enum Routes {
     LABELS_3D_LABELS = "/labels/3d_labels",
     LABELS_3D_EDITS = '/labels/3d_label_edit',
     LABELS_MEASUREMENTS = "/labels/measurements",
+    LABELS_MEASUREMENTS_EDITS = "/labels/measurements_edit",
 
 
     SETTINGS = "/settings",

@@ -16,6 +16,7 @@ import settingSlice from './sideBar/settings'
 import messageSlice from './sideBar/messageSlice';
 import label2DSlice from './sideBar/labelSlice/label2DSlice';
 import label3DSlice from './sideBar/labelSlice/label3DSlice';
+import measurementsSlice from './sideBar/labelSlice/measurementsSlice';
 
 export const history = createHashHistory({
   hashType: 'slash',
@@ -39,6 +40,7 @@ const store = configureStore({
         message: messageSlice,
         label2D: label2DSlice,
         label3D: label3DSlice,
+        measurements : measurementsSlice,
       }),
     middleware: getDefaultMiddleware({
       serializableCheck: {
