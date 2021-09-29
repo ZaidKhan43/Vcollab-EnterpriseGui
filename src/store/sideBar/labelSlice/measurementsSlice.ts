@@ -200,7 +200,7 @@ const initialState : InitialState = {
             label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
         },
         "11" :{
-            id: "10",
+            id: "11",
             pid: "3",
             title: "Measurement 8",
             children: [],
@@ -216,7 +216,7 @@ const initialState : InitialState = {
         },
         "12" :{
             id: "12",
-            pid: "2",
+            pid: "3",
             title: "Measurement 9",
             children: [],
             state: {

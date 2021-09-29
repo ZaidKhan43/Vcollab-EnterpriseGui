@@ -149,7 +149,7 @@ export default function Measurements(){
   return (
           <SideBarContainer
             headerLeftIcon = { getHeaderLeftIcon() }
-            headerContent={ <Title text={"3D Labels" } group="Labels"/> }
+            headerContent={ <Title text={"Measurements" } group="Labels"/> }
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }
             footer = { getFooter() }
