@@ -53,30 +53,30 @@ const applySelcetedItem=(id:string,isSeleced:boolean)=>{
         let h = rect.height;
         let winWidth = windowSize[0];
         let winHeight = windowSize[1];
-        let uid = "window";
+        let uid = "axisTriadWindow";
         switch(id) {
             case "1":
                 dispatch(setWindowPos({uid,pos:[w-winWidth,0]}))
                 dispatch(setWindowAnchor({uid,anchor:[winWidth,0]}));
                 break;
             case "2":
-                dispatch(setWindowPos({uid:"window",pos:[0,0]}))
+                dispatch(setWindowPos({uid,pos:[0,0]}))
                 dispatch(setWindowAnchor({uid,anchor:[0,0]}));
                 break;
             case "3":
-                dispatch(setWindowPos({uid:"window",pos:[w-winWidth,h/2-winHeight/2]}))
+                dispatch(setWindowPos({uid,pos:[w-winWidth,h/2-winHeight/2]}))
                 dispatch(setWindowAnchor({uid,anchor:[winWidth,0]}));
                 break;
             case "4":
-                dispatch(setWindowPos({uid:"window",pos:[0,h/2-winHeight/2]}))
+                dispatch(setWindowPos({uid,pos:[0,h/2-winHeight/2]}))
                 dispatch(setWindowAnchor({uid,anchor:[0,0]}));
                 break;
             case "5":
-                dispatch(setWindowPos({uid:"window",pos:[0,h-winHeight]}))
+                dispatch(setWindowPos({uid,pos:[0,h-winHeight]}))
                 dispatch(setWindowAnchor({uid,anchor:[0,winHeight]}));
                 break;
             case "6":
-                dispatch(setWindowPos({uid:"window",pos:[w-winWidth,h-winHeight]}))
+                dispatch(setWindowPos({uid,pos:[w-winWidth,h-winHeight]}))
                 dispatch(setWindowAnchor({uid,anchor:[winWidth,winHeight]}));
                 break;
             case "7":
@@ -84,7 +84,7 @@ const applySelcetedItem=(id:string,isSeleced:boolean)=>{
             default:
                 break;
         }
-        dispatch(setEditMode({uid:"window", isEdit:id==='7'?true:false }));
+        dispatch(setEditMode({uid, isEdit:id==='7'?true:false }));
         dispatch(setApplyItem(id));
     }
 

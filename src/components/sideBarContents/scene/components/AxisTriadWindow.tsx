@@ -129,7 +129,7 @@ function AxisTriadWindow(props:Props) {
     },[rotMat, width, height])
     return (
         <>
-        <CustomWindow uid="window" resize parentRef = {props.parentRef} width={100} height={100}>
+        <CustomWindow uid="axisTriadWindow" resize parentRef = {props.parentRef} width={100} height={100}>
             {
                     
                 showAxis ?
