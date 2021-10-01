@@ -15,7 +15,7 @@ import { sideBarContentTypes } from '../../../config';
 import MainMenu from '../../sideBarContents/mainMenu';
 import ProductExplorer from '../../sideBarContents/productExplorer';
 import Field from '../../sideBarContents/field';
-import Colormaps from '../../sideBarContents/colormaps';
+
 import ClipPlanes from '../../sideBarContents/clipPlanes';
 import Scene from "../../sideBarContents/scene";
 import Views from '../../sideBarContents/views';
@@ -23,6 +23,7 @@ import Annotations from '../../sideBarContents/annotations';
 import Settings from '../../sideBarContents/settings';
 import Messages from '../../sideBarContents/messages';
 import Labels from '../../sideBarContents/labels';
+import Colormaps from '../../sideBarContents/colormaps';
 
 export default function Sidebar(){
     
@@ -62,8 +63,8 @@ export default function Sidebar(){
         <Route path={Routes.LABELS}>
         <Labels />     
         </Route>
-        <Route>
-        <Colormaps />
+        <Route path={Routes.COLORMAPS}>
+        <Colormaps/>
         </Route>
         <Route>
         <Views />

@@ -1,50 +1,50 @@
-import MuiTypography from '@material-ui/core/Typography';
-import MuiIconButton from '@material-ui/core/IconButton';
-import MuiToolTip from '@material-ui/core/Tooltip';
-import MuiBackIcon from '@material-ui/icons/ArrowBack'
+import React from 'react';
+import {Switch,Route} from 'react-router';
+import { Routes } from '../../../routes';
 
-import SideBarContainer from '../../layout/sideBar/sideBarContainer';
-import styles from './style';
-import Colormap from './colormap';
-import { setSidebarActiveContent } from '../../../store/appSlice';
-import { sideBarContentTypes } from '../../../config';
-import { useAppDispatch } from '../../../store/storeHooks';
+import List from './pages/list';
+import Edit from './pages/edit';
+import Variable from './pages/variable';
+import StepsAndSubcase from './pages/stepsAndSubcase';
+import SectionAndLayer from './pages/sectionAndLayer';
+import DerivedType from './pages/derivedType';
+import ColorPalette from './pages/colorPalette';
+import ValueSettings from './pages/valueSettings';
+import LegendSettings from './pages/legendSettings';
 
-export default function ColorMaps(){
+function Colormaps() {
     
-    const classes = styles();
-    const dispatch = useAppDispatch();
-
-    const onClickBackIcon = () =>{
-      dispatch(setSidebarActiveContent(sideBarContentTypes.mainMenu));       
-    }
-    
-    const getHeaderLeftIcon= () => {
-      return (
-        <MuiToolTip title='Back'>
-          <MuiIconButton
-          className={classes.backIcon}
-          onClick={() => onClickBackIcon()}><MuiBackIcon/></MuiIconButton>
-        </MuiToolTip>
-      );
-    }
-
-    const getHeaderContent = () => {
-      return (
-      <MuiTypography className={classes.heading} variant='h1' noWrap>
-          Color Maps
-      </MuiTypography>)  
-    }    
-
-    const getBody = () => {
-      return (
-        <Colormap />
-      )          
-    }
-
-    return (<SideBarContainer
-      headerLeftIcon = { getHeaderLeftIcon() }
-      headerContent={ getHeaderContent() }
-      body ={ getBody() }/>
+    return (
+        <Switch>
+            <Route path={Routes.COLORMAPS_LIST}>
+                <List/>
+            </Route>
+            <Route path={Routes.COLORMAPS_EDIT}>
+                <Edit/>
+            </Route>
+            <Route path={Routes.COLORMAPS_VARIABLE}>
+                <Variable/>
+            </Route>
+            <Route path={Routes.COLORMAPS_STEPS_AND_SUBCASE}>
+                <StepsAndSubcase/>
+            </Route>
+            <Route path={Routes.COLORMAPS_SELECTION_AND_LAYER}>
+                <SectionAndLayer/>
+            </Route>
+            <Route path={Routes.COLORMAPS_DERIVED_TYPES}>
+                <DerivedType/>
+            </Route>
+            <Route path={Routes.COLORMAPS_COLOR_PALETTE}>
+                <ColorPalette/>
+            </Route>
+            <Route path={Routes.COLORMAPS_VALUE_SETTINGS}>
+                <ValueSettings/>
+            </Route>
+            <Route path={Routes.COLORMAPS_LEGEND_SETTINGS}>
+                <LegendSettings/>
+            </Route>
+        </Switch>
     )
 }
+
+export default Colormaps

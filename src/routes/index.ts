@@ -39,4 +39,14 @@ export enum Routes {
     SETTINGS_MOUSE_CONTROLS ="/settings/mousecontrols",
     SETTINGS_MOUSE_CONTROLS_EDIT ="/settings/mousecontrols/edit",
 
+    COLORMAPS = "/colormaps",
+    COLORMAPS_LIST = "/colormaps/list",
+    COLORMAPS_EDIT = "/colormaps/edit",
+    COLORMAPS_VARIABLE = "/colormaps/variable",
+    COLORMAPS_STEPS_AND_SUBCASE = "/colormaps/steps_and_subcase",
+    COLORMAPS_SELECTION_AND_LAYER = "/colormaps/selection_and_layer",
+    COLORMAPS_DERIVED_TYPES = "/colormaps/derived_types",
+    COLORMAPS_COLOR_PALETTE = "/colormaps/color_palette",
+    COLORMAPS_VALUE_SETTINGS = "/colormaps/value_settings",
+    COLORMAPS_LEGEND_SETTINGS = "/colormaps/legend_settings",
 }
