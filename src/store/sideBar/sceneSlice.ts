@@ -1,6 +1,7 @@
 import { PlaylistAddOutlined } from '@material-ui/icons';
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
-import { getCameraStdViews, setBackground, setCameraInfo, setCameraProjection } from '../../backend/viewerAPIProxy';
+import { mat4 } from 'gl-matrix';
+import { getCameraInfo, getCameraStdViews, setBackground, setCameraInfo, setCameraProjection } from '../../backend/viewerAPIProxy';
 import {perspectiveToOrtho,orthoToPerspective} from '../../components/utils/camera'
 import type { RootState } from '../index';
 
@@ -79,9 +80,11 @@ type Settings = {
 
 type Scenes = {
     cameraViews : CameraView[],
+    camMatrix: number[],
     settings : Settings,
     colorList : ColorList[],
     file: any,
+    showAxis:boolean,
     axisTriodList : AxisTriodList[],
 }
 
@@ -97,9 +100,10 @@ const initialState : Scenes = {
     cameraViews : [
         
     ],
-    
+    camMatrix: [],
     colorList : [{ id:1, color:{r:160, g:160, b:252, a:1}} , {id:2, color:{r:255, g:255, b:255, a:1}}],
     file : null ,
+    showAxis:true,
     axisTriodList:[
         {id:'1',text:'Top Right',selected:false,applied:false},
         {id:'2',text:'Top Left',selected:false,applied:false},
@@ -109,7 +113,6 @@ const initialState : Scenes = {
         {id:'6',text:'Bottom Right',selected:false,applied:false},
         {id:'7',text:'Custom',selected:false,applied:false}
     ],
-
     settings : {
         idGeneratorUserDefined:20,
         idGeneratorSystemDefined:-1,
@@ -161,6 +164,25 @@ export const fetchCameraStdViews = createAsyncThunk(
         let r:any[] = getCameraStdViews(viewerId);
       
             return r;
+    }
+)
+
+export const fetchCameraMatrix = createAsyncThunk(
+    'scene/fetchCameraMatrix',
+    async (data,{dispatch, getState}) => {
+        const state = getState() as RootState;
+        const viewerId = state.app.viewers[state.app.activeViewer || ''];
+        let r:any = getCameraInfo(viewerId,ViewMode.Perspective);
+        let x = [...r.right,0];
+        let y = [...r.up,0];
+        let z = [...r.dir,0];
+        let p = [...r.pos,1];
+        return [
+            x[0],x[1],x[2],x[3],
+            y[0],y[1],y[2],y[3],
+            z[0],z[1],z[2],z[3],
+            p[0],p[1],p[2],p[3]
+        ];
     }
 )
 
@@ -326,6 +348,9 @@ export const sceneSlice = createSlice({
                 }
             })
         },
+        setShowAxis:(state, action:PayloadAction<boolean>) => {
+            state.showAxis = action.payload;
+        }
     },
     extraReducers: builder => {
 
@@ -373,19 +398,27 @@ export const sceneSlice = createSlice({
             })
             state.settings.defaultCameraParameter = state.cameraViews[0];
 
-        })
+        });
+
+        builder.addCase(fetchCameraMatrix.fulfilled, (state, action:PayloadAction<number[]>) => {
+            const camMat = action.payload; 
+            state.camMatrix = camMat;
+        });
     }
 })
 
-export const {addCameraView, setActiveId ,  updateChange, pasteCameraView , deleteCameraView, setApplyItem} = sceneSlice.actions;
+export const {addCameraView, setActiveId ,  updateChange, pasteCameraView , deleteCameraView, setShowAxis,setApplyItem} = sceneSlice.actions;
 
 export default sceneSlice.reducer;
 
 //selectors
 
 export const selectAxisTriodList = (state:RootState) => state.scene.axisTriodList;
+export const selectShowAxis = (state:RootState) => state.scene.showAxis;
 
 export const selectedCameraView = (state : RootState) => {
     const clickedValues = state.scene.cameraViews.filter(item => item.id === state.scene.settings.activeId);
     return(clickedValues)
   }
+
+export const selectCameraMatrix = (state: RootState) => state.scene.camMatrix;

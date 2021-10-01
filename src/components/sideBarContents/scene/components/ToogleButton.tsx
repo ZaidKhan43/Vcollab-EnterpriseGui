@@ -21,24 +21,24 @@ const ThemchangeButton = withStyles((theme) => ({
     }
   }))(ToggleButton);
 
-export default function ToggleButtons() {
+interface ToggleButtonProps {
+  value: boolean,
+  onToggle?: (isOn:boolean) => void 
+}
 
-
-const [toogleSelect , setToggleSelect] = useState(false);
+export default function ToggleButtons(props:ToggleButtonProps) {
 
 const classes = style();
  
 
 const handleDarkTheme= function() {
 
-  setToggleSelect(true);
-
+  props.onToggle && props.onToggle(true);
 }
 
 const handleLightTheme= function() {
 
-  setToggleSelect(false);
-
+  props.onToggle && props.onToggle(false);
 }
 
   return (
@@ -50,10 +50,10 @@ const handleLightTheme= function() {
     <ToggleButtonGroup
     size='small'
     >
-      <ThemchangeButton  value="darktheme-button" onClick={handleDarkTheme} selected={toogleSelect? true : false}>
+      <ThemchangeButton  value="darktheme-button" onClick={handleDarkTheme} selected={props.value? true : false}>
            On
       </ThemchangeButton>
-      <ThemchangeButton value="lighttheme-button" onClick={handleLightTheme} selected={toogleSelect? false : true}>
+      <ThemchangeButton value="lighttheme-button" onClick={handleLightTheme} selected={props.value? false : true}>
            Off
       </ThemchangeButton>
     </ToggleButtonGroup>

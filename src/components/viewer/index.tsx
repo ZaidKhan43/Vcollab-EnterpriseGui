@@ -1,4 +1,4 @@
-import { memo, useEffect , useRef, useState, useCallback } from 'react';
+import { memo, useEffect , useRef, useState, useCallback, createContext } from 'react';
 import { createRef } from 'react';
 import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
@@ -11,8 +11,7 @@ import { addViewer } from '../../store/appSlice';
 import ProbeLabel from "../probe";
 import { fetchFieldData } from '../../store/sideBar/fieldSlice';
 import { fetchMouseData } from '../../store/sideBar/settings';
-import { fetchCameraStdViews } from '../../store/sideBar/sceneSlice';
-
+import { fetchCameraMatrix, fetchCameraStdViews } from '../../store/sideBar/sceneSlice';
 
 function Viewer(){
     
@@ -176,6 +175,12 @@ function Viewer(){
                 (event : any) => {
                   let data = event.data;
                   dispatch(handlePlaneSelection({e:data}));
+                }
+              );
+              eventDispatcher?.addEventListener(
+                events.viewerEvents.CAMERA_MOVED,
+                (event:any) => {
+                  dispatch(fetchCameraMatrix())
                 }
               )
             }

@@ -1,4 +1,4 @@
-import { useRef,  useCallback, useEffect } from 'react';
+import { useRef,  useCallback, useEffect, createContext, Ref } from 'react';
 import clsx from 'clsx';
 import { useResizeDetector } from 'react-resize-detector';
 import FullScreen from 'react-fullscreen-crossbrowser';
@@ -16,6 +16,8 @@ import SnackBar from "./sideBarContents/messages/SnackBar";
 import WindowsContainer from "./layout/windowsContainer";
 import Viewer from './viewer';
 import { fetchCameraStdViews } from '../store/sideBar/sceneSlice';
+
+export const ViewerContext = createContext<React.MutableRefObject<HTMLDivElement | null> | null>(null);
 
 function App() {
 
@@ -72,7 +74,11 @@ function App() {
         : null ) }
 
         { ( isAppBarVisible ?   
-        <><AppBar /><Sidebar /></>
+        <><AppBar />
+        <ViewerContext.Provider value={viewerContainerRef}>
+          <Sidebar />
+        </ViewerContext.Provider>
+        </>
         : null ) }
         <main  className={ clsx(classes.content , {[classes.contentWithSideBar]: isSidebarVisible} , {[classes.contentWithTopBar]: isAppBarVisible}) }>
           <div ref = {viewerContainerRef} className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>

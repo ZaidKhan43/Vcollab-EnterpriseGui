@@ -1,11 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { stringify } from 'querystring';
 import type { RootState } from './index';
 
 export type WindowState = {
     id:string,
     zOrder: number,
     isEditMode: boolean,
-    isHidden: boolean
+    isHidden: boolean,
+    pos: [number,number],
+    anchor: [number,number],
+    size: [number, number]
 }
 
 type WindowMgrState = {
@@ -34,7 +38,15 @@ export const windowMgrSlice = createSlice({
             {
                 throw new Error("The provided window id in not unique")
             }
-            state.windows[uid] = {id:uid, isEditMode: false, isHidden: false, zOrder: state.windowsCount} as WindowState
+            state.windows[uid] = {
+                id:uid, 
+                pos:[-1,-1],
+                anchor:[0,0],
+                size: [300,300],
+                isEditMode: false, 
+                isHidden: false, 
+                zOrder: state.windowsCount
+            };
             state.windowsCount = state.windowsCount+1;
         },
         removeWindow: (state, action: PayloadAction<{uid:string}>) => {
@@ -95,6 +107,18 @@ export const windowMgrSlice = createSlice({
             else{
                 throw new Error("Invalid window uid");
             }
+        },
+        setWindowPos: (state, action:PayloadAction<{uid:string, pos:[number,number]}>) => {
+            let {uid,pos} = action.payload;
+            state.windows[uid].pos = pos;
+        },
+        setWindowAnchor: (state, action:PayloadAction<{uid:string, anchor:[number,number]}>) => {
+            const {uid,anchor} = action.payload;
+            state.windows[uid].anchor = anchor;
+        },
+        setWindowSize: (state, action:PayloadAction<{uid:string, size:[number,number]}>) => {
+            let {uid,size} = action.payload;
+            state.windows[uid].size = size;
         }
     }
 }) 
@@ -104,8 +128,14 @@ export const {
     removeWindow,
     setEditMode,
     setHiddenState,
-    setWindowAccess
+    setWindowAccess,
+    setWindowPos,
+    setWindowSize,
+    setWindowAnchor
 } = windowMgrSlice.actions;
 
 export const selectWindowMgr = (state: RootState) => state.windowMgr
+export const selectWindowSize = (state: RootState, id:string) => state.windowMgr.windows[id]? state.windowMgr.windows[id].size : [-1,-1];
+export const selectWindowXY =  (state: RootState, id:string) => state.windowMgr.windows[id]? state.windowMgr.windows[id].pos : [-1,-1];
+export const selectWindowAnchor = (state: RootState, id:string) => state.windowMgr.windows[id]? state.windowMgr.windows[id].anchor : [0,0];  
 export default windowMgrSlice.reducer

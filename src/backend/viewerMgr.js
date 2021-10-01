@@ -1885,6 +1885,7 @@ var sqrLen = squaredLength;
     viewerEvents["MODEL_DOWNLOAD_STATUS_UPDATE"] = "MODEL_DOWNLOAD_STATUS_UPDATE";
     viewerEvents["MODEL_PART_HIGHLIGHTED"] = "MODEL_PART_HIGHLIGHTED";
     viewerEvents["SECTION_PLANE_SELECTED"] = "SECTION_PLANE_SELECTED";
+    viewerEvents["CAMERA_MOVED"] = "CAMERA_MOVED";
 })(viewerEvents || (viewerEvents = {}));
 var globalEvents;
 (function (globalEvents) {
@@ -8766,7 +8767,7 @@ var Renderer2D = /** @class */ (function () {
         this.container.insertBefore(this.canvasBackPlane, this.container.firstChild); // fix for IE11
         //this.container.prepend(this.canvasBackPlane);
         this.backPlane2dctx = this.canvasBackPlane.getContext('2d');
-        this.backgroundType = AppConstants.BackgroundType.IMAGE;
+        this.backgroundType = AppConstants.BackgroundType.GRADIENT;
         this.setBackground(this.backgroundType, [AppState$1._BGColor1, AppState$1._BGColor2]);
         //let gradientcolor1 = '#9F9FFF';
         //let gradientcolor2 = '#FFFFFF';
@@ -8785,10 +8786,6 @@ var Renderer2D = /** @class */ (function () {
         this.frontPlane2dctx = this.canvasFrontPlane.getContext('2d');
         this.backPlane = null;
         this.frontPlane = null;
-        // backPlane2dctx.font = '30px Arial';
-        // backPlane2dctx.strokeText('VCollab Web', 10, 200); 
-        // frontPlane2dctx.font = '30px Arial';
-        // frontPlane2dctx.strokeText('VCollab Web', 10, 50); 
     }
     /**
      * Window resize event handler function. Called every time when window size is changed.
@@ -16427,6 +16424,7 @@ var vctViewer = /** @class */ (function () {
     Viewer.prototype.registerEvents = function () {
         this.externalEventDispatcher.addEventListener(this.externalEvents.DBL_CLICK, this.handleDBLClick.bind(this));
         this.externalEventDispatcher.addEventListener(this.externalEvents.MODEL_LOADED, this.handleModelLoad.bind(this));
+        this.externalEventDispatcher.addEventListener(this.externalEvents.CAMERA_MOVED, this.handleCameraMove.bind(this));
     };
     Viewer.prototype.handleDBLClick = function (e) {
         var event = e.message;
@@ -16466,6 +16464,14 @@ var vctViewer = /** @class */ (function () {
     };
     Viewer.prototype.handleModelLoad = function (e) {
         this.labelManager = new LabelManager(this.renderApp, this.state);
+    };
+    Viewer.prototype.handleCameraMove = function (e) {
+        var event = {
+            type: viewerEvents.CAMERA_MOVED,
+            data: e,
+            viewerID: this.UUID,
+        };
+        this.eventDispatcher.dispatchEvent(event);
     };
     Viewer.prototype.getSearchHints = function () {
         return Promise.resolve([]);
@@ -16591,11 +16597,13 @@ var vctViewer = /** @class */ (function () {
         var pos = [mat[12], mat[13], mat[14]];
         var dir = [mat[8], mat[9], mat[10]];
         var up = [mat[4], mat[5], mat[6]];
+        var right = [mat[0], mat[1], mat[2]];
         var frustum = this.renderApp.getCameraFrustum(camType);
         return {
             pos: pos,
             dir: dir,
             up: up,
+            right: right,
             frustum: frustum
         };
     };
