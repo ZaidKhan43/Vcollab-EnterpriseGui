@@ -42,9 +42,8 @@ interface TreeTableProps {
   onExpand: (toOpen:boolean,nodeId:string) => void,
   onCheck: (toCheck:boolean, nodeId:string) => void,
   onHighlight: (toHighlight:boolean, nodeId:string) => void,
-  onChangeVisibility: (toShow:boolean,node:any) => void,
-  onInvert: (node:any) => void,
-  column1?: (node:any) => any
+  column1: (node : any) => any,
+  column2: (node:any) => any
 }
 
 function RTree(props:TreeTableProps) {
@@ -152,8 +151,8 @@ function RTree(props:TreeTableProps) {
                 {
                   rowData => {
                     let node = getNode(rowData.id);
-                    return (
-                      <InvertCell rowData = {node} onInvert={props.onInvert}></InvertCell>
+                    return(
+                      props.column1(node)
                     )
                   }
                 }
@@ -169,14 +168,9 @@ function RTree(props:TreeTableProps) {
                 {
                   rowData => {
                     let node = getNode(rowData.id);
-                    if(props.column1)
                       return(
-                        props.column1(node)
+                        props.column2(node)
                       )
-                    else
-                    return (
-                      <ShowHideCell rowData = {node} visibility={node?.state.visibility} onChangeVisibility={props.onChangeVisibility}></ShowHideCell>
-                    )
                   }
                 }
               </Cell>

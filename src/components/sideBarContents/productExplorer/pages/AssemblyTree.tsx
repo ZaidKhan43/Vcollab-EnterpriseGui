@@ -10,6 +10,8 @@ import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";
 import {selectProductTreeData, selectRootIds,selectCheckedLeafNodes,invertNode, toggleVisibilityAsync, setCheckedNodesAsync, setHightLightedNodesAsync, expandNode} from '../../../../store/sideBar/productTreeSlice'
 import Footer from '../Footer'
 
+import ShowHideCell from '../../../shared/RsTreeTable/ShowHide';
+import InvertCell from '../../../shared/RsTreeTable/Invert';
 
 function AssemblyTree(props:any) {
     
@@ -65,6 +67,19 @@ function AssemblyTree(props:any) {
     const handleInvert = (node:any) => {
       dispatch(invertNode({nodeId:node.id}));
     }
+
+    const renderIcon1 = (node : any) => {
+      return (
+        <InvertCell rowData = {node} onInvert={handleInvert}></InvertCell>
+      )
+    }
+
+    const renderIcon2 = (node : any) => {
+        return (
+          <ShowHideCell rowData = {node} visibility={node?.state.visibility} onChangeVisibility={handleVisibility}></ShowHideCell>
+        )
+    }
+
     const getBody = () => {
       return(
           <RTree 
@@ -73,8 +88,8 @@ function AssemblyTree(props:any) {
           onExpand={handleExpand} 
           onCheck={handleCheck} 
           onHighlight = {handleHighlight}
-          onChangeVisibility = {handleVisibility}
-          onInvert={handleInvert}
+          column1 = {renderIcon1}
+          column2 = {renderIcon2}
           />
       )
     }      

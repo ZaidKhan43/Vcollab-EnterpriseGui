@@ -27,6 +27,8 @@ import MuiEditIcon from '@material-ui/icons/EditOutlined';
 import {goBack,push} from 'connected-react-router/immutable';
 import {Routes} from "../../../../routes"
 
+import InvertCell from '../../../shared/RsTreeTable/Invert';
+
 export default function Labels3D(){
 
   const classes = styles();
@@ -48,7 +50,7 @@ export default function Labels3D(){
   const getHeaderRightIcon = () => {
     return (
       <div>
-           </div>
+      </div>
     )
   }
 
@@ -78,7 +80,13 @@ export default function Labels3D(){
     dispatch(delete3DLabel());
   }
 
-  const renderIcon = (node :any) => {
+  const renderIcon1 = (node : any) => {
+    return (
+      <InvertCell rowData = {node} onInvert={handleInvert}></InvertCell>
+    )
+  }
+
+  const renderIcon2 = (node :any) => {
       
     if(node?.pid !== "-1")
     return (
@@ -117,9 +125,8 @@ export default function Labels3D(){
           onExpand={handleExpand} 
           onCheck={handleCheck} 
           onHighlight = {handleHighlight}
-          onChangeVisibility = {handleVisibility}
-          onInvert={handleInvert}
-          column1 = {renderIcon}
+          column1 = {renderIcon1}
+          column2 = {renderIcon2}
           />
 
 
