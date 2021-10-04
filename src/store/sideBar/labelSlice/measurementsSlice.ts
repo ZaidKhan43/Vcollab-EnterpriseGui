@@ -314,7 +314,7 @@ export const {saveTree , checkNode , highlightNode , invertNode, expandNode, tog
 //Selectors
 
 export const selectRootIds = (state:RootState) => state.measurements.rootIds
-export const selectProductTreeData = (state:RootState) => state.measurements.data
+export const selectmeasurementsData = (state:RootState) => state.measurements.data
 export const selectedLength = (state:RootState) => {
     const array : string[] = [];
      Object.keys(state.measurements.data).forEach(key => {

@@ -10,7 +10,7 @@ import BackButton from '../../../icons/back';
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree from '../../../shared/RsTreeTable';
-import {invertNode, expandNode, selectProductTreeData ,selectRootIds, setCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength} from '../../../../store/sideBar/labelSlice/label3DSlice'
+import {invertNode, expandNode, select3DLabelData ,selectRootIds, setCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength} from '../../../../store/sideBar/labelSlice/label3DSlice'
 
 import EyeIcon from '@material-ui/icons//Visibility';
 import EyeSlashIcon from '@material-ui/icons/VisibilityOff';
@@ -37,7 +37,7 @@ export default function Labels3D(){
     dispatch(goBack());
   }
   
-  const treeData = useAppSelector(selectProductTreeData);
+  const treeData = useAppSelector(select3DLabelData);
     const treeRootIds = useAppSelector(selectRootIds);
     const selectedCount = useAppSelector(selectedLength)
 
@@ -122,6 +122,7 @@ export default function Labels3D(){
        <RTree 
           treeDataRedux={treeData} 
           rootIdsRedux={treeRootIds} 
+          checkBox = {true}
           onExpand={handleExpand} 
           onCheck={handleCheck} 
           onHighlight = {handleHighlight}

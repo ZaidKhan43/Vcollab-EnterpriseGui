@@ -204,7 +204,7 @@ export const {saveTree , checkNode , highlightNode , invertNode, expandNode, tog
 //Selectors
 
 export const selectRootIds = (state:RootState) => state.label3D.rootIds
-export const selectProductTreeData = (state:RootState) => state.label3D.data
+export const select3DLabelData = (state:RootState) => state.label3D.data
 export const selectedLength = (state:RootState) => {
     const array : string[] = [];
      Object.keys(state.label3D.data).forEach(key => {

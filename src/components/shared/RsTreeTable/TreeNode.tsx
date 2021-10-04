@@ -9,9 +9,15 @@ function TreeNode(props:any) {
 
     return (
         <Grid container className={props.visibility?classes.actionShow:classes.actionHide} alignItems='center'>
-            <Grid item>
-            <Checkbox color='default' size='small' checked= {checked} indeterminate={partiallyChecked} disableRipple onChange = {(e:any) => onCheck(e.target.checked,rowData.id)}></Checkbox>
-            </Grid>
+            { props.checkbox
+                ?
+                    <Grid item>
+                        <Checkbox color='default' size='small' checked= {checked} indeterminate={partiallyChecked} disableRipple onChange = {(e:any) => onCheck(e.target.checked,rowData.id)}></Checkbox>
+                    </Grid>
+                :
+                null
+            }
+           
             <Grid item>
             <Typography 
                 style={{verticalAlign:'middle'}}

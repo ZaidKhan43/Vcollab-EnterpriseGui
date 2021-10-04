@@ -39,6 +39,7 @@ export type ITreeNode = {
 interface TreeTableProps {
   treeDataRedux: any,
   rootIdsRedux: any[],
+  checkBox: boolean,
   onExpand: (toOpen:boolean,nodeId:string) => void,
   onCheck: (toCheck:boolean, nodeId:string) => void,
   onHighlight: (toHighlight:boolean, nodeId:string) => void,
@@ -134,7 +135,7 @@ function RTree(props:TreeTableProps) {
                 rowData => {
                   let node = getNode(rowData.id);
                   return (
-                    <TreeNode rowData={rowData} visibility= {node?.state.visibility} checked={node?.state.checked} highlighted={node?.state.highlighted} partiallyChecked={node?.state.partiallyChecked} onCheck={props.onCheck} onHighlight={props.onHighlight}></TreeNode>
+                    <TreeNode rowData={rowData} visibility= {node?.state.visibility} checked={node?.state.checked} highlighted={node?.state.highlighted} partiallyChecked={node?.state.partiallyChecked} onCheck={props.onCheck} onHighlight={props.onHighlight} checkbox ={props.checkBox}></TreeNode>
                   )
                 }
               }

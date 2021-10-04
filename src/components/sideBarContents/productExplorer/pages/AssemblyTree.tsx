@@ -85,6 +85,7 @@ function AssemblyTree(props:any) {
           <RTree 
           treeDataRedux={treeData} 
           rootIdsRedux={treeRootIds} 
+          checkBox = {true}
           onExpand={handleExpand} 
           onCheck={handleCheck} 
           onHighlight = {handleHighlight}
