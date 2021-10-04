@@ -13,6 +13,7 @@ import {selectAxisTriodList,selectShowAxis,setApplyItem, setShowAxis } from '../
 import { useAppDispatch,useAppSelector } from '../../../../store/storeHooks';
 
 import useStyles from './axistriadstyle';
+import { windowId } from '../components/AxisTriadWindow';
 import { selectWindowSize, setEditMode, setWindowAnchor, setWindowPos } from '../../../../store/windowMgrSlice';
 import { ViewerContext } from '../../../App';
 
@@ -22,7 +23,7 @@ const classes = useStyles();
 const viewerContainerRef = useContext(ViewerContext); 
 const listItems = useAppSelector(selectAxisTriodList);
 const showAxis = useAppSelector(selectShowAxis);
-const windowSize = useAppSelector((state) => selectWindowSize(state,"window"))
+const windowSize = useAppSelector((state) => selectWindowSize(state,windowId))
 const dispatch = useAppDispatch();
 
 const onClickBackIcon = () =>{
@@ -49,11 +50,11 @@ const getHeaderContent=()=>{
 const applySelcetedItem=(id:string,isSeleced:boolean)=>{
     if(viewerContainerRef?.current) {
         let rect = viewerContainerRef.current.getBoundingClientRect();
+        let uid = windowId;
         let w = rect.width;
         let h = rect.height;
         let winWidth = windowSize[0];
         let winHeight = windowSize[1];
-        let uid = "axisTriadWindow";
         switch(id) {
             case "1":
                 dispatch(setWindowPos({uid,pos:[w-winWidth,0]}))

@@ -5,6 +5,7 @@ import CustomWindow from "../../../shared/CustomWindow"
 import {vec3, mat4} from "gl-matrix";
 import { selectWindowSize } from '../../../../store/windowMgrSlice';
 
+export const  windowId = "axisTriadWindow";
 type Color = [number,number,number,number];
 function drawAxes(ctx: CanvasRenderingContext2D, rotMat:mat4, width:number,height:number) {
     function drawX(ctx:CanvasRenderingContext2D, pos:vec3, r:number) {
@@ -60,6 +61,8 @@ function drawAxes(ctx: CanvasRenderingContext2D, rotMat:mat4, width:number,heigh
       ctx.stroke();
     }
     function drawAxis(ctx:CanvasRenderingContext2D, pos:vec3, axis:string, r:number, color:Color) {
+      if(r < 0)
+      return;
       drawLine(ctx, pos,color);
       drawCircle(ctx, pos, r, color);
       let textSize = r / 1.1;
@@ -114,7 +117,7 @@ function AxisTriadWindow(props:Props) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
     const rotMat = useAppSelector(selectCameraMatrix);
-    const [width,height] = useAppSelector(state => selectWindowSize(state,"window"));
+    const [width,height] = useAppSelector(state => selectWindowSize(state,windowId));
     useEffect(() => {
         dispatch(fetchCameraMatrix());
         if(canvasRef.current)
@@ -129,7 +132,7 @@ function AxisTriadWindow(props:Props) {
     },[rotMat, width, height])
     return (
         <>
-        <CustomWindow uid="axisTriadWindow" resize parentRef = {props.parentRef} width={100} height={100}>
+        <CustomWindow uid={windowId} resize parentRef = {props.parentRef} width={100} height={100}>
             {
                     
                 showAxis ?
