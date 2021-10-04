@@ -7,6 +7,9 @@ import {Routes} from "../../../../routes"
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import RTree from '../../../shared/RsTreeTable';
 import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";
+import TreeNode from '../../../shared/RsTreeTable/TreeNode';
+import ShowHideCell from '../../../shared/RsTreeTable/ShowHide';
+import InvertCell from '../../../shared/RsTreeTable/Invert';
 import {selectProductTreeData, selectRootIds,selectCheckedLeafNodes,invertNode, toggleVisibilityAsync, setCheckedNodesAsync, setHightLightedNodesAsync, expandNode} from '../../../../store/sideBar/productTreeSlice'
 import Footer from '../Footer'
 
@@ -70,11 +73,26 @@ function AssemblyTree(props:any) {
           <RTree 
           treeDataRedux={treeData} 
           rootIdsRedux={treeRootIds} 
-          onExpand={handleExpand} 
-          onCheck={handleCheck} 
-          onHighlight = {handleHighlight}
-          onChangeVisibility = {handleVisibility}
-          onInvert={handleInvert}
+          onExpand={handleExpand}
+          treeNode = {(node) => {
+              return (
+                <TreeNode 
+              node={node}
+              onCheck={handleCheck}
+            >
+            </TreeNode>
+              )
+            }
+          }
+          column1 = {(node) => {
+            return <InvertCell node = {node} onClick={handleInvert}></InvertCell>
+            }
+          }
+          column2 = {(node) => {
+            return <ShowHideCell node = {node} onToggle={handleVisibility}></ShowHideCell>
+          }
+
+          }
           />
       )
     }      

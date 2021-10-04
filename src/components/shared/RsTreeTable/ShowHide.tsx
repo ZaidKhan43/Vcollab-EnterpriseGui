@@ -4,6 +4,7 @@ import EyeSlashIcon from '../../icons/eyeSlashIcon';
 import IconButton  from '@material-ui/core/IconButton';
 import Grid from '@material-ui/core/Grid';
 import {useStyles } from './styles/TreeNodeStyle'
+import { ITreeNode } from '.';
 
 const VisiblilityIcon = (props:any) => {
     const classes = useStyles();
@@ -24,21 +25,21 @@ const VisiblilityIcon = (props:any) => {
 }
 
 interface ShowHideProps {
-  rowData: any,
-  visibility:boolean,
-  onChangeVisibility: (toShow:boolean,node:any) => void
+  node: ITreeNode
+  onToggle: (toShow:boolean,node:ITreeNode) => void
 }
 
 function ShowHide(props:ShowHideProps) {
     const classes = useStyles();
+    const node = props.node;
     return (
         <Grid container alignItems='center' className={classes.hideText} style={{width:'100%',height:'100%'}}>
             <Grid item>
             <VisiblilityIcon 
                 style={{marginLeft:10}}
-                node = {props.rowData} 
-                visibility={props.visibility} 
-                onClick={props.onChangeVisibility}></VisiblilityIcon>
+                node = {node} 
+                visibility={node.state.visibility} 
+                onClick={props.onToggle}></VisiblilityIcon>
             </Grid>
         </Grid>
     )

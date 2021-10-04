@@ -4,11 +4,12 @@ import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
 import Table, {Cell,Column,ColumnGroup,HeaderCell} from '../RsTable'
 import clsx from 'clsx'
 import useContainer from '../../../customHooks/useContainer';
-import {useAppSelector , useAppDispatch} from '../../../store/storeHooks'
 import TreeNode from "./TreeNode"
 import InvertCell from "./Invert"
 import ShowHideCell from "./ShowHide"
 import { makeStyles } from '@material-ui/core/styles';
+
+export type {Cell, Column, ColumnGroup};
 
 const useRTreeOverrideStyles = makeStyles((theme) => ({
   row: {
@@ -27,27 +28,34 @@ const useRTreeOverrideStyles = makeStyles((theme) => ({
     }
 })) 
 
-export type ITreeNode = {
+export interface ITreeNodeState {
+  checked?: boolean,
+  partiallyChecked?: boolean,
+  expanded?: boolean,
+  highlighted?: boolean,
+  visibility?: boolean,
+  selected?: boolean
+}
+
+export interface ITreeNode {
   id:string,
   pid:string|null,
   title:string,
   children:string[],
-  state:any,
+  state:ITreeNodeState,
   attributes:any
 }
 
-interface TreeTableProps {
-  treeDataRedux: any,
+export interface ITreeTableProps {
+  treeDataRedux: {[id:string]:ITreeNode},
   rootIdsRedux: any[],
   onExpand: (toOpen:boolean,nodeId:string) => void,
-  onCheck: (toCheck:boolean, nodeId:string) => void,
-  onHighlight: (toHighlight:boolean, nodeId:string) => void,
-  onChangeVisibility: (toShow:boolean,node:any) => void,
-  onInvert: (node:any) => void,
-  column1?: (node:any) => any
+  treeNode: (node:ITreeNode) => JSX.Element,
+  column1?: (node:ITreeNode) => JSX.Element,
+  column2?: (node:ITreeNode) => JSX.Element
 }
 
-function RTree(props:TreeTableProps) {
+function RTree(props:ITreeTableProps) {
 
     const containerRef = useRef(null);
     const treeData = props.treeDataRedux;
@@ -61,7 +69,7 @@ function RTree(props:TreeTableProps) {
     
     const getNode = useCallback((id:string) => treeData[id],[treeData]);
     useEffect(() => {
-      const createTreeNode = (id:string,data:Map<string,ITreeNode>) => {
+      const createTreeNode = (id:string,data:{[id:string]:ITreeNode}) => {
         let node = treeDataRef.current[id];
         if(node) {
           if(node.state.expanded) {
@@ -81,7 +89,7 @@ function RTree(props:TreeTableProps) {
         }
   
       }
-      const convertListToTree = (data:Map<string,ITreeNode>,rootIds:string[]) => {
+      const convertListToTree = (data:{[id:string]:ITreeNode},rootIds:string[]) => {
         let roots:any[] = [];
         rootIds.forEach(root => {
           roots.push(createTreeNode(root,data))
@@ -135,31 +143,34 @@ function RTree(props:TreeTableProps) {
                 rowData => {
                   let node = getNode(rowData.id);
                   return (
-                    <TreeNode rowData={rowData} visibility= {node?.state.visibility} checked={node?.state.checked} highlighted={node?.state.highlighted} partiallyChecked={node?.state.partiallyChecked} onCheck={props.onCheck} onHighlight={props.onHighlight}></TreeNode>
+                    props.treeNode(node)
                   )
                 }
               }
             </Cell>
             </Column>
             <ColumnGroup fixed= { 'right'} header="Actions" align='right' verticalAlign='middle' >
-            <Column fixed={'right'} width={30} verticalAlign='middle' align='left'>
+            {
+              props.column1 ?
+              (<Column fixed={'right'} width={30} verticalAlign='middle' align='left'>
               {/*
- // @ts-ignore */}
+  // @ts-ignore */}
               <HeaderCell>Invert</HeaderCell>
               {/*
- // @ts-ignore */}
+  // @ts-ignore */}
               <Cell className={overrideClasses.invertCell} align='right' verticalAlign='middle' >
                 {
                   rowData => {
                     let node = getNode(rowData.id);
-                    return (
-                      <InvertCell rowData = {node} onInvert={props.onInvert}></InvertCell>
-                    )
+                    return props.column1? props.column1(node):null;
                   }
                 }
               </Cell>
-            </Column>
-            <Column fixed={'right'} width={40} verticalAlign='middle' align='left'>
+            </Column>) : null
+            }
+            {
+              props.column2 ?
+              <Column fixed={'right'} width={40} verticalAlign='middle' align='left'>
               {/*
  // @ts-ignore */}
               <HeaderCell>ShowHide</HeaderCell>
@@ -169,18 +180,13 @@ function RTree(props:TreeTableProps) {
                 {
                   rowData => {
                     let node = getNode(rowData.id);
-                    if(props.column1)
-                      return(
-                        props.column1(node)
-                      )
-                    else
-                    return (
-                      <ShowHideCell rowData = {node} visibility={node?.state.visibility} onChangeVisibility={props.onChangeVisibility}></ShowHideCell>
-                    )
+                      return props.column2? props.column2(node):null;
                   }
                 }
               </Cell>
-            </Column>
+            </Column> : null
+            }
+            
             </ColumnGroup>
  
           </Table>
