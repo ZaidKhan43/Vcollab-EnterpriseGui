@@ -12,6 +12,22 @@ const useRTreeOverrideStyles = makeStyles((theme) => ({
       display: 'flex !important'
     }
   },
+  rowHover: {
+    '& .rs-table-cell-content': {
+      display: 'flex !important',
+      '&:hover':{
+        background: theme.palette.action.hover
+      }
+    },
+  },
+  selected: {
+    '& .rs-table-cell-content': {
+        background: theme.palette.action.selected,
+        '&:hover': {
+          background: theme.palette.action.selected, 
+        }
+    },
+  },
   rightColumn: {
       '& .rs-table-cell-group-fixed-right': {
         background:'transparent'
@@ -43,44 +59,45 @@ export interface ITreeNode {
 
 export interface ITreeTableProps {
   treeData: ITreeNode[],
+  selectable?: boolean,
+  hover?:boolean,
   defaultExpandedIds: string[],
+  width: number,
+  height: number,
   renderTreeToggle: (icon:any, rowData:any) => any,
   onExpand: (toOpen:boolean,nodeId:string) => void,
+  onRowClick: (node:ITreeNode) => void,
   treeNode: (node:ITreeNode) => JSX.Element,
   column1?: (node:ITreeNode) => JSX.Element,
   column2?: (node:ITreeNode) => JSX.Element
 }
 
 function RTree(props:ITreeTableProps) {
-
-    const containerRef = useRef(null);
     // eslint-disable-next-line
-    const [containerWidth, containerHeight] = useContainer(containerRef,props.treeData);
-    // eslint-disable-next-line
-    const [expandedNodes,setExpandedNodes] = useState<string[]>(props.defaultExpandedIds);
-    
     const overrideClasses = useRTreeOverrideStyles();
       return (
-      <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
-          {
-            
-          /*
-// @ts-ignore */}
+         
           <Table
             isTree
-            defaultExpandedRowKeys = {expandedNodes}
+            defaultExpandedRowKeys = {props.defaultExpandedIds}
             rowKey="id"
             rowHeight = {(rowData:any) => 40}
+            onRowClick = {props.onRowClick}
             rowExpandedHeight = { 40}
-            width={300}
-            height={containerHeight? containerHeight - 5 : 0}
+            width={props.width}
+            height={props.height}
             data={props.treeData}
             virtualized={true}
             showHeader={false}
             onExpandChange={(isOpen:boolean, rowData:any) => {
               props.onExpand(isOpen, rowData.id);
             }}
-            rowClassName={clsx(overrideClasses.row,overrideClasses.rightColumn)}
+            rowClassName={(rowData:ITreeNode) => clsx({
+              [overrideClasses.rightColumn]: true,
+              [overrideClasses.row]:!props.hover,
+              [overrideClasses.rowHover]: props.hover,
+              [overrideClasses.selected]: rowData.state?.selected?true:false
+             })}
             renderTreeToggle={(icon, rowData:any) => {
               return props.renderTreeToggle(icon,rowData);
             }}
@@ -101,46 +118,50 @@ function RTree(props:ITreeTableProps) {
               }
             </Cell>
             </Column>
-            <ColumnGroup fixed= { 'right'} header="Actions" align='right' verticalAlign='middle' >
             {
-              props.column1 ?
-              (<Column fixed={'right'} width={30} verticalAlign='middle' align='left'>
-              {/*
-  // @ts-ignore */}
-              <HeaderCell>Invert</HeaderCell>
-              {/*
-  // @ts-ignore */}
-              <Cell className={overrideClasses.invertCell} align='right' verticalAlign='middle' >
-                {
-                  rowData => {
-                    return props.column1? props.column1(rowData as unknown as ITreeNode):null;
+              props.column1 || props.column2 ? 
+              <ColumnGroup fixed= { 'right'} header="Actions" align='right' verticalAlign='middle' >
+              {
+                props.column1 ?
+                (<Column fixed={'right'} width={30} verticalAlign='middle' align='left'>
+                {/*
+    // @ts-ignore */}
+                <HeaderCell>Invert</HeaderCell>
+                {/*
+    // @ts-ignore */}
+                <Cell className={overrideClasses.invertCell} align='right' verticalAlign='middle' >
+                  {
+                    rowData => {
+                      return props.column1? props.column1(rowData as unknown as ITreeNode):null;
+                    }
                   }
-                }
-              </Cell>
-            </Column>) : null
-            }
-            {
-              props.column2 ?
-              <Column fixed={'right'} width={40} verticalAlign='middle' align='left'>
-              {/*
- // @ts-ignore */}
-              <HeaderCell>ShowHide</HeaderCell>
-              {/*
- // @ts-ignore */}
-              <Cell  align='right' verticalAlign='middle'>
-                {
-                  rowData => {
-                      return props.column2? props.column2(rowData as unknown as ITreeNode):null;
+                </Cell>
+              </Column>) : null
+              }
+              {
+                props.column2 ?
+                <Column fixed={'right'} width={40} verticalAlign='middle' align='left'>
+                {/*
+   // @ts-ignore */}
+                <HeaderCell>ShowHide</HeaderCell>
+                {/*
+   // @ts-ignore */}
+                <Cell  align='right' verticalAlign='middle'>
+                  {
+                    rowData => {
+                        return props.column2? props.column2(rowData as unknown as ITreeNode):null;
+                    }
                   }
-                }
-              </Cell>
-            </Column> : null
+                </Cell>
+              </Column> : null
+              }
+              
+              </ColumnGroup>
+              :null
             }
-            
-            </ColumnGroup>
+
  
           </Table>
-        </div>
       );
   }
 

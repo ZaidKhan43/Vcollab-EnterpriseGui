@@ -2,11 +2,19 @@ import React, { FC } from 'react'
 import RsTreeSearch, {RsTreeSearchProps} from '../../../shared/RsTreeWithSearch'
 import Title from '../../../shared/RsTreeWithSearch/utilComponents/TitleNode'
 import Grid from '@material-ui/core/Grid'
-function Tree(props:RsTreeSearchProps) {
+import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
+import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
+type LimitedTreeTableProps = Omit<RsTreeSearchProps, "renderTreeToggle" | "treeNode">;
+interface SharedTreeProps extends LimitedTreeTableProps {
+
+}
+
+function Tree(props:SharedTreeProps) {
     return (
-        <RsTreeSearch {...props} 
-            selectOnlyLeaf
-            renderNode={
+        <RsTreeSearch {...props}
+            hover
+            selectable
+            treeNode={
             rowData =>
             <Grid container alignItems='center'>
                 <Grid item>
@@ -17,6 +25,15 @@ function Tree(props:RsTreeSearchProps) {
                 </Grid>
             </Grid>
         }
+        renderTreeToggle = {(icon,rowData) => {
+                    if (rowData.children && rowData.children.length === 0) {
+                    return null;
+                    }
+                    let state = props.data[rowData.id].state;
+                    return state.expanded? <TreeExpandedIcon viewBox="0 -7 24 24"/>:<TreeCollapseIcon viewBox="0 -7 24 24"/>
+                }
+        }
+            
         />
     )
 }
