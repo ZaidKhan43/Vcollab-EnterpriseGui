@@ -9,11 +9,26 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import {goBack,push} from 'connected-react-router/immutable';
 
+import {selectVariableData, selectVariableRootIds, expandVariableNode} from '../../../../store/sideBar/colormapSlice';
+
+import RTree from '../../../shared/RsTreeTable';
+
+import styles from './style'
+
 export default function Variable(){
 
   const dispatch = useAppDispatch();  
+
+  const  treeData = useAppSelector(selectVariableData);
+  const treeRootIds = useAppSelector(selectVariableRootIds);
+
+  const classes = styles();
   const onClickBackIcon = () =>{
     dispatch(goBack());
+  }
+
+  const handleExpand = (toOpen:boolean,nodeId:string) => {
+    dispatch(expandVariableNode({toOpen,nodeId}))
   }
   
 
@@ -32,8 +47,17 @@ export default function Variable(){
 
   const getBody = () => {
     return (
-      <div>
-          Color maps Variable Soon
+      <div className={classes.scrollBar}>
+         <RTree 
+          treeDataRedux={treeData} 
+          rootIdsRedux={treeRootIds} 
+          checkBox ={false}
+          onExpand={handleExpand}  
+          onCheck={()=> console.log("hi")} 
+          onHighlight = {()=> console.log("hi")}
+          column1 = {()=> console.log("hi")}
+          column2 = {() => console.log("hi")}
+          />
       </div>
     )
   }

@@ -85,7 +85,7 @@ export default makeStyles((theme) => (
   },
 
   settingPageContainer:{
-    marginRight:"50px", 
+    marginRight:"40px", 
     marginLeft:"10px",
   },
 

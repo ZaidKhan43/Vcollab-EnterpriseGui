@@ -47,6 +47,12 @@ export default function List(){
     dispatch(expandNode({toOpen,nodeId}));
   }
 
+  const handleNull = () => {
+    return(
+      null
+    )
+  }
+
 
   const createLabel = (nodeId : string) => {
     	dispatch(createColorMap(nodeId))
@@ -73,9 +79,9 @@ export default function List(){
           rootIdsRedux={treeRootIds} 
           checkBox ={false}
           onExpand={handleExpand}  
-          onCheck={()=> console.log("hi")} 
-          onHighlight = {()=> console.log("hi")}
-          column1 = {()=> console.log("hi")}
+          onCheck={handleNull} 
+          onHighlight = {handleNull}
+          column1 = {handleNull}
           column2 = {renderIcon2}
           />
       </div>

@@ -25,4 +25,9 @@ export default makeStyles((theme) => (
     },
   },
 
+  listBlock : {
+    marginLeft:"5px", 
+    marginTop:"15px",
+  },
+
 }));

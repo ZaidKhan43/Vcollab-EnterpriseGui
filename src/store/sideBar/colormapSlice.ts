@@ -13,27 +13,29 @@ type colormapSettings = {
     headCount : number,    
 } 
 
-export interface colormapList extends TreeNode {
-    id: string;
-    pid: string | null;
-    title: string;
-    children: string[];
-    state: any;
-    attributes: any;
-}
+// export interface colormapList extends TreeNode {
+//     id: string;
+//     pid: string | null;
+//     title: string;
+//     children: string[];
+//     state: any;
+//     attributes: any;
+// }
 
 
 
 
-interface InitialState extends ITreeState {
-    data : {[id:string]:colormapList},
-    rootIds : string[],
+interface InitialState {
+    colormapTree : ITreeState,
     colormapSettings : colormapSettings,
+
+    variableTree : ITreeState,
     
 }
 
 const initialState : InitialState = {
-    data : {
+    colormapTree : {
+        data : {
         "0" : {
             id:"0",
             title:"Bracket",
@@ -115,11 +117,12 @@ const initialState : InitialState = {
     },
     
     rootIds : ["0","1"],
+},
     colormapSettings : {
         idGenerator :6,
         defaultParameters : {
             id: "",
-                pid: null,
+                pid: "-1",
                 title: "",
                 children: [],
                 state: {
@@ -130,6 +133,156 @@ const initialState : InitialState = {
         },
         bracketCount: 1,
         headCount: 2,
+    },
+
+    variableTree : {
+        data : {
+            "0" : {
+                id:"0",
+                pid: "-1",
+                title:"Input",
+                children:["2","3","4"],
+                state:{
+                    expandNode : true,
+                    visibility: true,
+                },
+                attributes:{},
+            },
+
+            "1" : {
+                id:"1",
+                pid: "-1",
+                title:"Result",
+                children:["5","6","7"],
+                state:{
+                    expandNode : true,
+                    visibility: true,
+                },
+                attributes:{},
+            },
+
+            "2" : {
+                id:"2",
+                pid: "0",
+                title:"Material ID",
+                children:[],
+                state:{
+                    expandNode : true,
+                    visibility: true,
+                },
+                attributes:{},
+            },
+            
+            "3" : {
+                id:"3",
+                pid: "0",
+                title:"Constraints",
+                children:[],
+                state:{
+                    expandNode : true,
+                    visibility: true,
+                },
+                attributes:{},
+            },
+
+            "4" : {
+                id:"4",
+                pid: "0",
+                title:"Pressure Loads",
+                children:[],
+                state:{
+                    expandNode : true,
+                    visibility: true,
+                },
+                attributes:{},
+            },
+
+            "5" : {
+                id:"5",
+                pid: "1",
+                title:"Displacement",
+                children:["8","9","10","11"],
+                state:{
+                    expandNode : true,
+                    visibility: true,
+                },
+                attributes:{},
+            },
+
+            "6" : {
+                id:"6",
+                pid: "1",
+                title:"Reaction Force",
+                children:[],
+                state:{
+                    expandNode : true,
+                    visibility: true,
+                },
+                attributes:{},
+            },
+
+            "7" : {
+                id:"7",
+                pid: "1",
+                title:"Stress",
+                children:[],
+                state:{
+                    expandNode : true,
+                    visibility: true,
+                },
+                attributes:{},
+            },
+
+            "8" : {
+                id:"8",
+                pid: "5",
+                title:"X-Component",
+                children:[],
+                state:{
+                    expandNode : true,
+                    visibility: true,
+                },
+                attributes:{},
+            },
+
+            "9" : {
+                id:"9",
+                pid: "5",
+                title:"Y-Component",
+                children:[],
+                state:{
+                    expandNode : true,
+                    visibility: true,
+                },
+                attributes:{},
+            },
+
+            "10" : {
+                id:"10",
+                pid: "5",
+                title:"Z-Component",
+                children:[],
+                state:{
+                    expandNode : true,
+                    visibility: true,
+                },
+                attributes:{},
+            },
+
+            "11" : {
+                id:"11",
+                pid: "5",
+                title:"Magnirude",
+                children:[],
+                state:{
+                    expandNode : true,
+                    visibility: true,
+                },
+                attributes:{},
+            },
+        },
+
+        rootIds : ["0","1"],
     }
 
 }
@@ -140,14 +293,16 @@ export const colormapSlice = createSlice({
     name: "colormap",
     initialState : initialState,
     reducers: {
-        saveTree: saveTreeReducer,
-        checkNode: checkNodeReducer,
-        highlightNode: highlightNodeReducer,
-        invertNode: invertNodeReducer,
-        expandNode: expandNodeReducer,
-        toggleVisibility: toggleVisibilityReducer,
-        setCheckedVisibility: setCheckedVisibilityReducer,
+        saveTree: (state,action) =>  saveTreeReducer(state.colormapTree, action),
+        checkNode:(state,action) => checkNodeReducer (state.colormapTree, action),
+        highlightNode: (state,action) =>highlightNodeReducer(state.colormapTree, action),
+        invertNode: (state,action) =>invertNodeReducer(state.colormapTree, action),
+        expandNode: (state,action) =>expandNodeReducer(state.colormapTree, action),
+        toggleVisibility: (state,action) =>toggleVisibilityReducer(state.colormapTree, action),
+        setCheckedVisibility: (state,action) =>setCheckedVisibilityReducer(state.colormapTree, action),
         
+        expandVariableNode : (state, action) => expandNodeReducer(state.variableTree, action),
+
         createColorMap : (state , action: PayloadAction<string>) => {
                 state.colormapSettings.idGenerator += 1;
                 
@@ -164,11 +319,15 @@ export const colormapSlice = createSlice({
                     newNote.title = `Colormap ${state.colormapSettings.bracketCount}`;
                 }
                 
-                state.data[`${id}`] =newNote;
-                state.data[`${action.payload}`].children.push(newNote.id)
+                state.colormapTree.data[`${id}`] =newNote;
+                state.colormapTree.data[`${action.payload}`].children.push(newNote.id)
                 // Object.keys(state.data).find(key => state.data[key] === `${action.payload}`)
-                colormapSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/addNode"})
+                saveTreeReducer(state.colormapTree,{payload:{tree: state.colormapTree.data, rootIds: state.colormapTree.rootIds},type:"label3D/addNode"})
         },
+
+        // expandVariableNode :(state,action) => {
+
+        // }
 
         // editLabel: (state, action: PayloadAction<{id:number, value:string}>) => {
         //     if( action.payload.id >= 0){
@@ -200,12 +359,25 @@ export const colormapSlice = createSlice({
 })
 
 export default colormapSlice.reducer;
-export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap} = colormapSlice.actions;
+export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, expandVariableNode} = colormapSlice.actions;
 
 //Selectors
 
-export const selectRootIds = (state:RootState) => state.colormap.rootIds
-export const selectcolormapData = (state:RootState) => state.colormap.data
+export const selectRootIds = (state:RootState) => state.colormap.colormapTree.rootIds
+export const selectcolormapData = (state:RootState) => state.colormap.colormapTree.data
+
+export const selectVariableData = (state: RootState) => state.colormap.variableTree.data;
+export const selectVariableRootIds = (state : RootState) => state.colormap.variableTree.rootIds;
+
+export const colormapElements = (state:RootState) => {
+    let array : any[] = [];
+    Object.keys(state.colormap.colormapTree.data).forEach(key => {
+        if(state.colormap.colormapTree.data[key].pid !== "-1")
+        array.push({id:key, name: state.colormap.colormapTree.data[key].title});
+    })
+
+    return(array);
+}
 
 // export const selectedLength = (state:RootState) => {
 //     const array : string[] = [];
