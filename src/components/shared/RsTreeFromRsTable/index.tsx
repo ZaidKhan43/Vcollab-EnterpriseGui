@@ -9,18 +9,7 @@ import { useRef } from 'react';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { useAppDispatch } from '../../../store/storeHooks';
 import { useEffect } from 'react';
-
-export interface Node {
-  id: string,
-  pid:string,
-  name: string,
-  children: string[]
-  state: NodeState
-}
-export interface NodeState {
-  expanded: boolean,
-  selected?:boolean
-}
+import { ITreeNode, ITreeNodeState } from '../RsTreeTable';
 
 export interface TreeProps {
     rowKey:string,
@@ -31,7 +20,7 @@ export interface TreeProps {
     data: any,
     renderNode?: (rowData:any) => any,
     shouldUpdateScroll?:boolean
-    setNodeStateReducer?: ActionCreatorWithPayload<{nodeId:string, nodeState:NodeState},string>,
+    setNodeStateReducer?: ActionCreatorWithPayload<{nodeId:string, nodeState:ITreeNodeState},string>,
     selectOnlyLeaf?:boolean,
     width:number,
     height:number
@@ -61,7 +50,7 @@ const useStyles = makeStyles(theme => ({
 function RsTree(props:TreeProps) {
     const classes = useStyles();
     const dispatch = useAppDispatch()
-    const lastSelected= useRef<Node | null>(null);
+    const lastSelected= useRef<ITreeNode | null>(null);
     const scrollPos = useRef<{x:number,y:number} | null>(null)
 
     useEffect(() => {
@@ -79,7 +68,7 @@ function RsTree(props:TreeProps) {
       console.log("tree data changed")
     },[props.data])
 
-    const handleExpand = (expanded:boolean, rowData: Node) => {
+    const handleExpand = (expanded:boolean, rowData: ITreeNode) => {
         if(rowData.state && rowData.children.length > 0) {
           let nodeState = {...rowData.state}
           nodeState.expanded = expanded;
@@ -100,7 +89,7 @@ function RsTree(props:TreeProps) {
        props.onRowClick(rowData)
     }
 
-    const handleSelection = (rowData: Node) => {
+    const handleSelection = (rowData: ITreeNode) => {
       if(props.setNodeStateReducer) {
         let nodeState = {...rowData.state};
         if(props.selectOnlyLeaf ) {

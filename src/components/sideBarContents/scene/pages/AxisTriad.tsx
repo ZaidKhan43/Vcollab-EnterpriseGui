@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer'
 import Title from'../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title'
@@ -9,16 +9,21 @@ import AxisPosition from '../components/AxisTriadPosition'
 import {goBack} from 'connected-react-router/immutable';
 
 
-import {selectAxisTriodList,setApplyItem } from '../../../../store/sideBar/sceneSlice';
+import {selectAxisTriodList,selectShowAxis,setApplyItem, setShowAxis } from '../../../../store/sideBar/sceneSlice';
 import { useAppDispatch,useAppSelector } from '../../../../store/storeHooks';
 
 import useStyles from './axistriadstyle';
+import { windowId } from '../components/AxisTriadWindow';
+import { selectWindowSize, setEditMode, setWindowAnchor, setWindowPos } from '../../../../store/windowMgrSlice';
+import { ViewerContext } from '../../../App';
 
 export default function AxisTriad() {
 
 const classes = useStyles(); 
-
+const viewerContainerRef = useContext(ViewerContext); 
 const listItems = useAppSelector(selectAxisTriodList);
+const showAxis = useAppSelector(selectShowAxis);
+const windowSize = useAppSelector((state) => selectWindowSize(state,windowId))
 const dispatch = useAppDispatch();
 
 const onClickBackIcon = () =>{
@@ -43,51 +48,61 @@ const getHeaderContent=()=>{
 }
 
 const applySelcetedItem=(id:string,isSeleced:boolean)=>{
+    if(viewerContainerRef?.current) {
+        let rect = viewerContainerRef.current.getBoundingClientRect();
+        let uid = windowId;
+        let w = rect.width;
+        let h = rect.height;
+        let winWidth = windowSize[0];
+        let winHeight = windowSize[1];
+        switch(id) {
+            case "1":
+                dispatch(setWindowPos({uid,pos:[w-winWidth,0]}))
+                dispatch(setWindowAnchor({uid,anchor:[winWidth,0]}));
+                break;
+            case "2":
+                dispatch(setWindowPos({uid,pos:[0,0]}))
+                dispatch(setWindowAnchor({uid,anchor:[0,0]}));
+                break;
+            case "3":
+                dispatch(setWindowPos({uid,pos:[w-winWidth,h/2-winHeight/2]}))
+                dispatch(setWindowAnchor({uid,anchor:[winWidth,0]}));
+                break;
+            case "4":
+                dispatch(setWindowPos({uid,pos:[0,h/2-winHeight/2]}))
+                dispatch(setWindowAnchor({uid,anchor:[0,0]}));
+                break;
+            case "5":
+                dispatch(setWindowPos({uid,pos:[0,h-winHeight]}))
+                dispatch(setWindowAnchor({uid,anchor:[0,winHeight]}));
+                break;
+            case "6":
+                dispatch(setWindowPos({uid,pos:[w-winWidth,h-winHeight]}))
+                dispatch(setWindowAnchor({uid,anchor:[winWidth,winHeight]}));
+                break;
+            case "7":
+                break;
+            default:
+                break;
+        }
+        dispatch(setEditMode({uid, isEdit:id==='7'?true:false }));
+        dispatch(setApplyItem(id));
+    }
 
+}
 
-    dispatch(setApplyItem(id));
-    
-//     let newArray =[...listItems];
-
-//     newArray.map((item)=>{
-
-// // set which items selected         
-
-//           if(item.id === id) {
-
-//             item.selected = true
-
-//           }
-//           else{
-
-//             item.selected = false
-//           }
-
-// // Apply selected item             
-
-//           if(item.selected === true) {
-
-//             item.applied = true
-//             item.selected = false // 
-//           }
-//           else {
-    
-//             item.applied = false
-    
-//             }
-//     })
-
-//     setListItems(newArray);
+const handleToggle = (isOn:boolean) => {
+    dispatch(setShowAxis(isOn));
 }
 
 const getBody=()=> {
 
     return  (
-
+        
         <div>
-         <ToggleButton ></ToggleButton>
+         <ToggleButton value={showAxis} onToggle = {handleToggle}></ToggleButton>
          <div>
-
+         
          <AxisPosition items={listItems} onSelectMenuList={applySelcetedItem}></AxisPosition>
              
         </div>   
@@ -103,8 +118,6 @@ const getBody=()=> {
         headerContent={  getHeaderContent()}
         body ={ getBody() }
        />
-       
-     
      )
 
 }

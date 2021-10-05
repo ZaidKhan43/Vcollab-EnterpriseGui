@@ -3,28 +3,28 @@ import Checkbox from '../checkbox'
 import Typography from '@material-ui/core/Typography'
 import Grid from '@material-ui/core/Grid'
 import {useStyles} from './styles/TreeNodeStyle'
-function TreeNode(props:any) {
-    const {rowData, onCheck, onHighlight, checked, highlighted, partiallyChecked} = props;
+import { ITreeNode } from '.'
+interface ITreeNodeProps {
+    node: ITreeNode,
+    onCheck: (isChecked:boolean,id:string) => void,
+    children: any
+}
+
+function TreeNode(props:ITreeNodeProps) {
+    const node = props.node;
     const classes = useStyles({});
 
     return (
-        <Grid container className={props.visibility?classes.actionShow:classes.actionHide} alignItems='center'>
-            { props.checkbox
-                ?
-                    <Grid item>
-                        <Checkbox color='default' size='small' checked= {checked} indeterminate={partiallyChecked} disableRipple onChange = {(e:any) => onCheck(e.target.checked,rowData.id)}></Checkbox>
-                    </Grid>
-                :
-                null
-            }
-           
+        <Grid container className={node.state.visibility ?classes.actionShow:classes.actionHide} alignItems='center'>
+            <Grid item>
+            <Checkbox color='default' size='small' checked= {node.state.checked} indeterminate={node.state.partiallyChecked} disableRipple onChange = {(e:any) => props.onCheck(e.target.checked,node.id)}></Checkbox>
+            </Grid>
             <Grid item>
             <Typography 
                 style={{verticalAlign:'middle'}}
-                component="span" className={highlighted ? classes.hightlight : ""} 
-                onDoubleClick = {() => onHighlight(!highlighted,rowData.id)}
+                component="span" className={node.state.highlighted ? classes.hightlight : ""}
             >
-                    {rowData.title}
+                    {node.title}
             </Typography>
             </Grid>
         </Grid>

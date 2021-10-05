@@ -2,11 +2,14 @@ import {goBack, push} from 'connected-react-router/immutable';
 import BackIcon from '../shared/BackIcon';
 import SearchIcon from '../shared/SearchIcon';
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
-
+import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
+import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
 import {Routes} from "../../../../routes"
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import RTree from '../../../shared/RsTreeTable';
 import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";
+import TreeNode from '../../../shared/RsTreeTable/TreeNode';
+import { convertListToTree } from '../../../utils/tree';
 import {selectProductTreeData, selectRootIds,selectCheckedLeafNodes,invertNode, toggleVisibilityAsync, setCheckedNodesAsync, setHightLightedNodesAsync, expandNode} from '../../../../store/sideBar/productTreeSlice'
 import Footer from '../Footer'
 
@@ -16,8 +19,9 @@ import InvertCell from '../../../shared/RsTreeTable/Invert';
 function AssemblyTree(props:any) {
     
     const checkedNodes = useAppSelector(selectCheckedLeafNodes);
-    const treeData = useAppSelector(selectProductTreeData);
+    const treeDataRedux = useAppSelector(selectProductTreeData);
     const treeRootIds = useAppSelector(selectRootIds);
+    const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
     const dispatch = useAppDispatch();  
     
 
@@ -68,29 +72,41 @@ function AssemblyTree(props:any) {
       dispatch(invertNode({nodeId:node.id}));
     }
 
-    const renderIcon1 = (node : any) => {
-      return (
-        <InvertCell rowData = {node} onInvert={handleInvert}></InvertCell>
-      )
-    }
-
-    const renderIcon2 = (node : any) => {
-        return (
-          <ShowHideCell rowData = {node} visibility={node?.state.visibility} onChangeVisibility={handleVisibility}></ShowHideCell>
-        )
-    }
 
     const getBody = () => {
       return(
           <RTree 
-          treeDataRedux={treeData} 
-          rootIdsRedux={treeRootIds} 
-          checkBox = {true}
-          onExpand={handleExpand} 
-          onCheck={handleCheck} 
-          onHighlight = {handleHighlight}
-          column1 = {renderIcon1}
-          column2 = {renderIcon2}
+          treeData={roots} 
+          defaultExpandedIds = {expanded}
+          onExpand={handleExpand}
+          renderTreeToggle = {
+            (icon,rowData) => {
+              if (rowData.children && rowData.children.length === 0) {
+                return null;
+              }
+               let state = treeDataRedux[rowData.id].state;
+               return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
+            }
+          }
+          treeNode = {(node) => {
+              return (
+                <TreeNode 
+              node={treeDataRedux[node.id]}
+              onCheck={handleCheck}
+            >
+            </TreeNode>
+              )
+            }
+          }
+          column1 = {(node) => {
+            return <InvertCell node = {treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
+            }
+          }
+          column2 = {(node) => {
+            return <ShowHideCell node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
+          }
+
+          }
           />
       )
     }      

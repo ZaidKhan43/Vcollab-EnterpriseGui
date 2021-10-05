@@ -70,7 +70,6 @@ export function setCameraProjection(activeViewerID:string, camType: number) {
     viewerMgr.setCameraProjection(camType,activeViewerID);
 }
 export function getCameraInfo(activeViewerID:string, camType:number) {
-    console.log(viewerMgr.getCameraInfo(camType,activeViewerID));
     return viewerMgr.getCameraInfo(camType,activeViewerID);
 }
 export function setCameraInfo(activeViewerID:string, camData:any) {

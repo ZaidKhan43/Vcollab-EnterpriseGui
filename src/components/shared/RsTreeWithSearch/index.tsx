@@ -1,6 +1,7 @@
 import React, { useState, useEffect , useRef} from 'react'
 import SearchWithHints from '../searchWithHints'
-import Tree, {TreeProps, Node, NodeState} from "../RsTreeFromRsTable"
+import Tree, {TreeProps} from "../RsTreeFromRsTable"
+import { ITreeNode, ITreeNodeState } from '../RsTreeTable'
 import {getTreeData} from "../../utils/tree"
 
 
@@ -13,7 +14,7 @@ export interface RsTreeSearchProps extends TreeProps {
     onClickSearchHint?:(s:string) => void,
     onDeleteSearchHint?:(s:string) => void,
     searchHints?:string[],
-    data: {[id:string]:Node}
+    data: {[id:string]:ITreeNode}
 
 }
 function RsTreeSearch(props: RsTreeSearchProps) {
@@ -74,5 +75,5 @@ function RsTreeSearch(props: RsTreeSearchProps) {
         </div>
     )
 }
-export type {Node, NodeState};
+export type {ITreeNode, ITreeNodeState};
 export default RsTreeSearch

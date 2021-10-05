@@ -14,6 +14,7 @@ import sceneSlice from './sideBar/sceneSlice';
 import materialColorSlice from './sideBar/materialColorSlice';
 import settingSlice from './sideBar/settings'
 import messageSlice from './sideBar/messageSlice';
+import windowMgrSlice from './windowMgrSlice';
 import label2DSlice from './sideBar/labelSlice/label2DSlice';
 import label3DSlice from './sideBar/labelSlice/label3DSlice';
 import measurementsSlice from './sideBar/labelSlice/measurementsSlice';
@@ -38,6 +39,7 @@ const store = configureStore({
         colormaps: colormapSlice,
         settings: settingSlice,
         message: messageSlice,
+        windowMgr: windowMgrSlice,
         label2D: label2DSlice,
         label3D: label3DSlice,
         measurements : measurementsSlice,

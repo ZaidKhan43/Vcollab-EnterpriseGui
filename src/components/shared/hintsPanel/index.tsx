@@ -6,11 +6,10 @@ import ListItemText from '@material-ui/core/ListItemText'
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Clear';
-import React, { useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 //@ts-ignore
-import ResizePanel from 'react-resize-panel'
-import AutoSizer from '../autoSize'
+import { Rnd } from 'react-rnd'
 import { makeStyles } from '@material-ui/core/styles'
 import clsx from 'clsx'
 
@@ -33,6 +32,9 @@ const useStyles = makeStyles(theme => ({
         //   backgroundColor: 'rgba(0,0,0,.3)',
         //   outline: '1px solid slategrey'
         // },
+    },
+    noResizeHandle: {
+        cursor:'unset'
     },
     customHandle: {
         height:2
@@ -99,13 +101,41 @@ type SearchHintsProps = {
 }
 function SearchHints(props:SearchHintsProps) {
     const classes = useStyles();
+    const [height,setHeight] = useState(100);
+    const [maxHeight, setMaxHeight] = useState(300);
     return (
-        <div>
-        <ResizePanel direction='s' handleClass= {classes.customHandle} style={{height:100,maxHeight:window.innerHeight*0.3}}>
-            <Body style={{height:"100%", overflow:'hidden'}} data={props.data} onClick={props.onClick} onDelete={props.onDelete}></Body> 
-        </ResizePanel>
-        <Footer/>
-        </div>
+        <>
+        <Rnd 
+            disableDragging
+            enableResizing={true}
+            resizeHandleStyles={
+                {
+                    top:{cursor:'unset'},
+                    topLeft: {cursor:'unset'},
+                    topRight: {cursor:'unset'},
+                    left: {cursor:'unset'},
+                    right: {cursor:'unset'},
+                    bottomLeft: {cursor:'unset'},
+                    bottomRight: {cursor:'unset'}
+                }}
+            style={{position:'relative'}}
+            size={{width:'100%',height:height+15}}
+            onResize={(e, direction, ref, delta, position) => {
+                if(ref.offsetHeight < maxHeight)
+                setHeight(ref.offsetHeight)
+                }
+            }
+            default={{
+                x: 0,
+                y: 0,
+                width: 320,
+                height: 200,
+              }}
+            >
+            <Body style={{height,overflow:'hidden'}} data={props.data} onClick={props.onClick} onDelete={props.onDelete}></Body>
+            <Footer/>
+            </Rnd>
+        </>
     )
 }
 

@@ -1,5 +1,5 @@
 {
-    // Use IntelliSense to learn about possible attributes.
+    // Use IntelliSense to learn about possible attributes.np
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
@@ -7,8 +7,22 @@
         {
             "type": "pwa-chrome",
             "request": "launch",
+            "name": "Launch Chrome against server",
+            "url": "http://localhost:3000/viewer.html/?api=http%3A%2F%2Fec2-54-88-72-27.compute-1.amazonaws.com%3A8080%2Fapi%2F1.0%2Fmodel&url=file%3A%2F%2FC%3A%5Cserver%5Centerprise-1.1-win64%5Csamples%5Cbeam.cax",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "pwa-chrome",
+            "request": "launch",
             "name": "Launch Chrome against localhost",
-            "url": "http://localhost:3000/",
+            "url": "http://localhost:3000/viewer.html/?api=http://localhost:8181/api/1.0/model&url=file%3A%2F%2FE%3A%5Ccaxserver%5CAssembly.cax",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "type": "pwa-chrome",
+            "request": "launch",
+            "name": "Launch Chrome against localhost release",
+            "url": "http://localhost:5000/viewer.html/?api=http://localhost:8181/api/1.0/model&url=file%3A%2F%2FE%3A%5Ccaxserver%5CAssembly.cax",
             "webRoot": "${workspaceFolder}"
         }
     ]

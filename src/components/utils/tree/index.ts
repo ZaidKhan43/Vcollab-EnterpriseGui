@@ -1,8 +1,8 @@
-import {Node, NodeState} from '../../shared/RsTreeWithSearch'
+import {ITreeNode, ITreeNodeState} from '../../shared/RsTreeTable'
 
-const traverseParent = (rootId:string, data:{[id:string]:Node} ,cbk:(node:Node|null) => void) => {
+const traverseParent = (rootId:string, data:{[id:string]:ITreeNode} ,cbk:(node:ITreeNode|null) => void) => {
     let root = data[rootId];
-    if(root.pid !== '-1') {
+    if(root.pid !== '-1' && root.pid !== null) {
         let parent = data[root.pid];
         cbk(parent);
         traverseParent(parent.id, data, cbk);
@@ -11,7 +11,7 @@ const traverseParent = (rootId:string, data:{[id:string]:Node} ,cbk:(node:Node|n
         cbk(null)
     }
 }
-const traverse = (rootId:string, data:{[id:string]:Node}, cbk:(node:Node) => void) => {
+const traverse = (rootId:string, data:{[id:string]:ITreeNode}, cbk:(node:ITreeNode) => void) => {
     let root = data[rootId];
     cbk(root);
     root.children.forEach(id => {
@@ -19,12 +19,12 @@ const traverse = (rootId:string, data:{[id:string]:Node}, cbk:(node:Node) => voi
         cbk(node)
     })
 }
-const createTree = (rootId:string, data:{[id:string]:any}):any => {
+const createTree = (rootId:string, data:{[id:string]:ITreeNode}):any => {
     let root = data[rootId];
     let expandedKeys:string[] = [];
     let treeNode: {[id:string]:any} = {
         id: root.id,
-        title: root.name,
+        title: root.title,
         state: root.state,
         children: [] as any[]
     }
@@ -47,12 +47,12 @@ const createTree = (rootId:string, data:{[id:string]:any}):any => {
     })
     return [treeNode, expandedKeys]
 }
-export const getTreeData = (data:{[id:string]:Node}, results:Node[]) => {
+export const getTreeData = (data:{[id:string]:ITreeNode}, results:ITreeNode[]) => {
     if(!data)
     return {}
 
     let treeData = [] as any[]
-    let filteredData:{[id:string]:Node} = {}
+    let filteredData:{[id:string]:ITreeNode} = {}
     results.forEach(r => filteredData[r.id] = r);
 
     let expandedKeys:string[] = [];
@@ -79,3 +79,34 @@ export const getTreeData = (data:{[id:string]:Node}, results:Node[]) => {
     
     
 } 
+
+const createTreeNode = (id:string,data:{[id:string]:ITreeNode},expandedNodes:string[]) => {
+    let node = data[id];
+    if(node) {
+      if(node.state.expanded) {
+        expandedNodes.push(node.id);
+      }
+      let children:any[] = [];
+      if(node.children.length > 0)
+      {
+        children = node.children.map((c:string) => createTreeNode(c,data,expandedNodes));
+      }
+      return {
+        id: node.id,
+        pid: node.pid,
+        title: node.title,
+        children
+      }
+    }
+
+  }
+export  const convertListToTree = (data:{[id:string]:ITreeNode},rootIds:string[]) => {
+    let roots:any[] = [];
+    let expanded:string[] = [];
+    rootIds.forEach(root => {
+      let node = createTreeNode(root,data,expanded);
+      if(node)
+      roots.push(node)
+    })
+    return {roots,expanded};
+  }

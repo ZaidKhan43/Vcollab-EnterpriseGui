@@ -1,4 +1,4 @@
-import { useRef,  useCallback, useEffect } from 'react';
+import { useRef,  useCallback, useEffect, createContext, Ref } from 'react';
 import clsx from 'clsx';
 import { useResizeDetector } from 'react-resize-detector';
 import FullScreen from 'react-fullscreen-crossbrowser';
@@ -13,9 +13,11 @@ import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
         setAppBarVisibility, setFullscreenState ,selectModelLoadedState, setPopupMenuActiveContent } from '../store/appSlice';
 import { appBarMinHeight, popupMenuContentTypes } from '../config';
 import SnackBar from "./sideBarContents/messages/SnackBar";
-
+import WindowsContainer from "./layout/windowsContainer";
 import Viewer from './viewer';
 import { fetchCameraStdViews } from '../store/sideBar/sceneSlice';
+
+export const ViewerContext = createContext<React.MutableRefObject<HTMLDivElement | null> | null>(null);
 
 function App() {
 
@@ -27,6 +29,7 @@ function App() {
   const isSidebarVisible = useAppSelector(selectSidebarVisibility);
   const dispatch = useAppDispatch();  
   const targetRef = useRef(null);
+  const viewerContainerRef = useRef(null);
 
   //===========================================================================
   const onResize = useCallback((width ?:number, height ?: number) => {
@@ -71,11 +74,16 @@ function App() {
         : null ) }
 
         { ( isAppBarVisible ?   
-        <><AppBar /><Sidebar /></>
+        <><AppBar />
+        <ViewerContext.Provider value={viewerContainerRef}>
+          <Sidebar />
+        </ViewerContext.Provider>
+        </>
         : null ) }
         <main  className={ clsx(classes.content , {[classes.contentWithSideBar]: isSidebarVisible} , {[classes.contentWithTopBar]: isAppBarVisible}) }>
-          <div className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
+          <div ref = {viewerContainerRef} className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
             <Viewer />
+            <WindowsContainer parentRef={viewerContainerRef}/>
           </div>     
         </main>
         <SnackBar/>

@@ -1,14 +1,10 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react'
-import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
-import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
 import Table, {Cell,Column,ColumnGroup,HeaderCell} from '../RsTable'
 import clsx from 'clsx'
 import useContainer from '../../../customHooks/useContainer';
-import {useAppSelector , useAppDispatch} from '../../../store/storeHooks'
-import TreeNode from "./TreeNode"
-import InvertCell from "./Invert"
-import ShowHideCell from "./ShowHide"
 import { makeStyles } from '@material-ui/core/styles';
+
+export type {Cell, Column, ColumnGroup};
 
 const useRTreeOverrideStyles = makeStyles((theme) => ({
   row: {
@@ -27,73 +23,42 @@ const useRTreeOverrideStyles = makeStyles((theme) => ({
     }
 })) 
 
-export type ITreeNode = {
+export interface ITreeNodeState {
+  checked?: boolean,
+  partiallyChecked?: boolean,
+  expanded?: boolean,
+  highlighted?: boolean,
+  visibility?: boolean,
+  selected?: boolean
+}
+
+export interface ITreeNode {
   id:string,
   pid:string|null,
   title:string,
   children:string[],
-  state:any,
-  attributes:any
+  state:ITreeNodeState,
+  attributes?:any
 }
 
-interface TreeTableProps {
-  treeDataRedux: any,
-  rootIdsRedux: any[],
-  checkBox: boolean,
+export interface ITreeTableProps {
+  treeData: ITreeNode[],
+  defaultExpandedIds: string[],
+  renderTreeToggle: (icon:any, rowData:any) => any,
   onExpand: (toOpen:boolean,nodeId:string) => void,
-  onCheck: (toCheck:boolean, nodeId:string) => void,
-  onHighlight: (toHighlight:boolean, nodeId:string) => void,
-  column1: (node : any) => any,
-  column2: (node:any) => any
+  treeNode: (node:ITreeNode) => JSX.Element,
+  column1?: (node:ITreeNode) => JSX.Element,
+  column2?: (node:ITreeNode) => JSX.Element
 }
 
-function RTree(props:TreeTableProps) {
+function RTree(props:ITreeTableProps) {
 
     const containerRef = useRef(null);
-    const treeData = props.treeDataRedux;
-    const treeDataRef = useRef(treeData);
     // eslint-disable-next-line
-    const [containerWidth, containerHeight] = useContainer(containerRef,[treeData]);
-    const rootIds = props.rootIdsRedux;
-    const [data,setData] = useState<any[]>([]);
+    const [containerWidth, containerHeight] = useContainer(containerRef,props.treeData);
     // eslint-disable-next-line
-    const [expandedNodes,setExpandedNodes] = useState<string[]>([]);
+    const [expandedNodes,setExpandedNodes] = useState<string[]>(props.defaultExpandedIds);
     
-    const getNode = useCallback((id:string) => treeData[id],[treeData]);
-    useEffect(() => {
-      const createTreeNode = (id:string,data:Map<string,ITreeNode>) => {
-        let node = treeDataRef.current[id];
-        if(node) {
-          if(node.state.expanded) {
-            expandedNodes.push(node.id);
-          }
-          let children:any[] = [];
-          if(node.children.length > 0)
-          {
-            children = node.children.map((c:string) => createTreeNode(c,data));
-          }
-          return {
-            id: node.id,
-            pid: node.pid,
-            title: node.title,
-            children
-          }
-        }
-  
-      }
-      const convertListToTree = (data:Map<string,ITreeNode>,rootIds:string[]) => {
-        let roots:any[] = [];
-        rootIds.forEach(root => {
-          roots.push(createTreeNode(root,data))
-        })
-        return roots;
-      }
-
-      treeDataRef.current = treeData;
-      if(treeDataRef.current)
-      setData(convertListToTree(treeDataRef.current,rootIds));
-    },[rootIds,expandedNodes,treeData])
-
     const overrideClasses = useRTreeOverrideStyles();
       return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
@@ -109,7 +74,7 @@ function RTree(props:TreeTableProps) {
             rowExpandedHeight = { 40}
             width={300}
             height={containerHeight? containerHeight - 5 : 0}
-            data={data as any}
+            data={props.treeData}
             virtualized={true}
             showHeader={false}
             onExpandChange={(isOpen:boolean, rowData:any) => {
@@ -117,11 +82,7 @@ function RTree(props:TreeTableProps) {
             }}
             rowClassName={clsx(overrideClasses.row,overrideClasses.rightColumn)}
             renderTreeToggle={(icon, rowData:any) => {
-              if (rowData.children && rowData.children.length === 0) {
-                return null;
-              }
-              let state = treeData[rowData.id].state;
-              return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
+              return props.renderTreeToggle(icon,rowData);
             }}
           >
             <Column width={900} treeCol={true} align='left' verticalAlign='middle' >
@@ -133,33 +94,34 @@ function RTree(props:TreeTableProps) {
             <Cell align='center' verticalAlign='middle' >
               {
                 rowData => {
-                  let node = getNode(rowData.id);
                   return (
-                    <TreeNode rowData={rowData} visibility= {node?.state.visibility} checked={node?.state.checked} highlighted={node?.state.highlighted} partiallyChecked={node?.state.partiallyChecked} onCheck={props.onCheck} onHighlight={props.onHighlight} checkbox ={props.checkBox}></TreeNode>
+                    props.treeNode(rowData as unknown as ITreeNode)
                   )
                 }
               }
             </Cell>
             </Column>
             <ColumnGroup fixed= { 'right'} header="Actions" align='right' verticalAlign='middle' >
-            <Column fixed={'right'} width={30} verticalAlign='middle' align='left'>
+            {
+              props.column1 ?
+              (<Column fixed={'right'} width={30} verticalAlign='middle' align='left'>
               {/*
- // @ts-ignore */}
+  // @ts-ignore */}
               <HeaderCell>Invert</HeaderCell>
               {/*
- // @ts-ignore */}
+  // @ts-ignore */}
               <Cell className={overrideClasses.invertCell} align='right' verticalAlign='middle' >
                 {
                   rowData => {
-                    let node = getNode(rowData.id);
-                    return(
-                      props.column1(node)
-                    )
+                    return props.column1? props.column1(rowData as unknown as ITreeNode):null;
                   }
                 }
               </Cell>
-            </Column>
-            <Column fixed={'right'} width={40} verticalAlign='middle' align='left'>
+            </Column>) : null
+            }
+            {
+              props.column2 ?
+              <Column fixed={'right'} width={40} verticalAlign='middle' align='left'>
               {/*
  // @ts-ignore */}
               <HeaderCell>ShowHide</HeaderCell>
@@ -168,14 +130,13 @@ function RTree(props:TreeTableProps) {
               <Cell  align='right' verticalAlign='middle'>
                 {
                   rowData => {
-                    let node = getNode(rowData.id);
-                      return(
-                        props.column2(node)
-                      )
+                      return props.column2? props.column2(rowData as unknown as ITreeNode):null;
                   }
                 }
               </Cell>
-            </Column>
+            </Column> : null
+            }
+            
             </ColumnGroup>
  
           </Table>
