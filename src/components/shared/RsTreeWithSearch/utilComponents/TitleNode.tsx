@@ -17,7 +17,7 @@ const Title = (props:any) => {
 
         useEffect(() => {
             if(props.rowData?.matches)
-            setParts(getHighlightText(props.rowData.matches, "name"));
+            setParts(getHighlightText(props.rowData.matches, "title"));
         },[props.rowData?.matches])
 
           return(

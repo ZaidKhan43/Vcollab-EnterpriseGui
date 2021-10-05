@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { getDisplayResult } from '../../backend/viewerAPIProxy';
 import type { RootState } from '../index';
-import {Node, NodeState} from '../../components/shared/RsTreeWithSearch';
+import {ITreeNode, ITreeNodeState} from '../../components/shared/RsTreeWithSearch';
 
 type FieldState = {
     data: FieldData
@@ -18,7 +18,7 @@ export enum FieldType {
     Derived
 }
 
-export interface Field extends Node {
+export interface Field extends ITreeNode {
     source:Source
 }
 interface Variable extends Field {
@@ -62,7 +62,7 @@ const initialState : FieldState = {
         "0": {
                 id: "0",
                 pid: "-1",
-                name: "Input",
+                title: "Input",
                 state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: ["01","02","03"]
@@ -70,7 +70,7 @@ const initialState : FieldState = {
             "01": {
                 id: "01",
                 pid: "0",
-                name: "Material ID",
+                title: "Material ID",
                 state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
@@ -78,7 +78,7 @@ const initialState : FieldState = {
             "02":  {
                 id: "02",
                 pid: "0",
-                name: "Constraints",
+                title: "Constraints",
                 state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
@@ -86,7 +86,7 @@ const initialState : FieldState = {
             "03":     {
                 id: "03",
                 pid: "0",
-                name: "Pressure Loads",
+                title: "Pressure Loads",
                 state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
@@ -94,7 +94,7 @@ const initialState : FieldState = {
             "1": {
                 id:"1",
                 pid:"-1",
-                name: "Results",
+                title: "Results",
                 state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: ["11","12","13" ,"14", "15", "16"]
@@ -102,7 +102,7 @@ const initialState : FieldState = {
             "11": {
                 id:"11",
                 pid:"1",
-                name: "Displacement",
+                title: "Displacement",
                 state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
@@ -110,7 +110,7 @@ const initialState : FieldState = {
             "12": {
                 id:"12",
                 pid:"1",
-                name: "Reaction Force",
+                title: "Reaction Force",
                 state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
@@ -118,7 +118,7 @@ const initialState : FieldState = {
             "13": {
                 id:"13",
                 pid:"1",
-                name: "Stress",
+                title: "Stress",
                 state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
@@ -126,7 +126,7 @@ const initialState : FieldState = {
             "14": {
                 id:"14",
                 pid:"1",
-                name: "Displacement 2 adfadfadfadfadadfadfadfadfadfadfadfadfadfadfdaf",
+                title: "Displacement 2 adfadfadfadfadadfadfadfadfadfadfadfadfadfadfdaf",
                 state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
@@ -134,7 +134,7 @@ const initialState : FieldState = {
             "15": {
                 id:"15",
                 pid:"1",
-                name: "Reaction Force 2",
+                title: "Reaction Force 2",
                 state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
@@ -142,7 +142,7 @@ const initialState : FieldState = {
             "16": {
                 id:"16",
                 pid:"1",
-                name: "Stress 2",
+                title: "Stress 2",
                 state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
@@ -150,7 +150,7 @@ const initialState : FieldState = {
             "userDefined": {
                 id:"userDefined",
                 pid:"-1",
-                name: "User Defined",
+                title: "User Defined",
                 state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
@@ -159,7 +159,7 @@ const initialState : FieldState = {
         stepsAndSubCases: {
             "0" : {
                 id: "0",
-                name: "Subcase 1: Modal Transient",
+                title: "Subcase 1: Modal Transient",
                 children: ["01","02","03","04","05","06"],
                 pid: "-1",
                 source: Source.SYSTEM,
@@ -167,7 +167,7 @@ const initialState : FieldState = {
             },
             "01" : {
                 id: "01",
-                name: "Time = 0.1",
+                title: "Time = 0.1",
                 children: [],
                 pid: "0",
                 source: Source.SYSTEM,
@@ -175,7 +175,7 @@ const initialState : FieldState = {
             },
             "02" : {
                 id: "02",
-                name: "Time = 0.2",
+                title: "Time = 0.2",
                 children: [],
                 pid: "0",
                 source: Source.SYSTEM,
@@ -183,7 +183,7 @@ const initialState : FieldState = {
             },
             "03" : {
                 id: "03",
-                name: "Time = 0.3",
+                title: "Time = 0.3",
                 children: [],
                 pid: "0",
                 source: Source.SYSTEM,
@@ -191,7 +191,7 @@ const initialState : FieldState = {
             },
             "04" : {
                 id: "04",
-                name: "Time = 0.4",
+                title: "Time = 0.4",
                 children: [],
                 pid: "0",
                 source: Source.SYSTEM,
@@ -199,7 +199,7 @@ const initialState : FieldState = {
             },
             "05" : {
                 id: "05",
-                name: "Time = 0.5",
+                title: "Time = 0.5",
                 children: [],
                 pid: "0",
                 source: Source.SYSTEM,
@@ -207,7 +207,7 @@ const initialState : FieldState = {
             },
             "06" : {
                 id: "06",
-                name: "Time = 0.6",
+                title: "Time = 0.6",
                 children: [],
                 pid: "0",
                 source: Source.SYSTEM,
@@ -215,7 +215,7 @@ const initialState : FieldState = {
             },
             "2" : {
                 id: "2",
-                name: "Subcase 2: Modal Frequency",
+                title: "Subcase 2: Modal Frequency",
                 children: ["21","22","23","24","25","26"],
                 pid: "-1",
                 source: Source.SYSTEM,
@@ -223,7 +223,7 @@ const initialState : FieldState = {
             },
             "21" : {
                 id: "21",
-                name: "Mode 1:Freq = 350.02",
+                title: "Mode 1:Freq = 350.02",
                 children: [],
                 pid: "2",
                 source: Source.SYSTEM,
@@ -231,7 +231,7 @@ const initialState : FieldState = {
             },
             "22" : {
                 id: "22",
-                name: "Mode 2:Freq = 650.02",
+                title: "Mode 2:Freq = 650.02",
                 children: [],
                 pid: "2",
                 source: Source.SYSTEM,
@@ -239,7 +239,7 @@ const initialState : FieldState = {
             },
             "23" : {
                 id: "23",
-                name: "Mode 3:Freq = 1350.02",
+                title: "Mode 3:Freq = 1350.02",
                 children: [],
                 pid: "2",
                 source: Source.SYSTEM,
@@ -247,7 +247,7 @@ const initialState : FieldState = {
             },
             "24" : {
                 id: "24",
-                name: "Mode 4:Freq = 1950.02",
+                title: "Mode 4:Freq = 1950.02",
                 children: [],
                 pid: "2",
                 source: Source.SYSTEM,
@@ -255,7 +255,7 @@ const initialState : FieldState = {
             },
             "25" : {
                 id: "25",
-                name: "Mode 5:Freq = 2350.02",
+                title: "Mode 5:Freq = 2350.02",
                 children: [],
                 pid: "2",
                 source: Source.SYSTEM,
@@ -263,7 +263,7 @@ const initialState : FieldState = {
             },
             "26" : {
                 id: "26",
-                name: "Mode 6:Freq = 2350.02",
+                title: "Mode 6:Freq = 2350.02",
                 children: [],
                 pid: "2",
                 source: Source.SYSTEM,
@@ -271,7 +271,7 @@ const initialState : FieldState = {
             },
             "userDefined" : {
                 id:"userDefined",
-                name: "User Defined",
+                title: "User Defined",
                 children: [],
                 pid:"-1",
                 source: Source.USER,
@@ -282,7 +282,7 @@ const initialState : FieldState = {
             "0": {
                     id: "0",
                     pid: "-1",
-                    name: "Vector",
+                    title: "Vector",
                     state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: ["01","02","03","04"]
@@ -290,7 +290,7 @@ const initialState : FieldState = {
                 "01": {
                     id: "01",
                     pid: "0",
-                    name: "X Component",
+                    title: "X Component",
                     state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
@@ -298,7 +298,7 @@ const initialState : FieldState = {
                 "02":  {
                     id: "02",
                     pid: "0",
-                    name: "Y Component",
+                    title: "Y Component",
                     state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
@@ -306,7 +306,7 @@ const initialState : FieldState = {
                 "03":     {
                     id: "03",
                     pid: "0",
-                    name: "Z Component",
+                    title: "Z Component",
                     state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
@@ -314,7 +314,7 @@ const initialState : FieldState = {
                 "04": {
                     id: "04",
                     pid:"0",
-                    name: "Magnitude",
+                    title: "Magnitude",
                     state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children:[]
@@ -322,7 +322,7 @@ const initialState : FieldState = {
                 "1": {
                     id:"1",
                     pid:"-1",
-                    name: "SixDOF",
+                    title: "SixDOF",
                     state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: ["11","12"]
@@ -330,7 +330,7 @@ const initialState : FieldState = {
                 "11": {
                     id:"11",
                     pid:"1",
-                    name: "Translation Vector",
+                    title: "Translation Vector",
                     state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
@@ -338,7 +338,7 @@ const initialState : FieldState = {
                 "12": {
                     id:"12",
                     pid:"1",
-                    name: "Rotation Vector",
+                    title: "Rotation Vector",
                     state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
@@ -346,7 +346,7 @@ const initialState : FieldState = {
                 "2": {
                     id:"2",
                     pid:"-1",
-                    name: "Stress Tensor",
+                    title: "Stress Tensor",
                     state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: ["21","22","23"]
@@ -354,7 +354,7 @@ const initialState : FieldState = {
                 "21": {
                     id:"21",
                     pid:"2",
-                    name: "Normal Stress",
+                    title: "Normal Stress",
                     state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
@@ -362,7 +362,7 @@ const initialState : FieldState = {
                 "22": {
                     id:"22",
                     pid:"2",
-                    name: "Shear Stress",
+                    title: "Shear Stress",
                     state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
@@ -370,7 +370,7 @@ const initialState : FieldState = {
                 "23": {
                     id:"23",
                     pid:"2",
-                    name: "Tensor Mean",
+                    title: "Tensor Mean",
                     state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
@@ -378,7 +378,7 @@ const initialState : FieldState = {
                 "userDefined": {
                     id:"userDefined",
                     pid:"-1",
-                    name: "User Defined",
+                    title: "User Defined",
                     state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
@@ -395,7 +395,7 @@ export const addUserFieldState = createAsyncThunk(
         let id = state.data.idGenerator.toString();
             let user =  {
                 id,
-                name: "User Defined " + id,
+                title: "User Defined " + id,
                 children: [],
                 pid: "userDefined",
                 state: {expanded:false},
@@ -423,7 +423,7 @@ export const fieldSlice = createSlice({
         incrementId: (state:FieldState) => {
             state.data.idGenerator+=1;
         },
-        setVariableNodeState: (state:FieldState, action:PayloadAction<{nodeId:string, nodeState: NodeState}>) => {
+        setVariableNodeState: (state:FieldState, action:PayloadAction<{nodeId:string, nodeState: ITreeNodeState}>) => {
             let {nodeId,nodeState} = action.payload;
             state.data.variables[nodeId].state = {...nodeState};              
         },
@@ -434,7 +434,7 @@ export const fieldSlice = createSlice({
             state.data.variables[user.id] = user
         },
 
-        setDerivedNodeState: (state:FieldState, action:PayloadAction<{nodeId:string, nodeState: NodeState}>) => {
+        setDerivedNodeState: (state:FieldState, action:PayloadAction<{nodeId:string, nodeState: ITreeNodeState}>) => {
             let {nodeId,nodeState} = action.payload;
             state.data.derivedTypes[nodeId].state = {...nodeState};              
         },
@@ -445,7 +445,7 @@ export const fieldSlice = createSlice({
             state.data.derivedTypes[user.id] = user
         },
 
-        setStepAndSubCaseNodeState: (state:FieldState, action:PayloadAction<{nodeId:string, nodeState: NodeState}>) => {
+        setStepAndSubCaseNodeState: (state:FieldState, action:PayloadAction<{nodeId:string, nodeState: ITreeNodeState}>) => {
             let {nodeId,nodeState} = action.payload;
             state.data.stepsAndSubCases[nodeId].state = {...nodeState};              
         },
