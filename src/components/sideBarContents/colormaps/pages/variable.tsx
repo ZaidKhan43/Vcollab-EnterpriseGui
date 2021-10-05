@@ -15,12 +15,20 @@ import RTree from '../../../shared/RsTreeTable';
 
 import styles from './style'
 
+import TreeNode from '../../../shared/RsTreeTable/TreeNode';
+import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
+import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
+
+import { convertListToTree } from '../../../utils/tree';
+
 export default function Variable(){
 
   const dispatch = useAppDispatch();  
 
-  const  treeData = useAppSelector(selectVariableData);
+  const  treeDataRedux = useAppSelector(selectVariableData);
   const treeRootIds = useAppSelector(selectVariableRootIds);
+  const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
+
 
   const classes = styles();
   const onClickBackIcon = () =>{
@@ -47,18 +55,38 @@ export default function Variable(){
 
   const getBody = () => {
     return (
-      <div className={classes.scrollBar}>
-         <RTree 
-          treeDataRedux={treeData} 
-          rootIdsRedux={treeRootIds} 
-          checkBox ={false}
-          onExpand={handleExpand}  
-          onCheck={()=> console.log("hi")} 
-          onHighlight = {()=> console.log("hi")}
-          column1 = {()=> console.log("hi")}
-          column2 = {() => console.log("hi")}
-          />
-      </div>
+      <RTree 
+      treeData={roots} 
+        defaultExpandedIds = {expanded}
+        onExpand={handleExpand}
+        renderTreeToggle = {
+          (icon,rowData) => {
+            if (rowData.children && rowData.children.length === 0) {
+              return null;
+            }
+            let state = treeDataRedux[rowData.id].state;
+            return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
+          }
+        }
+        treeNode = {(node) => {
+          return (
+            <TreeNode 
+              node={treeDataRedux[node.id]}
+              onCheck={() => console.log("sa")}
+            >
+            </TreeNode>
+          )
+        }}
+        column1 = {(node) => {
+          return (<div></div>)
+        }}
+        column2 = {(node) => {
+          return (
+            <div>  
+            </div>
+          )
+        }}
+      />  
     )
   }
 

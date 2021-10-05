@@ -12,10 +12,6 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 import RTree from '../../../shared/RsTreeTable';
 import {invertNode, expandNode, select3DLabelData ,selectRootIds, setCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength} from '../../../../store/sideBar/labelSlice/label3DSlice'
 
-import EyeIcon from '@material-ui/icons//Visibility';
-import EyeSlashIcon from '@material-ui/icons/VisibilityOff';
-import IconButton  from '@material-ui/core/IconButton';
-
 import AddIcon from "@material-ui/icons/Add";
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
@@ -28,18 +24,25 @@ import {goBack,push} from 'connected-react-router/immutable';
 import {Routes} from "../../../../routes"
 
 import InvertCell from '../../../shared/RsTreeTable/Invert';
+import TreeNode from '../../../shared/RsTreeTable/TreeNode';
+import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
+import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
+import ShowHideCell from '../../../shared/RsTreeTable/ShowHide';
+import MuiGrid from '@material-ui/core/Grid';
+
+import { convertListToTree } from '../../../utils/tree';
 
 export default function Labels3D(){
 
-  const classes = styles();
   const dispatch = useAppDispatch();  
   const onClickBackIcon = () =>{
     dispatch(goBack());
   }
   
-  const treeData = useAppSelector(select3DLabelData);
-    const treeRootIds = useAppSelector(selectRootIds);
-    const selectedCount = useAppSelector(selectedLength)
+  const treeDataRedux = useAppSelector(select3DLabelData);
+  const treeRootIds = useAppSelector(selectRootIds);
+  const selectedCount = useAppSelector(selectedLength)
+  const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
   const getHeaderLeftIcon= () => {
     return (
@@ -66,13 +69,10 @@ export default function Labels3D(){
     dispatch(checkNode({toCheck,nodeId}));
   }
 
-  const handleHighlight = () => {
-    console.log("sadas")
-  }
-
   const handleVisibility = (toShow:boolean,node:any) => {
     const leafIds = [node.id];
     const pids = [node.pid];
+    console.log(leafIds, pids)
     dispatch(setCheckedVisibility({toShow, pids, leafIds}))
   }
 
@@ -80,58 +80,56 @@ export default function Labels3D(){
     dispatch(delete3DLabel());
   }
 
-  const renderIcon1 = (node : any) => {
-    return (
-      <InvertCell rowData = {node} onInvert={handleInvert}></InvertCell>
-    )
-  }
-
-  const renderIcon2 = (node :any) => {
-      
-    if(node?.pid !== "-1")
-    return (
-        <span style={{marginLeft:"10px", marginTop:"5px"}}>
-          <IconButton size='small' onClick = {() => handleVisibility(!node.state.visibility,node)}>
-              { node?.state.visibility
-                ? 
-                  <EyeIcon fontSize='small'/>
-                :
-                  <EyeSlashIcon fontSize='small'/>
-              }
-            </IconButton>
-        </span>
-      )
-    else
-    return (
-      <span style={{marginLeft:"10px", marginTop:"5px"}}>
-        <MuiIconButton size='small' onClick={() => dispatch(createLabel(node.id))}>
-            <AddIcon fontSize='default'/> 
-        </MuiIconButton> 
-      </span>
-    )
-   
-  }
   
 
   const getBody = () => {
 
-    console.log("treedata",treeData)
-
     return (
-      <div className={classes.scrollBar}>
-       <RTree 
-          treeDataRedux={treeData} 
-          rootIdsRedux={treeRootIds} 
-          checkBox = {true}
-          onExpand={handleExpand} 
-          onCheck={handleCheck} 
-          onHighlight = {handleHighlight}
-          column1 = {renderIcon1}
-          column2 = {renderIcon2}
-          />
-
-
-      </div>
+      <RTree 
+      treeData={roots} 
+        defaultExpandedIds = {expanded}
+        onExpand={handleExpand}
+        renderTreeToggle = {
+          (icon,rowData) => {
+            if (rowData.children && rowData.children.length === 0) {
+              return null;
+            }
+            let state = treeDataRedux[rowData.id].state;
+            return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
+          }
+        }
+        treeNode = {(node) => {
+          return (
+            <TreeNode 
+              node={treeDataRedux[node.id]}
+              onCheck={handleCheck}
+            >
+            </TreeNode>
+          )
+        }}
+        column1 = {(node) => {
+          return <InvertCell node = {treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
+        }}
+        column2 = {(node) => {
+          return (
+            <div>
+              { node?.pid !== "-1"
+                ?
+                 <ShowHideCell node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
+                :        
+                  <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
+                    <MuiGrid item xs={4}></MuiGrid>
+                    <MuiGrid item xs={6}>
+                      <MuiIconButton size='small' onClick={() => dispatch(createLabel(Number(node.id)))}>
+                        <AddIcon fontSize='default'/> 
+                      </MuiIconButton> 
+                    </MuiGrid>
+                  </MuiGrid>
+              }    
+            </div>
+          )
+        }}
+      />  
     )
   }
 

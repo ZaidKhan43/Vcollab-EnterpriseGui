@@ -61,9 +61,7 @@ function AssemblyTree(props:any) {
     const handleCheck = (toCheck:boolean, nodeId:string) => {
       dispatch(setCheckedNodesAsync({toCheck,nodeId}));
     }
-    const handleHighlight = (toHighlight:boolean, nodeId:string) => {
-      dispatch(setHightLightedNodesAsync({toHighlight,nodeId}))
-    }
+ 
     const handleVisibility = (toShow:boolean,node:any) => {
       dispatch(toggleVisibilityAsync({toShow, nodeId:node.id}));
     

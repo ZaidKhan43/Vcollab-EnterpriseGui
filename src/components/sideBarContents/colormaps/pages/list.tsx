@@ -11,17 +11,23 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 import {goBack,push} from 'connected-react-router/immutable';
 
 import RTree from '../../../shared/RsTreeTable';
-import IconButton  from '@material-ui/core/IconButton';
 
 import AddIcon from "@material-ui/icons/Add";
 
 import { selectcolormapData, selectRootIds, expandNode, createColorMap } from '../../../../store/sideBar/colormapSlice';
 
+import TreeNode from '../../../shared/RsTreeTable/TreeNode';
+import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
+import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
+import MuiGrid from '@material-ui/core/Grid';
+
+import { convertListToTree } from '../../../utils/tree';
+
 export default function List(){
 
-  const treeData = useAppSelector(selectcolormapData);
+  const treeDataRedux = useAppSelector(selectcolormapData);
   const treeRootIds = useAppSelector(selectRootIds);
-  // const selectedCount = useAppSelector(selectedLength);
+  const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
   const classes = styles()
   const dispatch = useAppDispatch();  
@@ -47,44 +53,57 @@ export default function List(){
     dispatch(expandNode({toOpen,nodeId}));
   }
 
-  const handleNull = () => {
-    return(
-      null
-    )
-  }
-
-
   const createLabel = (nodeId : string) => {
     	dispatch(createColorMap(nodeId))
   }
 
-  const renderIcon2 = (node : any) => {
-    if(node.pid === "-1")
-    return(
-      <span style={{marginLeft:"10px", marginTop:"5px"}}>
-        <MuiIconButton size='small' onClick={() => createLabel(node.id)}>
-            <AddIcon fontSize='default'/> 
-        </MuiIconButton> 
-      </span>
-    )
-    else
-    return( null )
-  }
-
   const getBody = () => {
     return (
-      <div className={classes.scrollBar}>
-           <RTree 
-          treeDataRedux={treeData} 
-          rootIdsRedux={treeRootIds} 
-          checkBox ={false}
-          onExpand={handleExpand}  
-          onCheck={handleNull} 
-          onHighlight = {handleNull}
-          column1 = {handleNull}
-          column2 = {renderIcon2}
-          />
-      </div>
+      <RTree 
+      treeData={roots} 
+        defaultExpandedIds = {expanded}
+        onExpand={handleExpand}
+        renderTreeToggle = {
+          (icon,rowData) => {
+            if (rowData.children && rowData.children.length === 0) {
+              return null;
+            }
+            let state = treeDataRedux[rowData.id].state;
+            return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
+          }
+        }
+        treeNode = {(node) => {
+          return (
+            <TreeNode 
+              node={treeDataRedux[node.id]}
+              onCheck={() => console.log("sa")}
+            >
+            </TreeNode>
+          )
+        }}
+        column1 = {(node) => {
+          return (<div></div>)
+        }}
+        column2 = {(node) => {
+          return (
+            <div>
+              { node?.pid !== "-1"
+                ?
+                 <div></div>
+                :        
+                  <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
+                    <MuiGrid item xs={4}></MuiGrid>
+                    <MuiGrid item xs={6}>
+                      <MuiIconButton size='small' onClick={() => createLabel(node.id)}>
+                        <AddIcon fontSize='default'/> 
+                      </MuiIconButton> 
+                    </MuiGrid>
+                  </MuiGrid>
+              }    
+            </div>
+          )
+        }}
+      />  
     )
   }
 
