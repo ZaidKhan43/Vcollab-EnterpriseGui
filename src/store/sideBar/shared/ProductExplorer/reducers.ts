@@ -54,3 +54,16 @@ export const setCheckedVisibilityReducer = (state:ITreeState, action:PayloadActi
       }
     })
 }
+export const selectNodeReducer = (state:ITreeState, action:PayloadAction<{leafOnly:boolean,nodeId:string}>) => {
+  const {leafOnly,nodeId} = action.payload;
+    let node = state.data[nodeId];
+    if(leafOnly){
+      [...Object.values(state.data)].forEach(node => {
+        if(node.id !== nodeId)
+        node.state.selected = false;
+      });
+      if(node.children && node.children.length === 0) {
+        node.state.selected = !node.state.selected;
+      }
+    }
+}

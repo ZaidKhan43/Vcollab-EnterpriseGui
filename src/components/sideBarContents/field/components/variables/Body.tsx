@@ -2,7 +2,7 @@ import React from 'react'
 import TreeSearch from '../../shared/Tree'
 import AutoSizer from '../../../../shared/autoSize'
 import { useAppDispatch, useAppSelector } from '../../../../../store/storeHooks'
-import { selectVariables, setVariableNodeState,  } from '../../../../../store/sideBar/fieldSlice'
+import { selectVariables, expandVariable, selectVariable } from '../../../../../store/sideBar/fieldSlice'
 import { useState } from 'react'
 
 
@@ -11,6 +11,12 @@ function Body() {
     const variables = useAppSelector(selectVariables);
     const [searchText, setSearchText] = useState("");
 
+    const handleExpand = (toOpen:boolean,nodeId:string) => {
+        dispatch(expandVariable({toOpen,nodeId}));
+    }
+    const handleSelect = (rowData:any) => {
+        dispatch(selectVariable({nodeId:rowData.id,leafOnly:true}))
+    }
     return (
         <AutoSizer>
             {
@@ -19,13 +25,13 @@ function Body() {
                         <TreeSearch
                             data = {variables}
                             height = {size.height}
-                            rowKey = "id"
                             onChangeSearch = {(s:string,r:any) => {setSearchText(s);} }
-                            searchAttribKeys = {["name"]}
+                            searchAttribKeys = {["title"]}
                             searchText = {searchText}
-                            setNodeStateReducer = {setVariableNodeState}
                             width = {300}
                             searchPlaceholder = "Search Variables"
+                            onExpand = {handleExpand}
+                            onRowClick = {handleSelect}
                         />
                     </div>   
             }

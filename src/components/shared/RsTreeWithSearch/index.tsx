@@ -1,11 +1,10 @@
 import React, { useState, useEffect , useRef} from 'react'
 import SearchWithHints from '../searchWithHints'
-import Tree, {TreeProps} from "../RsTreeFromRsTable"
-import { ITreeNode, ITreeNodeState } from '../RsTreeTable'
+import Tree, { ITreeNode, ITreeNodeState, ITreeTableProps} from '../RsTreeTable'
 import {getTreeData} from "../../utils/tree"
 
-
-export interface RsTreeSearchProps extends TreeProps {
+type LimitedTreeTableProps = Omit<ITreeTableProps, "treeData" | "defaultExpandedIds">;
+export interface RsTreeSearchProps extends LimitedTreeTableProps {
     searchText: string,
     searchAttribKeys: string[],
     searchPlaceholder?: string,
@@ -59,18 +58,10 @@ function RsTreeSearch(props: RsTreeSearchProps) {
             />
             
             <Tree
-                rowKey =  {props.rowKey}
-                data = {data}
-                defaultExpandedRowKeys = {expanded?expanded:[]}
-                shouldUpdateScroll={false}
-                width = {props.width}
+                {...props}
+                treeData = {data ? data : []}
+                defaultExpandedIds = {expanded?expanded : [] }
                 height = {props.height - searchBarHeight}
-                onExpandChange = {props.onExpandChange}
-                onRowClick = {props.onRowClick}
-                renderNode = {props.renderNode}
-                rowClassName = {props.rowClassName}
-                setNodeStateReducer = {props.setNodeStateReducer}
-                selectOnlyLeaf = {props.selectOnlyLeaf}
             />
         </div>
     )
