@@ -12,15 +12,20 @@ import TreeNode from '../../../shared/RsTreeTable/TreeNode';
 import { convertListToTree } from '../../../utils/tree';
 import {selectProductTreeData, selectRootIds,selectCheckedLeafNodes,invertNode, toggleVisibilityAsync, setCheckedNodesAsync, setHightLightedNodesAsync, expandNode} from '../../../../store/sideBar/productTreeSlice'
 import Footer from '../Footer'
+import { useRef } from 'react';
+import useContainer from '../../../../customHooks/useContainer';
 
 import ShowHideCell from '../../../shared/RsTreeTable/ShowHide';
 import InvertCell from '../../../shared/RsTreeTable/Invert';
 
 function AssemblyTree(props:any) {
-    
-    const checkedNodes = useAppSelector(selectCheckedLeafNodes);
     const treeDataRedux = useAppSelector(selectProductTreeData);
     const treeRootIds = useAppSelector(selectRootIds);
+    const containerRef = useRef(null);
+    // eslint-disable-next-line
+    const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
+    const checkedNodes = useAppSelector(selectCheckedLeafNodes);
+
     const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
     const dispatch = useAppDispatch();  
     
@@ -73,10 +78,14 @@ function AssemblyTree(props:any) {
 
     const getBody = () => {
       return(
+        <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
           <RTree 
           treeData={roots} 
           defaultExpandedIds = {expanded}
           onExpand={handleExpand}
+          onRowClick = {() => {}}
+          width = {300}
+          height = {containerHeight ? containerHeight - 5: 0}
           renderTreeToggle = {
             (icon,rowData) => {
               if (rowData.children && rowData.children.length === 0) {
@@ -106,6 +115,7 @@ function AssemblyTree(props:any) {
 
           }
           />
+          </div>
       )
     }      
 

@@ -99,7 +99,7 @@ const createTreeNode = (id:string,data:{[id:string]:ITreeNode},expandedNodes:str
       }
     }
 
-  }
+}
 export  const convertListToTree = (data:{[id:string]:ITreeNode},rootIds:string[]) => {
     let roots:any[] = [];
     let expanded:string[] = [];
@@ -109,4 +109,4 @@ export  const convertListToTree = (data:{[id:string]:ITreeNode},rootIds:string[]
       roots.push(node)
     })
     return {roots,expanded};
-  }
+}

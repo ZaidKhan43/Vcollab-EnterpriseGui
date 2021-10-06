@@ -2,6 +2,7 @@ import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@r
 import { getDisplayResult } from '../../backend/viewerAPIProxy';
 import type { RootState } from '../index';
 import {ITreeNode, ITreeNodeState} from '../../components/shared/RsTreeWithSearch';
+import { expandNodeReducer, selectNodeReducer } from './shared/ProductExplorer/reducers';
 
 type FieldState = {
     data: FieldData
@@ -36,8 +37,11 @@ interface DerivedType extends Field {
 type FieldData = {
     idGenerator: number,
     variables: {[id:string]:Variable},
+    variablesRoot: string[],
     stepsAndSubCases: {[id:string]:Step},
-    derivedTypes: {[id:string]:DerivedType}
+    stepsAndSubCasesRoot: string[],
+    derivedTypes: {[id:string]:DerivedType},
+    derivedTypesRoot: string[]
 }
 
 export const fetchFieldData = createAsyncThunk(
@@ -156,6 +160,7 @@ const initialState : FieldState = {
                 children: []
             }
         },
+        variablesRoot: ["0","1"],
         stepsAndSubCases: {
             "0" : {
                 id: "0",
@@ -278,6 +283,7 @@ const initialState : FieldState = {
                 state: {expanded:true,selected:false},
             } 
         },
+        stepsAndSubCasesRoot: ["0"],
         derivedTypes: {
             "0": {
                     id: "0",
@@ -383,7 +389,8 @@ const initialState : FieldState = {
                     source: Source.SYSTEM,
                     children: []
                 }
-            },
+        },
+        derivedTypesRoot: ["0"]
     }
 }
 
@@ -423,11 +430,8 @@ export const fieldSlice = createSlice({
         incrementId: (state:FieldState) => {
             state.data.idGenerator+=1;
         },
-        setVariableNodeState: (state:FieldState, action:PayloadAction<{nodeId:string, nodeState: ITreeNodeState}>) => {
-            let {nodeId,nodeState} = action.payload;
-            state.data.variables[nodeId].state = {...nodeState};              
-        },
-
+        expandVariable: (state:FieldState, action:PayloadAction<{toOpen:boolean,nodeId:string}>) => expandNodeReducer({data:state.data.variables, rootIds: state.data.variablesRoot},action),
+        selectVariable: (state:FieldState, action:PayloadAction<{leafOnly:boolean,nodeId:string}>) => selectNodeReducer({data:state.data.variables, rootIds: state.data.variablesRoot},action),
         addUserVariable: (state:FieldState, action:PayloadAction<{userVariable:Variable}>) => {
             let user = action.payload.userVariable;
             state.data.variables["userDefined"].children.push(user.id);
@@ -468,7 +472,8 @@ export const fieldSlice = createSlice({
     }
 })
 export const {
-    setVariableNodeState, 
+    expandVariable, 
+    selectVariable,
     addUserVariable, 
     setStepAndSubCaseNodeState,
     addUserStepsAndSubcase,
