@@ -32,17 +32,23 @@ import MuiGrid from '@material-ui/core/Grid';
 
 import { convertListToTree } from '../../../utils/tree';
 
+import { useRef } from 'react';
+import useContainer from '../../../../customHooks/useContainer';
+
 export default function Labels3D(){
 
   const dispatch = useAppDispatch();  
   const onClickBackIcon = () =>{
-    dispatch(goBack());
+    dispatch(goBack()); 
   }
   
   const treeDataRedux = useAppSelector(select3DLabelData);
   const treeRootIds = useAppSelector(selectRootIds);
   const selectedCount = useAppSelector(selectedLength)
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
+
+  const containerRef = useRef(null);
+  const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
 
   const getHeaderLeftIcon= () => {
     return (
@@ -85,10 +91,14 @@ export default function Labels3D(){
   const getBody = () => {
 
     return (
+      <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
       <RTree 
       treeData={roots} 
         defaultExpandedIds = {expanded}
         onExpand={handleExpand}
+        onRowClick = {() => {}}
+        width = {300}
+        height = {containerHeight ? containerHeight - 5: 0}
         renderTreeToggle = {
           (icon,rowData) => {
             if (rowData.children && rowData.children.length === 0) {
@@ -130,6 +140,7 @@ export default function Labels3D(){
           )
         }}
       />  
+    </div>
     )
   }
 

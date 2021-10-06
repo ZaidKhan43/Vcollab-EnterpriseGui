@@ -11,23 +11,29 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 import {goBack,push} from 'connected-react-router/immutable';
 
 import RTree from '../../../shared/RsTreeTable';
-
+ 
 import AddIcon from "@material-ui/icons/Add";
 
 import { selectcolormapData, selectRootIds, expandNode, createColorMap } from '../../../../store/sideBar/colormapSlice';
 
-import TreeNode from '../../../shared/RsTreeTable/TreeNode';
+import TreeNodeWithoutCheckbox from '../../../shared/RsTreeTable/treeNodeWithoutCheckbox';
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
 import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
 import MuiGrid from '@material-ui/core/Grid';
 
 import { convertListToTree } from '../../../utils/tree';
 
+import { useRef } from 'react';
+import useContainer from '../../../../customHooks/useContainer';
+
 export default function List(){
 
   const treeDataRedux = useAppSelector(selectcolormapData);
   const treeRootIds = useAppSelector(selectRootIds);
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
+
+  const containerRef = useRef(null);
+  const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
 
   const classes = styles()
   const dispatch = useAppDispatch();  
@@ -59,10 +65,14 @@ export default function List(){
 
   const getBody = () => {
     return (
+      <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
       <RTree 
       treeData={roots} 
         defaultExpandedIds = {expanded}
         onExpand={handleExpand}
+        onRowClick = {() => {}}
+        width = {300}
+        height = {containerHeight ? containerHeight - 5: 0}
         renderTreeToggle = {
           (icon,rowData) => {
             if (rowData.children && rowData.children.length === 0) {
@@ -74,11 +84,11 @@ export default function List(){
         }
         treeNode = {(node) => {
           return (
-            <TreeNode 
+            <TreeNodeWithoutCheckbox 
               node={treeDataRedux[node.id]}
               onCheck={() => console.log("sa")}
             >
-            </TreeNode>
+            </TreeNodeWithoutCheckbox>
           )
         }}
         column1 = {(node) => {
@@ -104,6 +114,7 @@ export default function List(){
           )
         }}
       />  
+    </div>
     )
   }
 

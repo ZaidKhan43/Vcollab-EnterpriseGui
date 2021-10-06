@@ -15,11 +15,14 @@ import RTree from '../../../shared/RsTreeTable';
 
 import styles from './style'
 
-import TreeNode from '../../../shared/RsTreeTable/TreeNode';
+import TreeNodeWithoutCheckbox from '../../../shared/RsTreeTable/treeNodeWithoutCheckbox';
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
 import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
 
 import { convertListToTree } from '../../../utils/tree';
+
+import { useRef } from 'react';
+import useContainer from '../../../../customHooks/useContainer';
 
 export default function Variable(){
 
@@ -29,6 +32,8 @@ export default function Variable(){
   const treeRootIds = useAppSelector(selectVariableRootIds);
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
+  const containerRef = useRef(null);
+  const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
 
   const classes = styles();
   const onClickBackIcon = () =>{
@@ -55,10 +60,14 @@ export default function Variable(){
 
   const getBody = () => {
     return (
+      <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
       <RTree 
       treeData={roots} 
         defaultExpandedIds = {expanded}
         onExpand={handleExpand}
+        onRowClick = {() => {}}
+        width = {300}
+        height = {containerHeight ? containerHeight - 5: 0}
         renderTreeToggle = {
           (icon,rowData) => {
             if (rowData.children && rowData.children.length === 0) {
@@ -70,11 +79,11 @@ export default function Variable(){
         }
         treeNode = {(node) => {
           return (
-            <TreeNode 
+            <TreeNodeWithoutCheckbox 
               node={treeDataRedux[node.id]}
-              onCheck={() => console.log("sa")}
+              onCheck={() => console.log("sa")} 
             >
-            </TreeNode>
+            </TreeNodeWithoutCheckbox>
           )
         }}
         column1 = {(node) => {
@@ -86,7 +95,8 @@ export default function Variable(){
             </div>
           )
         }}
-      />  
+      /> 
+    </div> 
     )
   }
 
