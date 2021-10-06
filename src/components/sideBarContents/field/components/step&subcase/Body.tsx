@@ -2,7 +2,7 @@ import React from 'react'
 import TreeSearch from '../../shared/Tree'
 import AutoSizer from '../../../../shared/autoSize'
 import { useAppDispatch, useAppSelector } from '../../../../../store/storeHooks'
-import { selectSteps, setStepAndSubCaseNodeState,  } from '../../../../../store/sideBar/fieldSlice'
+import { selectSteps, expandStepsAndSubcase, setSelectStepsAndSubcase } from '../../../../../store/sideBar/fieldSlice'
 import { useState } from 'react'
 
 
@@ -11,7 +11,12 @@ function Body() {
     const steps = useAppSelector(selectSteps);
     
     const [searchText, setSearchText] = useState("");
-
+    const handleExpand = (toOpen:boolean,nodeId:string) => {
+        dispatch(expandStepsAndSubcase({toOpen,nodeId}));
+    }
+    const handleSelect = (rowData:any) => {
+        dispatch(setSelectStepsAndSubcase({nodeId:rowData.id,leafOnly:true}))
+    }
     return (
         <AutoSizer>
             {
@@ -20,13 +25,13 @@ function Body() {
                         <TreeSearch
                             data = {steps}
                             height = {size.height}
-                            rowKey = "id"
                             onChangeSearch = {(s:string,r:any) => {setSearchText(s);} }
-                            searchAttribKeys = {["name"]}
+                            searchAttribKeys = {["title"]}
                             searchText = {searchText}
                             width = {300}
-                            setNodeStateReducer = {setStepAndSubCaseNodeState}
                             searchPlaceholder = "Search Steps & Subcases"
+                            onExpand = {handleExpand}
+                            onRowClick = {handleSelect}
                         />
                     </div>   
             }

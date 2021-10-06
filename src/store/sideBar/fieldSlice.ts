@@ -150,14 +150,6 @@ const initialState : FieldState = {
                 state: {expanded:true,selected:false},
                 source: Source.SYSTEM,
                 children: []
-            },
-            "userDefined": {
-                id:"userDefined",
-                pid:"-1",
-                title: "User Defined",
-                state: {expanded:true,selected:false},
-                source: Source.SYSTEM,
-                children: []
             }
         },
         variablesRoot: ["0","1"],
@@ -405,7 +397,7 @@ export const addUserFieldState = createAsyncThunk(
                 title: "User Defined " + id,
                 children: [],
                 pid: "userDefined",
-                state: {expanded:false},
+                state: {expanded:true, selected:false},
                 source: Source.USER
             }
         switch (data.fieldType) {
@@ -430,17 +422,49 @@ export const fieldSlice = createSlice({
         incrementId: (state:FieldState) => {
             state.data.idGenerator+=1;
         },
-        expandVariable: (state:FieldState, action:PayloadAction<{toOpen:boolean,nodeId:string}>) => expandNodeReducer({data:state.data.variables, rootIds: state.data.variablesRoot},action),
-        selectVariable: (state:FieldState, action:PayloadAction<{leafOnly:boolean,nodeId:string}>) => selectNodeReducer({data:state.data.variables, rootIds: state.data.variablesRoot},action),
+        expandVariable: (state:FieldState, action:PayloadAction<{toOpen:boolean,nodeId:string}>) => {
+           return expandNodeReducer({data:state.data.variables, rootIds: state.data.variablesRoot},action)
+        },
+        setSelectVariable: (state:FieldState, action:PayloadAction<{leafOnly:boolean,nodeId:string}>) => {
+           return selectNodeReducer({data:state.data.variables, rootIds: state.data.variablesRoot},action)
+        },
         addUserVariable: (state:FieldState, action:PayloadAction<{userVariable:Variable}>) => {
+            if(state.data.variables["userDefined"] === undefined) {
+                state.data.variables["userDefined"] = {
+                    id:"userDefined",
+                    pid:"-1",
+                    title: "User Defined",
+                    state: {expanded:true,selected:false},
+                    source: Source.SYSTEM,
+                    children: []
+                }
+            }
             let user = action.payload.userVariable;
             state.data.variables["userDefined"].children.push(user.id);
             state.data.variables[user.id] = user
+            
         },
-
-        setDerivedNodeState: (state:FieldState, action:PayloadAction<{nodeId:string, nodeState: ITreeNodeState}>) => {
-            let {nodeId,nodeState} = action.payload;
-            state.data.derivedTypes[nodeId].state = {...nodeState};              
+        removeUserVariable: (state:FieldState, action:PayloadAction<{nodeId:string}>) => {
+            let id = action.payload.nodeId;
+            let curNode = state.data.variables[id];
+            let parent = state.data.variables[curNode.pid || ""];
+            delete state.data.variables[id];
+            if(parent)
+            {
+                let index = state.data.variables[parent.id].children.findIndex(e => e === id);
+                if(index > -1)
+                    state.data.variables[parent.id].children.splice(index,1);
+                if(parent.children.length === 0)
+                delete state.data.variables[parent.id];
+            }
+            
+            
+        },
+        expandDerivedTypes: (state:FieldState, action:PayloadAction<{toOpen:boolean,nodeId:string}>) => {
+           return expandNodeReducer({data:state.data.derivedTypes, rootIds: state.data.derivedTypesRoot},action)
+        },
+        setSelectDerivedTypes: (state:FieldState, action:PayloadAction<{leafOnly:boolean,nodeId:string}>) => {
+            return selectNodeReducer({data:state.data.derivedTypes, rootIds: state.data.derivedTypesRoot},action)
         },
 
         addUserDerivedType: (state:FieldState, action:PayloadAction<{userDerived:DerivedType}>) => {
@@ -448,16 +472,22 @@ export const fieldSlice = createSlice({
             state.data.derivedTypes["userDefined"].children.push(user.id);
             state.data.derivedTypes[user.id] = user
         },
+        removeUserDerivedType: (state:FieldState, action:PayloadAction<{nodeId:string}>) => {
 
-        setStepAndSubCaseNodeState: (state:FieldState, action:PayloadAction<{nodeId:string, nodeState: ITreeNodeState}>) => {
-            let {nodeId,nodeState} = action.payload;
-            state.data.stepsAndSubCases[nodeId].state = {...nodeState};              
         },
-
+        expandStepsAndSubcase: (state:FieldState, action:PayloadAction<{toOpen:boolean,nodeId:string}>) => {
+            return expandNodeReducer({data:state.data.stepsAndSubCases, rootIds: state.data.stepsAndSubCasesRoot},action)
+         },
+        setSelectStepsAndSubcase: (state:FieldState, action:PayloadAction<{leafOnly:boolean,nodeId:string}>) => {
+            return selectNodeReducer({data:state.data.stepsAndSubCases, rootIds: state.data.stepsAndSubCasesRoot},action)
+        },
         addUserStepsAndSubcase: (state:FieldState, action:PayloadAction<{userStepAndSubcase:Step}>) => {
             let user = action.payload.userStepAndSubcase;
             state.data.stepsAndSubCases["userDefined"].children.push(user.id);
             state.data.stepsAndSubCases[user.id] = user
+        },
+        removeUserStepsAndSubcase: (state:FieldState, action:PayloadAction<{nodeId:string}>) => {
+
         },
     },
     extraReducers: builder => {
@@ -473,12 +503,19 @@ export const fieldSlice = createSlice({
 })
 export const {
     expandVariable, 
-    selectVariable,
+    setSelectVariable,
     addUserVariable, 
-    setStepAndSubCaseNodeState,
+    removeUserVariable,
+    
+    expandStepsAndSubcase,
+    setSelectStepsAndSubcase,
     addUserStepsAndSubcase,
-    setDerivedNodeState, 
-    addUserDerivedType
+    removeUserStepsAndSubcase,
+
+    expandDerivedTypes,
+    setSelectDerivedTypes,
+    addUserDerivedType,
+    removeUserDerivedType
 } = fieldSlice.actions;
 // selectors
 export const selectVariables = (root:RootState) => (root.field.data.variables)

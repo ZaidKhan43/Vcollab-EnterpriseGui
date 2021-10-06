@@ -2,7 +2,7 @@ import React from 'react'
 import TreeSearch from '../../shared/Tree'
 import AutoSizer from '../../../../shared/autoSize'
 import { useAppDispatch, useAppSelector } from '../../../../../store/storeHooks'
-import { selectVariables, expandVariable, selectVariable } from '../../../../../store/sideBar/fieldSlice'
+import { selectVariables, expandVariable, setSelectVariable } from '../../../../../store/sideBar/fieldSlice'
 import { useState } from 'react'
 
 
@@ -15,7 +15,7 @@ function Body() {
         dispatch(expandVariable({toOpen,nodeId}));
     }
     const handleSelect = (rowData:any) => {
-        dispatch(selectVariable({nodeId:rowData.id,leafOnly:true}))
+        dispatch(setSelectVariable({nodeId:rowData.id,leafOnly:true}))
     }
     return (
         <AutoSizer>

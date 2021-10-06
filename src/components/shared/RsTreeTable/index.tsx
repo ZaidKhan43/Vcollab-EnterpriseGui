@@ -61,7 +61,7 @@ export interface ITreeTableProps {
   treeData: ITreeNode[],
   selectable?: boolean,
   hover?:boolean,
-  defaultExpandedIds: string[],
+  expandedRowIds: string[],
   width: number,
   height: number,
   renderTreeToggle: (icon:any, rowData:any) => any,
@@ -79,7 +79,7 @@ function RTree(props:ITreeTableProps) {
          
           <Table
             isTree
-            defaultExpandedRowKeys = {props.defaultExpandedIds}
+            expandedRowKeys = {props.expandedRowIds}
             rowKey="id"
             rowHeight = {(rowData:any) => 40}
             onRowClick = {props.onRowClick}

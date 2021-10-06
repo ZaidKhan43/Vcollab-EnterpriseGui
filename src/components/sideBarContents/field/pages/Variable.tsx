@@ -9,7 +9,7 @@ import Footer from '../shared/Footer';
 import Back from '../shared/BackIcon';
 import Add from '../shared/Add';
 import Select from '../shared/SelectModel';
-import { addUserFieldState, FieldType, selectVariables, Source } from '../../../../store/sideBar/fieldSlice';
+import { addUserFieldState, FieldType, removeUserVariable, selectVariables, Source } from '../../../../store/sideBar/fieldSlice';
 import FieldEdit from './FieldEdit'
 import { useState, useEffect } from 'react';
 
@@ -66,7 +66,9 @@ function Variable() {
     }
 
     const handleDelete = () => {
-
+        if (selected.length === 1 && selected[0].source === Source.USER ) {
+            dispatch(removeUserVariable({nodeId:selected[0].id}));
+        }
     }
     return (
         isEdit ?

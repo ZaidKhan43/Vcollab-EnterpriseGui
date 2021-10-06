@@ -29,8 +29,8 @@ function Tree(props:SharedTreeProps) {
                     if (rowData.children && rowData.children.length === 0) {
                     return null;
                     }
-                    let state = props.data[rowData.id].state;
-                    return state.expanded? <TreeExpandedIcon viewBox="0 -7 24 24"/>:<TreeCollapseIcon viewBox="0 -7 24 24"/>
+                    let state = props.data[rowData.id]?.state;
+                    return state && state.expanded? <TreeExpandedIcon viewBox="0 -7 24 24"/>:<TreeCollapseIcon viewBox="0 -7 24 24"/>
                 }
         }
             

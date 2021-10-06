@@ -2,14 +2,19 @@ import React from 'react'
 import TreeSearch from '../../shared/Tree'
 import AutoSizer from '../../../../shared/autoSize'
 import { useAppDispatch, useAppSelector } from '../../../../../store/storeHooks'
-import { selectDerivedTypes, setDerivedNodeState,  } from '../../../../../store/sideBar/fieldSlice'
+import { selectDerivedTypes, expandDerivedTypes, setSelectDerivedTypes } from '../../../../../store/sideBar/fieldSlice'
 import { useState } from 'react'
 
 
 function Body() {
     const dispatch = useAppDispatch();
     const derived = useAppSelector(selectDerivedTypes);
-    
+    const handleExpand = (toOpen:boolean,nodeId:string) => {
+        dispatch(expandDerivedTypes({toOpen,nodeId}));
+    }
+    const handleSelect = (rowData:any) => {
+        dispatch(setSelectDerivedTypes({nodeId:rowData.id,leafOnly:true}))
+    }
     const [searchText, setSearchText] = useState("");
 
     return (
@@ -20,13 +25,13 @@ function Body() {
                         <TreeSearch
                             data = {derived}
                             height = {size.height}
-                            rowKey = "id"
-                            onChangeSearch = {(s:string,r:any) => {setSearchText(s);console.log("r",r)} }
-                            searchAttribKeys = {["name"]}
+                            onChangeSearch = {(s:string,r:any) => {setSearchText(s);} }
+                            searchAttribKeys = {["title"]}
                             searchText = {searchText}
                             width = {300}
-                            setNodeStateReducer = {setDerivedNodeState}
-                            searchPlaceholder = "Search DerivedTypes"
+                            searchPlaceholder = "Search Derived Types"
+                            onExpand = {handleExpand}
+                            onRowClick = {handleSelect}
                         />
                     </div>   
             }
