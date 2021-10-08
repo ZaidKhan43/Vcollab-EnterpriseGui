@@ -29,7 +29,8 @@ import MuiListItemText from '@material-ui/core/ListItemText';
 
 export default function Edit(){
 
-  const [activeId, setActiveId] = useState("2");  
+  const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
+  const [activeId, setActiveId] = useState(selectedColorMapId);  
 
   const list = useAppSelector(colormapElements)
 
@@ -159,7 +160,7 @@ export default function Edit(){
           <SideBarContainer
             headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ <Title text={"Edit" } group="Color Maps"/> }
-            headerAction = {getAction()}
+            headerAction = {getAction()} 
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }
             footer = { getFooter() }

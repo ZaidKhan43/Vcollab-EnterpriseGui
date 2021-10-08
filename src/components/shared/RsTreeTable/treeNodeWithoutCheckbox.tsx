@@ -19,7 +19,7 @@ function TreeNodeWithoutCheckbox(props:ITreeNodeProps) {
             <Grid item>
             <Typography 
                 style={{verticalAlign:'middle'}}
-                component="span" className={node.state.highlighted ? classes.hightlight : ""}
+                component="span" className={node.state.highlighted ? classes.hightlight : ""}                
             >
                     {node.title}
             </Typography>

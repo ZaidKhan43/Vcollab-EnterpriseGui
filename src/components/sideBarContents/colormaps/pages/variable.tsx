@@ -9,7 +9,10 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import {goBack,push} from 'connected-react-router/immutable';
 
-import {selectVariableData, selectVariableRootIds, expandVariableNode} from '../../../../store/sideBar/colormapSlice';
+import {selectVariableData, selectVariableRootIds, expandVariableNode, colormapElements} from '../../../../store/sideBar/colormapSlice';
+
+import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
+import MuiMenuItem from '@material-ui/core/MenuItem';
 
 import RTree from '../../../shared/RsTreeTable';
 
@@ -21,9 +24,9 @@ import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
 
 import { convertListToTree } from '../../../utils/tree';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
-
+ 
 export default function Variable(){
 
   const dispatch = useAppDispatch();  
@@ -35,6 +38,10 @@ export default function Variable(){
   const containerRef = useRef(null);
   const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
 
+  const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
+  const [activeColormapId, setActiveColormapId] = useState(selectedColorMapId); 
+  const list = useAppSelector(colormapElements)
+
   const classes = styles();
   const onClickBackIcon = () =>{
     dispatch(goBack());
@@ -43,12 +50,39 @@ export default function Variable(){
   const handleExpand = (toOpen:boolean,nodeId:string) => {
     dispatch(expandVariableNode({toOpen,nodeId}))
   }
-  
 
+  const onHandleSelect = (id : string) => {
+    setActiveColormapId(id)
+  }
+  
   const getHeaderLeftIcon= () => {
     return (
      <MuiIconButton  onClick={() => onClickBackIcon()}><BackButton/></MuiIconButton> 
     );
+  }
+
+  const getAction = () => {
+    return(
+      <SelectAction
+      labelId="display-modes-selection-label-id"
+      id="display-modes-selection-id"
+      value={activeColormapId}
+      onChange={(e : any) => onHandleSelect(e.target.value)}
+      MenuProps={{
+        disablePortal: true,
+        anchorOrigin: {
+          vertical:"bottom",
+          horizontal:"left",
+       },
+       getContentAnchorEl: null
+      }}
+      >
+        {
+            list.map((item : any) => 
+              <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
+          )}
+      </SelectAction>
+    )
   }
 
   const getHeaderRightIcon = () => {
@@ -68,6 +102,8 @@ export default function Variable(){
         onRowClick = {() => {}}
         width = {300}
         height = {containerHeight ? containerHeight - 5: 0}
+        hover={true}
+        selected = {"8"}
         renderTreeToggle = {
           (icon,rowData) => {
             if (rowData.children && rowData.children.length === 0) {
@@ -113,6 +149,7 @@ export default function Variable(){
           <SideBarContainer
             headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ <Title text={"Variable" } group="Color Maps"/> }
+            headerAction = {getAction()}
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }
             footer = { getFooter() }
