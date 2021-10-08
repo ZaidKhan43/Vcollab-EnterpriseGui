@@ -2,7 +2,7 @@ import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@r
 import { getDisplayResult } from '../../backend/viewerAPIProxy';
 import type { RootState } from '../index';
 import {ITreeNode, ITreeNodeState} from '../../components/shared/RsTreeWithSearch';
-import { expandNodeReducer, selectNodeReducer } from './shared/ProductExplorer/reducers';
+import { expandNodeReducer, selectNodeReducer, addNodeReducer, deleteNodeReducer } from './shared/ProductExplorer/reducers';
 
 type FieldState = {
     data: FieldData
@@ -265,15 +265,7 @@ const initialState : FieldState = {
                 pid: "2",
                 source: Source.SYSTEM,
                 state: {expanded:true,selected:false},
-            },
-            "userDefined" : {
-                id:"userDefined",
-                title: "User Defined",
-                children: [],
-                pid:"-1",
-                source: Source.USER,
-                state: {expanded:true,selected:false},
-            } 
+            }
         },
         stepsAndSubCasesRoot: ["0"],
         derivedTypes: {
@@ -372,14 +364,6 @@ const initialState : FieldState = {
                     state: {expanded:true,selected:false},
                     source: Source.SYSTEM,
                     children: []
-                },
-                "userDefined": {
-                    id:"userDefined",
-                    pid:"-1",
-                    title: "User Defined",
-                    state: {expanded:true,selected:false},
-                    source: Source.SYSTEM,
-                    children: []
                 }
         },
         derivedTypesRoot: ["0"]
@@ -428,37 +412,39 @@ export const fieldSlice = createSlice({
         setSelectVariable: (state:FieldState, action:PayloadAction<{leafOnly:boolean,nodeId:string}>) => {
            return selectNodeReducer({data:state.data.variables, rootIds: state.data.variablesRoot},action)
         },
+        
         addUserVariable: (state:FieldState, action:PayloadAction<{userVariable:Variable}>) => {
+
             if(state.data.variables["userDefined"] === undefined) {
-                state.data.variables["userDefined"] = {
-                    id:"userDefined",
-                    pid:"-1",
-                    title: "User Defined",
-                    state: {expanded:true,selected:false},
-                    source: Source.SYSTEM,
-                    children: []
-                }
+                addNodeReducer({data:state.data.variables,rootIds:state.data.variablesRoot},
+                    {payload:
+                        <ITreeNode>{
+                            id:"userDefined",
+                            pid:"-1",
+                            title: "User Defined",
+                            state: {expanded:true,selected:false},
+                            source: Source.SYSTEM,
+                            children: []
+                        },
+                        type: "fieldSlice/addUserVariable"
+                    }
+                    ) 
             }
-            let user = action.payload.userVariable;
-            state.data.variables["userDefined"].children.push(user.id);
-            state.data.variables[user.id] = user
+            
+            addNodeReducer({data:state.data.variables,rootIds:state.data.variablesRoot},
+                {payload: action.payload.userVariable,
+                    type: "fieldSlice/addUserVariable"
+                })
+            
             
         },
         removeUserVariable: (state:FieldState, action:PayloadAction<{nodeId:string}>) => {
-            let id = action.payload.nodeId;
-            let curNode = state.data.variables[id];
-            let parent = state.data.variables[curNode.pid || ""];
-            delete state.data.variables[id];
-            if(parent)
-            {
-                let index = state.data.variables[parent.id].children.findIndex(e => e === id);
-                if(index > -1)
-                    state.data.variables[parent.id].children.splice(index,1);
-                if(parent.children.length === 0)
-                delete state.data.variables[parent.id];
-            }
-            
-            
+            deleteNodeReducer({
+                data:state.data.variables,
+                rootIds:state.data.variablesRoot
+            },
+            action
+            );    
         },
         expandDerivedTypes: (state:FieldState, action:PayloadAction<{toOpen:boolean,nodeId:string}>) => {
            return expandNodeReducer({data:state.data.derivedTypes, rootIds: state.data.derivedTypesRoot},action)
@@ -468,12 +454,34 @@ export const fieldSlice = createSlice({
         },
 
         addUserDerivedType: (state:FieldState, action:PayloadAction<{userDerived:DerivedType}>) => {
-            let user = action.payload.userDerived;
-            state.data.derivedTypes["userDefined"].children.push(user.id);
-            state.data.derivedTypes[user.id] = user
+            if(state.data.derivedTypes["userDefined"] === undefined) {
+                addNodeReducer({data:state.data.derivedTypes,rootIds:state.data.derivedTypesRoot},
+                    {payload:
+                        <ITreeNode>{
+                            id:"userDefined",
+                            pid:"-1",
+                            title: "User Defined",
+                            state: {expanded:true,selected:false},
+                            source: Source.SYSTEM,
+                            children: []
+                        },
+                        type: "fieldSlice/addUserDerivedType"
+                    }
+                    ) 
+            }
+            
+            addNodeReducer({data:state.data.derivedTypes,rootIds:state.data.derivedTypesRoot},
+                {payload: action.payload.userDerived,
+                    type: "fieldSlice/addUserDerivedType"
+                })
         },
         removeUserDerivedType: (state:FieldState, action:PayloadAction<{nodeId:string}>) => {
-
+            deleteNodeReducer({
+                data:state.data.derivedTypes,
+                rootIds:state.data.derivedTypesRoot
+            },
+            action
+            );    
         },
         expandStepsAndSubcase: (state:FieldState, action:PayloadAction<{toOpen:boolean,nodeId:string}>) => {
             return expandNodeReducer({data:state.data.stepsAndSubCases, rootIds: state.data.stepsAndSubCasesRoot},action)
@@ -482,12 +490,34 @@ export const fieldSlice = createSlice({
             return selectNodeReducer({data:state.data.stepsAndSubCases, rootIds: state.data.stepsAndSubCasesRoot},action)
         },
         addUserStepsAndSubcase: (state:FieldState, action:PayloadAction<{userStepAndSubcase:Step}>) => {
-            let user = action.payload.userStepAndSubcase;
-            state.data.stepsAndSubCases["userDefined"].children.push(user.id);
-            state.data.stepsAndSubCases[user.id] = user
+            if(state.data.stepsAndSubCases["userDefined"] === undefined) {
+                addNodeReducer({data:state.data.stepsAndSubCases,rootIds:state.data.stepsAndSubCasesRoot},
+                    {payload:
+                        <ITreeNode>{
+                            id:"userDefined",
+                            pid:"-1",
+                            title: "User Defined",
+                            state: {expanded:true,selected:false},
+                            source: Source.SYSTEM,
+                            children: []
+                        },
+                        type: "fieldSlice/addUserStepsAndSubcase"
+                    }
+                    ) 
+            }
+            
+            addNodeReducer({data:state.data.stepsAndSubCases,rootIds:state.data.stepsAndSubCasesRoot},
+                {payload: action.payload.userStepAndSubcase,
+                    type: "fieldSlice/addUserStepsAndSubcase"
+                })
         },
         removeUserStepsAndSubcase: (state:FieldState, action:PayloadAction<{nodeId:string}>) => {
-
+            deleteNodeReducer({
+                data:state.data.stepsAndSubCases,
+                rootIds:state.data.stepsAndSubCasesRoot
+            },
+            action
+            );    
         },
     },
     extraReducers: builder => {
