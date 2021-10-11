@@ -40,7 +40,7 @@ export default function Variable(){
 
   const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
   const [activeColormapId, setActiveColormapId] = useState(selectedColorMapId); 
-  const list = useAppSelector(colormapElements)
+  const colormapNameList = useAppSelector(colormapElements)
 
   const classes = styles();
   const onClickBackIcon = () =>{
@@ -78,7 +78,7 @@ export default function Variable(){
       }}
       >
         {
-            list.map((item : any) => 
+            colormapNameList.map((item : any) => 
               <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
           )}
       </SelectAction>
@@ -103,7 +103,7 @@ export default function Variable(){
         width = {300}
         height = {containerHeight ? containerHeight - 5: 0}
         hover={true}
-        selected = {"8"}
+        selected = {"5"}
         renderTreeToggle = {
           (icon,rowData) => {
             if (rowData.children && rowData.children.length === 0) {

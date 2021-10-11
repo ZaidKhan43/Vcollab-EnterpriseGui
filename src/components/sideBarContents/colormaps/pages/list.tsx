@@ -14,7 +14,7 @@ import RTree from '../../../shared/RsTreeTable';
  
 import AddIcon from "@material-ui/icons/Add";
 
-import { selectcolormapData, selectRootIds, expandNode, createColorMap, handleColorMapSelection } from '../../../../store/sideBar/colormapSlice';
+import { selectcolormapData, selectColormapRootIds, expandNode, createColorMap, handleColorMapSelection } from '../../../../store/sideBar/colormapSlice';
 
 import TreeNodeWithoutCheckbox from '../../../shared/RsTreeTable/treeNodeWithoutCheckbox';
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
@@ -31,7 +31,7 @@ import { useState } from 'react';
 export default function List(){
 
   const treeDataRedux = useAppSelector(selectcolormapData);
-  const treeRootIds = useAppSelector(selectRootIds);
+  const treeRootIds = useAppSelector(selectColormapRootIds);
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
   const containerRef = useRef(null);
