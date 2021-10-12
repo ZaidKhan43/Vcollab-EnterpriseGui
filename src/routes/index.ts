@@ -47,6 +47,7 @@ export enum Routes {
     COLORMAPS_SELECTION_AND_LAYER = "/colormaps/selection_and_layer",
     COLORMAPS_DERIVED_TYPES = "/colormaps/derived_types",
     COLORMAPS_COLOR_PALETTE = "/colormaps/color_palette",
+    COLORMAPS_COLOR_PALETTE_EDIT = "/colormaps/colorPalette_edit",
     COLORMAPS_VALUE_SETTINGS = "/colormaps/value_settings",
     COLORMAPS_LEGEND_SETTINGS = "/colormaps/legend_settings",
 }

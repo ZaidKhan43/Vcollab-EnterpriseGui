@@ -467,7 +467,7 @@ export const colormapSlice = createSlice({
                 state.colormapTree.data[`${id}`] =newNote;
                 state.colormapTree.data[`${action.payload}`].children.push(newNote.id)
                 // Object.keys(state.data).find(key => state.data[key] === `${action.payload}`)
-                saveTreeReducer(state.colormapTree,{payload:{tree: state.colormapTree.data, rootIds: state.colormapTree.rootIds},type:"label3D/addNode"})
+                saveTreeReducer(state.colormapTree,{payload:{tree: state.colormapTree.data, rootIds: state.colormapTree.rootIds},type:"colormap/addColormap"})
         },
 
         handleColorMapSelection: (state, action: PayloadAction<string>) => {
@@ -493,7 +493,7 @@ export const colormapSlice = createSlice({
             state.colorPaletteTree.data[`${state.colorPaletteSettings.idGenerator}`] = newPalette;
             state.colorPaletteTree.data["1"].children.push(newPalette.id)
 
-            saveTreeReducer(state.colorPaletteTree,{payload:{tree: state.colorPaletteTree.data, rootIds: state.colorPaletteTree.rootIds},type:"label3D/addPalette"})
+            saveTreeReducer(state.colorPaletteTree,{payload:{tree: state.colorPaletteTree.data, rootIds: state.colorPaletteTree.rootIds},type:"colormap/addColorPalette"})
         },
 
         setSelectedColorPalette : (state , action : PayloadAction<string>) => {
@@ -514,6 +514,21 @@ export const colormapSlice = createSlice({
                     Object.keys(state.colorPaletteTree.data).forEach(key => {
                         state.colorPaletteTree.data[key].children = state.colorPaletteTree.data[key].children.filter(item => item !== action.payload)
                     })
+        },
+
+        pasteColorPalette : (state, action: PayloadAction<string>) => {
+            let copiedColorPaletteData = JSON.parse(JSON.stringify(state.colorPaletteTree.data[action.payload]));
+            state.colorPaletteSettings.idGenerator += 1;
+            state.colorPaletteSettings.counter += 1;
+
+            copiedColorPaletteData.id = state.colorPaletteSettings.idGenerator;
+            copiedColorPaletteData.title = `User defined ${state.colorPaletteSettings.counter}`;
+            copiedColorPaletteData.pid = "1";
+
+            state.colorPaletteTree.data[`${state.colorPaletteSettings.idGenerator}`] = copiedColorPaletteData;
+            state.colorPaletteTree.data["1"].children.push(copiedColorPaletteData.id)
+
+            
         },
         // expandVariableNode :(state,action) => {
 
@@ -549,7 +564,7 @@ export const colormapSlice = createSlice({
 })
 
 export default colormapSlice.reducer;
-export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, expandVariableNode, handleColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette} = colormapSlice.actions;
+export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, expandVariableNode, handleColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette} = colormapSlice.actions;
 
 //Selectors
 

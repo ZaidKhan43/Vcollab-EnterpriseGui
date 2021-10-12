@@ -9,6 +9,7 @@ import StepsAndSubcase from './pages/stepsAndSubcase';
 import SectionAndLayer from './pages/sectionAndLayer';
 import DerivedType from './pages/derivedType';
 import ColorPalette from './pages/colorPalette';
+import ColorPalleteEdit from './pages/colorPaletteEdit';
 import ValueSettings from './pages/valueSettings';
 import LegendSettings from './pages/legendSettings';
 
@@ -36,6 +37,9 @@ function Colormaps() {
             </Route>
             <Route path={Routes.COLORMAPS_COLOR_PALETTE}>
                 <ColorPalette/>
+            </Route>
+            <Route path={Routes.COLORMAPS_COLOR_PALETTE_EDIT}>
+                <ColorPalleteEdit/>
             </Route>
             <Route path={Routes.COLORMAPS_VALUE_SETTINGS}>
                 <ValueSettings/>
