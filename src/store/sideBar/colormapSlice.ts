@@ -96,7 +96,7 @@ interface InitialState {
     colorPaletteSettings : ColorPaletteSettings,
 
     selectedColorMapId : string,
-    // selectedVariable : string,
+    selectedColorPaletteId : string,
 }
 
 const initialState : InitialState = {
@@ -428,7 +428,7 @@ const initialState : InitialState = {
     },
     selectedColorMapId: "2",
 
-
+    selectedColorPaletteId: "-1",
 }
 
 
@@ -496,10 +496,25 @@ export const colormapSlice = createSlice({
             saveTreeReducer(state.colorPaletteTree,{payload:{tree: state.colorPaletteTree.data, rootIds: state.colorPaletteTree.rootIds},type:"label3D/addPalette"})
         },
 
+        setSelectedColorPalette : (state , action : PayloadAction<string>) => {
+            if(state.selectedColorPaletteId === action.payload)
+                state.selectedColorPaletteId = "-1";
+            else
+                state.selectedColorPaletteId = action.payload;
+        },
+
         setColorPalette : (state , action : PayloadAction<{colorMapId :string, colorPaletteId : string}>) => {
-            if(state.colorPaletteTree.data[action.payload.colorPaletteId].pid !== "-1")
-                state.colormapTree.data[action.payload.colorMapId].colorPalette = action.payload.colorPaletteId;
-        }
+            state.colormapTree.data[action.payload.colorMapId].colorPalette = action.payload.colorPaletteId;
+        },
+
+        deleteColorPalette : (state, action : PayloadAction<string>) => {
+
+                    state.selectedColorPaletteId = "-1";
+                    delete state.colorPaletteTree.data[action.payload];
+                    Object.keys(state.colorPaletteTree.data).forEach(key => {
+                        state.colorPaletteTree.data[key].children = state.colorPaletteTree.data[key].children.filter(item => item !== action.payload)
+                    })
+        },
         // expandVariableNode :(state,action) => {
 
         // }
@@ -534,7 +549,7 @@ export const colormapSlice = createSlice({
 })
 
 export default colormapSlice.reducer;
-export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, expandVariableNode, handleColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette} = colormapSlice.actions;
+export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, expandVariableNode, handleColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette} = colormapSlice.actions;
 
 //Selectors
 
@@ -547,6 +562,8 @@ export const selectColorPaletteRootIds = (state:RootState) => state.colormap.col
 
 export const selectVariableData = (state: RootState) => state.colormap.variableTree.data;
 export const selectVariableRootIds = (state : RootState) => state.colormap.variableTree.rootIds;
+
+export const selectedColorPaletteId = (state : RootState) => state.colormap.selectedColorPaletteId;
 
 export const colormapElements = (state:RootState) => {
     let array : any[] = [];

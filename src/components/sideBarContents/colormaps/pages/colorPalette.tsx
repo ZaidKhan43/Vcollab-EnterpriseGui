@@ -6,7 +6,7 @@ import BackButton from '../../../icons/back';
 
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
 import MuiMenuItem from '@material-ui/core/MenuItem';
-import { colormapElements, selectColorPaletteData, selectColorPaletteRootIds, expandColorPaletteNode, createPalette, setColorPalette , selectcolormapData} from '../../../../store/sideBar/colormapSlice';
+import { colormapElements, selectColorPaletteData, selectColorPaletteRootIds, expandColorPaletteNode, createPalette, setColorPalette , selectcolormapData, selectedColorPaletteId, setSelectedColorPalette, deleteColorPalette} from '../../../../store/sideBar/colormapSlice';
 
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
@@ -26,6 +26,17 @@ import MuiGrid from '@material-ui/core/Grid';
 import { useRef } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
 
+import MuiEditIcon from '@material-ui/icons/EditOutlined';
+import MuiFileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
+import MuiPaste from '@material-ui/icons/AssignmentOutlined';
+import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
+import MuiVisibilityIcon from '@material-ui/icons/Visibility';
+import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
+import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
+import MuiButton from '@material-ui/core/Button';
+import MuiTypography from '@material-ui/core/Typography';
+import MuiCheckIcon from '@material-ui/icons/Check';
+
 export default function ColorPalette(){
 
   const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
@@ -33,7 +44,9 @@ export default function ColorPalette(){
   const colormapNamelist = useAppSelector(colormapElements)
   
   const [activeColormapId, setActiveColormapId] = useState(selectedColorMapId); 
-  const selectedColorPalette = colormapsData[activeColormapId].colorPalette;
+  const appliedColorPalette = colormapsData[activeColormapId].colorPalette;
+
+  const selectedColorPalette = useAppSelector(selectedColorPaletteId);
  
 
   const treeDataRedux = useAppSelector(selectColorPaletteData);
@@ -42,6 +55,8 @@ export default function ColorPalette(){
 
   const containerRef = useRef(null);
   const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
+
+  const [openDelete, setOpenDelete] = useState(false);
 
   const dispatch = useAppDispatch();  
   const onClickBackIcon = () =>{
@@ -61,7 +76,24 @@ export default function ColorPalette(){
   }
 
   const handlePaletteClick = (node :any) => {
-    dispatch(setColorPalette({colorMapId :activeColormapId, colorPaletteId : node.id}))
+    if(treeDataRedux[node.id].pid !== "-1")
+      dispatch(setSelectedColorPalette(node.id))
+    setOpenDelete(false)
+  }
+  
+  const onHandleApply = () => {
+    if(treeDataRedux[selectedColorPalette].pid !== "-1")
+      dispatch(setColorPalette({colorMapId :activeColormapId, colorPaletteId : selectedColorPalette}))
+  }
+
+  const onHandleDeleteButton = () => {
+    setOpenDelete(true);
+  }
+
+  const onHandleDelete = () => {
+    if(treeDataRedux[selectedColorPalette].pid !== "-1" && treeDataRedux[selectedColorPalette].pid !== "0")
+      dispatch(deleteColorPalette(selectedColorPalette));
+    setOpenDelete(false);
   }
   
   const getHeaderLeftIcon= () => {
@@ -132,7 +164,18 @@ export default function ColorPalette(){
           )
         }}
         column1 = {(node) => {
-          return (<div></div>)
+          return (
+            <div>
+              { appliedColorPalette === node.id
+                ?
+                  <div style={{marginTop:"10px"}}>
+                    <MuiCheckIcon fontSize='small'/>
+                  </div>
+                :
+                  null
+              }
+            </div>
+          )
         }}
         column2 = {(node) => {
           return (
@@ -162,6 +205,7 @@ export default function ColorPalette(){
             </div>
           )
         }}
+        
       />  
     </div>
     )
@@ -171,9 +215,93 @@ export default function ColorPalette(){
   const getFooter = () => {
 
     return(
-        <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
+      <div>
+          {
+              !openDelete
+              ?
+                  <div>
+                  {selectedColorPalette !== "-1" && selectedColorPalette !== appliedColorPalette 
+                  ?
+                  <div style={{marginTop:"20px", marginBottom:"20px"}}>
+                      <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+                          autoFocus 
+                          onClick={onHandleApply} 
+                          // color="primary"
+                      >
+                          Apply
+                      </MuiButton>
+                  </div>
+                  :
+                   null
+                      }   
+
+                          {
+                              
+                              <OptionContainer>
+
+                                      <Option label="Edit" icon={<MuiIconButton 
+                                          disabled={selectedColorPalette === "-1" || treeDataRedux[selectedColorPalette].pid === "0"}
+                                          //  onClick={() => onHandleEdit()}
+                                      >
+                                          <MuiEditIcon/>
+                                          </MuiIconButton>} 
+                                      />
+
+                                  
+                                  
+                                  <Option label="Copy" icon={ <MuiIconButton 
+                                      disabled={appliedColorPalette ? true : false}
+                                      //  onClick={() => onHandleCopy()}
+                                  > 
+                                      <MuiFileCopyOutlinedIcon/>
+                                      </MuiIconButton>}
+                                  />
+                                  <Option label="Paste" icon={ <MuiIconButton 
+                                      disabled={appliedColorPalette ? true : false} 
+                                      // onClick={() => onHandlePaste()}
+                                  > 
+                                      <MuiPaste/>
+                                      </MuiIconButton>}
+                                  />
+                                  <Option label="Delete" icon={ <MuiIconButton 
+                                      disabled={selectedColorPalette === "-1" || treeDataRedux[selectedColorPalette].pid === "0" || selectedColorPalette === appliedColorPalette}
+                                      onClick={onHandleDeleteButton}
+                                  > 
+                                      <MuiDeleteForeverOutlinedIcon/>
+                                      </MuiIconButton>}
+                                  />
+                                  
+                              </OptionContainer>
+                          }
+              </div>
+              :
+              <div>
+                 <div style={{marginBottom:"5px", marginTop:"5px"}}>
+          <MuiTypography style={{marginBottom:"5px", fontSize:"14px"}}>
+              Are you sure want to delete the selected Color Palette?
+          </MuiTypography>
+          <div style={{alignContent:"center",}}>
+            <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+              autoFocus 
+              onClick={onHandleDelete} 
+              // color="primary"
+            >
+              Confirm
+            </MuiButton>
+          <MuiButton style={{width:"20%", fontSize:"9px"}}
+            onClick={() => setOpenDelete(false)} 
+            // color="primary"
+          >
+            Cancel
+        </MuiButton>
       </div>
-    ) 
+    </div>
+              </div>
+
+          }
+          
+</div>
+  )
   }
 
   return (
