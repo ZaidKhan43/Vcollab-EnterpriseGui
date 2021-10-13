@@ -227,93 +227,90 @@ export default function ColorPalette(){
 
     return(
       <div>
-          {
-              !openDelete
-              ?
-                  <div>
-                  {selectedColorPalette !== "-1" && selectedColorPalette !== appliedColorPalette 
-                  ?
+        { !openDelete
+          ?
+            <div>
+              { selectedColorPalette !== "-1" && selectedColorPalette !== appliedColorPalette 
+                ?
                   <div style={{marginTop:"20px", marginBottom:"20px"}}>
-                      <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
-                          autoFocus 
-                          onClick={onHandleApply} 
-                          // color="primary"
-                      >
-                          Apply
-                      </MuiButton>
+                    <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+                      autoFocus 
+                      onClick={onHandleApply} 
+                      // color="primary"
+                    >
+                      Apply
+                    </MuiButton>
                   </div>
-                  :
+                :
                    null
-                      }   
-
-                          {
+              }                                 
                               
-                              <OptionContainer>
-
-                                      <Option label="Edit" icon={<MuiIconButton 
-                                          disabled={selectedColorPalette === "-1" || treeDataRedux[selectedColorPalette].pid === "0"}
-                                           onClick={onHandleEdit}
-                                      >
-                                          <MuiEditIcon/>
-                                          </MuiIconButton>} 
-                                      />
-
-                                  
-                                  
-                                  <Option label="Copy" icon={ <MuiIconButton 
-                                      disabled={selectedColorPalette === "-1"}
-                                       onClick={() => setCopied(true)}
-                                  > 
-                                      <MuiFileCopyOutlinedIcon/>
-                                      </MuiIconButton>}
-                                  />
-                                  <Option label="Paste" icon={ <MuiIconButton 
-                                      disabled={!copied} 
-                                      onClick={onHandlePaste}
-                                  > 
-                                      <MuiPaste/>
-                                      </MuiIconButton>}
-                                  />
-                                  <Option label="Delete" icon={ <MuiIconButton 
-                                      disabled={selectedColorPalette === "-1" || treeDataRedux[selectedColorPalette].pid === "0" || selectedColorPalette === appliedColorPalette}
-                                      onClick={onHandleDeleteButton}
-                                  > 
-                                      <MuiDeleteForeverOutlinedIcon/>
-                                      </MuiIconButton>}
-                                  />
-                                  
-                              </OptionContainer>
-                          }
-              </div>
-              :
+              <OptionContainer>
+                <Option label="Edit" 
+                  icon={<MuiIconButton 
+                    disabled={selectedColorPalette === "-1" || treeDataRedux[selectedColorPalette].pid === "0"}
+                    onClick={onHandleEdit}
+                    >
+                      <MuiEditIcon/>
+                    </MuiIconButton>
+                  } 
+                />
+                <Option label="Copy" 
+                  icon={ <MuiIconButton 
+                    disabled={selectedColorPalette === "-1"}
+                    onClick={() => setCopied(true)}
+                    > 
+                      <MuiFileCopyOutlinedIcon/>
+                    </MuiIconButton>
+                  }
+                />
+                <Option label="Paste" 
+                  icon={ <MuiIconButton 
+                    disabled={!copied} 
+                    onClick={onHandlePaste}
+                    > 
+                      <MuiPaste/>
+                    </MuiIconButton>
+                  }
+                />
+                <Option label="Delete" 
+                  icon={ <MuiIconButton 
+                    disabled={selectedColorPalette === "-1" || treeDataRedux[selectedColorPalette].pid === "0" || selectedColorPalette === appliedColorPalette}
+                    onClick={onHandleDeleteButton}
+                    > 
+                      <MuiDeleteForeverOutlinedIcon/>
+                    </MuiIconButton>
+                  }
+                />     
+              </OptionContainer>
+            </div>
+          :
               <div>
-                 <div style={{marginBottom:"5px", marginTop:"5px"}}>
-          <MuiTypography style={{marginBottom:"5px", fontSize:"14px"}}>
-              Are you sure want to delete the selected Color Palette?
-          </MuiTypography>
-          <div style={{alignContent:"center",}}>
-            <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
-              autoFocus 
-              onClick={onHandleDelete} 
-              // color="primary"
-            >
-              Confirm
-            </MuiButton>
-          <MuiButton style={{width:"20%", fontSize:"9px"}}
-            onClick={() => setOpenDelete(false)} 
-            // color="primary"
-          >
-            Cancel
-        </MuiButton>
-      </div>
-    </div>
+                <div style={{marginBottom:"5px", marginTop:"5px"}}>
+                  <MuiTypography style={{marginBottom:"5px", fontSize:"14px"}}>
+                    Are you sure want to delete the selected Color Palette?
+                  </MuiTypography>
+                  <div style={{alignContent:"center",}}>
+                    <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+                      autoFocus 
+                      onClick={onHandleDelete} 
+                      // color="primary"
+                    >
+                      Confirm
+                    </MuiButton>
+                    <MuiButton style={{width:"20%", fontSize:"9px"}}
+                      onClick={() => setOpenDelete(false)} 
+                      // color="primary"
+                    >
+                      Cancel
+                    </MuiButton>
+                  </div>
+                </div>
               </div>
-
-          }
-          
-</div>
-  )
-  }
+          }          
+        </div>
+      )
+    }
 
   return (
           <SideBarContainer

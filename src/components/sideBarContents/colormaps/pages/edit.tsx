@@ -18,7 +18,7 @@ import {colormapElements, selectcolormapData} from '../../../../store/sideBar/co
 import styles from './style';
 
 import MuiTypography from '@material-ui/core/Typography';
-import MuiGrid from '@material-ui/core/Grid';
+// import MuiGrid from '@material-ui/core/Grid';
 import MuiKeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Routes } from '../../../../routes';
 
