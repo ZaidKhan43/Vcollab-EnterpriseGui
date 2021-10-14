@@ -64,7 +64,7 @@ export interface ITreeTableProps {
   expandedRowIds: string[],
   width: number,
   height: number,
-  selected?: string,
+  selected?: string[],
   renderTreeToggle: (icon:any, rowData:any) => any,
   onExpand: (toOpen:boolean,nodeId:string) => void,
   onRowClick: (node:ITreeNode) => void,
@@ -97,7 +97,7 @@ function RTree(props:ITreeTableProps) {
               [overrideClasses.rightColumn]: true,
               [overrideClasses.row]:!props.hover,
               [overrideClasses.rowHover]: props.hover,
-              [overrideClasses.selected]: props.selectable && rowData.id === props.selected ? true : false,
+              [overrideClasses.selected]: props.selectable && props.selected?.includes(rowData.id) ? true : false,
              })}
             renderTreeToggle={(icon, rowData:any) => {
               return props.renderTreeToggle(icon,rowData);

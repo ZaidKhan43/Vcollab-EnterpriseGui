@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import RsTreeSearch, {RsTreeSearchProps} from '../../../shared/RsTreeWithSearch'
 import Title from '../../../shared/RsTreeWithSearch/utilComponents/TitleNode'
 import {useStyles} from '../../../shared/RsTreeTable/styles/TreeNodeStyle'
@@ -11,10 +11,16 @@ interface SharedTreeProps extends LimitedTreeTableProps {
 }
 
 function Tree(props:SharedTreeProps) {
+    const [selectedIds,setSelectedIds] = useState<string[]>([]);
+    useEffect(() => {
+        let selected = Object.values(props.data).filter(e => e.state.selected).map(e => e.id);
+        setSelectedIds(selected);
+    },[props.data])
     const classes = useStyles();
         return <RsTreeSearch {...props}
             hover
             selectable
+            selected = {selectedIds}
             treeNode={
             rowData =>
             <Grid container alignItems='center' className={rowData.state.visibility ?classes.actionShow:classes.actionHide}>
