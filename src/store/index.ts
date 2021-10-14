@@ -36,7 +36,6 @@ const store = configureStore({
         probe: probeSlice,
         displayModes: displayModesSlice,
         toast: toastSlice,
-        colormaps: colormapSlice,
         settings: settingSlice,
        // message: messageSlice,
         windowMgr: windowMgrSlice,
