@@ -1,37 +1,24 @@
 import MuiIconButton from '@material-ui/core/IconButton';
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
 
-import styles from './style'
-
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import BackButton from '../../../icons/back';
 
+import styles from './style'
 
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
+import {goBack,push} from 'connected-react-router/immutable';
+
 import RTree from '../../../shared/RsTreeTable';
-import {invertNode, expandNode, selectmeasurementsData ,selectRootIds, setCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength} from '../../../../store/sideBar/labelSlice/measurementsSlice'
-
-import EyeIcon from '@material-ui/icons//Visibility';
-import EyeSlashIcon from '@material-ui/icons/VisibilityOff';
-import IconButton  from '@material-ui/core/IconButton';
-
+ 
 import AddIcon from "@material-ui/icons/Add";
 
-import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
-import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
+import { selectcolormapData, selectColormapRootIds, expandNode, createColorMap, handleColorMapSelection } from '../../../../store/sideBar/colormapSlice';
 
-import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
-import MuiEditIcon from '@material-ui/icons/EditOutlined';
-
-import {goBack,push} from 'connected-react-router/immutable';
-import {Routes} from "../../../../routes"
-
-import InvertCell from '../../../shared/RsTreeTable/Invert';
-import TreeNode from '../../../shared/RsTreeTable/TreeNode';
+import TreeNodeWithoutCheckbox from '../../../shared/RsTreeTable/treeNodeWithoutCheckbox';
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
 import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
-import ShowHideCell from '../../../shared/RsTreeTable/ShowHide';
 import MuiGrid from '@material-ui/core/Grid';
 
 import { convertListToTree } from '../../../utils/tree';
@@ -39,22 +26,25 @@ import { convertListToTree } from '../../../utils/tree';
 import { useRef } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
 
-export default function Measurements(){
+import { useState } from 'react';
 
-  const classes = styles();
+export default function List(){
+
+  const treeDataRedux = useAppSelector(selectcolormapData);
+  const treeRootIds = useAppSelector(selectColormapRootIds);
+  const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
+
+  const containerRef = useRef(null);
+  const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
+
+  const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
+
+  const classes = styles()
   const dispatch = useAppDispatch();  
   const onClickBackIcon = () =>{
     dispatch(goBack());
   }
   
-  const treeDataRedux = useAppSelector(selectmeasurementsData);
-  const treeRootIds = useAppSelector(selectRootIds);
-  const selectedCount = useAppSelector(selectedLength)
-
-  const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
-
-  const containerRef = useRef(null);
-  const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
 
   const getHeaderLeftIcon= () => {
     return (
@@ -64,8 +54,8 @@ export default function Measurements(){
 
   const getHeaderRightIcon = () => {
     return (
-      <div>
-      </div>
+        <div>
+        </div>
     )
   }
 
@@ -73,33 +63,25 @@ export default function Measurements(){
     dispatch(expandNode({toOpen,nodeId}));
   }
 
-  const handleInvert = (node:any) => {
-    dispatch(invertNode({nodeId:node.id}));
-  }
-  
-  const handleCheck = (toCheck:boolean, nodeId:string) => {
-    dispatch(checkNode({toCheck,nodeId}));
+  const createLabel = (nodeId : string) => {
+    	dispatch(createColorMap(nodeId))
   }
 
-  const handleVisibility = (toShow:boolean,node:any) => {
-    const leafIds = [node.id];
-    const pids = [node.pid];
-    dispatch(setCheckedVisibility({toShow, pids, leafIds}))
-  }
-
-  const onHandleDeleteButton = () => {
-    dispatch(delete3DLabel());
+  const handleSeletedColorMap = (node : any) => {
+    dispatch(handleColorMapSelection(node.id));
   }
 
   const getBody = () => {
     return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
       <RTree 
-        treeData={roots} 
+      treeData={roots} 
         defaultExpandedIds = {expanded}
         onExpand={handleExpand}
-        onRowClick = {() => {}}
+        onRowClick = {handleSeletedColorMap}
         width = {300}
+        hover={true}
+        selected={selectedColorMapId}
         height = {containerHeight ? containerHeight - 5: 0}
         renderTreeToggle = {
           (icon,rowData) => {
@@ -112,36 +94,36 @@ export default function Measurements(){
         }
         treeNode = {(node) => {
           return (
-            <TreeNode 
+            <TreeNodeWithoutCheckbox 
               node={treeDataRedux[node.id]}
-              onCheck={handleCheck}
+              onCheck={() => console.log("sa")}
             >
-            </TreeNode>
+            </TreeNodeWithoutCheckbox>
           )
         }}
         column1 = {(node) => {
-          return <InvertCell node = {treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
+          return (<div></div>)
         }}
         column2 = {(node) => {
           return (
             <div>
               { node?.pid !== "-1"
                 ?
-                 <ShowHideCell node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
+                 <div></div>
                 :        
                   <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
                     <MuiGrid item xs={4}></MuiGrid>
                     <MuiGrid item xs={6}>
-                      <MuiIconButton size='small' onClick={() => dispatch(createLabel(Number(node.id)))}>
+                      <MuiIconButton size='small' onClick={() => createLabel(node.id)}>
                         <AddIcon fontSize='default'/> 
                       </MuiIconButton> 
                     </MuiGrid>
                   </MuiGrid>
               }    
             </div>
-          ) 
+          )
         }}
-      />
+      />  
     </div>
     )
   }
@@ -151,16 +133,6 @@ export default function Measurements(){
 
     return(
         <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
-          <OptionContainer>
-            <Option label="Edit" icon={<MuiIconButton disabled={selectedCount === 1 ? false : true} onClick={() =>dispatch(push(Routes.LABELS_MEASUREMENTS_EDITS))}>
-                <MuiEditIcon/>
-              </MuiIconButton>} 
-            />
-             <Option label="Delete" icon={<MuiIconButton disabled={selectedCount >= 1? false : true} onClick={onHandleDeleteButton} > 
-                  <MuiDeleteForeverOutlinedIcon/>
-                </MuiIconButton> }
-            />
-            </OptionContainer>
       </div>
     ) 
   }
@@ -168,7 +140,7 @@ export default function Measurements(){
   return (
           <SideBarContainer
             headerLeftIcon = { getHeaderLeftIcon() }
-            headerContent={ <Title text={"Measurements" } group="Labels"/> }
+            headerContent={ <Title text={"List" } group="Color Maps"/> }
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }
             footer = { getFooter() }

@@ -7,7 +7,7 @@ import productTreeSlice from './sideBar/productTreeSlice';
 import fieldSlice from './sideBar/fieldSlice';
 import displayModesSlice from './sideBar/displayModesSlice';
 import clipSlice from './sideBar/clipSlice';
-import colormapSlice from './colormapSlice';
+import colormapSlice from './sideBar/colormapSlice';
 import probeSlice from './probeSlice';
 import mainMenuSlice  from './mainMenuSlice';
 import sceneSlice from './sideBar/sceneSlice';
@@ -43,6 +43,7 @@ const store = configureStore({
         label2D: label2DSlice,
         label3D: label3DSlice,
         measurements : measurementsSlice,
+        colormap : colormapSlice,
       }),
     middleware: getDefaultMiddleware({
       serializableCheck: {
