@@ -130,31 +130,31 @@ const initialState: MainMenu ={
             path: Routes.HOME,
             children: [
                 {
-                    id: '21',
+                    id:'21',
+                    name: "Steps & Subcases",
+                    type:MainMenuItems.FIELD_STEPS_AND_SUBCASES,
+                    path:Routes.FIELD_STEPS_AND_SUBCASES,
+                    disabled: false,
+                  },
+                {
+                    id: '22',
                     name: "Variables",
                     type:MainMenuItems.FIELD_VARIABLES,
                     path:Routes.FIELD_VARIABLES,
                     disabled: false,
                   },
                   {
-                    id:'22',
-                    name: "Steps & Subcases",
-                    type:MainMenuItems.FIELD_STEPS_AND_SUBCASES,
-                    path:Routes.FIELD_STEPS_AND_SUBCASES,
-                    disabled: false,
-                  },
-                  {
                     id:'23',
-                    name: "Sections & Layers",
-                    type:MainMenuItems.FIELD_SECTIONS_AND_LAYERS,
-                    path:Routes.HOME,
+                    name: "Derived Types",
+                    type:MainMenuItems.FIELD_DERIVED_TYPES,
+                    path:Routes.FIELD_DERIVED_TYPES,
                     disabled: false,
                   },
                   {
                     id:'24',
-                    name: "Derived Types",
-                    type:MainMenuItems.FIELD_DERIVED_TYPES,
-                    path:Routes.FIELD_DERIVED_TYPES,
+                    name: "Sections & Layers",
+                    type:MainMenuItems.FIELD_SECTIONS_AND_LAYERS,
+                    path:Routes.FIELD_SECTIONS_AND_LAYERS,
                     disabled: false,
                   },
             ]
@@ -288,14 +288,14 @@ const initialState: MainMenu ={
             path:Routes.HOME,
             children: []
         },
-        {
-            id:'10',
-            expanded: false,
-            name: "Messages",
-            type: MainMenuItems.MESSAGES,
-            path:Routes.MESSAGES,
-            children:[]
-        },
+        // {
+        //     id:'10',
+        //     expanded: false,
+        //     name: "Messages",
+        //     type: MainMenuItems.MESSAGES,
+        //     path:Routes.MESSAGES,
+        //     children:[]
+        // },
         {
             id:'11',
             expanded: false,

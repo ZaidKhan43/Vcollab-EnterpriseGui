@@ -81,7 +81,7 @@ function AssemblyTree(props:any) {
         <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
           <RTree 
           treeData={roots} 
-          defaultExpandedIds = {expanded}
+          expandedRowIds = {expanded}
           onExpand={handleExpand}
           onRowClick = {() => {}}
           width = {300}

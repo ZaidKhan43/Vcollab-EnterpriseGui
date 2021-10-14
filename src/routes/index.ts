@@ -10,6 +10,7 @@ export enum Routes {
     FIELD_VARIABLES = "/field/variables",
     FIELD_STEPS_AND_SUBCASES = "/field/steps_and_subcases",
     FIELD_DERIVED_TYPES = "/field/derived_types",
+    FIELD_SECTIONS_AND_LAYERS = "/field/sections_and_layers",
 
     CLIPPLANES ="/clipplanes",
     CLIPPLANES_LIST = "/clipplanes/list",

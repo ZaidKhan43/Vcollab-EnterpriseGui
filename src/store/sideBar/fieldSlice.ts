@@ -2,7 +2,7 @@ import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@r
 import { getDisplayResult } from '../../backend/viewerAPIProxy';
 import type { RootState } from '../index';
 import {ITreeNode, ITreeNodeState} from '../../components/shared/RsTreeWithSearch';
-import { expandNodeReducer, selectNodeReducer, addNodeReducer, deleteNodeReducer } from './shared/ProductExplorer/reducers';
+import { expandNodeReducer, selectNodeReducer, addNodeReducer, deleteNodeReducer, toggleVisibilityReducer } from './shared/ProductExplorer/reducers';
 
 type FieldState = {
     data: FieldData
@@ -16,14 +16,15 @@ export enum Source {
 export enum FieldType {
     Variable,
     Step,
-    Derived
+    Derived,
+    Section
 }
 
 export interface Field extends ITreeNode {
     source:Source
 }
 interface Variable extends Field {
-    
+    derivedIds: string[]
 }
 
 interface Step extends Field {
@@ -34,6 +35,10 @@ interface DerivedType extends Field {
     
 }
 
+interface Sections extends Field {
+
+}
+
 type FieldData = {
     idGenerator: number,
     variables: {[id:string]:Variable},
@@ -41,7 +46,10 @@ type FieldData = {
     stepsAndSubCases: {[id:string]:Step},
     stepsAndSubCasesRoot: string[],
     derivedTypes: {[id:string]:DerivedType},
-    derivedTypesRoot: string[]
+    derivedTypesRoot: string[],
+    sections: {[id:string]:Sections},
+    sectionsRoot: string[]
+
 }
 
 export const fetchFieldData = createAsyncThunk(
@@ -67,88 +75,99 @@ const initialState : FieldState = {
                 id: "0",
                 pid: "-1",
                 title: "Input",
-                state: {expanded:true,selected:false},
+                state: {expanded:true,selected:false,visibility:true},
                 source: Source.SYSTEM,
+                derivedIds: [],
                 children: ["01","02","03"]
             },
             "01": {
                 id: "01",
                 pid: "0",
                 title: "Material ID",
-                state: {expanded:true,selected:false},
+                state: {expanded:true,selected:false,visibility:true},
                 source: Source.SYSTEM,
+                derivedIds: [],
                 children: []
             },
             "02":  {
                 id: "02",
                 pid: "0",
                 title: "Constraints",
-                state: {expanded:true,selected:false},
+                state: {expanded:true,selected:false,visibility:true},
                 source: Source.SYSTEM,
+                derivedIds: [],
                 children: []
             },
             "03":     {
                 id: "03",
                 pid: "0",
                 title: "Pressure Loads",
-                state: {expanded:true,selected:false},
+                state: {expanded:true,selected:false,visibility:true},
                 source: Source.SYSTEM,
+                derivedIds: [],
                 children: []
             },
             "1": {
                 id:"1",
                 pid:"-1",
                 title: "Results",
-                state: {expanded:true,selected:false},
+                state: {expanded:true,selected:false,visibility:true},
                 source: Source.SYSTEM,
+                derivedIds: [],
                 children: ["11","12","13" ,"14", "15", "16"]
             },
             "11": {
                 id:"11",
                 pid:"1",
                 title: "Displacement",
-                state: {expanded:true,selected:false},
+                state: {expanded:true,selected:false,visibility:true},
                 source: Source.SYSTEM,
+                derivedIds: ["0"],
                 children: []
             },
             "12": {
                 id:"12",
                 pid:"1",
                 title: "Reaction Force",
-                state: {expanded:true,selected:false},
+                state: {expanded:true,selected:false,visibility:true},
                 source: Source.SYSTEM,
+                derivedIds: [],
                 children: []
             },
             "13": {
                 id:"13",
                 pid:"1",
                 title: "Stress",
-                state: {expanded:true,selected:false},
+                state: {expanded:true,selected:false,visibility:true},
                 source: Source.SYSTEM,
+                derivedIds: [],
                 children: []
             },
             "14": {
                 id:"14",
                 pid:"1",
                 title: "Displacement 2 adfadfadfadfadadfadfadfadfadfadfadfadfadfadfdaf",
-                state: {expanded:true,selected:false},
+                state: {expanded:true,selected:false,visibility:true},
                 source: Source.SYSTEM,
+                derivedIds: [],
                 children: []
             },
             "15": {
                 id:"15",
                 pid:"1",
                 title: "Reaction Force 2",
-                state: {expanded:true,selected:false},
+                state: {expanded:true,selected:false,visibility:true},
                 source: Source.SYSTEM,
+                derivedIds: [],
                 children: []
             },
             "16": {
                 id:"16",
                 pid:"1",
                 title: "Stress 2",
-                state: {expanded:true,selected:false},
+                state: {expanded:true,selected:false,visibility:true},
                 source: Source.SYSTEM,
+                derivedIds: [],
                 children: []
             }
         },
@@ -366,7 +385,76 @@ const initialState : FieldState = {
                     children: []
                 }
         },
-        derivedTypesRoot: ["0"]
+        derivedTypesRoot: ["0"],
+        sections: {
+            "0" : {
+                id: "0",
+                pid: "-1",
+                source: Source.SYSTEM,
+                children: ["01","02"],
+                title: "Shell",
+                state: {
+                    visibility: true,
+                    expanded: true
+                }
+            },
+            "01" : {
+                id: "01",
+                pid: "0",
+                source: Source.SYSTEM,
+                children: [],
+                title: "Top",
+                state: {
+                    visibility: true,
+                    expanded: true
+                }
+            },
+            "02" : {
+                id: "02",
+                pid: "0",
+                source: Source.SYSTEM,
+                children: [],
+                title: "Bottom",
+                state: {
+                    visibility: true,
+                    expanded: true
+                }
+            },
+            "1" : {
+                id: "1",
+                pid: "-1",
+                source: Source.SYSTEM,
+                children: ["11","12"],
+                title: "Aggregates",
+                state: {
+                    visibility: true,
+                    expanded: true
+                }
+            },
+            "11" : {
+                id: "11",
+                pid: "1",
+                source: Source.SYSTEM,
+                children: [],
+                title: "Top",
+                state: {
+                    visibility: true,
+                    expanded: true
+                }
+            },
+            "12" : {
+                id: "12",
+                pid: "1",
+                source: Source.SYSTEM,
+                children: [],
+                title: "Bottom",
+                state: {
+                    visibility: true,
+                    expanded: true
+                }
+            },
+        },
+        sectionsRoot: ["0" , "1"]
     }
 }
 
@@ -386,13 +474,16 @@ export const addUserFieldState = createAsyncThunk(
             }
         switch (data.fieldType) {
             case FieldType.Variable:
-                dispatch(addUserVariable({userVariable:user}))
+                dispatch(addUserVariable({userVariable:{...user,derivedIds:[]}}))
                 break;
             case FieldType.Step:
                 dispatch(addUserStepsAndSubcase({userStepAndSubcase:user}))
                 break;
             case FieldType.Derived:
                 dispatch(addUserDerivedType({userDerived:user}))
+                break;
+            case FieldType.Section:
+                dispatch(addUserSection({userSection:user}))
                 break;
             default:
                 break;
@@ -406,11 +497,12 @@ export const fieldSlice = createSlice({
         incrementId: (state:FieldState) => {
             state.data.idGenerator+=1;
         },
+        //variables
         expandVariable: (state:FieldState, action:PayloadAction<{toOpen:boolean,nodeId:string}>) => {
-           return expandNodeReducer({data:state.data.variables, rootIds: state.data.variablesRoot},action)
+           expandNodeReducer({data:state.data.variables, rootIds: state.data.variablesRoot},action)
         },
         setSelectVariable: (state:FieldState, action:PayloadAction<{leafOnly:boolean,nodeId:string}>) => {
-           return selectNodeReducer({data:state.data.variables, rootIds: state.data.variablesRoot},action)
+           selectNodeReducer({data:state.data.variables, rootIds: state.data.variablesRoot},action)
         },
         
         addUserVariable: (state:FieldState, action:PayloadAction<{userVariable:Variable}>) => {
@@ -446,13 +538,17 @@ export const fieldSlice = createSlice({
             action
             );    
         },
+
+        //derived types
         expandDerivedTypes: (state:FieldState, action:PayloadAction<{toOpen:boolean,nodeId:string}>) => {
            return expandNodeReducer({data:state.data.derivedTypes, rootIds: state.data.derivedTypesRoot},action)
         },
         setSelectDerivedTypes: (state:FieldState, action:PayloadAction<{leafOnly:boolean,nodeId:string}>) => {
             return selectNodeReducer({data:state.data.derivedTypes, rootIds: state.data.derivedTypesRoot},action)
         },
-
+        setVisibleDerivedTypes: (state:FieldState, action:PayloadAction<{nodeId:string, toShow:boolean}>) => {
+            toggleVisibilityReducer({data:state.data.derivedTypes,rootIds:state.data.derivedTypesRoot},action);
+        },
         addUserDerivedType: (state:FieldState, action:PayloadAction<{userDerived:DerivedType}>) => {
             if(state.data.derivedTypes["userDefined"] === undefined) {
                 addNodeReducer({data:state.data.derivedTypes,rootIds:state.data.derivedTypesRoot},
@@ -483,6 +579,7 @@ export const fieldSlice = createSlice({
             action
             );    
         },
+        //subcase and steps
         expandStepsAndSubcase: (state:FieldState, action:PayloadAction<{toOpen:boolean,nodeId:string}>) => {
             return expandNodeReducer({data:state.data.stepsAndSubCases, rootIds: state.data.stepsAndSubCasesRoot},action)
          },
@@ -519,6 +616,43 @@ export const fieldSlice = createSlice({
             action
             );    
         },
+        //section & layers
+        expandSection: (state:FieldState, action:PayloadAction<{toOpen:boolean,nodeId:string}>) => {
+            return expandNodeReducer({data:state.data.sections, rootIds: state.data.sectionsRoot},action)
+         },
+        setSelectSection: (state:FieldState, action:PayloadAction<{leafOnly:boolean,nodeId:string}>) => {
+            return selectNodeReducer({data:state.data.sections, rootIds: state.data.sectionsRoot},action)
+        },
+        addUserSection: (state:FieldState, action:PayloadAction<{userSection:Sections}>) => {
+            if(state.data.sections["userDefined"] === undefined) {
+                addNodeReducer({data:state.data.sections,rootIds:state.data.sectionsRoot},
+                    {payload:
+                        <ITreeNode>{
+                            id:"userDefined",
+                            pid:"-1",
+                            title: "User Defined",
+                            state: {expanded:true,selected:false},
+                            source: Source.SYSTEM,
+                            children: []
+                        },
+                        type: "fieldSlice/addUserSection"
+                    }
+                    ) 
+            }
+            
+            addNodeReducer({data:state.data.sections,rootIds:state.data.sectionsRoot},
+                {payload: action.payload.userSection,
+                    type: "fieldSlice/addUserSection"
+                })
+        },
+        removeUserSection: (state:FieldState, action:PayloadAction<{nodeId:string}>) => {
+            deleteNodeReducer({
+                data:state.data.sections,
+                rootIds:state.data.sectionsRoot
+            },
+            action
+            );    
+        },
     },
     extraReducers: builder => {
         builder.addCase(fetchFieldData.fulfilled, (state:FieldState, action:PayloadAction<any>) => {
@@ -544,11 +678,18 @@ export const {
 
     expandDerivedTypes,
     setSelectDerivedTypes,
+    setVisibleDerivedTypes,
     addUserDerivedType,
-    removeUserDerivedType
+    removeUserDerivedType,
+
+    expandSection,
+    setSelectSection,
+    addUserSection,
+    removeUserSection
 } = fieldSlice.actions;
 // selectors
 export const selectVariables = (root:RootState) => (root.field.data.variables)
 export const selectSteps = (root:RootState) => root.field.data.stepsAndSubCases
 export const selectDerivedTypes = (root:RootState) => root.field.data.derivedTypes
+export const selectSections = (root:RootState) => root.field.data.sections
 export default fieldSlice.reducer;

@@ -4,20 +4,20 @@ import SideBarContainer from "../../../layout/sideBar/sideBarContainer"
 import { useAppDispatch, useAppSelector } from '../../../../store/storeHooks';
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
 import SearchBox from '../../../shared/searchBox';
-import Body from '../components/variables/Body';
+import Body from '../components/sections/Body';
 import Footer from '../shared/Footer';
 import Back from '../shared/BackIcon';
 import Add from '../shared/Add';
 import Select from '../shared/SelectModel';
-import { addUserFieldState, FieldType, removeUserVariable, selectVariables, Source } from '../../../../store/sideBar/fieldSlice';
+import { addUserFieldState, FieldType, removeUserSection, selectSections, Source } from '../../../../store/sideBar/fieldSlice';
 import FieldEdit from './FieldEdit'
 import { useState, useEffect } from 'react';
 
 function Variable() {
     const dispatch = useAppDispatch();
     const [isEdit,setIsEdit] = useState(false);
-    const variables = useAppSelector(selectVariables)
-    const selected = Object.values(variables).filter(item => item.state.selected === true);
+    const sections = useAppSelector(selectSections)
+    const selected = Object.values(sections).filter(item => item.state.selected === true);
 
     useEffect(() => {
         return () => {
@@ -34,7 +34,7 @@ function Variable() {
         );
     }
     const handleAdd = () => {
-        dispatch(addUserFieldState({fieldType:FieldType.Variable}))
+        dispatch(addUserFieldState({fieldType:FieldType.Section}))
     }
     const getHeaderRightIcon= () => {
         return (
@@ -44,7 +44,7 @@ function Variable() {
 
     const getHeaderContent = () => {
 
-        return (<Title text="Variables" group="Field"/>)
+        return (<Title text="Sections & Layers" group="Field"/>)
     }
 
     const getAction = () => {
@@ -67,12 +67,12 @@ function Variable() {
 
     const handleDelete = () => {
         if (selected.length === 1 && selected[0].source === Source.USER ) {
-            dispatch(removeUserVariable({nodeId:selected[0].id}));
+            dispatch(removeUserSection({nodeId:selected[0].id}));
         }
     }
     return (
         isEdit ?
-        <FieldEdit field={variables} fieldType={FieldType.Variable} back={() => setIsEdit(false)}></FieldEdit>
+        <FieldEdit field={sections} fieldType={FieldType.Section} back={() => setIsEdit(false)}></FieldEdit>
         :
         <SideBarContainer
             headerLeftIcon = {getHeaderLeftIcon()}

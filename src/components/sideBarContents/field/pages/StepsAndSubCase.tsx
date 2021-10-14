@@ -59,11 +59,11 @@ function Steps() {
     return (
         <SideBarContainer
             headerLeftIcon = {getHeaderLeftIcon()}
-            headerRightIcon = {<Add onClick={handleAdd} />}
+            headerRightIcon = {false && <Add onClick={handleAdd} />}
             headerContent = {getHeaderContent()}
             headerAction = {getAction()}
             body = {getBody()}
-            footer = {getFooter()}
+            footer = {false && getFooter()}
         />
     )
 }
