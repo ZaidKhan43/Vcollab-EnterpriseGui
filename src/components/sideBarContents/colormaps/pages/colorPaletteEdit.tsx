@@ -19,28 +19,95 @@ import MuiTypography from '@material-ui/core/Typography';
 import FileMoveUpIcon from '../../../icons/fileMoveUp';
 import FIleMoveDownIcon from '../../../icons/fileMoveDown';
 
+import {useState} from 'react';
+
 import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
 import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
 import MuiButton from '@material-ui/core/Button';
 
+import Slider from "react-slick";
+
+import styles from './style';
+
 export default function ColorPalleteEdit(){
 
   const dispatch = useAppDispatch();
+  const classes = styles();
   const onClickBackIcon = () =>{
     dispatch(goBack());
   }
   
-  const colorSet = [
+  const [colorSet,setColorSet] = useState( [
     {
-       id:1, 
+       id : 0, 
        color:{r:160, g:160, b:252, a:1}
     }, 
     {
-      id:2, 
+      id : 1, 
       color:{r:255, g:255, b:255, a:1}
     }
   ]
+  )
+
+  const [selectedColor, setSelectedColor] = useState<any>();
+  const [openDelete, setOpenDelete] = useState(false);
+
+  const handleAddColor = () => {
+    const newColor = {
+      id: colorSet.length ,
+      color: {r:255, g:255, b:255, a:1} ,
+    }
+
+    const newColorSet = [...colorSet, newColor]
+
+    setColorSet(newColorSet)
+    setSelectedColor(newColor)
+  }
+
+
+  const handleColorSelector = (color : any) => {
+    if(color !== selectedColor)
+      setSelectedColor(color);
+    else
+      setSelectedColor(null);
+    setOpenDelete(false);
+  }
+
+  const handleChangeComplete = (color : {r : number , g:number, b:number, a:number}) => {
+    const index = colorSet.findIndex((item) => item.id === selectedColor.id);
+    const newArray=[...colorSet];
+    newArray[index].color= color;
+    setColorSet(newArray);
+  }
+
+  const onHandlDownButton = () => {
+    const indexOfSelected = colorSet.findIndex( item => item.id === selectedColor.id)
+    const newArray = [...colorSet];
+    newArray.splice(indexOfSelected, 1)
+    newArray.splice(indexOfSelected + 1, 0,selectedColor)
+
+    setColorSet(newArray)
+  }
+
+  const onHandleUpButton = () => {
+    const indexOfSelected = colorSet.findIndex( item => item.id === selectedColor.id)
+    const newArray = [...colorSet];
+    newArray.splice(indexOfSelected, 1)
+    newArray.splice(indexOfSelected - 1, 0,selectedColor)
+
+    setColorSet(newArray)
+  }
+
+  const onHandleDeleteButton = () => {
+    setOpenDelete(true);
+  }
+
+  const onHandleDelete = () => {
+    const newArray = colorSet.filter(item => item.id !== selectedColor.id);
+    setColorSet(newArray);
+    setSelectedColor(null);
+  }
 
   const getHeaderLeftIcon= () => {
     return (
@@ -56,6 +123,16 @@ export default function ColorPalleteEdit(){
   }
 
   const getBody = () => {
+    const settings = {
+      dots: false,
+      infinite: false,
+      slidesToShow: 5,
+      slidesToScroll: 1,
+      vertical: true,
+      verticalSwiping: true,
+      swipeToSlide: true,
+    }
+
     return (
       <div>
         <div style={{marginTop:"20px"}}>
@@ -69,7 +146,7 @@ export default function ColorPalleteEdit(){
               <MuiGrid item xs={6}></MuiGrid>
               <MuiGrid item xs={2}>
                 <MuiIconButton size="small"><MuiPlusIcon
-                  //  onClick={handleAddColor} className={classes.buttonComponent }
+                   onClick={handleAddColor}
                 /></MuiIconButton>             
               </MuiGrid>
             </MuiGrid>
@@ -77,28 +154,69 @@ export default function ColorPalleteEdit(){
           
           <MuiGrid container spacing={2} style={{marginLeft:"10px",marginTop:"10px"}}>
             <MuiGrid item xs={2}>
+              {/* <Slider {...settings}
+      > */}
               { colorSet.map((item : any, index : number) => 
+              <div>
                 <div 
                   key={ 'divParent_' + index } 
-                  // className={selectedColor ? item.id !== selectedColor.id ? classes.colorPicker : classes.active : classes.colorPicker} 
+                  className={selectedColor ? item.id !== selectedColor.id ? classes.colorPicker : classes.active : classes.colorPicker} 
                   style={{height:"30px", 
                     marginTop:"10px",
                     width:"30px",
                     backgroundColor:`rgb(${item.color.r},${item.color.g},${item.color.b})` ,
                   }}
-                  // onClick={() => handleColorSelector(item)}
+                  onClick={() => handleColorSelector(item)}
                 >
                 </div>
+                </div>
               )}
+
+              {/* </Slider> */}
             </MuiGrid>
                           
             <MuiGrid item xs={4} style={{marginLeft:"5px"}}>
               <ColorPicker
                 color={{r:255, g:255, b:255, a:1}}
-                // onChangeComplete={selectedColor && handleChangeComplete }
+                onChangeComplete={selectedColor && handleChangeComplete }
               />                 
             </MuiGrid>
           </MuiGrid>                     
+        </div>
+
+        <div style={{marginTop:"20px", marginLeft:"10px"}}>
+          <MuiTypography variant="h2" align="left">
+              Preview
+          </MuiTypography>
+          <div style={{marginTop:"10px"}}>
+            <MuiTypography variant="h3" align="left">
+              Discrete
+            </MuiTypography>
+            <MuiGrid container style={{marginTop:"5px"}}>
+            {colorSet.map((item : any, index : number) => 
+                                    <MuiGrid item 
+                                        key={ 'divParent_' + index }  
+                                        style={{width:280/colorSet.length, 
+                                            height:"30px",
+                                            backgroundColor:`rgb(${item.color.r},${item.color.g},${item.color.b})` ,
+                                        }}
+                                    >
+                                    </MuiGrid>
+                                )}
+                            </MuiGrid>
+          </div>
+
+          <div style={{marginTop:"10px"}}>
+            <MuiTypography variant="h3" align="left">
+              Continous
+            </MuiTypography>
+
+            <div style={{width:280, 
+              marginTop:"5px",
+              height:"30px",
+              backgroundImage: `linear-gradient(to right, ${colorSet.map(item => `rgb(${item.color.r},${item.color.g},${item.color.b})`)})`}}>
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -107,10 +225,24 @@ export default function ColorPalleteEdit(){
 
   const getFooter = () => {
 
+    let disableDown = true;
+    let disableUp = true;
+
+    if(selectedColor){
+      const indexOfSelected = colorSet.findIndex( item => item.id === selectedColor.id);
+      if(indexOfSelected !== colorSet.length -1)
+        disableDown = false;
+    }
+
+    if(selectedColor) {
+      const indexOfSelected = colorSet.findIndex( item => item.id === selectedColor.id);
+      if(indexOfSelected !== 0)
+        disableUp = false;
+    }
+
     return(
       <div>
-      { true
-        // !openDelete
+      { !openDelete
         ?
           <div>
             { true
@@ -132,8 +264,8 @@ export default function ColorPalleteEdit(){
             <OptionContainer>
               <Option label="Down" 
                 icon={<MuiIconButton 
-                  // disabled={selectedColorPalette === "-1" || treeDataRedux[selectedColorPalette].pid === "0"}
-                  //  onClick={onHandleEdit}
+                  disabled={disableDown}
+                   onClick={onHandlDownButton}
                   >
                     <FIleMoveDownIcon/>
                   </MuiIconButton>
@@ -141,8 +273,8 @@ export default function ColorPalleteEdit(){
               />
               <Option label="Up" 
                 icon={ <MuiIconButton 
-                  // disabled={selectedColorPalette === "-1"}
-                  //  onClick={() => setCopied(true)}
+                  disabled={disableUp}
+                   onClick={onHandleUpButton}
                   > 
                     <FileMoveUpIcon/>
                   </MuiIconButton>
@@ -150,8 +282,8 @@ export default function ColorPalleteEdit(){
               />
               <Option label="Delete" 
                 icon={ <MuiIconButton 
-                  // disabled={selectedColorPalette === "-1" || treeDataRedux[selectedColorPalette].pid === "0" || selectedColorPalette === appliedColorPalette}
-                  // onClick={onHandleDeleteButton}
+                 disabled={!selectedColor}
+                  onClick={onHandleDeleteButton}
                   > 
                     <MuiDeleteForeverOutlinedIcon/>
                   </MuiIconButton>
@@ -168,13 +300,13 @@ export default function ColorPalleteEdit(){
               <div style={{alignContent:"center",}}>
                 <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
                   autoFocus 
-                  // onClick={onHandleDelete} 
+                  onClick={onHandleDelete} 
                   // color="primary"
                 >
                   Confirm
                 </MuiButton>
                 <MuiButton style={{width:"20%", fontSize:"9px"}}
-                  // onClick={() => setOpenDelete(false)} 
+                  onClick={() => setOpenDelete(false)} 
                   // color="primary"
                 >
                   Cancel

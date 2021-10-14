@@ -30,4 +30,13 @@ export default makeStyles((theme) => (
     marginTop:"15px",
   },
 
+  active : {
+    outline:"2px solid",
+    outlineColor:theme.palette.text.primary,
+  },
+  
+  colorPicker:{
+    zIndex: 10,
+  },
+
 }));

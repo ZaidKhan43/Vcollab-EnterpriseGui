@@ -42,6 +42,7 @@
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "react-slick": "^0.28.1",
     "react-switch": "^6.0.0",
     "react-toggle": "^4.1.2",
     "react-virtualized-auto-sizer": "^1.0.5",
@@ -80,10 +81,11 @@
   },
   "devDependencies": {
     "@types/autosuggest-highlight": "^3.1.1",
-    "ncp": "^2.0.0",
     "@types/ramda": "^0.27.44",
     "@types/react-color": "^3.0.5",
     "@types/react-router": "^5.1.15",
-    "@types/react-toggle": "^4.0.2"
+    "@types/react-slick": "^0.23.6",
+    "@types/react-toggle": "^4.0.2",
+    "ncp": "^2.0.0"
   }
 }

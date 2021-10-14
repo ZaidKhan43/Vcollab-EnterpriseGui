@@ -98,12 +98,13 @@ export default function Variable(){
       <RTree 
       treeData={roots} 
         defaultExpandedIds = {expanded}
+        selectable={true}
         onExpand={handleExpand}
         onRowClick = {() => {}}
         width = {300}
         height = {containerHeight ? containerHeight - 5: 0}
         hover={true}
-        selected = {"5"}
+        selected = {"6"}
         renderTreeToggle = {
           (icon,rowData) => {
             if (rowData.children && rowData.children.length === 0) {
