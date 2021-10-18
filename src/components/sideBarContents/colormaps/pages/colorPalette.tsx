@@ -154,6 +154,7 @@ export default function ColorPalette(){
         onRowClick = {handlePaletteClick}
         width = {300}
         hover={true}
+        selectable={true}
         selected={selectedColorPalette}
         height = {containerHeight ? containerHeight - 5: 0}
         renderTreeToggle = {

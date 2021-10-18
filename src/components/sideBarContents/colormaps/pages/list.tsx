@@ -81,6 +81,7 @@ export default function List(){
         onRowClick = {handleSeletedColorMap}
         width = {300}
         hover={true}
+        selectable={true}
         selected={selectedColorMapId}
         height = {containerHeight ? containerHeight - 5: 0}
         renderTreeToggle = {
