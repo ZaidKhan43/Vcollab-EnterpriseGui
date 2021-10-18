@@ -31,7 +31,7 @@ export default function Edit(){
 
   const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
   const [activeId, setActiveId] = useState(selectedColorMapId);  
-
+  const [isValid, setIsValid] = useState(false);
   const list = useAppSelector(colormapElements)
 
   const dispatch = useAppDispatch(); 
@@ -93,7 +93,7 @@ export default function Edit(){
                 <MuiTypography variant="h3" align="left">
                   Steps & Subcases
                 </MuiTypography>
-                <MuiTypography variant="h1" align="left">
+                <MuiTypography classes={{root: !isValid ? classes.invalid : ""}} variant="h1" align="left">
                   Subcase 1: Modal Transient - Time = 0.2
                 </MuiTypography>
               </MuiListItemText>
@@ -104,7 +104,7 @@ export default function Edit(){
                 <MuiTypography variant="h3" align="left">
                   Variable
                 </MuiTypography>
-                <MuiTypography variant="h1" align="left">
+                <MuiTypography classes={{root: !isValid ? classes.invalid : ""}} variant="h1" align="left">
                   Displacement
                 </MuiTypography>
               </MuiListItemText>
@@ -116,7 +116,7 @@ export default function Edit(){
                 <MuiTypography variant="h3" align="left">
                   Derived Types
                 </MuiTypography>
-                <MuiTypography variant="h1" align="left">
+                <MuiTypography classes={{root: !isValid ? classes.invalid : ""}} variant="h1" align="left">
                   Vector - X Component
                 </MuiTypography>
               </MuiListItemText>
@@ -128,7 +128,7 @@ export default function Edit(){
                 <MuiTypography variant="h3" align="left">
                   Sections & Layers
                 </MuiTypography>
-                <MuiTypography variant="h1" align="left">
+                <MuiTypography classes={{root: !isValid ? classes.invalid : ""}} variant="h1" align="left">
                   Shell - Top
                 </MuiTypography>
               </MuiListItemText>
@@ -175,6 +175,11 @@ export default function Edit(){
 
     return(
         <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
+          {
+            !isValid ? <MuiTypography classes={{root:classes.invalid}}>
+              Data not available for the current selection
+            </MuiTypography> : null
+          }
       </div>
     ) 
   }
