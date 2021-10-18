@@ -17,7 +17,7 @@ function TreeNode(props:ITreeNodeProps) {
     return (
         <Grid container className={node.state.visibility ?classes.actionShow:classes.actionHide} alignItems='center'>
             <Grid item>
-            <Checkbox color='default' size='small' checked= {node.state.checked} indeterminate={node.state.partiallyChecked} disableRipple onChange = {(e:any) => props.onCheck(e.target.checked,node.id)}></Checkbox>
+            <Checkbox style={{opacity:node.state.visibility ? 1.0 : 0.5}} size='small' checked= {node.state.checked} indeterminate={node.state.partiallyChecked} disableRipple onChange = {(e:any) => props.onCheck(e.target.checked,node.id)}></Checkbox>
             </Grid>
             <Grid item>
             <Typography 

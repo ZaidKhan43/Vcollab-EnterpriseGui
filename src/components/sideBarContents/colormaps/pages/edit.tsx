@@ -88,25 +88,48 @@ export default function Edit(){
     return (
       <div className={classes.scrollBar}>
         <MuiMenuList>
+        <MuiMenuItem onClick={()=> dispatch(push(Routes.COLORMAPS_STEPS_AND_SUBCASE))}>
+              <MuiListItemText>
+                <MuiTypography variant="h3" align="left">
+                  Steps & Subcases
+                </MuiTypography>
+                <MuiTypography variant="h1" align="left">
+                  Subcase 1: Modal Transient - Time = 0.2
+                </MuiTypography>
+              </MuiListItemText>
+              <MuiListItemIcon style={{marginLeft:"250px"}}><MuiKeyboardArrowRightIcon /></MuiListItemIcon>           
+          </MuiMenuItem>
           	<MuiMenuItem onClick={()=> dispatch(push(Routes.COLORMAPS_VARIABLE))}>
               <MuiListItemText>
                 <MuiTypography variant="h3" align="left">
                   Variable
                 </MuiTypography>
                 <MuiTypography variant="h1" align="left">
-                  Displacement - Magnitude
+                  Displacement
                 </MuiTypography>
               </MuiListItemText>
               <MuiListItemIcon style={{marginLeft:"250px"}}><MuiKeyboardArrowRightIcon /></MuiListItemIcon>           
           </MuiMenuItem>
 
-          <MuiMenuItem onClick={()=> dispatch(push(Routes.COLORMAPS_STEPS_AND_SUBCASE))}>
+          <MuiMenuItem onClick={()=> dispatch(push(Routes.COLORMAPS_DERIVED_TYPES))}>
               <MuiListItemText>
                 <MuiTypography variant="h3" align="left">
-                  Step
+                  Derived Types
                 </MuiTypography>
                 <MuiTypography variant="h1" align="left">
-                  Step 1 - Frame 1
+                  Vector - X Component
+                </MuiTypography>
+              </MuiListItemText>
+              <MuiListItemIcon style={{marginLeft:"250px"}}><MuiKeyboardArrowRightIcon /></MuiListItemIcon>           
+          </MuiMenuItem>
+
+          <MuiMenuItem onClick={()=> dispatch(push(Routes.COLORMAPS_SELECTION_AND_LAYER))}>
+              <MuiListItemText>
+                <MuiTypography variant="h3" align="left">
+                  Sections & Layers
+                </MuiTypography>
+                <MuiTypography variant="h1" align="left">
+                  Shell - Top
                 </MuiTypography>
               </MuiListItemText>
               <MuiListItemIcon style={{marginLeft:"250px"}}><MuiKeyboardArrowRightIcon /></MuiListItemIcon>           

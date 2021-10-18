@@ -148,14 +148,14 @@ export default function ColorPalette(){
     return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
       <RTree 
-      treeData={roots} 
-        defaultExpandedIds = {expanded}
+        treeData={roots} 
+        expandedRowIds = {expanded}
         onExpand={handleExpand}
         onRowClick = {handlePaletteClick}
         width = {300}
         hover={true}
         selectable={true}
-        selected={selectedColorPalette}
+        selected={[selectedColorPalette]}
         height = {containerHeight ? containerHeight - 5: 0}
         renderTreeToggle = {
           (icon,rowData) => {

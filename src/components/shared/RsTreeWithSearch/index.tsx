@@ -3,7 +3,7 @@ import SearchWithHints from '../searchWithHints'
 import Tree, { ITreeNode, ITreeNodeState, ITreeTableProps} from '../RsTreeTable'
 import {getTreeData} from "../../utils/tree"
 
-type LimitedTreeTableProps = Omit<ITreeTableProps, "treeData" | "defaultExpandedIds">;
+type LimitedTreeTableProps = Omit<ITreeTableProps, "treeData" | "expandedRowIds">;
 export interface RsTreeSearchProps extends LimitedTreeTableProps {
     searchText: string,
     searchAttribKeys: string[],
@@ -27,8 +27,9 @@ function RsTreeSearch(props: RsTreeSearchProps) {
     useEffect(() => {
         let {treeData, expandedKeys} = getTreeData(props.data, props.searchText === "" ? [] : results);
         if(treeData)
-        setData(treeData);
-        setExpanded(expandedKeys)
+        setData([...treeData]);
+        if(expandedKeys)
+        setExpanded([...expandedKeys])
     },[props.data, results])
 
     const handleSearchResult = (results:any[]) => {
@@ -60,7 +61,7 @@ function RsTreeSearch(props: RsTreeSearchProps) {
             <Tree
                 {...props}
                 treeData = {data ? data : []}
-                defaultExpandedIds = {expanded?expanded : [] }
+                expandedRowIds = {expanded?expanded : [] }
                 height = {props.height - searchBarHeight}
             />
         </div>

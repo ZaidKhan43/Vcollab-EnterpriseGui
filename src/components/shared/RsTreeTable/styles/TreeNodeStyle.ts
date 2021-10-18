@@ -3,10 +3,10 @@ import {createStyles, makeStyles} from '@material-ui/core/styles'
 export const useStyles = makeStyles((theme) => (
     createStyles({
         actionShow: {
-            opacity:1
+            color: theme.palette.text.primary
         },
         actionHide: {
-            opacity:0.5
+            color: theme.palette.text.disabled
         },
         hightlight: {
             padding: theme.spacing(0.5),

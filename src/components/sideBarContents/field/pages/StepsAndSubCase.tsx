@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {goBack, push} from 'connected-react-router/immutable';
 import SideBarContainer from "../../../layout/sideBar/sideBarContainer"
 import { useAppDispatch, useAppSelector } from '../../../../store/storeHooks';
@@ -8,10 +8,13 @@ import Back from '../shared/BackIcon';
 import Select from '../shared/SelectModel';
 import Add from '../shared/Add';
 import Footer from '../shared/Footer';
-import { addUserFieldState, FieldType } from '../../../../store/sideBar/fieldSlice';
+import { addUserFieldState, FieldType, selectSteps, Source , removeUserStepsAndSubcase } from '../../../../store/sideBar/fieldSlice';
 
 function Steps() {
     const dispatch = useAppDispatch();
+    const [isEdit,setIsEdit] = useState(false);
+    const steps = useAppSelector(selectSteps)
+    const selected = Object.values(steps).filter(item => item.state.selected === true);
 
     //header
     const onClickBackIcon = () => {
@@ -44,16 +47,23 @@ function Steps() {
     }
 
     const handleDelete = () => {
-
+        if (selected.length === 1 && selected[0].source === Source.USER ) {
+            dispatch(removeUserStepsAndSubcase({nodeId:selected[0].id}));
+        }
+    }
+    const getFooter = () => {
+        return( selected.length === 1 && selected[0].source === Source.USER ?
+        <Footer onEdit={handleEdit} onDelete = {handleDelete}/> :
+        null)
     }
     return (
         <SideBarContainer
             headerLeftIcon = {getHeaderLeftIcon()}
-            headerRightIcon = {<Add onClick={handleAdd} />}
+            headerRightIcon = {false && <Add onClick={handleAdd} />}
             headerContent = {getHeaderContent()}
             headerAction = {getAction()}
             body = {getBody()}
-            footer = {<Footer onEdit={handleEdit} onDelete = {handleDelete}/>}
+            footer = {false && getFooter()}
         />
     )
 }

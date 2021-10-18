@@ -9,14 +9,14 @@ import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import RTree from '../../../shared/RsTreeTable';
 import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";
 import TreeNode from '../../../shared/RsTreeTable/TreeNode';
+import ShowHideCell from '../../../shared/RsTreeTable/ShowHide';
+import InvertCell from '../../../shared/RsTreeTable/Invert';
 import { convertListToTree } from '../../../utils/tree';
 import {selectProductTreeData, selectRootIds,selectCheckedLeafNodes,invertNode, toggleVisibilityAsync, setCheckedNodesAsync, setHightLightedNodesAsync, expandNode} from '../../../../store/sideBar/productTreeSlice'
 import Footer from '../Footer'
 import { useRef } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
 
-import ShowHideCell from '../../../shared/RsTreeTable/ShowHide';
-import InvertCell from '../../../shared/RsTreeTable/Invert';
 
 function AssemblyTree(props:any) {
     const treeDataRedux = useAppSelector(selectProductTreeData);
@@ -66,7 +66,9 @@ function AssemblyTree(props:any) {
     const handleCheck = (toCheck:boolean, nodeId:string) => {
       dispatch(setCheckedNodesAsync({toCheck,nodeId}));
     }
- 
+    const handleHighlight = (toHighlight:boolean, nodeId:string) => {
+      dispatch(setHightLightedNodesAsync({toHighlight,nodeId}))
+    }
     const handleVisibility = (toShow:boolean,node:any) => {
       dispatch(toggleVisibilityAsync({toShow, nodeId:node.id}));
     
@@ -74,14 +76,12 @@ function AssemblyTree(props:any) {
     const handleInvert = (node:any) => {
       dispatch(invertNode({nodeId:node.id}));
     }
-
-
     const getBody = () => {
       return(
         <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
           <RTree 
           treeData={roots} 
-          defaultExpandedIds = {expanded}
+          expandedRowIds = {expanded}
           onExpand={handleExpand}
           onRowClick = {() => {}}
           width = {300}
