@@ -67,3 +67,27 @@ export const selectNodeReducer = (state:ITreeState, action:PayloadAction<{leafOn
       }
     }
 }
+export const addNodeReducer = (state:ITreeState, action:PayloadAction<TreeNode>) => {
+  let node = action.payload;
+  if(node.pid !== null && node.pid !== "-1"){
+    let parent = state.data[node.pid];
+    parent.children.push(node.id);
+
+  }
+  state.data[node.id] = node;
+  
+}
+export const deleteNodeReducer = (state:ITreeState, action:PayloadAction<{nodeId:string}>) => {
+  let nodeId = action.payload.nodeId;
+  let current = state.data[nodeId];
+  let pid = current.pid;
+  delete state.data[nodeId];
+  if(pid) {
+    let parent = state.data[pid];
+    let index = parent.children.indexOf(nodeId);
+    if(index > -1)
+    parent.children.splice(index,1);
+    if(parent.children.length === 0)
+    delete state.data[pid];
+  }
+}

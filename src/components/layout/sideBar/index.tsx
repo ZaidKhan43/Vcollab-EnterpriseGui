@@ -15,7 +15,7 @@ import { sideBarContentTypes } from '../../../config';
 import MainMenu from '../../sideBarContents/mainMenu';
 import ProductExplorer from '../../sideBarContents/productExplorer';
 import Field from '../../sideBarContents/field';
-
+import Colormaps from '../../sideBarContents/colormaps';
 import ClipPlanes from '../../sideBarContents/clipPlanes';
 import Scene from "../../sideBarContents/scene";
 import Views from '../../sideBarContents/views';
@@ -23,7 +23,6 @@ import Annotations from '../../sideBarContents/annotations';
 import Settings from '../../sideBarContents/settings';
 import Messages from '../../sideBarContents/messages';
 import Labels from '../../sideBarContents/labels';
-import Colormaps from '../../sideBarContents/colormaps';
 
 export default function Sidebar(){
     
@@ -48,12 +47,12 @@ export default function Sidebar(){
         <Route path={Routes.GEOMETRY}>
         <ProductExplorer />
         </Route>
-        <Route  path={Routes.SCENE}>
-          <Scene/>
-        </Route>
         <Route path={Routes.FIELD}>
           <Field/>
         </Route>
+        <Route path={Routes.SCENE}>
+        <Scene/>
+         </Route>
         <Route path={Routes.CLIPPLANES} >
         <ClipPlanes/>
         </Route>
@@ -62,9 +61,12 @@ export default function Sidebar(){
         </Route>
         <Route path={Routes.LABELS}>
         <Labels />     
+        <Route path={Routes.SETTINGS}>
+        <Settings/>
+         </Route>
         </Route>
-        <Route path={Routes.COLORMAPS}>
-        <Colormaps/>
+        <Route>
+        <Colormaps />
         </Route>
         <Route>
         <Views />
@@ -72,12 +74,6 @@ export default function Sidebar(){
         <Route>
         <Annotations />
         </Route>
-        <Route path={Routes.SCENE}>
-        <Scene/>
-         </Route>
-        <Route path={Routes.SETTINGS}>
-        <Settings/>
-         </Route>
       </Switch>)
       
     };

@@ -4,6 +4,7 @@ import { Routes } from '../../../routes'
 import Variable from './pages/Variable'
 import Steps from './pages/StepsAndSubCase'
 import Derived from './pages/DerivedTypes'
+import Section from './pages/Sections'
 
 function ClipPlanes() {
     
@@ -17,6 +18,9 @@ function ClipPlanes() {
             </Route>
             <Route path={Routes.FIELD_DERIVED_TYPES}>
                 <Derived/>
+            </Route>
+            <Route path={Routes.FIELD_SECTIONS_AND_LAYERS}>
+                <Section/>
             </Route>
         </Switch>
     )

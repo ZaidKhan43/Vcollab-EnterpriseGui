@@ -10,19 +10,16 @@ interface ITreeNodeProps {
     children: any
 }
 
-function TreeNode(props:ITreeNodeProps) {
+function TreeNodeWithoutCheckbox(props:ITreeNodeProps) {
     const node = props.node;
     const classes = useStyles({});
 
     return (
         <Grid container className={node.state.visibility ?classes.actionShow:classes.actionHide} alignItems='center'>
             <Grid item>
-            <Checkbox style={{opacity:node.state.visibility ? 1.0 : 0.5}} size='small' checked= {node.state.checked} indeterminate={node.state.partiallyChecked} disableRipple onChange = {(e:any) => props.onCheck(e.target.checked,node.id)}></Checkbox>
-            </Grid>
-            <Grid item>
             <Typography 
                 style={{verticalAlign:'middle'}}
-                component="span" className={node.state.highlighted ? classes.hightlight : ""}
+                component="span" className={node.state.highlighted ? classes.hightlight : ""}                
             >
                     {node.title}
             </Typography>
@@ -31,4 +28,4 @@ function TreeNode(props:ITreeNodeProps) {
     )
 }
 
-export default TreeNode
+export default TreeNodeWithoutCheckbox

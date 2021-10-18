@@ -18,7 +18,7 @@ import {colormapElements, selectcolormapData} from '../../../../store/sideBar/co
 import styles from './style';
 
 import MuiTypography from '@material-ui/core/Typography';
-import MuiGrid from '@material-ui/core/Grid';
+// import MuiGrid from '@material-ui/core/Grid';
 import MuiKeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Routes } from '../../../../routes';
 
@@ -29,7 +29,8 @@ import MuiListItemText from '@material-ui/core/ListItemText';
 
 export default function Edit(){
 
-  const [activeId, setActiveId] = useState("2");  
+  const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
+  const [activeId, setActiveId] = useState(selectedColorMapId);  
 
   const list = useAppSelector(colormapElements)
 
@@ -87,25 +88,48 @@ export default function Edit(){
     return (
       <div className={classes.scrollBar}>
         <MuiMenuList>
+        <MuiMenuItem onClick={()=> dispatch(push(Routes.COLORMAPS_STEPS_AND_SUBCASE))}>
+              <MuiListItemText>
+                <MuiTypography variant="h3" align="left">
+                  Steps & Subcases
+                </MuiTypography>
+                <MuiTypography variant="h1" align="left">
+                  Subcase 1: Modal Transient - Time = 0.2
+                </MuiTypography>
+              </MuiListItemText>
+              <MuiListItemIcon style={{marginLeft:"250px"}}><MuiKeyboardArrowRightIcon /></MuiListItemIcon>           
+          </MuiMenuItem>
           	<MuiMenuItem onClick={()=> dispatch(push(Routes.COLORMAPS_VARIABLE))}>
               <MuiListItemText>
                 <MuiTypography variant="h3" align="left">
                   Variable
                 </MuiTypography>
                 <MuiTypography variant="h1" align="left">
-                  Displacement - Magnitude
+                  Displacement
                 </MuiTypography>
               </MuiListItemText>
               <MuiListItemIcon style={{marginLeft:"250px"}}><MuiKeyboardArrowRightIcon /></MuiListItemIcon>           
           </MuiMenuItem>
 
-          <MuiMenuItem onClick={()=> dispatch(push(Routes.COLORMAPS_STEPS_AND_SUBCASE))}>
+          <MuiMenuItem onClick={()=> dispatch(push(Routes.COLORMAPS_DERIVED_TYPES))}>
               <MuiListItemText>
                 <MuiTypography variant="h3" align="left">
-                  Step
+                  Derived Types
                 </MuiTypography>
                 <MuiTypography variant="h1" align="left">
-                  Step 1 - Frame 1
+                  Vector - X Component
+                </MuiTypography>
+              </MuiListItemText>
+              <MuiListItemIcon style={{marginLeft:"250px"}}><MuiKeyboardArrowRightIcon /></MuiListItemIcon>           
+          </MuiMenuItem>
+
+          <MuiMenuItem onClick={()=> dispatch(push(Routes.COLORMAPS_SELECTION_AND_LAYER))}>
+              <MuiListItemText>
+                <MuiTypography variant="h3" align="left">
+                  Sections & Layers
+                </MuiTypography>
+                <MuiTypography variant="h1" align="left">
+                  Shell - Top
                 </MuiTypography>
               </MuiListItemText>
               <MuiListItemIcon style={{marginLeft:"250px"}}><MuiKeyboardArrowRightIcon /></MuiListItemIcon>           
@@ -159,7 +183,7 @@ export default function Edit(){
           <SideBarContainer
             headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ <Title text={"Edit" } group="Color Maps"/> }
-            headerAction = {getAction()}
+            headerAction = {getAction()} 
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }
             footer = { getFooter() }
