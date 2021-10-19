@@ -15,21 +15,6 @@ type ColormapSettings = {
 } 
 
 
-enum VariableType {
-    MATERIAL_ID = 0,
-    CONSTRAINTS = 1,
-    PREASURE_LOADS = 2,
-    DISPLACEMENT_X_COMPONENT = 3,
-    DISPLACEMENT_Y_COMPONENT = 4,
-    DISPLACEMENT_Z_COMPONENT = 5,
-    DISPLACEMENT_MAGNITUDE = 6,
-    REACTION_FORCE = 7,
-    STRESS = 8,
-
-    PARENT_NODE =-1,
-
-}
-
 export interface Colormaps extends TreeNode {
     id: string;
     pid: string | null;
@@ -37,8 +22,8 @@ export interface Colormaps extends TreeNode {
     children: string[];
     state: any;
     attributes: any;
-    colorPalette?: string,
-    variable?: VariableType;
+    colorPalette: string;
+    variable: string;
 }
 
 interface ColormapTreeState extends ITreeState {
@@ -53,7 +38,7 @@ export interface ColorPalette extends TreeNode {
     children: string[];
     state: any;
     attributes: any;
-    variableType?: VariableType;
+
 }
 
 interface ColorPaletteTreeState extends ITreeState {
@@ -62,24 +47,8 @@ interface ColorPaletteTreeState extends ITreeState {
 }
 
 
-export interface variableList extends TreeNode {
-    id: string;
-    pid: string | null;
-    title: string;
-    variableType: VariableType;
-    children: string[];
-    state: any;
-    attributes: any;
-    totalSize?:number,
-    downloaded?:boolean,
-    processing?:boolean,
-}
 
 
-interface variableTreeState extends ITreeState {
-    data : {[id:string]:variableList},
-    rootIds: string[],
-}
 
 type ColorPaletteSettings = {
     idGenerator : number,
@@ -89,8 +58,6 @@ type ColorPaletteSettings = {
 interface InitialState {
     colormapTree : ColormapTreeState,
     colormapSettings : ColormapSettings,
-
-    variableTree : variableTreeState,
     
     colorPaletteTree : ColorPaletteTreeState,
     colorPaletteSettings : ColorPaletteSettings,
@@ -112,6 +79,7 @@ const initialState : InitialState = {
               expanded : true,
             },
             colorPalette: "-1",
+            variable: "-1",
             attributes: {},
         },
         "1" : {
@@ -124,6 +92,7 @@ const initialState : InitialState = {
               expanded : true,
             },
             colorPalette: "-1",
+            variable:"-1",
             attributes: {},
         },
       
@@ -137,6 +106,7 @@ const initialState : InitialState = {
               expanded : true,
             },
             colorPalette: "3",
+            variable:"01",
             attributes: {},
         },
         "3" : {
@@ -149,6 +119,7 @@ const initialState : InitialState = {
               expanded : true,
             },
             colorPalette: "2",
+            variable:"02",
             attributes: {},
         },
         "4" : {
@@ -161,6 +132,7 @@ const initialState : InitialState = {
               expanded : true,
             },
             colorPalette: "3",
+            variable:"03",
             attributes: {},
         },
         "5" : {
@@ -173,6 +145,7 @@ const initialState : InitialState = {
               expanded : true,
             },
             colorPalette: "2",
+            variable:"12",
             attributes: {},
         },
         "6" : {
@@ -185,6 +158,7 @@ const initialState : InitialState = {
               expanded : true,
             },
             colorPalette: "3",
+            variable:"14",
             attributes: {},
         },
     },
@@ -203,173 +177,13 @@ const initialState : InitialState = {
                     visibility : true,
                 },
                 colorPalette: "2",
+                variable:"13",
                 attributes: {},
         },
         bracketCount: 1,
         headCount: 2,
     },
 
-    variableTree : {
-        data : {
-            "0" : {
-                id:"0",
-                pid: "-1",
-                title:"Input",
-                variableType:VariableType.PARENT_NODE,
-                children:["2","3","4"],
-                state:{
-                    expanded : true,
-                    visibility: true,
-                },
-                attributes:{},
-            },
-
-            "1" : {
-                id:"1",
-                pid: "-1",
-                title:"Result",
-                variableType:VariableType.PARENT_NODE,
-                children:["5","6","7"],
-                state:{
-                    expanded : true,
-                    visibility: true,
-                },
-                attributes:{},
-            },
-
-            "2" : {
-                id:"2",
-                pid: "0",
-                title:"Material ID",
-                variableType:VariableType.MATERIAL_ID,
-                children:[],
-                state:{
-                    expanded : true,
-                    visibility: true,
-                },
-                attributes:{},
-            },
-            
-            "3" : {
-                id:"3",
-                pid: "0",
-                title:"Constraints",
-                variableType:VariableType.CONSTRAINTS,
-                children:[],
-                state:{
-                    expanded : true,
-                    visibility: true,
-                },
-                attributes:{},
-            },
-
-            "4" : {
-                id:"4",
-                pid: "0",
-                title:"Pressure Loads",
-                variableType:VariableType.PREASURE_LOADS,
-                children:[],
-                state:{
-                    expanded : true,
-                    visibility: true,
-                },
-                attributes:{},
-            },
-
-            "5" : {
-                id:"5",
-                pid: "1",
-                title:"Displacement",
-                variableType:VariableType.PARENT_NODE,
-                children:["8","9","10","11"],
-                state:{
-                    expanded : true,
-                    visibility: true,
-                },
-                attributes:{},
-            },
-
-            "6" : {
-                id:"6",
-                pid: "1",
-                title:"Reaction Force",
-                variableType:VariableType.REACTION_FORCE,
-                children:[],
-                state:{
-                    expanded : true,
-                    visibility: true,
-                },
-                attributes:{},
-            },
-
-            "7" : {
-                id:"7",
-                pid: "1",
-                title:"Stress",
-                variableType:VariableType.STRESS,
-                children:[],
-                state:{
-                    expanded : true,
-                    visibility: true,
-                },
-                attributes:{},
-            },
-
-            "8" : {
-                id:"8",
-                pid: "5",
-                title:"X-Component",
-                variableType:VariableType.DISPLACEMENT_X_COMPONENT,
-                children:[],
-                state:{
-                    expanded : true,
-                    visibility: true,
-                },
-                attributes:{},
-            },
-
-            "9" : {
-                id:"9",
-                pid: "5",
-                title:"Y-Component",
-                variableType:VariableType.DISPLACEMENT_Y_COMPONENT,
-                children:[],
-                state:{
-                    expanded : true,
-                    visibility: true,
-                },
-                attributes:{},
-            },
-
-            "10" : {
-                id:"10",
-                pid: "5",
-                title:"Z-Component",
-                variableType:VariableType.DISPLACEMENT_Z_COMPONENT,
-                children:[],
-                state:{
-                    expanded : true,
-                    visibility: true,
-                },
-                attributes:{},
-            },
-
-            "11" : {
-                id:"11",
-                pid: "5",
-                title:"Magnitude",
-                variableType: VariableType.DISPLACEMENT_MAGNITUDE,
-                children:[],
-                state:{
-                    expanded : true,
-                    visibility: true,
-                },
-                attributes:{},
-            },
-        },
-
-        rootIds : ["0","1"],
-    },
 
     colorPaletteTree : {
         data :{
@@ -445,7 +259,6 @@ export const colormapSlice = createSlice({
         toggleVisibility: (state,action) =>toggleVisibilityReducer(state.colormapTree, action),
         setCheckedVisibility: (state,action) =>setCheckedVisibilityReducer(state.colormapTree, action),
         
-        expandVariableNode : (state, action) => expandNodeReducer(state.variableTree, action),
         expandColorPaletteNode : (state, action) => expandNodeReducer(state.colorPaletteTree, action),
 
         createColorMap : (state , action: PayloadAction<string>) => {
@@ -530,6 +343,11 @@ export const colormapSlice = createSlice({
 
             
         },
+
+        setSelectedVariable : (state , action : PayloadAction<{colorMapId :string, variableId : string}>) => {
+            state.colormapTree.data[action.payload.colorMapId].variable = action.payload.variableId;
+        },
+
         // expandVariableNode :(state,action) => {
 
         // }
@@ -564,7 +382,7 @@ export const colormapSlice = createSlice({
 })
 
 export default colormapSlice.reducer;
-export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, expandVariableNode, handleColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette} = colormapSlice.actions;
+export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, handleColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable} = colormapSlice.actions;
 
 //Selectors
 
@@ -575,8 +393,8 @@ export const selectColorPaletteData = (state:RootState) => state.colormap.colorP
 export const selectColorPaletteRootIds = (state:RootState) => state.colormap.colorPaletteTree.rootIds;
 
 
-export const selectVariableData = (state: RootState) => state.colormap.variableTree.data;
-export const selectVariableRootIds = (state : RootState) => state.colormap.variableTree.rootIds;
+// export const selectVariableData = (state: RootState) => state.colormap.variableTree.data;
+// export const selectVariableRootIds = (state : RootState) => state.colormap.variableTree.rootIds;
 
 export const selectedColorPaletteId = (state : RootState) => state.colormap.selectedColorPaletteId;
 

@@ -170,7 +170,7 @@ export default function ColorPalette(){
           return (
             <TreeNodeWithoutCheckbox 
               node={treeDataRedux[node.id]}
-              onCheck={() => console.log("sa")}
+              onCheck={() => console.log("")}
             >
             </TreeNodeWithoutCheckbox>
           )

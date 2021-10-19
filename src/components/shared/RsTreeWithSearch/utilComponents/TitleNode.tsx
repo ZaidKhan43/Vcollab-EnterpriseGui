@@ -21,7 +21,7 @@ const Title = (props:any) => {
         },[props.rowData?.matches])
 
           return(
-          props.rowData.matches ? 
+          props.rowData?.matches ? 
           <Typography>
               {
                 parts.map( (part:{text:string,isMatch:boolean} ) => {
@@ -37,7 +37,7 @@ const Title = (props:any) => {
           :
           <Typography>
             {
-            props.rowData.title? props.rowData.title:
+            props.rowData?.title? props.rowData?.title:
             null}
           </Typography>
           )
