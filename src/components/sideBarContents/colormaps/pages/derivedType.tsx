@@ -27,7 +27,7 @@ import {useStyles} from '../../../shared/RsTreeTable/styles/TreeNodeStyle'
 import Grid from '@material-ui/core/Grid'
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
 import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
-import TitleOne from '../../../shared/RsTreeWithSearch/utilComponents/TitleNode'
+import TitleTree from '../../../shared/RsTreeWithSearch/utilComponents/TitleNode'
 
 export default function Variable(){
 
@@ -61,7 +61,7 @@ export default function Variable(){
   const onVariableClick = (node :any) => {
     console.log(node)
     if(node.children.length === 0)
-      dispatch(setSelectedDerivedType({colorMapId :activeColormapId, variableId : node.id}))
+      dispatch(setSelectedDerivedType({colorMapId :activeColormapId, derivedTypeId : node.id}))
   }
   
   const getHeaderLeftIcon= () => {
@@ -129,7 +129,7 @@ export default function Variable(){
                                   <div style={{width:10}}></div>
                                   </Grid>
                                   <Grid item>
-                                  <TitleOne rowData = {rowData}></TitleOne>
+                                  <TitleTree rowData = {rowData}></TitleTree>
                                   </Grid>
                               </Grid>
                           }
