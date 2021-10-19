@@ -6,6 +6,7 @@ import {TreeNode} from "./shared/ProductExplorer/types";
 import {ITreeState} from "./shared/ProductExplorer/types";
 import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer} from "./shared/ProductExplorer/reducers";
 import Variable from '../../components/sideBarContents/colormaps/pages/variable';
+import ColorPalette from '../../components/sideBarContents/colormaps/pages/colorPalette';
 
 type ColormapSettings = {
     idGenerator : number,
@@ -40,6 +41,7 @@ export interface ColorPalette extends TreeNode {
     title: string;
     children: string[];
     state: any;
+    colorSet:any[];
     attributes: any;
 
 }
@@ -223,6 +225,7 @@ const initialState : InitialState = {
                     expanded: true,
                     visibility: true,
                 },
+                colorSet:[],
                 attributes: {},
             },
             "1" : {
@@ -234,6 +237,7 @@ const initialState : InitialState = {
                     expanded: true,
                     visibility: true,
                 },
+                colorSet:[],
                 attributes: {},
             },
             "2" : {
@@ -245,6 +249,22 @@ const initialState : InitialState = {
                     expanded: true,
                     visibility: true,
                 },
+                colorSet:[
+                    {id:0, color:{ r:255, g:0, b:0, a:1},},
+                    {id:1, color:{ r:0, g:255, b:0, a:1},},
+                    {id:2, color:{ r:0, g:0, b:255, a:1},},
+                    {id:3, color:{ r:255, g:255, b:0, a:1},},
+                    {id:4, color:{ r:0, g:255, b:255, a:1},},
+                    {id:5, color:{ r:255, g:0, b:255, a:1},},
+                    {id:6, color:{ r:192, g:192, b:192, a:1},},
+                    {id:7, color:{ r:128, g:128, b:128, a:1},},
+                    {id:8, color:{ r:128, g:0, b:0, a:1},},
+                    {id:9, color:{ r:128, g:128, b:0, a:1},},
+                    {id:10, color:{ r:0, g:128, b:0, a:1},},
+                    {id:11, color:{ r:128, g:0, b:128, a:1},},
+                    {id:12, color:{ r:0, g:128, b:128, a:1},},
+                    {id:13, color:{ r:0, g:0, b:128, a:1},},                   
+                ],
                 attributes: {},
             },
             "3" : {
@@ -256,6 +276,11 @@ const initialState : InitialState = {
                     expanded: true,
                     visibility: true,
                 },
+                colorSet:[
+                    {id:0,color:{r:255, g:0, b:0, a:1},},
+                    {id:1,color:{r:0, g:255, b:0, a:1},},
+                    {id:2,color:{r:0, g:0, b:255, a:1},},
+                ],
                 attributes: {},
             },
         },
@@ -326,6 +351,7 @@ export const colormapSlice = createSlice({
                     expanded: true,
                     visibility: true,
                 },
+                colorSet:[{id : 0, color:{r:255, g:255, b:255, a:1}}],
                 attributes: {},
             }
 
@@ -346,6 +372,10 @@ export const colormapSlice = createSlice({
             state.colormapTree.data[action.payload.colorMapId].colorPalette = action.payload.colorPaletteId;
         },
 
+        editColorPalette : (state, action : PayloadAction<{colorPaletteId : string, colorData: any[]}>) => {
+            state.colorPaletteTree.data[action.payload.colorPaletteId].colorSet = action.payload.colorData;
+        },
+        
         deleteColorPalette : (state, action : PayloadAction<string>) => {
 
                     state.selectedColorPaletteId = "-1";
@@ -421,7 +451,7 @@ export const colormapSlice = createSlice({
 })
 
 export default colormapSlice.reducer;
-export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, handleColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep} = colormapSlice.actions;
+export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, handleColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep, editColorPalette} = colormapSlice.actions;
 
 //Selectors
 
