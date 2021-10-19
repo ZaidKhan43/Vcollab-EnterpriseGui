@@ -68,7 +68,8 @@ export default function List(){
   }
 
   const handleSeletedColorMap = (node : any) => {
-    dispatch(handleColorMapSelection(node.id));
+    if(node.children.length === 0)
+      dispatch(handleColorMapSelection(node.id));
   }
 
   const getBody = () => {

@@ -13,16 +13,14 @@ import {goBack} from 'connected-react-router/immutable';
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 
-import styles from './style'
-
 import { useRef, useState } from 'react';
 
-import RsTreeSearch, {RsTreeSearchProps} from '../../../shared/RsTreeWithSearch'
+import RsTreeSearch from '../../../shared/RsTreeWithSearch'
 import AutoSizer from '../../../shared/autoSize'
 
 import { selectVariables, expandVariable, } from '../../../../store/sideBar/fieldSlice'
 
-import { colormapElements, selectColorPaletteData, selectColorPaletteRootIds, expandColorPaletteNode, createPalette, setColorPalette , selectcolormapData, selectedColorPaletteId, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable} from '../../../../store/sideBar/colormapSlice';
+import { colormapElements, selectcolormapData, setSelectedVariable} from '../../../../store/sideBar/colormapSlice';
 
 import {useStyles} from '../../../shared/RsTreeTable/styles/TreeNodeStyle'
 import Grid from '@material-ui/core/Grid'
@@ -61,7 +59,7 @@ export default function Variable(){
 
   const onVariableClick = (node :any) => {
     console.log(node)
-    if(node._parent)
+    if(node.children.length === 0)
       dispatch(setSelectedVariable({colorMapId :activeColormapId, variableId : node.id}))
   }
   

@@ -37,7 +37,7 @@ const Title = (props:any) => {
           :
           <Typography>
             {
-            props.rowData?.title? props.rowData?.title:
+            props.rowData.title? props.rowData.title:
             null}
           </Typography>
           )

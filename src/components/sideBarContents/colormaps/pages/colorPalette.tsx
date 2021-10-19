@@ -79,13 +79,13 @@ export default function ColorPalette(){
   }
 
   const handlePaletteClick = (node :any) => {
-    if(treeDataRedux[node.id].pid !== "-1")
+    if(treeDataRedux[node.id].children.length === 0)
       dispatch(setSelectedColorPalette(node.id))
     setOpenDelete(false)
   }
   
   const onHandleApply = () => {
-    if(treeDataRedux[selectedColorPalette].pid !== "-1")
+    if(treeDataRedux[selectedColorPalette].children.length === 0)
       dispatch(setColorPalette({colorMapId :activeColormapId, colorPaletteId : selectedColorPalette}))
   }
 

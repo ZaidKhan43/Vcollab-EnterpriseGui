@@ -24,6 +24,7 @@ export interface Colormaps extends TreeNode {
     attributes: any;
     colorPalette: string;
     variable: string;
+    derivedType: string;
 }
 
 interface ColormapTreeState extends ITreeState {
@@ -80,6 +81,7 @@ const initialState : InitialState = {
             },
             colorPalette: "-1",
             variable: "-1",
+            derivedType:"-1",
             attributes: {},
         },
         "1" : {
@@ -93,6 +95,7 @@ const initialState : InitialState = {
             },
             colorPalette: "-1",
             variable:"-1",
+            derivedType:"-1",
             attributes: {},
         },
       
@@ -107,6 +110,7 @@ const initialState : InitialState = {
             },
             colorPalette: "3",
             variable:"01",
+            derivedType:"01",
             attributes: {},
         },
         "3" : {
@@ -120,6 +124,7 @@ const initialState : InitialState = {
             },
             colorPalette: "2",
             variable:"02",
+            derivedType:"02",
             attributes: {},
         },
         "4" : {
@@ -133,6 +138,7 @@ const initialState : InitialState = {
             },
             colorPalette: "3",
             variable:"03",
+            derivedType:"11",
             attributes: {},
         },
         "5" : {
@@ -146,6 +152,7 @@ const initialState : InitialState = {
             },
             colorPalette: "2",
             variable:"12",
+            derivedType:"11",
             attributes: {},
         },
         "6" : {
@@ -159,6 +166,7 @@ const initialState : InitialState = {
             },
             colorPalette: "3",
             variable:"14",
+            derivedType:"21",
             attributes: {},
         },
     },
@@ -178,6 +186,7 @@ const initialState : InitialState = {
                 },
                 colorPalette: "2",
                 variable:"13",
+                derivedType:"22",
                 attributes: {},
         },
         bracketCount: 1,
@@ -284,9 +293,8 @@ export const colormapSlice = createSlice({
         },
 
         handleColorMapSelection: (state, action: PayloadAction<string>) => {
-            if(state.colormapTree.data[action.payload].pid !== "-1")
-                state.selectedColorMapId = action.payload;
-        },
+            state.selectedColorMapId = action.payload;
+        }, 
 
         createPalette : (state) => {
             state.colorPaletteSettings.idGenerator += 1;
@@ -348,6 +356,10 @@ export const colormapSlice = createSlice({
             state.colormapTree.data[action.payload.colorMapId].variable = action.payload.variableId;
         },
 
+        setSelectedDerivedType : (state , action : PayloadAction<{colorMapId :string, variableId : string}>) => {
+            state.colormapTree.data[action.payload.colorMapId].derivedType = action.payload.variableId;
+        },
+
         // expandVariableNode :(state,action) => {
 
         // }
@@ -382,7 +394,7 @@ export const colormapSlice = createSlice({
 })
 
 export default colormapSlice.reducer;
-export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, handleColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable} = colormapSlice.actions;
+export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, handleColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType} = colormapSlice.actions;
 
 //Selectors
 
