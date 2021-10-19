@@ -1,20 +1,36 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import TreeSearch from '../../shared/Tree'
 import AutoSizer from '../../../../shared/autoSize'
 import { useAppDispatch, useAppSelector } from '../../../../../store/storeHooks'
-import { selectDerivedTypes, expandDerivedTypes, setSelectDerivedTypes } from '../../../../../store/sideBar/fieldSlice'
+import { getDependantDerivedTypeIds, setVisibleDerivedTypes, selectDerivedTypes, expandDerivedTypes, setSelectDerivedTypes, selectVariables, getSelectedVariableIds } from '../../../../../store/sideBar/fieldSlice'
+import useSingleSelect from '../../shared/hooks/useSingleSelect'
+import useVisibility from '../../shared/hooks/useVisibility'
 import { useState } from 'react'
 
 
 function Body() {
     const dispatch = useAppDispatch();
+    const variables = useAppSelector(selectVariables);
     const derived = useAppSelector(selectDerivedTypes);
+    const selectedVariableIds = useAppSelector(getSelectedVariableIds);
+    const [depDerivedIds, setDepDerivedIds] = useState<string[]>([]);
+    const [selected, handleSelect] = useSingleSelect({
+        treeData: derived,
+        selectReducer: setSelectDerivedTypes
+    })
+    const derivedVisibleIds = useVisibility({
+        source: variables,
+        target: derived,
+        targetIds: depDerivedIds,
+        targetSetVisibilityReducer: setVisibleDerivedTypes
+    })
+    useEffect(() => {
+        setDepDerivedIds(getDependantDerivedTypeIds(variables,selectedVariableIds));
+    },[])
     const handleExpand = (toOpen:boolean,nodeId:string) => {
         dispatch(expandDerivedTypes({toOpen,nodeId}));
     }
-    const handleSelect = (rowData:any) => {
-        dispatch(setSelectDerivedTypes({nodeId:rowData.id,leafOnly:true}))
-    }
+
     const [searchText, setSearchText] = useState("");
 
     return (
@@ -32,6 +48,7 @@ function Body() {
                             searchPlaceholder = "Search Derived Types"
                             onExpand = {handleExpand}
                             onRowClick = {handleSelect}
+                            selected = {selected}
                         />
                     </div>   
             }
