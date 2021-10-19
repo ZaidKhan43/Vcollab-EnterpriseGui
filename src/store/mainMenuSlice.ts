@@ -115,20 +115,20 @@ const initialState: MainMenu ={
                     path: Routes.GEOMERTY_MATERIAL_COLOR,
                     disabled: false,
                   },
-                  {
-                    id: '15',
-                    name: "Coordinate System",
-                    type:MainMenuItems.GEOMETRY_COORDINATE_SYSTEM,
-                    path: Routes.HOME,
-                    disabled: false,
-                  },
-                  {
-                    id: '16',
-                    name: "Transform",
-                    type:MainMenuItems.GEOMETRY_TRANSFORMATION,
-                    path: Routes.HOME,
-                    disabled: false,
-                  }
+                //   {
+                //     id: '15',
+                //     name: "Coordinate System",
+                //     type:MainMenuItems.GEOMETRY_COORDINATE_SYSTEM,
+                //     path: Routes.HOME,
+                //     disabled: false,
+                //   },
+                //   {
+                //     id: '16',
+                //     name: "Transform",
+                //     type:MainMenuItems.GEOMETRY_TRANSFORMATION,
+                //     path: Routes.HOME,
+                //     disabled: false,
+                //   }
             ]
         },
         {
@@ -196,13 +196,13 @@ const initialState: MainMenu ={
                     path:Routes.SCENE_AXIS_TRIAD,
                     disabled: false
                 },
-                {
-                    id:'34',
-                    name: "Light",
-                    type:MainMenuItems.SCENE_LIGHT,
-                    path:Routes.SCENE_LIGHT,
-                    disabled: false
-                },
+                // {
+                //     id:'34',
+                //     name: "Light",
+                //     type:MainMenuItems.SCENE_LIGHT,
+                //     path:Routes.SCENE_LIGHT,
+                //     disabled: false
+                // },
             ]
         },
         {

@@ -2362,9 +2362,7 @@ function __spread$1() {
             extension: '.bmp'
         },
     };
-})(AppConstants || (AppConstants = {}));
-
-var AppState$1 = /** @class */ (function () {
+})(AppConstants || (AppConstants = {}));var AppState$1 = /** @class */ (function () {
     function AppState() {
     }
     AppState.DefaultDisplayMode = AppConstants.DisplayMode.SHADED;
@@ -2560,9 +2558,7 @@ var errorCode = {
     noresponseError: 'No response from server',
     invalidDataError: 'Invalid data received from server',
     downloadInProgress: 'Download in progress'
-};
-
-var WEBGLBuffer = /** @class */ (function () {
+};var WEBGLBuffer = /** @class */ (function () {
     function WEBGLBuffer(_uid, usage) {
         this.GLContext = AppState$1.GLContext;
         this.buffer = this.GLContext.createBuffer();
@@ -2711,9 +2707,7 @@ var WEBGLBuffer = /** @class */ (function () {
         return -1;
     };
     return WEBGLBuffer;
-}());
-
-var ShaderType;
+}());var ShaderType;
 (function (ShaderType) {
     ShaderType[ShaderType["NONE"] = -1] = "NONE";
     ShaderType[ShaderType["VERTEX"] = 0] = "VERTEX";
@@ -2788,9 +2782,7 @@ var WEBGLCOMPONENTTYPES = {
     5123: Uint16Array,
     5125: Uint32Array,
     5126: Float32Array
-};
-
-var WebGLElementArrayBuffer = /** @class */ (function (_super) {
+};var WebGLElementArrayBuffer = /** @class */ (function (_super) {
     __extends(WebGLElementArrayBuffer, _super);
     function WebGLElementArrayBuffer(_uid, usage, data) {
         var _this = _super.call(this, _uid, usage) || this;
@@ -2800,9 +2792,7 @@ var WebGLElementArrayBuffer = /** @class */ (function (_super) {
         return _this;
     }
     return WebGLElementArrayBuffer;
-}(WEBGLBuffer));
-
-var WebGLArrayBufferAttribute = /** @class */ (function () {
+}(WEBGLBuffer));var WebGLArrayBufferAttribute = /** @class */ (function () {
     function WebGLArrayBufferAttribute() {
         this.name = null;
         this.position = null;
@@ -2968,9 +2958,7 @@ var WebGLArrayBufferAttribute = /** @class */ (function () {
         return bufferViewIndexes;
     };
     return WebGLArrayBufferAttribute;
-}());
-
-var WebGLArrayBuffer = /** @class */ (function (_super) {
+}());var WebGLArrayBuffer = /** @class */ (function (_super) {
     __extends(WebGLArrayBuffer, _super);
     function WebGLArrayBuffer(_uid, usage, data) {
         var _this = _super.call(this, _uid, usage) || this;
@@ -2980,9 +2968,7 @@ var WebGLArrayBuffer = /** @class */ (function (_super) {
         return _this;
     }
     return WebGLArrayBuffer;
-}(WEBGLBuffer));
-
-/**
+}(WEBGLBuffer));/**
  * Common utilities
  * @module glMatrix
  */
@@ -5318,9 +5304,7 @@ function fromValues$4(x, y) {
             far: far
         };
     };
-})(Utility$1 || (Utility$1 = {}));
-
-var Texture = /** @class */ (function () {
+})(Utility$1 || (Utility$1 = {}));var Texture = /** @class */ (function () {
     function Texture(name, textureType) {
         this.name = name;
         if (AppState$1.GLContext) {
@@ -5461,9 +5445,7 @@ var TextureManager = /** @class */ (function () {
     };
     TextureManager.textureCache = new Utility$1.Registry();
     return TextureManager;
-}());
-
-var Material = /** @class */ (function () {
+}());var Material = /** @class */ (function () {
     function Material(name) {
         this.name = name;
         this.shader = null;
@@ -5579,9 +5561,7 @@ var MaterialManager = /** @class */ (function () {
     };
     WEBGLBufferCache.cache = new Utility$1.Registry();
     return WEBGLBufferCache;
-}());
-
-var BoundingBox = /** @class */ (function () {
+}());var BoundingBox = /** @class */ (function () {
     function BoundingBox() {
         this.Min = {
             x: 0,
@@ -5652,9 +5632,7 @@ var BoundingBox = /** @class */ (function () {
         return BBox;
     };
     return BoundingBox;
-}());
-
-var CoreMesh = /** @class */ (function () {
+}());var CoreMesh = /** @class */ (function () {
     function CoreMesh(name) {
         this.name = name;
         this.material = null;
@@ -5957,9 +5935,7 @@ var Mesh = /** @class */ (function () {
     };
     Mesh.bufferAttributeCache = new Utility$1.Registry(); // used in old  code 
     return Mesh;
-}());
-
-var SceneNode = /** @class */ (function () {
+}());var SceneNode = /** @class */ (function () {
     function SceneNode(_name) {
         this.name = _name;
         this.children = [];
@@ -6179,9 +6155,7 @@ var ShapeNode = /** @class */ (function (_super) {
         this.mesh.delete();
     };
     return ShapeNode;
-}(SceneNode));
-
-var SceneGraph = /** @class */ (function () {
+}(SceneNode));var SceneGraph = /** @class */ (function () {
     function SceneGraph(_name) {
         this.root = new TransFormNode("RootNode");
         this.name = _name;
@@ -6361,9 +6335,7 @@ var SceneGraph = /** @class */ (function () {
         }
     };
     return SceneGraph;
-}());
-
-var WebGLState = /** @class */ (function () {
+}());var WebGLState = /** @class */ (function () {
     function WebGLState() {
     }
     WebGLState.isEqual = function (cache, array) {
@@ -6384,9 +6356,7 @@ var WebGLState = /** @class */ (function () {
     WebGLState.attributeState = new Map();
     WebGLState.attributeEnableState = new Map();
     return WebGLState;
-}());
-
-var uniforms = {
+}());var uniforms = {
     "uProjectionMatrix": "uProjectionMatrix",
     "uModelViewMatrix": "uModelViewMatrix",
     "uNormalMatrix": "uNormalMatrix",
@@ -6790,9 +6760,7 @@ var Shader = /** @class */ (function () {
         }
     };
     return Shader;
-}());
-
-var BoxMesh = /** @class */ (function (_super) {
+}());var BoxMesh = /** @class */ (function (_super) {
     __extends(BoxMesh, _super);
     function BoxMesh(name, min, max, precentOffset) {
         if (precentOffset === void 0) { precentOffset = 0; }
@@ -6922,9 +6890,7 @@ var BoxMesh = /** @class */ (function (_super) {
         return clone$1$1(this.max);
     };
     return BoxMesh;
-}(CoreMesh));
-
-function createCommonjsModule(fn, module) {
+}(CoreMesh));function createCommonjsModule(fn, module) {
 	return module = { exports: {} }, fn(module, module.exports), module.exports;
 }var arraybufferConcat = createCommonjsModule(function (module, exports) {
 (function(root) {
@@ -8018,9 +7984,7 @@ var MathUtils;
         return true;
     }
     MathUtils.arraysEqual = arraysEqual;
-})(MathUtils || (MathUtils = {}));
-
-var EventDispatcher = /** @class */ (function () {
+})(MathUtils || (MathUtils = {}));var EventDispatcher = /** @class */ (function () {
     function EventDispatcher() {
         this._listeners = {};
     }
@@ -8067,27 +8031,21 @@ var EventDispatcher = /** @class */ (function () {
         }
     };
     return EventDispatcher;
-}());
-
-var PerspCamera = /** @class */ (function () {
+}());var PerspCamera = /** @class */ (function () {
     function PerspCamera() {
         this.camMatrix = create$1$1();
         this.pMatrix = create$1$1();
         this.projectionViewMatrix = create$1$1();
     }
     return PerspCamera;
-}());
-
-var OrthCamera = /** @class */ (function () {
+}());var OrthCamera = /** @class */ (function () {
     function OrthCamera() {
         this.camMatrix = create$1$1();
         this.pMatrix = create$1$1();
         this.projectionViewMatrix = create$1$1();
     }
     return OrthCamera;
-}());
-
-var Events;
+}());var Events;
 (function (Events) {
     Events["MOUSE_DOWN"] = "MOUSE_DOWN";
     Events["MOUSE_UP"] = "MOUSE_UP";
@@ -8098,9 +8056,7 @@ var Events;
     Events["PART_PICKED"] = "PART_PICKED";
     Events["PROBE_FINISH"] = "PROBE_FINISH";
     Events["CAMERA_MOVED"] = "CAMERA_MOVED";
-})(Events || (Events = {}));
-
-var ZoomType;
+})(Events || (Events = {}));var ZoomType;
 (function (ZoomType) {
     ZoomType[ZoomType["MOUSE_WHEEL"] = 0] = "MOUSE_WHEEL";
     ZoomType[ZoomType["MIDDLE_ZOOM"] = 1] = "MIDDLE_ZOOM";
@@ -8795,9 +8751,7 @@ var CameraControl = /** @class */ (function (_super) {
         }
     };
     return CameraControl;
-}(EventDispatcher));
-
-/** Class representing a Renderer2D. */
+}(EventDispatcher));/** Class representing a Renderer2D. */
 var Renderer2D = /** @class */ (function () {
     function Renderer2D(container) {
         this.container = container;
@@ -8866,9 +8820,16 @@ var Renderer2D = /** @class */ (function () {
         else if (type === AppConstants.BackgroundType.GRADIENT) {
             var grd_1 = this.backPlane2dctx.createLinearGradient(0, 0, 0, this.canvasBackPlane.height);
             if (data instanceof Array) {
-                data.forEach(function (e, idx) {
-                    grd_1.addColorStop(idx / (data.length - 1), "rgba(" + e[0] + "," + e[1] + "," + e[2] + "," + e[3] + ")");
-                });
+                if (data.length === 1) {
+                    var e = data[0];
+                    grd_1.addColorStop(0, "rgba(" + e[0] + "," + e[1] + "," + e[2] + "," + e[3] + ")");
+                    grd_1.addColorStop(1, "rgba(" + e[0] + "," + e[1] + "," + e[2] + "," + e[3] + ")");
+                }
+                else {
+                    data.forEach(function (e, idx) {
+                        grd_1.addColorStop(idx / (data.length - 1), "rgba(" + e[0] + "," + e[1] + "," + e[2] + "," + e[3] + ")");
+                    });
+                }
             }
             this.backPlane2dctx.fillStyle = grd_1;
             this.backPlane2dctx.rect(0, 0, this.canvasBackPlane.width, this.canvasBackPlane.height);
@@ -9261,9 +9222,7 @@ var Renderer2D = /** @class */ (function () {
         return index;
     };
     return ArrowMesh;
-}(CoreMesh));
-
-var Arrow3D = /** @class */ (function (_super) {
+}(CoreMesh));var Arrow3D = /** @class */ (function (_super) {
     __extends(Arrow3D, _super);
     function Arrow3D(name, color) {
         if (color === void 0) { color = [0, 0, 0, 1]; }
@@ -9274,9 +9233,7 @@ var Arrow3D = /** @class */ (function (_super) {
         return _this;
     }
     return Arrow3D;
-}(ShapeNode));
-
-var Axes3DHelper = /** @class */ (function (_super) {
+}(ShapeNode));var Axes3DHelper = /** @class */ (function (_super) {
     __extends(Axes3DHelper, _super);
     function Axes3DHelper(name) {
         var _this = _super.call(this, name) || this;
@@ -9293,9 +9250,7 @@ var Axes3DHelper = /** @class */ (function (_super) {
         return _this;
     }
     return Axes3DHelper;
-}(TransFormNode));
-
-var WebGLRenderTarget = /** @class */ (function () {
+}(TransFormNode));var WebGLRenderTarget = /** @class */ (function () {
     function WebGLRenderTarget(width, height, options) {
         this.buffer = AppState$1.GLContext.createFramebuffer();
         this.width = width;
@@ -9356,9 +9311,7 @@ var WebGLRenderTarget = /** @class */ (function () {
         this.viewport = fromValues$2(0, 0, width, height);
     };
     return WebGLRenderTarget;
-}());
-
-var ShaderCache = /** @class */ (function () {
+}());var ShaderCache = /** @class */ (function () {
     function ShaderCache() {
     }
     Object.defineProperty(ShaderCache, "mainShader", {
@@ -9818,9 +9771,7 @@ var ShaderCache = /** @class */ (function () {
         });
     };
     return AjaxConnector;
-}());
-
-var serverURLs = {
+}());var serverURLs = {
     getLicense: '/api/1.0/license/acquire',
     releaseLicense: '/api/1.0/license/release',
     ping: '/api/1.0/ping',
@@ -9913,9 +9864,7 @@ var SpeedToStructuredString = function (speed) {
         return "0 B/s";
     var i = Math.floor(Math.log(speed) / Math.log(1024));
     return (speed / Math.pow(1024, i)).toFixed(2) + " " + SpeedRange[i];
-};
-
-var RequestMeter = /** @class */ (function () {
+};var RequestMeter = /** @class */ (function () {
     function RequestMeter(url) {
         this._url = url,
             this._requestInitaitedOn = null,
@@ -10017,9 +9966,7 @@ var RequestMeter = /** @class */ (function () {
         return metricsString;
     };
     return RequestMeter;
-}());
-
-var NetworkMetrics = /** @class */ (function () {
+}());var NetworkMetrics = /** @class */ (function () {
     function NetworkMetrics() {
     }
     NetworkMetrics.addURL = function (url) {
@@ -10045,9 +9992,7 @@ var NetworkMetrics = /** @class */ (function () {
     };
     NetworkMetrics.URLMap = new Map();
     return NetworkMetrics;
-}());
-
-var bind = function bind(fn, thisArg) {
+}());var bind = function bind(fn, thisArg) {
   return function wrap() {
     var args = new Array(arguments.length);
     for (var i = 0; i < args.length; i++) {
@@ -11511,9 +11456,7 @@ axios_1.default = default_1;var axios$1 = axios_1;var AxiosConnector = /** @clas
             throw new Error('Invalid Response Type');
     };
     return AxiosConnector;
-}());
-
-var ServerConnector = /** @class */ (function () {
+}());var ServerConnector = /** @class */ (function () {
     function ServerConnector(connectionType) {
         this.connectionType = connectionType || ServerConnectionType.AXIOS;
     }
@@ -11543,9 +11486,7 @@ var ServerConnector = /** @class */ (function () {
         return NetworkMetrics.getAllMetrics();
     };
     return ServerConnector;
-}());
-
-var BufferCache = /** @class */ (function () {
+}());var BufferCache = /** @class */ (function () {
     function BufferCache() {
     }
     BufferCache.get = function (key) {
@@ -11562,9 +11503,7 @@ var BufferCache = /** @class */ (function () {
     };
     BufferCache.cache = new Utility$1.Registry();
     return BufferCache;
-}());
-
-var GLTFBufferLoader = /** @class */ (function () {
+}());var GLTFBufferLoader = /** @class */ (function () {
     function GLTFBufferLoader(_buffer) {
         this.buffer = null;
         this.buffer = _buffer;
@@ -11660,9 +11599,7 @@ var GLTFBufferLoader = /** @class */ (function () {
         return this.promise;
     };
     return GLTFBufferLoader;
-}());
-
-var AccessorCache = /** @class */ (function () {
+}());var AccessorCache = /** @class */ (function () {
     function AccessorCache() {
     }
     AccessorCache.get = function (key) {
@@ -11679,9 +11616,7 @@ var AccessorCache = /** @class */ (function () {
     };
     AccessorCache.cache = new Utility$1.Registry();
     return AccessorCache;
-}());
-
-var GLTFAccessorLoader = /** @class */ (function () {
+}());var GLTFAccessorLoader = /** @class */ (function () {
     function GLTFAccessorLoader(_accessor) {
         this.accessor = null;
         this.accessor = _accessor;
@@ -11783,9 +11718,7 @@ var GLTFAccessorLoader = /** @class */ (function () {
         return new arrayType(arrayBufferData, bufferOffset, this.accessor.count * itemSize);
     };
     return GLTFAccessorLoader;
-}());
-
-var BufferViewCache = /** @class */ (function () {
+}());var BufferViewCache = /** @class */ (function () {
     function BufferViewCache() {
     }
     BufferViewCache.get = function (key) {
@@ -11802,16 +11735,12 @@ var BufferViewCache = /** @class */ (function () {
     };
     BufferViewCache.cache = new Utility$1.Registry();
     return BufferViewCache;
-}());
-
-var LoaderState = /** @class */ (function () {
+}());var LoaderState = /** @class */ (function () {
     function LoaderState() {
     }
     LoaderState.chuckBasedLoding = true;
     return LoaderState;
-}());
-
-var GLTFBufferViewLoader = /** @class */ (function () {
+}());var GLTFBufferViewLoader = /** @class */ (function () {
     function GLTFBufferViewLoader(_bufferView) {
         this.bufferView = null;
         this.bufferView = _bufferView;
@@ -11906,9 +11835,7 @@ var GLTFBufferViewLoader = /** @class */ (function () {
         return this.promise;
     };
     return GLTFBufferViewLoader;
-}());
-
-var GLTFLoader = /** @class */ (function () {
+}());var GLTFLoader = /** @class */ (function () {
     function GLTFLoader(_serverConnection) {
         this.serverConnection = _serverConnection || null;
         this.json = {};
@@ -12364,9 +12291,7 @@ var GLTFLoader = /** @class */ (function () {
         });
     };
     return GLTFLoader;
-}());
-
-var DataManager = /** @class */ (function () {
+}());var DataManager = /** @class */ (function () {
     function DataManager(serverAddress, _serverConnection, _vueConnector) {
         this.isExternalConnector = false;
         this.serverAddress = serverAddress;
@@ -12739,9 +12664,7 @@ var DataManager = /** @class */ (function () {
         return returnPromise;
     };
     return DataManager;
-}());
-
-var PointMesh = /** @class */ (function (_super) {
+}());var PointMesh = /** @class */ (function (_super) {
     __extends(PointMesh, _super);
     function PointMesh(name, point) {
         var _this = _super.call(this, name) || this;
@@ -12776,9 +12699,7 @@ var PointMesh = /** @class */ (function (_super) {
         this.attribs.position.updateData(point.buffer);
     };
     return PointMesh;
-}(CoreMesh));
-
-var MouseButton;
+}(CoreMesh));var MouseButton;
 (function (MouseButton) {
     MouseButton[MouseButton["NONE"] = 0] = "NONE";
     MouseButton[MouseButton["LEFT"] = 1] = "LEFT";
@@ -12962,9 +12883,7 @@ var MouseControl = /** @class */ (function (_super) {
         return pointNode;
     };
     return MouseControl;
-}(EventDispatcher));
-
-var PickVertexShader = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 aPosition;out vec4 vColor;out highp vec4 vPositionWorldSpace;uniform mat4 uProjectionMatrix;uniform mat4 uModelViewMatrix;uniform int uPrimitiveSize;vec4 getPickColor(int index){int r=0,g=0,b=0,a=0;int value=index;int val_g=int(value/256);int val_b=int(val_g/256);int val_a=int(val_b/256);r=int(value % 256);g=int(val_g % 256);b=int(val_b % 256);a=int(val_a % 256);return vec4(float(r)/255.0,float(g)/255.0,float(b)/255.0,float(a)/255.0);}void main(void){gl_PointSize=3.0;vec4 vPosWorldSpace=uModelViewMatrix*vec4(aPosition,1.0);gl_Position=uProjectionMatrix*vPosWorldSpace;vPositionWorldSpace=vPosWorldSpace;vColor=getPickColor(gl_VertexID/uPrimitiveSize);}"; // eslint-disable-line
+}(EventDispatcher));var PickVertexShader = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec3 aPosition;out vec4 vColor;out highp vec4 vPositionWorldSpace;uniform mat4 uProjectionMatrix;uniform mat4 uModelViewMatrix;uniform int uPrimitiveSize;vec4 getPickColor(int index){int r=0,g=0,b=0,a=0;int value=index;int val_g=int(value/256);int val_b=int(val_g/256);int val_a=int(val_b/256);r=int(value % 256);g=int(val_g % 256);b=int(val_b % 256);a=int(val_a % 256);return vec4(float(r)/255.0,float(g)/255.0,float(b)/255.0,float(a)/255.0);}void main(void){gl_PointSize=3.0;vec4 vPosWorldSpace=uModelViewMatrix*vec4(aPosition,1.0);gl_Position=uProjectionMatrix*vPosWorldSpace;vPositionWorldSpace=vPosWorldSpace;vColor=getPickColor(gl_VertexID/uPrimitiveSize);}"; // eslint-disable-line
 var PickFragmentShader = "#version 300 es\nprecision highp float;\n#define GLSLIFY 1\nin vec4 vColor;uniform highp vec3 uColor;out vec4 outColor;uniform highp vec4 uClipPlane0;uniform highp vec4 uClipPlane1;uniform highp vec4 uClipPlane2;uniform highp vec4 uClipPlane3;uniform highp vec4 uClipPlane4;uniform highp vec4 uClipPlane5;uniform highp float uClipPlane0State;uniform highp float uClipPlane1State;uniform highp float uClipPlane2State;uniform highp float uClipPlane3State;uniform highp float uClipPlane4State;uniform highp float uClipPlane5State;uniform highp float uBoundRadius;in highp vec4 vPositionWorldSpace;void updateClipPlane(float planeState,vec4 clipPlane,float OutlinePercent){if(planeState==1.0){if(dot(vPositionWorldSpace,clipPlane)<0.0){discard;}else if(abs(dot(vPositionWorldSpace,clipPlane))<uBoundRadius*OutlinePercent){outColor=vec4(1.0,0.0,0.0,1.0);}}}void updateClipPlanes(float OutlinePercent){updateClipPlane(uClipPlane0State,uClipPlane0,OutlinePercent);updateClipPlane(uClipPlane1State,uClipPlane1,OutlinePercent);updateClipPlane(uClipPlane2State,uClipPlane2,OutlinePercent);updateClipPlane(uClipPlane3State,uClipPlane3,OutlinePercent);updateClipPlane(uClipPlane4State,uClipPlane4,OutlinePercent);updateClipPlane(uClipPlane5State,uClipPlane5,OutlinePercent);}void main(void){vec4 col=vec4(uColor,1.0);if(col.xyz==vec3(0.0))col=vColor;outColor=col;updateClipPlanes(0.008);}"; // eslint-disable-line
 var Triangle = /** @class */ (function () {
     function Triangle(v1, v2, v3) {
@@ -13016,9 +12935,7 @@ var Point = /** @class */ (function () {
         return new Point(a);
     };
     return Point;
-}());
-
-var Picker = /** @class */ (function () {
+}());var Picker = /** @class */ (function () {
     function Picker() {
         this.getElementIndexFromColor = function (pickedColor) {
             var index = -1;
@@ -13419,9 +13336,7 @@ var Plane = /** @class */ (function () {
         return new Plane(n, d);
     };
     return Plane;
-}());
-
-var AxisMesh = /** @class */ (function (_super) {
+}());var AxisMesh = /** @class */ (function (_super) {
     __extends(AxisMesh, _super);
     function AxisMesh(name, origin, x, y, z, scale) {
         if (scale === void 0) { scale = 1; }
@@ -13467,9 +13382,7 @@ var AxisMesh = /** @class */ (function (_super) {
         return index;
     };
     return AxisMesh;
-}(CoreMesh));
-
-var Axes2DHelper = /** @class */ (function (_super) {
+}(CoreMesh));var Axes2DHelper = /** @class */ (function (_super) {
     __extends(Axes2DHelper, _super);
     function Axes2DHelper(name, origin, scale) {
         var _this = _super.call(this, name) || this;
@@ -13479,9 +13392,7 @@ var Axes2DHelper = /** @class */ (function (_super) {
         return _this;
     }
     return Axes2DHelper;
-}(ShapeNode));
-
-var PlaneMesh = /** @class */ (function (_super) {
+}(ShapeNode));var PlaneMesh = /** @class */ (function (_super) {
     __extends(PlaneMesh, _super);
     function PlaneMesh(name, width, height, color) {
         if (width === void 0) { width = 10; }
@@ -13529,9 +13440,7 @@ var PlaneMesh = /** @class */ (function (_super) {
         this.indices.updateData(indices);
     };
     return PlaneMesh;
-}(CoreMesh));
-
-var RectangleMesh = /** @class */ (function (_super) {
+}(CoreMesh));var RectangleMesh = /** @class */ (function (_super) {
     __extends(RectangleMesh, _super);
     function RectangleMesh(name, width, height, color, precentOffset) {
         if (color === void 0) { color = [0, 0, 0, 1]; }
@@ -13574,9 +13483,7 @@ var RectangleMesh = /** @class */ (function (_super) {
         return index;
     };
     return RectangleMesh;
-}(CoreMesh));
-
-var SectionManager = /** @class */ (function () {
+}(CoreMesh));var SectionManager = /** @class */ (function () {
     //Constructor
     function SectionManager(cameraControl) {
         this.initialized = false;
@@ -14100,9 +14007,7 @@ var SectionManager = /** @class */ (function () {
         return rotationObject;
     };
     return PartManipulator;
-}());
-
-var KeyboardControl = /** @class */ (function () {
+}());var KeyboardControl = /** @class */ (function () {
     function KeyboardControl(container, app) {
         this.container = container;
         this.app = app;
@@ -14130,9 +14035,7 @@ var KeyboardControl = /** @class */ (function () {
         //event.preventDefault();     
     };
     return KeyboardControl;
-}());
-
-var Label3DType;
+}());var Label3DType;
 (function (Label3DType) {
     Label3DType[Label3DType["ANNOTATION"] = 0] = "ANNOTATION";
     Label3DType[Label3DType["MINMAX"] = 1] = "MINMAX";
@@ -14149,9 +14052,7 @@ var LabelState;
     LabelState[LabelState["ADDLABELPOINT"] = 2] = "ADDLABELPOINT";
     LabelState[LabelState["EDITLABEL"] = 3] = "EDITLABEL";
     LabelState[LabelState["MOVING"] = 4] = "MOVING";
-})(LabelState || (LabelState = {}));
-
-var PointNode = /** @class */ (function (_super) {
+})(LabelState || (LabelState = {}));var PointNode = /** @class */ (function (_super) {
     __extends(PointNode, _super);
     function PointNode(name, point, color) {
         if (color === void 0) { color = [0, 0, 0, 1]; }
@@ -14165,9 +14066,7 @@ var PointNode = /** @class */ (function (_super) {
         return _this;
     }
     return PointNode;
-}(ShapeNode));
-
-var LineMesh = /** @class */ (function (_super) {
+}(ShapeNode));var LineMesh = /** @class */ (function (_super) {
     __extends(LineMesh, _super);
     function LineMesh(name, p1, p2, precentOffset) {
         if (precentOffset === void 0) { precentOffset = 0; }
@@ -14210,9 +14109,7 @@ var LineMesh = /** @class */ (function (_super) {
         this.attribs.position.updateData(new Float32Array(__spread$1(p1, p2)).buffer);
     };
     return LineMesh;
-}(CoreMesh));
-
-var LineNode = /** @class */ (function (_super) {
+}(CoreMesh));var LineNode = /** @class */ (function (_super) {
     __extends(LineNode, _super);
     function LineNode(name, p1, p2, color) {
         if (color === void 0) { color = [0, 0, 0, 1]; }
@@ -14226,9 +14123,7 @@ var LineNode = /** @class */ (function (_super) {
         return _this;
     }
     return LineNode;
-}(ShapeNode));
-
-var Label = /** @class */ (function () {
+}(ShapeNode));var Label = /** @class */ (function () {
     function Label(id) {
         this.id = id;
         this.visible = true;
@@ -14563,9 +14458,7 @@ var Label3D = /** @class */ (function () {
         this.indices.updateData(indices);
     };
     return PointCloudMesh;
-}(CoreMesh));
-
-var PointCloudNode = /** @class */ (function (_super) {
+}(CoreMesh));var PointCloudNode = /** @class */ (function (_super) {
     __extends(PointCloudNode, _super);
     function PointCloudNode(name) {
         var _this = _super.call(this, name) || this;
@@ -14961,9 +14854,7 @@ var MouseInput = /** @class */ (function () {
         this.state = MouseState.NONE;
     };
     return MouseInput;
-}());
-
-var ActionName;
+}());var ActionName;
 (function (ActionName) {
     ActionName["PAN"] = "PAN";
     ActionName["ROTATE"] = "ROTATE";
@@ -15004,9 +14895,7 @@ var Actions = /** @class */ (function () {
         return __spread$1(this.map.values()).filter(function (act) { return act.type === type; });
     };
     return Actions;
-}());
-
-var Default$1 = function () {
+}());var Default$1 = function () {
     var map = new Map();
     map.set(ActionName.ROTATE, {
         keyCombination: [MouseButton$1.LEFT],
@@ -15039,9 +14928,7 @@ var Default$1 = function () {
         when: "" + MouseState.DRAGGING
     });
     return map;
-};
-
-var InputMap = /** @class */ (function () {
+};var InputMap = /** @class */ (function () {
     function InputMap() {
         this.map = Default$1();
     }
@@ -15078,9 +14965,7 @@ function JsonToInputMap(json) {
         finally { if (e_1) throw e_1.error; }
     }
     return map;
-}
-
-var mouseMappings = [
+}var mouseMappings = [
     {
         id: '1',
         name: 'Vcollab',
@@ -15159,9 +15044,7 @@ var mouseMappings = [
             { id: '6', control: '11', action: '4', when: MouseState.DRAGGING }
         ]
     }
-];
-
-var Input = /** @class */ (function () {
+];var Input = /** @class */ (function () {
     function Input(container) {
         this.container = container;
         this.actions = new Actions();
@@ -15200,9 +15083,7 @@ var Input = /** @class */ (function () {
         return mouseMappings;
     };
     return Input;
-}());
-
-/*
+}());/*
     This class is the commands registry. It has mapping to action name and the command to be executed.
     Mostly this class wont be changed dynamically, as its only purpose is to add new commands and map it
     to a unique action name provided by the 'ActionName' enum
@@ -15321,9 +15202,7 @@ var Commands = /** @class */ (function () {
         return this.map.get(action);
     };
     return Commands;
-}());
-
-var App = /** @class */ (function () {
+}());var App = /** @class */ (function () {
     function App(_containerID, _connectorObject) {
         this.containerID = _containerID;
         this.externalConnector = _connectorObject;
@@ -16200,9 +16079,7 @@ var App = /** @class */ (function () {
     App.prototype.removePoint = function (uid) {
     };
     return App;
-}());var version$1 = "0.0.14";
-
-//@public
+}());var version$1 = "0.0.14";//@public
 var vctViewer = /** @class */ (function () {
     function vctViewer(_containerID, _connectorObject) {
         this.appli = new App(_containerID, _connectorObject);
