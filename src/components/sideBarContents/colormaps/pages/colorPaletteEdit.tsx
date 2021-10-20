@@ -38,10 +38,13 @@ import MuiKeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 
 import styles from './style';
 
-// import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
-// import MuiMenuItem from '@material-ui/core/MenuItem';
+import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
+import MuiMenuItem from '@material-ui/core/MenuItem';
 
-import { colormapElements, selectedColorPaletteId, editColorPalette} from '../../../../store/sideBar/colormapSlice';
+import {selectedColorPaletteId, editColorPalette, colorPaletteElements,setSelectedColorPalette} from '../../../../store/sideBar/colormapSlice';
+
+import {useEffect} from 'react';
+import { colors } from '@material-ui/core';
 
 export default function ColorPalleteEdit(){
 
@@ -55,24 +58,35 @@ export default function ColorPalleteEdit(){
   }
 
   const activeColorPaletteId = useAppSelector(selectedColorPaletteId)
-  
-  const [colorSet,setColorSet] = useState( useAppSelector(state => state.colormap.colorPaletteTree.data[activeColorPaletteId].colorSet));
 
+  const colorPaletteList = useAppSelector(state => state.colormap.colorPaletteTree.data)
 
-  const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
-  // const [activeColormapId, setActiveColormapId] = useState(selectedColorMapId); 
-  // const colormapNameList = useAppSelector(colormapElements)
+  const [colorSet,setColorSet] = useState( colorPaletteList[activeColorPaletteId].colorSet);
+
+  const colorPaletteNameList = useAppSelector(colorPaletteElements)
 
   const [selectedColor, setSelectedColor] = useState<any>();
   const [openDelete, setOpenDelete] = useState(false);
   const [idGenerator, setIdGenerator] = useState(colorSet.length)
 
+  useEffect(() => {
+    setColorSet(colorPaletteList[activeColorPaletteId].colorSet)
+  },[activeColorPaletteId]);
+
   const handleAddColor = () => {
 
     const colorPicker = () => {
-      const colorList =[{r:236,g:34,b:15,a:1},{r:236,g:226,b:15,a:1},{r:23,g:236,b:15,a:1},{r:15,g:236,b:218,a:1},{r:15,g:48,b:236,a:1}].filter(item => JSON.stringify(item) !== JSON.stringify(colorSet[colorSet.length -1].color))
-      let randomColor = colorList[(Math.random() * colorList.length) | 0];
+
+      const colorList = [ { r:255, g:0, b:0, a:1}, { r:0, g:255, b:0, a:1 }, { r:0, g:0, b:255, a:1}, { r:255, g:255, b:0, a:1},
+                          { r:0, g:255, b:255, a:1}, { r:255, g:0, b:255, a:1}, { r:192, g:192, b:192, a:1},  { r:128, g:128, b:128, a:1},
+                          { r:128, g:0, b:0, a:1}, { r:128, g:128, b:0, a:1}, { r:0, g:128, b:0, a:1},
+                          { r:128, g:0, b:128, a:1}, { r:0, g:128, b:128, a:1}, { r:0, g:0, b:128, a:1},  
+                        ]
+
+      const colorListFiltered =colorList.filter(item => JSON.stringify(item) !== JSON.stringify(colorSet[colorSet.length -1].color))
+      let randomColor = colorListFiltered[(Math.random() * colorListFiltered.length) | 0];
       return(randomColor)
+
     }
     
     const newColor = {
@@ -87,29 +101,32 @@ export default function ColorPalleteEdit(){
     setSelectedColor(null)
   }
 
-  // const onHandleSelect = (id : string) => {
-  //   setActiveColormapId(id)
-  // }
+  const onHandleSelect = (id : string) => {
+    dispatch(setSelectedColorPalette(id))
+  }
 
 
-  const handleColorSelector = (color : any) => {
-    if(color !== selectedColor)
-      setSelectedColor(color);
+  const handleColorSelector = (colorSet : any) => {
+    if(colorSet !== selectedColor)
+      setSelectedColor(colorSet);
     else
       setSelectedColor(null);
     setOpenDelete(false);
   }
 
-  const handleChangeComplete = (color : {r : number , g:number, b:number, a:number}) => {
+  const handleChangeComplete = (colorNew : {r : number , g:number, b:number, a:number}) => {
     const index = colorSet.findIndex((item) => item.id === selectedColor.id);
-    const newArray=[...colorSet];
-    newArray[index].color= color;
-    setColorSet(newArray);
+    if(index >= 0){
+      let newArray=[...colorSet];
+      newArray[index]= {...newArray[index], color :colorNew};
+      setColorSet(newArray);
+      setSelectedColor(newArray[index])
+    }
   }
 
   const onHandlDownButton = () => {
     const indexOfSelected = colorSet.findIndex( item => item.id === selectedColor.id)
-    const newArray = [...colorSet];
+    let newArray = [...colorSet];
     newArray.splice(indexOfSelected, 1)
     newArray.splice(indexOfSelected + 1, 0,selectedColor)
 
@@ -118,7 +135,7 @@ export default function ColorPalleteEdit(){
 
   const onHandleUpButton = () => {
     const indexOfSelected = colorSet.findIndex( item => item.id === selectedColor.id)
-    const newArray = [...colorSet];
+    let newArray = [...colorSet];
     newArray.splice(indexOfSelected, 1)
     newArray.splice(indexOfSelected - 1, 0,selectedColor)
 
@@ -140,6 +157,10 @@ export default function ColorPalleteEdit(){
     dispatch(editColorPalette({colorPaletteId : activeColorPaletteId , colorData : colorSet}))
   }
 
+  const onHandleReset = () => {
+    setColorSet(colorPaletteList[activeColorPaletteId].colorSet)
+  }
+
   const getHeaderLeftIcon= () => {
     return (
      <MuiIconButton  onClick={() => onClickBackIcon()}><BackButton/></MuiIconButton> 
@@ -159,29 +180,29 @@ export default function ColorPalleteEdit(){
     )
   }
 
-  // const getAction = () => {
-  //   return(
-  //     <SelectAction
-  //     labelId="display-modes-selection-label-id"
-  //     id="display-modes-selection-id"
-  //     value={activeColormapId}
-  //     onChange={(e : any) => onHandleSelect(e.target.value)}
-  //     MenuProps={{
-  //       disablePortal: true,
-  //       anchorOrigin: {
-  //         vertical:"bottom",
-  //         horizontal:"left",
-  //      },
-  //      getContentAnchorEl: null
-  //     }}
-  //     >
-  //       {
-  //           colormapNameList.map((item : any) => 
-  //             <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
-  //         )}
-  //     </SelectAction>
-  //   )
-  // }
+  const getAction = () => {
+    return(
+      <SelectAction
+      labelId="display-modes-selection-label-id"
+      id="display-modes-selection-id"
+      value={activeColorPaletteId}
+      onChange={(e : any) => onHandleSelect(e.target.value)}
+      MenuProps={{
+        disablePortal: true,
+        anchorOrigin: {
+          vertical:"bottom",
+          horizontal:"left",
+       },
+       getContentAnchorEl: null
+      }}
+      >
+        {
+            colorPaletteNameList.map((item : any) => 
+              <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
+          )}
+      </SelectAction>
+    )
+  }
 
   const getBody = () => {
     const settings = {
@@ -286,14 +307,28 @@ export default function ColorPalleteEdit(){
             Continous
           </MuiTypography>
 
-          <div 
-            style={{width:280, 
-              marginTop:"5px",
-              height:"30px",
-              backgroundImage: `linear-gradient(to right, ${colorSet.map(item => `rgb(${item.color.r},${item.color.g},${item.color.b})`)})`
-            }}
-          >
-          </div>
+        { colorSet.length === 1 
+          ?
+          
+            <div 
+              style={{width:280, 
+                marginTop:"5px",
+                height:"30px",
+                background: `rgb(${colorSet[0].color.r},${colorSet[0].color.g},${colorSet[0].color.b})`
+              }}
+            >
+            </div>
+:
+<div 
+style={{width:280, 
+  marginTop:"5px",
+  height:"30px",
+  backgroundImage: `linear-gradient(to right, ${colorSet.map(item => `rgb(${item.color.r},${item.color.g},${item.color.b})`)})`
+}}
+>
+</div>
+        }
+          
         </div>
       </div>
     </div>
@@ -305,6 +340,8 @@ export default function ColorPalleteEdit(){
 
     let disableDown = true;
     let disableUp = true;
+
+    let disabled = true;
 
     if(selectedColor){
       const indexOfSelected = colorSet.findIndex( item => item.id === selectedColor.id);
@@ -318,27 +355,35 @@ export default function ColorPalleteEdit(){
         disableUp = false;
     }
 
+    if( JSON.stringify(colorSet) !== JSON.stringify(colorPaletteList[activeColorPaletteId].colorSet))
+      disabled = false;
+
     return(
       <div>
       { !openDelete
         ?
           <div>
-            { true
-              // selectedColorPalette !== "-1" && selectedColorPalette !== appliedColorPalette 
-              ?
-                <div style={{marginTop:"20px", marginBottom:"20px"}}>
-                  <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
-                      autoFocus 
-                      onClick={onHandleApply} 
-                      // color="primary"
-                  >
-                    Save
-                  </MuiButton>
-                </div>
-              :
-                null
-            }   
-    
+            <div style={{marginTop:"20px", marginBottom:"20px"}}>
+              <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+                autoFocus 
+                onClick={onHandleApply} 
+                // color="primary"
+                disabled= {disabled}
+              >
+                Save
+              </MuiButton>
+
+              <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+                autoFocus 
+                onClick={onHandleReset} 
+                // color="primary"
+                disabled= {disabled}
+              >
+                Reset
+              </MuiButton>
+
+            </div>
+             
             <OptionContainer>
               <Option label="Down" 
                 icon={<MuiIconButton 
@@ -360,7 +405,7 @@ export default function ColorPalleteEdit(){
               />
               <Option label="Delete" 
                 icon={ <MuiIconButton 
-                 disabled={!selectedColor}
+                 disabled={!selectedColor || colorSet.length === 1}
                   onClick={onHandleDeleteButton}
                   > 
                     <MuiDeleteForeverOutlinedIcon/>
@@ -401,7 +446,7 @@ export default function ColorPalleteEdit(){
           <SideBarContainer
             headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ <Title text={"Color palette - Edit" } group="Color Maps"/> }
-            // headerAction = {getAction()}
+            headerAction = {getAction()}
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }
             footer = { getFooter() }

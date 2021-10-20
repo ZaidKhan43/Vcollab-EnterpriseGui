@@ -470,8 +470,18 @@ export const selectedColorPaletteId = (state : RootState) => state.colormap.sele
 export const colormapElements = (state:RootState) => {
     let array : any[] = [];
     Object.keys(state.colormap.colormapTree.data).forEach(key => {
-        if(state.colormap.colormapTree.data[key].pid !== "-1")
+        if(state.colormap.colormapTree.data[key].children.length === 0)
         array.push({id:key, name: state.colormap.colormapTree.data[key].title});
+    })
+
+    return(array);
+}
+
+export const colorPaletteElements = (state: RootState) => {
+    let array : any[] = [];
+    Object.keys(state.colormap.colorPaletteTree.data).forEach(key => {
+        if(state.colormap.colorPaletteTree.data[key].pid !== "-1" && state.colormap.colorPaletteTree.data[key].pid !== "0")
+        array.push({id:key, name: state.colormap.colorPaletteTree.data[key].title});
     })
 
     return(array);
