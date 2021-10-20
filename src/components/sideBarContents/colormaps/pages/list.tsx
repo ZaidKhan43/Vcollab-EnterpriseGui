@@ -14,7 +14,7 @@ import RTree from '../../../shared/RsTreeTable';
  
 import AddIcon from "@material-ui/icons/Add";
 
-import { selectcolormapData, selectColormapRootIds, expandNode, createColorMap, handleColorMapSelection } from '../../../../store/sideBar/colormapSlice';
+import { selectcolormapData, selectColormapRootIds, expandNode, createColorMap, setColorMapSelection } from '../../../../store/sideBar/colormapSlice';
 
 import TreeNodeWithoutCheckbox from '../../../shared/RsTreeTable/treeNodeWithoutCheckbox';
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
@@ -69,7 +69,7 @@ export default function List(){
 
   const handleSeletedColorMap = (node : any) => {
     if(node.children.length === 0)
-      dispatch(handleColorMapSelection(node.id));
+      dispatch(setColorMapSelection(node.id));
   }
 
   const getBody = () => {

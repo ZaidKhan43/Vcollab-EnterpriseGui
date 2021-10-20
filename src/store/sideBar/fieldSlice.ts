@@ -3,6 +3,7 @@ import { getDisplayResult } from '../../backend/viewerAPIProxy';
 import type { RootState } from '../index';
 import {ITreeNode, ITreeNodeState} from '../../components/shared/RsTreeWithSearch';
 import { expandNodeReducer, selectNodeReducer, addNodeReducer, deleteNodeReducer, toggleVisibilityReducer } from './shared/ProductExplorer/reducers';
+import { addColorMap, Colormap } from './colormapSlice';
 
 type FieldState = {
     data: FieldData,
@@ -104,6 +105,29 @@ export const fetchFieldData = createAsyncThunk(
        let viewerId = root.app.viewers[root.app.activeViewer || ""];
        let r = getDisplayResult(viewerId);
        dispatch(setFieldData({data:{}}))
+       let selection = (getState() as RootState).field.defaultSelection;
+       dispatch(addColorMap({
+           modelName: "bracket",
+           data: {
+               title: "System",
+               variableId: selection.variableIds.length > 0 ? selection.variableIds[0] : "-1",
+               derivedId: selection.derivedIds.length > 0 ? selection.derivedIds[0] : "-1",
+               stepId: selection.stepIds.length > 0 ? selection.stepIds[0] : "-1",
+               sectionId: selection.sectionIds.length > 0 ? selection.sectionIds[0] : "-1",
+               
+           }
+       }))
+       dispatch(addColorMap({
+        modelName: "head",
+        data: {
+            title: "System",
+            variableId: "v21",
+            derivedId: "d21",
+            stepId: "s21",
+            sectionId: "-1",
+            
+        }
+    }))
        if(r instanceof Object) {
             return Promise.resolve(r); 
        }
