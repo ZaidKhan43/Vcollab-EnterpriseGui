@@ -9,7 +9,7 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import {goBack,push} from 'connected-react-router/immutable';
 
-import {selectVariableData, selectVariableRootIds, expandVariableNode, colormapElements} from '../../../../store/sideBar/colormapSlice';
+import {expandVariableNode, colormapElements} from '../../../../store/sideBar/colormapSlice';
 
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
 import MuiMenuItem from '@material-ui/core/MenuItem';
@@ -31,8 +31,8 @@ export default function Variable(){
 
   const dispatch = useAppDispatch();  
 
-  const  treeDataRedux = useAppSelector(selectVariableData);
-  const treeRootIds = useAppSelector(selectVariableRootIds);
+  const  treeDataRedux = useAppSelector({});
+  const treeRootIds = useAppSelector([]);
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
   const containerRef = useRef(null);

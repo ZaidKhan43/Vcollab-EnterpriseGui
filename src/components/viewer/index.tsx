@@ -3,7 +3,6 @@ import { createRef } from 'react';
 import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
 import { setModelInfo, setModelLoadedState, setModelLoadingStatus } from '../../store/appSlice';
-import { setCAEResult } from '../../store/colormapSlice';
 import { useAppDispatch } from '../../store/storeHooks';
 import {saveTree, fetchSearchHints,setHightLightedNodesAsync } from "../../store/sideBar/productTreeSlice";
 import {fetchSectionPlaneData, handlePlaneSelection} from "../../store/sideBar/clipSlice";
@@ -42,8 +41,7 @@ function Viewer(){
           let modelInfo = viewerAPIProxy.getModelInfo(activeViewerID) as any;
           dispatch(setModelInfo(modelInfo));
 
-          let caeResult = viewerAPIProxy.getDisplayResult(activeViewerID) as any;
-          dispatch(setCAEResult({caeResult:caeResult}));     
+          let caeResult = viewerAPIProxy.getDisplayResult(activeViewerID) as any; 
 
 
         }
