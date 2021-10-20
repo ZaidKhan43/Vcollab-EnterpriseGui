@@ -79,13 +79,13 @@ export default function ColorPalette(){
   }
 
   const handlePaletteClick = (node :any) => {
-    if(treeDataRedux[node.id].pid !== "-1")
+    if(treeDataRedux[node.id].children.length === 0)
       dispatch(setSelectedColorPalette(node.id))
     setOpenDelete(false)
   }
   
   const onHandleApply = () => {
-    if(treeDataRedux[selectedColorPalette].pid !== "-1")
+    if(treeDataRedux[selectedColorPalette].children.length === 0)
       dispatch(setColorPalette({colorMapId :activeColormapId, colorPaletteId : selectedColorPalette}))
   }
 
@@ -148,13 +148,14 @@ export default function ColorPalette(){
     return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
       <RTree 
-      treeData={roots} 
-        defaultExpandedIds = {expanded}
+        treeData={roots} 
+        expandedRowIds = {expanded}
         onExpand={handleExpand}
         onRowClick = {handlePaletteClick}
         width = {300}
         hover={true}
-        selected={selectedColorPalette}
+        selectable={true}
+        selected={[selectedColorPalette]}
         height = {containerHeight ? containerHeight - 5: 0}
         renderTreeToggle = {
           (icon,rowData) => {
@@ -169,7 +170,7 @@ export default function ColorPalette(){
           return (
             <TreeNodeWithoutCheckbox 
               node={treeDataRedux[node.id]}
-              onCheck={() => console.log("sa")}
+              onCheck={() => console.log("")}
             >
             </TreeNodeWithoutCheckbox>
           )

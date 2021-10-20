@@ -170,7 +170,7 @@ export default function Background (){
                             <MuiPlusIcon onClick={handleAddColor} className={classes.buttonComponent }/>
                         </div>
                         <MuiGrid container spacing={3} style={{marginLeft:"10px",marginTop:"10px"}}>
-                            <MuiGrid item xs={12} sm={1}>
+                            <MuiGrid item xs={12} sm={1} style={{zIndex:10,}}>
                                 {colourSet.map((item : any, index : number) => 
                                     <div 
                                         key={ 'divParent_' + index } 
@@ -178,6 +178,7 @@ export default function Background (){
                                         style={{height:226/colourSet.length, 
                                             width:"30px",
                                             backgroundColor:`rgb(${item.color.r},${item.color.g},${item.color.b})` ,
+                                            
                                         }}
                                         onClick={() => handleColorSelector(item)}
                                     >

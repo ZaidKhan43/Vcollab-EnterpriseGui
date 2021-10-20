@@ -68,20 +68,22 @@ export default function List(){
   }
 
   const handleSeletedColorMap = (node : any) => {
-    dispatch(handleColorMapSelection(node.id));
+    if(node.children.length === 0)
+      dispatch(handleColorMapSelection(node.id));
   }
 
   const getBody = () => {
     return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
       <RTree 
-      treeData={roots} 
-        defaultExpandedIds = {expanded}
+        treeData={roots} 
+        expandedRowIds = {expanded}
         onExpand={handleExpand}
         onRowClick = {handleSeletedColorMap}
         width = {300}
         hover={true}
-        selected={selectedColorMapId}
+        selectable={true}
+        selected={[selectedColorMapId]}
         height = {containerHeight ? containerHeight - 5: 0}
         renderTreeToggle = {
           (icon,rowData) => {

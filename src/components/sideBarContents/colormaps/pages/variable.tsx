@@ -7,52 +7,60 @@ import BackButton from '../../../icons/back';
 
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
-import {goBack,push} from 'connected-react-router/immutable';
+import {goBack} from 'connected-react-router/immutable';
 
-import {expandVariableNode, colormapElements} from '../../../../store/sideBar/colormapSlice';
 
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 
-import RTree from '../../../shared/RsTreeTable';
+import { useRef, useState } from 'react';
 
-import styles from './style'
+import RsTreeSearch from '../../../shared/RsTreeWithSearch'
+import AutoSizer from '../../../shared/autoSize'
 
-import TreeNodeWithoutCheckbox from '../../../shared/RsTreeTable/treeNodeWithoutCheckbox';
+import { selectVariables, expandVariable, } from '../../../../store/sideBar/fieldSlice'
+
+import { colormapElements, selectcolormapData, setSelectedVariable} from '../../../../store/sideBar/colormapSlice';
+
+import {useStyles} from '../../../shared/RsTreeTable/styles/TreeNodeStyle'
+import Grid from '@material-ui/core/Grid'
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
 import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
+import TitleTree from '../../../shared/RsTreeWithSearch/utilComponents/TitleNode'
 
-import { convertListToTree } from '../../../utils/tree';
-
-import { useRef, useState } from 'react';
-import useContainer from '../../../../customHooks/useContainer';
- 
 export default function Variable(){
 
   const dispatch = useAppDispatch();  
+  const classes = useStyles();
 
-  const  treeDataRedux = useAppSelector({});
-  const treeRootIds = useAppSelector([]);
-  const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
+  const variables = useAppSelector(selectVariables);
+  const [searchText, setSearchText] = useState("");
 
   const containerRef = useRef(null);
-  const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
 
   const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
   const [activeColormapId, setActiveColormapId] = useState(selectedColorMapId); 
+  const colormapsData = useAppSelector(selectcolormapData)
+  const appliedVariable = colormapsData[activeColormapId].variable;
   const colormapNameList = useAppSelector(colormapElements)
 
-  const classes = styles();
+  // const classes = styles();
   const onClickBackIcon = () =>{
     dispatch(goBack());
   }
 
   const handleExpand = (toOpen:boolean,nodeId:string) => {
-    dispatch(expandVariableNode({toOpen,nodeId}))
-  }
+    dispatch(expandVariable({toOpen,nodeId}));
+}
 
   const onHandleSelect = (id : string) => {
     setActiveColormapId(id)
+  }
+
+  const onVariableClick = (node :any) => {
+    console.log(node)
+    if(node.children.length === 0)
+      dispatch(setSelectedVariable({colorMapId :activeColormapId, variableId : node.id}))
   }
   
   const getHeaderLeftIcon= () => {
@@ -93,46 +101,51 @@ export default function Variable(){
   }
 
   const getBody = () => {
+    
     return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
-      <RTree 
-      treeData={roots} 
-        defaultExpandedIds = {expanded}
-        selectable={true}
-        onExpand={handleExpand}
-        onRowClick = {() => {}}
-        width = {300}
-        height = {containerHeight ? containerHeight - 5: 0}
-        hover={true}
-        selected = {"6"}
-        renderTreeToggle = {
-          (icon,rowData) => {
-            if (rowData.children && rowData.children.length === 0) {
-              return null;
+      <AutoSizer>
+            {
+                (size:any) => 
+                    <div id="some_wrapper" style={{width:size.width, height:size.height}}>
+                        <RsTreeSearch
+                            data = {variables}
+                            height = {size.height}
+                            hover
+                            selectable
+                            selected={[appliedVariable]}
+                            onChangeSearch = {(s:string,r:any) => {setSearchText(s);} }
+                            searchAttribKeys = {["title"]}
+                            searchText = {searchText}
+                            width = {300}
+                            searchPlaceholder = "Search Variables"
+                            onExpand = {handleExpand}
+                            onRowClick = {onVariableClick}
+                            treeNode={
+                              rowData =>
+                              <Grid container alignItems='center' className={rowData.state.visibility ?classes.actionShow:classes.actionHide}>
+                                  <Grid item>
+                                  <div style={{width:10}}></div>
+                                  </Grid>
+                                  <Grid item>
+                                  <TitleTree rowData = {rowData}></TitleTree>
+                                  </Grid>
+                              </Grid>
+                          }
+                          renderTreeToggle = {(icon,rowData) => {
+                                      if (rowData.children && rowData.children.length === 0) {
+                                      return null;
+                                      }
+                                      let state = variables[rowData.id]?.state;
+                                      return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
+                                  }
+                          }
+                              
+                          />
+
+                    </div>   
             }
-            let state = treeDataRedux[rowData.id].state;
-            return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
-          }
-        }
-        treeNode = {(node) => {
-          return (
-            <TreeNodeWithoutCheckbox 
-              node={treeDataRedux[node.id]}
-              onCheck={() => console.log("sa")} 
-            >
-            </TreeNodeWithoutCheckbox>
-          )
-        }}
-        column1 = {(node) => {
-          return (<div></div>)
-        }}
-        column2 = {(node) => {
-          return (
-            <div>  
-            </div>
-          )
-        }}
-      /> 
+        </AutoSizer>
     </div> 
     )
   }

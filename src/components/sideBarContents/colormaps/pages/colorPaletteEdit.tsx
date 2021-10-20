@@ -28,42 +28,68 @@ import MuiButton from '@material-ui/core/Button';
 
 import Slider from "react-slick";
 
+import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick-theme.css";
+
+import { useRef } from 'react';
+
+import MuiKeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import MuiKeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+
 import styles from './style';
+
+// import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
+// import MuiMenuItem from '@material-ui/core/MenuItem';
+
+import { colormapElements, selectedColorPaletteId, editColorPalette} from '../../../../store/sideBar/colormapSlice';
 
 export default function ColorPalleteEdit(){
 
   const dispatch = useAppDispatch();
   const classes = styles();
+  
+  const slider = useRef(null);
+
   const onClickBackIcon = () =>{
     dispatch(goBack());
   }
+
+  const activeColorPaletteId = useAppSelector(selectedColorPaletteId)
   
-  const [colorSet,setColorSet] = useState( [
-    {
-       id : 0, 
-       color:{r:160, g:160, b:252, a:1}
-    }, 
-    {
-      id : 1, 
-      color:{r:255, g:255, b:255, a:1}
-    }
-  ]
-  )
+  const [colorSet,setColorSet] = useState( useAppSelector(state => state.colormap.colorPaletteTree.data[activeColorPaletteId].colorSet));
+
+
+  const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
+  // const [activeColormapId, setActiveColormapId] = useState(selectedColorMapId); 
+  // const colormapNameList = useAppSelector(colormapElements)
 
   const [selectedColor, setSelectedColor] = useState<any>();
   const [openDelete, setOpenDelete] = useState(false);
+  const [idGenerator, setIdGenerator] = useState(colorSet.length)
 
   const handleAddColor = () => {
+
+    const colorPicker = () => {
+      const colorList =[{r:236,g:34,b:15,a:1},{r:236,g:226,b:15,a:1},{r:23,g:236,b:15,a:1},{r:15,g:236,b:218,a:1},{r:15,g:48,b:236,a:1}].filter(item => JSON.stringify(item) !== JSON.stringify(colorSet[colorSet.length -1].color))
+      let randomColor = colorList[(Math.random() * colorList.length) | 0];
+      return(randomColor)
+    }
+    
     const newColor = {
-      id: colorSet.length ,
-      color: {r:255, g:255, b:255, a:1} ,
+      id: idGenerator ,
+      color:   colorPicker(),
     }
 
     const newColorSet = [...colorSet, newColor]
 
     setColorSet(newColorSet)
-    setSelectedColor(newColor)
+    setIdGenerator(idGenerator + 1)
+    setSelectedColor(null)
   }
+
+  // const onHandleSelect = (id : string) => {
+  //   setActiveColormapId(id)
+  // }
 
 
   const handleColorSelector = (color : any) => {
@@ -107,6 +133,11 @@ export default function ColorPalleteEdit(){
     const newArray = colorSet.filter(item => item.id !== selectedColor.id);
     setColorSet(newArray);
     setSelectedColor(null);
+    setOpenDelete(false)
+  }
+
+  const onHandleApply = () => {
+    dispatch(editColorPalette({colorPaletteId : activeColorPaletteId , colorData : colorSet}))
   }
 
   const getHeaderLeftIcon= () => {
@@ -122,6 +153,36 @@ export default function ColorPalleteEdit(){
     )
   }
 
+  const SampleNextArrow = () => {
+    return(
+      null
+    )
+  }
+
+  // const getAction = () => {
+  //   return(
+  //     <SelectAction
+  //     labelId="display-modes-selection-label-id"
+  //     id="display-modes-selection-id"
+  //     value={activeColormapId}
+  //     onChange={(e : any) => onHandleSelect(e.target.value)}
+  //     MenuProps={{
+  //       disablePortal: true,
+  //       anchorOrigin: {
+  //         vertical:"bottom",
+  //         horizontal:"left",
+  //      },
+  //      getContentAnchorEl: null
+  //     }}
+  //     >
+  //       {
+  //           colormapNameList.map((item : any) => 
+  //             <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
+  //         )}
+  //     </SelectAction>
+  //   )
+  // }
+
   const getBody = () => {
     const settings = {
       dots: false,
@@ -131,10 +192,12 @@ export default function ColorPalleteEdit(){
       vertical: true,
       verticalSwiping: true,
       swipeToSlide: true,
+      nextArrow: <SampleNextArrow />,
+      prevArrow: <SampleNextArrow />
     }
 
     return (
-      <div>
+      <div className={classes.scrollBar}>
         <div style={{marginTop:"20px"}}>
           <div>
             <MuiGrid container>
@@ -152,39 +215,51 @@ export default function ColorPalleteEdit(){
             </MuiGrid>
           </div>
           
-          <MuiGrid container spacing={2} style={{marginLeft:"10px",marginTop:"10px"}}>
+          <MuiGrid container spacing={2} style={{marginLeft:"10px",marginTop:"10px", height:"270px"}}>
             <MuiGrid item xs={2}>
-              {/* <Slider {...settings}
-      > */}
-              { colorSet.map((item : any, index : number) => 
-              <div>
-                <div 
-                  key={ 'divParent_' + index } 
-                  className={selectedColor ? item.id !== selectedColor.id ? classes.colorPicker : classes.active : classes.colorPicker} 
-                  style={{height:"30px", 
-                    marginTop:"10px",
-                    width:"30px",
-                    backgroundColor:`rgb(${item.color.r},${item.color.g},${item.color.b})` ,
-                  }}
-                  onClick={() => handleColorSelector(item)}
-                >
-                </div>
-                </div>
-              )}
-
-              {/* </Slider> */}
+              { colorSet.length <= 5 
+                ?
+                  null
+                :
+                  <MuiIconButton style={{marginTop:"-18px", marginLeft:"-5px"}} size="small" onClick={() => slider?.current?.slickPrev()}> <MuiKeyboardArrowUpIcon/> </MuiIconButton>
+              } 
+              <div  style={{marginTop:"-5px"}}>
+                <Slider ref={slider}  {...settings}>
+                  { colorSet.map((item : any, index : number) => 
+                    <div>
+                      <div 
+                        key={ 'divParent_' + index } 
+                        className={selectedColor ? item.id !== selectedColor.id ? classes.colorPicker : classes.active : classes.colorPicker} 
+                        style={{height:"30px", 
+                          marginTop:"4px",
+                          width:"30px",
+                          backgroundColor:`rgb(${item.color.r},${item.color.g},${item.color.b})` ,
+                        }}
+                        onClick={() => handleColorSelector(item)}
+                      >
+                      </div>
+                    </div>
+                  )}
+                </Slider>
+              </div>
+                { colorSet.length <= 5
+                  ?
+                    null
+                  :
+                    <MuiIconButton style={{marginTop:"-5px", marginLeft:"-5px"}} size="small" onClick={() => slider?.current?.slickNext()}> <MuiKeyboardArrowDownIcon/></MuiIconButton>
+                }
             </MuiGrid>
                           
             <MuiGrid item xs={4} style={{marginLeft:"5px"}}>
               <ColorPicker
-                color={{r:255, g:255, b:255, a:1}}
+                color={selectedColor ? selectedColor.color : {r:255, g:255, b:255, a:1}}
                 onChangeComplete={selectedColor && handleChangeComplete }
               />                 
             </MuiGrid>
           </MuiGrid>                     
         </div>
 
-        <div style={{marginTop:"20px", marginLeft:"10px"}}>
+        <div style={{marginLeft:"10px"}}>
           <MuiTypography variant="h2" align="left">
               Preview
           </MuiTypography>
@@ -193,34 +268,37 @@ export default function ColorPalleteEdit(){
               Discrete
             </MuiTypography>
             <MuiGrid container style={{marginTop:"5px"}}>
-            {colorSet.map((item : any, index : number) => 
-                                    <MuiGrid item 
-                                        key={ 'divParent_' + index }  
-                                        style={{width:280/colorSet.length, 
-                                            height:"30px",
-                                            backgroundColor:`rgb(${item.color.r},${item.color.g},${item.color.b})` ,
-                                        }}
-                                    >
-                                    </MuiGrid>
-                                )}
-                            </MuiGrid>
-          </div>
+            { colorSet.map((item : any, index : number) => 
+              <MuiGrid item 
+                key={ 'divParent_' + index }  
+                style={{width:280/colorSet.length, 
+                  height:"30px",
+                  backgroundColor:`rgb(${item.color.r},${item.color.g},${item.color.b})` ,
+                }}
+              >
+              </MuiGrid>
+            )}
+          </MuiGrid>
+        </div>
 
-          <div style={{marginTop:"10px"}}>
-            <MuiTypography variant="h3" align="left">
-              Continous
-            </MuiTypography>
+        <div style={{marginTop:"10px"}}>
+          <MuiTypography variant="h3" align="left">
+            Continous
+          </MuiTypography>
 
-            <div style={{width:280, 
+          <div 
+            style={{width:280, 
               marginTop:"5px",
               height:"30px",
-              backgroundImage: `linear-gradient(to right, ${colorSet.map(item => `rgb(${item.color.r},${item.color.g},${item.color.b})`)})`}}>
-            </div>
+              backgroundImage: `linear-gradient(to right, ${colorSet.map(item => `rgb(${item.color.r},${item.color.g},${item.color.b})`)})`
+            }}
+          >
           </div>
         </div>
       </div>
-    )
-  }
+    </div>
+  )
+}
 
 
   const getFooter = () => {
@@ -251,7 +329,7 @@ export default function ColorPalleteEdit(){
                 <div style={{marginTop:"20px", marginBottom:"20px"}}>
                   <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
                       autoFocus 
-                      // onClick={onHandleApply} 
+                      onClick={onHandleApply} 
                       // color="primary"
                   >
                     Save
@@ -323,6 +401,7 @@ export default function ColorPalleteEdit(){
           <SideBarContainer
             headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ <Title text={"Color palette - Edit" } group="Color Maps"/> }
+            // headerAction = {getAction()}
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }
             footer = { getFooter() }
