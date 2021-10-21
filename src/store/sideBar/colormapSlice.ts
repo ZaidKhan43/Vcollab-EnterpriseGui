@@ -10,8 +10,8 @@ import ColorPalette from '../../components/sideBarContents/colormaps/pages/color
 type ColormapSettings = {
     idGenerator : number,
     defaultParameters : Colormap,
-    bracketCount : number,
-    headCount : number,    
+    userDefinedCount : number,
+    // headCount : number,    
 } 
 
 
@@ -93,8 +93,8 @@ const initialState : InitialState = {
                 step:"01",
                 attributes: {},
         },
-        bracketCount: 1,
-        headCount: 2,
+        userDefinedCount: 0,
+        // headCount: 2,
     },
 
 
@@ -176,7 +176,7 @@ const initialState : InitialState = {
         idGenerator :3,
         counter : 0,
     },
-    selectedColorMapId: "2",
+    selectedColorMapId: "7",
 
     selectedColorPaletteId: "-1",
 }
@@ -257,17 +257,20 @@ export const colormapSlice = createSlice({
                 state.colormapSettings.idGenerator += 1;
                 
                 const id =state.colormapSettings.idGenerator;
-                let newNote = {...state.colormapSettings.defaultParameters};
+
+                let newData = JSON.parse(JSON.stringify(state.colormapTree.data[state.selectedColorMapId]))
+                
+                let newNote = {...newData};
                 newNote.id = `${state.colormapSettings.idGenerator}`;
                 newNote.pid = `${action.payload}`;
-                if(newNote.pid === "0"){
-                    state.colormapSettings.bracketCount +=1;
-                    newNote.title = `Colormap ${state.colormapSettings.bracketCount}`;
-                }
-                else{
-                    state.colormapSettings.headCount +=1;
-                    newNote.title = `Colormap ${state.colormapSettings.headCount}`;
-                }
+                // if(newNote.pid === "0"){
+                    state.colormapSettings.count +=1;
+                    newNote.title = `Colormap ${state.colormapSettings.count}`;
+                // }
+                // else{
+                //     state.colormapSettings.headCount +=1;
+                //     newNote.title = `Colormap ${state.colormapSettings.headCount}`;
+                // }
                 
                 state.colormapTree.data[`${id}`] =newNote;
                 state.colormapTree.data[`${action.payload}`].children.push(newNote.id)
@@ -356,37 +359,6 @@ export const colormapSlice = createSlice({
             state.colormapTree.data[action.payload.colorMapId].step = action.payload.stepId;
         },
 
-
-        // expandVariableNode :(state,action) => {
-
-        // }
-
-        // editLabel: (state, action: PayloadAction<{id:number, value:string}>) => {
-        //     if( action.payload.id >= 0){
-        //         const key = `${action.payload.id}`
-        //         state.data[key].label = action.payload.value;
-        //     }
-        // },
-
-        // delete3DLabel:(state) => {
-        //     Object.keys(state.data).forEach(key => {
-        //         if( state.data[key].state.checked === true && state.data[key].pid !== "-1"){
-        //             delete state.data[key];
-        //             Object.keys(state.data).forEach(key1 => {
-        //                 if( state.data[key1].pid === "-1"){
-        //                     state.data[key1].children = state.data[key1].children.filter(item => item !== key)
-        //                 }
-        //             });
-        //         }    
-        //     });
-        //     Object.keys(state.data).forEach(key => {
-        //         measurementsSlice.caseReducers.checkNode(state,{payload:{toCheck:false,nodeId: key}, type: "label3D/deleteNode/reverseCheckValues"});
-        //     })
-        //     measurementsSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/deleteNode"})
-              
-        // },
-
-        
     }
 })
 
