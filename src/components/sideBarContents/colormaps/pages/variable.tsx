@@ -13,12 +13,12 @@ import {goBack} from 'connected-react-router/immutable';
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 import RsTreeSearch from '../../../shared/RsTreeWithSearch'
 import AutoSizer from '../../../shared/autoSize'
 
-import { selectVariables, expandVariable, } from '../../../../store/sideBar/fieldSlice'
+import { selectVariables, expandVariable, getDependantVariableIds, selectSteps} from '../../../../store/sideBar/fieldSlice'
 
 import { colormapElements, selectcolormapData, setSelectedVariable} from '../../../../store/sideBar/colormapSlice';
 
@@ -28,12 +28,15 @@ import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
 import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
 import TitleTree from '../../../shared/RsTreeWithSearch/utilComponents/TitleNode'
 
+import useVisibility from '../../../sideBarContents/field/shared/hooks/useVisibility'
+
 export default function Variable(){
 
   const dispatch = useAppDispatch();  
   const classes = useStyles();
 
   const variables = useAppSelector(selectVariables);
+  const steps = useAppSelector(selectSteps);
   const [searchText, setSearchText] = useState("");
 
   const containerRef = useRef(null);
@@ -43,6 +46,20 @@ export default function Variable(){
   const colormapsData = useAppSelector(selectcolormapData)
   const appliedVariable = colormapsData[activeColormapId].variable;
   const colormapNameList = useAppSelector(colormapElements)
+
+  const selectedStepIds = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].step);
+
+  const [depStepIds, setDepStepIds] = useState<string[]>([]);
+
+  const stepVisibleIds = useVisibility({
+    source: steps,
+    target: variables,
+    targetIds: depStepIds,
+    // targetSetVisibilityReducer: setVisibleStepsAndSubcase
+})
+useEffect(() => {
+    setDepStepIds(getDependantVariableIds(steps,[selectedStepIds]));
+},[activeColormapId])
 
   // const classes = styles();
   const onClickBackIcon = () =>{
@@ -101,6 +118,11 @@ export default function Variable(){
   }
 
   const getBody = () => {
+
+    console.log("stepVisibleIds",stepVisibleIds)
+    console.log("depStepIds",depStepIds)
+    console.log("selectedStepIds",selectedStepIds)
+
     
     return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
@@ -123,7 +145,7 @@ export default function Variable(){
                             onRowClick = {onVariableClick}
                             treeNode={
                               rowData =>
-                              <Grid container alignItems='center' className={rowData.state.visibility ?classes.actionShow:classes.actionHide}>
+                              <Grid container alignItems='center' className={ stepVisibleIds.includes(rowData.id) ?classes.actionShow:classes.actionHide}>
                                   <Grid item>
                                   <div style={{width:10}}></div>
                                   </Grid>
@@ -137,7 +159,7 @@ export default function Variable(){
                                       return null;
                                       }
                                       let state = variables[rowData.id]?.state;
-                                      return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
+                                      return state.expanded? <TreeExpandedIcon style={ stepVisibleIds.includes(rowData.id) ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
                                   }
                           }
                               

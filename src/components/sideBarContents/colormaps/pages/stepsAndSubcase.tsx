@@ -38,7 +38,6 @@ export default function Variable(){
 
   const steps = useAppSelector(selectSteps);
   const variables = useAppSelector(selectVariables);
-  const selectedVariableIds = useAppSelector(state => state.colormap.colormapTree.data[state.colormap.selectedColorMapId].variable);
 
   const [depStepIds, setDepStepIds] = useState<string[]>([]);
 
@@ -52,7 +51,7 @@ export default function Variable(){
   const appliedStep = colormapsData[activeColormapId].step;
   const colormapNameList = useAppSelector(colormapElements)
 
-  
+  const selectedVariableIds = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].variable);
 
   const stepVisibleIds = useVisibility({
     source: variables,
@@ -62,7 +61,7 @@ export default function Variable(){
 })
 useEffect(() => {
     setDepStepIds(getDependantStepIds(steps,[selectedVariableIds]));
-},[])
+},[activeColormapId])
 
   // const classes = styles();
   const onClickBackIcon = () =>{
@@ -161,7 +160,7 @@ useEffect(() => {
                                       return null;
                                       }
                                       let state = steps[rowData.id]?.state;
-                                      return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
+                                      return state.expanded? <TreeExpandedIcon style={stepVisibleIds.includes(rowData.id) ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
                                   }
                           }
                               
