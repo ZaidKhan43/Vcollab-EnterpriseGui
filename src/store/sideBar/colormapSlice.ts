@@ -4,19 +4,18 @@ import type { RootState } from '../index';
 import {TreeNode} from "./shared/ProductExplorer/types";
 
 import {ITreeState} from "./shared/ProductExplorer/types";
-import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer} from "./shared/ProductExplorer/reducers";
-import Variable from '../../components/sideBarContents/colormaps/pages/variable';
+import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer, addNodeReducer} from "./shared/ProductExplorer/reducers";
 import ColorPalette from '../../components/sideBarContents/colormaps/pages/colorPalette';
 
 type ColormapSettings = {
     idGenerator : number,
-    defaultParameters : Colormaps,
+    defaultParameters : Colormap,
     bracketCount : number,
     headCount : number,    
 } 
 
 
-export interface Colormaps extends TreeNode {
+export interface Colormap extends TreeNode {
     id: string;
     pid: string | null;
     title: string;
@@ -31,7 +30,7 @@ export interface Colormaps extends TreeNode {
 }
 
 interface ColormapTreeState extends ITreeState {
-    data : {[id:string]:Colormaps},
+    data : {[id:string]:Colormap},
     rootIds: string[],
 }
 
@@ -73,123 +72,8 @@ interface InitialState {
 
 const initialState : InitialState = {
     colormapTree : {
-        data : {
-        "0" : {
-            id:"0",
-            title:"Bracket",
-            pid: "-1",
-            children: ["2","3"],
-            state: {
-              visibility : true,
-              expanded : true,
-            },
-            colorPalette: "-1",
-            variable: "-1",
-            derivedType:"-1",
-            section:"-1",
-            step:"-1",
-            attributes: {},
-        },
-        "1" : {
-            id:"1",
-            title:"Head",
-            pid: "-1",
-            children: ["4","5","6"],
-            state: {
-              visibility : true,
-              expanded : true,
-            },
-            colorPalette: "-1",
-            variable:"-1",
-            derivedType:"-1",
-            section:"-1",
-            step:"-1",
-            attributes: {},
-        },
-      
-        "2" : {
-            id:"2",
-            title:"System",
-            pid: "0",
-            children: [],
-            state: {
-              visibility : true,
-              expanded : true,
-            },
-            colorPalette: "3",
-            variable:"01",
-            derivedType:"01",
-            section:"01",
-            step:"01",
-            attributes: {},
-        },
-        "3" : {
-            id:"3",
-            title:"Colormap 1",
-            pid: "0",
-            children: [],
-            state: {
-              visibility : true,
-              expanded : true,
-            },
-            colorPalette: "2",
-            variable:"02",
-            derivedType:"02",
-            section:"02",
-            step:"02",
-            attributes: {},
-        },
-        "4" : {
-            id:"4",
-            title:"System",
-            pid: "1",
-            children: [],
-            state: {
-              visibility : true,
-              expanded : true,
-            },
-            colorPalette: "3",
-            variable:"03",
-            derivedType:"11",
-            section:"11",
-            step:"03",
-            attributes: {},
-        },
-        "5" : {
-            id:"5",
-            title:"Colormap 1",
-            pid: "1",
-            children: [],
-            state: {
-              visibility : true,
-              expanded : true,
-            },
-            colorPalette: "2",
-            variable:"12",
-            derivedType:"11",
-            section:"12",
-            step:"21",
-            attributes: {},
-        },
-        "6" : {
-            id:"6",
-            title:"Colormap 2",
-            pid: "1",
-            children: [],
-            state: {
-              visibility : true,
-              expanded : true,
-            },
-            colorPalette: "3",
-            variable:"14",
-            derivedType:"21",
-            section:"01",
-            step:"22",
-            attributes: {},
-        },
-    },
-    
-    rootIds : ["0","1"],
+        data : {},
+        rootIds : [],
 },
     colormapSettings : {
         idGenerator :6,
@@ -313,6 +197,62 @@ export const colormapSlice = createSlice({
         
         expandColorPaletteNode : (state, action) => expandNodeReducer(state.colorPaletteTree, action),
 
+        addColorMap: (state, action: PayloadAction<{modelName:string, data:{
+            title:string,
+            variableId:string,
+            derivedId:string,
+            stepId:string,
+            sectionId:string
+        }}>) => {
+            const {modelName, data} = action.payload;
+            let rootNodes = state.colormapTree.rootIds.map(id => state.colormapTree.data[id])
+            let parent = rootNodes.filter(n => n.title === modelName);
+            function createParent(id:string,modelName:string) : Colormap{
+                let p = {
+                    id: id,
+                    pid: "-1",
+                    title: modelName,
+                    state: {
+                        expanded: true,
+                        visibility: true
+                    },
+                    children: [],
+                    colorPalette: "-1",
+                    variable: "-1",
+                    derivedType: "-1",
+                    step: "-1",
+                    section: "-1",
+                    attributes: {}
+                }
+                return p
+            }
+            let parentNode:Colormap;
+
+            if(parent.length >= 1) {
+                parentNode = parent[0];
+            } else{
+                parentNode = createParent((state.colormapSettings.idGenerator++).toString(), modelName);
+                state.colormapTree.rootIds.push(parentNode.id);
+                addNodeReducer(state.colormapTree, {payload: parentNode, type:"colormapSlice/addColorMap/addNodeReducer"});
+            } 
+
+            addNodeReducer(state.colormapTree, {
+                payload: <Colormap>{
+                    id: (state.colormapSettings.idGenerator++).toString(),
+                    pid: parentNode.id,
+                    title: data.title,
+                    attributes: {},
+                    children: [],
+                    colorPalette: "-1",
+                    state: {expanded:true,visibility:true},
+                    variable: data.variableId,
+                    derivedType: data.derivedId,
+                    section: data.sectionId,
+                    step: data.stepId
+                },
+                type: "colormapSlice/addColorMap/addNodeReducer"
+            })
+        },
         createColorMap : (state , action: PayloadAction<string>) => {
                 state.colormapSettings.idGenerator += 1;
                 
@@ -335,7 +275,7 @@ export const colormapSlice = createSlice({
                 saveTreeReducer(state.colormapTree,{payload:{tree: state.colormapTree.data, rootIds: state.colormapTree.rootIds},type:"colormap/addColormap"})
         },
 
-        handleColorMapSelection: (state, action: PayloadAction<string>) => {
+        setColorMapSelection: (state, action: PayloadAction<string>) => {
             state.selectedColorMapId = action.payload;
         }, 
 
@@ -451,7 +391,7 @@ export const colormapSlice = createSlice({
 })
 
 export default colormapSlice.reducer;
-export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, handleColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep, editColorPalette} = colormapSlice.actions;
+export const {addColorMap, saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, setColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep, editColorPalette} = colormapSlice.actions;
 
 //Selectors
 

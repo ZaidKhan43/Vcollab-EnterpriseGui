@@ -115,20 +115,20 @@ const initialState: MainMenu ={
                     path: Routes.GEOMERTY_MATERIAL_COLOR,
                     disabled: false,
                   },
-                  {
-                    id: '15',
-                    name: "Coordinate System",
-                    type:MainMenuItems.GEOMETRY_COORDINATE_SYSTEM,
-                    path: Routes.HOME,
-                    disabled: false,
-                  },
-                  {
-                    id: '16',
-                    name: "Transform",
-                    type:MainMenuItems.GEOMETRY_TRANSFORMATION,
-                    path: Routes.HOME,
-                    disabled: false,
-                  }
+                //   {
+                //     id: '15',
+                //     name: "Coordinate System",
+                //     type:MainMenuItems.GEOMETRY_COORDINATE_SYSTEM,
+                //     path: Routes.HOME,
+                //     disabled: false,
+                //   },
+                //   {
+                //     id: '16',
+                //     name: "Transform",
+                //     type:MainMenuItems.GEOMETRY_TRANSFORMATION,
+                //     path: Routes.HOME,
+                //     disabled: false,
+                //   }
             ]
         },
         {
@@ -196,13 +196,13 @@ const initialState: MainMenu ={
                     path:Routes.SCENE_AXIS_TRIAD,
                     disabled: false
                 },
-                {
-                    id:'34',
-                    name: "Light",
-                    type:MainMenuItems.SCENE_LIGHT,
-                    path:Routes.SCENE_LIGHT,
-                    disabled: false
-                },
+                // {
+                //     id:'34',
+                //     name: "Light",
+                //     type:MainMenuItems.SCENE_LIGHT,
+                //     path:Routes.SCENE_LIGHT,
+                //     disabled: false
+                // },
             ]
         },
         {
@@ -307,68 +307,68 @@ const initialState: MainMenu ={
                 },
             ]
         },
-        {
-            id:'6',
-            expanded: false,
-            name: "Labels",
-            type: MainMenuItems.LABELS,
-            path:Routes.LABELS,
-            children: [
-                {
-                    id:'61',
-                    name: "2D Notes",
-                    type:MainMenuItems.LABELS_2D_NOTES,
-                    path:Routes.LABELS_2D_NOTES,
-                    disabled: false,
-                },
-                {
-                    id:'62',
-                    name: "3D Labels",
-                    type:MainMenuItems.LABELS_3D_LABELS,
-                    path:Routes.LABELS_3D_LABELS,
-                    disabled: false,
-                },
-                {
-                    id:'63',
-                    name: "Measurements",
-                    type:MainMenuItems.LABELS_MEASUREMENTS,
-                    path:Routes.LABELS_MEASUREMENTS,
-                    disabled: false,
-                },
-            ],
-        },
-        {
-            id:'7',
-            expanded: false,
-            name: "Transformations",
-            type: MainMenuItems.TRANSFORMATIONS,
-            path:Routes.HOME,
-            children: []
-        },
-        {
-            id:'8',
-            expanded: false,
-            name: "Animations",
-            type: MainMenuItems.ANIMATIONS,
-            path:Routes.HOME,
-            children: []   
-        },
-        {
-            id:'9',
-            expanded: false,
-            name: "Slides",
-            type: MainMenuItems.SLIDES, 
-            path:Routes.HOME,
-            children: []
-        },
         // {
-        //     id:'10',
+        //     id:'6',
         //     expanded: false,
-        //     name: "Messages",
-        //     type: MainMenuItems.MESSAGES,
-        //     path:Routes.MESSAGES,
-        //     children:[]
+        //     name: "Labels",
+        //     type: MainMenuItems.LABELS,
+        //     path:Routes.LABELS,
+        //     children: [
+        //         {
+        //             id:'61',
+        //             name: "2D Notes",
+        //             type:MainMenuItems.LABELS_2D_NOTES,
+        //             path:Routes.LABELS_2D_NOTES,
+        //             disabled: false,
+        //         },
+        //         {
+        //             id:'62',
+        //             name: "3D Labels",
+        //             type:MainMenuItems.LABELS_3D_LABELS,
+        //             path:Routes.LABELS_3D_LABELS,
+        //             disabled: false,
+        //         },
+        //         {
+        //             id:'63',
+        //             name: "Measurements",
+        //             type:MainMenuItems.LABELS_MEASUREMENTS,
+        //             path:Routes.LABELS_MEASUREMENTS,
+        //             disabled: false,
+        //         },
+        //     ],
         // },
+        // {
+        //     id:'7',
+        //     expanded: false,
+        //     name: "Transformations",
+        //     type: MainMenuItems.TRANSFORMATIONS,
+        //     path:Routes.HOME,
+        //     children: []
+        // },
+        // {
+        //     id:'8',
+        //     expanded: false,
+        //     name: "Animations",
+        //     type: MainMenuItems.ANIMATIONS,
+        //     path:Routes.HOME,
+        //     children: []   
+        // },
+        // {
+        //     id:'9',
+        //     expanded: false,
+        //     name: "Slides",
+        //     type: MainMenuItems.SLIDES, 
+        //     path:Routes.HOME,
+        //     children: []
+        // },
+        {
+            id:'10',
+            expanded: false,
+            name: "Messages",
+            type: MainMenuItems.MESSAGES,
+            path:Routes.MESSAGES,
+            children:[]
+        },
         {
             id:'11',
             expanded: false,

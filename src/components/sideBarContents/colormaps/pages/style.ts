@@ -39,4 +39,8 @@ export default makeStyles((theme) => (
     zIndex: 10,
   },
 
+  invalid: {
+    color: theme.palette.error.main
+  }
+
 }));

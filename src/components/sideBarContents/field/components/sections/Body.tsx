@@ -3,6 +3,7 @@ import TreeSearch from '../../shared/Tree'
 import AutoSizer from '../../../../shared/autoSize'
 import { useAppDispatch, useAppSelector } from '../../../../../store/storeHooks'
 import { selectSections, expandSection, setSelectSection } from '../../../../../store/sideBar/fieldSlice'
+import useSingleSelect from '../../shared/hooks/useSingleSelect'
 import { useState } from 'react'
 
 function Body() {
@@ -11,9 +12,10 @@ function Body() {
     const handleExpand = (toOpen:boolean,nodeId:string) => {
         dispatch(expandSection({toOpen,nodeId}));
     }
-    const handleSelect = (rowData:any) => {
-        dispatch(setSelectSection({nodeId:rowData.id,leafOnly:true}))
-    }
+    const [selected, handleSelect] = useSingleSelect({
+        treeData: sections,
+        selectReducer: setSelectSection
+    })
     const [searchText, setSearchText] = useState("");
 
     return (
@@ -31,6 +33,7 @@ function Body() {
                             searchPlaceholder = "Search Sections & Layers"
                             onExpand = {handleExpand}
                             onRowClick = {handleSelect}
+                            selected = {selected}
                         />
                     </div>   
             }

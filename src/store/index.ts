@@ -37,7 +37,7 @@ const store = configureStore({
         displayModes: displayModesSlice,
         toast: toastSlice,
         settings: settingSlice,
-       // message: messageSlice,
+        message: messageSlice,
         windowMgr: windowMgrSlice,
         label2D: label2DSlice,
         label3D: label3DSlice,
