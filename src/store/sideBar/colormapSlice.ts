@@ -264,8 +264,8 @@ export const colormapSlice = createSlice({
                 newNote.id = `${state.colormapSettings.idGenerator}`;
                 newNote.pid = `${action.payload}`;
                 // if(newNote.pid === "0"){
-                    state.colormapSettings.count +=1;
-                    newNote.title = `Colormap ${state.colormapSettings.count}`;
+                    state.colormapSettings.userDefinedCount +=1;
+                    newNote.title = `Colormap ${state.colormapSettings.userDefinedCount}`;
                 // }
                 // else{
                 //     state.colormapSettings.headCount +=1;
@@ -279,6 +279,10 @@ export const colormapSlice = createSlice({
         },
 
         setColorMapSelection: (state, action: PayloadAction<string>) => {
+
+            if(state.selectedColorMapId === action.payload)
+                state.selectedColorMapId = "-1";
+            else 
             state.selectedColorMapId = action.payload;
         }, 
 
