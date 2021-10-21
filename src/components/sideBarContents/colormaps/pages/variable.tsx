@@ -15,7 +15,6 @@ import MuiMenuItem from '@material-ui/core/MenuItem';
 
 import { useRef, useState, useEffect } from 'react';
 
-import RsTreeSearch from '../../../shared/RsTreeWithSearch'
 import AutoSizer from '../../../shared/autoSize'
 
 import { selectVariables, expandVariable, getDependantVariableIds, selectSteps} from '../../../../store/sideBar/fieldSlice'
@@ -23,12 +22,9 @@ import { selectVariables, expandVariable, getDependantVariableIds, selectSteps} 
 import { colormapElements, selectcolormapData, setSelectedVariable} from '../../../../store/sideBar/colormapSlice';
 
 import {useStyles} from '../../../shared/RsTreeTable/styles/TreeNodeStyle'
-import Grid from '@material-ui/core/Grid'
-import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
-import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
-import TitleTree from '../../../shared/RsTreeWithSearch/utilComponents/TitleNode'
 
 import useVisibility from '../../../sideBarContents/field/shared/hooks/useVisibility'
+import TreeSearchRelated from '../shared/treeSearchRelated';
 
 export default function Variable(){
 
@@ -117,20 +113,14 @@ useEffect(() => {
     )
   }
 
-  const getBody = () => {
-
-    console.log("stepVisibleIds",stepVisibleIds)
-    console.log("depStepIds",depStepIds)
-    console.log("selectedStepIds",selectedStepIds)
-
-    
+  const getBody = () => {    
     return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
       <AutoSizer>
             {
                 (size:any) => 
                     <div id="some_wrapper" style={{width:size.width, height:size.height}}>
-                        <RsTreeSearch
+                        <TreeSearchRelated
                             data = {variables}
                             height = {size.height}
                             hover
@@ -142,27 +132,8 @@ useEffect(() => {
                             width = {300}
                             searchPlaceholder = "Search Variables"
                             onExpand = {handleExpand}
-                            onRowClick = {onVariableClick}
-                            treeNode={
-                              rowData =>
-                              <Grid container alignItems='center' className={ stepVisibleIds.includes(rowData.id) ?classes.actionShow:classes.actionHide}>
-                                  <Grid item>
-                                  <div style={{width:10}}></div>
-                                  </Grid>
-                                  <Grid item>
-                                  <TitleTree rowData = {rowData}></TitleTree>
-                                  </Grid>
-                              </Grid>
-                          }
-                          renderTreeToggle = {(icon,rowData) => {
-                                      if (rowData.children && rowData.children.length === 0) {
-                                      return null;
-                                      }
-                                      let state = variables[rowData.id]?.state;
-                                      return state.expanded? <TreeExpandedIcon style={ stepVisibleIds.includes(rowData.id) ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
-                                  }
-                          }
-                              
+                            onRowClick = {onVariableClick}   
+                            visibleIds = {stepVisibleIds}
                           />
 
                     </div>   
