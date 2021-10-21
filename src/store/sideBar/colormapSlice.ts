@@ -487,6 +487,7 @@ export const colorPaletteElements = (state: RootState) => {
     return(array);
 }
 
+
 // export const selectedLength = (state:RootState) => {
 //     const array : string[] = [];
 //      Object.keys(state.measurements.data).forEach(key => {
