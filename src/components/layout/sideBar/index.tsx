@@ -60,11 +60,11 @@ export default function Sidebar(){
         <Messages />     
         </Route>
         <Route path={Routes.LABELS}>
-        <Labels />     
+        <Labels />
+        </Route>     
         <Route path={Routes.SETTINGS}>
         <Settings/>
          </Route>
-        </Route>
         <Route>
         <Colormaps />
         </Route>

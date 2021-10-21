@@ -11,16 +11,11 @@ interface SharedTreeProps extends LimitedTreeTableProps {
 }
 
 function Tree(props:SharedTreeProps) {
-    const [selectedIds,setSelectedIds] = useState<string[]>([]);
-    useEffect(() => {
-        let selected = Object.values(props.data).filter(e => e.state.selected).map(e => e.id);
-        setSelectedIds(selected);
-    },[props.data])
+
     const classes = useStyles();
         return <RsTreeSearch {...props}
             hover
             selectable
-            selected = {selectedIds}
             treeNode={
             rowData =>
             <Grid container alignItems='center' className={rowData.state.visibility ?classes.actionShow:classes.actionHide}>

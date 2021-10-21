@@ -11,9 +11,9 @@ import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader
 
 import {goBack,push} from 'connected-react-router/immutable';
 
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 
-import {colormapElements, selectcolormapData} from '../../../../store/sideBar/colormapSlice';
+import {colormapElements, selectcolormapData, Colormap, setColorMapSelection} from '../../../../store/sideBar/colormapSlice';
 
 import styles from './style';
 
@@ -26,17 +26,40 @@ import MuiMenuItem from '@material-ui/core/MenuItem';
 import MuiMenuList from '@material-ui/core/MenuList';
 import MuiListItemIcon from '@material-ui/core/ListItemIcon';
 import MuiListItemText from '@material-ui/core/ListItemText';
+import { selectDerivedTypes, selectSections, selectSteps, selectVariables } from '../../../../store/sideBar/fieldSlice';
 
 export default function Edit(){
 
-  const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
-  const [activeId, setActiveId] = useState(selectedColorMapId);  
+  const variables = useAppSelector(selectVariables);
+  const steps = useAppSelector(selectSteps);
+  const derived = useAppSelector(selectDerivedTypes);
+  const sections = useAppSelector(selectSections);
 
-  const list = useAppSelector(colormapElements)
+  const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
+  const colorMap = useAppSelector(selectcolormapData);
+  const [selectedColorMap, setSelectedColorMap] = useState<Colormap>(colorMap[selectedColorMapId]);
+  const [activeId, setActiveId] = useState(selectedColorMapId);  
+  const [isValid, setIsValid] = useState(false);
+  const list = useAppSelector(colormapElements);
 
   const dispatch = useAppDispatch(); 
   const classes = styles();
 
+  const validateSelection = ():boolean => {
+    let selectedStep = steps[selectedColorMap.step];
+    let selectedVariable = variables[selectedColorMap.variable];
+    let selectedDerived = derived[selectedColorMap.derivedType];
+    let selectedSection = sections[selectedColorMap.section];
+
+    return (selectedStep.varibleIds.includes(selectedVariable.id) &&
+    selectedVariable.derivedIds.includes(selectedDerived.id)) ?
+    true : false
+  }
+
+  useEffect(() => {
+    setSelectedColorMap(colorMap[selectedColorMapId]);
+    setIsValid(validateSelection());
+  },[selectedColorMapId])
   
   const onClickBackIcon = () =>{
     dispatch(goBack());
@@ -44,6 +67,7 @@ export default function Edit(){
 
   const onHandleSelect = (id : string) => {
     setActiveId(id)
+    dispatch(setColorMapSelection(id));
   }
   
 
@@ -93,8 +117,10 @@ export default function Edit(){
                 <MuiTypography variant="h3" align="left">
                   Steps & Subcases
                 </MuiTypography>
-                <MuiTypography variant="h1" align="left">
-                  Subcase 1: Modal Transient - Time = 0.2
+                <MuiTypography classes={{root: !isValid ? classes.invalid : ""}} variant="h1" align="left">
+                  {
+                    selectedColorMap && selectedColorMap.step !== "-1"? steps[selectedColorMap.step].title : null
+                  }
                 </MuiTypography>
               </MuiListItemText>
               <MuiListItemIcon style={{marginLeft:"250px"}}><MuiKeyboardArrowRightIcon /></MuiListItemIcon>           
@@ -104,8 +130,10 @@ export default function Edit(){
                 <MuiTypography variant="h3" align="left">
                   Variable
                 </MuiTypography>
-                <MuiTypography variant="h1" align="left">
-                  Displacement
+                <MuiTypography classes={{root: !isValid ? classes.invalid : ""}} variant="h1" align="left">
+                {
+                    selectedColorMap && selectedColorMap.variable !== "-1" ? variables[selectedColorMap.variable].title : null
+                  }
                 </MuiTypography>
               </MuiListItemText>
               <MuiListItemIcon style={{marginLeft:"250px"}}><MuiKeyboardArrowRightIcon /></MuiListItemIcon>           
@@ -116,8 +144,10 @@ export default function Edit(){
                 <MuiTypography variant="h3" align="left">
                   Derived Types
                 </MuiTypography>
-                <MuiTypography variant="h1" align="left">
-                  Vector - X Component
+                <MuiTypography classes={{root: !isValid ? classes.invalid : ""}} variant="h1" align="left">
+                  {
+                    selectedColorMap && selectedColorMap.derivedType !== "-1" ? derived[selectedColorMap.derivedType].title : null
+                  }
                 </MuiTypography>
               </MuiListItemText>
               <MuiListItemIcon style={{marginLeft:"250px"}}><MuiKeyboardArrowRightIcon /></MuiListItemIcon>           
@@ -128,8 +158,10 @@ export default function Edit(){
                 <MuiTypography variant="h3" align="left">
                   Sections & Layers
                 </MuiTypography>
-                <MuiTypography variant="h1" align="left">
-                  Shell - Top
+                <MuiTypography classes={{root: !isValid ? classes.invalid : ""}} variant="h1" align="left">
+                  {
+                    selectedColorMap && selectedColorMap.section !== "-1" ? sections[selectedColorMap.section].title : null
+                  }
                 </MuiTypography>
               </MuiListItemText>
               <MuiListItemIcon style={{marginLeft:"250px"}}><MuiKeyboardArrowRightIcon /></MuiListItemIcon>           
@@ -175,6 +207,11 @@ export default function Edit(){
 
     return(
         <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
+          {
+            !isValid ? <MuiTypography classes={{root:classes.invalid}}>
+              Data not available for the current selection
+            </MuiTypography> : null
+          }
       </div>
     ) 
   }
