@@ -49,6 +49,7 @@ function Body() {
                             onExpand = {handleExpand}
                             onRowClick = {handleSelect}
                             selected = {selected}
+                            visibleIds = {derivedVisibleIds}
                         />
                     </div>   
             }

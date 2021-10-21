@@ -30,20 +30,20 @@ export enum FieldType {
 export interface Field extends ITreeNode {
     source:Source
 }
-interface Variable extends Field {
+export interface Variable extends Field {
     derivedIds: string[],
     sectionIds: string[]
 }
 
-interface Step extends Field {
+export interface Step extends Field {
     varibleIds: string[]
 }
 
-interface DerivedType extends Field {
+export interface DerivedType extends Field {
     
 }
 
-interface Sections extends Field {
+export interface Sections extends Field {
 
 }
 
