@@ -16,17 +16,22 @@ function useVisibility(props:Props): string[] {
     const dispatch = useAppDispatch();
     const [visibleIds, setVisibleIds] = useState<string[]>([]);
     useEffect(() => {
-        if(props.targetSetVisibilityReducer){
+            let visible:string[] = [];
             let reducer = props.targetSetVisibilityReducer;
-            Object.values(props.target).forEach(e => {
-                dispatch(reducer({toShow:false,nodeId:e.id}))
-            })
+            if(reducer !== undefined) {
+                Object.values(props.target).forEach(e => {
+                    dispatch((reducer as any)({toShow:false,nodeId:e.id}))
+                })
+            }
+            
             Object.values(props.target).forEach(e => {
             if(props.targetIds.includes(e.id)){
+                visible.push(e.id);
+                if(reducer)
                 dispatch(reducer({toShow:true,nodeId:e.id}))
             }
             })
-        }
+            setVisibleIds([...visible])
         
     },[props.targetIds])
     return visibleIds

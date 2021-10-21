@@ -23,10 +23,12 @@ import MuiKeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Routes } from '../../../../routes';
 
 import MuiMenuItem from '@material-ui/core/MenuItem';
+import MuiListSubHeader from '@material-ui/core/ListSubheader';
 import MuiMenuList from '@material-ui/core/MenuList';
 import MuiListItemIcon from '@material-ui/core/ListItemIcon';
 import MuiListItemText from '@material-ui/core/ListItemText';
 import { selectDerivedTypes, selectSections, selectSteps, selectVariables } from '../../../../store/sideBar/fieldSlice';
+import { ITreeNode } from '../../../shared/RsTreeTable';
 
 export default function Edit(){
 
@@ -72,7 +74,23 @@ export default function Edit(){
     dispatch(setColorMapSelection(id));
   }
   
-
+  const getParent = (treeData: {[id:string]:ITreeNode}, id:string, rootParent:boolean): ITreeNode | null => {
+      let node = treeData[id];
+      if(node.pid === "-1" || node.pid === null)
+      {
+        return null;
+      }
+      let parent = treeData[node.pid];
+      if(!rootParent) {
+         return parent;
+      }
+      if(parent.pid === "-1" ) {
+          return null;
+      }
+      else {
+        return getParent(treeData,parent.id, rootParent)
+      }
+  }
   const getHeaderLeftIcon= () => {
     return (
      <MuiIconButton  onClick={() => onClickBackIcon()}><BackButton/></MuiIconButton> 
@@ -84,7 +102,7 @@ export default function Edit(){
       <SelectAction
       labelId="display-modes-selection-label-id"
       id="display-modes-selection-id"
-      value={activeId}
+      defaultValue={activeId}
       onChange={(e : any) => onHandleSelect(e.target.value)}
       MenuProps={{
         disablePortal: true,
@@ -96,9 +114,15 @@ export default function Edit(){
       }}
       >
         {
-            list.map((item : any) => 
-              <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
-          )}
+              list.map((item : any) => 
+              {
+                let node = colorMap[item.id];
+                return(node.pid === "-1" ? 
+                <MuiListSubHeader key={item.id}>{item.name}</MuiListSubHeader>: 
+                <MuiMenuItem key={item.id} value={item.id}>{item.name}</MuiMenuItem>)
+                
+              })
+        } 
       </SelectAction>
     )
   }

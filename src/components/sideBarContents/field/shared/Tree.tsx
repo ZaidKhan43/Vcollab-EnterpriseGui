@@ -7,7 +7,7 @@ import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
 import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
 type LimitedTreeTableProps = Omit<RsTreeSearchProps, "renderTreeToggle" | "treeNode">;
 interface SharedTreeProps extends LimitedTreeTableProps {
-
+    visibleIds: string[]
 }
 
 function Tree(props:SharedTreeProps) {
@@ -18,7 +18,7 @@ function Tree(props:SharedTreeProps) {
             selectable
             treeNode={
             rowData =>
-            <Grid container alignItems='center' className={rowData.state.visibility ?classes.actionShow:classes.actionHide}>
+            <Grid container alignItems='center' className={props.visibleIds.includes(rowData.id) ?classes.actionShow:classes.actionHide}>
                 <Grid item>
                 <div style={{width:10}}></div>
                 </Grid>
@@ -32,7 +32,8 @@ function Tree(props:SharedTreeProps) {
                     return null;
                     }
                     let state = props.data[rowData.id]?.state;
-                    return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
+                    let isVisible = props.visibleIds.includes(rowData.id);
+                    return state.expanded? <TreeExpandedIcon style={isVisible ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={isVisible ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
                 }
         }
             

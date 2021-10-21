@@ -22,8 +22,7 @@ function Body() {
     const visibleIds = useVisibility({
         source: step,
         target: variables,
-        targetIds: depVariableIds,
-        targetSetVisibilityReducer: setVisibleVariable
+        targetIds: depVariableIds
     })
     useEffect(() => {
         setDepVariableIds(getDependantVariableIds(step,selectedStepIds));
@@ -48,6 +47,7 @@ function Body() {
                             onExpand = {handleExpand}
                             onRowClick = {handleSelect}
                             selected = {selected}
+                            visibleIds = {visibleIds}
                         />
                     </div>   
             }
