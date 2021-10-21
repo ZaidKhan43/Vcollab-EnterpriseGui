@@ -25,6 +25,28 @@ export default makeStyles((theme) => (
     },
   },
 
+  scrollBarValueSetting: {
+    position:"relative",
+    overflowY: "auto",
+    overflowX:"hidden",
+    // margin: 0,
+    // padding: 0,
+    listStyle: "none",
+    height: "60%",
+    width:"100%",
+    '&::-webkit-scrollbar': {
+      width: '0.4em'
+    },
+    '&::-webkit-scrollbar-track': {
+      boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+      webkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)'
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'rgba(0,0,0,.1)',
+      outline: '1px solid slategrey'
+    },
+  },
+
   listBlock : {
     marginLeft:"5px", 
     marginTop:"15px",
@@ -41,6 +63,10 @@ export default makeStyles((theme) => (
 
   invalid: {
     color: theme.palette.error.main
-  }
+  },
+
+  textBox: {
+    width:"100%",border: "0.5px solid",
+ },
 
 }));

@@ -19,7 +19,7 @@ import { colormapElements, selectcolormapData, selectColorPaletteData } from '..
 
 import MuiGrid from '@material-ui/core/Grid'
 
-import styles from '../style'
+import styles from './style'
 
 import {useEffect} from 'react'
 
@@ -114,9 +114,9 @@ export default function Variable(){
     console.log(appliedColorPalette)
     
     return (
-      <div className={classes.scrollBar} >
+      <div className={classes.scrollBarValueSetting} >
         <MuiGrid container style={{marginTop:"50px", marginLeft:"20px"}}>
-          <MuiGrid item xs={1} >
+          <MuiGrid item xs={3} >
             <MuiGrid container direction="column">
               {
                 appliedColorPalette.map(item =>
@@ -132,11 +132,11 @@ export default function Variable(){
           </MuiGrid>
           
           <MuiGrid item xs={6}>
-            <MuiGrid container direction="column" style={{marginTop:"-40px"}}>
+            <MuiGrid container direction="column" style={{marginTop:"-30px"}}>
               {
                 valueSet.map(item => 
-                  <MuiGrid item style={{marginBottom:"45px"}} >
-                    <MuiInput inputProps={{style: { textAlign: 'center' },}}
+                  <MuiGrid item style={{marginBottom:"50px"}} >
+                    <MuiInput inputProps={{style: { textAlign: 'center' , margin:"-2px"},}}  className={classes.textBox} 
                   value={item}
                 />
                   </MuiGrid>

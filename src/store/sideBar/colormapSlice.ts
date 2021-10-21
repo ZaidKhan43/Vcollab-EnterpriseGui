@@ -243,7 +243,7 @@ export const colormapSlice = createSlice({
                     title: data.title,
                     attributes: {},
                     children: [],
-                    colorPalette: "-1",
+                    colorPalette: "2",
                     state: {expanded:true,visibility:true},
                     variable: data.variableId,
                     derivedType: data.derivedId,
