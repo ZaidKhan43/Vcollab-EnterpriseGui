@@ -46,6 +46,8 @@ export default function Edit(){
   const classes = styles();
 
   const validateSelection = ():boolean => {
+    if(!selectedColorMap)
+    return false
     let selectedStep = steps[selectedColorMap.step];
     let selectedVariable = variables[selectedColorMap.variable];
     let selectedDerived = derived[selectedColorMap.derivedType];

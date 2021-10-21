@@ -31,7 +31,8 @@ export interface Field extends ITreeNode {
     source:Source
 }
 interface Variable extends Field {
-    derivedIds: string[]
+    derivedIds: string[],
+    sectionIds: string[]
 }
 
 interface Step extends Field {
@@ -94,6 +95,18 @@ export const getDependantDerivedTypeIds = (
     let selected = selectedVariableIds.map(e => variables[e]);
     selected.forEach(s => {
         out = [...out,...s.derivedIds];
+    });
+    return out;
+}
+
+export const getDependantSectionIds = (
+    variables:{[id:string]:Variable},
+    selectedVariableIds:string[]
+): string[] => {
+    let out:string[] = []
+    let selected = selectedVariableIds.map(e => variables[e]);
+    selected.forEach(s => {
+        out = [...out,...s.sectionIds];
     });
     return out;
 }
@@ -240,7 +253,7 @@ export const addUserFieldState = createAsyncThunk(
             }
         switch (data.fieldType) {
             case FieldType.Variable:
-                dispatch(addUserVariable({userVariable:{...user,derivedIds:[]}}))
+                dispatch(addUserVariable({userVariable:{...user,derivedIds:[],sectionIds:[]}}))
                 break;
             case FieldType.Step:
                 dispatch(addUserStepsAndSubcase({userStepAndSubcase:{...user,varibleIds:[]}}))
@@ -449,7 +462,8 @@ export const fieldSlice = createSlice({
                             selected: false,
                             visibility: true
                         },
-                        derivedIds: node.derivedIds
+                        derivedIds: node.derivedIds,
+                        sectionIds: []
                     }
                 });
             });

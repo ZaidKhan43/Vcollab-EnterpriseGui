@@ -176,7 +176,7 @@ const initialState : InitialState = {
         idGenerator :3,
         counter : 0,
     },
-    selectedColorMapId: "2",
+    selectedColorMapId: "7",
 
     selectedColorPaletteId: "-1",
 }
