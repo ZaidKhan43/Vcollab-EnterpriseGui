@@ -16,28 +16,27 @@ import MuiMenuItem from '@material-ui/core/MenuItem';
 
 import { useRef, useState } from 'react';
 
-import RsTreeSearch from '../../../shared/RsTreeWithSearch'
 import AutoSizer from '../../../shared/autoSize'
 
-import {  selectDerivedTypes, expandDerivedTypes, } from '../../../../store/sideBar/fieldSlice'
+import {  selectDerivedTypes, expandDerivedTypes, selectVariables, getDependantDerivedTypeIds } from '../../../../store/sideBar/fieldSlice'
 
 import { colormapElements, selectcolormapData, setSelectedDerivedType} from '../../../../store/sideBar/colormapSlice';
 
-import {useStyles} from '../../../shared/RsTreeTable/styles/TreeNodeStyle'
-import Grid from '@material-ui/core/Grid'
-import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
-import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
-import TitleTree from '../../../shared/RsTreeWithSearch/utilComponents/TitleNode'
+import useVisibility from '../../../sideBarContents/field/shared/hooks/useVisibility'
+
+import {useEffect} from 'react';
+import TreeSearchRelated from '../shared/treeSearchRelated';
 
 export default function Variable(){
 
   const dispatch = useAppDispatch();  
-  const classes = useStyles();
 
-  const derivedTypes = useAppSelector(selectDerivedTypes);
+  const derivedTypes = useAppSelector(selectDerivedTypes); 
   const [searchText, setSearchText] = useState("");
 
   const containerRef = useRef(null); 
+
+  const variables = useAppSelector(selectVariables);
 
   const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
   const [activeColormapId, setActiveColormapId] = useState(selectedColorMapId); 
@@ -45,6 +44,19 @@ export default function Variable(){
   const appliedDerivedType = colormapsData[activeColormapId].derivedType;
   const colormapNameList = useAppSelector(colormapElements)
 
+  const [depDerivedIds, setDepDerivedIds] = useState<string[]>([]);
+  const selectedVariableIds = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].variable);
+
+  const derivedVisibleIds = useVisibility({
+    source: variables,
+    target: derivedTypes,
+    targetIds: depDerivedIds,
+    // targetSetVisibilityReducer: setVisibleDerivedTypes
+})
+  useEffect(() => {
+    setDepDerivedIds(getDependantDerivedTypeIds(variables,[selectedVariableIds]));
+  },[activeColormapId])
+  
   // const classes = styles();
   const onClickBackIcon = () =>{
     dispatch(goBack());
@@ -109,7 +121,7 @@ export default function Variable(){
             {
                 (size:any) => 
                     <div id="some_wrapper" style={{width:size.width, height:size.height}}>
-                        <RsTreeSearch
+                        <TreeSearchRelated
                             data = {derivedTypes}
                             height = {size.height}
                             hover
@@ -122,28 +134,8 @@ export default function Variable(){
                             searchPlaceholder = "Search Variables"
                             onExpand = {handleExpand}
                             onRowClick = {onVariableClick}
-                            treeNode={
-                              rowData =>
-                              <Grid container alignItems='center' className={rowData.state.visibility ?classes.actionShow:classes.actionHide}>
-                                  <Grid item>
-                                  <div style={{width:10}}></div>
-                                  </Grid>
-                                  <Grid item>
-                                  <TitleTree rowData = {rowData}></TitleTree>
-                                  </Grid>
-                              </Grid>
-                          }
-                          renderTreeToggle = {(icon,rowData) => {
-                                      if (rowData.children && rowData.children.length === 0) {
-                                      return null;
-                                      }
-                                      let state = derivedTypes[rowData.id]?.state;
-                                      return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
-                                  }
-                          }
-                              
+                           visibleIds ={derivedVisibleIds}
                           />
-
                     </div>   
             }
         </AutoSizer>

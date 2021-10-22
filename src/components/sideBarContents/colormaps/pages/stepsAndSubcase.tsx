@@ -4,37 +4,33 @@ import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilCo
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import BackButton from '../../../icons/back';
 
-
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import {goBack} from 'connected-react-router/immutable';
 
-
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 
+import { useRef, useState , useEffect } from 'react';
 
-import { useRef, useState } from 'react';
-
-import RsTreeSearch from '../../../shared/RsTreeWithSearch'
 import AutoSizer from '../../../shared/autoSize'
 
-import {selectSteps, expandStepsAndSubcase, } from '../../../../store/sideBar/fieldSlice'
+import {selectSteps, expandStepsAndSubcase, selectVariables, getDependantStepIds,} from '../../../../store/sideBar/fieldSlice'
 
-import { colormapElements, selectcolormapData, setSelectedStep} from '../../../../store/sideBar/colormapSlice';
+import { colormapElements, selectcolormapData, setSelectedStep,} from '../../../../store/sideBar/colormapSlice';
 
-import {useStyles} from '../../../shared/RsTreeTable/styles/TreeNodeStyle'
-import Grid from '@material-ui/core/Grid'
-import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
-import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
-import TitleTree from '../../../shared/RsTreeWithSearch/utilComponents/TitleNode'
+import useVisibility from '../../../sideBarContents/field/shared/hooks/useVisibility'
+import TreeSearchRelated from '../shared/treeSearchRelated';
 
 export default function Variable(){
 
   const dispatch = useAppDispatch();  
-  const classes = useStyles();
 
   const steps = useAppSelector(selectSteps);
+  const variables = useAppSelector(selectVariables);
+
+  const [depStepIds, setDepStepIds] = useState<string[]>([]);
+
   const [searchText, setSearchText] = useState("");
 
   const containerRef = useRef(null); 
@@ -44,6 +40,18 @@ export default function Variable(){
   const colormapsData = useAppSelector(selectcolormapData)
   const appliedStep = colormapsData[activeColormapId].step;
   const colormapNameList = useAppSelector(colormapElements)
+
+  const selectedVariableIds = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].variable);
+
+  const stepVisibleIds = useVisibility({
+    source: variables,
+    target: steps,
+    targetIds: depStepIds,
+    // targetSetVisibilityReducer: setVisibleStepsAndSubcase
+})
+useEffect(() => {
+    setDepStepIds(getDependantStepIds(steps,[selectedVariableIds]));
+},[activeColormapId])
 
   // const classes = styles();
   const onClickBackIcon = () =>{
@@ -102,14 +110,18 @@ export default function Variable(){
   }
 
   const getBody = () => {
-    
+
+    console.log("depStepIds",depStepIds)
+    console.log(selectedVariableIds)
+
+    console.log("stepVisibleIds",stepVisibleIds)
     return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
       <AutoSizer>
             {
                 (size:any) => 
                     <div id="some_wrapper" style={{width:size.width, height:size.height}}>
-                        <RsTreeSearch
+                        <TreeSearchRelated
                             data = {steps}
                             height = {size.height}
                             hover
@@ -122,26 +134,7 @@ export default function Variable(){
                             searchPlaceholder = "Search Variables"
                             onExpand = {handleExpand}
                             onRowClick = {onVariableClick}
-                            treeNode={
-                              rowData =>
-                              <Grid container alignItems='center' className={rowData.state.visibility ?classes.actionShow:classes.actionHide}>
-                                  <Grid item>
-                                  <div style={{width:10}}></div>
-                                  </Grid>
-                                  <Grid item>
-                                  <TitleTree rowData = {rowData}></TitleTree>
-                                  </Grid>
-                              </Grid>
-                          }
-                          renderTreeToggle = {(icon,rowData) => {
-                                      if (rowData.children && rowData.children.length === 0) {
-                                      return null;
-                                      }
-                                      let state = steps[rowData.id]?.state;
-                                      return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
-                                  }
-                          }
-                              
+                            visibleIds = {stepVisibleIds}
                           />
 
                     </div>   
