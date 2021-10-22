@@ -17,7 +17,7 @@ import AutoSizer from '../../../shared/autoSize'
 
 import {selectSteps, expandStepsAndSubcase, selectVariables, getDependantStepIds,} from '../../../../store/sideBar/fieldSlice'
 
-import { colormapElements, selectcolormapData, setSelectedStep,} from '../../../../store/sideBar/colormapSlice';
+import { colormapElements, selectcolormapData, setSelectedStep, ColormapType} from '../../../../store/sideBar/colormapSlice';
 
 import useVisibility from '../../../sideBarContents/field/shared/hooks/useVisibility'
 import TreeSearchRelated from '../shared/treeSearchRelated';
@@ -42,6 +42,8 @@ export default function Variable(){
   const colormapNameList = useAppSelector(colormapElements)
 
   const selectedVariableIds = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].variable);
+
+  const readOnly = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false)
 
   const stepVisibleIds = useVisibility({
     source: variables,
@@ -133,7 +135,7 @@ useEffect(() => {
                             width = {300}
                             searchPlaceholder = "Search Variables"
                             onExpand = {handleExpand}
-                            onRowClick = {onHandleRowClick}
+                            onRowClick = {!readOnly ? onHandleRowClick : () => null}
                             visibleIds = {stepVisibleIds}
                           />
 

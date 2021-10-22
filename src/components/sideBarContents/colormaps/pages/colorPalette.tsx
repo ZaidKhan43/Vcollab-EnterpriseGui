@@ -6,7 +6,7 @@ import BackButton from '../../../icons/back';
 
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
 import MuiMenuItem from '@material-ui/core/MenuItem';
-import { colormapElements, selectColorPaletteData, selectColorPaletteRootIds, expandColorPaletteNode, createPalette, setColorPalette , selectcolormapData, selectedColorPaletteId, setSelectedColorPalette, deleteColorPalette, pasteColorPalette} from '../../../../store/sideBar/colormapSlice';
+import { colormapElements, selectColorPaletteData, selectColorPaletteRootIds, expandColorPaletteNode, createPalette, setColorPalette , selectcolormapData, selectedColorPaletteId, setSelectedColorPalette, deleteColorPalette, pasteColorPalette , ColormapType} from '../../../../store/sideBar/colormapSlice';
 
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
@@ -49,7 +49,8 @@ export default function ColorPalette(){
   const appliedColorPalette = colormapsData[activeColormapId].colorPalette;
 
   const selectedColorPalette = useAppSelector(selectedColorPaletteId);
- 
+
+  const readOnly = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false)
 
   const treeDataRedux = useAppSelector(selectColorPaletteData);
   const treeRootIds = useAppSelector(selectColorPaletteRootIds);
@@ -237,6 +238,7 @@ export default function ColorPalette(){
                     <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
                       autoFocus 
                       onClick={onHandleApply} 
+                      disabled={readOnly}
                       // color="primary"
                     >
                       Apply

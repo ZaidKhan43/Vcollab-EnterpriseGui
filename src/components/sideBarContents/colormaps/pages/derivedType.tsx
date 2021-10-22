@@ -20,7 +20,7 @@ import AutoSizer from '../../../shared/autoSize'
 
 import {  selectDerivedTypes, expandDerivedTypes, selectVariables, getDependantDerivedTypeIds } from '../../../../store/sideBar/fieldSlice'
 
-import { colormapElements, selectcolormapData, setSelectedDerivedType} from '../../../../store/sideBar/colormapSlice';
+import { colormapElements, selectcolormapData, setSelectedDerivedType, ColormapType} from '../../../../store/sideBar/colormapSlice';
 
 import useVisibility from '../../../sideBarContents/field/shared/hooks/useVisibility'
 
@@ -46,6 +46,8 @@ export default function Variable(){
 
   const [depDerivedIds, setDepDerivedIds] = useState<string[]>([]);
   const selectedVariableIds = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].variable);
+
+  const readOnly = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false)
 
   const derivedVisibleIds = useVisibility({
     source: variables,
@@ -133,7 +135,7 @@ export default function Variable(){
                             width = {300}
                             searchPlaceholder = "Search Variables"
                             onExpand = {handleExpand}
-                            onRowClick = {onHandleRowClick}
+                            onRowClick = {!readOnly ? onHandleRowClick : () => null}
                            visibleIds ={derivedVisibleIds}
                           />
                     </div>   

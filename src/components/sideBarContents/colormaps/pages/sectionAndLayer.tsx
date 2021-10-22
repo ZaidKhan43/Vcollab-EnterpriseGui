@@ -21,7 +21,7 @@ import AutoSizer from '../../../shared/autoSize'
 
 import {  selectSections, expandSection, } from '../../../../store/sideBar/fieldSlice'
 
-import { colormapElements, selectcolormapData, setSelectedSection} from '../../../../store/sideBar/colormapSlice';
+import { colormapElements, selectcolormapData, setSelectedSection, ColormapType} from '../../../../store/sideBar/colormapSlice';
 
 import {useStyles} from '../../../shared/RsTreeTable/styles/TreeNodeStyle'
 import Grid from '@material-ui/core/Grid'
@@ -44,6 +44,8 @@ export default function Variable(){
   const colormapsData = useAppSelector(selectcolormapData)
   const appliedSection = colormapsData[activeColormapId].section;
   const colormapNameList = useAppSelector(colormapElements)
+
+  const readOnly = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false)
 
   // const classes = styles();
   const onClickBackIcon = () =>{
@@ -121,7 +123,7 @@ export default function Variable(){
                             width = {300}
                             searchPlaceholder = "Search Variables"
                             onExpand = {handleExpand}
-                            onRowClick = {onHandleRowClick}
+                            onRowClick = {!readOnly ? onHandleRowClick : () => null}
                             treeNode={
                               rowData =>
                               <Grid container alignItems='center' className={rowData.state.visibility ?classes.actionShow:classes.actionHide}>
