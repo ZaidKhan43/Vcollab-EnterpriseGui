@@ -247,15 +247,21 @@ export default function ColorPalette(){
               }                                 
                               
               <OptionContainer>
-                <Option label="Edit" 
+                <Option label={ treeDataRedux[selectedColorPalette]?.pid !== "0" ? "Edit" : "View"} 
                   icon={<MuiIconButton 
-                    disabled={selectedColorPalette === "-1" || treeDataRedux[selectedColorPalette].pid === "0"}
+                    disabled={selectedColorPalette === "-1" }
                     onClick={onHandleEdit}
                     >
-                      <MuiEditIcon/>
+                      { treeDataRedux[selectedColorPalette]?.pid !== "0"
+                        ?
+                          <MuiEditIcon/>
+                        :
+                          <MuiVisibilityIcon/>
+                      }  
                     </MuiIconButton>
                   } 
                 />
+
                 <Option label="Copy" 
                   icon={ <MuiIconButton 
                     disabled={selectedColorPalette === "-1"}

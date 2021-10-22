@@ -221,26 +221,18 @@ export default function Camera (){
                                 {
                                     
                                     <OptionContainer>
-                                        {
-                                            cameraList.find(item => item.id === active)?.userDefined
-                                            ?
-                                            <Option label="Edit" icon={<MuiIconButton 
-                                                disabled={active === -1 || activeItem[0]?.userDefined === false}
-                                                 onClick={() => onHandleEdit()}
-                                            >
-                                                <MuiEditIcon/>
-                                                </MuiIconButton>} 
-                                            />
-                                            :
-                                            <Option label="View" icon={<MuiIconButton 
-                                                disabled={active === -1}
-                                                 onClick={() => onHandleEdit()}
-                                            >
-                                                <MuiVisibilityIcon/>
-                                                </MuiIconButton>} 
-                                            />
-                                        }
-                                        
+                                        <Option label={cameraList.find(item => item.id === active)?.userDefined ? "Edit" : "View"} icon={<MuiIconButton 
+                                            disabled={active === -1}
+                                             onClick={() => onHandleEdit()}
+                                            >   
+                                            {   cameraList.find(item => item.id === active)?.userDefined
+                                                ?
+                                                    <MuiEditIcon/>
+                                                :
+                                                    <MuiVisibilityIcon/>
+                                            }                                        
+                                            </MuiIconButton>} 
+                                        />
                                         
                                         <Option label="Copy" icon={ <MuiIconButton 
                                             disabled = {active === -1 || userDefinedLength === maxUserDefined} 

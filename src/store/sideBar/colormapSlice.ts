@@ -396,7 +396,7 @@ export const colormapElements = (state:RootState) => {
 export const colorPaletteElements = (state: RootState) => {
     let array : any[] = [];
     Object.keys(state.colormap.colorPaletteTree.data).forEach(key => {
-        if(state.colormap.colorPaletteTree.data[key].pid !== "-1" && state.colormap.colorPaletteTree.data[key].pid !== "0")
+        if(state.colormap.colorPaletteTree.data[key].pid !== "-1")
         array.push({id:key, name: state.colormap.colorPaletteTree.data[key].title});
     })
 
