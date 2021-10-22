@@ -14,6 +14,17 @@ type ColormapSettings = {
     // headCount : number,    
 } 
 
+export enum ValueType  {
+    NONE = -1,
+    LINEAR = 0,
+    LOGARITHMIC = 1,
+}
+
+export enum ColormapType {
+    SYSTEM = 0,
+    USER = 1,
+}
+
 
 export interface Colormap extends TreeNode {
     id: string;
@@ -22,6 +33,7 @@ export interface Colormap extends TreeNode {
     children: string[];
     state: any;
     attributes: any;
+    colormapType : ColormapType;
     colorPalette: string;
     variable: string;
     derivedType: string;
@@ -41,6 +53,8 @@ export interface ColorPalette extends TreeNode {
     children: string[];
     state: any;
     colorSet:any[];
+    valueSet: string[],
+    valueType: ValueType,
     attributes: any;
 
 }
@@ -86,6 +100,7 @@ const initialState : InitialState = {
                     expanded : true,
                     visibility : true,
                 },
+                colormapType : ColormapType.USER,
                 colorPalette: "2",
                 variable:"13",
                 derivedType:"22",
@@ -110,6 +125,8 @@ const initialState : InitialState = {
                     visibility: true,
                 },
                 colorSet:[],
+                valueSet:[],
+                valueType: ValueType.NONE,
                 attributes: {},
             },
             "1" : {
@@ -122,6 +139,8 @@ const initialState : InitialState = {
                     visibility: true,
                 },
                 colorSet:[],
+                valueSet:[],
+                valueType: ValueType.NONE,
                 attributes: {},
             },
             "2" : {
@@ -149,6 +168,12 @@ const initialState : InitialState = {
                     {id:12, color:{ r:0, g:128, b:128, a:1},},
                     {id:13, color:{ r:0, g:0, b:128, a:1},},                   
                 ],
+                valueSet:[
+                    "Auto","Auto","Auto","Auto","Auto","Auto","Auto",
+                    "Auto","Auto","Auto","Auto","Auto","Auto","Auto",
+                    "Auto",
+                ],
+                valueType : ValueType.LINEAR,
                 attributes: {},
             },
             "3" : {
@@ -165,6 +190,10 @@ const initialState : InitialState = {
                     {id:1,color:{r:0, g:255, b:0, a:1},},
                     {id:2,color:{r:0, g:0, b:255, a:1},},
                 ],
+                valueSet:[
+                    "Auto","Auto","Auto","Auto",
+                ],
+                valueType: ValueType.LOGARITHMIC,
                 attributes: {},
             },
         },
@@ -217,6 +246,7 @@ export const colormapSlice = createSlice({
                         visibility: true
                     },
                     children: [],
+                    colormapType: ColormapType.SYSTEM,
                     colorPalette: "-1",
                     variable: "-1",
                     derivedType: "-1",
@@ -243,6 +273,7 @@ export const colormapSlice = createSlice({
                     title: data.title,
                     attributes: {},
                     children: [],
+                    colormapType: ColormapType.SYSTEM,
                     colorPalette: "2",
                     state: {expanded:true,visibility:true},
                     variable: data.variableId,
@@ -263,6 +294,7 @@ export const colormapSlice = createSlice({
                 let newNote = {...newData};
                 newNote.id = `${state.colormapSettings.idGenerator}`;
                 newNote.pid = `${action.payload}`;
+                newNote.colormapType = ColormapType.USER;
                 // if(newNote.pid === "0"){
                     state.colormapSettings.userDefinedCount +=1;
                     newNote.title = `Colormap ${state.colormapSettings.userDefinedCount}`;
@@ -299,6 +331,8 @@ export const colormapSlice = createSlice({
                     visibility: true,
                 },
                 colorSet:[{id : 0, color:{r:255, g:255, b:255, a:1}}],
+                valueSet:["Auto","Auto"],
+                valueType: ValueType.LINEAR,
                 attributes: {},
             }
 
@@ -319,8 +353,9 @@ export const colormapSlice = createSlice({
             state.colormapTree.data[action.payload.colorMapId].colorPalette = action.payload.colorPaletteId;
         },
 
-        editColorPalette : (state, action : PayloadAction<{colorPaletteId : string, colorData: any[]}>) => {
+        editColorPalette : (state, action : PayloadAction<{colorPaletteId : string, colorData: any[], valueData : string[]}>) => {
             state.colorPaletteTree.data[action.payload.colorPaletteId].colorSet = action.payload.colorData;
+            state.colorPaletteTree.data[action.payload.colorPaletteId].valueSet = action.payload.valueData;
         },
         
         deleteColorPalette : (state, action : PayloadAction<string>) => {

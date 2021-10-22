@@ -63,11 +63,11 @@ export default function List(){
     dispatch(expandNode({toOpen,nodeId}));
   }
 
-  const createLabel = (nodeId : string) => {
+  const handleCreateLabel = (nodeId : string) => {
     	dispatch(createColorMap(nodeId))
   }
 
-  const handleSeletedColorMap = (node : any) => {
+  const handleRowClick = (node : any) => {
     if(node.children.length === 0)
       dispatch(setColorMapSelection(node.id));
   }
@@ -79,7 +79,7 @@ export default function List(){
         treeData={roots} 
         expandedRowIds = {expanded}
         onExpand={handleExpand}
-        onRowClick = {handleSeletedColorMap}
+        onRowClick = {handleRowClick}
         width = {300}
         hover={true}
         selectable={true}
@@ -116,7 +116,7 @@ export default function List(){
                   <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
                     <MuiGrid item xs={4}></MuiGrid>
                     <MuiGrid item xs={6}>
-                      <MuiIconButton size='small' onClick={() => createLabel(node.id)}>
+                      <MuiIconButton size='small' onClick={() => handleCreateLabel(node.id)}>
                         <AddIcon fontSize='default'/> 
                       </MuiIconButton> 
                     </MuiGrid>

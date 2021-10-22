@@ -66,7 +66,7 @@ useEffect(() => {
     setActiveColormapId(id)
   }
 
-  const onVariableClick = (node :any) => {
+  const onHandleRowClick = (node :any) => {
     console.log(node)
     if(node.children.length === 0)
       dispatch(setSelectedStep({colorMapId :activeColormapId, stepId : node.id}))
@@ -133,7 +133,7 @@ useEffect(() => {
                             width = {300}
                             searchPlaceholder = "Search Variables"
                             onExpand = {handleExpand}
-                            onRowClick = {onVariableClick}
+                            onRowClick = {onHandleRowClick}
                             visibleIds = {stepVisibleIds}
                           />
 

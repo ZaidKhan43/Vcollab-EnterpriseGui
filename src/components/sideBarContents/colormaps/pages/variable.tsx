@@ -19,7 +19,7 @@ import AutoSizer from '../../../shared/autoSize'
 
 import { selectVariables, expandVariable, getDependantVariableIds, selectSteps} from '../../../../store/sideBar/fieldSlice'
 
-import { colormapElements, selectcolormapData, setSelectedVariable} from '../../../../store/sideBar/colormapSlice';
+import { colormapElements, selectcolormapData, setSelectedVariable, ColormapType} from '../../../../store/sideBar/colormapSlice';
 
 import {useStyles} from '../../../shared/RsTreeTable/styles/TreeNodeStyle'
 
@@ -44,6 +44,8 @@ export default function Variable(){
   const colormapNameList = useAppSelector(colormapElements)
 
   const selectedStepIds = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].step);
+
+  const readOnly = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false)
 
   const [depStepIds, setDepStepIds] = useState<string[]>([]);
 
@@ -132,7 +134,7 @@ useEffect(() => {
                             width = {300}
                             searchPlaceholder = "Search Variables"
                             onExpand = {handleExpand}
-                            onRowClick = {onVariableClick}   
+                            onRowClick = {!readOnly ? onVariableClick : () => null}   
                             visibleIds = {stepVisibleIds}
                           />
 

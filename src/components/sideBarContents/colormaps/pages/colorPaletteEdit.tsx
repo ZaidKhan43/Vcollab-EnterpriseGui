@@ -61,6 +61,8 @@ export default function ColorPalleteEdit(){
   const colorPaletteList = useAppSelector(state => state.colormap.colorPaletteTree.data)
 
   const [colorSet,setColorSet] = useState( colorPaletteList[activeColorPaletteId].colorSet);
+  const [valueSet,setValueSet] = useState( colorPaletteList[activeColorPaletteId].valueSet);
+
 
   const colorPaletteNameList = useAppSelector(colorPaletteElements)
 
@@ -72,6 +74,7 @@ export default function ColorPalleteEdit(){
 
   useEffect(() => {
     setColorSet(colorPaletteList[activeColorPaletteId].colorSet)
+    setValueSet(colorPaletteList[activeColorPaletteId].valueSet)
   },[activeColorPaletteId]);
 
   const handleAddColor = () => {
@@ -89,15 +92,18 @@ export default function ColorPalleteEdit(){
       return(randomColor)
 
     }
-    
+
+    const newValueSet = [...valueSet]
     const newColor = {
       id: idGenerator ,
       color:   colorPicker(),
     }
 
     const newColorSet = [...colorSet, newColor]
+    newValueSet.push("Auto")
 
-    setColorSet(newColorSet)
+    setColorSet(newColorSet);
+    setValueSet(newValueSet);
     setIdGenerator(idGenerator + 1)
     setSelectedColor(null)
   }
@@ -148,14 +154,20 @@ export default function ColorPalleteEdit(){
   }
 
   const onHandleDelete = () => {
-    const newArray = colorSet.filter(item => item.id !== selectedColor.id);
-    setColorSet(newArray);
+    const newValueData = [...valueSet];
+    const newColorData = colorSet.filter(item => item.id !== selectedColor.id);
+
+    if(colorSet.length !== newColorData.length)
+      newValueData.pop();
+
+    setColorSet(newColorData);
+    setValueSet(newValueData);
     setSelectedColor(null);
     setOpenDelete(false)
   }
 
   const onHandleApply = () => {
-    dispatch(editColorPalette({colorPaletteId : activeColorPaletteId , colorData : colorSet}))
+    dispatch(editColorPalette({colorPaletteId : activeColorPaletteId , colorData : colorSet, valueData : valueSet}))
   }
 
   const onHandleReset = () => {
@@ -378,7 +390,7 @@ style={{width:280,
                     Save
                   </MuiButton>
 
-                  <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+                  <MuiButton style={{width:"20%", fontSize:"9px" , marginRight:"5px"}} 
                     autoFocus 
                     onClick={onHandleReset} 
                     // color="primary"

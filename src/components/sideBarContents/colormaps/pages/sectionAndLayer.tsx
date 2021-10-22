@@ -58,7 +58,7 @@ export default function Variable(){
     setActiveColormapId(id)
   }
 
-  const onVariableClick = (node :any) => {
+  const onHandleRowClick = (node :any) => {
     console.log(node)
     if(node.children.length === 0)
       dispatch(setSelectedSection({colorMapId :activeColormapId, sectionId : node.id}))
@@ -121,7 +121,7 @@ export default function Variable(){
                             width = {300}
                             searchPlaceholder = "Search Variables"
                             onExpand = {handleExpand}
-                            onRowClick = {onVariableClick}
+                            onRowClick = {onHandleRowClick}
                             treeNode={
                               rowData =>
                               <Grid container alignItems='center' className={rowData.state.visibility ?classes.actionShow:classes.actionHide}>

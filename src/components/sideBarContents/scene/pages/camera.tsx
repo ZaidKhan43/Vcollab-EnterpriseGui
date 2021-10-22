@@ -218,7 +218,7 @@ export default function Camera (){
                          null
                             }   
 
-                                {
+                               {
                                     
                                     <OptionContainer>
                                         <Option label={cameraList.find(item => item.id === active)?.userDefined ? "Edit" : "View"} icon={<MuiIconButton 

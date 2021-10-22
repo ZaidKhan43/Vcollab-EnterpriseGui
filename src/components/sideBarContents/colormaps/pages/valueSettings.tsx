@@ -15,7 +15,7 @@ import MuiMenuItem from '@material-ui/core/MenuItem';
 
 import { useRef, useState } from 'react';
 
-import { colormapElements, selectcolormapData, selectColorPaletteData } from '../../../../store/sideBar/colormapSlice';
+import { colormapElements, selectcolormapData, selectColorPaletteData, ValueType } from '../../../../store/sideBar/colormapSlice';
 
 import MuiGrid from '@material-ui/core/Grid'
 
@@ -24,6 +24,12 @@ import styles from './style'
 import {useEffect} from 'react'
 
 import MuiInput from '@material-ui/core/Input';
+
+import MuiButton from '@material-ui/core/Button';
+
+import MuiRadio from '@material-ui/core/Radio';
+import MuiRadioGroup from '@material-ui/core/RadioGroup';
+import MuiFormControlLabel from '@material-ui/core/FormControlLabel';
 
 export default function Variable(){
 
@@ -37,27 +43,20 @@ export default function Variable(){
   const colormapsData = useAppSelector(selectcolormapData)
 
   const colorSetList = useAppSelector(selectColorPaletteData);
+
   const appliedColorPaletteId = colormapsData[activeColormapId].colorPalette
 
-  const appliedColorPalette = colorSetList[appliedColorPaletteId].colorSet;
+  const appliedColorPalette = colorSetList[appliedColorPaletteId];
 
   const colormapNameList = useAppSelector(colormapElements)
 
-  const valueSettings = () => {
-    const length = appliedColorPalette.length + 1;
+  const [valueSet, setValueSet] = useState(appliedColorPalette.valueSet)
 
-    let value : any[] = [];
-
-    for( let i = 0; i < length ; i++){
-      value.push("Auto")
-    }
-    return(value)
-  }
-
-  const [valueSet, setValueSet] = useState(valueSettings)
+  const [valueType, setValueType] = useState<ValueType>(appliedColorPalette.valueType)
 
   useEffect(() => {
-    setValueSet(valueSettings)
+    setValueSet(appliedColorPalette.valueSet)
+    setValueType(appliedColorPalette.valueType)
   },[appliedColorPalette]);
 
   // const classes = styles();
@@ -70,7 +69,41 @@ export default function Variable(){
     setActiveColormapId(id)
   }
 
+  const onHandleEditValue = (index : number, e: any) => {
+
+    console.log("index",index, "number",e.currentTarget.value)
+    let newValueSet = [...valueSet];
+    newValueSet[index] = e.currentTarget.value;
+
+    setValueSet([...newValueSet]);
+
+  }
+
+  const onHandleDeleteValue = (index : number) => {
+    let newValueSet = [...valueSet];
+    newValueSet[index] = "";
+
+    setValueSet([...newValueSet]);
+  }
+
+  const onHandleClearAll = () => {
+    let newValueSet = [...valueSet];
+    newValueSet.forEach((item,index) => newValueSet[index] = "")
+
+    setValueSet([...newValueSet])
+
+  }
+
+  const handleRadioChange = (e : any) => {
+    const newValueType = Number(e.currentTarget.value)
+    setValueType(newValueType)
+  }
   
+  const onHandleReset = () => {
+    setValueSet(appliedColorPalette.valueSet)
+    setValueType(appliedColorPalette.valueType)
+  }
+
   const getHeaderLeftIcon= () => {
     return (
      <MuiIconButton  onClick={() => onClickBackIcon()}><BackButton/></MuiIconButton> 
@@ -114,13 +147,14 @@ export default function Variable(){
     console.log(appliedColorPalette)
     
     return (
+      <div style={{height:"100%"}}>
       <div className={classes.scrollBarValueSetting} >
         <MuiGrid container style={{marginTop:"50px", marginLeft:"20px"}}>
           <MuiGrid item xs={3} >
             <MuiGrid container direction="column">
               {
-                appliedColorPalette.map(item =>
-                  <MuiGrid>
+                appliedColorPalette.colorSet.map(item =>
+                  <MuiGrid key={ 'colorSet_' + item.id }>
                     <div style={{marginBottom:"20px",height:"60px", 
                                             width:"30px",
                                             backgroundColor:`rgb(${item.color.r},${item.color.g},${item.color.b})` ,
@@ -134,19 +168,89 @@ export default function Variable(){
           <MuiGrid item xs={6}>
             <MuiGrid container direction="column" style={{marginTop:"-30px"}}>
               {
-                valueSet.map(item => 
-                  <MuiGrid item style={{marginBottom:"50px"}} >
-                    <MuiInput inputProps={{style: { textAlign: 'center' , margin:"-2px"},}}  className={classes.textBox} 
-                  value={item}
+                valueSet.map((item,index) => 
+                  <MuiGrid key={ 'valueSet_' + index} item style={{marginBottom:"50px"}} >
+                    <div  className={classes.textBox} >
+                      <MuiGrid container>
+                        <MuiGrid item xs={8}>
+                    <MuiInput inputProps={{style: { textAlign: 'center' , margin:"-2px"},}} 
+                    value={item}
+                    onChange={(e) => onHandleEditValue(index,e)}
                 />
+                </MuiGrid>
+                <MuiGrid item xs={4}>
+                  {
+                    item !== ""
+                    ?
+                      <MuiIconButton size="small" onClick={() => onHandleDeleteValue(index)}>X</MuiIconButton>
+                    :
+                      null
+                  }
+                
+                </MuiGrid>
+                </MuiGrid>
+                </div>
                   </MuiGrid>
                 )}
             </MuiGrid>
 
           </MuiGrid>
         </MuiGrid>
-
     </div> 
+    <div style={{marginTop:"10px", marginBottom:"20px"}}>
+                  <MuiButton style={{backgroundColor:"#5958FF",width:"30%", fontSize:"12px" , marginRight:"5px"}} 
+                    autoFocus 
+                    onClick={onHandleClearAll} 
+                    // color="primary"
+                    // disabled= {disabled}
+                  >
+                    Clear All
+                  </MuiButton>
+      </div>
+
+      <div style={{marginTop:"10px", marginBottom:"20px"}}>
+      <MuiRadioGroup
+    aria-label="gender"
+    name="controlled-radio-buttons-group"
+    
+    value={valueType}
+    onChange={handleRadioChange}
+  >
+    <MuiGrid container>
+      <MuiGrid item xs={6}>
+      <MuiFormControlLabel value={ValueType.LINEAR} control={<MuiRadio color="default"/>} label="Linear" />
+      </MuiGrid>
+      <MuiGrid item xs={6}>
+      <MuiFormControlLabel value={ValueType.LOGARITHMIC} control={<MuiRadio color="default" />} label="Logarithmic" />
+      </MuiGrid>
+    </MuiGrid>
+    
+   
+  </MuiRadioGroup>
+      </div>
+
+    <div style={{marginTop:"20px", marginBottom:"20px"}}>
+                  <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"12px" , marginRight:"5px"}} 
+                    autoFocus 
+                    // onClick={onHandleApply} 
+                    // color="primary"
+                    // disabled= {disabled}
+                  >
+                    Save
+                  </MuiButton>
+
+                  <MuiButton style={{width:"20%", fontSize:"12px" , marginRight:"5px"}} 
+                    autoFocus 
+                    onClick={onHandleReset} 
+                    // color="primary"
+                    // disabled= {disabled}
+                  >
+                    Reset
+                  </MuiButton>
+                </div>
+
+
+    </div>
     )
   }
 
