@@ -10,23 +10,12 @@ import { useState } from 'react'
 
 function Body() {
     const dispatch = useAppDispatch();
-    const variables = useAppSelector(selectVariables);
     const derived = useAppSelector(selectDerivedTypes);
-    const selectedVariableIds = useAppSelector(getSelectedVariableIds);
-    const [depDerivedIds, setDepDerivedIds] = useState<string[]>([]);
     const [selected, handleSelect] = useSingleSelect({
         treeData: derived,
         selectReducer: setSelectDerivedTypes
     })
-    const derivedVisibleIds = useVisibility({
-        source: variables,
-        target: derived,
-        targetIds: depDerivedIds,
-        targetSetVisibilityReducer: setVisibleDerivedTypes
-    })
-    useEffect(() => {
-        setDepDerivedIds(getDependantDerivedTypeIds(variables,selectedVariableIds));
-    },[])
+
     const handleExpand = (toOpen:boolean,nodeId:string) => {
         dispatch(expandDerivedTypes({toOpen,nodeId}));
     }
@@ -49,7 +38,6 @@ function Body() {
                             onExpand = {handleExpand}
                             onRowClick = {handleSelect}
                             selected = {selected}
-                            visibleIds = {derivedVisibleIds}
                         />
                     </div>   
             }

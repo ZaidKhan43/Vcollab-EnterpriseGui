@@ -347,7 +347,8 @@ export const fieldSlice = createSlice({
                             derivedIds: ["d14"]
                         }
                     ],
-                    derivedIds: []
+                    derivedIds: [],
+                    sectionIds: []
                 },
                 {
                     id: "v2",
@@ -357,16 +358,19 @@ export const fieldSlice = createSlice({
                             id: "v21",
                             title: "Displacement",
                             children: [],
-                            derivedIds: ["d14"]
+                            derivedIds: ["d14"],
+                            sectionIds: ["01"]
                         },
                         {
                             id: "v22",
                             title: "Stress",
                             children: [],
-                            derivedIds: ["d2"]
+                            derivedIds: ["d2"],
+                            sectionIds: []
                         }
                     ],
-                    derivedIds: []
+                    derivedIds: [],
+                    sectionIds: []
                 }
             ];
             let steps = [

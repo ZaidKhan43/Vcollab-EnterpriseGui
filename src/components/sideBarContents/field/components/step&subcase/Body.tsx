@@ -11,23 +11,12 @@ import { useState } from 'react'
 function Body() {
     const dispatch = useAppDispatch();
     const steps = useAppSelector(selectSteps);
-    const variables = useAppSelector(selectVariables);
-    const [depStepIds, setDepStepIds] = useState<string[]>([]);
-    const selectedVariableIds = useAppSelector(getSelectedVariableIds);
     const [searchText, setSearchText] = useState("");
     const [selected, handleSelect] = useSingleSelect({
         treeData: steps,
         selectReducer: setSelectStepsAndSubcase
     })
 
-    const stepVisibleIds = useVisibility({
-        source: variables,
-        target: steps,
-        targetIds: depStepIds
-    })
-    useEffect(() => {
-        setDepStepIds(getDependantStepIds(steps,selectedVariableIds));
-    },[])
 
     const handleExpand = (toOpen:boolean,nodeId:string) => {
         dispatch(expandStepsAndSubcase({toOpen,nodeId}));
@@ -49,7 +38,6 @@ function Body() {
                             onExpand = {handleExpand}
                             onRowClick = {handleSelect}
                             selected = {selected}
-                            visibleIds = {stepVisibleIds}
                         />
                     </div>   
             }

@@ -55,10 +55,12 @@ export default function Edit(){
   const validateSelection = ():boolean => {
     if(!selectedColorMap)
     return false
-    if(selectedStep && selectedVariable && selectedDerivedType)
+    if(selectedStep && selectedVariable && selectedDerivedType )
     {
       return (selectedStep.varibleIds.includes(selectedVariable.id) &&
-      selectedVariable.derivedIds.includes(selectedDerivedType.id))
+      selectedVariable.derivedIds.includes(selectedDerivedType.id) 
+      //&& selectedVariable.sectionIds.includes(selectedSection.id)
+      )
     }
     else{
       return false
