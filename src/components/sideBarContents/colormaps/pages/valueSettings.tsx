@@ -163,10 +163,11 @@ export default function Variable(){
                 appliedColorPalette.colorSet.map(item =>
                   <MuiGrid key={ 'colorSet_' + item.id }>
                     <div style={{marginBottom:"20px",height:"60px", 
-                                            width:"30px",
-                                            backgroundColor:`rgb(${item.color.r},${item.color.g},${item.color.b})` ,
-                                        }}>
-                                        </div>
+                                  width:"30px",
+                                  backgroundColor:`rgb(${item.color.r},${item.color.g},${item.color.b})` ,
+                          }}
+                    >
+                    </div>
                   </MuiGrid>
               )}
             </MuiGrid>

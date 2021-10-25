@@ -60,7 +60,7 @@ export default function ColorPalette(){
   const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
 
   const [openDelete, setOpenDelete] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<any>();
 
   const dispatch = useAppDispatch();  
   const onClickBackIcon = () =>{
@@ -100,8 +100,14 @@ export default function ColorPalette(){
     setOpenDelete(false);
   }
 
+  const onHandleCopy = () => {
+    const newCopy = treeDataRedux[selectedColorPalette];
+    setCopied(newCopy);
+  }
+
   const onHandlePaste = () => {
-    dispatch(pasteColorPalette(selectedColorPalette))
+    if(copied)
+      dispatch(pasteColorPalette(copied))
   }
 
   const onHandleEdit = () => {
@@ -267,7 +273,7 @@ export default function ColorPalette(){
                 <Option label="Copy" 
                   icon={ <MuiIconButton 
                     disabled={selectedColorPalette === "-1"}
-                    onClick={() => setCopied(true)}
+                    onClick={onHandleCopy}
                     > 
                       <MuiFileCopyOutlinedIcon/>
                     </MuiIconButton>

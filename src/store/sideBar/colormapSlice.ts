@@ -367,8 +367,8 @@ export const colormapSlice = createSlice({
                     })
         },
 
-        pasteColorPalette : (state, action: PayloadAction<string>) => {
-            let copiedColorPaletteData = JSON.parse(JSON.stringify(state.colorPaletteTree.data[action.payload]));
+        pasteColorPalette : (state, action: PayloadAction<ColorPalette>) => {
+            let copiedColorPaletteData = JSON.parse(JSON.stringify(action.payload));
             state.colorPaletteSettings.idGenerator += 1;
             state.colorPaletteSettings.counter += 1;
 
