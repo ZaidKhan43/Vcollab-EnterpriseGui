@@ -15,7 +15,7 @@ import MuiMenuItem from '@material-ui/core/MenuItem';
 
 import { useRef, useState } from 'react';
 
-import { colormapElements, selectcolormapData, selectColorPaletteData, ValueType } from '../../../../store/sideBar/colormapSlice';
+import { colormapElements, selectcolormapData, selectColorPaletteData, ValueType, setSelectedValue, setSelectedValueType, ColormapType } from '../../../../store/sideBar/colormapSlice';
 
 import MuiGrid from '@material-ui/core/Grid'
 
@@ -50,9 +50,11 @@ export default function Variable(){
 
   const colormapNameList = useAppSelector(colormapElements)
 
-  const [valueSet, setValueSet] = useState(appliedColorPalette.valueSet)
+  const [valueSet, setValueSet] = useState<any>(appliedColorPalette.valueSet)
 
   const [valueType, setValueType] = useState<ValueType>(appliedColorPalette.valueType)
+
+  const readOnly = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false)
 
   useEffect(() => {
     setValueSet(appliedColorPalette.valueSet)
@@ -73,7 +75,7 @@ export default function Variable(){
 
     console.log("index",index, "number",e.currentTarget.value)
     let newValueSet = [...valueSet];
-    newValueSet[index] = e.currentTarget.value;
+    newValueSet[index] = Number(e.currentTarget.value);
 
     setValueSet([...newValueSet]);
 
@@ -99,6 +101,11 @@ export default function Variable(){
     setValueType(newValueType)
   }
   
+  const onHandleSave = () => {
+    dispatch(setSelectedValue({colorPaletteId: appliedColorPaletteId, updatedValueSet : valueSet}))
+    dispatch(setSelectedValueType({colorPaletteId: appliedColorPaletteId, updatedValueType : valueType}))
+  }
+
   const onHandleReset = () => {
     setValueSet(appliedColorPalette.valueSet)
     setValueType(appliedColorPalette.valueType)
@@ -168,23 +175,23 @@ export default function Variable(){
           <MuiGrid item xs={6}>
             <MuiGrid container direction="column" style={{marginTop:"-30px"}}>
               {
-                valueSet.map((item,index) => 
+                valueSet.map((item : any,index : number) => 
                   <MuiGrid key={ 'valueSet_' + index} item style={{marginBottom:"50px"}} >
                     <div  className={classes.textBox} >
                       <MuiGrid container>
                         <MuiGrid item xs={8}>
-                    <MuiInput inputProps={{style: { textAlign: 'center' , margin:"-2px"},}} 
+                    <MuiInput disabled={readOnly} inputProps={{style: { textAlign: 'center' , margin:"-2px"},}} 
                     value={item}
                     onChange={(e) => onHandleEditValue(index,e)}
                 />
                 </MuiGrid>
                 <MuiGrid item xs={4}>
                   {
-                    item !== ""
+                    item === "" || readOnly
                     ?
-                      <MuiIconButton size="small" onClick={() => onHandleDeleteValue(index)}>X</MuiIconButton>
+                    null
                     :
-                      null
+                      <MuiIconButton size="small" onClick={() => onHandleDeleteValue(index)}>X</MuiIconButton>
                   }
                 
                 </MuiGrid>
@@ -202,7 +209,7 @@ export default function Variable(){
                     autoFocus 
                     onClick={onHandleClearAll} 
                     // color="primary"
-                    // disabled= {disabled}
+                    disabled= {readOnly}
                   >
                     Clear All
                   </MuiButton>
@@ -212,16 +219,16 @@ export default function Variable(){
       <MuiRadioGroup
     aria-label="gender"
     name="controlled-radio-buttons-group"
-    
+   
     value={valueType}
     onChange={handleRadioChange}
   >
     <MuiGrid container>
       <MuiGrid item xs={6}>
-      <MuiFormControlLabel value={ValueType.LINEAR} control={<MuiRadio color="default"/>} label="Linear" />
+      <MuiFormControlLabel  disabled= {readOnly} value={ValueType.LINEAR} control={<MuiRadio color="default"/>} label="Linear" />
       </MuiGrid>
       <MuiGrid item xs={6}>
-      <MuiFormControlLabel value={ValueType.LOGARITHMIC} control={<MuiRadio color="default" />} label="Logarithmic" />
+      <MuiFormControlLabel  disabled= {readOnly} value={ValueType.LOGARITHMIC} control={<MuiRadio color="default" />} label="Logarithmic" />
       </MuiGrid>
     </MuiGrid>
     
@@ -230,9 +237,15 @@ export default function Variable(){
       </div>
 
     <div style={{marginTop:"20px", marginBottom:"20px"}}>
+      {
+        readOnly 
+        ?
+          null
+        :
+              <div>
                   <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"12px" , marginRight:"5px"}} 
                     autoFocus 
-                    // onClick={onHandleApply} 
+                    onClick={onHandleSave} 
                     // color="primary"
                     // disabled= {disabled}
                   >
@@ -248,8 +261,8 @@ export default function Variable(){
                     Reset
                   </MuiButton>
                 </div>
-
-
+      }
+      </div>
     </div>
     )
   }

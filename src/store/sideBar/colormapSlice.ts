@@ -398,11 +398,30 @@ export const colormapSlice = createSlice({
             state.colormapTree.data[action.payload.colorMapId].step = action.payload.stepId;
         },
 
+        setSelectedValue : (state, action : PayloadAction<{colorPaletteId : string, updatedValueSet : any[]}>) => {
+
+            let newData = [...action.payload.updatedValueSet];
+
+            newData.forEach((item, index) => 
+                {   if(item === "")
+                        newData[index] = "Auto"
+                    
+                    if (typeof(item) === "number")
+                        newData[index] = String(item) === "NaN" ? "Auto" : String(item);
+                })
+
+            state.colorPaletteTree.data[action.payload.colorPaletteId].valueSet = newData;
+        },
+
+        setSelectedValueType : (state, action : PayloadAction<{colorPaletteId : string, updatedValueType : ValueType}>) => {
+            state.colorPaletteTree.data[action.payload.colorPaletteId].valueType = action.payload.updatedValueType;
+        }
+
     }
 })
 
 export default colormapSlice.reducer;
-export const {addColorMap, saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, setColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep, editColorPalette} = colormapSlice.actions;
+export const {addColorMap, saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, setColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep, editColorPalette, setSelectedValue, setSelectedValueType} = colormapSlice.actions;
 
 //Selectors
 
