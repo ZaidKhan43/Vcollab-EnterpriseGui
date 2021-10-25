@@ -28,12 +28,15 @@ import MuiListItemIcon from '@material-ui/core/ListItemIcon';
 import MuiListItemText from '@material-ui/core/ListItemText';
 import { selectDerivedTypes, selectSections, selectSteps, selectVariables } from '../../../../store/sideBar/fieldSlice';
 
+import { selectColorPaletteData} from '../../../../store/sideBar/colormapSlice';
+
 export default function Edit(){
 
   const variables = useAppSelector(selectVariables);
   const steps = useAppSelector(selectSteps);
   const derived = useAppSelector(selectDerivedTypes);
   const sections = useAppSelector(selectSections);
+  const colorpalette = useAppSelector(selectColorPaletteData);
 
   const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
   const colorMap = useAppSelector(selectcolormapData);
@@ -173,7 +176,9 @@ export default function Edit(){
                   Color Palette
                 </MuiTypography>
                 <MuiTypography variant="h1" align="left">
-                  VCollab - 2 Color
+                  {
+                    selectedColorMap && selectedColorMap.colorPalette !== "-1" ? colorpalette[selectedColorMap.colorPalette].title : null
+                  }
                 </MuiTypography>
               </MuiListItemText>
               <MuiListItemIcon style={{marginLeft:"250px"}}><MuiKeyboardArrowRightIcon /></MuiListItemIcon>           

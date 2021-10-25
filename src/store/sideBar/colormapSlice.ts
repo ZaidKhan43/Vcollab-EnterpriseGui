@@ -39,6 +39,8 @@ export interface Colormap extends TreeNode {
     derivedType: string;
     section: string,
     step: string,
+    downloaded: boolean,
+    size: number,
 }
 
 interface ColormapTreeState extends ITreeState {
@@ -81,6 +83,7 @@ interface InitialState {
     colorPaletteSettings : ColorPaletteSettings,
 
     selectedColorMapId : string,
+    appliedColorMapId : string,
     selectedColorPaletteId : string,
 }
 
@@ -107,6 +110,8 @@ const initialState : InitialState = {
                 section:"12",
                 step:"01",
                 attributes: {},
+                downloaded: false,
+                size:2024,
         },
         userDefinedCount: 0,
         // headCount: 2,
@@ -206,7 +211,7 @@ const initialState : InitialState = {
         counter : 0,
     },
     selectedColorMapId: "7",
-
+    appliedColorMapId : "7",
     selectedColorPaletteId: "-1",
 }
 
@@ -252,7 +257,9 @@ export const colormapSlice = createSlice({
                     derivedType: "-1",
                     step: "-1",
                     section: "-1",
-                    attributes: {}
+                    attributes: {},
+                    downloaded:true,
+                    size:10120,
                 }
                 return p
             }
@@ -279,7 +286,9 @@ export const colormapSlice = createSlice({
                     variable: data.variableId,
                     derivedType: data.derivedId,
                     section: data.sectionId,
-                    step: data.stepId
+                    step: data.stepId,
+                    downloaded: true,
+                    size:1233,
                 },
                 type: "colormapSlice/addColorMap/addNodeReducer"
             })
@@ -289,7 +298,7 @@ export const colormapSlice = createSlice({
                 
                 const id =state.colormapSettings.idGenerator;
 
-                let newData = JSON.parse(JSON.stringify(state.colormapTree.data[state.selectedColorMapId]))
+                let newData = JSON.parse(JSON.stringify(state.colormapTree.data[state.appliedColorMapId]))
                 
                 let newNote = {...newData};
                 newNote.id = `${state.colormapSettings.idGenerator}`;
@@ -298,6 +307,8 @@ export const colormapSlice = createSlice({
                 // if(newNote.pid === "0"){
                     state.colormapSettings.userDefinedCount +=1;
                     newNote.title = `Colormap ${state.colormapSettings.userDefinedCount}`;
+                    newNote.downloaded = false;
+                    newNote.size = 12312300;
                 // }
                 // else{
                 //     state.colormapSettings.headCount +=1;
@@ -317,6 +328,38 @@ export const colormapSlice = createSlice({
             else 
             state.selectedColorMapId = action.payload;
         }, 
+
+        deleteColorMap : (state, action : PayloadAction<string>) => {
+
+            state.selectedColorMapId = "-1";
+            delete state.colormapTree.data[action.payload];
+            Object.keys(state.colormapTree.data).forEach(key => {
+                state.colormapTree.data[key].children = state.colormapTree.data[key].children.filter(item => item !== action.payload)
+            })
+        },
+
+        pasteColormap : (state, action: PayloadAction<Colormap>) => {
+            let copiedColormapData = JSON.parse(JSON.stringify(action.payload));
+            state.colormapSettings.idGenerator += 1;
+            state.colormapSettings.userDefinedCount += 1;
+
+            copiedColormapData.id = state.colormapSettings.idGenerator;
+            copiedColormapData.title = `Colormap ${state.colormapSettings.userDefinedCount}`;
+            copiedColormapData.colormapType = ColormapType.USER;
+            
+            copiedColormapData.downloaded = false;
+            copiedColormapData.size = 78731230; 
+
+            state.colormapTree.data[`${state.colormapSettings.idGenerator}`] = copiedColormapData;
+            state.colormapTree.data[copiedColormapData.pid].children.push(copiedColormapData.id)
+
+        },
+
+        applyColorMap: (state, action : PayloadAction<string>) => {
+            state.appliedColorMapId = action.payload;
+            state.colormapTree.data[ action.payload].downloaded = true;
+        },
+
 
         createPalette : (state) => {
             state.colorPaletteSettings.idGenerator += 1;
@@ -348,6 +391,8 @@ export const colormapSlice = createSlice({
             else
                 state.selectedColorPaletteId = action.payload;
         },
+
+        
 
         setColorPalette : (state , action : PayloadAction<{colorMapId :string, colorPaletteId : string}>) => {
             state.colormapTree.data[action.payload.colorMapId].colorPalette = action.payload.colorPaletteId;
@@ -421,7 +466,7 @@ export const colormapSlice = createSlice({
 })
 
 export default colormapSlice.reducer;
-export const {addColorMap, saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, setColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep, editColorPalette, setSelectedValue, setSelectedValueType} = colormapSlice.actions;
+export const {addColorMap, saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, deleteColorMap, applyColorMap, pasteColormap, setColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep, editColorPalette, setSelectedValue, setSelectedValueType} = colormapSlice.actions;
 
 //Selectors
 
