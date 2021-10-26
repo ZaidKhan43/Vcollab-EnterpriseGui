@@ -11,6 +11,7 @@ import ProbeLabel from "../probe";
 import { fetchFieldData } from '../../store/sideBar/fieldSlice';
 import { fetchMouseData } from '../../store/sideBar/settings';
 import { fetchCameraMatrix, fetchCameraStdViews } from '../../store/sideBar/sceneSlice';
+import { addMessage, updateMessage, NetworkData, NotificationType, finishMessage } from '../../store/sideBar/messageSlice';
 
 function Viewer(){
     
@@ -147,6 +148,48 @@ function Viewer(){
                 events.viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE,
                 (event : any) => {
                   dispatch(setModelLoadingStatus(event.data));
+                }
+              );
+              eventDispatcher?.addEventListener(
+                events.viewerEvents.DOWNLOAD_START,
+                (event: any) => {
+                  let data = event.data;
+                  let networkData:NetworkData = {
+                    transfferedSize: 0,
+                    totalSize: data.event.totalSize,
+                    pause: false,
+                    cancel: false,
+                    timeLeft: ""
+                  }
+                  dispatch(addMessage({
+                    id: data.id,
+                    type: NotificationType.NETWORK_TRANSFER_MESSAGE,
+                    tags: ["Test"],
+                    data: networkData,
+                    title: data.event.title
+                  }))
+                  console.log("start",networkData.totalSize);
+                }
+              );
+              eventDispatcher?.addEventListener(
+                events.viewerEvents.DOWNLOAD_PROGRESS,
+                (event: any) => {
+                  let data = event.data;
+                  dispatch(updateMessage({
+                    id: data.id,
+                    transferredSize: data.event.loaded
+                  }))
+                  console.log("update",data.event);
+                }
+              );
+              eventDispatcher?.addEventListener(
+                events.viewerEvents.DOWNLOAD_END,
+                (event: any) => {
+                  let data = event.data;
+                 
+                  dispatch(finishMessage({
+                    id: data.id
+                  }))
                 }
               );
               eventDispatcher?.addEventListener(
