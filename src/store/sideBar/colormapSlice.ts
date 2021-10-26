@@ -20,6 +20,12 @@ export enum ValueType  {
     LOGARITHMIC = 1,
 }
 
+export enum ValueNature {
+    NONE = -1,
+    MAXMIN = 0,
+    SINGLE = 1,
+}
+
 export enum ColormapType {
     SYSTEM = 0,
     USER = 1,
@@ -56,6 +62,7 @@ export interface ColorPalette extends TreeNode {
     state: any;
     colorSet:any[];
     valueSet: string[],
+    valueNature: ValueNature,
     valueType: ValueType,
     attributes: any;
 
@@ -131,6 +138,7 @@ const initialState : InitialState = {
                 },
                 colorSet:[],
                 valueSet:[],
+                valueNature: ValueNature.NONE,
                 valueType: ValueType.NONE,
                 attributes: {},
             },
@@ -145,6 +153,7 @@ const initialState : InitialState = {
                 },
                 colorSet:[],
                 valueSet:[],
+                valueNature: ValueNature.NONE,
                 valueType: ValueType.NONE,
                 attributes: {},
             },
@@ -178,6 +187,7 @@ const initialState : InitialState = {
                     "Auto","Auto","Auto","Auto","Auto","Auto","Auto",
                     "Auto",
                 ],
+                valueNature : ValueNature.MAXMIN,
                 valueType : ValueType.LINEAR,
                 attributes: {},
             },
@@ -196,8 +206,9 @@ const initialState : InitialState = {
                     {id:2,color:{r:0, g:0, b:255, a:1},},
                 ],
                 valueSet:[
-                    "Auto","Auto","Auto","Auto",
+                    "Auto","Auto","Auto",
                 ],
+                valueNature: ValueNature.SINGLE,
                 valueType: ValueType.LOGARITHMIC,
                 attributes: {},
             },
@@ -375,6 +386,7 @@ export const colormapSlice = createSlice({
                 },
                 colorSet:[{id : 0, color:{r:255, g:255, b:255, a:1}}],
                 valueSet:["Auto","Auto"],
+                valueNature: ValueNature.MAXMIN,
                 valueType: ValueType.LINEAR,
                 attributes: {},
             }
@@ -401,6 +413,32 @@ export const colormapSlice = createSlice({
         editColorPalette : (state, action : PayloadAction<{colorPaletteId : string, colorData: any[], valueData : string[]}>) => {
             state.colorPaletteTree.data[action.payload.colorPaletteId].colorSet = action.payload.colorData;
             state.colorPaletteTree.data[action.payload.colorPaletteId].valueSet = action.payload.valueData;
+        },
+        
+        editColorPaletteNature : (state, action : PayloadAction<{colorPaletteId : string, newValueNature : ValueNature}>) => {
+            const currentPaletteNature = state.colorPaletteTree.data[action.payload.colorPaletteId].valueNature;
+
+            if(currentPaletteNature !== action.payload.newValueNature){
+                state.colorPaletteTree.data[action.payload.colorPaletteId].valueNature = action.payload.newValueNature;
+
+                    // state.colorPaletteTree.data[action.payload.colorPaletteId].valueSet
+                    let newValueSet = [];
+                    const lengthOfData = state.colorPaletteTree.data[action.payload.colorPaletteId].colorSet.length;
+                    if(action.payload.newValueNature === ValueNature.MAXMIN){
+                    for(let i =0;i<= lengthOfData; i++){
+                        newValueSet.push("Auto");
+                    }
+                }
+
+                    if(action.payload.newValueNature === ValueNature.SINGLE){
+                        for(let i =0;i< lengthOfData; i++){
+                            newValueSet.push("Auto");
+                        }
+                    }
+
+                    state.colorPaletteTree.data[action.payload.colorPaletteId].valueSet = newValueSet;
+                
+            }
         },
         
         deleteColorPalette : (state, action : PayloadAction<string>) => {
@@ -466,7 +504,7 @@ export const colormapSlice = createSlice({
 })
 
 export default colormapSlice.reducer;
-export const {addColorMap, saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, deleteColorMap, applyColorMap, pasteColormap, setColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep, editColorPalette, setSelectedValue, setSelectedValueType} = colormapSlice.actions;
+export const {addColorMap, saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, deleteColorMap, applyColorMap, pasteColormap, setColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep, editColorPalette, setSelectedValue, setSelectedValueType, editColorPaletteNature} = colormapSlice.actions;
 
 //Selectors
 
