@@ -156,13 +156,14 @@ export default function Variable(){
     return (
       <div style={{height:"100%"}}>
       <div className={classes.scrollBarValueSetting} >
-        <MuiGrid container style={{marginTop:"50px", marginLeft:"20px"}}>
-          <MuiGrid item xs={3} >
+        <MuiGrid container style={{marginTop:"30px", marginLeft:"20px"}}>
+          <MuiGrid item xs={1} ></MuiGrid>
+          <MuiGrid item xs={2} >
             <MuiGrid container direction="column">
               {
                 appliedColorPalette.colorSet.map(item =>
                   <MuiGrid key={ 'colorSet_' + item.id }>
-                    <div style={{marginBottom:"20px",height:"60px", 
+                    <div style={{marginBottom:"5px",height:"50px", 
                                   width:"30px",
                                   backgroundColor:`rgb(${item.color.r},${item.color.g},${item.color.b})` ,
                           }}
@@ -174,10 +175,10 @@ export default function Variable(){
           </MuiGrid>
           
           <MuiGrid item xs={6}>
-            <MuiGrid container direction="column" style={{marginTop:"-30px"}}>
+            <MuiGrid container direction="column" style={{marginTop:"-15px"}}>
               {
                 valueSet.map((item : any,index : number) => 
-                  <MuiGrid key={ 'valueSet_' + index} item style={{marginBottom:"50px"}} >
+                  <MuiGrid key={ 'valueSet_' + index} item style={{marginBottom:"25px"}} >
                     <div  className={classes.textBox} >
                       <MuiGrid container>
                         <MuiGrid item xs={8}>
