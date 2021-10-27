@@ -51,4 +51,6 @@ export enum Routes {
     COLORMAPS_COLOR_PALETTE_EDIT = "/colormaps/colorPalette_edit",
     COLORMAPS_VALUE_SETTINGS = "/colormaps/value_settings",
     COLORMAPS_LEGEND_SETTINGS = "/colormaps/legend_settings",
+
+    SLIDES = "/slides",
 }

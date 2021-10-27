@@ -71,7 +71,8 @@ export enum MainMenuItems {
 
     SETTINGS,
     SETTINGS_THEME, 
-    SETTINGS_MOUSE_CONTROLS
+    SETTINGS_MOUSE_CONTROLS,
+    
 
 }
 
@@ -361,16 +362,27 @@ const initialState: MainMenu ={
         //     path:Routes.HOME,
         //     children: []
         // },
+
         {
             id:'10',
+            expanded: false,
+            name: "Slides",
+            type: MainMenuItems.SLIDES,
+            path:Routes.SLIDES,
+            children:[]
+        },
+
+        {
+            id:'11',
             expanded: false,
             name: "Messages",
             type: MainMenuItems.MESSAGES,
             path:Routes.MESSAGES,
             children:[]
         },
+        
         {
-            id:'11',
+            id:'12',
             expanded: false,
             name: "Application Settings",
             type: MainMenuItems.SETTINGS,
@@ -378,7 +390,7 @@ const initialState: MainMenu ={
             children: [
                 {
 
-                    id:'111',
+                    id:'121',
                     name: "Color Theme",
                     type:MainMenuItems.SETTINGS_THEME,
                     path:Routes.SETTINGS_THEME ,
@@ -386,7 +398,7 @@ const initialState: MainMenu ={
                 },
                 {
 
-                    id:'112',
+                    id:'122',
                     name: "Mouse Controls",
                     type:MainMenuItems.SETTINGS_MOUSE_CONTROLS,
                     path:Routes.SETTINGS_MOUSE_CONTROLS,

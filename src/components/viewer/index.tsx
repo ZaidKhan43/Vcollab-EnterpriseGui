@@ -112,8 +112,8 @@ function Viewer(){
             setMount(true);
             //this.props.saveModelLoadingStatus("");
             let viewerDivID = viewerRefs.current?.id || '';
-            let api = "http://localhost:8181/api/1.0/model";
-            let url = "file://samples/bracket.cax";
+            // let api = "http://localhost:8181/api/1.0/model";
+            // let url = "file://samples/bracket.cax";
             //let url = "file://samples/airbag.cax";
             //let url = "file://samples/heater.cax";
             //let url = "file://samples/merged.cax";
