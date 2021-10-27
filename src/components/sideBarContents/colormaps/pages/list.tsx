@@ -199,22 +199,7 @@ export default function List(){
         }}
         column1 = {(node) => {
           return (
-            <div style={{marginTop:"10px"}}>
-              { appliedColorMapId === node.id
-                ?
-                    <MuiCheckIcon fontSize='small'/>
-                :
-                  treeDataRedux[node.id].pid !== "-1"
-                    ?
-                      treeDataRedux[node.id].downloaded === true 
-                        ?
-                          <MuicloudDoneIcon fontSize='small'/>
-                        :
-                          <MuiDownloadIcon fontSize='small'/>
-                    :
-                      null
-              }
-            </div>
+            <div></div>
           )
         }}
         column2 = {(node) => {
@@ -222,17 +207,35 @@ export default function List(){
             <div>
               { node?.pid !== "-1"
                 ?
-                 <div></div>
-                :        
                   <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
-                    <MuiGrid item xs={4}></MuiGrid>
-                    <MuiGrid item xs={6}>
-                      <MuiIconButton size='small' onClick={() => handleCreateLabel(node.id)}>
-                        <AddIcon fontSize='default'/> 
-                      </MuiIconButton> 
+                    <MuiGrid item xs={9}></MuiGrid>
+                    <MuiGrid item xs={3}>
+                      { appliedColorMapId === node.id
+                        ?
+                          <MuiCheckIcon fontSize='small'/>
+                        :
+                          treeDataRedux[node.id].pid !== "-1"
+                            ?
+                              treeDataRedux[node.id].downloaded === true 
+                                ?
+                                  <MuicloudDoneIcon fontSize='small'/>
+                                :
+                                  <MuiDownloadIcon fontSize='small'/>
+                            :
+                              null
+                        }
+                      </MuiGrid>
                     </MuiGrid>
-                  </MuiGrid>
-              }    
+                  :        
+                    <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
+                      <MuiGrid item xs={4}></MuiGrid>
+                      <MuiGrid item xs={6}>
+                        <MuiIconButton size='small' onClick={() => handleCreateLabel(node.id)}>
+                          <AddIcon fontSize='default'/> 
+                        </MuiIconButton> 
+                      </MuiGrid>
+                    </MuiGrid>
+                }    
             </div>
           )
         }}
