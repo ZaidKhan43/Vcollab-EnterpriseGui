@@ -11,23 +11,12 @@ import { useState } from 'react'
 function Body() {
     const dispatch = useAppDispatch();
     const variables = useAppSelector(selectVariables);
-    const step = useAppSelector(selectSteps);
-    const [depVariableIds, setDepVariableIds] = useState<string[]>([]);
     const [searchText, setSearchText] = useState("");
     const [selected, handleSelect] = useSingleSelect({
         treeData: variables,
         selectReducer: setSelectVariable
     })
-    const selectedStepIds = useAppSelector(getSelectedStepIds);
-    const visibleIds = useVisibility({
-        source: step,
-        target: variables,
-        targetIds: depVariableIds,
-        targetSetVisibilityReducer: setVisibleVariable
-    })
-    useEffect(() => {
-        setDepVariableIds(getDependantVariableIds(step,selectedStepIds));
-    },[])
+
     const handleExpand = (toOpen:boolean,nodeId:string) => {
         dispatch(expandVariable({toOpen,nodeId}));
     }

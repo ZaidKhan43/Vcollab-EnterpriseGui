@@ -15,7 +15,7 @@ export enum IconType {
     COMPLETED = 4,
 }
 
-type NetworkData = {
+export type NetworkData = {
     totalSize: number,
     transfferedSize: number,
     timeLeft: string,
@@ -23,12 +23,12 @@ type NetworkData = {
     cancel: boolean,
 }
 
-type SimpleData = {
+export type SimpleData = {
     body: string[],
 }
 
 export type NotificationList= {
-    id: number,
+    id: string,
     time: Date,
     card:{
         icon:IconType,
@@ -46,93 +46,38 @@ type messages = {
 
 const initialState : messages = {
     notificationLists : [
-        {
-            id:0,
-            time: new Date(),
-            card:{
-                type: NotificationType.NETWORK_TRANSFER_MESSAGE,
-                title: "Downloading Simplified Mesh",
-                icon: IconType.TRANSFERING,
-                data:{
-                    totalSize: 2024,
-                    transfferedSize: 1024,
-                    timeLeft: "4 munites left",
-                    pause: false,
-                    cancel: false,
-                },
-            },
-            collapsed: true,
-            tags: ["Display Modes",],
-        },
-        {
-            id:1,
-            time: new Date(),
-            card: {
-                type: NotificationType.SIMPLE_MESSAGE,
-                title: "Applied ColorPlot",
-                icon: IconType.APPLIED,
-                data:{
-                    body: [],
-                },
-            },
-            collapsed: true,
-            tags: ["Color Maps"],
-        },
-        {
-            id:2,
-            time: new Date(),
-            card:{
-                type:NotificationType.NETWORK_TRANSFER_MESSAGE,
-                title:"Downloading Show Mesh",
-                icon:IconType.COMPLETED,
-                data:{
-                    totalSize:2024,
-                    transfferedSize:2024,
-                    timeLeft:"",
-                    pause:false,
-                    cancel:false,
-                },
-            },
-            collapsed:true,
-            tags:["Display Modes",],
-        },
-        {
-            id:3,
-            time: new Date(),
-            card:{
-                type:NotificationType.NETWORK_TRANSFER_MESSAGE,
-                title:"Downloading Simplified Mesh",
-                icon: IconType.PAUSE,
-                data:{
-                    totalSize:4048,
-                    transfferedSize:1028,
-                    timeLeft:"4 Minutes Left",
-                    pause:true,
-                    cancel:false,
-                },
-            },
-            collapsed:true,
-            tags:["Display Modes",],
-        },
-
-        {
-            id:4,
-            time: new Date(),
-            card:{
-                type:NotificationType.NETWORK_TRANSFER_MESSAGE,
-                title:"Downloading Simplified Mesh",
-                icon: IconType.COMPLETED,
-                data:{
-                    totalSize:4048,
-                    transfferedSize:4048,
-                    timeLeft:"4 Minutes Left",
-                    pause:true,
-                    cancel:false,
-                },
-            },
-            collapsed:true,
-            tags:["Display Modes",],
-        },
+        // {
+        //     id:"0",
+        //     time: new Date(),
+        //     card:{
+        //         type: NotificationType.NETWORK_TRANSFER_MESSAGE,
+        //         title: "Downloading Simplified Mesh",
+        //         icon: IconType.TRANSFERING,
+        //         data:{
+        //             totalSize: 2024,
+        //             transfferedSize: 1024,
+        //             timeLeft: "4 munites left",
+        //             pause: false,
+        //             cancel: false,
+        //         },
+        //     },
+        //     collapsed: true,
+        //     tags: ["Display Modes",],
+        // },
+        // {
+        //     id:"1",
+        //     time: new Date(),
+        //     card: {
+        //         type: NotificationType.SIMPLE_MESSAGE,
+        //         title: "Applied ColorPlot",
+        //         icon: IconType.APPLIED,
+        //         data:{
+        //             body: [],
+        //         },
+        //     },
+        //     collapsed: true,
+        //     tags: ["Color Maps"],
+        // }
     ],
 }
 
@@ -140,7 +85,44 @@ export const messageSlice = createSlice({
     name: "message",
     initialState : initialState,
     reducers: {
-        editPause: (state,action: PayloadAction<{id:number, value:boolean}>) => {
+        addMessage: (state, action: PayloadAction<
+            {id:string, 
+             type:NotificationType, 
+             title: string, 
+             data: SimpleData | NetworkData,
+             tags: string[] }>) => {
+            let {id, type, title, data, tags} = action.payload;
+                state.notificationLists.push(
+                    {
+                        id,
+                        tags,
+                        time: new Date(),
+                        collapsed: true,
+                        card: {
+                            data,
+                            icon: type === NotificationType.NETWORK_TRANSFER_MESSAGE ? IconType.TRANSFERING : IconType.APPLIED,
+                            title,
+                            type
+                        }
+                    }
+                )
+        },
+        updateMessage: (state, action: PayloadAction<{id:string, transferredSize:number}>) => {
+            let {id,transferredSize} = action.payload;
+            let element = state.notificationLists.find(e => e.id === id);
+            if(element){
+                let data = element.card.data as NetworkData;
+                data.transfferedSize = transferredSize;
+            }
+        },
+        finishMessage: (state, action: PayloadAction<{id:string}>) => {
+            let {id} = action.payload;
+            let element = state.notificationLists.find(e => e.id === id);
+            if(element){
+                element.card.icon = IconType.COMPLETED
+            }
+        },
+        editPause: (state,action: PayloadAction<{id:string, value:boolean}>) => {
             const index = state.notificationLists.findIndex((item) => item.id === action.payload.id);
             if(index >= 0){
                 let changeItem = state.notificationLists[index];
@@ -217,6 +199,7 @@ export const messageSlice = createSlice({
         },
 
         fileTransferUpdate:(state) => {
+            return;
             state.notificationLists.forEach((item,index) => {
                 const data = item.card.data as NetworkData;
                 if(item.card.type === NotificationType.NETWORK_TRANSFER_MESSAGE && data.pause === false && data.cancel === false ){
@@ -239,7 +222,7 @@ export const messageSlice = createSlice({
 
 
 export default messageSlice.reducer;
-export const {editPause , editCancel , editCollapse, editSearch, fileTransferUpdate} = messageSlice.actions;
+export const {addMessage, updateMessage, finishMessage, editPause , editCancel , editCollapse, editSearch, fileTransferUpdate} = messageSlice.actions;
 
 //selectors
 

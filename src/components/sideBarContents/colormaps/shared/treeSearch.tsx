@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react'
+import React from 'react'
 import RsTreeSearch, {RsTreeSearchProps} from '../../../shared/RsTreeWithSearch'
 import Title from '../../../shared/RsTreeWithSearch/utilComponents/TitleNode'
 import {useStyles} from '../../../shared/RsTreeTable/styles/TreeNodeStyle'
@@ -10,7 +10,7 @@ interface SharedTreeProps extends LimitedTreeTableProps {
 
 }
 
-function Tree(props:SharedTreeProps) {
+function TreeSearch(props:SharedTreeProps) {
 
     const classes = useStyles();
         return <RsTreeSearch {...props}
@@ -18,7 +18,7 @@ function Tree(props:SharedTreeProps) {
             selectable
             treeNode={
             rowData =>
-            <Grid container alignItems='center' className={true ?classes.actionShow:classes.actionHide}>
+            <Grid container alignItems='center' className={rowData.state.visibility ?classes.actionShow:classes.actionHide}>
                 <Grid item>
                 <div style={{width:10}}></div>
                 </Grid>
@@ -32,12 +32,11 @@ function Tree(props:SharedTreeProps) {
                     return null;
                     }
                     let state = props.data[rowData.id]?.state;
-                    let isVisible = true
-                    return state.expanded? <TreeExpandedIcon style={isVisible ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={isVisible ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
+                    return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
                 }
         }
             
         />
 }
 
-export default Tree
+export default TreeSearch

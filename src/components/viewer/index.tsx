@@ -1,9 +1,8 @@
-import { memo, useEffect , useRef, useState, useCallback } from 'react';
+import { memo, useEffect , useRef, useState, useCallback, createContext } from 'react';
 import { createRef } from 'react';
 import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
 import { setModelInfo, setModelLoadedState, setModelLoadingStatus } from '../../store/appSlice';
-// import { setCAEResult } from '../../store/colormapSlice';
 import { useAppDispatch } from '../../store/storeHooks';
 import {saveTree, fetchSearchHints,setHightLightedNodesAsync } from "../../store/sideBar/productTreeSlice";
 import {fetchSectionPlaneData, handlePlaneSelection} from "../../store/sideBar/clipSlice";
@@ -12,7 +11,7 @@ import ProbeLabel from "../probe";
 import { fetchFieldData } from '../../store/sideBar/fieldSlice';
 import { fetchMouseData } from '../../store/sideBar/settings';
 import { fetchCameraMatrix, fetchCameraStdViews } from '../../store/sideBar/sceneSlice';
-
+import { addMessage, updateMessage, NetworkData, NotificationType, finishMessage } from '../../store/sideBar/messageSlice';
 
 function Viewer(){
     
@@ -43,8 +42,7 @@ function Viewer(){
           let modelInfo = viewerAPIProxy.getModelInfo(activeViewerID) as any;
           dispatch(setModelInfo(modelInfo));
 
-          let caeResult = viewerAPIProxy.getDisplayResult(activeViewerID) as any;
-          dispatch(setCAEResult({caeResult:caeResult}));     
+          let caeResult = viewerAPIProxy.getDisplayResult(activeViewerID) as any; 
 
 
         }
@@ -115,8 +113,8 @@ function Viewer(){
             setMount(true);
             //this.props.saveModelLoadingStatus("");
             let viewerDivID = viewerRefs.current?.id || '';
-            let api = "http://localhost:8181/api/1.0/model";
-            let url = "file://samples/bracket.cax";
+            //let api = "http://localhost:8181/api/1.0/model";
+            //let url = "file://samples/bracket.cax";
             //let url = "file://samples/airbag.cax";
             //let url = "file://samples/heater.cax";
             //let url = "file://samples/merged.cax";
@@ -127,7 +125,7 @@ function Viewer(){
             //let api = "http://100.26.229.30:8181/api/1.0/model";
             //let url = "file%3A%2F%2FC%3A%5CUsers%5CAdministrator%5CDownloads%5Centerprise-1.1-win64%5Csamples%5CF30_model.cax";           
             
-            /*
+            
             let url = getParameterByName("url");
             if (url === "") {
               alert("URL querystring is missing.");
@@ -139,7 +137,7 @@ function Viewer(){
               alert("API querystring is missing.");
               return;
             }   
-               */
+               
       
             let viewerID = viewerAPIProxy.createViewer(viewerDivID);
             dispatch(addViewer({name : viewerDomID, id: viewerID }));
@@ -150,6 +148,48 @@ function Viewer(){
                 events.viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE,
                 (event : any) => {
                   dispatch(setModelLoadingStatus(event.data));
+                }
+              );
+              eventDispatcher?.addEventListener(
+                events.viewerEvents.DOWNLOAD_START,
+                (event: any) => {
+                  let data = event.data;
+                  let networkData:NetworkData = {
+                    transfferedSize: 0,
+                    totalSize: data.event.totalSize,
+                    pause: false,
+                    cancel: false,
+                    timeLeft: ""
+                  }
+                  dispatch(addMessage({
+                    id: data.id,
+                    type: NotificationType.NETWORK_TRANSFER_MESSAGE,
+                    tags: ["Test"],
+                    data: networkData,
+                    title: data.event.title
+                  }))
+                  console.log("start",networkData.totalSize);
+                }
+              );
+              eventDispatcher?.addEventListener(
+                events.viewerEvents.DOWNLOAD_PROGRESS,
+                (event: any) => {
+                  let data = event.data;
+                  dispatch(updateMessage({
+                    id: data.id,
+                    transferredSize: data.event.loaded
+                  }))
+                  console.log("update",data.event);
+                }
+              );
+              eventDispatcher?.addEventListener(
+                events.viewerEvents.DOWNLOAD_END,
+                (event: any) => {
+                  let data = event.data;
+                 
+                  dispatch(finishMessage({
+                    id: data.id
+                  }))
                 }
               );
               eventDispatcher?.addEventListener(
@@ -177,12 +217,12 @@ function Viewer(){
                   let data = event.data;
                   dispatch(handlePlaneSelection({e:data}));
                 }
-                );
-                eventDispatcher?.addEventListener(
-                  events.viewerEvents.CAMERA_MOVED,
-                  (event:any) => {
-                    dispatch(fetchCameraMatrix())
-                  }
+              );
+              eventDispatcher?.addEventListener(
+                events.viewerEvents.CAMERA_MOVED,
+                (event:any) => {
+                  dispatch(fetchCameraMatrix())
+                }
               )
             }
             loadModel(api, url, viewerID);

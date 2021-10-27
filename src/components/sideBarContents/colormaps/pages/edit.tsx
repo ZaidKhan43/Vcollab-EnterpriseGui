@@ -23,10 +23,12 @@ import MuiKeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import { Routes } from '../../../../routes';
 
 import MuiMenuItem from '@material-ui/core/MenuItem';
+import MuiListSubHeader from '@material-ui/core/ListSubheader';
 import MuiMenuList from '@material-ui/core/MenuList';
 import MuiListItemIcon from '@material-ui/core/ListItemIcon';
 import MuiListItemText from '@material-ui/core/ListItemText';
-import { selectDerivedTypes, selectSections, selectSteps, selectVariables } from '../../../../store/sideBar/fieldSlice';
+import { DerivedType, Sections, selectDerivedTypes, selectSections, selectSteps, selectVariables, Step, Variable } from '../../../../store/sideBar/fieldSlice';
+import { ITreeNode } from '../../../shared/RsTreeTable';
 
 export default function Edit(){
 
@@ -34,6 +36,11 @@ export default function Edit(){
   const steps = useAppSelector(selectSteps);
   const derived = useAppSelector(selectDerivedTypes);
   const sections = useAppSelector(selectSections);
+
+  const [selectedVariable,setSelectedVariable]= useState<Variable | null>(null);
+  const [selectedStep,setSelectedStep]= useState<Step | null>(null);
+  const [selectedDerivedType,setSelectedDerivedType]= useState<DerivedType | null>(null);
+  const [selectedSection,setSelectedSection]= useState<Sections | null>(null);
 
   const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
   const colorMap = useAppSelector(selectcolormapData);
@@ -46,20 +53,32 @@ export default function Edit(){
   const classes = styles();
 
   const validateSelection = ():boolean => {
-    let selectedStep = steps[selectedColorMap.step];
-    let selectedVariable = variables[selectedColorMap.variable];
-    let selectedDerived = derived[selectedColorMap.derivedType];
-    let selectedSection = sections[selectedColorMap.section];
-
-    return (selectedStep.varibleIds.includes(selectedVariable.id) &&
-    selectedVariable.derivedIds.includes(selectedDerived.id)) ?
-    true : false
+    if(!selectedColorMap)
+    return false
+    if(selectedStep && selectedVariable && selectedDerivedType )
+    {
+      return (selectedStep.varibleIds.includes(selectedVariable.id) &&
+      selectedVariable.derivedIds.includes(selectedDerivedType.id) 
+      //&& selectedVariable.sectionIds.includes(selectedSection.id)
+      )
+    }
+    else{
+      return false
+    }
+  
   }
 
   useEffect(() => {
     setSelectedColorMap(colorMap[selectedColorMapId]);
-    setIsValid(validateSelection());
+    setSelectedStep(steps[selectedColorMap.step]);
+    setSelectedVariable(variables[selectedColorMap.variable])
+    setSelectedDerivedType(derived[selectedColorMap.derivedType]);
+    setSelectedSection(sections[selectedColorMap.section]);
   },[selectedColorMapId])
+
+  useEffect(() => {
+    setIsValid(validateSelection());
+  },[selectedVariable, selectedStep, selectedSection,  selectedDerivedType])
   
   const onClickBackIcon = () =>{
     dispatch(goBack());
@@ -70,7 +89,23 @@ export default function Edit(){
     dispatch(setColorMapSelection(id));
   }
   
-
+  const getParent = (treeData: {[id:string]:ITreeNode}, id:string, rootParent:boolean): ITreeNode | null => {
+      let node = treeData[id];
+      if(node.pid === "-1" || node.pid === null)
+      {
+        return null;
+      }
+      let parent = treeData[node.pid];
+      if(!rootParent) {
+         return parent;
+      }
+      if(parent.pid === "-1" ) {
+          return parent;
+      }
+      else {
+        return getParent(treeData,parent.id, rootParent)
+      }
+  }
   const getHeaderLeftIcon= () => {
     return (
      <MuiIconButton  onClick={() => onClickBackIcon()}><BackButton/></MuiIconButton> 
@@ -82,7 +117,7 @@ export default function Edit(){
       <SelectAction
       labelId="display-modes-selection-label-id"
       id="display-modes-selection-id"
-      value={activeId}
+      defaultValue={activeId}
       onChange={(e : any) => onHandleSelect(e.target.value)}
       MenuProps={{
         disablePortal: true,
@@ -94,9 +129,15 @@ export default function Edit(){
       }}
       >
         {
-            list.map((item : any) => 
-              <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
-          )}
+              list.map((item : any) => 
+              {
+                let node = colorMap[item.id];
+                return(node.pid === "-1" ? 
+                <MuiListSubHeader key={item.id}>{item.name}</MuiListSubHeader>: 
+                <MuiMenuItem key={item.id} value={item.id}>{item.name}</MuiMenuItem>)
+                
+              })
+        } 
       </SelectAction>
     )
   }
@@ -119,7 +160,8 @@ export default function Edit(){
                 </MuiTypography>
                 <MuiTypography classes={{root: !isValid ? classes.invalid : ""}} variant="h1" align="left">
                   {
-                    selectedColorMap && selectedColorMap.step !== "-1"? steps[selectedColorMap.step].title : null
+                    selectedStep && 
+                    getParent(steps,selectedStep.id,true)?.title + " - " + selectedStep.title
                   }
                 </MuiTypography>
               </MuiListItemText>
@@ -132,7 +174,8 @@ export default function Edit(){
                 </MuiTypography>
                 <MuiTypography classes={{root: !isValid ? classes.invalid : ""}} variant="h1" align="left">
                 {
-                    selectedColorMap && selectedColorMap.variable !== "-1" ? variables[selectedColorMap.variable].title : null
+                    selectedVariable && 
+                    getParent(variables,selectedVariable.id,true)?.title + " - " + selectedVariable.title
                   }
                 </MuiTypography>
               </MuiListItemText>
@@ -146,7 +189,8 @@ export default function Edit(){
                 </MuiTypography>
                 <MuiTypography classes={{root: !isValid ? classes.invalid : ""}} variant="h1" align="left">
                   {
-                    selectedColorMap && selectedColorMap.derivedType !== "-1" ? derived[selectedColorMap.derivedType].title : null
+                    selectedDerivedType && 
+                    getParent(derived,selectedDerivedType.id,true)?.title + " - " + selectedDerivedType.title
                   }
                 </MuiTypography>
               </MuiListItemText>
@@ -160,7 +204,8 @@ export default function Edit(){
                 </MuiTypography>
                 <MuiTypography classes={{root: !isValid ? classes.invalid : ""}} variant="h1" align="left">
                   {
-                    selectedColorMap && selectedColorMap.section !== "-1" ? sections[selectedColorMap.section].title : null
+                    selectedSection && 
+                    getParent(sections,selectedSection.id,true)?.title + " - " + selectedSection.title
                   }
                 </MuiTypography>
               </MuiListItemText>

@@ -30,19 +30,20 @@ export enum FieldType {
 export interface Field extends ITreeNode {
     source:Source
 }
-interface Variable extends Field {
-    derivedIds: string[]
+export interface Variable extends Field {
+    derivedIds: string[],
+    sectionIds: string[]
 }
 
-interface Step extends Field {
+export interface Step extends Field {
     varibleIds: string[]
 }
 
-interface DerivedType extends Field {
+export interface DerivedType extends Field {
     
 }
 
-interface Sections extends Field {
+export interface Sections extends Field {
 
 }
 
@@ -94,6 +95,18 @@ export const getDependantDerivedTypeIds = (
     let selected = selectedVariableIds.map(e => variables[e]);
     selected.forEach(s => {
         out = [...out,...s.derivedIds];
+    });
+    return out;
+}
+
+export const getDependantSectionIds = (
+    variables:{[id:string]:Variable},
+    selectedVariableIds:string[]
+): string[] => {
+    let out:string[] = []
+    let selected = selectedVariableIds.map(e => variables[e]);
+    selected.forEach(s => {
+        out = [...out,...s.sectionIds];
     });
     return out;
 }
@@ -240,7 +253,7 @@ export const addUserFieldState = createAsyncThunk(
             }
         switch (data.fieldType) {
             case FieldType.Variable:
-                dispatch(addUserVariable({userVariable:{...user,derivedIds:[]}}))
+                dispatch(addUserVariable({userVariable:{...user,derivedIds:[],sectionIds:[]}}))
                 break;
             case FieldType.Step:
                 dispatch(addUserStepsAndSubcase({userStepAndSubcase:{...user,varibleIds:[]}}))
@@ -334,7 +347,8 @@ export const fieldSlice = createSlice({
                             derivedIds: ["d14"]
                         }
                     ],
-                    derivedIds: []
+                    derivedIds: [],
+                    sectionIds: []
                 },
                 {
                     id: "v2",
@@ -344,16 +358,19 @@ export const fieldSlice = createSlice({
                             id: "v21",
                             title: "Displacement",
                             children: [],
-                            derivedIds: ["d14"]
+                            derivedIds: ["d14"],
+                            sectionIds: ["01"]
                         },
                         {
                             id: "v22",
                             title: "Stress",
                             children: [],
-                            derivedIds: ["d2"]
+                            derivedIds: ["d2"],
+                            sectionIds: []
                         }
                     ],
-                    derivedIds: []
+                    derivedIds: [],
+                    sectionIds: []
                 }
             ];
             let steps = [
@@ -449,7 +466,8 @@ export const fieldSlice = createSlice({
                             selected: false,
                             visibility: true
                         },
-                        derivedIds: node.derivedIds
+                        derivedIds: node.derivedIds,
+                        sectionIds: []
                     }
                 });
             });
