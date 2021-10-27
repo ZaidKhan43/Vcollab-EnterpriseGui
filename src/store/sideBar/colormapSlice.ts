@@ -523,8 +523,8 @@ export const selectedColorPaletteId = (state : RootState) => state.colormap.sele
 export const colormapElements = (state:RootState) => {
     let array : any[] = [];
     Object.keys(state.colormap.colormapTree.data).forEach(key => {
-        if(state.colormap.colormapTree.data[key].children.length === 0)
-        array.push({id:key, name: state.colormap.colormapTree.data[key].title});
+        let node = state.colormap.colormapTree.data[key];
+        array.push({id:node.id, name: node.title});
     })
 
     return(array);

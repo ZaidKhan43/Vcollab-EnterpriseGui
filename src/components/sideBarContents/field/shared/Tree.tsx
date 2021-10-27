@@ -18,7 +18,7 @@ function Tree(props:SharedTreeProps) {
             selectable
             treeNode={
             rowData =>
-            <Grid container alignItems='center' className={rowData.state.visibility ?classes.actionShow:classes.actionHide}>
+            <Grid container alignItems='center' className={true ?classes.actionShow:classes.actionHide}>
                 <Grid item>
                 <div style={{width:10}}></div>
                 </Grid>
@@ -32,7 +32,8 @@ function Tree(props:SharedTreeProps) {
                     return null;
                     }
                     let state = props.data[rowData.id]?.state;
-                    return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
+                    let isVisible = true
+                    return state.expanded? <TreeExpandedIcon style={isVisible ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={isVisible ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
                 }
         }
             

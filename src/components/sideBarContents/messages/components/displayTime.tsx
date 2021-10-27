@@ -8,7 +8,7 @@ export default function DisplayTime(props:any){
     const [interval, setInterval] = useState(1000)
 
     const changeTimeFinder = (date : Date) => {
-        console.log("sda")
+        //console.log("sda")
         let time : string;
         const now = moment(Date());
         const then = moment(date)

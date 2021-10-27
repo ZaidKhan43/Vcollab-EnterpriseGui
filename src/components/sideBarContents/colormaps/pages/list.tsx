@@ -23,7 +23,7 @@ import MuiGrid from '@material-ui/core/Grid';
 
 import { convertListToTree } from '../../../utils/tree';
 
-import { useRef } from 'react';
+import { useRef , useEffect} from 'react';
 import useContainer from '../../../../customHooks/useContainer';
 
 import MuiEditIcon from '@material-ui/icons/EditOutlined';
@@ -43,6 +43,8 @@ import MuicloudDoneIcon from '@material-ui/icons/CloudDone';
 import {Routes} from "../../../../routes"
 
 import { useState } from 'react';
+
+import {setChildItem} from "../../../../store/mainMenuSlice";
 
 export default function List(){
 
@@ -66,6 +68,33 @@ export default function List(){
     dispatch(goBack());
   }
   
+  useEffect(() => {
+
+    if(selectedColorMapId === "-1"){
+      dispatch(setChildItem({panelId:'4',childId:'42', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'43', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'44', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'45', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'46', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'47', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'48', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'49', boolean: true}))
+    }
+
+    else{
+      dispatch(setChildItem({panelId:'4',childId:'42', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'43', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'44', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'45', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'46', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'47', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'48', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'49', boolean: false}))
+    }
+
+
+    },[selectedColorMapId]);
+
 
   const getHeaderLeftIcon= () => {
     return (

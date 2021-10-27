@@ -14,12 +14,12 @@ import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader
 import MuiMenuItem from '@material-ui/core/MenuItem';
 
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 import RsTreeSearch from '../../../shared/RsTreeWithSearch'
 import AutoSizer from '../../../shared/autoSize'
 
-import {  selectSections, expandSection, } from '../../../../store/sideBar/fieldSlice'
+import { selectVariables,  selectSections, expandSection, getDependantSectionIds } from '../../../../store/sideBar/fieldSlice'
 
 import { colormapElements, selectcolormapData, setSelectedSection, ColormapType} from '../../../../store/sideBar/colormapSlice';
 
@@ -28,12 +28,14 @@ import Grid from '@material-ui/core/Grid'
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
 import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
 import TitleTree from '../../../shared/RsTreeWithSearch/utilComponents/TitleNode'
+import useVisibility from '../../field/shared/hooks/useVisibility';
 
 export default function Variable(){
 
   const dispatch = useAppDispatch();  
   const classes = useStyles();
 
+  const variables = useAppSelector(selectVariables);
   const sections = useAppSelector(selectSections);
   const [searchText, setSearchText] = useState("");
 
@@ -41,9 +43,21 @@ export default function Variable(){
 
   const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
   const [activeColormapId, setActiveColormapId] = useState(selectedColorMapId); 
+  const selectedVariableIds = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].variable);
   const colormapsData = useAppSelector(selectcolormapData)
   const appliedSection = colormapsData[activeColormapId].section;
   const colormapNameList = useAppSelector(colormapElements)
+  const [depSectionIds, setDepSectionIds] = useState<string[]>([]);
+
+  const sectionVisibleIds = useVisibility({
+    source: variables,
+    target: sections,
+    targetIds: depSectionIds,
+    // targetSetVisibilityReducer: setVisibleDerivedTypes
+  })
+  useEffect(() => {
+    setDepSectionIds(getDependantSectionIds(variables,[selectedVariableIds]));
+  },[activeColormapId])
 
   const readOnly = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false)
 
@@ -126,7 +140,7 @@ export default function Variable(){
                             onRowClick = {!readOnly ? onHandleRowClick : () => null}
                             treeNode={
                               rowData =>
-                              <Grid container alignItems='center' className={rowData.state.visibility ?classes.actionShow:classes.actionHide}>
+                              <Grid container alignItems='center' className={true?classes.actionShow:classes.actionHide}>
                                   <Grid item>
                                   <div style={{width:10}}></div>
                                   </Grid>
@@ -140,7 +154,7 @@ export default function Variable(){
                                       return null;
                                       }
                                       let state = sections[rowData.id]?.state;
-                                      return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
+                                      return state.expanded? <TreeExpandedIcon style={true ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={true ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
                                   }
                           }
                               
