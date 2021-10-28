@@ -30,24 +30,30 @@ import MuiListItemText from '@material-ui/core/ListItemText';
 import { DerivedType, Sections, selectDerivedTypes, selectSections, selectSteps, selectVariables, Step, Variable } from '../../../../store/sideBar/fieldSlice';
 import { ITreeNode } from '../../../shared/RsTreeTable';
 
+import { selectColorPaletteData} from '../../../../store/sideBar/colormapSlice';
+
 export default function Edit(){
 
   const variables = useAppSelector(selectVariables);
   const steps = useAppSelector(selectSteps);
   const derived = useAppSelector(selectDerivedTypes);
   const sections = useAppSelector(selectSections);
+  const colorpalette = useAppSelector(selectColorPaletteData);
 
-  const [selectedVariable,setSelectedVariable]= useState<Variable | null>(null);
-  const [selectedStep,setSelectedStep]= useState<Step | null>(null);
-  const [selectedDerivedType,setSelectedDerivedType]= useState<DerivedType | null>(null);
-  const [selectedSection,setSelectedSection]= useState<Sections | null>(null);
+  
+
 
   const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
   const colorMap = useAppSelector(selectcolormapData);
-  const [selectedColorMap, setSelectedColorMap] = useState<Colormap>(colorMap[selectedColorMapId]);
-  const [activeId, setActiveId] = useState(selectedColorMapId);  
-  const [isValid, setIsValid] = useState(false);
+  const selectedColorMap = colorMap[selectedColorMapId];
+  // const [activeId, setActiveId] = useState(selectedColorMapId); 
+  
   const list = useAppSelector(colormapElements);
+
+  const selectedVariable= variables[selectedColorMap?.variable];
+  const selectedStep = steps[selectedColorMap?.step];
+  const selectedDerivedType = derived[selectedColorMap?.derivedType];
+  const selectedSection = sections[selectedColorMap?.section]
 
   const dispatch = useAppDispatch(); 
   const classes = styles();
@@ -68,24 +74,14 @@ export default function Edit(){
   
   }
 
-  useEffect(() => {
-    setSelectedColorMap(colorMap[selectedColorMapId]);
-    setSelectedStep(steps[selectedColorMap.step]);
-    setSelectedVariable(variables[selectedColorMap.variable])
-    setSelectedDerivedType(derived[selectedColorMap.derivedType]);
-    setSelectedSection(sections[selectedColorMap.section]);
-  },[selectedColorMapId])
+  const isValid = validateSelection();
 
-  useEffect(() => {
-    setIsValid(validateSelection());
-  },[selectedVariable, selectedStep, selectedSection,  selectedDerivedType])
-  
   const onClickBackIcon = () =>{
     dispatch(goBack());
   }
 
   const onHandleSelect = (id : string) => {
-    setActiveId(id)
+    console.log(id)
     dispatch(setColorMapSelection(id));
   }
   
@@ -113,12 +109,14 @@ export default function Edit(){
   }
 
   const getAction = () => {
+
+    const parentNodes = list.filter(item => item.children?.length !== 0)
+
     return(
       <SelectAction
-      labelId="display-modes-selection-label-id"
-      id="display-modes-selection-id"
-      defaultValue={activeId}
-      onChange={(e : any) => onHandleSelect(e.target.value)}
+      id="grouped-select" label="Grouping"
+      value={selectedColorMapId}
+      onChange={(e : any) => {if(e.target.value) onHandleSelect(e.target.value)}}
       MenuProps={{
         disablePortal: true,
         anchorOrigin: {
@@ -128,16 +126,31 @@ export default function Edit(){
        getContentAnchorEl: null
       }}
       >
+        <MuiListSubHeader key={parentNodes[0].id}>{parentNodes[0].name}</MuiListSubHeader>
         {
-              list.map((item : any) => 
-              {
-                let node = colorMap[item.id];
-                return(node.pid === "-1" ? 
-                <MuiListSubHeader key={item.id}>{item.name}</MuiListSubHeader>: 
-                <MuiMenuItem key={item.id} value={item.id}>{item.name}</MuiMenuItem>)
-                
-              })
-        } 
+          list.map((element : any) => {
+            return(
+              element.pid === parentNodes[0].id 
+                ?
+                  <MuiMenuItem key={element.id} value={element.id}>{element.name}</MuiMenuItem>
+                :
+                  null
+            )
+          }) 
+        }
+
+        <MuiListSubHeader key={parentNodes[1].id}>{parentNodes[1].name}</MuiListSubHeader>
+        {
+          list.map((element : any) => {
+            return(
+              element.pid === parentNodes[1].id 
+                ?
+                  <MuiMenuItem key={element.id} value={element.id}>{element.name}</MuiMenuItem>
+                :
+                  null
+            )
+          })        
+        }
       </SelectAction>
     )
   }
@@ -218,7 +231,9 @@ export default function Edit(){
                   Color Palette
                 </MuiTypography>
                 <MuiTypography variant="h1" align="left">
-                  VCollab - 2 Color
+                  {
+                    selectedColorMap && selectedColorMap.colorPalette !== "-1" ? colorpalette[selectedColorMap.colorPalette].title : null
+                  }
                 </MuiTypography>
               </MuiListItemText>
               <MuiListItemIcon style={{marginLeft:"250px"}}><MuiKeyboardArrowRightIcon /></MuiListItemIcon>           

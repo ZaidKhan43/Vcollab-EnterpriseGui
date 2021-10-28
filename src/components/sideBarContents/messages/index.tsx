@@ -222,7 +222,7 @@ export default function Annotations(){
 
     return (<SideBarContainer
         headerLeftIcon = { getHeaderLeftIcon() }
-        headerContent={ <Title text={`${toSelectList.filter(item => item.id === activeId).map(item=> item.name)}`} group="Messages"/> }
+        headerContent={ <Title text="Messages" group=""/> }
         headerRightIcon = { getHeaderRightIcon() }
         headerAction = {getAction()}
         body ={ getBody() }

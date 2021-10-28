@@ -5,8 +5,9 @@ import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import BackButton from '../../../icons/back';
 
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
+import MuiListSubHeader from '@material-ui/core/ListSubheader';
 import MuiMenuItem from '@material-ui/core/MenuItem';
-import { colormapElements, selectColorPaletteData, selectColorPaletteRootIds, expandColorPaletteNode, createPalette, setColorPalette , selectcolormapData, selectedColorPaletteId, setSelectedColorPalette, deleteColorPalette, pasteColorPalette} from '../../../../store/sideBar/colormapSlice';
+import { colormapElements, selectColorPaletteData, selectColorPaletteRootIds, expandColorPaletteNode, createPalette, setColorPalette , selectcolormapData, selectedColorPaletteId, setSelectedColorPalette, deleteColorPalette, pasteColorPalette , ColormapType} from '../../../../store/sideBar/colormapSlice';
 
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
@@ -49,7 +50,8 @@ export default function ColorPalette(){
   const appliedColorPalette = colormapsData[activeColormapId].colorPalette;
 
   const selectedColorPalette = useAppSelector(selectedColorPaletteId);
- 
+
+  const readOnly = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false)
 
   const treeDataRedux = useAppSelector(selectColorPaletteData);
   const treeRootIds = useAppSelector(selectColorPaletteRootIds);
@@ -59,7 +61,7 @@ export default function ColorPalette(){
   const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
 
   const [openDelete, setOpenDelete] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<any>();
 
   const dispatch = useAppDispatch();  
   const onClickBackIcon = () =>{
@@ -99,8 +101,14 @@ export default function ColorPalette(){
     setOpenDelete(false);
   }
 
+  const onHandleCopy = () => {
+    const newCopy = treeDataRedux[selectedColorPalette];
+    setCopied(newCopy);
+  }
+
   const onHandlePaste = () => {
-    dispatch(pasteColorPalette(selectedColorPalette))
+    if(copied)
+      dispatch(pasteColorPalette(copied))
   }
 
   const onHandleEdit = () => {
@@ -114,12 +122,14 @@ export default function ColorPalette(){
   }
 
   const getAction = () => {
+    const parentNodes = colormapNamelist.filter(item => item.children?.length !== 0)
+
     return(
       <SelectAction
       labelId="display-modes-selection-label-id"
       id="display-modes-selection-id"
       value={activeColormapId}
-      onChange={(e : any) => onHandleSelect(e.target.value)}
+      onChange={(e : any) => {if(e.target.value) onHandleSelect(e.target.value)}}
       MenuProps={{
         disablePortal: true,
         anchorOrigin: {
@@ -129,10 +139,31 @@ export default function ColorPalette(){
        getContentAnchorEl: null
       }}
       >
+         <MuiListSubHeader key={parentNodes[0].id}>{parentNodes[0].name}</MuiListSubHeader>
         {
-            colormapNamelist.map((item : any) => 
-              <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
-          )}
+          colormapNamelist.map((element : any) => {
+            return(
+              element.pid === parentNodes[0].id 
+                ?
+                  <MuiMenuItem key={element.id} value={element.id}>{element.name}</MuiMenuItem>
+                :
+                  null
+            )
+          }) 
+        }
+
+        <MuiListSubHeader key={parentNodes[1].id}>{parentNodes[1].name}</MuiListSubHeader>
+        {
+          colormapNamelist.map((element : any) => {
+            return(
+              element.pid === parentNodes[1].id 
+                ?
+                  <MuiMenuItem key={element.id} value={element.id}>{element.name}</MuiMenuItem>
+                :
+                  null
+            )
+          })        
+        }
       </SelectAction>
     )
   }
@@ -237,6 +268,7 @@ export default function ColorPalette(){
                     <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
                       autoFocus 
                       onClick={onHandleApply} 
+                      disabled={readOnly}
                       // color="primary"
                     >
                       Apply
@@ -247,19 +279,25 @@ export default function ColorPalette(){
               }                                 
                               
               <OptionContainer>
-                <Option label="Edit" 
+                <Option label={ treeDataRedux[selectedColorPalette]?.pid !== "0" ? "Edit" : "View"} 
                   icon={<MuiIconButton 
-                    disabled={selectedColorPalette === "-1" || treeDataRedux[selectedColorPalette].pid === "0"}
+                    disabled={selectedColorPalette === "-1" }
                     onClick={onHandleEdit}
                     >
-                      <MuiEditIcon/>
+                      { treeDataRedux[selectedColorPalette]?.pid !== "0"
+                        ?
+                          <MuiEditIcon/>
+                        :
+                          <MuiVisibilityIcon/>
+                      }  
                     </MuiIconButton>
                   } 
                 />
+
                 <Option label="Copy" 
                   icon={ <MuiIconButton 
                     disabled={selectedColorPalette === "-1"}
-                    onClick={() => setCopied(true)}
+                    onClick={onHandleCopy}
                     > 
                       <MuiFileCopyOutlinedIcon/>
                     </MuiIconButton>

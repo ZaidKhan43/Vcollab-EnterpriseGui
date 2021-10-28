@@ -14,7 +14,7 @@ export default function DisplayTime(props:any){
         const then = moment(date)
         const changeTime = now.diff(then,"seconds")
         if(changeTime < 60)
-            time=`${changeTime} Seconds ago`;
+            time=`Just now`;
         else{
             setInterval(60000)
             let changeTimeMunite = Math.round(changeTime/60);
