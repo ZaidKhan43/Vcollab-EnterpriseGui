@@ -18,12 +18,7 @@ import {useAppDispatch } from '../../../../store/storeHooks';
 export default function CardTransfer(props:any){
     const {item, handleCollapse, handlePause, handleCancel} = props;
     const classes = styles();
-    const dispatch = useAppDispatch(); 
-
-    setTimeout( () => {
-        if(item.card.data.transfferedSize < item.card.data.totalSize)
-            dispatch(fileTransferUpdate())
-      }, 2000);
+    const dispatch = useAppDispatch();
     
     const fileSize = (size : number) => {
         if (size >= 1024) {

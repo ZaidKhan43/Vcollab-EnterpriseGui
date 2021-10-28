@@ -8,7 +8,7 @@
             "type": "pwa-chrome",
             "request": "launch",
             "name": "Launch Chrome against server",
-            "url": "http://localhost:3000/viewer.html/?api=http%3A%2F%2Fec2-54-88-72-27.compute-1.amazonaws.com%3A8080%2Fapi%2F1.0%2Fmodel&url=file%3A%2F%2FC%3A%5Cserver%5Centerprise-1.1-win64%5Csamples%5Cbeam.cax",
+            "url": "http://localhost:3000/viewer.html/?api=http%3A%2F%2Fec2-54-88-72-27.compute-1.amazonaws.com%3A8080%2Fapi%2F1.0%2Fmodel&url=file%3A%2F%2FC%3A%5Cserver%5Centerprise-1.1-win64%5Csamples%5Cheater.cax",
             "webRoot": "${workspaceFolder}"
         },
         {

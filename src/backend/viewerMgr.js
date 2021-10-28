@@ -493,8 +493,9 @@ var ModelTreeBuilder = /** @class */ (function () {
     return URLObject;
 }());
 var GltfUrlExtractor = /** @class */ (function () {
-    function GltfUrlExtractor(_glftJSON) {
+    function GltfUrlExtractor(_glftJSON, renderApp) {
         this.glftJSON = _glftJSON;
+        this.renderApp = renderApp;
     }
     GltfUrlExtractor.prototype.getNodeURLs = function (nodeIndex) {
         var urlObjArray = [];
@@ -502,7 +503,7 @@ var GltfUrlExtractor = /** @class */ (function () {
             var nodes = this.glftJSON.nodes;
             if (nodeIndex < nodes.length) {
                 var meshIndex = nodes[nodeIndex].mesh;
-                urlObjArray = this.getMeshURLs(meshIndex);
+                urlObjArray = this.getMeshURLs(nodeIndex, meshIndex);
                 urlObjArray.forEach(function (item) {
                     item.nodeIndex = nodeIndex;
                 });
@@ -510,7 +511,7 @@ var GltfUrlExtractor = /** @class */ (function () {
         }
         return urlObjArray;
     };
-    GltfUrlExtractor.prototype.getMeshURLs = function (meshIndex) {
+    GltfUrlExtractor.prototype.getMeshURLs = function (nodeIndex, meshIndex) {
         var _this = this;
         var urlObjArray = [];
         if (meshIndex !== null && meshIndex !== undefined) {
@@ -526,7 +527,9 @@ var GltfUrlExtractor = /** @class */ (function () {
                     var urlObj = _this.getAccessorURLs(accessorIndex);
                     if (urlObj) {
                         urlObj.meshIndex = meshIndex;
-                        urlObjArray.push(urlObj);
+                        var isDownloaded = _this.renderApp.getIsAttributeDataAvailable(nodeIndex, "accessor_" + urlObj.accessorIndex);
+                        if (isDownloaded === false)
+                            urlObjArray.push(urlObj);
                     }
                 });
             }
@@ -611,7 +614,7 @@ var Logger = /** @class */ (function () {
         this.mcax = _mcax;
         this.renderApp = _renderApp;
         this.connector = _connector;
-        this.gltfurlExtractor = new GltfUrlExtractor(_mcax.gltf);
+        this.gltfurlExtractor = new GltfUrlExtractor(_mcax.gltf, this.renderApp);
     }
     //########################################################
     ProgressiveLoader.prototype.showDefaultDisplay = function () {
@@ -828,7 +831,11 @@ var Logger = /** @class */ (function () {
                     var urlOjb = _this.gltfurlExtractor.getNodeURLs(gltfNodeIndex);
                     urlObjArray.push(urlOjb);
                 });
-                clubbedURLObjList = ManagedURLDownloader.processURLObject(urlObjArray);
+                console.log("before", urlObjArray);
+                clubbedURLObjList = ManagedURLDownloader.processURLObject(downloadId, urlObjArray);
+                if (clubbedURLObjList.length === 0)
+                    return [2 /*return*/, Promise.resolve()];
+                console.log("after club", clubbedURLObjList);
                 maxLength = 0;
                 urlCount = 0;
                 clubbedURLObjList.forEach(function (item) {
@@ -871,7 +878,7 @@ var Logger = /** @class */ (function () {
             offset = offset + length;
         });
     };
-    ProgressiveLoader.prototype.loadLevelNodes_working = function (representationList) {
+    ProgressiveLoader.prototype.loadLevelNodes_working = function (downloadId, representationList) {
         var _this = this;
         if (representationList instanceof Array) {
             var urlObjArray_1 = [];
@@ -884,7 +891,7 @@ var Logger = /** @class */ (function () {
                     urlObjArray_1.push(urlOjb);
                 }
             });
-            var clubbedURLObjList = ManagedURLDownloader.processURLObject(urlObjArray_1);
+            var clubbedURLObjList = ManagedURLDownloader.processURLObject(downloadId, urlObjArray_1);
             var maxLength_1 = 0;
             clubbedURLObjList.forEach(function (item) {
                 maxLength_1 = (item.length > maxLength_1) ? item.length : maxLength_1;
@@ -926,22 +933,45 @@ var Logger = /** @class */ (function () {
 var ManagedURLDownloader = /** @class */ (function () {
     function ManagedURLDownloader() {
     }
-    ManagedURLDownloader.processURLObject = function (urlObjArray) {
+    ManagedURLDownloader.createURLGroup = function (groupId) {
+        this.cache.set(groupId, new Map());
+    };
+    ManagedURLDownloader.isChunkCached = function (cachedUrlObj, urlObj) {
+        var found = cachedUrlObj.find(function (e) { return e.offset === urlObj.bufferViewOffset && e.len === urlObj.bufferViewLength; });
+        return found ? true : false;
+    };
+    ManagedURLDownloader.processURLObject = function (groupId, urlObjArray) {
         var _this = this;
+        var urlCache = this.cache.get(groupId);
         var urlMap = new Map();
         urlObjArray.forEach(function (item) {
             item.forEach(function (urlObj) {
-                if (!(urlMap.get(urlObj.url)))
-                    urlMap.set(urlObj.url, []);
-                (urlMap.get(urlObj.url)).push(urlObj);
+                if (!(urlCache.has(urlObj.url))) {
+                    urlCache.set(urlObj.url, [{ offset: urlObj.bufferViewOffset, len: urlObj.bufferViewLength }]);
+                    urlMap.set(urlObj.url, [urlObj]);
+                }
+                else {
+                    var cachedUrlObj = urlCache.get(urlObj.url);
+                    if (_this.isChunkCached(cachedUrlObj, urlObj) === false) {
+                        cachedUrlObj.push({ offset: urlObj.bufferViewOffset, len: urlObj.bufferViewLength });
+                        if (urlMap.has(urlObj.url))
+                            (urlMap.get(urlObj.url)).push(urlObj);
+                        else
+                            urlMap.set(urlObj.url, [urlObj]);
+                    }
+                }
             });
         });
         var uniqueURLs = __spread(urlMap.keys());
         var clubbedURLObjList = [];
         uniqueURLs.forEach(function (url) {
-            clubbedURLObjList.push(_this.URLMerger(url, urlMap.get(url)));
+            var clubbedUrlObj = _this.URLMerger(url, urlMap.get(url));
+            clubbedURLObjList.push(clubbedUrlObj);
         });
         return clubbedURLObjList;
+    };
+    ManagedURLDownloader.deleteURLGroup = function (groupId) {
+        this.cache.delete(groupId);
     };
     ManagedURLDownloader.URLMerger = function (_url, specificUrlObjArray) {
         var groupedIndex = [];
@@ -1004,6 +1034,7 @@ var ManagedURLDownloader = /** @class */ (function () {
         return clubbedURLObjects;
     };
     ManagedURLDownloader.downloadSizeLimit = 4 * 1024 * 1024; // 4 MB
+    ManagedURLDownloader.cache = new Map();
     return ManagedURLDownloader;
 }());var basicType = Object.freeze({
     ANALYTICAL: 1,
@@ -1892,8 +1923,10 @@ var sqrLen = squaredLength;
 })(viewerEvents || (viewerEvents = {}));
 var internalEvents;
 (function (internalEvents) {
+    internalEvents["NETWORK_CREATE_GROUP"] = "NETWORK_CREATE_GROUP";
     internalEvents["NETWORK_ADD_PART"] = "NETWORK_ADD_PART";
     internalEvents["NETWORK_UPDATE_PART"] = "NETWORK_UPDATE_PART";
+    internalEvents["NETWORK_DELETE_GROUP"] = "NETWORK_DELETE_GROUP";
 })(internalEvents || (internalEvents = {}));
 var globalEvents;
 (function (globalEvents) {
@@ -4609,6 +4642,9 @@ var errorCode$1 = {
     };
     WEBGLBuffer.prototype.setGLTFAccessor = function (accessor) {
         this.GLTFAccessor = accessor;
+    };
+    WEBGLBuffer.prototype.getGLTFAccessorId = function () {
+        return this.GLTFAccessor.accessor.uid;
     };
     WEBGLBuffer.prototype.updateData = function (data) {
         if (data) {
@@ -17436,7 +17472,6 @@ var Commands = /** @class */ (function () {
                         }
                 });
             }
-            console.log(nodes);
         });
     };
     App.prototype.setHighlightedNodes = function (nodeIds, visibility) {
@@ -17450,7 +17485,7 @@ var Commands = /** @class */ (function () {
             else {
                 AppObjects.renderer.highlightedNodes.delete(node.index);
             }
-            console.log(node.mesh.subMeshes['primitive_0'].material.diffuseColor = visibility ? [1, 1, 0] : [0, 0, 0]);
+            //console.log(node.mesh.subMeshes['primitive_0'].material.diffuseColor = visibility ? [1,1,0] : [0,0,0]);
         });
     };
     App.prototype.cloneRenderNode = function (sourceRenderNodeId, targetRenderNodeId, isDeep) {
@@ -17584,6 +17619,7 @@ var Commands = /** @class */ (function () {
     };
     App.prototype.setNodeVisibility = function (nodeIndexList, visibility) {
         var nodes = this.sceneManager.getRenderNodes();
+        //console.log(nodes);
         if (nodeIndexList && nodeIndexList instanceof Array && nodeIndexList.length > 0) {
             nodeIndexList.forEach(function (index) {
                 for (var i = 0; i < nodes.length; i++)
@@ -17687,6 +17723,50 @@ var Commands = /** @class */ (function () {
             }
         }
         return returnValue;
+    };
+    App.prototype.getIsAttributeDataAvailable = function (nodeIdx, accessorId) {
+        var _a, _b, _c, _d;
+        var node = this.sceneManager.getRenderNodes().find(function (e) { return e.index === nodeIdx; });
+        if (node) {
+            if (node.mesh) {
+                var meshes = [];
+                if (node.mesh.mainMesh) {
+                    meshes.push(node.mesh.mainMesh);
+                }
+                for (var key in node.mesh.subMeshes) {
+                    var submesh = node.mesh.subMeshes[key];
+                    meshes.push(submesh);
+                }
+                var found = false;
+                var isDataAvailable = false;
+                for (var i = 0; i < meshes.length; i++) {
+                    var attrb = meshes[i].attribs;
+                    if (found) {
+                        break;
+                    }
+                    switch (accessorId) {
+                        case (_a = attrb.position) === null || _a === void 0 ? void 0 : _a.getGLTFAccessorId():
+                            isDataAvailable = attrb.position.isDataAvailable();
+                            found = true;
+                            break;
+                        case (_b = attrb.normal) === null || _b === void 0 ? void 0 : _b.getGLTFAccessorId():
+                            isDataAvailable = attrb.normal.isDataAvailable();
+                            found = true;
+                            break;
+                        case (_c = attrb.texCoord) === null || _c === void 0 ? void 0 : _c.getGLTFAccessorId():
+                            isDataAvailable = attrb.texCoord.isDataAvailable();
+                            found = true;
+                            break;
+                        case (_d = attrb.color) === null || _d === void 0 ? void 0 : _d.getGLTFAccessorId():
+                            isDataAvailable = attrb.color.isDataAvailable();
+                            found = true;
+                            break;
+                    }
+                }
+                return isDataAvailable;
+            }
+        }
+        return false;
     };
     App.prototype.getDownloadDataSize = function (nodeIndexList) {
         var size = 0;
@@ -18178,6 +18258,9 @@ var vctViewer = /** @class */ (function () {
     vctViewer.prototype.getIsRenderDataAvailable = function (nodeIndexList) {
         return this.appli.getIsRenderDataAvailable(nodeIndexList);
     };
+    vctViewer.prototype.getIsAttributeDataAvailable = function (nodeIndex, accessorId) {
+        return this.appli.getIsAttributeDataAvailable(nodeIndex, accessorId);
+    };
     vctViewer.prototype.showFPS = function () {
         this.appli.setFPSVisibility(true);
     };
@@ -18328,11 +18411,14 @@ var vctViewer = /** @class */ (function () {
             info: info,
             parts: []
         });
-        this.dispatcher.dispatchEvent({
-            data: { id: id, event: info },
-            type: viewerEvents.DOWNLOAD_START,
-            viewerID: this.viewerId
-        });
+        if (info.notify)
+            this.dispatcher.dispatchEvent({
+                data: { id: id, event: info },
+                type: viewerEvents.DOWNLOAD_START,
+                viewerID: this.viewerId
+            });
+        ManagedURLDownloader.createURLGroup(id);
+        console.log("group created", info);
         return id;
     };
     NetworkManager.prototype.handleAddPart = function (event) {
@@ -18366,28 +18452,35 @@ var vctViewer = /** @class */ (function () {
             if (part) {
                 part.loaded = event.loaded;
                 part.total = event.total;
+                console.log("update part", part.id, part.loaded, part.total);
             }
             var total = group.info.totalSize;
             var loaded_1 = 0;
             group.parts.forEach(function (e) {
                 loaded_1 += e.loaded;
             });
-            this.dispatcher.dispatchEvent({
-                data: { id: groupId, event: { loaded: loaded_1, total: total } },
-                type: viewerEvents.DOWNLOAD_PROGRESS,
-                viewerID: this.viewerId
-            });
+            if (group.info.notify)
+                this.dispatcher.dispatchEvent({
+                    data: { id: groupId, event: { loaded: loaded_1, total: total } },
+                    type: viewerEvents.DOWNLOAD_PROGRESS,
+                    viewerID: this.viewerId
+                });
+            console.log("update total", loaded_1, total);
         }
         return false;
     };
     NetworkManager.prototype.deleteGroup = function (id) {
         if (this.downloads.has(id)) {
+            var group = this.downloads.get(id);
+            if (group.info.notify)
+                this.dispatcher.dispatchEvent({
+                    data: { id: id, event: { title: group.info.title } },
+                    type: viewerEvents.DOWNLOAD_END,
+                    viewerID: this.viewerId
+                });
+            ManagedURLDownloader.deleteURLGroup(id);
             this.downloads.delete(id);
-            this.dispatcher.dispatchEvent({
-                data: { id: id, event: {} },
-                type: viewerEvents.DOWNLOAD_END,
-                viewerID: this.viewerId
-            });
+            console.log("group deleted", id);
             return true;
         }
         return false;
@@ -18738,7 +18831,7 @@ var vctViewer = /** @class */ (function () {
                         this.renderApp.setNodeVisibility(repIds, false);
                         return [3 /*break*/, 3];
                     case 1: return [4 /*yield*/, Promise.all(nodes.map(function (node) {
-                            _this.setDisplayMode(node.customData.displayProps.displayId, [node.id]);
+                            _this.setDisplayMode(false, node.customData.displayProps.displayId, [node.id]);
                         }))];
                     case 2:
                         _a.sent();
@@ -18925,9 +19018,9 @@ var vctViewer = /** @class */ (function () {
             });
         });
     };
-    Viewer.prototype.setDisplayMode = function (displayModeId, selectedNodes) {
+    Viewer.prototype.setDisplayMode = function (notify, displayModeId, selectedNodes) {
         return __awaiter(this, void 0, void 0, function () {
-            var nodes, reps, repIds, groupId;
+            var nodes, reps, repIds, groupId, promises;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -18943,22 +19036,14 @@ var vctViewer = /** @class */ (function () {
                         nodes.forEach(function (node) { return _this.setHighlightedNodes([node.id], node.customData.displayProps.isHighlighted); });
                         groupId = this.networkManager.createGroup({
                             title: "Display mode " + displayModeId,
+                            notify: notify,
                             totalSize: this.getDownloadSize(selectedNodes, displayModeId)
                         });
-                        return [4 /*yield*/, Promise.all(nodes.map(function (node) { return __awaiter(_this, void 0, void 0, function () {
-                                return __generator(this, function (_a) {
-                                    switch (_a.label) {
-                                        case 0: return [4 /*yield*/, this.updateDisplayMode(groupId, node, displayModeId)];
-                                        case 1:
-                                            _a.sent();
-                                            return [2 /*return*/];
-                                    }
-                                });
-                            }); }))];
+                        promises = nodes.map(function (node) { return _this.updateDisplayMode(groupId, node, displayModeId); });
+                        return [4 /*yield*/, Promise.allSettled(promises)];
                     case 1:
                         _a.sent();
                         this.networkManager.deleteGroup(groupId);
-                        //this.setHighlightedNodes(selectedNodes,true);
                         return [2 /*return*/, Promise.resolve("SUCCESS")];
                 }
             });
@@ -19440,14 +19525,16 @@ var ViewerManager = /** @class */ (function () {
     };
     ViewerManager.prototype.setDisplayMode = function (displayModeId, selectedNodes, viewerUUID) {
         return __awaiter(this, void 0, void 0, function () {
-            var viewer;
+            var viewer, r;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
                         if (!viewer) return [3 /*break*/, 2];
-                        return [4 /*yield*/, viewer.setDisplayMode(displayModeId, selectedNodes)];
-                    case 1: return [2 /*return*/, _a.sent()];
+                        return [4 /*yield*/, viewer.setDisplayMode(true, displayModeId, selectedNodes)];
+                    case 1:
+                        r = _a.sent();
+                        return [2 /*return*/, r];
                     case 2: return [2 /*return*/, Promise.reject("Invalid viewer ID")];
                 }
             });

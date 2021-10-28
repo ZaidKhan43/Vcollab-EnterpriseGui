@@ -12,6 +12,7 @@ import { fetchFieldData } from '../../store/sideBar/fieldSlice';
 import { fetchMouseData } from '../../store/sideBar/settings';
 import { fetchCameraMatrix, fetchCameraStdViews } from '../../store/sideBar/sceneSlice';
 import { addMessage, updateMessage, NetworkData, NotificationType, finishMessage } from '../../store/sideBar/messageSlice';
+import { toastMsg } from '../../store/toastSlice';
 
 function Viewer(){
     
@@ -168,6 +169,7 @@ function Viewer(){
                     data: networkData,
                     title: data.event.title
                   }))
+                  dispatch(toastMsg({msg:`Downloading ${data.event.title}`}));
                   console.log("start",networkData.totalSize);
                 }
               );
@@ -190,6 +192,7 @@ function Viewer(){
                   dispatch(finishMessage({
                     id: data.id
                   }))
+                  dispatch(toastMsg({msg:`${data.event.title} complete`}));
                 }
               );
               eventDispatcher?.addEventListener(
