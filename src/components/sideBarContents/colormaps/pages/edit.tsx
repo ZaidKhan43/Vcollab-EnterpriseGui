@@ -50,10 +50,10 @@ export default function Edit(){
   
   const list = useAppSelector(colormapElements);
 
-  const selectedVariable= variables[selectedColorMap.variable];
-  const selectedStep = steps[selectedColorMap.step];
-  const selectedDerivedType = derived[selectedColorMap.derivedType];
-  const selectedSection = sections[selectedColorMap.section]
+  const selectedVariable= variables[selectedColorMap?.variable];
+  const selectedStep = steps[selectedColorMap?.step];
+  const selectedDerivedType = derived[selectedColorMap?.derivedType];
+  const selectedSection = sections[selectedColorMap?.section]
 
   const dispatch = useAppDispatch(); 
   const classes = styles();
@@ -81,6 +81,7 @@ export default function Edit(){
   }
 
   const onHandleSelect = (id : string) => {
+    console.log(id)
     dispatch(setColorMapSelection(id));
   }
   
@@ -108,12 +109,14 @@ export default function Edit(){
   }
 
   const getAction = () => {
+
+    const parentNodes = list.filter(item => item.children?.length !== 0)
+
     return(
       <SelectAction
-      labelId="display-modes-selection-label-id"
-      id="display-modes-selection-id"
-      defaultValue={selectedColorMapId}
-      onChange={(e : any) => onHandleSelect(e.target.value)}
+      id="grouped-select" label="Grouping"
+      value={selectedColorMapId}
+      onChange={(e : any) => {if(e.target.value) onHandleSelect(e.target.value)}}
       MenuProps={{
         disablePortal: true,
         anchorOrigin: {
@@ -123,16 +126,31 @@ export default function Edit(){
        getContentAnchorEl: null
       }}
       >
+        <MuiListSubHeader key={parentNodes[0].id}>{parentNodes[0].name}</MuiListSubHeader>
         {
-              list.map((item : any) => 
-              {
-                let node = colorMap[item.id];
-                return(node.pid === "-1" ? 
-                <MuiListSubHeader key={item.id}>{item.name}</MuiListSubHeader>: 
-                <MuiMenuItem key={item.id} value={item.id}>{item.name}</MuiMenuItem>)
-                
-              })
-        } 
+          list.map((element : any) => {
+            return(
+              element.pid === parentNodes[0].id 
+                ?
+                  <MuiMenuItem key={element.id} value={element.id}>{element.name}</MuiMenuItem>
+                :
+                  null
+            )
+          }) 
+        }
+
+        <MuiListSubHeader key={parentNodes[1].id}>{parentNodes[1].name}</MuiListSubHeader>
+        {
+          list.map((element : any) => {
+            return(
+              element.pid === parentNodes[1].id 
+                ?
+                  <MuiMenuItem key={element.id} value={element.id}>{element.name}</MuiMenuItem>
+                :
+                  null
+            )
+          })        
+        }
       </SelectAction>
     )
   }

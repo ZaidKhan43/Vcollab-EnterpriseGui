@@ -524,7 +524,7 @@ export const colormapElements = (state:RootState) => {
     let array : any[] = [];
     Object.keys(state.colormap.colormapTree.data).forEach(key => {
         let node = state.colormap.colormapTree.data[key];
-        array.push({id:node.id, name: node.title});
+        array.push({id:node.id, name: node.title, pid: node.pid, children: node.children});
     })
 
     return(array);

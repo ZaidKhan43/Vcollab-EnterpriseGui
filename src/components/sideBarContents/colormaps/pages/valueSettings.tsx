@@ -8,7 +8,7 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 import {goBack} from 'connected-react-router/immutable';
 
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
-
+import MuiListSubHeader from '@material-ui/core/ListSubheader';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 
 import { useRef, useState } from 'react';
@@ -115,25 +115,48 @@ export default function Variable(){
   }
 
   const getAction = () => {
+    const parentNodes = colormapNameList.filter(item => item.children?.length !== 0)
+
     return(
       <SelectAction
-        labelId="display-modes-selection-label-id"
-        id="display-modes-selection-id"
-        value={activeColormapId}
-        onChange={(e : any) => onHandleSelect(e.target.value)}
-        MenuProps={{
-          disablePortal: true,
-          anchorOrigin: {
-            vertical:"bottom",
-            horizontal:"left",
-          },
-          getContentAnchorEl: null
-        }}
+      labelId="display-modes-selection-label-id"
+      id="display-modes-selection-id"
+      value={activeColormapId}
+      onChange={(e : any) => {if(e.target.value) onHandleSelect(e.target.value)}}
+      MenuProps={{
+        disablePortal: true,
+        anchorOrigin: {
+          vertical:"bottom",
+          horizontal:"left",
+       },
+       getContentAnchorEl: null
+      }}
       >
+         <MuiListSubHeader key={parentNodes[0].id}>{parentNodes[0].name}</MuiListSubHeader>
         {
-            colormapNameList.map((item : any) => 
-              <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
-          )}
+          colormapNameList.map((element : any) => {
+            return(
+              element.pid === parentNodes[0].id 
+                ?
+                  <MuiMenuItem key={element.id} value={element.id}>{element.name}</MuiMenuItem>
+                :
+                  null
+            )
+          }) 
+        }
+
+        <MuiListSubHeader key={parentNodes[1].id}>{parentNodes[1].name}</MuiListSubHeader>
+        {
+          colormapNameList.map((element : any) => {
+            return(
+              element.pid === parentNodes[1].id 
+                ?
+                  <MuiMenuItem key={element.id} value={element.id}>{element.name}</MuiMenuItem>
+                :
+                  null
+            )
+          })        
+        }
       </SelectAction>
     )
   }

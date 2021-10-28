@@ -11,15 +11,16 @@ import {goBack} from 'connected-react-router/immutable';
 
 
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
+import MuiListSubHeader from '@material-ui/core/ListSubheader';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, } from 'react';
 
 import RsTreeSearch from '../../../shared/RsTreeWithSearch'
 import AutoSizer from '../../../shared/autoSize'
 
-import { selectVariables,  selectSections, expandSection, getDependantSectionIds } from '../../../../store/sideBar/fieldSlice'
+import { selectSections, expandSection, } from '../../../../store/sideBar/fieldSlice'
 
 import { colormapElements, selectcolormapData, setSelectedSection, ColormapType} from '../../../../store/sideBar/colormapSlice';
 
@@ -28,14 +29,12 @@ import Grid from '@material-ui/core/Grid'
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
 import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
 import TitleTree from '../../../shared/RsTreeWithSearch/utilComponents/TitleNode'
-import useVisibility from '../../field/shared/hooks/useVisibility';
 
 export default function Variable(){
 
   const dispatch = useAppDispatch();  
   const classes = useStyles();
 
-  const variables = useAppSelector(selectVariables);
   const sections = useAppSelector(selectSections);
   const [searchText, setSearchText] = useState("");
 
@@ -43,21 +42,9 @@ export default function Variable(){
 
   const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
   const [activeColormapId, setActiveColormapId] = useState(selectedColorMapId); 
-  const selectedVariableIds = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].variable);
   const colormapsData = useAppSelector(selectcolormapData)
   const appliedSection = colormapsData[activeColormapId].section;
   const colormapNameList = useAppSelector(colormapElements)
-  const [depSectionIds, setDepSectionIds] = useState<string[]>([]);
-
-  const sectionVisibleIds = useVisibility({
-    source: variables,
-    target: sections,
-    targetIds: depSectionIds,
-    // targetSetVisibilityReducer: setVisibleDerivedTypes
-  })
-  useEffect(() => {
-    setDepSectionIds(getDependantSectionIds(variables,[selectedVariableIds]));
-  },[activeColormapId])
 
   const readOnly = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false)
 
@@ -87,12 +74,14 @@ export default function Variable(){
   }
 
   const getAction = () => {
+    const parentNodes = colormapNameList.filter(item => item.children?.length !== 0)
+
     return(
       <SelectAction
       labelId="display-modes-selection-label-id"
       id="display-modes-selection-id"
       value={activeColormapId}
-      onChange={(e : any) => onHandleSelect(e.target.value)}
+      onChange={(e : any) => {if(e.target.value) onHandleSelect(e.target.value)}}
       MenuProps={{
         disablePortal: true,
         anchorOrigin: {
@@ -102,10 +91,31 @@ export default function Variable(){
        getContentAnchorEl: null
       }}
       >
+         <MuiListSubHeader key={parentNodes[0].id}>{parentNodes[0].name}</MuiListSubHeader>
         {
-            colormapNameList.map((item : any) => 
-              <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
-          )}
+          colormapNameList.map((element : any) => {
+            return(
+              element.pid === parentNodes[0].id 
+                ?
+                  <MuiMenuItem key={element.id} value={element.id}>{element.name}</MuiMenuItem>
+                :
+                  null
+            )
+          }) 
+        }
+
+        <MuiListSubHeader key={parentNodes[1].id}>{parentNodes[1].name}</MuiListSubHeader>
+        {
+          colormapNameList.map((element : any) => {
+            return(
+              element.pid === parentNodes[1].id 
+                ?
+                  <MuiMenuItem key={element.id} value={element.id}>{element.name}</MuiMenuItem>
+                :
+                  null
+            )
+          })        
+        }
       </SelectAction>
     )
   }
