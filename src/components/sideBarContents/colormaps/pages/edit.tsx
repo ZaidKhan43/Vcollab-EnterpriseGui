@@ -40,17 +40,20 @@ export default function Edit(){
   const sections = useAppSelector(selectSections);
   const colorpalette = useAppSelector(selectColorPaletteData);
 
-  const [selectedVariable,setSelectedVariable]= useState<Variable | null>(null);
-  const [selectedStep,setSelectedStep]= useState<Step | null>(null);
-  const [selectedDerivedType,setSelectedDerivedType]= useState<DerivedType | null>(null);
-  const [selectedSection,setSelectedSection]= useState<Sections | null>(null);
+  
+
 
   const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
   const colorMap = useAppSelector(selectcolormapData);
-  const [selectedColorMap, setSelectedColorMap] = useState<Colormap>(colorMap[selectedColorMapId]);
-  const [activeId, setActiveId] = useState(selectedColorMapId);  
-  const [isValid, setIsValid] = useState(false);
+  const selectedColorMap = colorMap[selectedColorMapId];
+  // const [activeId, setActiveId] = useState(selectedColorMapId); 
+  
   const list = useAppSelector(colormapElements);
+
+  const selectedVariable= variables[selectedColorMap.variable];
+  const selectedStep = steps[selectedColorMap.step];
+  const selectedDerivedType = derived[selectedColorMap.derivedType];
+  const selectedSection = sections[selectedColorMap.section]
 
   const dispatch = useAppDispatch(); 
   const classes = styles();
@@ -71,24 +74,13 @@ export default function Edit(){
   
   }
 
-  useEffect(() => {
-    setSelectedColorMap(colorMap[selectedColorMapId]);
-    setSelectedStep(steps[selectedColorMap.step]);
-    setSelectedVariable(variables[selectedColorMap.variable])
-    setSelectedDerivedType(derived[selectedColorMap.derivedType]);
-    setSelectedSection(sections[selectedColorMap.section]);
-  },[selectedColorMapId])
+  const isValid = validateSelection();
 
-  useEffect(() => {
-    setIsValid(validateSelection());
-  },[selectedVariable, selectedStep, selectedSection,  selectedDerivedType])
-  
   const onClickBackIcon = () =>{
     dispatch(goBack());
   }
 
   const onHandleSelect = (id : string) => {
-    setActiveId(id)
     dispatch(setColorMapSelection(id));
   }
   
@@ -120,7 +112,7 @@ export default function Edit(){
       <SelectAction
       labelId="display-modes-selection-label-id"
       id="display-modes-selection-id"
-      defaultValue={activeId}
+      defaultValue={selectedColorMapId}
       onChange={(e : any) => onHandleSelect(e.target.value)}
       MenuProps={{
         disablePortal: true,

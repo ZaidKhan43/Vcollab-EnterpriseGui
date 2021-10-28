@@ -11,6 +11,8 @@ interface SlideTreeNode extends TreeNode {
 interface SlideTreeState extends ITreeState {
     data: {[id:string]:SlideTreeNode},
     rootIds: string[],
+    appliedSlide: string,
+    selectedSlide: string,
 }
 
 // Define the initial state using that type
@@ -202,6 +204,8 @@ const initialState: SlideTreeState = {
     },
     },
     rootIds: ["0","1","2"],
+    appliedSlide : "012",
+    selectedSlide : "014",
 }
 
 
@@ -217,6 +221,13 @@ export const slideSlice = createSlice({
     toggleVisibility: toggleVisibilityReducer,
     setCheckedVisibility: setCheckedVisibilityReducer,
    
+    setSlideSelection: (state, action: PayloadAction<string>) => {
+
+        if(state.selectedSlide === action.payload)
+            state.selectedSlide = "-1";
+        else 
+        state.selectedSlide = action.payload;
+    }, 
   }
 });
 
@@ -226,6 +237,7 @@ export const {
   checkNode, 
   invertNode, 
   expandNode,
+  setSlideSelection,
    } = slideSlice.actions;
 
 //Define the selectors

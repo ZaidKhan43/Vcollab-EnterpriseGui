@@ -8,6 +8,7 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 import {goBack} from 'connected-react-router/immutable';
 
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
+
 import MuiMenuItem from '@material-ui/core/MenuItem';
 
 import { useRef, useState } from 'react';
@@ -186,7 +187,7 @@ export default function Variable(){
                         ?
                           null
                         :
-                          <MuiIconButton size="small" onClick={() => onHandleDeleteValue(index)}><MuiClearIcon/></MuiIconButton>
+                          <MuiIconButton style={{height:"2px"}} onClick={() => onHandleDeleteValue(index)}><MuiClearIcon/></MuiIconButton>
                       } 
                     </MuiGrid>
                   </MuiGrid>
@@ -234,7 +235,7 @@ export default function Variable(){
                         ?
                           null
                         :
-                          <MuiIconButton size="small" onClick={() => onHandleDeleteValue(index)}><MuiClearIcon/></MuiIconButton>
+                          <MuiIconButton style={{height:"2px"}} onClick={() => onHandleDeleteValue(index)}><MuiClearIcon/></MuiIconButton>
                       }
                     </MuiGrid>
                   </MuiGrid>
