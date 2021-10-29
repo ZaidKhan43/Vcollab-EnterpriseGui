@@ -19035,7 +19035,7 @@ var vctViewer = /** @class */ (function () {
                             this.renderApp.setNodeVisibility(repIds, false);
                         nodes.forEach(function (node) { return _this.setHighlightedNodes([node.id], node.customData.displayProps.isHighlighted); });
                         groupId = this.networkManager.createGroup({
-                            title: "Display mode " + displayModeId,
+                            title: "Display mode " + displayModes[displayModeId].DISPLAYNAME,
                             notify: notify,
                             totalSize: this.getDownloadSize(selectedNodes, displayModeId)
                         });
