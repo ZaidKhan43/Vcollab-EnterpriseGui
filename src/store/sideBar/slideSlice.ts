@@ -4,11 +4,14 @@ import {TreeNode, ITreeState} from "./shared/ProductExplorer/types";
 import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer} from "./shared/ProductExplorer/reducers";
 // Define a type for the slice state
 
+
 interface SlideTreeNode extends TreeNode {
     downloaded : boolean,
-    cameraView?:string,
-    position?: string,
-    image?: string,
+    data : {
+        cameraView?:string,
+        position?: string,
+        image?: string,
+    },
 }
 
 interface SlideTreeState extends ITreeState {
@@ -18,7 +21,13 @@ interface SlideTreeState extends ITreeState {
     selectedSlide: string,
     
     idGenerator: number,
-    currentData: SlideTreeNode,
+    defaultValue: SlideTreeNode,
+
+    currentData : {
+        cameraView?:string,
+        position?: string,
+        image?: string,
+    },
 
     stepCount : number,
     viewCount : number,
@@ -39,6 +48,7 @@ const initialState: SlideTreeState = {
                     visibility: true,
                 },
                 downloaded: false,
+                data:{},
                 attributes: {},
         },
 
@@ -52,6 +62,7 @@ const initialState: SlideTreeState = {
                     visibility: true,
                 },
                 downloaded: false,
+                data:{},
                 attributes: {},
         },
 
@@ -65,6 +76,7 @@ const initialState: SlideTreeState = {
                   visibility: true,
               },
               downloaded:false,
+              data : {cameraView:"persp", position:"(3,13)", image:""},
               attributes: {},
       },
 
@@ -78,6 +90,7 @@ const initialState: SlideTreeState = {
                 visibility: true,
             },
             downloaded: true,
+            data : {cameraView:"ortho", position:"(23,13)", image:""},
             attributes: {},
     },
 
@@ -91,6 +104,7 @@ const initialState: SlideTreeState = {
               visibility: true,
           },
           downloaded: false,
+          data : {cameraView:"persp", position:"(3,13)", image:""},
           attributes: {},
   },
 
@@ -104,6 +118,7 @@ const initialState: SlideTreeState = {
             visibility: true,
         },
         downloaded:false,
+        data : {cameraView:"ortho", position:"(3,13)", image:""},
         attributes: {},
 },
 
@@ -117,6 +132,7 @@ const initialState: SlideTreeState = {
           visibility: true,
       },
       downloaded: true,
+      data : {cameraView:"persp", position:"(3,13)", image:""},
       attributes: {},
 },
 
@@ -133,6 +149,7 @@ const initialState: SlideTreeState = {
                   visibility: true,
               },
               downloaded: true,
+              data : {cameraView:"persp", position:"(123,13)", image:""},
               attributes: {},
       },
 
@@ -146,6 +163,7 @@ const initialState: SlideTreeState = {
                 visibility: true,
             },
             downloaded: false,
+            data : {cameraView:"persp", position:"(3,13)", image:""},
             attributes: {},
     },
 
@@ -159,6 +177,7 @@ const initialState: SlideTreeState = {
               visibility: true,
           },
           downloaded:true,
+          data : {cameraView:"ortho", position:"(3,13)", image:""},
           attributes: {},
   },
 
@@ -172,6 +191,7 @@ const initialState: SlideTreeState = {
             visibility: true,
         },
         downloaded: true,
+        data : {cameraView:"persp", position:"(123,13)", image:""},
         attributes: {},
 },
 
@@ -185,6 +205,7 @@ const initialState: SlideTreeState = {
           visibility: true,
       },
       downloaded: false,
+      data : {cameraView:"ortho", position:"(3,13)", image:""},
       attributes: {},
 },
 
@@ -198,6 +219,7 @@ const initialState: SlideTreeState = {
                   visibility: true,
               },
               downloaded: false,
+              data:{},
               attributes: {},
       },
 
@@ -211,6 +233,7 @@ const initialState: SlideTreeState = {
                 visibility: true,
             },
             downloaded:false,
+            data:{},
             attributes: {},
     },
     },
@@ -220,9 +243,9 @@ const initialState: SlideTreeState = {
 
     idGenerator: 13,
 
-    currentData: {
+    defaultValue: {
         id:"-1",
-        title:"newOne",
+        title:"",
         pid:"-1",
         children: [],
                 state: {
@@ -230,9 +253,12 @@ const initialState: SlideTreeState = {
                     visibility: true,
                 },
                 downloaded: false,
+                data : {},
                 attributes: {},
 
     },
+
+    currentData : {cameraView:"ortho", position:"(23,213)", image:""},
 
     stepCount : 5,
     viewCount : 2,
@@ -263,31 +289,38 @@ export const slideSlice = createSlice({
     createNode : (state, action :PayloadAction<string>) => {
         state.idGenerator++;
 
-        let newData = JSON.parse(JSON.stringify(state.currentData))
+        let newData = JSON.parse(JSON.stringify(state.defaultValue))
 
         newData.id = state.idGenerator;
         newData.pid = action.payload;
+        
 
         switch(action.payload){
             case "-1":
                 state.groupCount ++;
                 newData.title =  `Group ${state.groupCount}`;
+                newData.data = {}
                 state.data[`${state.idGenerator}`] =newData;
                 state.rootIds.push(newData.id)
+               
             break;
 
             case "3":
                 state.stepCount ++;
                 newData.title =  `Step ${state.stepCount}`;
+                newData.data = JSON.parse(JSON.stringify(state.currentData));
                 state.data[`${state.idGenerator}`] =newData;
                 state.data[`${action.payload}`].children.push(newData.id)
+                
             break;
 
             default:
                 state.viewCount ++;
                 newData.title =  `View ${state.viewCount}`;
+                newData.data = JSON.parse(JSON.stringify(state.currentData));
                 state.data[`${state.idGenerator}`] =newData;
                 state.data[`${action.payload}`].children.push(newData.id)
+                
             break;
         }
         
@@ -296,6 +329,10 @@ export const slideSlice = createSlice({
     applyView: (state, action : PayloadAction<string>) => {
         state.appliedSlide = action.payload;
         state.data[ action.payload].downloaded = true;
+    },
+
+    replaceViewData : (state,action : PayloadAction<string>) => {
+        state.data[action.payload].data = JSON.parse(JSON.stringify(state.currentData))
     },
 
   }
@@ -310,6 +347,7 @@ export const {
   setSlideSelection,
   createNode,
   applyView,
+  replaceViewData,
    } = slideSlice.actions;
 
 //Define the selectors

@@ -12,7 +12,7 @@ import RTree from '../../shared/RsTreeTable';
  
 import AddIcon from "@material-ui/icons/Add";
 
-import { selectSlideData, selectRootIds, expandNode, setSlideSelection, createNode, applyView } from '../../../store/sideBar/slideSlice';
+import { selectSlideData, selectRootIds, expandNode, setSlideSelection, createNode, applyView, replaceViewData } from '../../../store/sideBar/slideSlice';
 
 import TreeNodeWithoutCheckbox from '../../shared/RsTreeTable/treeNodeWithoutCheckbox';
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
@@ -26,7 +26,7 @@ import useContainer from '../../../customHooks/useContainer';
 
 import GridViewIcon from '../../icons/gridView';
 
-import MuiEditIcon from '@material-ui/icons/EditOutlined';
+import ReplaceIcon from '../../icons/replace'
 import MuiFileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 import MuiPaste from '@material-ui/icons/AssignmentOutlined';
 import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
@@ -74,8 +74,8 @@ export default function Slides (){
     }    
     
     const handleRowClick = (node : any) => {
-        if(node.children.length === 0 && node.pid !== "-1")
-          dispatch(setSlideSelection(node.id));
+        setOpenDelete(false)
+        dispatch(setSlideSelection(node.id));
       }
     
     const onHandleCreateGroup = () => {
@@ -88,6 +88,19 @@ export default function Slides (){
 
     const onHandleApply = () => {
       dispatch(applyView(selectedSlideId))
+    }
+
+    const onHandleReplace = () => {
+      dispatch(replaceViewData(selectedSlideId))
+    }
+
+    const onHandleDeleteButton = () => {
+      setOpenDelete(true);
+    }
+
+    const onHandleDelete = () => {
+      // dispatch(deleteColorMap(selectedColorMapId)
+      setOpenDelete(false)
     }
 
     const getHeaderLeftIcon = () => {
@@ -234,8 +247,12 @@ export default function Slides (){
          !openDelete
           ?
             <div>
-              { selectedSlideId !== "-1" && selectedSlideId !== appliedSlideId 
+              { selectedSlideId !== appliedSlideId 
                 ?
+                (treeDataRedux[selectedSlideId].children.length !== 0 || treeDataRedux[selectedSlideId].pid === "-1") 
+                  ?
+                    null
+                  :
                   <div style={{marginTop:"20px", marginBottom:"20px"}}>
                     <MuiButton style={{backgroundColor:"#5958FF",width:"50%", fontSize:"9px" , marginRight:"5px"}} 
                       autoFocus 
@@ -251,12 +268,12 @@ export default function Slides (){
               }                                 
                               
               <OptionContainer>
-                <Option label="Edit"
+                <Option label="Replace"
                   icon={<MuiIconButton 
-                  //   disabled={selectedColorMapId === "-1" }
-                  //   onClick={onHandleEdit}
+                    disabled={selectedSlideId === "-1" || treeDataRedux[selectedSlideId].children.length !== 0 || treeDataRedux[selectedSlideId].pid === "-1"}
+                    onClick={onHandleReplace}
                     >
-                          <MuiEditIcon/>
+                          <ReplaceIcon/>
 
                     </MuiIconButton>
                   } 
@@ -283,8 +300,8 @@ export default function Slides (){
                 />
                 <Option label="Delete" 
                   icon={ <MuiIconButton 
-                    // disabled={treeDataRedux[selectedColorMapId]?.colormapType === ColormapType.SYSTEM || selectedColorMapId === appliedColorMapId}
-                    // onClick={onHandleDeleteButton}
+                    disabled={selectedSlideId === appliedSlideId || selectedSlideId === "-1"}
+                    onClick={onHandleDeleteButton}
                     > 
                       <MuiDeleteForeverOutlinedIcon/>
                     </MuiIconButton>
@@ -301,7 +318,7 @@ export default function Slides (){
                   <div style={{alignContent:"center",}}>
                     <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
                       autoFocus 
-                      // onClick={onHandleDelete} 
+                      onClick={onHandleDelete} 
                       // color="primary"
                     >
                       Confirm
