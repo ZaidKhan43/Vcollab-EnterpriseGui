@@ -34,14 +34,17 @@ export default function Annotations(){
     const [activeId, setActiveId] = useState(-1);
 
     useEffect(() => {
+        const openedList = notificationList.filter(item => item.collapsed).map(item => item.id);
         let allTag = tags.find(e => e[1] === "All");
         let customTag = tags.find(e => e[1] === "Custom");
         if(allTag && customTag) {
             setAllTagId(allTag[0]);
             setCustomTagId(customTag[0]);
         }
-        if(allTag)
-        setActiveId(allTag[0]);
+        if (openedList.length === notificationList.length && allTag)
+        setActiveId(allTagId);
+        else if(customTag)
+        setActiveId(customTag[0]);
     },[])
     useEffect(() => {
         const openedList = notificationList.filter(item => item.collapsed).map(item => item.id);
