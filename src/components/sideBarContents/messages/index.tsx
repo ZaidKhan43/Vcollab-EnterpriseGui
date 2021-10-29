@@ -10,7 +10,7 @@ import SelectAction from '../../layout/sideBar/sideBarContainer/sideBarHeader/ut
 import MuiMenuItem from '@material-ui/core/MenuItem';
 import { useState} from "react";
 import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
-import {editPause, editCancel, editCollapse, editSearch, sortedNotification,NotificationType,NotificationList} from "../../../store/sideBar/messageSlice";
+import {editPause, editCancel, editCollapse, editSearch, sortedNotification,NotificationType,NotificationList, selectTags} from "../../../store/sideBar/messageSlice";
 
 import BackButton from '../../../components/icons/back';
 import MuiGrid from '@material-ui/core/Grid';
@@ -28,47 +28,32 @@ export default function Annotations(){
     const classes = styles();
 
     const notificationList= useAppSelector(sortedNotification )
-    const [activeId, setActiveId] = useState(0);
-
-    const toSelectList = [
-        {
-            id: -1,
-            name:"Custom",
-        },
-        {
-            id:0,
-            name:"All",
-        },
-        {
-            id:1,
-            name:"Color Maps",
-        },
-        {
-            id:2,
-            name:"Display Modes",
-        },
-
-        {
-            id: 3,
-            name:"Network Transfer",
-        }
-    ]
+    const [allTagId,setAllTagId] = useState<number>(-1);
+    const [customTagId,setCustomTagId] = useState<number>(-1);
+    const tags = useAppSelector(selectTags);
+    const [activeId, setActiveId] = useState(-1);
 
     useEffect(() => {
-        const list = notificationList.filter(item => item.collapsed).map(item => item.id);
-       
-        const ongoingNetworkTransfer = notificationList.filter(item => item.card.type=== NotificationType.NETWORK_TRANSFER_MESSAGE && item.card.data.cancel === false && item.card.data.totalSize !== item.card.data.transfferedSize).map(item => item.id);    
-        const colorMaps = notificationList.filter(item => (item.tags.includes("Color Maps"))=== true).map(item => item.id);
-        const displayModes = notificationList.filter(item => (item.tags.includes("Display Modes"))=== true).map(item => item.id);
+        let allTag = tags.find(e => e[1] === "All");
+        let customTag = tags.find(e => e[1] === "Custom");
+        if(allTag && customTag) {
+            setAllTagId(allTag[0]);
+            setCustomTagId(customTag[0]);
+        }
+        if(allTag)
+        setActiveId(allTag[0]);
+    },[])
+    useEffect(() => {
+        const openedList = notificationList.filter(item => item.collapsed).map(item => item.id);
+        let all = tags.find(e => e[1] === "All");
+        let custom = tags.find(e => e[1] === "Custom");
+        if(all && custom) {
+            setAllTagId(all[0]);
+            setCustomTagId(custom[0]);
+        }
+        if (openedList.length === notificationList.length && all)
+        setActiveId(all[0]);
         
-        if(list.length === notificationList.length)
-            setActiveId(0);
-        if(JSON.stringify(list) === JSON.stringify(ongoingNetworkTransfer))
-            setActiveId(3);
-        if(JSON.stringify(list) === JSON.stringify(colorMaps))
-            setActiveId(1);
-        if(JSON.stringify(list) === JSON.stringify(displayModes))
-            setActiveId(2);
       },[notificationList]);
 
     const onClickBackIcon = () =>{
@@ -77,7 +62,9 @@ export default function Annotations(){
 
     const onHandleSelect = (id : number) => {
         setActiveId(id);
-        dispatch(editSearch(toSelectList.filter(item => item.id === id).map(item => item.name)[0]))
+        let tag = tags.find( t => t[0] === id);
+        if(tag)
+        dispatch(editSearch(tag[1]));
     }
 
     const getHeaderLeftIcon= () => {
@@ -94,14 +81,13 @@ export default function Annotations(){
             dispatch(editPause({id:id, value: true}));
     }
 
-    const onHandleCollapse = (id : number, boolean: boolean) => {
+    const onHandleCollapse = (id : string, boolean: boolean) => {
+        setActiveId(customTagId);
         if(boolean)
         dispatch(editCollapse({id, value: false}))
 
         else
         dispatch(editCollapse({id, value: true}))
-
-        setActiveId(-1);
     }
 
     const onHandleCancel = (id: number) => {
@@ -111,8 +97,8 @@ export default function Annotations(){
     const getAction = () => {
         return (
             <SelectAction
-                labelId="display-modes-selection-label-id"
-                id="display-modes-selection-id"
+                labelId="messages-selection-label-id"
+                id="messages-selection-id"
                 value={activeId}
                 onChange={(e : any) => onHandleSelect(Number(e.target.value) )}
                 MenuProps={{
@@ -125,13 +111,8 @@ export default function Annotations(){
                 }}
             >
                 { 
-                    activeId === -1 
-                    ?
-                    toSelectList.map((item) => 
-                        <MuiMenuItem disabled={item.id=== -1} value={item.id}>{item.name}</MuiMenuItem> )
-                    :
-                    toSelectList.filter(item => item.id !== -1).map((item) => 
-                        <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem> )
+                    tags.filter(e => activeId !== customTagId ? e[0] !== customTagId : true).map((item) => 
+                        <MuiMenuItem value={item[0]}>{item[1]}</MuiMenuItem> )
                 }
             </SelectAction>
         );
@@ -142,11 +123,11 @@ export default function Annotations(){
         return null;
     }
 
-    const newCollapse = (id : number) => {
+    const newCollapse = (id : string) => {
 
         let countHide = 1;
         let hiddenId = [id];
-        const index = notificationList.findIndex((item:any) => item.id === id);
+        const index = notificationList.findIndex(item => item.id === id);
 
         if( index >= 0){
             for(let i = index+1; i<notificationList.length;i++){
