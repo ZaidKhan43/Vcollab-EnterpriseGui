@@ -12,7 +12,7 @@ import RTree from '../../shared/RsTreeTable';
  
 import AddIcon from "@material-ui/icons/Add";
 
-import { selectSlideData, selectRootIds, expandNode, setSlideSelection, createNode } from '../../../store/sideBar/slideSlice';
+import { selectSlideData, selectRootIds, expandNode, setSlideSelection, createNode, applyView } from '../../../store/sideBar/slideSlice';
 
 import TreeNodeWithoutCheckbox from '../../shared/RsTreeTable/treeNodeWithoutCheckbox';
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
@@ -84,6 +84,10 @@ export default function Slides (){
 
     const handleCreateNode = (nodeId :string) => {
       dispatch(createNode(nodeId));
+    }
+
+    const onHandleApply = () => {
+      dispatch(applyView(selectedSlideId))
     }
 
     const getHeaderLeftIcon = () => {
@@ -235,9 +239,7 @@ export default function Slides (){
                   <div style={{marginTop:"20px", marginBottom:"20px"}}>
                     <MuiButton style={{backgroundColor:"#5958FF",width:"50%", fontSize:"9px" , marginRight:"5px"}} 
                       autoFocus 
-                      // onClick={onHandleApply} 
-                      // disabled={readOnly}
-                      // color="primary"
+                      onClick={onHandleApply} 
                     >
                      {treeDataRedux[selectedSlideId].downloaded === true ? "Apply" :
                       // `${fileSize(treeDataRedux[selectedSlideId]?.size)}

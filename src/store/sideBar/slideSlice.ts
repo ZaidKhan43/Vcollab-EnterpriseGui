@@ -6,6 +6,9 @@ import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReduc
 
 interface SlideTreeNode extends TreeNode {
     downloaded : boolean,
+    cameraView?:string,
+    position?: string,
+    image?: string,
 }
 
 interface SlideTreeState extends ITreeState {
@@ -290,6 +293,11 @@ export const slideSlice = createSlice({
         
     },
 
+    applyView: (state, action : PayloadAction<string>) => {
+        state.appliedSlide = action.payload;
+        state.data[ action.payload].downloaded = true;
+    },
+
   }
 });
 
@@ -301,6 +309,7 @@ export const {
   expandNode,
   setSlideSelection,
   createNode,
+  applyView,
    } = slideSlice.actions;
 
 //Define the selectors
