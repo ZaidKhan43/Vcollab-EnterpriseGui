@@ -118,6 +118,7 @@ export default function List(){
   }
 
   const handleRowClick = (node : any) => {
+    setOpenDelete(false);
     if(node.children.length === 0)
       dispatch(setColorMapSelection(node.id));
   }
