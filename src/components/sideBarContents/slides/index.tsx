@@ -12,7 +12,7 @@ import RTree from '../../shared/RsTreeTable';
  
 import AddIcon from "@material-ui/icons/Add";
 
-import { selectSlideData, selectRootIds, expandNode, setSlideSelection } from '../../../store/sideBar/slideSlice';
+import { selectSlideData, selectRootIds, expandNode, setSlideSelection, createNode } from '../../../store/sideBar/slideSlice';
 
 import TreeNodeWithoutCheckbox from '../../shared/RsTreeTable/treeNodeWithoutCheckbox';
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
@@ -78,6 +78,14 @@ export default function Slides (){
           dispatch(setSlideSelection(node.id));
       }
     
+    const onHandleCreateGroup = () => {
+      dispatch(createNode("-1"));
+    }
+
+    const handleCreateNode = (nodeId :string) => {
+      dispatch(createNode(nodeId));
+    }
+
     const getHeaderLeftIcon = () => {
         return (
             <MuiIconButton onClick={onClickBackIcon} ><BackButton/></MuiIconButton> 
@@ -180,7 +188,7 @@ export default function Slides (){
                     <MuiGrid item xs={4}></MuiGrid>
                     <MuiGrid item xs={6}>
                       <MuiIconButton size='small' 
-                    //   onClick={() => handleCreateLabel(node.id)}
+                      onClick={() => handleCreateNode(node.id)}
                       >
                         <AddIcon fontSize='default'/> 
                       </MuiIconButton> 
@@ -202,12 +210,19 @@ export default function Slides (){
           {
             selectedSlideId === "-1"
             ?
-            <MuiIconButton 
-                    // disabled={!copied} 
-                    // onClick={onHandlePaste}
-                    > 
+            <OptionContainer>
+                <Option label="Create"
+                  icon={<MuiIconButton 
+                    onClick={onHandleCreateGroup}
+                    >
                       <CreateNewFolderIcon/>
+
                     </MuiIconButton>
+                  } 
+                />
+                </OptionContainer>
+
+
 
             :
 

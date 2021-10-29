@@ -13,6 +13,14 @@ interface SlideTreeState extends ITreeState {
     rootIds: string[],
     appliedSlide: string,
     selectedSlide: string,
+    
+    idGenerator: number,
+    currentData: SlideTreeNode,
+
+    stepCount : number,
+    viewCount : number,
+    groupCount : number,
+
 }
 
 // Define the initial state using that type
@@ -22,7 +30,7 @@ const initialState: SlideTreeState = {
             id : "0",
                 pid : "-1",
                 title: "Presentation 1",
-                children: ["01","02","03","04","05","06"],
+                children: ["3","4","5","6","7","8"],
                 state: {
                     expanded: true,
                     visibility: true,
@@ -31,11 +39,11 @@ const initialState: SlideTreeState = {
                 attributes: {},
         },
 
-      "01" : {
-            id : "01",
+      "3" : {
+            id : "3",
                 pid : "0",
                 title: "Stress Animation",
-                children: ["011","012","013","014","015"],
+                children: ["9","10","11","12","13"],
                 state: {
                     expanded: true,
                     visibility: true,
@@ -44,9 +52,9 @@ const initialState: SlideTreeState = {
                 attributes: {},
         },
 
-        "011" : {
-          id : "011",
-              pid : "01",
+        "9" : {
+          id : "9",
+              pid : "3",
               title: "Step 1",
               children: [],
               state: {
@@ -57,9 +65,9 @@ const initialState: SlideTreeState = {
               attributes: {},
       },
 
-      "012" : {
-        id : "012",
-            pid : "01",
+      "10" : {
+        id : "10",
+            pid : "3",
             title: "Step 2",
             children: [],
             state: {
@@ -70,9 +78,9 @@ const initialState: SlideTreeState = {
             attributes: {},
     },
 
-    "013" : {
-      id : "013",
-          pid : "01",
+    "11" : {
+      id : "11",
+          pid : "3",
           title: "Step 3",
           children: [],
           state: {
@@ -83,9 +91,9 @@ const initialState: SlideTreeState = {
           attributes: {},
   },
 
-  "014" : {
-    id : "014",
-        pid : "01",
+  "12" : {
+    id : "12",
+        pid : "3",
         title: "Step 4",
         children: [],
         state: {
@@ -96,9 +104,9 @@ const initialState: SlideTreeState = {
         attributes: {},
 },
 
-"015" : {
-  id : "015",
-      pid : "01",
+"13" : {
+  id : "13",
+      pid : "3",
       title: "Step 5",
       children: [],
       state: {
@@ -112,8 +120,8 @@ const initialState: SlideTreeState = {
 
 
 
-        "02" : {
-          id : "02",
+        "4" : {
+          id : "4",
               pid : "0",
               title: "Reaction Force",
               children: [],
@@ -125,8 +133,8 @@ const initialState: SlideTreeState = {
               attributes: {},
       },
 
-      "03" : {
-        id : "03",
+      "5" : {
+        id : "5",
             pid : "0",
             title: "Applied Loads",
             children: [],
@@ -138,8 +146,8 @@ const initialState: SlideTreeState = {
             attributes: {},
     },
 
-    "04" : {
-      id : "04",
+    "6" : {
+      id : "6",
           pid : "0",
           title: "Displacement",
           children: [],
@@ -151,8 +159,8 @@ const initialState: SlideTreeState = {
           attributes: {},
   },
 
-  "05" : {
-    id : "05",
+  "7" : {
+    id : "7",
         pid : "0",
         title: "View 1",
         children: [],
@@ -164,8 +172,8 @@ const initialState: SlideTreeState = {
         attributes: {},
 },
 
-"06" : {
-  id : "06",
+"8" : {
+  id : "8",
       pid : "0",
       title: "View 2",
       children: [],
@@ -204,8 +212,28 @@ const initialState: SlideTreeState = {
     },
     },
     rootIds: ["0","1","2"],
-    appliedSlide : "012",
-    selectedSlide : "014",
+    appliedSlide : "8",
+    selectedSlide : "6",
+
+    idGenerator: 13,
+
+    currentData: {
+        id:"-1",
+        title:"newOne",
+        pid:"-1",
+        children: [],
+                state: {
+                    expanded: true,
+                    visibility: true,
+                },
+                downloaded: false,
+                attributes: {},
+
+    },
+
+    stepCount : 5,
+    viewCount : 2,
+    groupCount : 2,
 }
 
 
@@ -228,6 +256,40 @@ export const slideSlice = createSlice({
         else 
         state.selectedSlide = action.payload;
     }, 
+
+    createNode : (state, action :PayloadAction<string>) => {
+        state.idGenerator++;
+
+        let newData = JSON.parse(JSON.stringify(state.currentData))
+
+        newData.id = state.idGenerator;
+        newData.pid = action.payload;
+
+        switch(action.payload){
+            case "-1":
+                state.groupCount ++;
+                newData.title =  `Group ${state.groupCount}`;
+                state.data[`${state.idGenerator}`] =newData;
+                state.rootIds.push(newData.id)
+            break;
+
+            case "3":
+                state.stepCount ++;
+                newData.title =  `Step ${state.stepCount}`;
+                state.data[`${state.idGenerator}`] =newData;
+                state.data[`${action.payload}`].children.push(newData.id)
+            break;
+
+            default:
+                state.viewCount ++;
+                newData.title =  `View ${state.viewCount}`;
+                state.data[`${state.idGenerator}`] =newData;
+                state.data[`${action.payload}`].children.push(newData.id)
+            break;
+        }
+        
+    },
+
   }
 });
 
@@ -238,6 +300,7 @@ export const {
   invertNode, 
   expandNode,
   setSlideSelection,
+  createNode,
    } = slideSlice.actions;
 
 //Define the selectors
