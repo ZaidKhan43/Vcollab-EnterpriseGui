@@ -12,7 +12,7 @@ import RTree from '../../shared/RsTreeTable';
  
 import AddIcon from "@material-ui/icons/Add";
 
-import { selectSlideData, selectRootIds, expandNode, setSlideSelection, createNode, applyView, replaceViewData , deleteNode, SlideType } from '../../../store/sideBar/slideSlice';
+import { selectSlideData, selectRootIds, expandNode, setSlideSelection, createNode, applyView, replaceViewData , deleteNode, SlideType , pasteSlide} from '../../../store/sideBar/slideSlice';
 
 import TreeNodeWithoutCheckbox from '../../shared/RsTreeTable/treeNodeWithoutCheckbox';
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
@@ -102,6 +102,15 @@ export default function Slides (){
     const onHandleDelete = () => {
       dispatch(deleteNode(selectedSlideId))
       setOpenDelete(false)
+    }
+
+    const onHandleCopy = () => {
+      const newCopy = JSON.parse(JSON.stringify(treeDataRedux[selectedSlideId]));
+    setCopied(newCopy)
+    }
+
+    const onHandlePaste = () => {
+      dispatch(pasteSlide(copied))
     }
 
     const getHeaderLeftIcon = () => {
@@ -285,8 +294,8 @@ export default function Slides (){
                 <Option label="Copy" 
                 
                   icon={ <MuiIconButton 
-                    // disabled={selectedColorMapId === "-1"}
-                    // onClick={onHandleCopy}
+                    disabled={selectedSlideId === "-1"}
+                    onClick={onHandleCopy}
                     > 
                       <MuiFileCopyOutlinedIcon/>
                     </MuiIconButton>
@@ -294,8 +303,8 @@ export default function Slides (){
                 />
                 <Option label="Paste" 
                   icon={ <MuiIconButton 
-                    // disabled={!copied} 
-                    // onClick={onHandlePaste}
+                    disabled={!copied} 
+                    onClick={onHandlePaste}
                     > 
                       <MuiPaste/>
                     </MuiIconButton>

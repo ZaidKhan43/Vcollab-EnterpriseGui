@@ -225,56 +225,56 @@ const initialState: MainMenu ={
                     name: "Edit",
                     type:MainMenuItems.COLOR_MAPS_EDIT,
                     path:Routes.COLORMAPS_EDIT,
-                    disabled: false,
+                    disabled: true,
                 },
                 {
                     id:'43',
                     name: "Variable",
                     type:MainMenuItems.COLOR_MAPS_VARIABLE,
                     path:Routes.COLORMAPS_VARIABLE,
-                    disabled: false,
+                    disabled: true,
                 },
                 {
                     id:'44',
                     name: "Steps & Subcase",
                     type:MainMenuItems.COLOR_MAPS_STEPS_AND_SUBCASE,
                     path:Routes.COLORMAPS_STEPS_AND_SUBCASE,
-                    disabled: false,
+                    disabled: true,
                 },
                 {
                     id:'45',
                     name: "Section & Layer",
                     type:MainMenuItems.COLOR_MAPS_SELECTION_AND_LAYER,
                     path:Routes.COLORMAPS_SELECTION_AND_LAYER,
-                    disabled: false,
+                    disabled: true,
                 },
                 {
                     id:'46',
                     name: "Derived Type",
                     type:MainMenuItems.COLOR_MAPS_DERIVED_TYPES,
                     path:Routes.COLORMAPS_DERIVED_TYPES,
-                    disabled: false,
+                    disabled: true,
                 },
                 {
                     id:'47',
                     name: "Color Palette",
                     type:MainMenuItems.COLOR_MAPS_COLOR_PALETTE,
                     path:Routes.COLORMAPS_COLOR_PALETTE,
-                    disabled: false,
+                    disabled: true,
                 },
                 {
                     id:'48',
                     name: "Value Setting",
                     type:MainMenuItems.COLOR_MAPS_VALUE_SETTINGS,
                     path:Routes.COLORMAPS_VALUE_SETTINGS,
-                    disabled: false,
+                    disabled: true,
                 },
                 {
                     id:'49',
                     name: "Legend Setting",
                     type:MainMenuItems.COLOR_MAPS_LEGEND_SETTINGS,
                     path:Routes.COLORMAPS_LEGEND_SETTINGS,
-                    disabled: false,
+                    disabled: true,
                 },
             ]
         },
@@ -308,63 +308,55 @@ const initialState: MainMenu ={
                 },
             ]
         },
-        // {
-        //     id:'6',
-        //     expanded: false,
-        //     name: "Labels",
-        //     type: MainMenuItems.LABELS,
-        //     path:Routes.LABELS,
-        //     children: [
-        //         {
-        //             id:'61',
-        //             name: "2D Notes",
-        //             type:MainMenuItems.LABELS_2D_NOTES,
-        //             path:Routes.LABELS_2D_NOTES,
-        //             disabled: false,
-        //         },
-        //         {
-        //             id:'62',
-        //             name: "3D Labels",
-        //             type:MainMenuItems.LABELS_3D_LABELS,
-        //             path:Routes.LABELS_3D_LABELS,
-        //             disabled: false,
-        //         },
-        //         {
-        //             id:'63',
-        //             name: "Measurements",
-        //             type:MainMenuItems.LABELS_MEASUREMENTS,
-        //             path:Routes.LABELS_MEASUREMENTS,
-        //             disabled: false,
-        //         },
-        //     ],
-        // },
-        // {
-        //     id:'7',
-        //     expanded: false,
-        //     name: "Transformations",
-        //     type: MainMenuItems.TRANSFORMATIONS,
-        //     path:Routes.HOME,
-        //     children: []
-        // },
-        // {
-        //     id:'8',
-        //     expanded: false,
-        //     name: "Animations",
-        //     type: MainMenuItems.ANIMATIONS,
-        //     path:Routes.HOME,
-        //     children: []   
-        // },
-        // {
-        //     id:'9',
-        //     expanded: false,
-        //     name: "Slides",
-        //     type: MainMenuItems.SLIDES, 
-        //     path:Routes.HOME,
-        //     children: []
-        // },
+        {
+            id:'6',
+            expanded: false,
+            name: "Labels",
+            type: MainMenuItems.LABELS,
+            path:Routes.LABELS,
+            children: [
+                {
+                    id:'61',
+                    name: "2D Notes",
+                    type:MainMenuItems.LABELS_2D_NOTES,
+                    path:Routes.LABELS_2D_NOTES,
+                    disabled: false,
+                },
+                {
+                    id:'62',
+                    name: "3D Labels",
+                    type:MainMenuItems.LABELS_3D_LABELS,
+                    path:Routes.LABELS_3D_LABELS,
+                    disabled: false,
+                },
+                {
+                    id:'63',
+                    name: "Measurements",
+                    type:MainMenuItems.LABELS_MEASUREMENTS,
+                    path:Routes.LABELS_MEASUREMENTS,
+                    disabled: false,
+                },
+            ],
+        },
+        {
+            id:'7',
+            expanded: false,
+            name: "Transformations",
+            type: MainMenuItems.TRANSFORMATIONS,
+            path:Routes.HOME,
+            children: []
+        },
+        {
+            id:'8',
+            expanded: false,
+            name: "Animations",
+            type: MainMenuItems.ANIMATIONS,
+            path:Routes.HOME,
+            children: []   
+        },
 
         {
-            id:'10',
+            id:'9',
             expanded: false,
             name: "3D Slides",
             type: MainMenuItems.SLIDES,
@@ -373,7 +365,7 @@ const initialState: MainMenu ={
         },
 
         {
-            id:'11',
+            id:'10',
             expanded: false,
             name: "Messages",
             type: MainMenuItems.MESSAGES,
@@ -382,7 +374,7 @@ const initialState: MainMenu ={
         },
         
         {
-            id:'12',
+            id:'11',
             expanded: false,
             name: "Application Settings",
             type: MainMenuItems.SETTINGS,
@@ -390,7 +382,7 @@ const initialState: MainMenu ={
             children: [
                 {
 
-                    id:'121',
+                    id:'111',
                     name: "Color Theme",
                     type:MainMenuItems.SETTINGS_THEME,
                     path:Routes.SETTINGS_THEME ,
@@ -398,7 +390,7 @@ const initialState: MainMenu ={
                 },
                 {
 
-                    id:'122',
+                    id:'112',
                     name: "Mouse Controls",
                     type:MainMenuItems.SETTINGS_MOUSE_CONTROLS,
                     path:Routes.SETTINGS_MOUSE_CONTROLS,

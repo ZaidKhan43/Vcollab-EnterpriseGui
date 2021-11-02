@@ -395,7 +395,39 @@ export const slideSlice = createSlice({
         }
     },
 
-    
+
+    pasteSlide : (state, action: PayloadAction<SlideTreeNode>) => {
+        let copiedSlideData = JSON.parse(JSON.stringify(action.payload));
+
+        if(copiedSlideData.slideType === SlideType.VIEW){
+            if(state.selectedSlide !== "-1"){
+                state.idGenerator += 1;
+                state.viewCount += 1;
+
+                copiedSlideData.id = state.idGenerator;
+                copiedSlideData.title = `View ${state.viewCount}`;
+                copiedSlideData.downloaded = false;
+
+                state.data[`${state.idGenerator}`] = JSON.parse(JSON.stringify(copiedSlideData));
+                state.data[copiedSlideData.pid].children.push(copiedSlideData.id)
+            }            
+        }
+
+        if(copiedSlideData.slideType === SlideType.GROUP){
+            const toCopiedChildId = copiedSlideData.children;
+
+            const toCopiedChildren : any[] = [];
+
+            toCopiedChildId.forEach((item : string) =>{
+                console.log("sa", JSON.parse(JSON.stringify(state.data[item])) )
+                toCopiedChildren.push(JSON.parse(JSON.stringify(state.data[item])));
+            })
+
+            console.log("copiedChildren", toCopiedChildren)
+        }
+
+    },
+
   }
 });
 
@@ -410,6 +442,7 @@ export const {
   applyView,
   replaceViewData,
   deleteNode,
+  pasteSlide,
    } = slideSlice.actions;
 
 //Define the selectors

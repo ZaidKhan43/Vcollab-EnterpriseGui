@@ -361,7 +361,7 @@ export const colormapSlice = createSlice({
             copiedColormapData.downloaded = false;
             copiedColormapData.size = 78731230; 
 
-            state.colormapTree.data[`${state.colormapSettings.idGenerator}`] = copiedColormapData;
+            state.colormapTree.data[`${state.colormapSettings.idGenerator}`] = JSON.parse(JSON.stringify(copiedColormapData));
             state.colormapTree.data[copiedColormapData.pid].children.push(copiedColormapData.id)
 
         },
