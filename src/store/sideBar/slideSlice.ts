@@ -358,8 +358,44 @@ export const slideSlice = createSlice({
     },
 
     deleteNode : (state, action: PayloadAction<string>) => {
-        // deletion Code
+       const toDelete = state.data[action.payload]
+
+       state.selectedSlide = "-1";
+
+       if(toDelete.slideType === SlideType.VIEW){
+            delete state.data[action.payload];
+            Object.keys(state.data).forEach(key => {
+                state.data[key].children = state.data[key].children.filter(item => item !== action.payload)
+            })
+       }
+
+       const deleteGroup = (id : string) => {
+        const children = state.data[id].children;
+        children.forEach(item => {
+            if(state.data[id].slideType === SlideType.VIEW)
+                delete state.data[id];
+
+            else    deleteGroup(item);
+        })
+
+        if(toDelete.pid === "-1"){
+            delete state.data[id];
+            state.rootIds = state.rootIds.filter(item => item !== id)
+        }
+
+        else{
+            Object.keys(state.data).forEach(key => {
+                state.data[key].children = state.data[key].children.filter(item => item !== id)
+            })
+        }
+       }
+
+        if(toDelete.slideType === SlideType.GROUP){
+            deleteGroup(action.payload)
+        }
     },
+
+    
   }
 });
 

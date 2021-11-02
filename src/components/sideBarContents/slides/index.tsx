@@ -83,6 +83,7 @@ export default function Slides (){
     }
 
     const handleCreateNode = (nodeId :string) => {
+      // dispatch(setSlideSelection("-1"));
       dispatch(createNode(nodeId));
     }
 
