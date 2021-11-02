@@ -366,7 +366,7 @@ const initialState: MainMenu ={
         {
             id:'10',
             expanded: false,
-            name: "Slides",
+            name: "3D Slides",
             type: MainMenuItems.SLIDES,
             path:Routes.SLIDES,
             children:[]

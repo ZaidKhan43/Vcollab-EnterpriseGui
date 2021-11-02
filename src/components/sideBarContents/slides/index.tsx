@@ -12,7 +12,7 @@ import RTree from '../../shared/RsTreeTable';
  
 import AddIcon from "@material-ui/icons/Add";
 
-import { selectSlideData, selectRootIds, expandNode, setSlideSelection, createNode, applyView, replaceViewData } from '../../../store/sideBar/slideSlice';
+import { selectSlideData, selectRootIds, expandNode, setSlideSelection, createNode, applyView, replaceViewData , deleteNode, SlideType } from '../../../store/sideBar/slideSlice';
 
 import TreeNodeWithoutCheckbox from '../../shared/RsTreeTable/treeNodeWithoutCheckbox';
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
@@ -99,7 +99,7 @@ export default function Slides (){
     }
 
     const onHandleDelete = () => {
-      // dispatch(deleteColorMap(selectedColorMapId)
+      dispatch(deleteNode(selectedSlideId))
       setOpenDelete(false)
     }
 
@@ -126,6 +126,8 @@ export default function Slides (){
     }
 
     const getBody = () => {
+
+      console.log(treeDataRedux)
         return (
             <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
       <RTree 
@@ -159,7 +161,7 @@ export default function Slides (){
         column1 = {(node) => {
           return (
             <div>
-                { node?.children.length !== 0 || node?.pid === "-1"
+                { treeDataRedux[node.id].slideType === SlideType.GROUP
                    ?
                     <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
                         <MuiGrid item xs={8}>
@@ -179,7 +181,7 @@ export default function Slides (){
         column2 = {(node) => {
           return (
             <div>
-              { node?.pid !== "-1" && node?.children.length === 0
+              { treeDataRedux[node.id].slideType === SlideType.VIEW
                 ?
                 <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
                     <MuiGrid item xs={9}></MuiGrid>
@@ -270,7 +272,7 @@ export default function Slides (){
               <OptionContainer>
                 <Option label="Replace"
                   icon={<MuiIconButton 
-                    disabled={selectedSlideId === "-1" || treeDataRedux[selectedSlideId].children.length !== 0 || treeDataRedux[selectedSlideId].pid === "-1"}
+                    disabled={selectedSlideId === "-1" || treeDataRedux[selectedSlideId].slideType === SlideType.GROUP }
                     onClick={onHandleReplace}
                     >
                           <ReplaceIcon/>
@@ -340,7 +342,7 @@ export default function Slides (){
     return(
         <SideBarContainer
         headerLeftIcon = { getHeaderLeftIcon() }
-        headerContent={ <Title text={"Slides" } group=""/> }
+        headerContent={ <Title text={"3D Slides" } group=""/> }
         headerAction = {getAction()}
         headerRightIcon = { getHeaderRightIcon() }
         body ={ getBody() }

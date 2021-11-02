@@ -4,9 +4,14 @@ import {TreeNode, ITreeState} from "./shared/ProductExplorer/types";
 import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer} from "./shared/ProductExplorer/reducers";
 // Define a type for the slice state
 
+export enum SlideType {
+    GROUP = 0,
+    VIEW = 1,
+}
 
 interface SlideTreeNode extends TreeNode {
     downloaded : boolean,
+    slideType: SlideType,
     data : {
         cameraView?:string,
         position?: string,
@@ -48,6 +53,7 @@ const initialState: SlideTreeState = {
                     visibility: true,
                 },
                 downloaded: false,
+                slideType : SlideType.GROUP,
                 data:{},
                 attributes: {},
         },
@@ -62,6 +68,7 @@ const initialState: SlideTreeState = {
                     visibility: true,
                 },
                 downloaded: false,
+                slideType: SlideType.GROUP,
                 data:{},
                 attributes: {},
         },
@@ -76,6 +83,7 @@ const initialState: SlideTreeState = {
                   visibility: true,
               },
               downloaded:false,
+              slideType: SlideType.VIEW,
               data : {cameraView:"persp", position:"(3,13)", image:""},
               attributes: {},
       },
@@ -90,6 +98,7 @@ const initialState: SlideTreeState = {
                 visibility: true,
             },
             downloaded: true,
+            slideType: SlideType.VIEW,
             data : {cameraView:"ortho", position:"(23,13)", image:""},
             attributes: {},
     },
@@ -104,6 +113,7 @@ const initialState: SlideTreeState = {
               visibility: true,
           },
           downloaded: false,
+          slideType: SlideType.VIEW,
           data : {cameraView:"persp", position:"(3,13)", image:""},
           attributes: {},
   },
@@ -118,6 +128,7 @@ const initialState: SlideTreeState = {
             visibility: true,
         },
         downloaded:false,
+        slideType: SlideType.VIEW,
         data : {cameraView:"ortho", position:"(3,13)", image:""},
         attributes: {},
 },
@@ -132,6 +143,7 @@ const initialState: SlideTreeState = {
           visibility: true,
       },
       downloaded: true,
+      slideType: SlideType.VIEW,
       data : {cameraView:"persp", position:"(3,13)", image:""},
       attributes: {},
 },
@@ -149,6 +161,7 @@ const initialState: SlideTreeState = {
                   visibility: true,
               },
               downloaded: true,
+              slideType: SlideType.VIEW,
               data : {cameraView:"persp", position:"(123,13)", image:""},
               attributes: {},
       },
@@ -163,6 +176,7 @@ const initialState: SlideTreeState = {
                 visibility: true,
             },
             downloaded: false,
+            slideType: SlideType.VIEW,
             data : {cameraView:"persp", position:"(3,13)", image:""},
             attributes: {},
     },
@@ -177,6 +191,7 @@ const initialState: SlideTreeState = {
               visibility: true,
           },
           downloaded:true,
+          slideType: SlideType.VIEW,
           data : {cameraView:"ortho", position:"(3,13)", image:""},
           attributes: {},
   },
@@ -191,6 +206,7 @@ const initialState: SlideTreeState = {
             visibility: true,
         },
         downloaded: true,
+        slideType: SlideType.VIEW,
         data : {cameraView:"persp", position:"(123,13)", image:""},
         attributes: {},
 },
@@ -205,6 +221,7 @@ const initialState: SlideTreeState = {
           visibility: true,
       },
       downloaded: false,
+      slideType: SlideType.VIEW,
       data : {cameraView:"ortho", position:"(3,13)", image:""},
       attributes: {},
 },
@@ -219,6 +236,7 @@ const initialState: SlideTreeState = {
                   visibility: true,
               },
               downloaded: false,
+              slideType: SlideType.GROUP,
               data:{},
               attributes: {},
       },
@@ -233,6 +251,7 @@ const initialState: SlideTreeState = {
                 visibility: true,
             },
             downloaded:false,
+            slideType: SlideType.GROUP,
             data:{},
             attributes: {},
     },
@@ -253,6 +272,7 @@ const initialState: SlideTreeState = {
                     visibility: true,
                 },
                 downloaded: false,
+                slideType : SlideType.GROUP,
                 data : {},
                 attributes: {},
 
@@ -308,6 +328,7 @@ export const slideSlice = createSlice({
             case "3":
                 state.stepCount ++;
                 newData.title =  `Step ${state.stepCount}`;
+                newData.slideType = SlideType.VIEW;
                 newData.data = JSON.parse(JSON.stringify(state.currentData));
                 state.data[`${state.idGenerator}`] =newData;
                 state.data[`${action.payload}`].children.push(newData.id)
@@ -317,6 +338,7 @@ export const slideSlice = createSlice({
             default:
                 state.viewCount ++;
                 newData.title =  `View ${state.viewCount}`;
+                newData.slideType = SlideType.VIEW;
                 newData.data = JSON.parse(JSON.stringify(state.currentData));
                 state.data[`${state.idGenerator}`] =newData;
                 state.data[`${action.payload}`].children.push(newData.id)
@@ -335,6 +357,9 @@ export const slideSlice = createSlice({
         state.data[action.payload].data = JSON.parse(JSON.stringify(state.currentData))
     },
 
+    deleteNode : (state, action: PayloadAction<string>) => {
+        // deletion Code
+    },
   }
 });
 
@@ -348,6 +373,7 @@ export const {
   createNode,
   applyView,
   replaceViewData,
+  deleteNode,
    } = slideSlice.actions;
 
 //Define the selectors
