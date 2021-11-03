@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../index';
 import {TreeNode, ITreeState} from "./shared/ProductExplorer/types";
 import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer} from "./shared/ProductExplorer/reducers";
+import { pid } from 'process';
 // Define a type for the slice state
 
 export enum SlideType {
@@ -311,7 +312,7 @@ export const slideSlice = createSlice({
 
         let newData = JSON.parse(JSON.stringify(state.defaultValue))
 
-        newData.id = state.idGenerator;
+        newData.id = `${state.idGenerator}`;
         newData.pid = action.payload;
         
 
@@ -348,9 +349,13 @@ export const slideSlice = createSlice({
         
     },
 
+    downloadFile : (state, action : PayloadAction<string>) => {
+        state.data[ action.payload].downloaded = true;
+    },
+
     applyView: (state, action : PayloadAction<string>) => {
         state.appliedSlide = action.payload;
-        state.data[ action.payload].downloaded = true;
+
     },
 
     replaceViewData : (state,action : PayloadAction<string>) => {
@@ -378,12 +383,13 @@ export const slideSlice = createSlice({
             else    deleteGroup(item);
         })
 
-        if(toDelete.pid === "-1"){
+        if(state.data[id].pid === "-1"){
             delete state.data[id];
             state.rootIds = state.rootIds.filter(item => item !== id)
         }
 
         else{
+            delete state.data[id];
             Object.keys(state.data).forEach(key => {
                 state.data[key].children = state.data[key].children.filter(item => item !== id)
             })
@@ -396,34 +402,82 @@ export const slideSlice = createSlice({
     },
 
 
-    pasteSlide : (state, action: PayloadAction<SlideTreeNode>) => {
-        let copiedSlideData = JSON.parse(JSON.stringify(action.payload));
+    pasteSlide : (state, action: PayloadAction<{copied: SlideTreeNode, pid : string}>) => {
+        let copiedSlideData = JSON.parse(JSON.stringify(action.payload.copied));
+
+        const copyPasteGroup = (toCopiedGroupData : any, pid : string) => {
+            const toCopiedChildId = toCopiedGroupData.children;
+
+            const toCopiedChildren : any[] = [];
+
+            toCopiedChildId.forEach((item : string) =>{
+                toCopiedChildren.push(JSON.parse(JSON.stringify(state.data[item])));
+            })
+
+            toCopiedGroupData.children = [];
+            state.idGenerator ++;
+            state.groupCount ++;
+
+            toCopiedGroupData.id = `${state.idGenerator}`;
+            toCopiedGroupData.pid = pid;
+            toCopiedGroupData.title = `Group ${state.groupCount}`;
+            toCopiedGroupData.state.expanded = false;
+            copiedSlideData.downloaded = false;
+
+            console.log("cp[",toCopiedGroupData )
+
+            if(pid === "-1"){
+            state.data[`${state.idGenerator}`] = toCopiedGroupData;
+            state.rootIds.push(toCopiedGroupData.id)
+            }
+
+            else{
+                state.data[`${state.idGenerator}`] = toCopiedGroupData;
+                state.data[pid].children.push(toCopiedGroupData.id)
+            }
+
+            toCopiedChildren.forEach(item => {
+
+                if(item.slideType === SlideType.VIEW){
+                state.idGenerator ++;
+                state.viewCount ++;
+
+                item.id = `${state.idGenerator}`;
+                item.title = `View ${state.viewCount}`;
+                item.pid = toCopiedGroupData.id;
+                item.downloaded = false;
+                
+                state.data[`${state.idGenerator}`] = item;
+                
+                state.data[item.pid].children.push(item.id)
+                }
+
+                if(item.slideType === SlideType.GROUP){
+                    pid = toCopiedGroupData.id;
+
+                    copyPasteGroup(item, pid);
+                }
+
+            })
+        }
+
+        if(copiedSlideData.slideType === SlideType.GROUP){
+            copyPasteGroup(copiedSlideData, action.payload.pid);
+        }
 
         if(copiedSlideData.slideType === SlideType.VIEW){
             if(state.selectedSlide !== "-1"){
                 state.idGenerator += 1;
                 state.viewCount += 1;
 
-                copiedSlideData.id = state.idGenerator;
+                copiedSlideData.id = `${state.idGenerator}`;
                 copiedSlideData.title = `View ${state.viewCount}`;
                 copiedSlideData.downloaded = false;
+                copiedSlideData.pid = action.payload.pid;
 
                 state.data[`${state.idGenerator}`] = JSON.parse(JSON.stringify(copiedSlideData));
                 state.data[copiedSlideData.pid].children.push(copiedSlideData.id)
             }            
-        }
-
-        if(copiedSlideData.slideType === SlideType.GROUP){
-            const toCopiedChildId = copiedSlideData.children;
-
-            const toCopiedChildren : any[] = [];
-
-            toCopiedChildId.forEach((item : string) =>{
-                console.log("sa", JSON.parse(JSON.stringify(state.data[item])) )
-                toCopiedChildren.push(JSON.parse(JSON.stringify(state.data[item])));
-            })
-
-            console.log("copiedChildren", toCopiedChildren)
         }
 
     },
@@ -443,6 +497,7 @@ export const {
   replaceViewData,
   deleteNode,
   pasteSlide,
+  downloadFile
    } = slideSlice.actions;
 
 //Define the selectors

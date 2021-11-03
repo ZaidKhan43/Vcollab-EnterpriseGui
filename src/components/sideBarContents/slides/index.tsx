@@ -12,7 +12,7 @@ import RTree from '../../shared/RsTreeTable';
  
 import AddIcon from "@material-ui/icons/Add";
 
-import { selectSlideData, selectRootIds, expandNode, setSlideSelection, createNode, applyView, replaceViewData , deleteNode, SlideType , pasteSlide} from '../../../store/sideBar/slideSlice';
+import { selectSlideData, selectRootIds, expandNode, setSlideSelection, createNode, applyView, replaceViewData , deleteNode, SlideType , pasteSlide, downloadFile} from '../../../store/sideBar/slideSlice';
 
 import TreeNodeWithoutCheckbox from '../../shared/RsTreeTable/treeNodeWithoutCheckbox';
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
@@ -41,6 +41,8 @@ import CreateNewFolderIcon from '../../icons/createNewFolder';
 
 import MuiDownloadIcon from "@material-ui/icons/CloudDownloadOutlined";
 import MuicloudDoneIcon from '@material-ui/icons/CloudDone';
+
+import MuiSlideshowIcon from '@material-ui/icons/Slideshow';
 
 import {Routes} from "../../../routes"
 
@@ -88,7 +90,26 @@ export default function Slides (){
     }
 
     const onHandleApply = () => {
+      dispatch(downloadFile(selectedSlideId))
       dispatch(applyView(selectedSlideId))
+    }
+
+    const onHandleDownload = () => {
+
+      const toDownload = (id : string) => {
+        treeDataRedux[id].children.map((item: string) => {
+          if(treeDataRedux[id].slideType === SlideType.VIEW)
+            dispatch(downloadFile(item))
+          
+          else {
+            toDownload(item);
+            dispatch(downloadFile(item))
+          }
+
+        })
+    }
+      toDownload(selectedSlideId);
+      dispatch(downloadFile(selectedSlideId))
     }
 
     const onHandleReplace = () => {
@@ -110,7 +131,17 @@ export default function Slides (){
     }
 
     const onHandlePaste = () => {
-      dispatch(pasteSlide(copied))
+
+      if(selectedSlideId !== "-1"){
+        if(treeDataRedux[selectedSlideId].slideType === SlideType.GROUP)
+          dispatch(pasteSlide({copied :copied, pid: selectedSlideId}))
+
+        if(treeDataRedux[selectedSlideId].slideType === SlideType.VIEW)
+          dispatch(pasteSlide({copied :copied, pid: treeDataRedux[selectedSlideId].pid}))
+      }
+
+      else 
+        dispatch(pasteSlide({copied :copied, pid: "-1"}))
     }
 
     const getHeaderLeftIcon = () => {
@@ -249,6 +280,15 @@ export default function Slides (){
                     </MuiIconButton>
                   } 
                 />
+                <Option label="Paste" 
+                  icon={ <MuiIconButton 
+                    disabled={!copied || copied.slideType === SlideType.VIEW} 
+                    onClick={onHandlePaste}
+                    > 
+                      <MuiPaste/>
+                    </MuiIconButton>
+                  }
+                />
                 </OptionContainer>
 
 
@@ -258,27 +298,58 @@ export default function Slides (){
           
          !openDelete
           ?
-            <div>
-              { selectedSlideId !== appliedSlideId 
-                ?
-                (treeDataRedux[selectedSlideId].children.length !== 0 || treeDataRedux[selectedSlideId].pid === "-1") 
-                  ?
-                    null
-                  :
-                  <div style={{marginTop:"20px", marginBottom:"20px"}}>
-                    <MuiButton style={{backgroundColor:"#5958FF",width:"50%", fontSize:"9px" , marginRight:"5px"}} 
+            <div style={{marginTop:"20px",}}>
+              <MuiGrid container>
+                <MuiGrid item xs={10}>
+                  { treeDataRedux[selectedSlideId].slideType === SlideType.GROUP
+                    ?
+                      <MuiGrid container>
+                        <MuiGrid item xs={4}></MuiGrid>
+                          { treeDataRedux[selectedSlideId].downloaded === false
+                            ?
+                              <MuiGrid item xs={6}>
+                                <MuiButton style={{backgroundColor:"#5958FF",width:"100%", fontSize:"9px" ,}} 
+                                  autoFocus 
+                                  onClick={onHandleDownload} 
+                                >
+                                  Download
+                                </MuiButton>
+                              </MuiGrid>  
+                            :
+                              <MuiGrid item xs={2}></MuiGrid>
+                          }
+                        <MuiGrid item xs={2}>
+                          <MuiIconButton style={{marginTop:"-10px"}}
+                            disabled={treeDataRedux[selectedSlideId].downloaded === false }
+                            // onClick={onHandleReplace}
+                          >
+                            <MuiSlideshowIcon/>
+                          </MuiIconButton>
+                        </MuiGrid>
+                      </MuiGrid>
+
+                :
+                  <MuiGrid container>
+                        <MuiGrid item xs={4}></MuiGrid>
+                  <MuiGrid item xs={6}>
+                    <MuiButton style={{backgroundColor:"#5958FF",width:"100%", fontSize:"9px" ,}} 
                       autoFocus 
                       onClick={onHandleApply} 
                     >
-                     {treeDataRedux[selectedSlideId].downloaded === true ? "Apply" :
+                      {treeDataRedux[selectedSlideId].downloaded === true ? "Apply" :
                       // `${fileSize(treeDataRedux[selectedSlideId]?.size)}
-                       `Download & Apply`} 
+                       `Download & Apply`
+                      } 
                     </MuiButton>
-                  </div>
-                :
-                   null
-              }                                 
-                              
+                    </MuiGrid>  
+                  </MuiGrid>
+              }
+             
+              </MuiGrid>
+            </MuiGrid>
+         
+                  
+          
               <OptionContainer>
                 <Option label="Replace"
                   icon={<MuiIconButton 
