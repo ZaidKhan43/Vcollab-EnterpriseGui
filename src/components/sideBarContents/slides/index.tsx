@@ -12,7 +12,7 @@ import RTree from '../../shared/RsTreeTable';
  
 import AddIcon from "@material-ui/icons/Add";
 
-import { selectSlideData, selectRootIds, expandNode, setSlideSelection, createNode, applyView, replaceViewData , deleteNode, SlideType , pasteSlide, downloadFile} from '../../../store/sideBar/slideSlice';
+import { selectSlideData, selectRootIds, expandNode, setSlideSelection, createNode, applyView, replaceViewData , deleteNode, SlideType , pasteSlide, downloadFile, downloadParentFolder} from '../../../store/sideBar/slideSlice';
 
 import TreeNodeWithoutCheckbox from '../../shared/RsTreeTable/treeNodeWithoutCheckbox';
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
@@ -87,10 +87,16 @@ export default function Slides (){
     const handleCreateNode = (nodeId :string) => {
       // dispatch(setSlideSelection("-1"));
       dispatch(createNode(nodeId));
+
+      dispatch(downloadParentFolder(nodeId));
     }
 
     const onHandleApply = () => {
       dispatch(downloadFile(selectedSlideId))
+      
+      const parentFolderId = treeDataRedux[selectedSlideId].pid;
+
+      dispatch(downloadParentFolder(parentFolderId? parentFolderId : "-1"));
       dispatch(applyView(selectedSlideId))
     }
 
@@ -103,28 +109,38 @@ export default function Slides (){
           
           else {
             toDownload(item);
-            dispatch(downloadFile(item))
           }
-
         })
+        dispatch(downloadFile(id))
     }
+
       toDownload(selectedSlideId);
-      dispatch(downloadFile(selectedSlideId))
+
+      const parentFolderId = treeDataRedux[selectedSlideId].pid
+      dispatch(downloadParentFolder(parentFolderId ? parentFolderId : "-1"))
     }
+
 
     const onHandleReplace = () => {
       dispatch(replaceViewData(selectedSlideId))
     }
 
+
     const onHandleDeleteButton = () => {
       setOpenDelete(true);
     }
 
+
     const onHandleDelete = () => {
       dispatch(deleteNode(selectedSlideId))
+
+      const parentFolderId = treeDataRedux[selectedSlideId].pid;
+      dispatch(downloadParentFolder(parentFolderId? parentFolderId : "-1"));
+
       setOpenDelete(false)
     }
 
+    
     const onHandleCopy = () => {
       const newCopy = JSON.parse(JSON.stringify(treeDataRedux[selectedSlideId]));
     setCopied(newCopy)
@@ -133,11 +149,16 @@ export default function Slides (){
     const onHandlePaste = () => {
 
       if(selectedSlideId !== "-1"){
-        if(treeDataRedux[selectedSlideId].slideType === SlideType.GROUP)
+        if(treeDataRedux[selectedSlideId].slideType === SlideType.GROUP){
           dispatch(pasteSlide({copied :copied, pid: selectedSlideId}))
+          dispatch(downloadParentFolder(selectedSlideId))
+        }
 
-        if(treeDataRedux[selectedSlideId].slideType === SlideType.VIEW)
+        if(treeDataRedux[selectedSlideId].slideType === SlideType.VIEW){
           dispatch(pasteSlide({copied :copied, pid: treeDataRedux[selectedSlideId].pid}))
+          const parentFolderId = treeDataRedux[selectedSlideId].pid 
+          dispatch(downloadParentFolder(parentFolderId ? parentFolderId : "-1"));
+        }
       }
 
       else 
@@ -310,6 +331,7 @@ export default function Slides (){
                               <MuiGrid item xs={6}>
                                 <MuiButton style={{backgroundColor:"#5958FF",width:"100%", fontSize:"9px" ,}} 
                                   autoFocus 
+                                  disabled={treeDataRedux[selectedSlideId].children.length === 0}
                                   onClick={onHandleDownload} 
                                 >
                                   Download

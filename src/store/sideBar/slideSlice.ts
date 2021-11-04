@@ -353,6 +353,37 @@ export const slideSlice = createSlice({
         state.data[ action.payload].downloaded = true;
     },
 
+    downloadParentFolder : (state, action: PayloadAction<string>) => {
+       
+        const downloadParentFolderFunction = (pId : string) => {
+
+            if(pId !== "-1"){
+                const parentId = state.data[pId].id
+                const parentChildren = state.data[parentId ? parentId : -1].children;
+                let downloadedCount = 0;
+    
+                parentChildren.forEach(item => {
+                    if (state.data[item].downloaded)
+                        downloadedCount ++;
+                })
+    
+                if (parentChildren.length === downloadedCount)
+                    state.data[parentId ? parentId : -1].downloaded = true;
+                else
+                    state.data[parentId ? parentId : -1].downloaded = false;
+                    
+                if(state.data[parentId].pid !== "-1"){
+                    const newPId = state.data[parentId].pid
+                    downloadParentFolderFunction(newPId ? newPId : "-1");
+                }                   
+        }
+        }
+
+        downloadParentFolderFunction(action.payload);
+            
+        
+    },
+
     applyView: (state, action : PayloadAction<string>) => {
         state.appliedSlide = action.payload;
 
@@ -497,7 +528,8 @@ export const {
   replaceViewData,
   deleteNode,
   pasteSlide,
-  downloadFile
+  downloadFile,
+  downloadParentFolder
    } = slideSlice.actions;
 
 //Define the selectors
