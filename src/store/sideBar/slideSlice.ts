@@ -309,13 +309,11 @@ export const slideSlice = createSlice({
 
     createNode : (state, action :PayloadAction<string>) => {
         state.idGenerator++;
-
         let newData = JSON.parse(JSON.stringify(state.defaultValue))
 
         newData.id = `${state.idGenerator}`;
         newData.pid = action.payload;
         
-
         switch(action.payload){
             case "-1":
                 state.groupCount ++;
@@ -323,7 +321,6 @@ export const slideSlice = createSlice({
                 newData.data = {}
                 state.data[`${state.idGenerator}`] =newData;
                 state.rootIds.push(newData.id)
-               
             break;
 
             case "3":
@@ -333,7 +330,6 @@ export const slideSlice = createSlice({
                 newData.data = JSON.parse(JSON.stringify(state.currentData));
                 state.data[`${state.idGenerator}`] =newData;
                 state.data[`${action.payload}`].children.push(newData.id)
-                
             break;
 
             default:
@@ -342,8 +338,7 @@ export const slideSlice = createSlice({
                 newData.slideType = SlideType.VIEW;
                 newData.data = JSON.parse(JSON.stringify(state.currentData));
                 state.data[`${state.idGenerator}`] =newData;
-                state.data[`${action.payload}`].children.push(newData.id)
-                
+                state.data[`${action.payload}`].children.push(newData.id) 
             break;
         }
         
@@ -354,9 +349,7 @@ export const slideSlice = createSlice({
     },
 
     downloadParentFolder : (state, action: PayloadAction<string>) => {
-       
         const downloadParentFolderFunction = (pId : string) => {
-
             if(pId !== "-1"){
                 const parentId = state.data[pId].id
                 const parentChildren = state.data[parentId ? parentId : -1].children;
@@ -376,17 +369,14 @@ export const slideSlice = createSlice({
                     const newPId = state.data[parentId].pid
                     downloadParentFolderFunction(newPId ? newPId : "-1");
                 }                   
-        }
+            }
         }
 
-        downloadParentFolderFunction(action.payload);
-            
-        
+        downloadParentFolderFunction(action.payload);      
     },
 
     applyView: (state, action : PayloadAction<string>) => {
         state.appliedSlide = action.payload;
-
     },
 
     replaceViewData : (state,action : PayloadAction<string>) => {
@@ -395,37 +385,36 @@ export const slideSlice = createSlice({
 
     deleteNode : (state, action: PayloadAction<string>) => {
        const toDelete = state.data[action.payload]
-
        state.selectedSlide = "-1";
 
-       if(toDelete.slideType === SlideType.VIEW){
+        if(toDelete.slideType === SlideType.VIEW){
             delete state.data[action.payload];
             Object.keys(state.data).forEach(key => {
                 state.data[key].children = state.data[key].children.filter(item => item !== action.payload)
             })
-       }
+        }
 
-       const deleteGroup = (id : string) => {
+        const deleteGroup = (id : string) => {
         const children = state.data[id].children;
-        children.forEach(item => {
-            if(state.data[id].slideType === SlideType.VIEW)
-                delete state.data[id];
+            children.forEach(item => {
+                if(state.data[id].slideType === SlideType.VIEW)
+                    delete state.data[id];
 
-            else    deleteGroup(item);
-        })
-
-        if(state.data[id].pid === "-1"){
-            delete state.data[id];
-            state.rootIds = state.rootIds.filter(item => item !== id)
-        }
-
-        else{
-            delete state.data[id];
-            Object.keys(state.data).forEach(key => {
-                state.data[key].children = state.data[key].children.filter(item => item !== id)
+                else deleteGroup(item);
             })
+
+            if(state.data[id].pid === "-1"){
+                delete state.data[id];
+                state.rootIds = state.rootIds.filter(item => item !== id)
+            }
+
+            else{
+                delete state.data[id];
+                Object.keys(state.data).forEach(key => {
+                    state.data[key].children = state.data[key].children.filter(item => item !== id)
+                })
+            }
         }
-       }
 
         if(toDelete.slideType === SlideType.GROUP){
             deleteGroup(action.payload)
@@ -437,8 +426,10 @@ export const slideSlice = createSlice({
         let copiedSlideData = JSON.parse(JSON.stringify(action.payload.copied));
 
         const copyPasteGroup = (toCopiedGroupData : any, pid : string) => {
-            const toCopiedChildId = toCopiedGroupData.children;
 
+            console.log(toCopiedGroupData)
+
+            const toCopiedChildId = toCopiedGroupData.children;
             const toCopiedChildren : any[] = [];
 
             toCopiedChildId.forEach((item : string) =>{
@@ -455,7 +446,7 @@ export const slideSlice = createSlice({
             toCopiedGroupData.state.expanded = false;
             copiedSlideData.downloaded = false;
 
-            console.log("cp[",toCopiedGroupData )
+            // console.log("cp[",toCopiedGroupData )
 
             if(pid === "-1"){
             state.data[`${state.idGenerator}`] = toCopiedGroupData;
@@ -468,27 +459,23 @@ export const slideSlice = createSlice({
             }
 
             toCopiedChildren.forEach(item => {
-
                 if(item.slideType === SlideType.VIEW){
-                state.idGenerator ++;
-                state.viewCount ++;
+                    state.idGenerator ++;
+                    state.viewCount ++;
 
-                item.id = `${state.idGenerator}`;
-                item.title = `View ${state.viewCount}`;
-                item.pid = toCopiedGroupData.id;
-                item.downloaded = false;
+                    item.id = `${state.idGenerator}`;
+                    item.title = `View ${state.viewCount}`;
+                    item.pid = toCopiedGroupData.id;
+                    item.downloaded = false;
                 
-                state.data[`${state.idGenerator}`] = item;
-                
-                state.data[item.pid].children.push(item.id)
+                    state.data[`${state.idGenerator}`] = item;
+                    state.data[item.pid].children.push(item.id)
                 }
 
                 if(item.slideType === SlideType.GROUP){
                     pid = toCopiedGroupData.id;
-
                     copyPasteGroup(item, pid);
                 }
-
             })
         }
 
@@ -510,9 +497,9 @@ export const slideSlice = createSlice({
                 state.data[copiedSlideData.pid].children.push(copiedSlideData.id)
             }            
         }
-
     },
 
+    
   }
 });
 
