@@ -44,7 +44,6 @@ import MuiMenuItem from '@material-ui/core/MenuItem';
 import {selectedColorPaletteId, editColorPalette, colorPaletteElements,setSelectedColorPalette} from '../../../../store/sideBar/colormapSlice';
 
 import {useEffect} from 'react';
-import { colors } from '@material-ui/core';
 
 export default function ColorPalleteEdit(){
 
@@ -62,6 +61,8 @@ export default function ColorPalleteEdit(){
   const colorPaletteList = useAppSelector(state => state.colormap.colorPaletteTree.data)
 
   const [colorSet,setColorSet] = useState( colorPaletteList[activeColorPaletteId].colorSet);
+  const [valueSet,setValueSet] = useState( colorPaletteList[activeColorPaletteId].valueSet);
+
 
   const colorPaletteNameList = useAppSelector(colorPaletteElements)
 
@@ -69,8 +70,11 @@ export default function ColorPalleteEdit(){
   const [openDelete, setOpenDelete] = useState(false);
   const [idGenerator, setIdGenerator] = useState(colorSet.length)
 
+  const viewOnly = colorPaletteList[activeColorPaletteId].pid === "0" ? true : false;
+
   useEffect(() => {
     setColorSet(colorPaletteList[activeColorPaletteId].colorSet)
+    setValueSet(colorPaletteList[activeColorPaletteId].valueSet)
   },[activeColorPaletteId]);
 
   const handleAddColor = () => {
@@ -88,15 +92,18 @@ export default function ColorPalleteEdit(){
       return(randomColor)
 
     }
-    
+
+    const newValueSet = [...valueSet]
     const newColor = {
       id: idGenerator ,
       color:   colorPicker(),
     }
 
     const newColorSet = [...colorSet, newColor]
+    newValueSet.push("Auto")
 
-    setColorSet(newColorSet)
+    setColorSet(newColorSet);
+    setValueSet(newValueSet);
     setIdGenerator(idGenerator + 1)
     setSelectedColor(null)
   }
@@ -147,14 +154,20 @@ export default function ColorPalleteEdit(){
   }
 
   const onHandleDelete = () => {
-    const newArray = colorSet.filter(item => item.id !== selectedColor.id);
-    setColorSet(newArray);
+    const newValueData = [...valueSet];
+    const newColorData = colorSet.filter(item => item.id !== selectedColor.id);
+
+    if(colorSet.length !== newColorData.length)
+      newValueData.pop();
+
+    setColorSet(newColorData);
+    setValueSet(newValueData);
     setSelectedColor(null);
     setOpenDelete(false)
   }
 
   const onHandleApply = () => {
-    dispatch(editColorPalette({colorPaletteId : activeColorPaletteId , colorData : colorSet}))
+    dispatch(editColorPalette({colorPaletteId : activeColorPaletteId , colorData : colorSet, valueData : valueSet}))
   }
 
   const onHandleReset = () => {
@@ -229,7 +242,7 @@ export default function ColorPalleteEdit(){
               </MuiGrid>
               <MuiGrid item xs={6}></MuiGrid>
               <MuiGrid item xs={2}>
-                <MuiIconButton size="small"><MuiPlusIcon
+                <MuiIconButton size="small" disabled={viewOnly}><MuiPlusIcon
                    onClick={handleAddColor}
                 /></MuiIconButton>             
               </MuiGrid>
@@ -274,7 +287,7 @@ export default function ColorPalleteEdit(){
             <MuiGrid item xs={4} style={{marginLeft:"5px"}}>
               <ColorPicker
                 color={selectedColor ? selectedColor.color : {r:255, g:255, b:255, a:1}}
-                onChangeComplete={selectedColor && handleChangeComplete }
+                onChangeComplete={selectedColor && !viewOnly && handleChangeComplete }
               />                 
             </MuiGrid>
           </MuiGrid>                     
@@ -363,31 +376,34 @@ style={{width:280,
       { !openDelete
         ?
           <div>
-            <div style={{marginTop:"20px", marginBottom:"20px"}}>
-              <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
-                autoFocus 
-                onClick={onHandleApply} 
-                // color="primary"
-                disabled= {disabled}
-              >
-                Save
-              </MuiButton>
+            { viewOnly 
+              ?
+                null
+              :
+                <div style={{marginTop:"20px", marginBottom:"20px"}}>
+                  <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+                    autoFocus 
+                    onClick={onHandleApply} 
+                    // color="primary"
+                    disabled= {disabled}
+                  >
+                    Save
+                  </MuiButton>
 
-              <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
-                autoFocus 
-                onClick={onHandleReset} 
-                // color="primary"
-                disabled= {disabled}
-              >
-                Reset
-              </MuiButton>
-
-            </div>
-             
+                  <MuiButton style={{width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+                    autoFocus 
+                    onClick={onHandleReset} 
+                    // color="primary"
+                    disabled= {disabled}
+                  >
+                    Reset
+                  </MuiButton>
+                </div>
+            }
             <OptionContainer>
               <Option label="Down" 
                 icon={<MuiIconButton 
-                  disabled={disableDown}
+                  disabled={disableDown || viewOnly}
                    onClick={onHandlDownButton}
                   >
                     <FIleMoveDownIcon/>
@@ -396,7 +412,7 @@ style={{width:280,
               />
               <Option label="Up" 
                 icon={ <MuiIconButton 
-                  disabled={disableUp}
+                  disabled={disableUp || viewOnly}
                    onClick={onHandleUpButton}
                   > 
                     <FileMoveUpIcon/>
@@ -405,7 +421,7 @@ style={{width:280,
               />
               <Option label="Delete" 
                 icon={ <MuiIconButton 
-                 disabled={!selectedColor || colorSet.length === 1}
+                 disabled={!selectedColor || colorSet.length === 1 || viewOnly}
                   onClick={onHandleDeleteButton}
                   > 
                     <MuiDeleteForeverOutlinedIcon/>

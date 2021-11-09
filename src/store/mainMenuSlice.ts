@@ -71,7 +71,8 @@ export enum MainMenuItems {
 
     SETTINGS,
     SETTINGS_THEME, 
-    SETTINGS_MOUSE_CONTROLS
+    SETTINGS_MOUSE_CONTROLS,
+    
 
 }
 
@@ -307,36 +308,36 @@ const initialState: MainMenu ={
                 },
             ]
         },
-        // {
-        //     id:'6',
-        //     expanded: false,
-        //     name: "Labels",
-        //     type: MainMenuItems.LABELS,
-        //     path:Routes.LABELS,
-        //     children: [
-        //         {
-        //             id:'61',
-        //             name: "2D Notes",
-        //             type:MainMenuItems.LABELS_2D_NOTES,
-        //             path:Routes.LABELS_2D_NOTES,
-        //             disabled: false,
-        //         },
-        //         {
-        //             id:'62',
-        //             name: "3D Labels",
-        //             type:MainMenuItems.LABELS_3D_LABELS,
-        //             path:Routes.LABELS_3D_LABELS,
-        //             disabled: false,
-        //         },
-        //         {
-        //             id:'63',
-        //             name: "Measurements",
-        //             type:MainMenuItems.LABELS_MEASUREMENTS,
-        //             path:Routes.LABELS_MEASUREMENTS,
-        //             disabled: false,
-        //         },
-        //     ],
-        // },
+        {
+            id:'6',
+            expanded: false,
+            name: "Labels",
+            type: MainMenuItems.LABELS,
+            path:Routes.LABELS,
+            children: [
+                {
+                    id:'61',
+                    name: "2D Notes",
+                    type:MainMenuItems.LABELS_2D_NOTES,
+                    path:Routes.LABELS_2D_NOTES,
+                    disabled: false,
+                },
+                {
+                    id:'62',
+                    name: "3D Labels",
+                    type:MainMenuItems.LABELS_3D_LABELS,
+                    path:Routes.LABELS_3D_LABELS,
+                    disabled: false,
+                },
+                {
+                    id:'63',
+                    name: "Measurements",
+                    type:MainMenuItems.LABELS_MEASUREMENTS,
+                    path:Routes.LABELS_MEASUREMENTS,
+                    disabled: false,
+                },
+            ],
+        },
         // {
         //     id:'7',
         //     expanded: false,
@@ -361,16 +362,18 @@ const initialState: MainMenu ={
         //     path:Routes.HOME,
         //     children: []
         // },
+
         {
-            id:'10',
+            id:'11',
             expanded: false,
             name: "Messages",
             type: MainMenuItems.MESSAGES,
             path:Routes.MESSAGES,
             children:[]
         },
+        
         {
-            id:'11',
+            id:'12',
             expanded: false,
             name: "Application Settings",
             type: MainMenuItems.SETTINGS,
@@ -378,7 +381,7 @@ const initialState: MainMenu ={
             children: [
                 {
 
-                    id:'111',
+                    id:'121',
                     name: "Color Theme",
                     type:MainMenuItems.SETTINGS_THEME,
                     path:Routes.SETTINGS_THEME ,
@@ -386,7 +389,7 @@ const initialState: MainMenu ={
                 },
                 {
 
-                    id:'112',
+                    id:'122',
                     name: "Mouse Controls",
                     type:MainMenuItems.SETTINGS_MOUSE_CONTROLS,
                     path:Routes.SETTINGS_MOUSE_CONTROLS,

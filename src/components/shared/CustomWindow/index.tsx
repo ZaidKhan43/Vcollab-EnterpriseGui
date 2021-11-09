@@ -97,6 +97,7 @@ type CustomWindowProps = {
     height?: number,
     resize?:boolean,
     anchor?:[number,number],
+    onClickOutside?: (uid:string) => void,
     parentRef: React.MutableRefObject<null | HTMLDivElement>,
     children: JSX.Element | null
 } 
@@ -151,6 +152,7 @@ const CustomWindow = (props:CustomWindowProps) => {
     }
 
     useEffect(() => {
+        console.log(`window ${uid} mounted`);
         dispatch(addWindow({uid}));
         dispatch(setWindowPos({uid,pos:[0,0]}))
         if(props.parentRef.current)
@@ -175,7 +177,11 @@ const CustomWindow = (props:CustomWindowProps) => {
             <ClickAwayListener onClickAway={
                 (e:any) => {
                     if(e.target.id.includes('_vct-viewer-'))  
-                    dispatch(setEditMode({uid,isEdit:false}))
+                    {
+                        if(props.onClickOutside)
+                        props.onClickOutside(uid);
+                        dispatch(setEditMode({uid,isEdit:false}))
+                    }
                 }
             }
             >

@@ -1,22 +1,53 @@
-import React from 'react';
+import React, { Ref, useEffect, useState } from 'react';
 import Snackbar from '@material-ui/core/Snackbar';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
+import SnackbarContent  from '@material-ui/core/SnackbarContent';
 import { selectMsg,selectOpen,setOpen,clearMsg} from "../../../store/toastSlice";
 import {useAppSelector, useAppDispatch } from '../../../store/storeHooks';
-import Slide from '@material-ui/core/Slide';
+import Pop from '@material-ui/core/Popover';
 import { TransitionProps } from '@material-ui/core/transitions';
+import { makeStyles } from '@material-ui/core/styles';
+import { Typography } from '@material-ui/core';
 
-function SlideTransition(props: TransitionProps) {
-  return <Slide {...props} direction="down" />;
+type IProps = {
+  parentRef:  React.RefObject<HTMLDivElement>
 }
+type ViewerSize = {
+  x:number,
+  y:number,
+  w:number,
+  h:number
+}
+const useStyles = makeStyles(theme => ({
+  root: {
+    backgroundColor: 'transparent',
+    boxShadow: 'none'
+  },
+  topCenter: (props:ViewerSize) => ({
+    backgroundImage: "none",
+    top: props.y,
+    left: props.x + props.w/2
+  })
+}))
 
-export default function Snackbars() {
+
+export default function Snackbars(props:IProps) {
     const dispatch = useAppDispatch();
+    const [viewerSize, setViewerSize] = useState<ViewerSize>({x:0,y:0,w:0,h:0});
     const messageInfo = useAppSelector(selectMsg);
     const open = useAppSelector(selectOpen);
-
+    const classes = useStyles(viewerSize);
   
+    useEffect(() => {
+        if(props.parentRef.current) {
+          let rect = props.parentRef.current.getBoundingClientRect();
+          setViewerSize({
+            x:rect.x,
+            y:rect.y,
+            w:rect.width,
+            h:rect.height
+          })
+        }
+    },[props.parentRef.current, props.parentRef.current?.offsetLeft, props.parentRef.current?.offsetTop])
     const handleClose = (event: React.SyntheticEvent | MouseEvent, reason?: string) => {
       if (reason === 'clickaway') {
         return;
@@ -35,23 +66,21 @@ export default function Snackbars() {
             vertical: 'top',
             horizontal: 'center',
           }}
+          classes = {{
+            anchorOriginTopCenter: classes.topCenter
+          }}
           open={open}
           autoHideDuration={3000}
           onClose={handleClose}
           onExited={handleExited}
-          message={messageInfo ? messageInfo.message : undefined}
-          TransitionComponent={SlideTransition}
-          action={
-            <React.Fragment>
-              <IconButton
-                aria-label="close"
-                color="inherit"
-                onClick={handleClose}
-              >
-                <CloseIcon />
-              </IconButton>
-            </React.Fragment>
-          }
-        />
+        >
+          <SnackbarContent
+          classes={{root: classes.root}}
+          message={messageInfo ? 
+            <Typography variant = "h2">
+              {messageInfo.message}
+            </Typography> : undefined}
+          />
+        </Snackbar>
     )
   }

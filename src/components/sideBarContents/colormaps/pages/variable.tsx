@@ -11,6 +11,7 @@ import {goBack} from 'connected-react-router/immutable';
 
 
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
+import MuiListSubHeader from '@material-ui/core/ListSubheader';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 
 import { useRef, useState, useEffect } from 'react';
@@ -19,7 +20,7 @@ import AutoSizer from '../../../shared/autoSize'
 
 import { selectVariables, expandVariable, getDependantVariableIds, selectSteps} from '../../../../store/sideBar/fieldSlice'
 
-import { colormapElements, selectcolormapData, setSelectedVariable} from '../../../../store/sideBar/colormapSlice';
+import { colormapElements, selectcolormapData, setSelectedVariable, ColormapType} from '../../../../store/sideBar/colormapSlice';
 
 import {useStyles} from '../../../shared/RsTreeTable/styles/TreeNodeStyle'
 
@@ -44,6 +45,8 @@ export default function Variable(){
   const colormapNameList = useAppSelector(colormapElements)
 
   const selectedStepIds = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].step);
+
+  const readOnly = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false)
 
   const [depStepIds, setDepStepIds] = useState<string[]>([]);
 
@@ -83,12 +86,14 @@ useEffect(() => {
   }
 
   const getAction = () => {
+    const parentNodes = colormapNameList.filter(item => item.children?.length !== 0)
+
     return(
       <SelectAction
       labelId="display-modes-selection-label-id"
       id="display-modes-selection-id"
       value={activeColormapId}
-      onChange={(e : any) => onHandleSelect(e.target.value)}
+      onChange={(e : any) => {if(e.target.value) onHandleSelect(e.target.value)}}
       MenuProps={{
         disablePortal: true,
         anchorOrigin: {
@@ -98,10 +103,31 @@ useEffect(() => {
        getContentAnchorEl: null
       }}
       >
+         <MuiListSubHeader key={parentNodes[0].id}>{parentNodes[0].name}</MuiListSubHeader>
         {
-            colormapNameList.map((item : any) => 
-              <MuiMenuItem value={item.id}>{item.name}</MuiMenuItem>  
-          )}
+          colormapNameList.map((element : any) => {
+            return(
+              element.pid === parentNodes[0].id 
+                ?
+                  <MuiMenuItem key={element.id} value={element.id}>{element.name}</MuiMenuItem>
+                :
+                  null
+            )
+          }) 
+        }
+
+        <MuiListSubHeader key={parentNodes[1].id}>{parentNodes[1].name}</MuiListSubHeader>
+        {
+          colormapNameList.map((element : any) => {
+            return(
+              element.pid === parentNodes[1].id 
+                ?
+                  <MuiMenuItem key={element.id} value={element.id}>{element.name}</MuiMenuItem>
+                :
+                  null
+            )
+          })        
+        }
       </SelectAction>
     )
   }
@@ -132,7 +158,7 @@ useEffect(() => {
                             width = {300}
                             searchPlaceholder = "Search Variables"
                             onExpand = {handleExpand}
-                            onRowClick = {onVariableClick}   
+                            onRowClick = {!readOnly ? onVariableClick : () => null}   
                             visibleIds = {stepVisibleIds}
                           />
 

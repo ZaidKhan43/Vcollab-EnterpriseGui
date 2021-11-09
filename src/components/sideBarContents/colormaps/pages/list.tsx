@@ -14,7 +14,7 @@ import RTree from '../../../shared/RsTreeTable';
  
 import AddIcon from "@material-ui/icons/Add";
 
-import { selectcolormapData, selectColormapRootIds, expandNode, createColorMap, setColorMapSelection } from '../../../../store/sideBar/colormapSlice';
+import { selectcolormapData, selectColormapRootIds, expandNode, createColorMap, deleteColorMap, setColorMapSelection, ColormapType, applyColorMap, pasteColormap } from '../../../../store/sideBar/colormapSlice';
 
 import TreeNodeWithoutCheckbox from '../../../shared/RsTreeTable/treeNodeWithoutCheckbox';
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
@@ -23,10 +23,28 @@ import MuiGrid from '@material-ui/core/Grid';
 
 import { convertListToTree } from '../../../utils/tree';
 
-import { useRef } from 'react';
+import { useRef , useEffect} from 'react';
 import useContainer from '../../../../customHooks/useContainer';
 
+import MuiEditIcon from '@material-ui/icons/EditOutlined';
+import MuiFileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
+import MuiPaste from '@material-ui/icons/AssignmentOutlined';
+import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
+import MuiVisibilityIcon from '@material-ui/icons/Visibility';
+import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
+import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
+import MuiButton from '@material-ui/core/Button';
+import MuiTypography from '@material-ui/core/Typography';
+import MuiCheckIcon from '@material-ui/icons/Check';
+
+import MuiDownloadIcon from "@material-ui/icons/CloudDownloadOutlined";
+import MuicloudDoneIcon from '@material-ui/icons/CloudDone';
+
+import {Routes} from "../../../../routes"
+
 import { useState } from 'react';
+
+import {setChildItem} from "../../../../store/mainMenuSlice";
 
 export default function List(){
 
@@ -39,12 +57,44 @@ export default function List(){
 
   const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
 
+  const appliedColorMapId = useAppSelector(state => state.colormap.appliedColorMapId);
+
+  const [openDelete, setOpenDelete] = useState(false);
+  const [copied, setCopied] = useState<any>();
+
   const classes = styles()
   const dispatch = useAppDispatch();  
   const onClickBackIcon = () =>{
     dispatch(goBack());
   }
   
+  useEffect(() => {
+
+    if(selectedColorMapId === "-1"){
+      dispatch(setChildItem({panelId:'4',childId:'42', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'43', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'44', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'45', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'46', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'47', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'48', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'49', boolean: true}))
+    }
+
+    else{
+      dispatch(setChildItem({panelId:'4',childId:'42', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'43', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'44', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'45', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'46', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'47', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'48', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'49', boolean: false}))
+    }
+
+
+    },[selectedColorMapId]);
+
 
   const getHeaderLeftIcon= () => {
     return (
@@ -63,14 +113,58 @@ export default function List(){
     dispatch(expandNode({toOpen,nodeId}));
   }
 
-  const createLabel = (nodeId : string) => {
+  const handleCreateLabel = (nodeId : string) => {
     	dispatch(createColorMap(nodeId))
   }
 
-  const handleSeletedColorMap = (node : any) => {
+  const handleRowClick = (node : any) => {
     if(node.children.length === 0)
       dispatch(setColorMapSelection(node.id));
   }
+
+  const onHandleEdit = () => {
+    dispatch(push(Routes.COLORMAPS_EDIT))
+  }
+
+  const onHandleCopy = () => {
+    const newCopy = treeDataRedux[selectedColorMapId];
+    setCopied(newCopy)
+  }
+
+  const onHandlePaste = () => {
+    dispatch(pasteColormap(copied))
+  }
+
+
+  const onHandleDeleteButton = () => {
+    setOpenDelete(true);
+  }
+
+  const onHandleDelete = () => {
+    dispatch(deleteColorMap(selectedColorMapId))
+    setOpenDelete(false)
+  }
+
+  const onHandleApply = () => {
+    dispatch(applyColorMap(selectedColorMapId))
+  }
+
+  const fileSize = (size : number) => {
+    if (size >= 1024) {
+      const kbSize = size / 1024
+      if (kbSize >= 1024) {
+        const mbSize = kbSize / 1024
+        if(mbSize >= 1024){
+          const gbSize = mbSize / 1024;
+          return `${ (Math.round(gbSize * Math.pow(10, 2)) / Math.pow(10, 2)).toFixed(2)} GB`
+        }
+        return `${ (Math.round(mbSize * Math.pow(10, 2)) / Math.pow(10, 2)).toFixed(2)} MB`
+      }
+      return `${Math.round(kbSize)} kB`
+    }
+    return `${size} B`
+  }
+
 
   const getBody = () => {
     return (
@@ -79,7 +173,7 @@ export default function List(){
         treeData={roots} 
         expandedRowIds = {expanded}
         onExpand={handleExpand}
-        onRowClick = {handleSeletedColorMap}
+        onRowClick = {handleRowClick}
         width = {300}
         hover={true}
         selectable={true}
@@ -104,24 +198,44 @@ export default function List(){
           )
         }}
         column1 = {(node) => {
-          return (<div></div>)
+          return (
+            <div></div>
+          )
         }}
         column2 = {(node) => {
           return (
             <div>
               { node?.pid !== "-1"
                 ?
-                 <div></div>
-                :        
                   <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
-                    <MuiGrid item xs={4}></MuiGrid>
-                    <MuiGrid item xs={6}>
-                      <MuiIconButton size='small' onClick={() => createLabel(node.id)}>
-                        <AddIcon fontSize='default'/> 
-                      </MuiIconButton> 
+                    <MuiGrid item xs={9}></MuiGrid>
+                    <MuiGrid item xs={3}>
+                      { appliedColorMapId === node.id
+                        ?
+                          <MuiCheckIcon fontSize='small'/>
+                        :
+                          treeDataRedux[node.id].pid !== "-1"
+                            ?
+                              treeDataRedux[node.id].downloaded === true 
+                                ?
+                                  <MuicloudDoneIcon fontSize='small'/>
+                                :
+                                  <MuiDownloadIcon fontSize='small'/>
+                            :
+                              null
+                        }
+                      </MuiGrid>
                     </MuiGrid>
-                  </MuiGrid>
-              }    
+                  :        
+                    <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
+                      <MuiGrid item xs={4}></MuiGrid>
+                      <MuiGrid item xs={6}>
+                        <MuiIconButton size='small' onClick={() => handleCreateLabel(node.id)}>
+                          <AddIcon fontSize='default'/> 
+                        </MuiIconButton> 
+                      </MuiGrid>
+                    </MuiGrid>
+                }    
             </div>
           )
         }}
@@ -134,9 +248,97 @@ export default function List(){
   const getFooter = () => {
 
     return(
-        <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
-      </div>
-    ) 
+      <div>
+        { !openDelete
+          ?
+            <div>
+              { selectedColorMapId !== "-1" && selectedColorMapId !== appliedColorMapId 
+                ?
+                  <div style={{marginTop:"20px", marginBottom:"20px"}}>
+                    <MuiButton style={{backgroundColor:"#5958FF",width:"50%", fontSize:"9px" , marginRight:"5px"}} 
+                      autoFocus 
+                      onClick={onHandleApply} 
+                      // disabled={readOnly}
+                      // color="primary"
+                    >
+                     {treeDataRedux[selectedColorMapId].downloaded === true ? "Apply" : `${fileSize(treeDataRedux[selectedColorMapId].size)} Download & Apply`} 
+                    </MuiButton>
+                  </div>
+                :
+                   null
+              }                                 
+                              
+              <OptionContainer>
+                <Option label={ treeDataRedux[selectedColorMapId]?.colormapType === ColormapType.USER ? "Edit" : "View"} 
+                  icon={<MuiIconButton 
+                    disabled={selectedColorMapId === "-1" }
+                    onClick={onHandleEdit}
+                    >
+                      { treeDataRedux[selectedColorMapId]?.colormapType === ColormapType.USER
+                        ?
+                          <MuiEditIcon/>
+                        :
+                          <MuiVisibilityIcon/>
+                      }  
+                    </MuiIconButton>
+                  } 
+                />
+
+                <Option label="Copy" 
+                  icon={ <MuiIconButton 
+                    disabled={selectedColorMapId === "-1"}
+                    onClick={onHandleCopy}
+                    > 
+                      <MuiFileCopyOutlinedIcon/>
+                    </MuiIconButton>
+                  }
+                />
+                <Option label="Paste" 
+                  icon={ <MuiIconButton 
+                    disabled={!copied} 
+                    onClick={onHandlePaste}
+                    > 
+                      <MuiPaste/>
+                    </MuiIconButton>
+                  }
+                />
+                <Option label="Delete" 
+                  icon={ <MuiIconButton 
+                    disabled={treeDataRedux[selectedColorMapId]?.colormapType === ColormapType.SYSTEM || selectedColorMapId === appliedColorMapId}
+                    onClick={onHandleDeleteButton}
+                    > 
+                      <MuiDeleteForeverOutlinedIcon/>
+                    </MuiIconButton>
+                  }
+                />     
+              </OptionContainer>
+            </div>
+          :
+              <div>
+                <div style={{marginBottom:"5px", marginTop:"5px"}}>
+                  <MuiTypography style={{marginBottom:"5px", fontSize:"14px"}}>
+                    Are you sure want to delete the selected Color Palette?
+                  </MuiTypography>
+                  <div style={{alignContent:"center",}}>
+                    <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+                      autoFocus 
+                      onClick={onHandleDelete} 
+                      // color="primary"
+                    >
+                      Confirm
+                    </MuiButton>
+                    <MuiButton style={{width:"20%", fontSize:"9px"}}
+                      onClick={() => setOpenDelete(false)} 
+                      // color="primary"
+                    >
+                      Cancel
+                    </MuiButton>
+                  </div>
+                </div>
+              </div>
+          }          
+        </div>
+      ) 
   }
 
   return (

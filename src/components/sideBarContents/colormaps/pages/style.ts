@@ -69,4 +69,12 @@ export default makeStyles((theme) => (
     width:"100%",border: "0.5px solid",
  },
 
+ saveResetButtonContainer:{
+  marginBottom:"5px", 
+  marginTop:"50px", 
+  marginLeft:"65px", 
+  marginRight:"75px"
+},
+
+
 }));

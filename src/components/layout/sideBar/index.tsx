@@ -23,6 +23,7 @@ import Annotations from '../../sideBarContents/annotations';
 import Settings from '../../sideBarContents/settings';
 import Messages from '../../sideBarContents/messages';
 import Labels from '../../sideBarContents/labels';
+import Slides from '../../sideBarContents/slides';
 
 export default function Sidebar(){
     
@@ -62,6 +63,9 @@ export default function Sidebar(){
         <Route path={Routes.LABELS}>
         <Labels />
         </Route>     
+        <Route path={Routes.SLIDES}>
+        <Slides/>
+        </Route>
         <Route path={Routes.SETTINGS}>
         <Settings/>
          </Route>

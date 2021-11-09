@@ -12,6 +12,8 @@ import { fetchFieldData } from '../../store/sideBar/fieldSlice';
 import { fetchMouseData } from '../../store/sideBar/settings';
 import { fetchCameraMatrix, fetchCameraStdViews } from '../../store/sideBar/sceneSlice';
 import { addMessage, updateMessage, NetworkData, NotificationType, finishMessage } from '../../store/sideBar/messageSlice';
+import { toastMsg } from '../../store/toastSlice';
+import Snackbars from '../sideBarContents/messages/SnackBar';
 
 function Viewer(){
     
@@ -164,10 +166,11 @@ function Viewer(){
                   dispatch(addMessage({
                     id: data.id,
                     type: NotificationType.NETWORK_TRANSFER_MESSAGE,
-                    tags: ["Test"],
+                    tags: ["Downloads","Display Mode"],
                     data: networkData,
                     title: data.event.title
                   }))
+                  dispatch(toastMsg({msg:`Downloading ${data.event.title}`}));
                   console.log("start",networkData.totalSize);
                 }
               );
@@ -190,6 +193,7 @@ function Viewer(){
                   dispatch(finishMessage({
                     id: data.id
                   }))
+                  dispatch(toastMsg({msg:`${data.event.title}`}));
                 }
               );
               eventDispatcher?.addEventListener(
@@ -239,6 +243,7 @@ function Viewer(){
         className="viewer"
       >
         <ProbeLabel containerRef={viewerRefs}></ProbeLabel>
+        <Snackbars parentRef = {viewerRefs}/>
       </div>
       
       </>

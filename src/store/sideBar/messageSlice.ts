@@ -46,38 +46,20 @@ type messages = {
 
 const initialState : messages = {
     notificationLists : [
-        // {
-        //     id:"0",
-        //     time: new Date(),
-        //     card:{
-        //         type: NotificationType.NETWORK_TRANSFER_MESSAGE,
-        //         title: "Downloading Simplified Mesh",
-        //         icon: IconType.TRANSFERING,
-        //         data:{
-        //             totalSize: 2024,
-        //             transfferedSize: 1024,
-        //             timeLeft: "4 munites left",
-        //             pause: false,
-        //             cancel: false,
-        //         },
-        //     },
-        //     collapsed: true,
-        //     tags: ["Display Modes",],
-        // },
-        // {
-        //     id:"1",
-        //     time: new Date(),
-        //     card: {
-        //         type: NotificationType.SIMPLE_MESSAGE,
-        //         title: "Applied ColorPlot",
-        //         icon: IconType.APPLIED,
-        //         data:{
-        //             body: [],
-        //         },
-        //     },
-        //     collapsed: true,
-        //     tags: ["Color Maps"],
-        // }
+        {
+            id: "xyz",
+            time: new Date(),
+            tags: ["Colormap"],
+            collapsed: true,
+            card: {
+                title: "Applied Color map 1",
+                icon: IconType.APPLIED,
+                data: {
+                    body: ["Hello"]
+                },
+                type: NotificationType.SIMPLE_MESSAGE
+            }
+        }
     ],
 }
 
@@ -151,7 +133,7 @@ export const messageSlice = createSlice({
             }
         },
 
-        editCollapse:(state,action: PayloadAction<{id:number, value:boolean}>) => {
+        editCollapse:(state,action: PayloadAction<{id:string, value:boolean}>) => {
             const index = state.notificationLists.findIndex((item) => item.id === action.payload.id);
             if(index >= 0){
                 let changeItem = state.notificationLists[index];
@@ -197,26 +179,6 @@ export const messageSlice = createSlice({
                 }
             }
         },
-
-        fileTransferUpdate:(state) => {
-            return;
-            state.notificationLists.forEach((item,index) => {
-                const data = item.card.data as NetworkData;
-                if(item.card.type === NotificationType.NETWORK_TRANSFER_MESSAGE && data.pause === false && data.cancel === false ){
-                    const onePercentage = parseInt((data.totalSize / 100).toString());
-
-                    if(data.transfferedSize + onePercentage < data.totalSize)
-                        data.transfferedSize = data.transfferedSize + onePercentage;
-                    else
-                        data.transfferedSize = data.totalSize
-
-                    if(data.transfferedSize === data.totalSize)
-                        item.card.icon = IconType.COMPLETED;
-
-                    state.notificationLists[index] = item;
-                }
-            })
-        },
     }
 })
 
@@ -226,8 +188,16 @@ export const {addMessage, updateMessage, finishMessage, editPause , editCancel ,
 
 //selectors
 
-export const sortedNotification = (state : RootState) => {
+export const sortedNotification = (state : RootState):NotificationList[] => {
 
     const sortedNotificationList = sortWith([descend(prop("time"))], state.message.notificationLists);
     return(sortedNotificationList)
   }
+
+export const selectTags = (state: RootState): [number,string][] => {
+    let set = new Set<string>(["All","Custom"]);
+    state.message.notificationLists.forEach(e => {
+        e.tags.forEach(tag => set.add(tag));
+    })
+    return [...set.values()].map((e,i) => [i,e]);
+}
