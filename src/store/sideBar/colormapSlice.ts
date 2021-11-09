@@ -576,6 +576,15 @@ export const colormapSlice = createSlice({
             state.colormapTree.data[action.payload.colorMapId].step = action.payload.stepId;
         },
 
+        setLegendSettings : (state, action : PayloadAction<{colorMapId :string, newPaletteType :string, newDirection: string, newTicPosition: string, newTitlePlacement: string, newValuePlacement: string, newGap: number}>) => {
+            state.colormapTree.data[action.payload.colorMapId].paletteType = action.payload.newPaletteType;
+            state.colormapTree.data[action.payload.colorMapId].direction = action.payload.newDirection;
+            state.colormapTree.data[action.payload.colorMapId].ticPosition = action.payload.newTicPosition;
+            state.colormapTree.data[action.payload.colorMapId].titlePlacement = action.payload.newTitlePlacement;
+            state.colormapTree.data[action.payload.colorMapId].valuePlacement = action.payload.newValuePlacement;
+            state.colormapTree.data[action.payload.colorMapId].gap = action.payload.newGap;
+        },
+
         setSelectedValue : (state, action : PayloadAction<{colorPaletteId : string, updatedValueSet : any[]}>) => {
 
             let newData = [...action.payload.updatedValueSet];
@@ -599,7 +608,7 @@ export const colormapSlice = createSlice({
 })
 
 export default colormapSlice.reducer;
-export const {addColorMap, saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, deleteColorMap, applyColorMap, pasteColormap, setColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep, editColorPalette, setSelectedValue, setSelectedValueType, editColorPaletteNature} = colormapSlice.actions;
+export const {addColorMap, saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, deleteColorMap, applyColorMap, pasteColormap, setColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep, editColorPalette, setSelectedValue, setSelectedValueType, editColorPaletteNature, setLegendSettings} = colormapSlice.actions;
 
 
 //Selectors

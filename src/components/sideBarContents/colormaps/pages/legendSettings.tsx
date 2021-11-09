@@ -9,21 +9,23 @@ import { InputLabel, ListItemIcon, Typography } from "@material-ui/core";
 import { Select } from "@material-ui/core";
 import { MenuItem } from "@material-ui/core";
 import { ListItemText } from "@material-ui/core";
-import { Button } from "@material-ui/core";
+import MuiButton from "@material-ui/core/Button";
 import MuiTextField from "@material-ui/core/TextField";
 import MuiGrid from '@material-ui/core/Grid'
 
 
-import {useState} from 'react';
-// import { styles } from "@material-ui/core";
+import {useState, useEffect} from 'react';
 import SelectAction from "../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction";
 import MuiMenuItem from "@material-ui/core/MenuItem";
-import { selectcolormapData, colormapElements, setColorMapSelection, paletteTypeDataList, directionDataList, ticPositionDataList, titlePlacementDataList, valuePlacementDataList } from "../../../../store/sideBar/colormapSlice";
+import { selectcolormapData, colormapElements, setColorMapSelection, paletteTypeDataList, directionDataList, ticPositionDataList, titlePlacementDataList, valuePlacementDataList, setLegendSettings,ColormapType } from "../../../../store/sideBar/colormapSlice";
 
 import MuiListSubHeader from '@material-ui/core/ListSubheader';
-// import style from "../../../layout/sideBar/sideBarContainer/style";
+import styles from "./style";
 
 export default function LegendSettings() {
+
+  const classes = styles();
+  const dispatch = useAppDispatch();
 
   const list = useAppSelector(colormapElements);
   const selectedColorMapId = useAppSelector(state => state.colormap.selectedColorMapId);
@@ -34,15 +36,23 @@ export default function LegendSettings() {
   const titlePlacementList = useAppSelector(titlePlacementDataList);
   const valuePlacementList = useAppSelector(valuePlacementDataList);
 
-
   const [paletteType, setPaletteType] = useState<string>(colormapsData[selectedColorMapId].paletteType);
   const [direction, setDirection] = useState<string>(colormapsData[selectedColorMapId].direction);
   const [ticPosition, setTicPosition] = useState<string>(colormapsData[selectedColorMapId].ticPosition);
   const [titlePlacement, setTitlePlacement] = useState<string>(colormapsData[selectedColorMapId].titlePlacement);
   const [valuePlacement, setValuePlacament] = useState<string>(colormapsData[selectedColorMapId].valuePlacement);
+  const [gapValue, setGapValue] = useState<number>(colormapsData[selectedColorMapId].gap);
 
+  const readOnly = useAppSelector(state => state.colormap.colormapTree.data[selectedColorMapId].colormapType === ColormapType.SYSTEM ? true : false)
 
-  const dispatch = useAppDispatch();
+  useEffect(() => {
+    setPaletteType(colormapsData[selectedColorMapId].paletteType);
+    setDirection(colormapsData[selectedColorMapId].direction);
+    setTicPosition(colormapsData[selectedColorMapId].ticPosition);
+    setTitlePlacement(colormapsData[selectedColorMapId].titlePlacement);
+    setValuePlacament(colormapsData[selectedColorMapId].valuePlacement);
+    setGapValue(colormapsData[selectedColorMapId].gap)
+  },[selectedColorMapId]);
   
   const onClickBackIcon = () => {
     dispatch(goBack());
@@ -58,9 +68,44 @@ export default function LegendSettings() {
       case "paletteType" :
         setPaletteType(newValue);
       break;
+
+      case "direction" :
+        setDirection(newValue);
+      break;
+
+      case "ticPosition" :
+        setTicPosition(newValue);
+      break;
+
+      case "titlePlacement" :
+        setTitlePlacement(newValue);
+      break;
+
+      case "valuePlacement" :
+        setValuePlacament(newValue);
+      break;
     }
     
   }
+
+  const handleGap = (e : any) => {
+    setGapValue(Number(e.currentTarget.value));
+  }
+
+  const onHandleReset = () => {
+    setPaletteType(colormapsData[selectedColorMapId].paletteType);
+    setDirection(colormapsData[selectedColorMapId].direction);
+    setTicPosition(colormapsData[selectedColorMapId].ticPosition);
+    setTitlePlacement(colormapsData[selectedColorMapId].titlePlacement);
+    setValuePlacament(colormapsData[selectedColorMapId].valuePlacement);
+    setGapValue(colormapsData[selectedColorMapId].gap)
+  }
+
+  const onHandleApply = () => {
+    dispatch(setLegendSettings({colorMapId: selectedColorMapId, newPaletteType: paletteType, newDirection: direction, newTicPosition: ticPosition, newTitlePlacement: titlePlacement, newValuePlacement: valuePlacement, newGap: gapValue}))
+  }
+
+
 
   const getHeaderLeftIcon = () => {
     return (
@@ -155,14 +200,15 @@ export default function LegendSettings() {
   const getBody = () => {
 
     return (
-      <div style={{ padding: "10px" }}>
-        <div style={{marginTop:"10px"}}>
+      <div className={classes.scrollBar}>
+        <div style={{marginTop:"10px", }}>
          <SelectAction
-            style={{ textAlign: "left" ,}}
+            style={{ textAlign: "left"}}
             labelId="display-modes-selection-label-id"
             id="display-modes-selection-id"
             label = {"Palette Type"}
             value={paletteType}
+            disabled = {readOnly}
             onChange={(e : any) => handleSelectChange(e.target.value, "paletteType")}
             MenuProps={{
               disablePortal: true,
@@ -184,7 +230,8 @@ export default function LegendSettings() {
             id="display-modes-selection-id"
             label = {"Direction"}
             value={direction}
-            // onChange={handleSelectChange}
+            disabled = {readOnly}
+            onChange={(e : any) => handleSelectChange(e.target.value, "direction")}
             MenuProps={{
               disablePortal: true,
               anchorOrigin: {
@@ -205,7 +252,8 @@ export default function LegendSettings() {
             id="display-modes-selection-id"
             label = {"Tic Position"}
             value={ticPosition}
-            // onChange={handleSelectChange}
+            disabled = {readOnly}
+            onChange={(e : any) => handleSelectChange(e.target.value, "ticPosition")}
             MenuProps={{
               disablePortal: true,
               anchorOrigin: {
@@ -226,7 +274,8 @@ export default function LegendSettings() {
             id="display-modes-selection-id"
             label = {"Title Placement"}
             value={titlePlacement}
-            // onChange={handleSelectChange}
+            disabled = {readOnly}
+            onChange={(e : any) => handleSelectChange(e.target.value, "titlePlacement")}
             MenuProps={{
               disablePortal: true,
               anchorOrigin: {
@@ -247,7 +296,8 @@ export default function LegendSettings() {
             id="display-modes-selection-id"
             label = {"Value Placement"}
             value={valuePlacement}
-            // onChange={handleSelectChange}
+            disabled = {readOnly}
+            onChange={(e : any) => handleSelectChange(e.target.value, "valuePlacement")}
             MenuProps={{
               disablePortal: true,
               anchorOrigin: {
@@ -269,26 +319,40 @@ export default function LegendSettings() {
             variant="outlined"
             style={{ width: "30%" }}
             size="small"
+            value={gapValue}
+            onChange={handleGap}
           />
         </div>
       </div>
     );
   };
   const getFooter = () => {
+    
+    const selectedData = colormapsData[selectedColorMapId]
+    let disabled = true;
+
+    if(paletteType !== selectedData.paletteType || direction !== selectedData.direction || ticPosition !== selectedData.ticPosition || titlePlacement !== selectedData.titlePlacement || valuePlacement !== selectedData.valuePlacement || gapValue !== selectedData.gap)
+      disabled = false;
     return (
-      <Button
-        variant="contained"
-        style={{
-          backgroundColor: "#5958FF",
-          width: "30%",
-          fontSize: "11px",
-          marginRight: "10px",
-          marginLeft: "10px",
-          marginBottom: "10px",
-        }}
-      >
-        Next
-      </Button>
+      <div style={{marginTop:"20px", marginBottom:"20px"}}>
+                  <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+                    autoFocus 
+                    onClick={onHandleApply} 
+                    // color="primary"
+                    disabled= {disabled}
+                  >
+                    Save
+                  </MuiButton>
+
+                  <MuiButton style={{width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+                    autoFocus 
+                    onClick={onHandleReset} 
+                    // color="primary"
+                    disabled= {disabled}
+                  >
+                    Reset
+                  </MuiButton>
+                </div>
     );
   };
   return (
