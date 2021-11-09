@@ -335,24 +335,24 @@ export default function LegendSettings() {
       disabled = false;
     return (
       <div style={{marginTop:"20px", marginBottom:"20px"}}>
-                  <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
-                    autoFocus 
-                    onClick={onHandleApply} 
-                    // color="primary"
-                    disabled= {disabled}
-                  >
-                    Save
-                  </MuiButton>
+        <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+          autoFocus 
+          onClick={onHandleApply} 
+          // color="primary"
+          disabled= {disabled}
+        >
+          Save
+        </MuiButton>
 
-                  <MuiButton style={{width:"20%", fontSize:"9px" , marginRight:"5px"}} 
-                    autoFocus 
-                    onClick={onHandleReset} 
-                    // color="primary"
-                    disabled= {disabled}
-                  >
-                    Reset
-                  </MuiButton>
-                </div>
+        <MuiButton style={{width:"20%", fontSize:"9px" , marginRight:"5px"}} 
+          autoFocus 
+          onClick={onHandleReset} 
+          // color="primary"
+          disabled= {disabled}
+        >
+          Reset
+        </MuiButton>
+      </div>
     );
   };
   return (

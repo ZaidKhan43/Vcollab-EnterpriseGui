@@ -255,16 +255,25 @@ export default function List(){
             <div>
               { selectedColorMapId !== "-1" && selectedColorMapId !== appliedColorMapId 
                 ?
-                  <div style={{marginTop:"20px", marginBottom:"20px"}}>
-                    <MuiButton style={{backgroundColor:"#5958FF",width:"50%", fontSize:"9px" , marginRight:"5px"}} 
-                      autoFocus 
-                      onClick={onHandleApply} 
-                      // disabled={readOnly}
-                      // color="primary"
-                    >
-                     {treeDataRedux[selectedColorMapId].downloaded === true ? "Apply" : `${fileSize(treeDataRedux[selectedColorMapId].size)} Download & Apply`} 
-                    </MuiButton>
-                  </div>
+                  <MuiGrid container  style={{marginTop:"20px", marginBottom:"20px"}}>
+                    { treeDataRedux[selectedColorMapId].downloaded === true
+                      ?
+                        <MuiGrid item xs={4}></MuiGrid>
+                      :
+                        <MuiGrid item xs={4}> {fileSize(treeDataRedux[selectedColorMapId].size)} </MuiGrid> 
+                    }
+                    <MuiGrid item>
+                      <MuiButton style={{backgroundColor:"#5958FF",width:"100%", fontSize:"9px" , marginRight:"5px"}} 
+                        autoFocus 
+                        onClick={onHandleApply} 
+                        // disabled={readOnly}
+                        // color="primary"
+                      >
+                        {treeDataRedux[selectedColorMapId].downloaded === true ? "Apply" : "Download & Apply"} 
+                      </MuiButton>
+                    </MuiGrid>
+                  </MuiGrid>
+                  
                 :
                    null
               }                                 
