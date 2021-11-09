@@ -33,206 +33,10 @@ interface InitialState extends ITreeState {
 }
 
 const initialState : InitialState = {
-    data : {
-        "0" :{
-            id: "0",
-            pid: "-1",
-            title: "Point to Point",
-            children: ["4","5","6"],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "",
-        },
-        "1" :{
-            id: "1",
-            pid: "-1",
-            title: "3 Point Arc Length",
-            children: ["7","8"],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "",
-        },
-        "2" :{
-            id: "2",
-            pid: "-1",
-            title: "Point to Edge",
-            children: ["9","10"],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "",
-        },
-        "3" :{
-            id: "3",
-            pid: "-1",
-            title: "Point to Face",
-            children: ["11","12"],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "",
-        },
-        "4" :{
-            id: "4",
-            pid: "0",
-            title: "Measurement 1",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet,",
-        },
-        "5" :{
-            id: "5",
-            pid: "0",
-            title: "Measurement 2",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        },
-        "6" :{
-            id: "6",
-            pid: "0",
-            title: "Measurement 3",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        },
-        "7" :{
-            id: "7",
-            pid: "1",
-            title: "Measurement 4",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        },
-        "8" :{
-            id: "8",
-            pid: "1",
-            title: "Measurement 5",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet,",
-        },
-        "9" :{
-            id: "9",
-            pid: "2",
-            title: "Measurement 6",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean neque mi,",
-        },
-        "10" :{
-            id: "10",
-            pid: "2",
-            title: "Measurement 7",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        },
-        "11" :{
-            id: "11",
-            pid: "3",
-            title: "Measurement 8",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet,",
-        },
-        "12" :{
-            id: "12",
-            pid: "3",
-            title: "Measurement 9",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        },
-    },
-    rootIds : ["0","1","2","3"],
+    data : {},
+    rootIds : [],
     measurementsSettings :{
-        idGenerator:12,
+        idGenerator: -1,
         defaultParameters:{
                 id: "",
                 pid: null,
@@ -248,7 +52,7 @@ const initialState : InitialState = {
                 attributes: {},
                 label: "Lorem ipsum dolor sit amet",
         },
-        childCount : 9,
+        childCount : 0,
     }
 }
 
@@ -264,6 +68,19 @@ export const measurementsSlice = createSlice({
         expandNode: expandNodeReducer,
         toggleVisibility: toggleVisibilityReducer,
         setCheckedVisibility: setCheckedVisibilityReducer,
+
+        createParentLabel : (state, action: PayloadAction<{name:string}>) => {
+            state.measurementsSettings.idGenerator += 1;
+            const id =state.measurementsSettings.idGenerator;
+            let newParent = {...state.measurementsSettings.defaultParameters};
+            newParent.id = `${state.measurementsSettings.idGenerator}`;
+            newParent.pid = "-1";
+            newParent.title = action.payload.name;
+            newParent.label = "";
+            state.data[`${id}`] =newParent;
+
+            state.rootIds.push(newParent.id);
+        },
         
         createLabel : (state , action: PayloadAction<number>) => {
                 state.measurementsSettings.idGenerator += 1;
@@ -307,7 +124,7 @@ export const measurementsSlice = createSlice({
 })
 
 export default measurementsSlice.reducer;
-export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility , createLabel,editLabel, delete3DLabel} = measurementsSlice.actions;
+export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility , createLabel,editLabel, delete3DLabel, createParentLabel} = measurementsSlice.actions;
 
 //Selectors
 

@@ -12,7 +12,6 @@ import { useAppSelector, useAppDispatch } from '../store/storeHooks';
 import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
         setAppBarVisibility, setFullscreenState ,selectModelLoadedState, setPopupMenuActiveContent } from '../store/appSlice';
 import { appBarMinHeight, popupMenuContentTypes } from '../config';
-import SnackBar from "./sideBarContents/messages/SnackBar";
 import WindowsContainer from "./layout/windowsContainer";
 import Viewer from './viewer';
 import { fetchCameraStdViews } from '../store/sideBar/sceneSlice';
@@ -86,7 +85,6 @@ function App() {
             <WindowsContainer parentRef={viewerContainerRef}/>
           </div>     
         </main>
-        <SnackBar/>
       </div>
     </FullScreen>
 

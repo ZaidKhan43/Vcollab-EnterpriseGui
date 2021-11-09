@@ -493,8 +493,9 @@ var ModelTreeBuilder = /** @class */ (function () {
     return URLObject;
 }());
 var GltfUrlExtractor = /** @class */ (function () {
-    function GltfUrlExtractor(_glftJSON) {
+    function GltfUrlExtractor(_glftJSON, renderApp) {
         this.glftJSON = _glftJSON;
+        this.renderApp = renderApp;
     }
     GltfUrlExtractor.prototype.getNodeURLs = function (nodeIndex) {
         var urlObjArray = [];
@@ -502,7 +503,7 @@ var GltfUrlExtractor = /** @class */ (function () {
             var nodes = this.glftJSON.nodes;
             if (nodeIndex < nodes.length) {
                 var meshIndex = nodes[nodeIndex].mesh;
-                urlObjArray = this.getMeshURLs(meshIndex);
+                urlObjArray = this.getMeshURLs(nodeIndex, meshIndex);
                 urlObjArray.forEach(function (item) {
                     item.nodeIndex = nodeIndex;
                 });
@@ -510,7 +511,7 @@ var GltfUrlExtractor = /** @class */ (function () {
         }
         return urlObjArray;
     };
-    GltfUrlExtractor.prototype.getMeshURLs = function (meshIndex) {
+    GltfUrlExtractor.prototype.getMeshURLs = function (nodeIndex, meshIndex) {
         var _this = this;
         var urlObjArray = [];
         if (meshIndex !== null && meshIndex !== undefined) {
@@ -526,7 +527,9 @@ var GltfUrlExtractor = /** @class */ (function () {
                     var urlObj = _this.getAccessorURLs(accessorIndex);
                     if (urlObj) {
                         urlObj.meshIndex = meshIndex;
-                        urlObjArray.push(urlObj);
+                        var isDownloaded = _this.renderApp.getIsAttributeDataAvailable(nodeIndex, "accessor_" + urlObj.accessorIndex);
+                        if (isDownloaded === false)
+                            urlObjArray.push(urlObj);
                     }
                 });
             }
@@ -611,7 +614,7 @@ var Logger = /** @class */ (function () {
         this.mcax = _mcax;
         this.renderApp = _renderApp;
         this.connector = _connector;
-        this.gltfurlExtractor = new GltfUrlExtractor(_mcax.gltf);
+        this.gltfurlExtractor = new GltfUrlExtractor(_mcax.gltf, this.renderApp);
     }
     //########################################################
     ProgressiveLoader.prototype.showDefaultDisplay = function () {
@@ -828,7 +831,11 @@ var Logger = /** @class */ (function () {
                     var urlOjb = _this.gltfurlExtractor.getNodeURLs(gltfNodeIndex);
                     urlObjArray.push(urlOjb);
                 });
-                clubbedURLObjList = ManagedURLDownloader.processURLObject(urlObjArray);
+                console.log("before", urlObjArray);
+                clubbedURLObjList = ManagedURLDownloader.processURLObject(downloadId, urlObjArray);
+                if (clubbedURLObjList.length === 0)
+                    return [2 /*return*/, Promise.resolve()];
+                console.log("after club", clubbedURLObjList);
                 maxLength = 0;
                 urlCount = 0;
                 clubbedURLObjList.forEach(function (item) {
@@ -871,7 +878,7 @@ var Logger = /** @class */ (function () {
             offset = offset + length;
         });
     };
-    ProgressiveLoader.prototype.loadLevelNodes_working = function (representationList) {
+    ProgressiveLoader.prototype.loadLevelNodes_working = function (downloadId, representationList) {
         var _this = this;
         if (representationList instanceof Array) {
             var urlObjArray_1 = [];
@@ -884,7 +891,7 @@ var Logger = /** @class */ (function () {
                     urlObjArray_1.push(urlOjb);
                 }
             });
-            var clubbedURLObjList = ManagedURLDownloader.processURLObject(urlObjArray_1);
+            var clubbedURLObjList = ManagedURLDownloader.processURLObject(downloadId, urlObjArray_1);
             var maxLength_1 = 0;
             clubbedURLObjList.forEach(function (item) {
                 maxLength_1 = (item.length > maxLength_1) ? item.length : maxLength_1;
@@ -926,22 +933,45 @@ var Logger = /** @class */ (function () {
 var ManagedURLDownloader = /** @class */ (function () {
     function ManagedURLDownloader() {
     }
-    ManagedURLDownloader.processURLObject = function (urlObjArray) {
+    ManagedURLDownloader.createURLGroup = function (groupId) {
+        this.cache.set(groupId, new Map());
+    };
+    ManagedURLDownloader.isChunkCached = function (cachedUrlObj, urlObj) {
+        var found = cachedUrlObj.find(function (e) { return e.offset === urlObj.bufferViewOffset && e.len === urlObj.bufferViewLength; });
+        return found ? true : false;
+    };
+    ManagedURLDownloader.processURLObject = function (groupId, urlObjArray) {
         var _this = this;
+        var urlCache = this.cache.get(groupId);
         var urlMap = new Map();
         urlObjArray.forEach(function (item) {
             item.forEach(function (urlObj) {
-                if (!(urlMap.get(urlObj.url)))
-                    urlMap.set(urlObj.url, []);
-                (urlMap.get(urlObj.url)).push(urlObj);
+                if (!(urlCache.has(urlObj.url))) {
+                    urlCache.set(urlObj.url, [{ offset: urlObj.bufferViewOffset, len: urlObj.bufferViewLength }]);
+                    urlMap.set(urlObj.url, [urlObj]);
+                }
+                else {
+                    var cachedUrlObj = urlCache.get(urlObj.url);
+                    if (_this.isChunkCached(cachedUrlObj, urlObj) === false) {
+                        cachedUrlObj.push({ offset: urlObj.bufferViewOffset, len: urlObj.bufferViewLength });
+                        if (urlMap.has(urlObj.url))
+                            (urlMap.get(urlObj.url)).push(urlObj);
+                        else
+                            urlMap.set(urlObj.url, [urlObj]);
+                    }
+                }
             });
         });
         var uniqueURLs = __spread(urlMap.keys());
         var clubbedURLObjList = [];
         uniqueURLs.forEach(function (url) {
-            clubbedURLObjList.push(_this.URLMerger(url, urlMap.get(url)));
+            var clubbedUrlObj = _this.URLMerger(url, urlMap.get(url));
+            clubbedURLObjList.push(clubbedUrlObj);
         });
         return clubbedURLObjList;
+    };
+    ManagedURLDownloader.deleteURLGroup = function (groupId) {
+        this.cache.delete(groupId);
     };
     ManagedURLDownloader.URLMerger = function (_url, specificUrlObjArray) {
         var groupedIndex = [];
@@ -1004,6 +1034,7 @@ var ManagedURLDownloader = /** @class */ (function () {
         return clubbedURLObjects;
     };
     ManagedURLDownloader.downloadSizeLimit = 4 * 1024 * 1024; // 4 MB
+    ManagedURLDownloader.cache = new Map();
     return ManagedURLDownloader;
 }());var basicType = Object.freeze({
     ANALYTICAL: 1,
@@ -1892,8 +1923,10 @@ var sqrLen = squaredLength;
 })(viewerEvents || (viewerEvents = {}));
 var internalEvents;
 (function (internalEvents) {
+    internalEvents["NETWORK_CREATE_GROUP"] = "NETWORK_CREATE_GROUP";
     internalEvents["NETWORK_ADD_PART"] = "NETWORK_ADD_PART";
     internalEvents["NETWORK_UPDATE_PART"] = "NETWORK_UPDATE_PART";
+    internalEvents["NETWORK_DELETE_GROUP"] = "NETWORK_DELETE_GROUP";
 })(internalEvents || (internalEvents = {}));
 var globalEvents;
 (function (globalEvents) {
@@ -4610,6 +4643,9 @@ var errorCode$1 = {
     WEBGLBuffer.prototype.setGLTFAccessor = function (accessor) {
         this.GLTFAccessor = accessor;
     };
+    WEBGLBuffer.prototype.getGLTFAccessorId = function () {
+        return this.GLTFAccessor.accessor.uid;
+    };
     WEBGLBuffer.prototype.updateData = function (data) {
         if (data) {
             this.bind();
@@ -6717,83 +6753,6 @@ var normalize$2 = normalize$1$1;
     matr[5] = -view[1];
     matr[8] = -view[2];
     return normalize$2(out, fromMat3(out, matr));
-  };
-}());/**
- * 2 Dimensional Vector
- * @module vec2
- */
-
-/**
- * Creates a new, empty vec2
- *
- * @returns {vec2} a new 2D vector
- */
-
-function create$5() {
-  var out = new ARRAY_TYPE$1(2);
-
-  if (ARRAY_TYPE$1 != Float32Array) {
-    out[0] = 0;
-    out[1] = 0;
-  }
-
-  return out;
-}
-/**
- * Creates a new vec2 initialized with the given values
- *
- * @param {Number} x X component
- * @param {Number} y Y component
- * @returns {vec2} a new 2D vector
- */
-
-function fromValues$4(x, y) {
-  var out = new ARRAY_TYPE$1(2);
-  out[0] = x;
-  out[1] = y;
-  return out;
-}
-/**
- * Perform some operation over an array of vec2s.
- *
- * @param {Array} a the array of vectors to iterate over
- * @param {Number} stride Number of elements between the start of each vec2. If 0 assumes tightly packed
- * @param {Number} offset Number of elements to skip at the beginning of the array
- * @param {Number} count Number of vec2s to iterate over. If 0 iterates over entire array
- * @param {Function} fn Function to call for each vector in the array
- * @param {Object} [arg] additional argument to pass to fn
- * @returns {Array} a
- * @function
- */
-
-(function () {
-  var vec = create$5();
-  return function (a, stride, offset, count, fn, arg) {
-    var i, l;
-
-    if (!stride) {
-      stride = 2;
-    }
-
-    if (!offset) {
-      offset = 0;
-    }
-
-    if (count) {
-      l = Math.min(count * stride + offset, a.length);
-    } else {
-      l = a.length;
-    }
-
-    for (i = offset; i < l; i += stride) {
-      vec[0] = a[i];
-      vec[1] = a[i + 1];
-      fn(vec, vec, arg);
-      a[i] = vec[0];
-      a[i + 1] = vec[1];
-    }
-
-    return a;
   };
 }());var Utility$1;
 (function (Utility) {
@@ -10567,9 +10526,6 @@ var CameraControl = /** @class */ (function (_super) {
             this.orthoParams.orthoZoomFactor = 0.00001;
         return ortho(this.orthCamera.pMatrix, this.orthoParams.left, this.orthoParams.right, this.orthoParams.bottom, this.orthoParams.top, this.orthoParams.near, this.orthoParams.far);
     };
-    CameraControl.prototype.dispatchCameraChangeEvent = function () {
-        this.dispatchEvent({ type: 'change', message: null });
-    };
     CameraControl.prototype.setBoundingBox = function (bbox) {
         this.sceneBoundingBox = bbox;
     };
@@ -11498,7 +11454,7 @@ var Renderer2D = /** @class */ (function () {
             return;
         }
         shader.bind();
-        shader.setMat4f(uniforms.uProjectionMatrix, this.camControl.perspCamera.projectionViewMatrix);
+        shader.setMat4f(uniforms.uProjectionMatrix, this.camControl.camType === CameraType.Perspective ? this.camControl.perspCamera.projectionViewMatrix : this.camControl.orthCamera.projectionViewMatrix);
         shader.setMat4f(uniforms.uModelViewMatrix, worldMatrix);
         shader.setVector3f(uniforms.uColor, new Float32Array(color));
         if (mesh.attribs.position) {
@@ -11548,7 +11504,9 @@ var Renderer2D = /** @class */ (function () {
         if (nodes.length > 0 && this.axis3DHelper && center) {
             var camPos = this.camControl.getPosition();
             var objPos = center;
-            var scaleToFit = dist(camPos, objPos) * Math.tan(this.camControl.perspParams.fov / 2) * 0.5; // some constant to fit to proper size
+            var scaleToFit = this.camControl.camType === CameraType.Perspective ?
+                dist(camPos, objPos) * Math.tan(Math.PI / 180 * this.camControl.perspParams.fov / 2) * 0.1 // some constant to fit to proper size
+                : this.camControl.orthoParams.orthoZoomFactor * 0.25;
             var scale = create$1$1();
             var trans = create$1$1();
             trans[12] = objPos[0];
@@ -12213,7 +12171,7 @@ function isStandardBrowserEnv$1() {
  * @param {Object|Array} obj The object to iterate
  * @param {Function} fn The callback to invoke for each item
  */
-function forEach$3(obj, fn) {
+function forEach$2(obj, fn) {
   // Don't bother if no value provided
   if (obj === null || typeof obj === 'undefined') {
     return;
@@ -12272,7 +12230,7 @@ function merge$1(/* obj1, obj2, obj3, ... */) {
   }
 
   for (var i = 0, l = arguments.length; i < l; i++) {
-    forEach$3(arguments[i], assignValue);
+    forEach$2(arguments[i], assignValue);
   }
   return result;
 }
@@ -12286,7 +12244,7 @@ function merge$1(/* obj1, obj2, obj3, ... */) {
  * @return {Object} The resulting value of object a
  */
 function extend$1(a, b, thisArg) {
-  forEach$3(b, function assignValue(val, key) {
+  forEach$2(b, function assignValue(val, key) {
     if (thisArg && typeof val === 'function') {
       a[key] = bind$1(val, thisArg);
     } else {
@@ -12327,7 +12285,7 @@ var utils$1 = {
   isStream: isStream$1,
   isURLSearchParams: isURLSearchParams$1,
   isStandardBrowserEnv: isStandardBrowserEnv$1,
-  forEach: forEach$3,
+  forEach: forEach$2,
   merge: merge$1,
   extend: extend$1,
   trim: trim$1,
@@ -14720,141 +14678,146 @@ var MouseControl = /** @class */ (function (_super) {
         _this.rotationPointNode = null;
         return _this;
     }
-    MouseControl.prototype.handleContatinerDoubleClick = function (event) {
-        event = event || window.event;
-        this.mouseDown = KeyState.DOWN;
-        this.mouseButtonPressed = (event.keyCode || event.which);
-        var mouse = fromValues$4(event.clientX, event.clientY);
-        var contatinerPos = MathUtils.getContainerBox(this.container);
-        var containerTop = contatinerPos[0];
-        var containerLeft = contatinerPos[1];
-        this.lastMouseX = mouse[0] - containerLeft;
-        this.lastMouseY = mouse[1] - containerTop;
-        if (this.mouseButtonPressed == 1) {
-            fromValues$4(this.lastMouseX, (contatinerPos[2] - containerTop) - this.lastMouseY);
-            AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.DBL_CLICK, message: event });
-            //let triangle = AppObjects.picker.probePart();
-            //AppObjects.picker.highlightPart();
-        }
-        event.preventDefault();
-        this.handleContainerMouseUp(event);
-    };
-    MouseControl.prototype.handleContainerMouseDown = function (event) {
-        event = event || window.event; //window.event for IE
-        this.mouseDown = KeyState.DOWN;
-        this.mouseButtonPressed = (event.keyCode || event.which);
-        var mouse = fromValues$4(event.clientX, event.clientY);
-        var contatinerPos = MathUtils.getContainerBox(this.container);
-        var containerTop = contatinerPos[0];
-        var containerLeft = contatinerPos[1];
-        this.lastMouseX = mouse[0] - containerLeft;
-        this.lastMouseY = mouse[1] - containerTop;
-        var _altKeyPressed = event.altKey;
-        var _ctrlKeyPressed = event.ctrlKey;
-        if ((AppObjects.picker.isProbingEnabled == true || _altKeyPressed == true)
-            && this.mouseButtonPressed == 1) {
-            var rotationPoint = undefined;
-            if (rotationPoint !== undefined && _altKeyPressed == true) {
-                this.camControls.setRotationPoint(fromValues$1$1(rotationPoint[0], rotationPoint[1], rotationPoint[2]));
-                //visualize point
-                if (!this.rotationPointNode) {
-                    this.rotationPointNode = this.getPointMesh('rotationPoint', rotationPoint);
-                    AppObjects.renderer.addCustomRenderNode(this.rotationPointNode);
-                }
-            }
-            else if (_altKeyPressed == true) {
-                var pointOfRotation = this.camControls.getRotationPoint();
-                if (!this.rotationPointNode) {
-                    this.rotationPointNode = this.getPointMesh('rotationPoint', pointOfRotation);
-                    this.rotationPointNode.visible = true;
-                    AppObjects.renderer.addCustomRenderNode(this.rotationPointNode);
-                }
-            }
-        }
-        if (_ctrlKeyPressed == true && this.mouseButtonPressed == 1) {
-            this.mouseButtonPressed = 2;
-        }
-        // AppState.AltKeyState = _altKeyPressed;
-        // AppState.CtrlKeyState = _ctrlKeyPressed;
-        this.camControls.resetZoomFactor();
-        event.preventDefault();
-        AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_DOWN, message: event });
-    };
-    MouseControl.prototype.handleContainerMouseUp = function (event) {
-        event = event || window.event; //window.event for IE
-        event.preventDefault();
-        if (this.rotationPointNode) {
-            AppObjects.renderer.deleteCustomRenderNode(this.rotationPointNode);
-            this.rotationPointNode = null;
-        }
-        this.mouseDown = KeyState.UP;
-        this.mouseButtonPressed = MouseButton.NONE;
-        this.dispatchEvent({ type: 'end', message: null });
-        AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_UP, message: event });
-    };
-    MouseControl.prototype.handleContainerMouseMove = function (event) {
-        event = event || window.event; //window.event for IE
-        if (this.mouseDown == KeyState.DOWN) {
-            var contatinerPos = MathUtils.getContainerBox(this.container);
-            var containerTop = contatinerPos[0];
-            var containerLeft = contatinerPos[1];
-            var newX = event.clientX - containerLeft;
-            var newY = event.clientY - containerTop;
-            //this.camControls.resetZoomSensitivity();
-            var isPartMoveEnabled = AppObjects.partManipulator.isPartMoveEnabled;
-            if (this.mouseButtonPressed === MouseButton.LEFT) //Left button
-             {
-                if (isPartMoveEnabled) {
-                    AppObjects.partManipulator.rotatePart(newX, newY, this.lastMouseX, this.lastMouseY);
-                }
-                else
-                    this.camControls.onMouseRotation(newX, newY, this.lastMouseX, this.lastMouseY);
-            }
-            else if (this.mouseButtonPressed === MouseButton.MIDDLE) //middle Button
-             {
-                var diff = (this.lastMouseY - newY);
-                if (isPartMoveEnabled) {
-                    AppObjects.partManipulator.translateZ(diff);
-                }
-                else {
-                    this.camControls.setZoomType(ZoomType.MIDDLE_ZOOM);
-                    if (diff > 0)
-                        this.camControls.zoomOut(diff);
-                    else if (diff < 0)
-                        this.camControls.zoomIn(Math.abs(diff));
-                }
-            }
-            else if (this.mouseButtonPressed === MouseButton.RIGHT) //right Button
-             {
-                if (isPartMoveEnabled) {
-                    AppObjects.partManipulator.translatePart(newX, newY, this.lastMouseX, this.lastMouseY);
-                }
-                else
-                    this.camControls.onMousePanRotation(newX, newY, this.lastMouseX, this.lastMouseY);
-            }
-            this.lastMouseX = newX;
-            this.lastMouseY = newY;
-        }
-        event.preventDefault();
-        AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_MOVE, message: event });
-    };
-    MouseControl.prototype.scroll = function (event) {
-        var factor = 1;
-        var rect = this.container.getBoundingClientRect();
-        var newX = Math.round((event.clientX - rect.left) / (rect.right - rect.left) * rect.width);
-        var newY = rect.height - Math.round((event.clientY - rect.top) / (rect.bottom - rect.top) * rect.height);
-        //newY = newY + CAXViewer.ViewerTopOffset;
-        var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
-        this.camControls.setZoomType(ZoomType.MOUSE_WHEEL);
-        if (delta > 0) {
-            this.camControls.pointZoomIn(newX, rect.height - newY, factor);
-        }
-        else {
-            this.camControls.pointZoomOut(newX, rect.height - newY, factor);
-        }
-        event.preventDefault();
-        AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_SCROLL, message: event });
-    };
+    // public handleContatinerDoubleClick(event){
+    //     event = event || window.event;
+    //     this.mouseDown = KeyState.DOWN;
+    //     this.mouseButtonPressed = (event.keyCode || event.which);
+    //     let mouse = glmatrix.vec2.fromValues(event.clientX,event.clientY);
+    //     let contatinerPos = MathUtils.getContainerBox(this.container);
+    //     let containerTop = contatinerPos[0];
+    //     let containerLeft = contatinerPos[1];
+    //     this.lastMouseX = mouse[0] - containerLeft;
+    //     this.lastMouseY = mouse[1] - containerTop;
+    //     if(this.mouseButtonPressed == 1)
+    //      {
+    //          let mouseXY = glmatrix.vec2.fromValues(
+    //             this.lastMouseX,(contatinerPos[2]-containerTop)-this.lastMouseY
+    //         )
+    //         AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.DBL_CLICK, message: event })
+    //          //let triangle = AppObjects.picker.probePart();
+    //          //AppObjects.picker.highlightPart();
+    //      }
+    //      event.preventDefault();
+    //      this.handleContainerMouseUp(event);
+    // }
+    // public handleContainerMouseDown(event)
+    // {
+    //     event = event || window.event; //window.event for IE
+    //     this.mouseDown = KeyState.DOWN;
+    //     this.mouseButtonPressed = (event.keyCode || event.which);
+    //     let mouse = glmatrix.vec2.fromValues(event.clientX,event.clientY);
+    //     let contatinerPos = MathUtils.getContainerBox(this.container);
+    //     let containerTop = contatinerPos[0];
+    //     let containerLeft = contatinerPos[1];
+    //     this.lastMouseX = mouse[0] - containerLeft;
+    //     this.lastMouseY = mouse[1] - containerTop;
+    //     let _altKeyPressed = event.altKey;
+    //     let _ctrlKeyPressed = event.ctrlKey;
+    //      if ((AppObjects.picker.isProbingEnabled == true || _altKeyPressed == true) 
+    //           && this.mouseButtonPressed == 1) {
+    //         let rotationPoint = undefined;
+    //          if(rotationPoint!==undefined && _altKeyPressed == true)
+    //          {
+    //             this.camControls.setRotationPoint(glmatrix.vec3.fromValues(rotationPoint[0],rotationPoint[1],rotationPoint[2]));
+    //             //visualize point
+    //             if(!this.rotationPointNode){
+    //                 this.rotationPointNode = this.getPointMesh('rotationPoint',rotationPoint);
+    //                 AppObjects.renderer.addCustomRenderNode(this.rotationPointNode);
+    //             }
+    //         }else if(_altKeyPressed == true){
+    //             let pointOfRotation = this.camControls.getRotationPoint();
+    //             if(!this.rotationPointNode){
+    //                 this.rotationPointNode = this.getPointMesh('rotationPoint',pointOfRotation);
+    //                 this.rotationPointNode.visible = true;
+    //                 AppObjects.renderer.addCustomRenderNode(this.rotationPointNode);
+    //             }
+    //         }
+    //      }
+    //     if (_ctrlKeyPressed == true && this.mouseButtonPressed == 1) {
+    //         this.mouseButtonPressed = 2;
+    //     }
+    //     // AppState.AltKeyState = _altKeyPressed;
+    //     // AppState.CtrlKeyState = _ctrlKeyPressed;
+    //     this.camControls.resetZoomFactor();
+    //     event.preventDefault();
+    //     AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_DOWN, message: event })
+    // }
+    // public handleContainerMouseUp(event)
+    // {
+    //     event = event || window.event; //window.event for IE
+    //     event.preventDefault();
+    //     if(this.rotationPointNode){
+    //         AppObjects.renderer.deleteCustomRenderNode(this.rotationPointNode);
+    //         this.rotationPointNode = null;
+    //     }
+    //     this.mouseDown = KeyState.UP;
+    //     this.mouseButtonPressed = MouseButton.NONE;
+    //     this.dispatchEvent( { type: 'end', message: null } );
+    //     AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_UP, message: event })
+    // }
+    // public handleContainerMouseMove(event)
+    // {
+    //     event = event || window.event; //window.event for IE
+    //     if( this.mouseDown == KeyState.DOWN )
+    //     {
+    //         let contatinerPos = MathUtils.getContainerBox(this.container);
+    //         let containerTop = contatinerPos[0];
+    //         let containerLeft = contatinerPos[1];
+    //         let newX = event.clientX - containerLeft;
+    //         let newY = event.clientY - containerTop;
+    //         //this.camControls.resetZoomSensitivity();
+    //         let isPartMoveEnabled = AppObjects.partManipulator.isPartMoveEnabled;
+    //         if(this.mouseButtonPressed === MouseButton.LEFT)//Left button
+    //         {
+    //             if(isPartMoveEnabled){
+    //                 AppObjects.partManipulator.rotatePart(newX,newY,this.lastMouseX,this.lastMouseY);
+    //             }else
+    //             this.camControls.onMouseRotation(newX,newY,this.lastMouseX,this.lastMouseY);
+    //         }
+    //         else if(this.mouseButtonPressed === MouseButton.MIDDLE) //middle Button
+    //         {
+    //             let diff = ( this.lastMouseY - newY);
+    //             if(isPartMoveEnabled){
+    //                 AppObjects.partManipulator.translateZ(diff);
+    //             }else{
+    //                 this.camControls.setZoomType(ZoomType.MIDDLE_ZOOM);
+    //                 if(diff >0)
+    //                 this.camControls.zoomOut(diff);
+    //                 else if(diff<0)
+    //                 this.camControls.zoomIn(Math.abs(diff));
+    //             }
+    //         }
+    //         else if(this.mouseButtonPressed === MouseButton.RIGHT) //right Button
+    //         {
+    //             if(isPartMoveEnabled){
+    //                 AppObjects.partManipulator.translatePart(newX,newY,this.lastMouseX,this.lastMouseY);
+    //             }else
+    //             this.camControls.onMousePanRotation(newX,newY,this.lastMouseX,this.lastMouseY);
+    //         }
+    //         this.lastMouseX = newX;
+    //         this.lastMouseY = newY;
+    //     }
+    //     event.preventDefault();
+    //     AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_MOVE, message: event })
+    // }
+    // public scroll(event)
+    // {
+    //     let factor = 1;
+    //     let rect = this.container.getBoundingClientRect();
+    //     let newX = Math.round((event.clientX - rect.left) / (rect.right - rect.left) * rect.width);
+    //     let newY = rect.height - Math.round((event.clientY - rect.top) / (rect.bottom - rect.top) * rect.height);
+    //     //newY = newY + CAXViewer.ViewerTopOffset;
+    //     let delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+    //     this.camControls.setZoomType(ZoomType.MOUSE_WHEEL);
+    //     if (delta > 0) {
+    //         this.camControls.pointZoomIn(newX, rect.height - newY, factor);
+    //     }
+    //     else {
+    //         this.camControls.pointZoomOut(newX, rect.height - newY, factor);
+    //     }
+    //     event.preventDefault();
+    //     AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_SCROLL, message: event })
+    // } 
     MouseControl.prototype.contextmenu = function (event) {
         if (this.enabled === false)
             return;
@@ -16517,6 +16480,10 @@ var MouseInput = /** @class */ (function () {
             event.preventDefault();
         });
         this.container.addEventListener("dblclick", function (event) {
+            AppObjects.externalEventDispatcher.dispatchEvent({
+                type: Events.DBL_CLICK,
+                data: event
+            });
             event.preventDefault();
         });
         this.container.addEventListener("contextmenu", function (event) {
@@ -17083,7 +17050,10 @@ var Commands = /** @class */ (function () {
                         if ((_a = AppObjects.input) === null || _a === void 0 ? void 0 : _a.Mouse) {
                             var _b = __read$1(AppObjects.input.Mouse.LastXY, 2), lastX = _b[0], lastY = _b[1];
                             var _c = __read$1(AppObjects.input.Mouse.NewXY, 2), newX = _c[0], newY = _c[1];
-                            AppObjects.renderer.camControl.onMouseRotation(newX, newY, lastX, lastY);
+                            if (AppObjects.partManipulator.isPartMoveEnabled)
+                                AppObjects.partManipulator.rotatePart(newX, newY, lastX, lastY);
+                            else
+                                AppObjects.renderer.camControl.onMouseRotation(newX, newY, lastX, lastY);
                             return true;
                         }
                         else {
@@ -17097,7 +17067,10 @@ var Commands = /** @class */ (function () {
                         if ((_a = AppObjects.input) === null || _a === void 0 ? void 0 : _a.Mouse) {
                             var _b = __read$1(AppObjects.input.Mouse.LastXY, 2), lastX = _b[0], lastY = _b[1];
                             var _c = __read$1(AppObjects.input.Mouse.NewXY, 2), newX = _c[0], newY = _c[1];
-                            AppObjects.renderer.camControl.onMousePanRotation(newX, newY, lastX, lastY);
+                            if (AppObjects.partManipulator.isPartMoveEnabled)
+                                AppObjects.partManipulator.translatePart(newX, newY, lastX, lastY);
+                            else
+                                AppObjects.renderer.camControl.onMousePanRotation(newX, newY, lastX, lastY);
                             return true;
                         }
                         else {
@@ -17149,8 +17122,12 @@ var Commands = /** @class */ (function () {
                             var _b = __read$1(AppObjects.input.Mouse.NewXY, 2), newX = _b[0], newY = _b[1];
                             var _c = __read$1(AppObjects.input.Mouse.LastXY, 2), lastX = _c[0], lastY = _c[1];
                             var delta = AppObjects.input.Mouse.IsVerticalDrag ? lastY - newY : lastX - newX;
-                            if (delta > 0)
-                                AppObjects.renderer.camControl.zoomIn(delta);
+                            if (delta > 0) {
+                                if (AppObjects.partManipulator.isPartMoveEnabled)
+                                    AppObjects.partManipulator.translateZ(delta);
+                                else
+                                    AppObjects.renderer.camControl.zoomIn(delta);
+                            }
                             else
                                 return false;
                             return true;
@@ -17168,8 +17145,12 @@ var Commands = /** @class */ (function () {
                             var _b = __read$1(AppObjects.input.Mouse.NewXY, 2), newX = _b[0], newY = _b[1];
                             var _c = __read$1(AppObjects.input.Mouse.LastXY, 2), lastX = _c[0], lastY = _c[1];
                             var delta = AppObjects.input.Mouse.IsVerticalDrag ? lastY - newY : lastX - newX;
-                            if (delta < 0)
-                                AppObjects.renderer.camControl.zoomOut(Math.abs(delta));
+                            if (delta < 0) {
+                                if (AppObjects.partManipulator.isPartMoveEnabled)
+                                    AppObjects.partManipulator.translateZ(delta);
+                                else
+                                    AppObjects.renderer.camControl.zoomOut(Math.abs(delta));
+                            }
                             else
                                 return false;
                             return true;
@@ -17436,7 +17417,6 @@ var Commands = /** @class */ (function () {
                         }
                 });
             }
-            console.log(nodes);
         });
     };
     App.prototype.setHighlightedNodes = function (nodeIds, visibility) {
@@ -17450,7 +17430,7 @@ var Commands = /** @class */ (function () {
             else {
                 AppObjects.renderer.highlightedNodes.delete(node.index);
             }
-            console.log(node.mesh.subMeshes['primitive_0'].material.diffuseColor = visibility ? [1, 1, 0] : [0, 0, 0]);
+            //console.log(node.mesh.subMeshes['primitive_0'].material.diffuseColor = visibility ? [1,1,0] : [0,0,0]);
         });
     };
     App.prototype.cloneRenderNode = function (sourceRenderNodeId, targetRenderNodeId, isDeep) {
@@ -17584,6 +17564,7 @@ var Commands = /** @class */ (function () {
     };
     App.prototype.setNodeVisibility = function (nodeIndexList, visibility) {
         var nodes = this.sceneManager.getRenderNodes();
+        //console.log(nodes);
         if (nodeIndexList && nodeIndexList instanceof Array && nodeIndexList.length > 0) {
             nodeIndexList.forEach(function (index) {
                 for (var i = 0; i < nodes.length; i++)
@@ -17687,6 +17668,50 @@ var Commands = /** @class */ (function () {
             }
         }
         return returnValue;
+    };
+    App.prototype.getIsAttributeDataAvailable = function (nodeIdx, accessorId) {
+        var _a, _b, _c, _d;
+        var node = this.sceneManager.getRenderNodes().find(function (e) { return e.index === nodeIdx; });
+        if (node) {
+            if (node.mesh) {
+                var meshes = [];
+                if (node.mesh.mainMesh) {
+                    meshes.push(node.mesh.mainMesh);
+                }
+                for (var key in node.mesh.subMeshes) {
+                    var submesh = node.mesh.subMeshes[key];
+                    meshes.push(submesh);
+                }
+                var found = false;
+                var isDataAvailable = false;
+                for (var i = 0; i < meshes.length; i++) {
+                    var attrb = meshes[i].attribs;
+                    if (found) {
+                        break;
+                    }
+                    switch (accessorId) {
+                        case (_a = attrb.position) === null || _a === void 0 ? void 0 : _a.getGLTFAccessorId():
+                            isDataAvailable = attrb.position.isDataAvailable();
+                            found = true;
+                            break;
+                        case (_b = attrb.normal) === null || _b === void 0 ? void 0 : _b.getGLTFAccessorId():
+                            isDataAvailable = attrb.normal.isDataAvailable();
+                            found = true;
+                            break;
+                        case (_c = attrb.texCoord) === null || _c === void 0 ? void 0 : _c.getGLTFAccessorId():
+                            isDataAvailable = attrb.texCoord.isDataAvailable();
+                            found = true;
+                            break;
+                        case (_d = attrb.color) === null || _d === void 0 ? void 0 : _d.getGLTFAccessorId():
+                            isDataAvailable = attrb.color.isDataAvailable();
+                            found = true;
+                            break;
+                    }
+                }
+                return isDataAvailable;
+            }
+        }
+        return false;
     };
     App.prototype.getDownloadDataSize = function (nodeIndexList) {
         var size = 0;
@@ -18178,6 +18203,9 @@ var vctViewer = /** @class */ (function () {
     vctViewer.prototype.getIsRenderDataAvailable = function (nodeIndexList) {
         return this.appli.getIsRenderDataAvailable(nodeIndexList);
     };
+    vctViewer.prototype.getIsAttributeDataAvailable = function (nodeIndex, accessorId) {
+        return this.appli.getIsAttributeDataAvailable(nodeIndex, accessorId);
+    };
     vctViewer.prototype.showFPS = function () {
         this.appli.setFPSVisibility(true);
     };
@@ -18328,11 +18356,14 @@ var vctViewer = /** @class */ (function () {
             info: info,
             parts: []
         });
-        this.dispatcher.dispatchEvent({
-            data: { id: id, event: info },
-            type: viewerEvents.DOWNLOAD_START,
-            viewerID: this.viewerId
-        });
+        if (info.notify)
+            this.dispatcher.dispatchEvent({
+                data: { id: id, event: info },
+                type: viewerEvents.DOWNLOAD_START,
+                viewerID: this.viewerId
+            });
+        ManagedURLDownloader.createURLGroup(id);
+        console.log("group created", info);
         return id;
     };
     NetworkManager.prototype.handleAddPart = function (event) {
@@ -18366,28 +18397,35 @@ var vctViewer = /** @class */ (function () {
             if (part) {
                 part.loaded = event.loaded;
                 part.total = event.total;
+                console.log("update part", part.id, part.loaded, part.total);
             }
             var total = group.info.totalSize;
             var loaded_1 = 0;
             group.parts.forEach(function (e) {
                 loaded_1 += e.loaded;
             });
-            this.dispatcher.dispatchEvent({
-                data: { id: groupId, event: { loaded: loaded_1, total: total } },
-                type: viewerEvents.DOWNLOAD_PROGRESS,
-                viewerID: this.viewerId
-            });
+            if (group.info.notify)
+                this.dispatcher.dispatchEvent({
+                    data: { id: groupId, event: { loaded: loaded_1, total: total } },
+                    type: viewerEvents.DOWNLOAD_PROGRESS,
+                    viewerID: this.viewerId
+                });
+            console.log("update total", loaded_1, total);
         }
         return false;
     };
     NetworkManager.prototype.deleteGroup = function (id) {
         if (this.downloads.has(id)) {
+            var group = this.downloads.get(id);
+            if (group.info.notify)
+                this.dispatcher.dispatchEvent({
+                    data: { id: id, event: { title: group.info.title } },
+                    type: viewerEvents.DOWNLOAD_END,
+                    viewerID: this.viewerId
+                });
+            ManagedURLDownloader.deleteURLGroup(id);
             this.downloads.delete(id);
-            this.dispatcher.dispatchEvent({
-                data: { id: id, event: {} },
-                type: viewerEvents.DOWNLOAD_END,
-                viewerID: this.viewerId
-            });
+            console.log("group deleted", id);
             return true;
         }
         return false;
@@ -18510,7 +18548,7 @@ var vctViewer = /** @class */ (function () {
         this.externalEventDispatcher.addEventListener(this.externalEvents.CAMERA_MOVED, this.handleCameraMove.bind(this));
     };
     Viewer.prototype.handleDBLClick = function (e) {
-        var event = e.message;
+        var event = e.data;
         var rect = [];
         try {
             rect = event.target.getBoundingClientRect();
@@ -18523,7 +18561,7 @@ var vctViewer = /** @class */ (function () {
             event.clientY - rect.top
         ];
         var data = this.probeFromNodes({ xyFromTop: xyFromTop, width: rect.width, height: rect.height });
-        //console.log("probeData",data);
+        console.log("probeData", data);
         this.handleHighlight(data);
     };
     Viewer.prototype.handleHighlight = function (probeData) {
@@ -18738,7 +18776,7 @@ var vctViewer = /** @class */ (function () {
                         this.renderApp.setNodeVisibility(repIds, false);
                         return [3 /*break*/, 3];
                     case 1: return [4 /*yield*/, Promise.all(nodes.map(function (node) {
-                            _this.setDisplayMode(node.customData.displayProps.displayId, [node.id]);
+                            _this.setDisplayMode(false, node.customData.displayProps.displayId, [node.id]);
                         }))];
                     case 2:
                         _a.sent();
@@ -18925,9 +18963,9 @@ var vctViewer = /** @class */ (function () {
             });
         });
     };
-    Viewer.prototype.setDisplayMode = function (displayModeId, selectedNodes) {
+    Viewer.prototype.setDisplayMode = function (notify, displayModeId, selectedNodes) {
         return __awaiter(this, void 0, void 0, function () {
-            var nodes, reps, repIds, groupId;
+            var nodes, reps, repIds, groupId, promises;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -18942,23 +18980,15 @@ var vctViewer = /** @class */ (function () {
                             this.renderApp.setNodeVisibility(repIds, false);
                         nodes.forEach(function (node) { return _this.setHighlightedNodes([node.id], node.customData.displayProps.isHighlighted); });
                         groupId = this.networkManager.createGroup({
-                            title: "Display mode " + displayModeId,
+                            title: "Display mode " + displayModes[displayModeId].DISPLAYNAME,
+                            notify: notify,
                             totalSize: this.getDownloadSize(selectedNodes, displayModeId)
                         });
-                        return [4 /*yield*/, Promise.all(nodes.map(function (node) { return __awaiter(_this, void 0, void 0, function () {
-                                return __generator(this, function (_a) {
-                                    switch (_a.label) {
-                                        case 0: return [4 /*yield*/, this.updateDisplayMode(groupId, node, displayModeId)];
-                                        case 1:
-                                            _a.sent();
-                                            return [2 /*return*/];
-                                    }
-                                });
-                            }); }))];
+                        promises = nodes.map(function (node) { return _this.updateDisplayMode(groupId, node, displayModeId); });
+                        return [4 /*yield*/, Promise.allSettled(promises)];
                     case 1:
                         _a.sent();
                         this.networkManager.deleteGroup(groupId);
-                        //this.setHighlightedNodes(selectedNodes,true);
                         return [2 /*return*/, Promise.resolve("SUCCESS")];
                 }
             });
@@ -19440,14 +19470,16 @@ var ViewerManager = /** @class */ (function () {
     };
     ViewerManager.prototype.setDisplayMode = function (displayModeId, selectedNodes, viewerUUID) {
         return __awaiter(this, void 0, void 0, function () {
-            var viewer;
+            var viewer, r;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         viewer = viewerUUID ? this.viewerMap.get(viewerUUID) : this.viewerMap.get(this.defaultViewerID);
                         if (!viewer) return [3 /*break*/, 2];
-                        return [4 /*yield*/, viewer.setDisplayMode(displayModeId, selectedNodes)];
-                    case 1: return [2 /*return*/, _a.sent()];
+                        return [4 /*yield*/, viewer.setDisplayMode(true, displayModeId, selectedNodes)];
+                    case 1:
+                        r = _a.sent();
+                        return [2 /*return*/, r];
                     case 2: return [2 /*return*/, Promise.reject("Invalid viewer ID")];
                 }
             });

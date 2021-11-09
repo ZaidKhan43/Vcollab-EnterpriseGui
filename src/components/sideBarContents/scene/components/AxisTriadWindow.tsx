@@ -9,50 +9,114 @@ export const  windowId = "axisTriadWindow";
 type Color = [number,number,number,number];
 function drawAxes(ctx: CanvasRenderingContext2D, rotMat:mat4, width:number,height:number) {
     function drawX(ctx:CanvasRenderingContext2D, pos:vec3, r:number) {
-      ctx.beginPath();
-      ctx.moveTo(pos[0] - r / 2, pos[1] - r / 2);
-      ctx.lineTo(pos[0] + r / 2, pos[1] + r / 2);
-      ctx.moveTo(pos[0] + r / 2, pos[1] - r / 2);
-      ctx.lineTo(pos[0] - r / 2, pos[1] + r / 2);
-      ctx.closePath();
-      ctx.lineWidth = r / 5;
-      ctx.strokeStyle = "rgb(0,0,0)";
-      ctx.stroke();
+     
+
+      let x1 = pos[0];
+      let y1 = pos[1];
+
+
+      let fontWidth = 0;
+
+      if(width>200 && height>200) {
+
+        fontWidth = (width+height)/22;
+
+      }
+      else {
+
+        fontWidth = 16;
+      }
+      
+
+      ctx.save();
+      ctx.translate(x1*1.2, (y1*1.2)-6);
+      ctx.scale(1,-1);
+      ctx.font = fontWidth+'px Times New Roman';
+      ctx.textAlign = 'center';
+      ctx.fillStyle ="#000000";
+      ctx.fillText('X',0,0);
+      ctx.restore();
+
     }
     function drawY(ctx:CanvasRenderingContext2D, pos:vec3, r:number) {
-      ctx.beginPath();
-      ctx.moveTo(pos[0] - r / 2, pos[1] + r / 2);
-      ctx.lineTo(pos[0], pos[1]);
-      ctx.moveTo(pos[0] + r / 2, pos[1] + r / 2);
-      ctx.lineTo(pos[0], pos[1]);
-      ctx.moveTo(pos[0], pos[1]);
-      ctx.lineTo(pos[0], pos[1] - r / 2);
-      ctx.lineWidth = r / 5;
-      ctx.strokeStyle = "rgb(0,0,0)";
-      ctx.stroke();
+
+      let x1 = pos[0];
+      let y1 = pos[1];
+
+      let fontWidth = 0;
+
+      if(width>200 && height>200) {
+
+        fontWidth = (width+height)/22;
+
+      }
+      else {
+
+        fontWidth = 16;
+      }
+
+      ctx.save();
+      ctx.translate(x1*1.2, (y1*1.2)-7);
+      ctx.scale(1,-1);
+      ctx.font = fontWidth+'px Times New Roman';
+      ctx.textAlign = 'center';
+      ctx.fillStyle ="#000000";
+      ctx.fillText('Y',0,0);
+      ctx.restore();
+
     }
     function drawZ(ctx:CanvasRenderingContext2D, pos:vec3, r:number) {
-      ctx.beginPath();
-      ctx.moveTo(pos[0] - r / 2, pos[1] + r / 2);
-      ctx.lineTo(pos[0] + r / 2, pos[1] + r / 2);
-      ctx.lineTo(pos[0] - r / 2, pos[1] - r / 2);
-      ctx.lineTo(pos[0] + r / 2, pos[1] - r / 2);
-      ctx.lineWidth = r / 5;
-      ctx.strokeStyle = "rgb(0,0,0)";
-      ctx.stroke();
+
+      let x1 = pos[0];
+      let y1 = pos[1];
+
+      
+      let fontWidth = 0;
+
+      if(width>200 && height>200) {
+
+        fontWidth = (width+height)/22;
+
+      }
+      else {
+
+        fontWidth = 16;
+      }
+
+      ctx.save();
+      ctx.translate(x1*1.2, (y1*1.2)-7);
+      ctx.scale(1,-1);
+      ctx.font = fontWidth+'px Times New Roman';
+      ctx.textAlign = 'center';
+      ctx.fillStyle ="#000000";
+      ctx.fillText('Z',0,0);
+      ctx.restore();
+
+     
     }
-    function drawCircle(ctx:CanvasRenderingContext2D, pos:vec3, r:number, color:Color) {
+    function drawArrow(ctx:CanvasRenderingContext2D, pos:vec3, color:Color) {
+      var headlen = 8;
+      var dx = pos[0] - 0;
+      var dy = pos[1] - 0;
+      var angle = Math.atan2(dy, dx);
+
+      ctx.lineWidth = 2.5;
       ctx.beginPath();
-      ctx.arc(pos[0], pos[1], r, 0, Math.PI * 2, true);
-      ctx.closePath();
+      //ctx.moveTo(0, 0);
+      ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${color[3]})`;
+      ctx.lineTo(pos[0], pos[1]);
+      ctx.lineTo(pos[0] - headlen * Math.cos(angle - Math.PI / 6), pos[1] - headlen * Math.sin(angle - Math.PI / 6));
+      //ctx.moveTo(pos[0], pos[1]);
+      ctx.lineTo(pos[0] - headlen * Math.cos(angle + Math.PI / 6), pos[1] - headlen * Math.sin(angle + Math.PI / 6));
       ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${color[3]})`;
       ctx.fill();
-      ctx.lineWidth = 1;
-      ctx.strokeStyle = "rgba(0,0,0,1)";
+      ctx.closePath();
       ctx.stroke();
+
     }
     function drawLine(ctx:CanvasRenderingContext2D, pos:vec3,color:Color) {
-      ctx.lineWidth = 2.5;
+
+      ctx.lineWidth = 3.5;
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.strokeStyle = `rgba(${color[0]},${color[1]},${color[2]},${color[3]})`;
@@ -64,7 +128,7 @@ function drawAxes(ctx: CanvasRenderingContext2D, rotMat:mat4, width:number,heigh
       if(r < 0)
       return;
       drawLine(ctx, pos,color);
-      drawCircle(ctx, pos, r, color);
+      drawArrow(ctx, pos, color);
       let textSize = r / 1.1;
       switch (axis) {
         case "x":
@@ -93,9 +157,9 @@ function drawAxes(ctx: CanvasRenderingContext2D, rotMat:mat4, width:number,heigh
   vec3.scale(Y,Y,scale);
   vec3.scale(Z,Z,scale);
   
-  let red:Color = [245, 51, 82, 1];
-  let green:Color = [135, 214, 3, 1];
-  let blue:Color = [41, 140, 245, 1];
+  let red:Color = [255, 0, 0, 1];
+  let green:Color = [0, 255, 0, 1];
+  let blue:Color = [0, 0, 255, 1];
   let zFirst = [
       { id: "x", pos: X, col:red },
       { id: "y", pos: Y, col:green },
@@ -103,6 +167,7 @@ function drawAxes(ctx: CanvasRenderingContext2D, rotMat:mat4, width:number,heigh
   ];
   zFirst.sort((a, b) => a.pos[2] - b.pos[2]);
   zFirst.forEach(e => {
+
       drawAxis(ctx,e.pos,e.id,width/20,e.col);
   })
 }
@@ -132,11 +197,11 @@ function AxisTriadWindow(props:Props) {
     },[rotMat, width, height])
     return (
         <>
-        <CustomWindow uid={windowId} resize parentRef = {props.parentRef} width={100} height={100}>
+        <CustomWindow uid={windowId} resize parentRef = {props.parentRef} width={150} height={150}>
             {
                     
                 showAxis ?
-                <canvas ref={canvasRef} width={width} height={height} onChange={() => alert("chagne")}></canvas>
+                <canvas ref={canvasRef} width={width} height={height} onChange={() => alert("chagne")} ></canvas>
                 :null
                     
             }

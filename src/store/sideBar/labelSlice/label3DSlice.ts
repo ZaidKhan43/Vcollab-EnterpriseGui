@@ -34,86 +34,10 @@ interface InitialState extends ITreeState {
 }
 
 const initialState : InitialState = {
-    data : {
-        "0" :{
-            id: "0",
-            pid: "-1",
-            title: "Point",
-            children: ["2"],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "",
-        },
-        "1" :{
-            id: "1",
-            pid: "-1",
-            title: "Face",
-            children: ["3","4"],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "",
-        },
-        "2" :{
-            id: "2",
-            pid: "0",
-            title: "Point Label 1",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet",
-        },
-        "3" :{
-            id: "3",
-            pid: "1",
-            title: "Face Label 1",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        },
-        "4" :{
-            id: "4",
-            pid: "1",
-            title: "Face Label 2",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean neque mi,",
-        },
-    },
-    rootIds : ["0","1",],
+    data : {},
+    rootIds : [],
     labels3DSettings :{
-        idGenerator :4,
+        idGenerator :-1,
         defaultParameters:{
                 id: "",
                 pid: null,
@@ -129,8 +53,8 @@ const initialState : InitialState = {
                 attributes: {},
                 label: "Lorem ipsum dolor sit amet",
         },
-        pointCount : 1,
-        faceCount : 2,
+        pointCount : 0,
+        faceCount : 0,
     }
 }
 
@@ -146,6 +70,19 @@ export const label3DSlice = createSlice({
         expandNode: expandNodeReducer,
         toggleVisibility: toggleVisibilityReducer,
         setCheckedVisibility: setCheckedVisibilityReducer,
+
+        createParentLabel : (state, action : PayloadAction<{name: string}>) => {
+            state.labels3DSettings.idGenerator += 1;
+            const id =state.labels3DSettings.idGenerator;
+            let newParent = {...state.labels3DSettings.defaultParameters};
+            newParent.id = `${state.labels3DSettings.idGenerator}`;
+            newParent.pid = "-1";
+            newParent.title = action.payload.name;
+            newParent.label = "";
+            state.data[`${id}`] =newParent;
+
+            state.rootIds.push(newParent.id)
+        },
         
         createLabel : (state , action: PayloadAction<number>) => {
                 state.labels3DSettings.idGenerator += 1;
@@ -197,7 +134,7 @@ export const label3DSlice = createSlice({
 })
 
 export default label3DSlice.reducer;
-export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility , createLabel,editLabel, delete3DLabel} = label3DSlice.actions;
+export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility , createLabel,editLabel, delete3DLabel, createParentLabel} = label3DSlice.actions;
 
 //Selectors
 

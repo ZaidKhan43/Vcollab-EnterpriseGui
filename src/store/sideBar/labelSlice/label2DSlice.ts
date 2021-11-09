@@ -22,46 +22,16 @@ type InitialState = {
 }
 
 const initialState : InitialState = {
-        note2DList : 
-            [        
-                {
-                    id: 0,
-                    name: "Note 1",
-                    show: true,
-                    selected: false,
-                    label:"Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                },
-                {
-                    id: 1,
-                    name: "Note 2",
-                    show: true,
-                    selected: false,
-                    label:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean neque mi,",
-                },
-                {
-                    id: 2,
-                    name: "Note 3",
-                    show: false,
-                    selected: false,
-                    label:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean neque mi, vulputate ac erat vitae, scelerisque fermentum odio. Nulla rutrum consequat facilisis."
-                },
-                {
-                    id: 3,
-                    name: "Note 4",
-                    show:   false,
-                    selected: true,
-                    label:"Lorem ipsum dolor sit amet, "
-                },
-            ],
+        note2DList : [],
         note2DSettings : {
-            idGenerator : 3,
+            idGenerator : -1,
             limit : 6,
             defaultParameters : {
-                id: 3,
+                id: 0,
                 name: "Note",
                 show:   false,
                 selected: false,
-                label:"",
+                label: "Lorem ipsum dolor sit amet",
             }
         }
 }
@@ -123,3 +93,7 @@ export const selectedNote2D = (state : RootState) => {
     if(selectedNote.length === 1)
         return(selectedNote[0])
   }
+
+export const selectAllNotes2D = (state : RootState): Note2DList[] => {
+    return state.label2D.note2DList
+}
