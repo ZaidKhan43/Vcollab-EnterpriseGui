@@ -6754,83 +6754,6 @@ var normalize$2 = normalize$1$1;
     matr[8] = -view[2];
     return normalize$2(out, fromMat3(out, matr));
   };
-}());/**
- * 2 Dimensional Vector
- * @module vec2
- */
-
-/**
- * Creates a new, empty vec2
- *
- * @returns {vec2} a new 2D vector
- */
-
-function create$5() {
-  var out = new ARRAY_TYPE$1(2);
-
-  if (ARRAY_TYPE$1 != Float32Array) {
-    out[0] = 0;
-    out[1] = 0;
-  }
-
-  return out;
-}
-/**
- * Creates a new vec2 initialized with the given values
- *
- * @param {Number} x X component
- * @param {Number} y Y component
- * @returns {vec2} a new 2D vector
- */
-
-function fromValues$4(x, y) {
-  var out = new ARRAY_TYPE$1(2);
-  out[0] = x;
-  out[1] = y;
-  return out;
-}
-/**
- * Perform some operation over an array of vec2s.
- *
- * @param {Array} a the array of vectors to iterate over
- * @param {Number} stride Number of elements between the start of each vec2. If 0 assumes tightly packed
- * @param {Number} offset Number of elements to skip at the beginning of the array
- * @param {Number} count Number of vec2s to iterate over. If 0 iterates over entire array
- * @param {Function} fn Function to call for each vector in the array
- * @param {Object} [arg] additional argument to pass to fn
- * @returns {Array} a
- * @function
- */
-
-(function () {
-  var vec = create$5();
-  return function (a, stride, offset, count, fn, arg) {
-    var i, l;
-
-    if (!stride) {
-      stride = 2;
-    }
-
-    if (!offset) {
-      offset = 0;
-    }
-
-    if (count) {
-      l = Math.min(count * stride + offset, a.length);
-    } else {
-      l = a.length;
-    }
-
-    for (i = offset; i < l; i += stride) {
-      vec[0] = a[i];
-      vec[1] = a[i + 1];
-      fn(vec, vec, arg);
-      a[i] = vec[0];
-      a[i + 1] = vec[1];
-    }
-
-    return a;
-  };
 }());var Utility$1;
 (function (Utility) {
     /**
@@ -10603,9 +10526,6 @@ var CameraControl = /** @class */ (function (_super) {
             this.orthoParams.orthoZoomFactor = 0.00001;
         return ortho(this.orthCamera.pMatrix, this.orthoParams.left, this.orthoParams.right, this.orthoParams.bottom, this.orthoParams.top, this.orthoParams.near, this.orthoParams.far);
     };
-    CameraControl.prototype.dispatchCameraChangeEvent = function () {
-        this.dispatchEvent({ type: 'change', message: null });
-    };
     CameraControl.prototype.setBoundingBox = function (bbox) {
         this.sceneBoundingBox = bbox;
     };
@@ -11534,7 +11454,7 @@ var Renderer2D = /** @class */ (function () {
             return;
         }
         shader.bind();
-        shader.setMat4f(uniforms.uProjectionMatrix, this.camControl.perspCamera.projectionViewMatrix);
+        shader.setMat4f(uniforms.uProjectionMatrix, this.camControl.camType === CameraType.Perspective ? this.camControl.perspCamera.projectionViewMatrix : this.camControl.orthCamera.projectionViewMatrix);
         shader.setMat4f(uniforms.uModelViewMatrix, worldMatrix);
         shader.setVector3f(uniforms.uColor, new Float32Array(color));
         if (mesh.attribs.position) {
@@ -11584,7 +11504,9 @@ var Renderer2D = /** @class */ (function () {
         if (nodes.length > 0 && this.axis3DHelper && center) {
             var camPos = this.camControl.getPosition();
             var objPos = center;
-            var scaleToFit = dist(camPos, objPos) * Math.tan(this.camControl.perspParams.fov / 2) * 0.5; // some constant to fit to proper size
+            var scaleToFit = this.camControl.camType === CameraType.Perspective ?
+                dist(camPos, objPos) * Math.tan(Math.PI / 180 * this.camControl.perspParams.fov / 2) * 0.1 // some constant to fit to proper size
+                : this.camControl.orthoParams.orthoZoomFactor * 0.25;
             var scale = create$1$1();
             var trans = create$1$1();
             trans[12] = objPos[0];
@@ -12249,7 +12171,7 @@ function isStandardBrowserEnv$1() {
  * @param {Object|Array} obj The object to iterate
  * @param {Function} fn The callback to invoke for each item
  */
-function forEach$3(obj, fn) {
+function forEach$2(obj, fn) {
   // Don't bother if no value provided
   if (obj === null || typeof obj === 'undefined') {
     return;
@@ -12308,7 +12230,7 @@ function merge$1(/* obj1, obj2, obj3, ... */) {
   }
 
   for (var i = 0, l = arguments.length; i < l; i++) {
-    forEach$3(arguments[i], assignValue);
+    forEach$2(arguments[i], assignValue);
   }
   return result;
 }
@@ -12322,7 +12244,7 @@ function merge$1(/* obj1, obj2, obj3, ... */) {
  * @return {Object} The resulting value of object a
  */
 function extend$1(a, b, thisArg) {
-  forEach$3(b, function assignValue(val, key) {
+  forEach$2(b, function assignValue(val, key) {
     if (thisArg && typeof val === 'function') {
       a[key] = bind$1(val, thisArg);
     } else {
@@ -12363,7 +12285,7 @@ var utils$1 = {
   isStream: isStream$1,
   isURLSearchParams: isURLSearchParams$1,
   isStandardBrowserEnv: isStandardBrowserEnv$1,
-  forEach: forEach$3,
+  forEach: forEach$2,
   merge: merge$1,
   extend: extend$1,
   trim: trim$1,
@@ -14756,141 +14678,146 @@ var MouseControl = /** @class */ (function (_super) {
         _this.rotationPointNode = null;
         return _this;
     }
-    MouseControl.prototype.handleContatinerDoubleClick = function (event) {
-        event = event || window.event;
-        this.mouseDown = KeyState.DOWN;
-        this.mouseButtonPressed = (event.keyCode || event.which);
-        var mouse = fromValues$4(event.clientX, event.clientY);
-        var contatinerPos = MathUtils.getContainerBox(this.container);
-        var containerTop = contatinerPos[0];
-        var containerLeft = contatinerPos[1];
-        this.lastMouseX = mouse[0] - containerLeft;
-        this.lastMouseY = mouse[1] - containerTop;
-        if (this.mouseButtonPressed == 1) {
-            fromValues$4(this.lastMouseX, (contatinerPos[2] - containerTop) - this.lastMouseY);
-            AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.DBL_CLICK, message: event });
-            //let triangle = AppObjects.picker.probePart();
-            //AppObjects.picker.highlightPart();
-        }
-        event.preventDefault();
-        this.handleContainerMouseUp(event);
-    };
-    MouseControl.prototype.handleContainerMouseDown = function (event) {
-        event = event || window.event; //window.event for IE
-        this.mouseDown = KeyState.DOWN;
-        this.mouseButtonPressed = (event.keyCode || event.which);
-        var mouse = fromValues$4(event.clientX, event.clientY);
-        var contatinerPos = MathUtils.getContainerBox(this.container);
-        var containerTop = contatinerPos[0];
-        var containerLeft = contatinerPos[1];
-        this.lastMouseX = mouse[0] - containerLeft;
-        this.lastMouseY = mouse[1] - containerTop;
-        var _altKeyPressed = event.altKey;
-        var _ctrlKeyPressed = event.ctrlKey;
-        if ((AppObjects.picker.isProbingEnabled == true || _altKeyPressed == true)
-            && this.mouseButtonPressed == 1) {
-            var rotationPoint = undefined;
-            if (rotationPoint !== undefined && _altKeyPressed == true) {
-                this.camControls.setRotationPoint(fromValues$1$1(rotationPoint[0], rotationPoint[1], rotationPoint[2]));
-                //visualize point
-                if (!this.rotationPointNode) {
-                    this.rotationPointNode = this.getPointMesh('rotationPoint', rotationPoint);
-                    AppObjects.renderer.addCustomRenderNode(this.rotationPointNode);
-                }
-            }
-            else if (_altKeyPressed == true) {
-                var pointOfRotation = this.camControls.getRotationPoint();
-                if (!this.rotationPointNode) {
-                    this.rotationPointNode = this.getPointMesh('rotationPoint', pointOfRotation);
-                    this.rotationPointNode.visible = true;
-                    AppObjects.renderer.addCustomRenderNode(this.rotationPointNode);
-                }
-            }
-        }
-        if (_ctrlKeyPressed == true && this.mouseButtonPressed == 1) {
-            this.mouseButtonPressed = 2;
-        }
-        // AppState.AltKeyState = _altKeyPressed;
-        // AppState.CtrlKeyState = _ctrlKeyPressed;
-        this.camControls.resetZoomFactor();
-        event.preventDefault();
-        AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_DOWN, message: event });
-    };
-    MouseControl.prototype.handleContainerMouseUp = function (event) {
-        event = event || window.event; //window.event for IE
-        event.preventDefault();
-        if (this.rotationPointNode) {
-            AppObjects.renderer.deleteCustomRenderNode(this.rotationPointNode);
-            this.rotationPointNode = null;
-        }
-        this.mouseDown = KeyState.UP;
-        this.mouseButtonPressed = MouseButton.NONE;
-        this.dispatchEvent({ type: 'end', message: null });
-        AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_UP, message: event });
-    };
-    MouseControl.prototype.handleContainerMouseMove = function (event) {
-        event = event || window.event; //window.event for IE
-        if (this.mouseDown == KeyState.DOWN) {
-            var contatinerPos = MathUtils.getContainerBox(this.container);
-            var containerTop = contatinerPos[0];
-            var containerLeft = contatinerPos[1];
-            var newX = event.clientX - containerLeft;
-            var newY = event.clientY - containerTop;
-            //this.camControls.resetZoomSensitivity();
-            var isPartMoveEnabled = AppObjects.partManipulator.isPartMoveEnabled;
-            if (this.mouseButtonPressed === MouseButton.LEFT) //Left button
-             {
-                if (isPartMoveEnabled) {
-                    AppObjects.partManipulator.rotatePart(newX, newY, this.lastMouseX, this.lastMouseY);
-                }
-                else
-                    this.camControls.onMouseRotation(newX, newY, this.lastMouseX, this.lastMouseY);
-            }
-            else if (this.mouseButtonPressed === MouseButton.MIDDLE) //middle Button
-             {
-                var diff = (this.lastMouseY - newY);
-                if (isPartMoveEnabled) {
-                    AppObjects.partManipulator.translateZ(diff);
-                }
-                else {
-                    this.camControls.setZoomType(ZoomType.MIDDLE_ZOOM);
-                    if (diff > 0)
-                        this.camControls.zoomOut(diff);
-                    else if (diff < 0)
-                        this.camControls.zoomIn(Math.abs(diff));
-                }
-            }
-            else if (this.mouseButtonPressed === MouseButton.RIGHT) //right Button
-             {
-                if (isPartMoveEnabled) {
-                    AppObjects.partManipulator.translatePart(newX, newY, this.lastMouseX, this.lastMouseY);
-                }
-                else
-                    this.camControls.onMousePanRotation(newX, newY, this.lastMouseX, this.lastMouseY);
-            }
-            this.lastMouseX = newX;
-            this.lastMouseY = newY;
-        }
-        event.preventDefault();
-        AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_MOVE, message: event });
-    };
-    MouseControl.prototype.scroll = function (event) {
-        var factor = 1;
-        var rect = this.container.getBoundingClientRect();
-        var newX = Math.round((event.clientX - rect.left) / (rect.right - rect.left) * rect.width);
-        var newY = rect.height - Math.round((event.clientY - rect.top) / (rect.bottom - rect.top) * rect.height);
-        //newY = newY + CAXViewer.ViewerTopOffset;
-        var delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
-        this.camControls.setZoomType(ZoomType.MOUSE_WHEEL);
-        if (delta > 0) {
-            this.camControls.pointZoomIn(newX, rect.height - newY, factor);
-        }
-        else {
-            this.camControls.pointZoomOut(newX, rect.height - newY, factor);
-        }
-        event.preventDefault();
-        AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_SCROLL, message: event });
-    };
+    // public handleContatinerDoubleClick(event){
+    //     event = event || window.event;
+    //     this.mouseDown = KeyState.DOWN;
+    //     this.mouseButtonPressed = (event.keyCode || event.which);
+    //     let mouse = glmatrix.vec2.fromValues(event.clientX,event.clientY);
+    //     let contatinerPos = MathUtils.getContainerBox(this.container);
+    //     let containerTop = contatinerPos[0];
+    //     let containerLeft = contatinerPos[1];
+    //     this.lastMouseX = mouse[0] - containerLeft;
+    //     this.lastMouseY = mouse[1] - containerTop;
+    //     if(this.mouseButtonPressed == 1)
+    //      {
+    //          let mouseXY = glmatrix.vec2.fromValues(
+    //             this.lastMouseX,(contatinerPos[2]-containerTop)-this.lastMouseY
+    //         )
+    //         AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.DBL_CLICK, message: event })
+    //          //let triangle = AppObjects.picker.probePart();
+    //          //AppObjects.picker.highlightPart();
+    //      }
+    //      event.preventDefault();
+    //      this.handleContainerMouseUp(event);
+    // }
+    // public handleContainerMouseDown(event)
+    // {
+    //     event = event || window.event; //window.event for IE
+    //     this.mouseDown = KeyState.DOWN;
+    //     this.mouseButtonPressed = (event.keyCode || event.which);
+    //     let mouse = glmatrix.vec2.fromValues(event.clientX,event.clientY);
+    //     let contatinerPos = MathUtils.getContainerBox(this.container);
+    //     let containerTop = contatinerPos[0];
+    //     let containerLeft = contatinerPos[1];
+    //     this.lastMouseX = mouse[0] - containerLeft;
+    //     this.lastMouseY = mouse[1] - containerTop;
+    //     let _altKeyPressed = event.altKey;
+    //     let _ctrlKeyPressed = event.ctrlKey;
+    //      if ((AppObjects.picker.isProbingEnabled == true || _altKeyPressed == true) 
+    //           && this.mouseButtonPressed == 1) {
+    //         let rotationPoint = undefined;
+    //          if(rotationPoint!==undefined && _altKeyPressed == true)
+    //          {
+    //             this.camControls.setRotationPoint(glmatrix.vec3.fromValues(rotationPoint[0],rotationPoint[1],rotationPoint[2]));
+    //             //visualize point
+    //             if(!this.rotationPointNode){
+    //                 this.rotationPointNode = this.getPointMesh('rotationPoint',rotationPoint);
+    //                 AppObjects.renderer.addCustomRenderNode(this.rotationPointNode);
+    //             }
+    //         }else if(_altKeyPressed == true){
+    //             let pointOfRotation = this.camControls.getRotationPoint();
+    //             if(!this.rotationPointNode){
+    //                 this.rotationPointNode = this.getPointMesh('rotationPoint',pointOfRotation);
+    //                 this.rotationPointNode.visible = true;
+    //                 AppObjects.renderer.addCustomRenderNode(this.rotationPointNode);
+    //             }
+    //         }
+    //      }
+    //     if (_ctrlKeyPressed == true && this.mouseButtonPressed == 1) {
+    //         this.mouseButtonPressed = 2;
+    //     }
+    //     // AppState.AltKeyState = _altKeyPressed;
+    //     // AppState.CtrlKeyState = _ctrlKeyPressed;
+    //     this.camControls.resetZoomFactor();
+    //     event.preventDefault();
+    //     AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_DOWN, message: event })
+    // }
+    // public handleContainerMouseUp(event)
+    // {
+    //     event = event || window.event; //window.event for IE
+    //     event.preventDefault();
+    //     if(this.rotationPointNode){
+    //         AppObjects.renderer.deleteCustomRenderNode(this.rotationPointNode);
+    //         this.rotationPointNode = null;
+    //     }
+    //     this.mouseDown = KeyState.UP;
+    //     this.mouseButtonPressed = MouseButton.NONE;
+    //     this.dispatchEvent( { type: 'end', message: null } );
+    //     AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_UP, message: event })
+    // }
+    // public handleContainerMouseMove(event)
+    // {
+    //     event = event || window.event; //window.event for IE
+    //     if( this.mouseDown == KeyState.DOWN )
+    //     {
+    //         let contatinerPos = MathUtils.getContainerBox(this.container);
+    //         let containerTop = contatinerPos[0];
+    //         let containerLeft = contatinerPos[1];
+    //         let newX = event.clientX - containerLeft;
+    //         let newY = event.clientY - containerTop;
+    //         //this.camControls.resetZoomSensitivity();
+    //         let isPartMoveEnabled = AppObjects.partManipulator.isPartMoveEnabled;
+    //         if(this.mouseButtonPressed === MouseButton.LEFT)//Left button
+    //         {
+    //             if(isPartMoveEnabled){
+    //                 AppObjects.partManipulator.rotatePart(newX,newY,this.lastMouseX,this.lastMouseY);
+    //             }else
+    //             this.camControls.onMouseRotation(newX,newY,this.lastMouseX,this.lastMouseY);
+    //         }
+    //         else if(this.mouseButtonPressed === MouseButton.MIDDLE) //middle Button
+    //         {
+    //             let diff = ( this.lastMouseY - newY);
+    //             if(isPartMoveEnabled){
+    //                 AppObjects.partManipulator.translateZ(diff);
+    //             }else{
+    //                 this.camControls.setZoomType(ZoomType.MIDDLE_ZOOM);
+    //                 if(diff >0)
+    //                 this.camControls.zoomOut(diff);
+    //                 else if(diff<0)
+    //                 this.camControls.zoomIn(Math.abs(diff));
+    //             }
+    //         }
+    //         else if(this.mouseButtonPressed === MouseButton.RIGHT) //right Button
+    //         {
+    //             if(isPartMoveEnabled){
+    //                 AppObjects.partManipulator.translatePart(newX,newY,this.lastMouseX,this.lastMouseY);
+    //             }else
+    //             this.camControls.onMousePanRotation(newX,newY,this.lastMouseX,this.lastMouseY);
+    //         }
+    //         this.lastMouseX = newX;
+    //         this.lastMouseY = newY;
+    //     }
+    //     event.preventDefault();
+    //     AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_MOVE, message: event })
+    // }
+    // public scroll(event)
+    // {
+    //     let factor = 1;
+    //     let rect = this.container.getBoundingClientRect();
+    //     let newX = Math.round((event.clientX - rect.left) / (rect.right - rect.left) * rect.width);
+    //     let newY = rect.height - Math.round((event.clientY - rect.top) / (rect.bottom - rect.top) * rect.height);
+    //     //newY = newY + CAXViewer.ViewerTopOffset;
+    //     let delta = Math.max(-1, Math.min(1, (event.wheelDelta || -event.detail)));
+    //     this.camControls.setZoomType(ZoomType.MOUSE_WHEEL);
+    //     if (delta > 0) {
+    //         this.camControls.pointZoomIn(newX, rect.height - newY, factor);
+    //     }
+    //     else {
+    //         this.camControls.pointZoomOut(newX, rect.height - newY, factor);
+    //     }
+    //     event.preventDefault();
+    //     AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.MOUSE_SCROLL, message: event })
+    // } 
     MouseControl.prototype.contextmenu = function (event) {
         if (this.enabled === false)
             return;
@@ -16553,6 +16480,10 @@ var MouseInput = /** @class */ (function () {
             event.preventDefault();
         });
         this.container.addEventListener("dblclick", function (event) {
+            AppObjects.externalEventDispatcher.dispatchEvent({
+                type: Events.DBL_CLICK,
+                data: event
+            });
             event.preventDefault();
         });
         this.container.addEventListener("contextmenu", function (event) {
@@ -17119,7 +17050,10 @@ var Commands = /** @class */ (function () {
                         if ((_a = AppObjects.input) === null || _a === void 0 ? void 0 : _a.Mouse) {
                             var _b = __read$1(AppObjects.input.Mouse.LastXY, 2), lastX = _b[0], lastY = _b[1];
                             var _c = __read$1(AppObjects.input.Mouse.NewXY, 2), newX = _c[0], newY = _c[1];
-                            AppObjects.renderer.camControl.onMouseRotation(newX, newY, lastX, lastY);
+                            if (AppObjects.partManipulator.isPartMoveEnabled)
+                                AppObjects.partManipulator.rotatePart(newX, newY, lastX, lastY);
+                            else
+                                AppObjects.renderer.camControl.onMouseRotation(newX, newY, lastX, lastY);
                             return true;
                         }
                         else {
@@ -17133,7 +17067,10 @@ var Commands = /** @class */ (function () {
                         if ((_a = AppObjects.input) === null || _a === void 0 ? void 0 : _a.Mouse) {
                             var _b = __read$1(AppObjects.input.Mouse.LastXY, 2), lastX = _b[0], lastY = _b[1];
                             var _c = __read$1(AppObjects.input.Mouse.NewXY, 2), newX = _c[0], newY = _c[1];
-                            AppObjects.renderer.camControl.onMousePanRotation(newX, newY, lastX, lastY);
+                            if (AppObjects.partManipulator.isPartMoveEnabled)
+                                AppObjects.partManipulator.translatePart(newX, newY, lastX, lastY);
+                            else
+                                AppObjects.renderer.camControl.onMousePanRotation(newX, newY, lastX, lastY);
                             return true;
                         }
                         else {
@@ -17185,8 +17122,12 @@ var Commands = /** @class */ (function () {
                             var _b = __read$1(AppObjects.input.Mouse.NewXY, 2), newX = _b[0], newY = _b[1];
                             var _c = __read$1(AppObjects.input.Mouse.LastXY, 2), lastX = _c[0], lastY = _c[1];
                             var delta = AppObjects.input.Mouse.IsVerticalDrag ? lastY - newY : lastX - newX;
-                            if (delta > 0)
-                                AppObjects.renderer.camControl.zoomIn(delta);
+                            if (delta > 0) {
+                                if (AppObjects.partManipulator.isPartMoveEnabled)
+                                    AppObjects.partManipulator.translateZ(delta);
+                                else
+                                    AppObjects.renderer.camControl.zoomIn(delta);
+                            }
                             else
                                 return false;
                             return true;
@@ -17204,8 +17145,12 @@ var Commands = /** @class */ (function () {
                             var _b = __read$1(AppObjects.input.Mouse.NewXY, 2), newX = _b[0], newY = _b[1];
                             var _c = __read$1(AppObjects.input.Mouse.LastXY, 2), lastX = _c[0], lastY = _c[1];
                             var delta = AppObjects.input.Mouse.IsVerticalDrag ? lastY - newY : lastX - newX;
-                            if (delta < 0)
-                                AppObjects.renderer.camControl.zoomOut(Math.abs(delta));
+                            if (delta < 0) {
+                                if (AppObjects.partManipulator.isPartMoveEnabled)
+                                    AppObjects.partManipulator.translateZ(delta);
+                                else
+                                    AppObjects.renderer.camControl.zoomOut(Math.abs(delta));
+                            }
                             else
                                 return false;
                             return true;
@@ -18603,7 +18548,7 @@ var vctViewer = /** @class */ (function () {
         this.externalEventDispatcher.addEventListener(this.externalEvents.CAMERA_MOVED, this.handleCameraMove.bind(this));
     };
     Viewer.prototype.handleDBLClick = function (e) {
-        var event = e.message;
+        var event = e.data;
         var rect = [];
         try {
             rect = event.target.getBoundingClientRect();
@@ -18616,7 +18561,7 @@ var vctViewer = /** @class */ (function () {
             event.clientY - rect.top
         ];
         var data = this.probeFromNodes({ xyFromTop: xyFromTop, width: rect.width, height: rect.height });
-        //console.log("probeData",data);
+        console.log("probeData", data);
         this.handleHighlight(data);
     };
     Viewer.prototype.handleHighlight = function (probeData) {

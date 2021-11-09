@@ -30,7 +30,9 @@ import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlin
 import MuiEditIcon from '@material-ui/icons/EditOutlined';
 
 import {createNote, editSelect, editShow, delete2DNote} from '../../../../store/sideBar/labelSlice/label2DSlice';
+import { setEditMode, setHiddenState } from '../../../../store/windowMgrSlice';
 
+export const windowPrefix = "label2d";
 export default function Notes2D(){
     
     const classes = styles();
@@ -65,10 +67,12 @@ export default function Notes2D(){
 
     const onHandledSelect = (id : number, value : boolean) => {
       dispatch(editSelect({id : id,value :!value}))
+      dispatch(setEditMode({uid:`${windowPrefix} ${id}`,isEdit:!value}))
     }
 
     const onHandleShow = (id: number , value : boolean) => {
         dispatch(editShow({id : id,value :!value}))
+        dispatch(setHiddenState({uid:`${windowPrefix} ${id}`,isHidden: value}))
     }
 
     const onHandleDeleteButton = ()=> {

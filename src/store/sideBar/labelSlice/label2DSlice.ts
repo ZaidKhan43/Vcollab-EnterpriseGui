@@ -123,3 +123,7 @@ export const selectedNote2D = (state : RootState) => {
     if(selectedNote.length === 1)
         return(selectedNote[0])
   }
+
+export const selectAllNotes2D = (state : RootState): Note2DList[] => {
+    return state.label2D.note2DList
+}
