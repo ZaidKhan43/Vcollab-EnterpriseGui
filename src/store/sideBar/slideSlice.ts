@@ -5,10 +5,10 @@ import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReduc
 import { pid } from 'process';
 // Define a type for the slice state
 
-import imageOne from "../../assets/3dSlideImages/image1.svg";
-import imageTwo from "../../assets/3dSlideImages/image2.svg";
-import imageThree from "../../assets/3dSlideImages/image3.svg";
-import imageFour from "../../assets/3dSlideImages/image4.svg";
+import imageOne from "../../assets/3dSlideImages/image1.png";
+import imageTwo from "../../assets/3dSlideImages/image2.png";
+import imageThree from "../../assets/3dSlideImages/image3.png";
+import imageFour from "../../assets/3dSlideImages/image4.png";
 
 export enum SlideType {
     GROUP = 0,

@@ -48,6 +48,10 @@ import {Routes} from "../../../routes"
 
 import { useState } from 'react';
 
+import ListView from './components/listView';
+
+import GridMode from './components/gridMode'
+
 
 export default function Slides (){
 
@@ -188,101 +192,12 @@ export default function Slides (){
     }
 
     const getBody = () => {
-
-      console.log(treeDataRedux)
         return (
-            <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
-      <RTree 
-        treeData={roots} 
-        expandedRowIds = {expanded}
-        onExpand={handleExpand}
-        onRowClick = {handleRowClick}
-        width = {300}
-        hover={true}
-        selectable={true}
-        selected={[selectedSlideId]}
-        height = {containerHeight ? containerHeight - 5: 0}
-        renderTreeToggle = {
-          (icon,rowData) => {
-            if (rowData.children && rowData.children.length === 0) {
-              return null;
-            }
-            let state = treeDataRedux[rowData.id].state;
-            return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
-          }
-        }
-        treeNode = {(node) => {
-          return (
-            <TreeNodeWithoutCheckbox 
-              node={treeDataRedux[node.id]}
-              onCheck={() => console.log("sa")}
-            >
-            </TreeNodeWithoutCheckbox>
-          )
-        }}
-        column1 = {(node) => {
-          return (
-            <div>
-                { treeDataRedux[node.id].slideType === SlideType.GROUP
-                   ?
-                    <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
-                        <MuiGrid item xs={8}>
-                            <MuiIconButton size='small' 
-                            //   onClick={() => handleCreateLabel(node.id)}
-                            >
-                                <GridViewIcon /> 
-                            </MuiIconButton> 
-                        </MuiGrid>
-                    </MuiGrid>
-                   :
-                    null
-                }
-            </div>
-          )
-        }}
-        column2 = {(node) => {
-          return (
-            <div>
-              { treeDataRedux[node.id].slideType === SlideType.VIEW
-                ?
-                <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
-                    <MuiGrid item xs={9}></MuiGrid>
-                    <MuiGrid item xs={3}>
-                { appliedSlideId === node.id
-                  ?
-                      <MuiCheckIcon fontSize='small'/>
-                  :
-                    treeDataRedux[node.id].pid !== "-1"
-                      ?
-                        treeDataRedux[node.id].downloaded === true 
-                          ?
-                            <MuicloudDoneIcon fontSize='small'/>
-                          :
-                            <MuiDownloadIcon fontSize='small'/>
-                      :
-                        null
-                }
-                </MuiGrid>
-              </MuiGrid>
-                :        
-                  <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
-                    <MuiGrid item xs={4}></MuiGrid>
-                    <MuiGrid item xs={6}>
-                      <MuiIconButton size='small' 
-                      onClick={() => handleCreateNode(node.id)}
-                      >
-                        <AddIcon fontSize='default'/> 
-                      </MuiIconButton> 
-                    </MuiGrid>
-                  </MuiGrid>
-              }    
-            </div>
-          )
-        }}
-      />  
-    </div>
-    )
-        
+          <GridMode treeData={treeDataRedux} rootIds={treeRootIds} selectedSlideId={selectedSlideId}
+            appliedSlideId={appliedSlideId} handleExpand={handleExpand} handleRowClick={handleRowClick}
+            handleCreateNode={handleCreateNode} slideType={SlideType}
+          />
+        )        
     }
 
     const getFooter = () => {
