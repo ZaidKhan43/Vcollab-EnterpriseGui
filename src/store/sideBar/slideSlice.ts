@@ -5,6 +5,11 @@ import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReduc
 import { pid } from 'process';
 // Define a type for the slice state
 
+import imageOne from "../../assets/3dSlideImages/image1.svg";
+import imageTwo from "../../assets/3dSlideImages/image2.svg";
+import imageThree from "../../assets/3dSlideImages/image3.svg";
+import imageFour from "../../assets/3dSlideImages/image4.svg";
+
 export enum SlideType {
     GROUP = 0,
     VIEW = 1,
@@ -59,7 +64,7 @@ const initialState: SlideTreeState = {
                 attributes: {},
         },
 
-      "3" : {
+        "3" : {
             id : "3",
                 pid : "0",
                 title: "Stress Animation",
@@ -85,12 +90,16 @@ const initialState: SlideTreeState = {
               },
               downloaded:false,
               slideType: SlideType.VIEW,
-              data : {cameraView:"persp", position:"(3,13)", image:""},
+              data : {
+                cameraView:"persp", 
+                position:"(3,13)", 
+                image:imageOne
+                },
               attributes: {},
-      },
+        },
 
-      "10" : {
-        id : "10",
+        "10" : {
+            id : "10",
             pid : "3",
             title: "Step 2",
             children: [],
@@ -100,75 +109,92 @@ const initialState: SlideTreeState = {
             },
             downloaded: true,
             slideType: SlideType.VIEW,
-            data : {cameraView:"ortho", position:"(23,13)", image:""},
+            data : {
+                cameraView:"ortho", 
+                position:"(23,13)", 
+                image:imageTwo
+            },
             attributes: {},
-    },
+        },
 
-    "11" : {
-      id : "11",
-          pid : "3",
-          title: "Step 3",
-          children: [],
-          state: {
+        "11" : {
+            id : "11",
+            pid : "3",
+            title: "Step 3",
+            children: [],
+            state: {
               expanded: true,
               visibility: true,
-          },
-          downloaded: false,
-          slideType: SlideType.VIEW,
-          data : {cameraView:"persp", position:"(3,13)", image:""},
-          attributes: {},
-  },
-
-  "12" : {
-    id : "12",
-        pid : "3",
-        title: "Step 4",
-        children: [],
-        state: {
-            expanded: true,
-            visibility: true,
+            },
+            downloaded: false,
+            slideType: SlideType.VIEW,
+            data : {
+                cameraView:"persp", 
+                position:"(3,13)", 
+                image:imageThree
+            },
+            attributes: {},
         },
-        downloaded:false,
-        slideType: SlideType.VIEW,
-        data : {cameraView:"ortho", position:"(3,13)", image:""},
-        attributes: {},
-},
 
-"13" : {
-  id : "13",
-      pid : "3",
-      title: "Step 5",
-      children: [],
-      state: {
-          expanded: true,
-          visibility: true,
-      },
-      downloaded: true,
-      slideType: SlideType.VIEW,
-      data : {cameraView:"persp", position:"(3,13)", image:""},
-      attributes: {},
-},
+        "12" : {
+            id : "12",
+            pid : "3",
+            title: "Step 4",
+            children: [],
+            state: {
+                expanded: true,
+                visibility: true,
+            },
+            downloaded:false,
+            slideType: SlideType.VIEW,
+            data : {
+                cameraView:"ortho", 
+                position:"(3,13)", 
+                image:imageFour
+            },
+            attributes: {},
+        },
 
-
-
+        "13" : {
+            id : "13",
+            pid : "3",
+            title: "Step 5",
+            children: [],
+            state: {
+                expanded: true,
+                visibility: true,
+            },
+            downloaded: true,
+            slideType: SlideType.VIEW,
+            data : {
+                cameraView:"persp", 
+                position:"(3,13)", 
+                image:imageOne
+            },
+            attributes: {},
+        },
 
         "4" : {
-          id : "4",
-              pid : "0",
-              title: "Reaction Force",
-              children: [],
-              state: {
-                  expanded: true,
-                  visibility: true,
-              },
-              downloaded: true,
-              slideType: SlideType.VIEW,
-              data : {cameraView:"persp", position:"(123,13)", image:""},
-              attributes: {},
-      },
+            id : "4",
+            pid : "0",
+            title: "Reaction Force",
+            children: [],
+            state: {
+                expanded: true,
+                visibility: true,
+            },
+            downloaded: true,
+            slideType: SlideType.VIEW,
+            data : {
+                cameraView:"persp", 
+                position:"(123,13)", 
+                image:imageOne
+            },
+            attributes: {},
+        },
 
-      "5" : {
-        id : "5",
+        "5" : {
+            id : "5",
             pid : "0",
             title: "Applied Loads",
             children: [],
@@ -178,72 +204,87 @@ const initialState: SlideTreeState = {
             },
             downloaded: false,
             slideType: SlideType.VIEW,
-            data : {cameraView:"persp", position:"(3,13)", image:""},
+            data : {
+                cameraView:"persp", 
+                position:"(3,13)", 
+                image:imageTwo
+            },
             attributes: {},
-    },
+        },
 
-    "6" : {
-      id : "6",
-          pid : "0",
-          title: "Displacement",
-          children: [],
-          state: {
+        "6" : {
+            id : "6",
+            pid : "0",
+            title: "Displacement",
+            children: [],
+            state: {
               expanded: true,
               visibility: true,
-          },
-          downloaded:true,
-          slideType: SlideType.VIEW,
-          data : {cameraView:"ortho", position:"(3,13)", image:""},
+            },
+            downloaded:true,
+            slideType: SlideType.VIEW,
+            data : {
+                cameraView:"ortho", 
+                position:"(3,13)", 
+                image:imageThree
+            },
           attributes: {},
-  },
-
-  "7" : {
-    id : "7",
-        pid : "0",
-        title: "View 1",
-        children: [],
-        state: {
-            expanded: true,
-            visibility: true,
         },
-        downloaded: true,
-        slideType: SlideType.VIEW,
-        data : {cameraView:"persp", position:"(123,13)", image:""},
-        attributes: {},
-},
 
-"8" : {
-  id : "8",
-      pid : "0",
-      title: "View 2",
-      children: [],
-      state: {
-          expanded: true,
-          visibility: true,
-      },
-      downloaded: false,
-      slideType: SlideType.VIEW,
-      data : {cameraView:"ortho", position:"(3,13)", image:""},
-      attributes: {},
-},
+        "7" : {
+            id : "7",
+            pid : "0",
+            title: "View 1",
+            children: [],
+            state: {
+                expanded: true,
+                visibility: true,
+            },
+            downloaded: true,
+            slideType: SlideType.VIEW,
+            data : {
+                cameraView:"persp", 
+                position:"(123,13)", 
+                image:imageFour
+            },
+            attributes: {},
+        },
+
+        "8" : {
+            id : "8",
+            pid : "0",
+            title: "View 2",
+            children: [],
+            state: {
+                expanded: true,
+                visibility: true,
+            },
+            downloaded: false,
+            slideType: SlideType.VIEW,
+            data : {
+                cameraView:"ortho", 
+                position:"(3,13)", image:imageOne
+            },
+            attributes: {},
+        },
 
         "1" : {
           id : "1",
-              pid : "-1",
-              title: "Group 1",
-              children: [],
-              state: {
-                  expanded: true,
-                  visibility: true,
-              },
-              downloaded: false,
-              slideType: SlideType.GROUP,
-              data:{},
-              attributes: {},
-      },
+            pid : "-1",
+            title: "Group 1",
+            children: [],
+            state: {
+                expanded: true,
+                visibility: true,
+            },
+            downloaded: false,
+            slideType: SlideType.GROUP,
+            data:{},
+            attributes: {},
+        },
 
-      "2" : {
-        id : "2",
+        "2" : {
+            id : "2",
             pid : "-1",
             title: "Group 2",
             children: [],
@@ -255,7 +296,7 @@ const initialState: SlideTreeState = {
             slideType: SlideType.GROUP,
             data:{},
             attributes: {},
-    },
+        },
     },
     rootIds: ["0","1","2"],
     appliedSlide : "8",
@@ -279,7 +320,7 @@ const initialState: SlideTreeState = {
 
     },
 
-    currentData : {cameraView:"ortho", position:"(23,213)", image:""},
+    currentData : {cameraView:"ortho", position:"(23,213)", image:imageThree},
 
     stepCount : 5,
     viewCount : 2,

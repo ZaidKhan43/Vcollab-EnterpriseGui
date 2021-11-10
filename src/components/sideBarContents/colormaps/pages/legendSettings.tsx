@@ -334,7 +334,12 @@ export default function LegendSettings() {
     if(paletteType !== selectedData.paletteType || direction !== selectedData.direction || ticPosition !== selectedData.ticPosition || titlePlacement !== selectedData.titlePlacement || valuePlacement !== selectedData.valuePlacement || gapValue !== selectedData.gap)
       disabled = false;
     return (
-      <div style={{marginTop:"20px", marginBottom:"20px"}}>
+      <div>
+        { readOnly 
+          ?
+          null
+          :
+<div style={{marginTop:"20px", marginBottom:"20px"}}>
         <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
           autoFocus 
           onClick={onHandleApply} 
@@ -353,6 +358,9 @@ export default function LegendSettings() {
           Reset
         </MuiButton>
       </div>
+        }
+      </div>
+      
     );
   };
   return (
