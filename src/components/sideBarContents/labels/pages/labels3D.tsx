@@ -10,7 +10,7 @@ import BackButton from '../../../icons/back';
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree from '../../../shared/RsTreeTable';
-import {invertNode, expandNode, select3DLabelData ,selectRootIds, setCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength} from '../../../../store/sideBar/labelSlice/label3DSlice'
+import {invertNode, expandNode, select3DLabelData ,selectRootIds, setCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel} from '../../../../store/sideBar/labelSlice/label3DSlice'
 
 import AddIcon from "@material-ui/icons/Add";
 
@@ -32,7 +32,7 @@ import MuiGrid from '@material-ui/core/Grid';
 
 import { convertListToTree } from '../../../utils/tree';
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
 
 export default function Labels3D(){
@@ -49,6 +49,13 @@ export default function Labels3D(){
 
   const containerRef = useRef(null);
   const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
+
+  useEffect(() => {
+    if(treeRootIds.length === 0) {
+      dispatch(createParentLabel({name:"point"}));
+      dispatch(createParentLabel({name:"Face"}));
+    }
+  },[]);
 
   const getHeaderLeftIcon= () => {
     return (
@@ -94,7 +101,7 @@ export default function Labels3D(){
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
       <RTree 
       treeData={roots} 
-        expandedRowIds = {expanded}
+      expandedRowIds = {expanded}
         onExpand={handleExpand}
         onRowClick = {() => {}}
         width = {300}

@@ -10,11 +10,11 @@ import BackButton from '../../../icons/back';
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree from '../../../shared/RsTreeTable';
-import {invertNode, expandNode, selectmeasurementsData ,selectRootIds, setCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength} from '../../../../store/sideBar/labelSlice/measurementsSlice'
+import {invertNode, expandNode, selectmeasurementsData ,selectRootIds, setCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel} from '../../../../store/sideBar/labelSlice/measurementsSlice'
 
-import EyeIcon from '@material-ui/icons//Visibility';
-import EyeSlashIcon from '@material-ui/icons/VisibilityOff';
-import IconButton  from '@material-ui/core/IconButton';
+// import EyeIcon from '@material-ui/icons//Visibility';
+// import EyeSlashIcon from '@material-ui/icons/VisibilityOff';
+// import IconButton  from '@material-ui/core/IconButton';
 
 import AddIcon from "@material-ui/icons/Add";
 
@@ -36,7 +36,7 @@ import MuiGrid from '@material-ui/core/Grid';
 
 import { convertListToTree } from '../../../utils/tree';
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
 
 export default function Measurements(){
@@ -55,6 +55,15 @@ export default function Measurements(){
 
   const containerRef = useRef(null);
   const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
+
+  useEffect(() => {
+    if(treeRootIds.length === 0) {
+      dispatch(createParentLabel({name:"Point to Point"}));
+      dispatch(createParentLabel({name:"3 Point Arc Length"}));
+      dispatch(createParentLabel({name:"Point to Edge"}));
+      dispatch(createParentLabel({name:"Point to Face"}));
+    }
+  },[]);
 
   const getHeaderLeftIcon= () => {
     return (

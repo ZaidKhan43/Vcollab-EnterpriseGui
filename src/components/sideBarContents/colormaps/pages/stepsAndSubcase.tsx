@@ -42,9 +42,9 @@ export default function Variable(){
   const appliedStep = colormapsData[activeColormapId].step;
   const colormapNameList = useAppSelector(colormapElements)
 
-  const selectedVariableIds = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].variable);
+  const selectedVariableIds = colormapsData[activeColormapId].variable;
 
-  const readOnly = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false)
+  const readOnly = colormapsData[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false;
 
   const stepVisibleIds = useVisibility({
     source: variables,

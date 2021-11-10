@@ -61,6 +61,7 @@ export default function Camera (){
       
 
     const onHandleCamera = (id : number) => {
+        setOpenDelete(false)
         dispatch(setActiveId(id))
     }
 

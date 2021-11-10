@@ -7,11 +7,33 @@ import {ITreeState} from "./shared/ProductExplorer/types";
 import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer, addNodeReducer} from "./shared/ProductExplorer/reducers";
 import ColorPalette from '../../components/sideBarContents/colormaps/pages/colorPalette';
 
+import autoBar from "../../assets/images/autoBar.png";
+import topright from "../../assets/images/topright.png";
+import topleft from "../../assets/images/topleft.png";
+import topmiddle from "../../assets/images/topmiddle.png";
+import leftplace from "../../assets/images/leftplace.png";
+import rightplace from "../../assets/images/rightplace.png";
+import topplace from "../../assets/images/topplace.png";
+import bottomplace from "../../assets/images/bottomplace.png";
+import alterplace from "../../assets/images/alterplace.png";
+import bottomleft from "../../assets/images/bottomleft.png";
+import bottomright from "../../assets/images/bottomright.png";
+import bottommiddle from "../../assets/images/bottommiddle.png";
+import vertical from "../../assets/images/vertical.png";
+import horizontal from "../../assets/images/horizontal.png";
+import discrete from "../../assets/images/discrete.svg"
+import bottom from "../../assets/images/bottom.svg";
+import top from "../../assets/images/top.svg";
+import colorBar from '../../assets/images/colorbar.svg';
+import noticksBar from '../../assets/images/noticks.svg';
+import insideBar from '../../assets/images/inside.svg';
+import outsideBar from '../../assets/images/outside.svg';
+import acrossBar from '../../assets/images/across.svg';
+
 type ColormapSettings = {
     idGenerator : number,
     defaultParameters : Colormap,
-    userDefinedCount : number,
-    // headCount : number,    
+    userDefinedCount : number, 
 } 
 
 export enum ValueType  {
@@ -31,7 +53,6 @@ export enum ColormapType {
     USER = 1,
 }
 
-
 export interface Colormap extends TreeNode {
     id: string;
     pid: string | null;
@@ -47,6 +68,13 @@ export interface Colormap extends TreeNode {
     step: string,
     downloaded: boolean,
     size: number,
+
+    paletteType: string,
+    direction: string,
+    ticPosition: string,
+    titlePlacement: string,
+    valuePlacement: string,
+    gap: number,
 }
 
 interface ColormapTreeState extends ITreeState {
@@ -68,14 +96,18 @@ export interface ColorPalette extends TreeNode {
 
 }
 
+type LegendSettings = {
+    id: string,
+    name: string,
+    image: string,
+}[];
+
+
+
 interface ColorPaletteTreeState extends ITreeState {
     data : {[id:string]:ColorPalette},
     rootIds: string[],
 }
-
-
-
-
 
 type ColorPaletteSettings = {
     idGenerator : number,
@@ -92,6 +124,13 @@ interface InitialState {
     selectedColorMapId : string,
     appliedColorMapId : string,
     selectedColorPaletteId : string,
+
+    paletteType : LegendSettings,
+    direction : LegendSettings,
+    ticPosition : LegendSettings,
+    titlePlacement : LegendSettings,
+    valuePlacement : LegendSettings,
+
 }
 
 const initialState : InitialState = {
@@ -119,6 +158,12 @@ const initialState : InitialState = {
                 attributes: {},
                 downloaded: false,
                 size:2024,
+                paletteType: "0",
+                direction: "1",
+                ticPosition: "2",
+                titlePlacement: "0",
+                valuePlacement: "1",
+                gap: 3,
         },
         userDefinedCount: 0,
         // headCount: 2,
@@ -224,6 +269,44 @@ const initialState : InitialState = {
     selectedColorMapId: "-1",
     appliedColorMapId : "7",
     selectedColorPaletteId: "-1",
+
+    paletteType : [
+        { id:"0", name: "Auto", image: autoBar },
+        { id:"1", name: "Continious", image: colorBar },
+        { id:"2", name: "Discrete", image: discrete },
+    ],
+
+    direction : [
+        { id:"0", name: "Vertical", image: vertical },
+        { id:"1", name: "Horizontal", image: horizontal },
+        { id:"2", name: "Auto", image: autoBar },
+    ],
+
+    ticPosition : [
+        { id:"0", name: "No tics", image: noticksBar },
+        { id:"1", name: "Inside", image: insideBar },
+        { id:"2", name: "Outside", image: outsideBar },
+        { id:"3", name: "Running across", image: acrossBar },
+    ],
+
+    titlePlacement : [
+        { id:"0", name: "Top", image:top },
+        { id:"1", name: "Bottom", image:bottom},
+        { id:"2", name: "Top Left", image: topleft },
+        { id:"3", name: "Top Middle", image: topmiddle },
+        { id:"4", name: "Top Right", image: topright },
+        { id:"5", name: "Bottom Left", image:bottomleft },
+        { id:"6", name: "Bottom Middle", image:bottommiddle },
+        { id:"7", name: "Bottom Right", image:bottomright },
+    ],
+    
+    valuePlacement : [
+        { id:"0", name: "Left", image: leftplace },
+        { id:"1", name: "Right", image: rightplace },
+        { id:"2", name: "Top", image: topplace },
+        { id:"3", name: "Bottom", image: bottomplace },
+        { id:"4", name: "Alternating", image: alterplace },
+    ],  
 }
 
 
@@ -271,6 +354,12 @@ export const colormapSlice = createSlice({
                     attributes: {},
                     downloaded:true,
                     size:10120,
+                    paletteType: "-1",
+                    direction: "-1",
+                    ticPosition: "-1",
+                    titlePlacement: "-1",
+                    valuePlacement: "-1",
+                    gap: 3,
                 }
                 return p
             }
@@ -300,6 +389,12 @@ export const colormapSlice = createSlice({
                     step: data.stepId,
                     downloaded: true,
                     size:1233,
+                    paletteType: "0",
+                    direction: "1",
+                    ticPosition: "2",
+                    titlePlacement: "0",
+                    valuePlacement: "1",
+                    gap: 3,
                 },
                 type: "colormapSlice/addColorMap/addNodeReducer"
             })
@@ -361,7 +456,7 @@ export const colormapSlice = createSlice({
             copiedColormapData.downloaded = false;
             copiedColormapData.size = 78731230; 
 
-            state.colormapTree.data[`${state.colormapSettings.idGenerator}`] = copiedColormapData;
+            state.colormapTree.data[`${state.colormapSettings.idGenerator}`] = JSON.parse(JSON.stringify(copiedColormapData));
             state.colormapTree.data[copiedColormapData.pid].children.push(copiedColormapData.id)
 
         },
@@ -481,6 +576,15 @@ export const colormapSlice = createSlice({
             state.colormapTree.data[action.payload.colorMapId].step = action.payload.stepId;
         },
 
+        setLegendSettings : (state, action : PayloadAction<{colorMapId :string, newPaletteType :string, newDirection: string, newTicPosition: string, newTitlePlacement: string, newValuePlacement: string, newGap: number}>) => {
+            state.colormapTree.data[action.payload.colorMapId].paletteType = action.payload.newPaletteType;
+            state.colormapTree.data[action.payload.colorMapId].direction = action.payload.newDirection;
+            state.colormapTree.data[action.payload.colorMapId].ticPosition = action.payload.newTicPosition;
+            state.colormapTree.data[action.payload.colorMapId].titlePlacement = action.payload.newTitlePlacement;
+            state.colormapTree.data[action.payload.colorMapId].valuePlacement = action.payload.newValuePlacement;
+            state.colormapTree.data[action.payload.colorMapId].gap = action.payload.newGap;
+        },
+
         setSelectedValue : (state, action : PayloadAction<{colorPaletteId : string, updatedValueSet : any[]}>) => {
 
             let newData = [...action.payload.updatedValueSet];
@@ -504,7 +608,8 @@ export const colormapSlice = createSlice({
 })
 
 export default colormapSlice.reducer;
-export const {addColorMap, saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, deleteColorMap, applyColorMap, pasteColormap, setColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep, editColorPalette, setSelectedValue, setSelectedValueType, editColorPaletteNature} = colormapSlice.actions;
+export const {addColorMap, saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, deleteColorMap, applyColorMap, pasteColormap, setColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep, editColorPalette, setSelectedValue, setSelectedValueType, editColorPaletteNature, setLegendSettings} = colormapSlice.actions;
+
 
 //Selectors
 
@@ -514,6 +619,11 @@ export const selectcolormapData = (state:RootState) => state.colormap.colormapTr
 export const selectColorPaletteData = (state:RootState) => state.colormap.colorPaletteTree.data;
 export const selectColorPaletteRootIds = (state:RootState) => state.colormap.colorPaletteTree.rootIds;
 
+export const paletteTypeDataList = (state: RootState) => state.colormap.paletteType;
+export const  directionDataList = (state: RootState) => state.colormap.direction;
+export const ticPositionDataList = (state: RootState) => state.colormap.ticPosition;
+export const titlePlacementDataList = (state: RootState) => state.colormap.titlePlacement;
+export const valuePlacementDataList = (state: RootState) => state.colormap.valuePlacement;
 
 // export const selectVariableData = (state: RootState) => state.colormap.variableTree.data;
 // export const selectVariableRootIds = (state : RootState) => state.colormap.variableTree.rootIds;
