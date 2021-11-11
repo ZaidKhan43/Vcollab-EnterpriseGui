@@ -85,7 +85,7 @@ const initialState: SlideTreeState = {
               title: "Step 1",
               children: [],
               state: {
-                  expanded: true,
+                  expanded: false,
                   visibility: true,
               },
               downloaded:false,
@@ -104,7 +104,7 @@ const initialState: SlideTreeState = {
             title: "Step 2",
             children: [],
             state: {
-                expanded: true,
+                expanded: false,
                 visibility: true,
             },
             downloaded: true,
@@ -123,7 +123,7 @@ const initialState: SlideTreeState = {
             title: "Step 3",
             children: [],
             state: {
-              expanded: true,
+              expanded: false,
               visibility: true,
             },
             downloaded: false,
@@ -142,7 +142,7 @@ const initialState: SlideTreeState = {
             title: "Step 4",
             children: [],
             state: {
-                expanded: true,
+                expanded: false,
                 visibility: true,
             },
             downloaded:false,
@@ -161,7 +161,7 @@ const initialState: SlideTreeState = {
             title: "Step 5",
             children: [],
             state: {
-                expanded: true,
+                expanded: false,
                 visibility: true,
             },
             downloaded: true,
@@ -180,7 +180,7 @@ const initialState: SlideTreeState = {
             title: "Reaction Force",
             children: [],
             state: {
-                expanded: true,
+                expanded: false,
                 visibility: true,
             },
             downloaded: true,
@@ -199,7 +199,7 @@ const initialState: SlideTreeState = {
             title: "Applied Loads",
             children: [],
             state: {
-                expanded: true,
+                expanded: false,
                 visibility: true,
             },
             downloaded: false,
@@ -218,7 +218,7 @@ const initialState: SlideTreeState = {
             title: "Displacement",
             children: [],
             state: {
-              expanded: true,
+              expanded: false,
               visibility: true,
             },
             downloaded:true,
@@ -237,7 +237,7 @@ const initialState: SlideTreeState = {
             title: "View 1",
             children: [],
             state: {
-                expanded: true,
+                expanded: false,
                 visibility: true,
             },
             downloaded: true,
@@ -256,7 +256,7 @@ const initialState: SlideTreeState = {
             title: "View 2",
             children: [],
             state: {
-                expanded: true,
+                expanded: false,
                 visibility: true,
             },
             downloaded: false,
@@ -274,7 +274,7 @@ const initialState: SlideTreeState = {
             title: "Group 1",
             children: [],
             state: {
-                expanded: true,
+                expanded: false,
                 visibility: true,
             },
             downloaded: false,
@@ -289,7 +289,7 @@ const initialState: SlideTreeState = {
             title: "Group 2",
             children: [],
             state: {
-                expanded: true,
+                expanded: false,
                 visibility: true,
             },
             downloaded:false,

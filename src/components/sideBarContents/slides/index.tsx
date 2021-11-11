@@ -76,7 +76,7 @@ export default function Slides (){
     }
 
     const handleExpand = (toOpen:boolean,nodeId:string) => {
-      if(treeDataRedux[nodeId].slideType === SlideType.GROUP)
+      // if(treeDataRedux[nodeId].slideType === SlideType.GROUP)
         dispatch(expandNode({toOpen,nodeId}));
     }    
     

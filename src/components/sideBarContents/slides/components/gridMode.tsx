@@ -35,15 +35,56 @@ export default function ListView (props : any){
   const [current, setCurrent] = useState("0")
 
   const imageViewGenerator = ( data : any) => {
+
     if(data.slideType === props.slideType.VIEW){
       return(
-        <img src={data.data.image}></img>
+        <img src={data.data.image} width="200px" height="120px"></img>
       )
       }
+
       if(data.slideType === props.slideType.GROUP){
+        const childrenImages : any[] = [];
+        Object.keys(treeDataRedux).map(key => {
+          if(treeDataRedux[key].pid === data.id && treeDataRedux[key].slideType === props.slideType.VIEW)
+          childrenImages.push(treeDataRedux[key].data.image)
+      })
+
+        
     return(
-      <div style={{width:"100px", height:"30px", background:"red"}}> hello</div>
+      <div style={{width:"200px", height:"120px",border: "1px solid", borderColor:"white" }}>
+        <MuiGrid container >
+        <MuiGrid container item spacing={1}>
+        <MuiGrid item xs={6}>
+        <img src={childrenImages[0]} width="95px" height="58px"></img>
+      </MuiGrid>
+      <MuiGrid item xs={6}>
+        <img src={childrenImages[1]} width="95px" height="58px"></img>
+      </MuiGrid>
+        </MuiGrid>
+        <MuiGrid container item spacing={1}>
+        <MuiGrid item xs={6}>
+        <img src={childrenImages[0]} width="95px" height="58px"></img>
+      </MuiGrid>
+      <MuiGrid item xs={6}>
+        <img src={childrenImages[1]} width="95px" height="58px"></img>
+      </MuiGrid>
+        </MuiGrid>
+        </MuiGrid> 
+      </div>
     )
+    }
+  }
+
+  const rowHeightGenerator = (data : any) => {
+
+    if(data.slideType === props.slideType.VIEW)
+      return(180)
+    
+    else{
+      if (data.state.expanded === false)
+        return(180)
+      else
+        return(40) 
     }
   }
 
@@ -52,14 +93,13 @@ export default function ListView (props : any){
     <RTree 
       treeData={roots} 
       expandedRowIds = {expanded}
-      onExpand={props.handleExpand}
+      onExpand={() => {}}
       onRowClick = {props.handleRowClick}
       width = {300}
       hover={true}
       selectable={true}
       selected={[selectedSlideId]}
-      rowHeight={(rowData) => {if (treeDataRedux[rowData.id].state.expanded === false || treeDataRedux[rowData.id].slideType === props.slideType.VIEW) return(120)
-         else return(40)}}
+      rowHeight={(rowData) => rowHeightGenerator(treeDataRedux[rowData.id])}
       height = {containerHeight ? containerHeight - 5: 0}
       renderTreeToggle = {
         (icon,rowData) => {
@@ -74,12 +114,18 @@ export default function ListView (props : any){
         return (
             <div>
                 {
-                    treeDataRedux[node.id].state.expanded === false
+                    treeDataRedux[node.id].state.expanded === true
                     ?
                       <p>{treeDataRedux[node.id].title }</p>
                     :
                     <div>
-                        {imageViewGenerator(treeDataRedux[node.id])}
+                        <MuiGrid container direction='column' ></MuiGrid>
+                          <MuiGrid item>
+                            <p>{treeDataRedux[node.id].title }</p>
+                          </MuiGrid>
+                          <MuiGrid item>
+                            {imageViewGenerator(treeDataRedux[node.id])}
+                          </MuiGrid>
                       </div>
                 }
             </div>
@@ -94,7 +140,8 @@ export default function ListView (props : any){
                   <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
                       <MuiGrid item xs={8}>
                           <MuiIconButton size='small' 
-                          //   onClick={() => handleCreateLabel(node.id)}
+                            onClick={() => props.handleExpand( !treeDataRedux[node.id].state.expanded ,node.id) }
+                            disabled={treeDataRedux[node.id].children.length === 0}
                           >
                               <GridViewIcon /> 
                           </MuiIconButton> 
