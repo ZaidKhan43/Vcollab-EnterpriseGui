@@ -310,7 +310,7 @@ const initialState: SlideTreeState = {
         pid:"-1",
         children: [],
                 state: {
-                    expanded: true,
+                    expanded: false,
                     visibility: true,
                 },
                 downloaded: false,

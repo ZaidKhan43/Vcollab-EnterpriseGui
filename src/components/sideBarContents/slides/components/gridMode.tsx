@@ -38,7 +38,7 @@ export default function ListView (props : any){
 
     if(data.slideType === props.slideType.VIEW){
       return(
-        <img src={data.data.image} width="200px" height="120px"></img>
+        <img src={data.data.image} width="150px" height="100px"></img>
       )
       }
 
@@ -49,27 +49,23 @@ export default function ListView (props : any){
           childrenImages.push(treeDataRedux[key].data.image)
       })
 
+      const toRenderImages = childrenImages.slice(0, 4) 
         
     return(
-      <div style={{width:"200px", height:"120px",border: "1px solid", borderColor:"white" }}>
+      <div style={{width:"150px", height:"100px",border: "1px solid", borderColor:"white" }}>
         <MuiGrid container >
-        <MuiGrid container item spacing={1}>
-        <MuiGrid item xs={6}>
-        <img src={childrenImages[0]} width="95px" height="58px"></img>
-      </MuiGrid>
-      <MuiGrid item xs={6}>
-        <img src={childrenImages[1]} width="95px" height="58px"></img>
-      </MuiGrid>
+        <MuiGrid container item>
+          {
+            toRenderImages.map(element =>
+              
+              <MuiGrid item xs={6}>
+              <img src={element} width="75px" height="50px"></img>
+            </MuiGrid>
+           
+            )
+          }
+           </MuiGrid>
         </MuiGrid>
-        <MuiGrid container item spacing={1}>
-        <MuiGrid item xs={6}>
-        <img src={childrenImages[0]} width="95px" height="58px"></img>
-      </MuiGrid>
-      <MuiGrid item xs={6}>
-        <img src={childrenImages[1]} width="95px" height="58px"></img>
-      </MuiGrid>
-        </MuiGrid>
-        </MuiGrid> 
       </div>
     )
     }
@@ -78,11 +74,11 @@ export default function ListView (props : any){
   const rowHeightGenerator = (data : any) => {
 
     if(data.slideType === props.slideType.VIEW)
-      return(180)
+      return(160)
     
     else{
       if (data.state.expanded === false)
-        return(180)
+        return(160)
       else
         return(40) 
     }
@@ -113,21 +109,20 @@ export default function ListView (props : any){
       treeNode = {(node) => {
         return (
             <div>
+              <MuiGrid container direction='column' spacing={1}>
+                <MuiGrid item style={{marginTop:"8px"}}>
+                            {treeDataRedux[node.id].title }
+                          </MuiGrid>
                 {
                     treeDataRedux[node.id].state.expanded === true
                     ?
-                      <p>{treeDataRedux[node.id].title }</p>
+                      null
                     :
-                    <div>
-                        <MuiGrid container direction='column' ></MuiGrid>
-                          <MuiGrid item>
-                            <p>{treeDataRedux[node.id].title }</p>
-                          </MuiGrid>
                           <MuiGrid item>
                             {imageViewGenerator(treeDataRedux[node.id])}
                           </MuiGrid>
-                      </div>
                 }
+               </MuiGrid>
             </div>
           
         )
@@ -137,7 +132,7 @@ export default function ListView (props : any){
           <div>
               { treeDataRedux[node.id].slideType === props.slideType.GROUP
                  ?
-                  <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
+                  <MuiGrid container alignItems='center' style={{width:'100%',height:`${treeDataRedux[node.id].state.expanded ? "100%" : "20%"}`,}}>
                       <MuiGrid item xs={8}>
                           <MuiIconButton size='small' 
                             onClick={() => props.handleExpand( !treeDataRedux[node.id].state.expanded ,node.id) }
@@ -158,7 +153,7 @@ export default function ListView (props : any){
           <div>
             { treeDataRedux[node.id].slideType === props.slideType.VIEW
               ?
-              <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
+              <MuiGrid container alignItems='center' style={{width:'100%',height:'25%'}}>
                   <MuiGrid item xs={9}></MuiGrid>
                   <MuiGrid item xs={3}>
               { appliedSlideId === node.id
@@ -178,7 +173,7 @@ export default function ListView (props : any){
               </MuiGrid>
             </MuiGrid>
               :        
-                <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
+                <MuiGrid container alignItems='center' style={{width:'100%',height:`${treeDataRedux[node.id].state.expanded ? "100%" : "20%"}`,}}>
                   <MuiGrid item xs={4}></MuiGrid>
                   <MuiGrid item xs={6}>
                     <MuiIconButton size='small' 

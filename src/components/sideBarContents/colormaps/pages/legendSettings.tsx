@@ -120,14 +120,23 @@ export default function LegendSettings() {
       return listmenu.map((menu: any) => {
         return (
           <MuiMenuItem value={menu.id} style={{height:"40px"}}>
-            <ListItemIcon style={{verticalAlign: "middle", marginLeft:"10px"}}>
-              <img src={menu.image}></img>
+            <MuiGrid container>
+              <MuiGrid item>
+              <ListItemIcon style={{verticalAlign: "middle", marginLeft:"10px", height:"30px"}}>
+                <img height="40px" width="50px" src={menu.image}></img>
             </ListItemIcon>
-            {menu.name}
+              </MuiGrid>
+              <MuiGrid item style={{marginTop:"10px"}}>
+              {menu.name}
+              </MuiGrid>
+            </MuiGrid>
+            
+            
           </MuiMenuItem>
         );
       });
-    } else {
+    } 
+    else {
       return listmenu.map((menu: any) => {
         return (
           <MuiMenuItem value={menu.id} style={{height:"55px"}}>
@@ -311,7 +320,7 @@ export default function LegendSettings() {
           </SelectAction>
           </div>
 
-        <div style={{ textAlign: "left", marginTop: "5%", marginLeft:"10px",marginBottom:"5px" }}>
+        <div style={{ textAlign: "left", marginTop: "30px", marginLeft:"10px",marginBottom:"5px" }}>
         <MuiGrid container>
             <MuiGrid item style={{ marginRight: "5%", marginTop:"10px" }}>
               <span >Gap</span>

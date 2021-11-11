@@ -20,7 +20,7 @@ import bottomright from "../../assets/images/bottomright.png";
 import bottommiddle from "../../assets/images/bottommiddle.png";
 import vertical from "../../assets/images/vertical.png";
 import horizontal from "../../assets/images/horizontal.png";
-import discrete from "../../assets/images/discrete.svg"
+import discrete from "../../assets/images/discrete.png"
 import bottom from "../../assets/images/bottom.png";
 import top from "../../assets/images/top.png";
 import colorBar from '../../assets/images/horizontal.png';

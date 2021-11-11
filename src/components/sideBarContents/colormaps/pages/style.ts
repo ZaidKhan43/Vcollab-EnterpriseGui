@@ -77,7 +77,7 @@ export default makeStyles((theme) => (
 },
 
 legendSelection: {
-  marginTop:"20px",
+  marginTop:"30px",
   marginLeft:"10px",
   width:"90%"
 },
