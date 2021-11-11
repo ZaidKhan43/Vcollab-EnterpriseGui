@@ -5,22 +5,22 @@ import BackButton from "../../../icons/back";
 import FormControl from "@material-ui/core/FormControl";
 import { useAppDispatch, useAppSelector } from "../../../../store/storeHooks";
 import { goBack, push } from "connected-react-router/immutable";
-import { InputLabel, ListItemIcon, Typography } from "@material-ui/core";
+import { InputLabel, ListItemIcon, SvgIcon, Typography } from "@material-ui/core";
 import { Select } from "@material-ui/core";
 import { MenuItem } from "@material-ui/core";
 import { ListItemText } from "@material-ui/core";
 import MuiButton from "@material-ui/core/Button";
 import MuiTextField from "@material-ui/core/TextField";
-import MuiGrid from '@material-ui/core/Grid'
-
-
-import {useState, useEffect} from 'react';
 import SelectAction from "../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction";
 import MuiMenuItem from "@material-ui/core/MenuItem";
 import { selectcolormapData, colormapElements, setColorMapSelection, paletteTypeDataList, directionDataList, ticPositionDataList, titlePlacementDataList, valuePlacementDataList, setLegendSettings,ColormapType } from "../../../../store/sideBar/colormapSlice";
 
 import MuiListSubHeader from '@material-ui/core/ListSubheader';
 import styles from "./style";
+
+import MuiGrid from '@material-ui/core/Grid'
+
+import { useEffect, useState } from "react";
 
 export default function LegendSettings() {
 
@@ -119,8 +119,8 @@ export default function LegendSettings() {
     if (column === false) {
       return listmenu.map((menu: any) => {
         return (
-          <MuiMenuItem value={menu.id}>
-            <ListItemIcon>
+          <MuiMenuItem value={menu.id} style={{height:"40px"}}>
+            <ListItemIcon style={{verticalAlign: "middle", marginLeft:"20px"}}>
               <img src={menu.image}></img>
             </ListItemIcon>
             {menu.name}
@@ -130,11 +130,11 @@ export default function LegendSettings() {
     } else {
       return listmenu.map((menu: any) => {
         return (
-          <MuiMenuItem value={menu.id}>
+          <MuiMenuItem value={menu.id} style={{height:"55px"}}>
             <div>
               <span>{menu.name}</span>
               <div>
-                <ListItemIcon>
+                <ListItemIcon style={{verticalAlign: "middle", marginLeft:"20px"}}>
                   <img src={menu.image}></img>
                 </ListItemIcon>
               </div>
@@ -311,17 +311,22 @@ export default function LegendSettings() {
           </SelectAction>
           </div>
 
-        <div style={{ textAlign: "left", marginTop: "5%" }}>
-          <span style={{ marginRight: "5%" }}>Gap</span>
-
-          <MuiTextField
-            type="number"
-            variant="outlined"
-            style={{ width: "30%" }}
-            size="small"
-            value={gapValue}
-            onChange={handleGap}
-          />
+        <div style={{ textAlign: "left", marginTop: "5%", marginLeft:"10px" }}>
+        <MuiGrid container>
+            <MuiGrid item style={{ marginRight: "5%", marginTop:"10px" }}>
+              <span >Gap</span>
+            </MuiGrid>
+            <MuiGrid item>
+              <MuiTextField
+                type="number"
+                variant="outlined"
+                style={{ width: "30%" }}
+                size="small"
+                value={gapValue}
+                onChange={handleGap}
+              />
+            </MuiGrid>
+          </MuiGrid>
         </div>
       </div>
     );
