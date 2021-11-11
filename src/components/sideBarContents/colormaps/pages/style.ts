@@ -76,5 +76,11 @@ export default makeStyles((theme) => (
   marginRight:"75px"
 },
 
+legendSelection: {
+  marginTop:"20px",
+  marginLeft:"10px",
+  width:"90%"
+},
+
 
 }));

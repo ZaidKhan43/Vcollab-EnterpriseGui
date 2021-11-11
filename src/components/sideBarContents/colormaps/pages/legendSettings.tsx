@@ -120,7 +120,7 @@ export default function LegendSettings() {
       return listmenu.map((menu: any) => {
         return (
           <MuiMenuItem value={menu.id} style={{height:"40px"}}>
-            <ListItemIcon style={{verticalAlign: "middle", marginLeft:"20px"}}>
+            <ListItemIcon style={{verticalAlign: "middle", marginLeft:"10px"}}>
               <img src={menu.image}></img>
             </ListItemIcon>
             {menu.name}
@@ -134,7 +134,7 @@ export default function LegendSettings() {
             <div>
               <span>{menu.name}</span>
               <div>
-                <ListItemIcon style={{verticalAlign: "middle", marginLeft:"20px"}}>
+                <ListItemIcon style={{verticalAlign: "middle", marginLeft:"10px"}}>
                   <img src={menu.image}></img>
                 </ListItemIcon>
               </div>
@@ -201,7 +201,7 @@ export default function LegendSettings() {
 
     return (
       <div className={classes.scrollBar}>
-        <div style={{marginTop:"10px", }}>
+        <div className={classes.legendSelection}>
          <SelectAction
             style={{ textAlign: "left"}}
             labelId="display-modes-selection-label-id"
@@ -223,7 +223,7 @@ export default function LegendSettings() {
           </SelectAction>
           </div>
 
-          <div style={{marginTop:"20px"}}>
+          <div className={classes.legendSelection}>
           <SelectAction
             style={{ textAlign: "left" }}
             labelId="display-modes-selection-label-id"
@@ -245,7 +245,7 @@ export default function LegendSettings() {
           </SelectAction>
           </div>
 
-          <div style={{marginTop:"20px"}}>
+          <div className={classes.legendSelection}>
           <SelectAction
             style={{ textAlign: "left" }}
             labelId="display-modes-selection-label-id"
@@ -267,7 +267,7 @@ export default function LegendSettings() {
           </SelectAction>
           </div>
 
-          <div style={{marginTop:"20px"}}>
+          <div className={classes.legendSelection}>
           <SelectAction
             style={{ textAlign: "left" }}
             labelId="display-modes-selection-label-id"
@@ -289,7 +289,7 @@ export default function LegendSettings() {
           </SelectAction>
           </div>
 
-          <div style={{marginTop:"20px"}}>
+          <div className={classes.legendSelection}>
           <SelectAction
             style={{ textAlign: "left" }}
             labelId="display-modes-selection-label-id"
@@ -311,7 +311,7 @@ export default function LegendSettings() {
           </SelectAction>
           </div>
 
-        <div style={{ textAlign: "left", marginTop: "5%", marginLeft:"10px" }}>
+        <div style={{ textAlign: "left", marginTop: "5%", marginLeft:"10px",marginBottom:"5px" }}>
         <MuiGrid container>
             <MuiGrid item style={{ marginRight: "5%", marginTop:"10px" }}>
               <span >Gap</span>

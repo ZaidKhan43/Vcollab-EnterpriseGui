@@ -34,6 +34,19 @@ export default function ListView (props : any){
 
   const [current, setCurrent] = useState("0")
 
+  const imageViewGenerator = ( data : any) => {
+    if(data.slideType === props.slideType.VIEW){
+      return(
+        <img src={data.data.image}></img>
+      )
+      }
+      if(data.slideType === props.slideType.GROUP){
+    return(
+      <div style={{width:"100px", height:"30px", background:"red"}}> hello</div>
+    )
+    }
+  }
+
     return(
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
     <RTree 
@@ -45,7 +58,8 @@ export default function ListView (props : any){
       hover={true}
       selectable={true}
       selected={[selectedSlideId]}
-      rowHeight={(rowData) => 100}
+      rowHeight={(rowData) => {if (treeDataRedux[rowData.id].state.expanded === false || treeDataRedux[rowData.id].slideType === props.slideType.VIEW) return(120)
+         else return(40)}}
       height = {containerHeight ? containerHeight - 5: 0}
       renderTreeToggle = {
         (icon,rowData) => {
@@ -60,16 +74,13 @@ export default function ListView (props : any){
         return (
             <div>
                 {
-                    treeDataRedux[node.id].slideType === props.slideType.VIEW
-                    ?
-                    <img src={treeDataRedux[node.id].data.image}></img> 
-                    :
-
                     treeDataRedux[node.id].state.expanded === false
                     ?
-                    <p>{treeDataRedux[node.id].title }</p>
+                      <p>{treeDataRedux[node.id].title }</p>
                     :
-                    null
+                    <div>
+                        {imageViewGenerator(treeDataRedux[node.id])}
+                      </div>
                 }
             </div>
           
