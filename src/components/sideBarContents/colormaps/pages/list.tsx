@@ -312,7 +312,7 @@ export default function List(){
               <div>
                 <div style={{marginBottom:"5px", marginTop:"5px"}}>
                   <MuiTypography style={{marginBottom:"5px", fontSize:"14px"}}>
-                    Are you sure want to delete the selected Color Palette?
+                    Are you sure want to delete the selected Color Map?
                   </MuiTypography>
                   <div style={{alignContent:"center",}}>
                     <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 

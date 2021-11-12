@@ -3,7 +3,6 @@ import MuiIconButton from '@material-ui/core/IconButton';
 import RTree from '../../../shared/RsTreeTable';
 import AddIcon from "@material-ui/icons/Add";
 
-import TreeNodeWithoutCheckbox from '../../../shared/RsTreeTable/treeNodeWithoutCheckbox';
 import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
 import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
 import MuiGrid from '@material-ui/core/Grid';
@@ -21,7 +20,7 @@ import MuicloudDoneIcon from '@material-ui/icons/CloudDone';
 
 export default function ListView (props : any){
 
-    const treeDataRedux = props.treeData;
+  const treeDataRedux = props.treeData;
   const treeRootIds = props.rootIds;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
@@ -29,7 +28,6 @@ export default function ListView (props : any){
   const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
 
   const selectedSlideId = props.selectedSlideId;
-
   const appliedSlideId = props.appliedSlideId;
 
   const imageViewGenerator = ( data : any, height: number, width: number, border: number) => {
@@ -38,41 +36,33 @@ export default function ListView (props : any){
       return(
         <img src={data.data.image} width={`${width}px`} height={`${height}px`}></img>
       )
-      }
+    }
 
-      if(data.slideType === props.slideType.GROUP){
-        const childrenImages : any[] = [];
-        Object.keys(treeDataRedux).map(key => {
-          if(treeDataRedux[key].pid === data.id)
+    if(data.slideType === props.slideType.GROUP){
+      const childrenImages : any[] = [];
+      Object.keys(treeDataRedux).map(key => {
+        if(treeDataRedux[key].pid === data.id)
           childrenImages.push(treeDataRedux[key])
       })
-
       const toRenderImages = childrenImages.slice(0, 4) 
-    return(
-      <div style={{width:`${width}px`, height:`${height}px`,border: `${border}px solid`, borderColor:"white" }}>
-        <MuiGrid container >
-        <MuiGrid container item>
-          {
-            toRenderImages.map(element =>
-
-                  <MuiGrid item xs={6} style={{marginBottom: "-5px"}}>
-                    {
-(element.slideType === props.slideType.VIEW) ?
-<img src={element.data.image} width={`${width*0.49}px`} height={`${height*0.49}px`}></img>
-:
-imageViewGenerator(element, height/2, width/2, 0)
-                    }
-              
+      return(
+        <div style={{width:`${width}px`, height:`${height}px`,border: `${border}px solid`, borderColor:"white" }}>
+          <MuiGrid container >
+            <MuiGrid container item>
+              { toRenderImages.map(element =>
+                <MuiGrid item xs={6} style={{marginBottom: "-5px"}}>
+                  { (element.slideType === props.slideType.VIEW) 
+                    ?
+                      <img src={element.data.image} width={`${width*0.49}px`} height={`${height*0.49}px`}></img>
+                    :
+                      imageViewGenerator(element, height/2, width/2, 0)
+                  }
+                </MuiGrid>
+              )}
             </MuiGrid>
-                )
-
-                // else 
-              }
-
-           </MuiGrid>
-        </MuiGrid>
-      </div>
-    )
+          </MuiGrid>
+        </div>
+      )
     }
   }
 

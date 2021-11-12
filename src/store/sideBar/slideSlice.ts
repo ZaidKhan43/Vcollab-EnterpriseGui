@@ -17,6 +17,7 @@ export enum SlideType {
 
 interface SlideTreeNode extends TreeNode {
     downloaded : boolean,
+    size: number,
     slideType: SlideType,
     data : {
         cameraView?:string,
@@ -38,6 +39,7 @@ interface SlideTreeState extends ITreeState {
         cameraView?:string,
         position?: string,
         image?: string,
+        size: number,
     },
 
     stepCount : number,
@@ -59,6 +61,7 @@ const initialState: SlideTreeState = {
                     visibility: true,
                 },
                 downloaded: false,
+                size:500,
                 slideType : SlideType.GROUP,
                 data:{},
                 attributes: {},
@@ -74,6 +77,7 @@ const initialState: SlideTreeState = {
                     visibility: true,
                 },
                 downloaded: false,
+                size: 300,
                 slideType: SlideType.GROUP,
                 data:{},
                 attributes: {},
@@ -89,6 +93,7 @@ const initialState: SlideTreeState = {
                   visibility: true,
               },
               downloaded:false,
+              size:100,
               slideType: SlideType.VIEW,
               data : {
                 cameraView:"persp", 
@@ -108,6 +113,7 @@ const initialState: SlideTreeState = {
                 visibility: true,
             },
             downloaded: true,
+            size:100,
             slideType: SlideType.VIEW,
             data : {
                 cameraView:"ortho", 
@@ -127,6 +133,7 @@ const initialState: SlideTreeState = {
               visibility: true,
             },
             downloaded: false,
+            size:100,
             slideType: SlideType.VIEW,
             data : {
                 cameraView:"persp", 
@@ -146,6 +153,7 @@ const initialState: SlideTreeState = {
                 visibility: true,
             },
             downloaded:false,
+            size:100,
             slideType: SlideType.VIEW,
             data : {
                 cameraView:"ortho", 
@@ -165,6 +173,7 @@ const initialState: SlideTreeState = {
                 visibility: true,
             },
             downloaded: true,
+            size:100,
             slideType: SlideType.VIEW,
             data : {
                 cameraView:"persp", 
@@ -184,6 +193,7 @@ const initialState: SlideTreeState = {
                 visibility: true,
             },
             downloaded: true,
+            size:100,
             slideType: SlideType.VIEW,
             data : {
                 cameraView:"persp", 
@@ -203,6 +213,7 @@ const initialState: SlideTreeState = {
                 visibility: true,
             },
             downloaded: false,
+            size:100,
             slideType: SlideType.VIEW,
             data : {
                 cameraView:"persp", 
@@ -222,6 +233,7 @@ const initialState: SlideTreeState = {
               visibility: true,
             },
             downloaded:true,
+            size: 100,
             slideType: SlideType.VIEW,
             data : {
                 cameraView:"ortho", 
@@ -241,6 +253,7 @@ const initialState: SlideTreeState = {
                 visibility: true,
             },
             downloaded: true,
+            size: 100,
             slideType: SlideType.VIEW,
             data : {
                 cameraView:"persp", 
@@ -260,6 +273,7 @@ const initialState: SlideTreeState = {
                 visibility: true,
             },
             downloaded: false,
+            size: 100,
             slideType: SlideType.VIEW,
             data : {
                 cameraView:"ortho", 
@@ -278,6 +292,7 @@ const initialState: SlideTreeState = {
                 visibility: true,
             },
             downloaded: false,
+            size: 0,
             slideType: SlideType.GROUP,
             data:{},
             attributes: {},
@@ -293,6 +308,7 @@ const initialState: SlideTreeState = {
                 visibility: true,
             },
             downloaded:false,
+            size: 0,
             slideType: SlideType.GROUP,
             data:{},
             attributes: {},
@@ -314,13 +330,14 @@ const initialState: SlideTreeState = {
                     visibility: true,
                 },
                 downloaded: false,
+                size: 200,
                 slideType : SlideType.GROUP,
                 data : {},
                 attributes: {},
 
     },
 
-    currentData : {cameraView:"ortho", position:"(23,213)", image:imageThree},
+    currentData : {cameraView:"ortho", position:"(23,213)", image:imageThree, size:400},
 
     stepCount : 5,
     viewCount : 2,
@@ -360,6 +377,7 @@ export const slideSlice = createSlice({
                 state.groupCount ++;
                 newData.title =  `Group ${state.groupCount}`;
                 newData.data = {}
+                newData.size = 0;
                 state.data[`${state.idGenerator}`] =newData;
                 state.rootIds.push(newData.id)
             break;
@@ -382,11 +400,15 @@ export const slideSlice = createSlice({
                 state.data[`${action.payload}`].children.push(newData.id) 
             break;
         }
-        
+
+        if(action.payload !== "-1")
+            slideSlice.caseReducers.downloadParentFolder(state, {payload: state.data[action.payload].id, type:"slideSlice/downloadParentFolder"});
     },
 
     downloadFile : (state, action : PayloadAction<string>) => {
         state.data[ action.payload].downloaded = true;
+
+        slideSlice.caseReducers.downloadParentFolder(state, {payload: state.data[action.payload] ? state.data[action.payload].pid : "-1", type:"slideSlice/downloadParentFolder"});
     },
 
     downloadParentFolder : (state, action: PayloadAction<string>) => {
@@ -395,11 +417,18 @@ export const slideSlice = createSlice({
                 const parentId = state.data[pId].id
                 const parentChildren = state.data[parentId ? parentId : -1].children;
                 let downloadedCount = 0;
+
+                let folderSize =0 ;
     
                 parentChildren.forEach(item => {
-                    if (state.data[item].downloaded)
+                    if (state.data[item].downloaded === true)
                         downloadedCount ++;
+                    
+                    if (state.data[item].downloaded === false)
+                        folderSize = folderSize + state.data[item].size;
                 })
+
+                state.data[parentId].size = folderSize;
     
                 if (parentChildren.length === downloadedCount)
                     state.data[parentId ? parentId : -1].downloaded = true;
@@ -422,6 +451,15 @@ export const slideSlice = createSlice({
 
     replaceViewData : (state,action : PayloadAction<string>) => {
         state.data[action.payload].data = JSON.parse(JSON.stringify(state.currentData))
+
+        state.data[action.payload].size = state.currentData.size;
+        state.data[action.payload].downloaded = false;
+
+        if(state.data[action.payload].id === state.selectedSlide)
+            state.appliedSlide = "-1";
+
+        slideSlice.caseReducers.downloadParentFolder(state, {payload: state.data[action.payload] ? state.data[action.payload].pid : "-1", type:"slideSlice/downloadParentFolder"});
+
     },
 
     deleteNode : (state, action: PayloadAction<string>) => {
@@ -460,6 +498,8 @@ export const slideSlice = createSlice({
         if(toDelete.slideType === SlideType.GROUP){
             deleteGroup(action.payload)
         }
+
+        slideSlice.caseReducers.downloadParentFolder(state, {payload: toDelete.pid, type:"slideSlice/downloadParentFolder"});
     },
 
 
@@ -516,12 +556,14 @@ export const slideSlice = createSlice({
                 if(item.slideType === SlideType.GROUP){
                     pid = toCopiedGroupData.id;
                     copyPasteGroup(item, pid);
+                    slideSlice.caseReducers.downloadParentFolder(state, {payload: pid, type:"slideSlice/downloadParentFolder"});
                 }
             })
         }
 
         if(copiedSlideData.slideType === SlideType.GROUP){
             copyPasteGroup(copiedSlideData, action.payload.pid);
+            slideSlice.caseReducers.downloadParentFolder(state, {payload: action.payload.pid, type:"slideSlice/downloadParentFolder"});
         }
 
         if(copiedSlideData.slideType === SlideType.VIEW){
@@ -536,6 +578,8 @@ export const slideSlice = createSlice({
 
                 state.data[`${state.idGenerator}`] = JSON.parse(JSON.stringify(copiedSlideData));
                 state.data[copiedSlideData.pid].children.push(copiedSlideData.id)
+
+                slideSlice.caseReducers.downloadParentFolder(state, {payload: action.payload.pid, type:"slideSlice/downloadParentFolder"});
             }            
         }
     },
