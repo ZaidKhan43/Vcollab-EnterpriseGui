@@ -46,6 +46,8 @@ import { useState } from 'react';
 
 import {setChildItem} from "../../../../store/mainMenuSlice";
 
+import sizeCalculator from '../../../../customHooks/useSizeCalculator';
+
 export default function List(){
 
   const treeDataRedux = useAppSelector(selectcolormapData);
@@ -150,23 +152,6 @@ export default function List(){
     dispatch(applyColorMap(selectedColorMapId))
   }
 
-  const fileSize = (size : number) => {
-    if (size >= 1024) {
-      const kbSize = size / 1024
-      if (kbSize >= 1024) {
-        const mbSize = kbSize / 1024
-        if(mbSize >= 1024){
-          const gbSize = mbSize / 1024;
-          return `${ (Math.round(gbSize * Math.pow(10, 2)) / Math.pow(10, 2)).toFixed(2)} GB`
-        }
-        return `${ (Math.round(mbSize * Math.pow(10, 2)) / Math.pow(10, 2)).toFixed(2)} MB`
-      }
-      return `${Math.round(kbSize)} kB`
-    }
-    return `${size} B`
-  }
-
-
   const getBody = () => {
     return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
@@ -260,7 +245,7 @@ export default function List(){
                       ?
                         <MuiGrid item xs={4}></MuiGrid>
                       :
-                        <MuiGrid item xs={4}> {fileSize(treeDataRedux[selectedColorMapId].size)} </MuiGrid> 
+                        <MuiGrid item xs={4}> {sizeCalculator(treeDataRedux[selectedColorMapId].size)} </MuiGrid> 
                     }
                     <MuiGrid item>
                       <MuiButton style={{backgroundColor:"#5958FF",width:"100%", fontSize:"9px" , marginRight:"5px"}} 

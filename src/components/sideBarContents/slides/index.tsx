@@ -25,6 +25,7 @@ import { useRef , useEffect} from 'react';
 import useContainer from '../../../customHooks/useContainer';
 
 import GridViewIcon from '../../icons/gridView';
+import MuiFormatListBulletedIcon from '@material-ui/icons/FormatListBulleted';
 
 import ReplaceIcon from '../../icons/replace'
 import MuiFileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
@@ -49,7 +50,6 @@ import {Routes} from "../../../routes"
 import { useState } from 'react';
 
 import ListView from './components/listView';
-
 import GridMode from './components/gridMode'
 
 
@@ -81,10 +81,19 @@ export default function Slides (){
       setListView(!listView)
     }
 
+    const handleSwitchFromView = (nodeId : string) => {
+      setOpenDelete(false)
+      dispatch(setSlideSelection(nodeId));
+
+      dispatch(expandNode({toOpen: true,nodeId})); 
+      setListView(false)
+    }
+
     const handleExpand = (toOpen:boolean,nodeId:string) => {
       if(treeDataRedux[nodeId].slideType === SlideType.GROUP){
 
-        dispatch(setSlideSelection("-1"));
+        if(listView === false)
+          dispatch(setSlideSelection(nodeId));
         dispatch(expandNode({toOpen,nodeId})); 
       }
     }    
@@ -190,7 +199,9 @@ export default function Slides (){
           <MuiIconButton
             onClick={handleSwitchView}
           >
-              <GridViewIcon /> 
+            {
+              listView ?  <GridViewIcon /> : <MuiFormatListBulletedIcon/> 
+            }
           </MuiIconButton> 
         )
     }
@@ -208,7 +219,7 @@ export default function Slides (){
               ?
                 <ListView treeData={treeDataRedux} rootIds={treeRootIds} selectedSlideId={selectedSlideId}
                   appliedSlideId={appliedSlideId} handleExpand={handleExpand} handleRowClick={handleRowClick}
-                  handleCreateNode={handleCreateNode} slideType={SlideType}
+                  handleCreateNode={handleCreateNode} slideType={SlideType} handleSwitchView = {handleSwitchFromView}
                 />
               :
                 <GridMode treeData={treeDataRedux} rootIds={treeRootIds} selectedSlideId={selectedSlideId}

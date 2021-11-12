@@ -70,7 +70,7 @@ export default function ListView (props : any){
                     <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
                         <MuiGrid item xs={8}>
                             <MuiIconButton size='small' 
-                            //   onClick={() => handleCreateLabel(node.id)}
+                              onClick={() => props.handleSwitchView(node.id)}
                             >
                                 <GridViewIcon /> 
                             </MuiIconButton> 

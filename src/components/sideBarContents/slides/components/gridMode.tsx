@@ -32,8 +32,6 @@ export default function ListView (props : any){
 
   const appliedSlideId = props.appliedSlideId;
 
-  const [current, setCurrent] = useState("0")
-
   const imageViewGenerator = ( data : any, height: number, width: number, border: number) => {
 
     if(data.slideType === props.slideType.VIEW){
