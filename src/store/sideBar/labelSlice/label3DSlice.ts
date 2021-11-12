@@ -1,11 +1,14 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
-// import Labels3D from '../../components/sideBarContents/labels/pages/labels3D';
+import {add3DLabel, get3DLabelCanvasPos, probe} from '../../../backend/viewerAPIProxy';
 import type { RootState } from '../../index';
 import {TreeNode} from "../shared/ProductExplorer/types";
 
 import {ITreeState} from "../shared/ProductExplorer/types";
 import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer} from "../shared/ProductExplorer/reducers";
+import { InteractionMode } from '../../appSlice';
+import { setWindowPos } from '../../windowMgrSlice';
 
+export const windowPrefixId = "Label3D";
 type Labels3DSettings = {
     idGenerator : number,
     defaultParameters : Labels3DList,
@@ -57,7 +60,58 @@ const initialState : InitialState = {
         faceCount : 0,
     }
 }
+export const handleCameraChange = createAsyncThunk(
+    "label3DSlice/handleCameraChange",
+    (e:any,{dispatch,getState}) => {
+        const rootState = getState() as RootState;
+        if(rootState.app.interactionMode !== InteractionMode.PROBE_LABEL)
+        return;
+        const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
+        let event = e.data;
+        let labelTree = rootState.label3D.data;
+        [...Object.values(labelTree)].forEach(l => {
+            if(l.pid !== "-1") {
+                let pos = get3DLabelCanvasPos(l.id,viewerId);
+                dispatch(setWindowPos({uid:windowPrefixId+l.id,pos: pos?pos:[0,0]}));
+            }
+        })
+    }
+)
+export const handleClick = createAsyncThunk(
+    "label3DSlice/handleClick",
+    (e:any,{dispatch,getState}) => {
+        
+        const rootState = getState() as RootState;
+        if(rootState.app.interactionMode !== InteractionMode.PROBE_LABEL)
+        return;
+        const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
+        let event = e.data;
+        let rect = []
+        try{
+            rect = event.target.getBoundingClientRect();
+        }
+        catch(e:any){
+            throw new Error(e);
+        }
+        
+        let xyFromTop = [
+            event.clientX - rect.left,
+            event.clientY - rect.top
+        ];
 
+
+        let data = probe({xyFromTop, width: rect.width, height: rect.height },viewerId);
+        const labelId = rootState.label3D.labels3DSettings.idGenerator + 1;
+        add3DLabel(labelId.toString(),data.hitPoint, viewerId);
+        dispatch(createLabel(0))
+        let labelTree = rootState.label3D.data;
+        [...Object.values(labelTree)].forEach(l => {
+            if(l.pid !== "-1") {
+                let pos = get3DLabelCanvasPos(l.id,viewerId);
+                dispatch(setWindowPos({uid:windowPrefixId+l.id,pos}));
+            }
+        })
+});
 
 export const label3DSlice = createSlice({
     name: "label3D",

@@ -13,6 +13,7 @@ import Displaymodes from '../../icons/displaymodes';
 import Fitview from '../../icons/fitview';
 import Fullscreen from '../../icons/fullscreen';
 import PickAndMoveIcon from '@material-ui/icons/ThreeDRotation';
+import ProbeLabelIcon from "@material-ui/icons/Room";
 import ProbeIcon from '@material-ui/icons/Colorize'
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import FullscreenClose from '../../icons/fullscreen_exit';
@@ -21,8 +22,8 @@ import More from '../../icons/more';
 
 import { selectModelName, selectFullscreenStatus,selectSidebarVisibility, 
   selectActiveViewerID,setFullscreenState, setSidebarVisibility ,  
-  setPopupMenuActiveContent, setPopupMenuDisplayMode , selectPopupMenuDisplayMode } from '../../../store/appSlice';
-import {enableProbe} from '../../../store/probeSlice';
+  setPopupMenuActiveContent, setPopupMenuDisplayMode , setInteractionModeAsync, InteractionMode, selectInteractionMode } from '../../../store/appSlice';
+import {enableProbe,selectProbeEnabled} from '../../../store/probeSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
 
 
@@ -36,9 +37,10 @@ function AppBar() {
     const classes = styles();
     const isFullscreenEnabled = useAppSelector(selectFullscreenStatus);
     const isSidebarVisible = useAppSelector(selectSidebarVisibility);
-    //const isDarkModeEnable = useAppSelector(selectDarkModeEnable);
-    let [isPickAndMoveEnabled,setIsPickAndMoveEnabled] = useState(false);
-    let [isProbeEnabled, setIsProbeEnabled] = useState(false);
+    const isContinousProbeEnabled = useAppSelector(selectProbeEnabled);
+    const interactionMode = useAppSelector(selectInteractionMode); 
+    const isPinLabel3DEnabled = interactionMode === InteractionMode.PROBE_LABEL; 
+    const isPickAndMoveEnabled = interactionMode === InteractionMode.PICK_AND_MOVE;
     const activeViewerID = useAppSelector(selectActiveViewerID);
     const modelName = useAppSelector(selectModelName);
     const dispatch = useAppDispatch();  
@@ -52,17 +54,20 @@ function AppBar() {
     }
 
     const OnClickPickAndMove = function(){
-        viewerAPIProxy.enablePickAndMove(activeViewerID,!isPickAndMoveEnabled)
-        setIsPickAndMoveEnabled(!isPickAndMoveEnabled);
+        dispatch(setInteractionModeAsync( !isPickAndMoveEnabled ? InteractionMode.PICK_AND_MOVE : InteractionMode.DEFAULT));
+
     }
 
     const resetPickAndMove = () => {
         viewerAPIProxy.resetPickAndMove(activeViewerID);
     }
 
+    const onClickPin = () => {
+      dispatch(setInteractionModeAsync( !isPinLabel3DEnabled ? InteractionMode.PROBE_LABEL : InteractionMode.DEFAULT));
+      
+    }
     const onClickProbe = () => {
-        dispatch(enableProbe({isEnabled:!isProbeEnabled}));
-        setIsProbeEnabled(!isProbeEnabled);
+      dispatch(setInteractionModeAsync( !isContinousProbeEnabled ? InteractionMode.CONTINUOUS_PROBE : InteractionMode.DEFAULT));
     }
 
     const OnClickFitview = function(){
@@ -71,13 +76,7 @@ function AppBar() {
 
     const onClickHamburger = function(){
       dispatch(setSidebarVisibility(!isSidebarVisible));
-    }  
-  
-    /*
-    const OnChangeTheme = function() {
-      dispatch(setDarkModeEnable (!isDarkModeEnable));
-    }
-    */
+    } 
 
     const OnClickAwayMenuPopup = function(){
       if(clickedMenu === popupMenuContentTypes.displayModes || clickedMenu === popupMenuContentTypes.more)
@@ -135,14 +134,13 @@ function AppBar() {
      
           <div className={classes.toolBarRightContent}>
           
-            {/*
-            <div className={classes.divIcon}  >
-                <MuiIconButton> <MuiSwitch checked={isDarkModeEnable} onChange={OnChangeTheme} /> </MuiIconButton>
-            </div> 
-            */}
-
+            <div className={classes.divIcon} onClick={ onClickPin}>
+              <MuiToggleButton value='probe label' selected={isPinLabel3DEnabled}>
+                  <ProbeLabelIcon></ProbeLabelIcon>
+              </MuiToggleButton>
+            </div>
             <div className={classes.divIcon} onClick={ OnClickPickAndMove } >
-                  <MuiToggleButton value='rotate move' selected={ isPickAndMoveEnabled } ><PickAndMoveIcon /></MuiToggleButton> 
+                  <MuiToggleButton value='pick & move' selected={ isPickAndMoveEnabled } ><PickAndMoveIcon /></MuiToggleButton> 
             </div>
             
             <div className={classes.divIcon} onClick={ resetPickAndMove } >
@@ -150,7 +148,7 @@ function AppBar() {
             </div>
 
             <div className={classes.divIcon} onClick={ onClickProbe } >
-            <MuiToggleButton value='rotate move' selected={ isProbeEnabled } ><ProbeIcon /></MuiToggleButton> 
+            <MuiToggleButton value='cont probe' selected={ isContinousProbeEnabled } ><ProbeIcon /></MuiToggleButton> 
             </div>
 
             <div className={classes.divIcon}  onClick={(evt) => OnClickMenuIcon(evt, popupMenuContentTypes.displayModes) }>

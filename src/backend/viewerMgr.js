@@ -1913,6 +1913,8 @@ var sqrLen = squaredLength;
     return CAEResult;
 }());var viewerEvents;
 (function (viewerEvents) {
+    viewerEvents["VIEWER_CLICK"] = "VIEWER_CLICK";
+    viewerEvents["VIEWER_DBL_CLICK"] = "VIEWER_DBL_CLICK";
     viewerEvents["MODEL_DOWNLOAD_STATUS_UPDATE"] = "MODEL_DOWNLOAD_STATUS_UPDATE";
     viewerEvents["MODEL_PART_HIGHLIGHTED"] = "MODEL_PART_HIGHLIGHTED";
     viewerEvents["SECTION_PLANE_SELECTED"] = "SECTION_PLANE_SELECTED";
@@ -2168,17 +2170,12 @@ var Section = /** @class */ (function () {
         this.appState = appState;
         this.events = this.renderApp.getEvents();
         this.externalEventDispatcher = this.renderApp.getEventDispatcher();
-        this.registerEvents();
     }
-    LabelManager.prototype.registerEvents = function () {
-        //this.externalEventDispatcher.addEventListener(this.events.PROBE_FINISH,this.handleSelection.bind(this));
+    LabelManager.prototype.add3DLabel = function (id, hitPoint, message) {
+        this.renderApp.addLabel(id, hitPoint, message);
     };
-    LabelManager.prototype.handleSelection = function (e) {
-        var probeData = e.data;
-        if (probeData.hitPoint && this.appState.probeMode == ProbeMode.LABEL) {
-            this.renderApp.addLabel(probeData.connectivityIndex.toString(), probeData.hitPoint, probeData.connectivityIndex.toString());
-            Logger.setStatusBar("probing for labels");
-        }
+    LabelManager.prototype.get3DLabelCanvasPos = function (id) {
+        return this.renderApp.get3DLabelCanvasPos(id);
     };
     return LabelManager;
 }());var RepresentationType;
@@ -4394,7 +4391,7 @@ function __spread$1() {
     AppState._BGColor2 = [255, 255, 255, 1];
     AppState.resultSet = '';
     AppState.BaseUrl = null;
-    AppState.showFPS = false;
+    AppState.showFPS = true;
     return AppState;
 }());
 var AppObjects = /** @class */ (function () {
@@ -9996,6 +9993,7 @@ var MathUtils;
     Events["MOUSE_UP"] = "MOUSE_UP";
     Events["MOUSE_MOVE"] = "MOUSE_MOVE";
     Events["MOUSE_SCROLL"] = "MOUSE_SCROLL";
+    Events["CLICK"] = "CLICK";
     Events["DBL_CLICK"] = "DBL_CLICK";
     Events["MODEL_LOADED"] = "MODEL_LOADED";
     Events["PART_PICKED"] = "PART_PICKED";
@@ -10558,24 +10556,16 @@ var CameraControl = /** @class */ (function (_super) {
     };
     CameraControl.prototype.getCameraMatrix2 = function (type) {
         var matrix = create$1$1();
-        if (type == CameraType.Ortho) {
-            var out = create$1$1();
-            if (this.orthoParams.orthoZoomFactor < 0.00001) // orthoProjectionZoomFactor should not be zero r negative
-                this.orthoParams.orthoZoomFactor = 0.00001;
-            ortho(out, -(this.orthoParams.orthoHeight / 2) * this.orthoParams.orthoZoomFactor, (this.orthoParams.orthoWidth / 2) * this.orthoParams.orthoZoomFactor, -(this.orthoParams.orthoHeight / 2) * this.orthoParams.orthoZoomFactor, (this.orthoParams.orthoHeight / 2) * this.orthoParams.orthoZoomFactor, this.perspParams.near, this.perspParams.far);
+        this.update();
+        if (type == CameraType.Perspective) {
+            multiply(matrix, matrix, this.perspCamera.pMatrix);
+            multiply(matrix, matrix, this.perspCamera.camMatrix);
         }
         else {
-            this.update();
-            if (type == CameraType.Perspective) {
-                multiply(matrix, matrix, this.perspCamera.pMatrix);
-                multiply(matrix, matrix, this.perspCamera.camMatrix);
-            }
-            else {
-                multiply(matrix, matrix, this.orthCamera.pMatrix);
-                multiply(matrix, matrix, this.orthCamera.camMatrix);
-            }
-            return matrix;
+            multiply(matrix, matrix, this.orthCamera.pMatrix);
+            multiply(matrix, matrix, this.orthCamera.camMatrix);
         }
+        return matrix;
     };
     CameraControl.prototype.getUpDir = function (type) {
         if (type === void 0) { type = this.camType; }
@@ -11236,8 +11226,8 @@ var Renderer2D = /** @class */ (function () {
             this.depthTexture.setFilterOptions(filter);
             AppState$1.GLContext.framebufferTexture2D(AppState$1.GLContext.FRAMEBUFFER, AppState$1.GLContext.DEPTH_ATTACHMENT, AppState$1.GLContext.TEXTURE_2D, this.depthTexture.texture, this.depthTexture.level);
         }
-        var canRead = (AppState$1.GLContext.checkFramebufferStatus(AppState$1.GLContext.FRAMEBUFFER) == AppState$1.GLContext.FRAMEBUFFER_COMPLETE);
-        console.log(canRead);
+        (AppState$1.GLContext.checkFramebufferStatus(AppState$1.GLContext.FRAMEBUFFER) == AppState$1.GLContext.FRAMEBUFFER_COMPLETE);
+        //console.log("can read from offscreen buffer",canRead);
     };
     WebGLRenderTarget.prototype.unbind = function () {
         AppState$1.GLContext.bindFramebuffer(AppState$1.GLContext.FRAMEBUFFER, null);
@@ -15031,6 +15021,7 @@ var Point = /** @class */ (function () {
         WebGLState.clear();
         if (this.renderer.camControl)
             this.renderer.camControl.update();
+        this.pickShader.bind();
         this.renderer.renderTarget.bind();
         this.renderer.clearColor();
         AppState$1.GLContext.enable(AppState$1.GLContext.DEPTH_TEST);
@@ -16167,20 +16158,14 @@ var LabelState;
         this.state = state;
     };
     Label.prototype.setMessage = function (value) {
-        this.message = value;
-        this.message = this.message.replace(/\\n/g, '<br/>');
-        this.htmlDiv.innerHTML = "<pre style='margin:0px'>" + this.message + "</pre>";
+        return;
     };
     Label.prototype.getCanvasPosition = function () {
-        var PositionArray = [];
-        PositionArray[0] = parseInt(this.htmlDiv.style.left);
-        PositionArray[1] = parseInt(this.htmlDiv.style.top);
-        this.position = __spread$1(PositionArray);
-        return PositionArray;
+        return this.position;
     };
     Label.prototype.setCanvasPosition = function (labelPos) {
-        this.htmlDiv.style.left = labelPos[0] + "px";
-        this.htmlDiv.style.top = labelPos[1] + "px";
+        //this.htmlDiv.style.left = labelPos[0] + "px";
+        //this.htmlDiv.style.top = labelPos[1] + "px";
         this.position = __spread$1(labelPos);
     };
     Label.prototype.isVisible = function () {
@@ -16251,14 +16236,14 @@ var Label3D = /** @class */ (function () {
     };
     Label3D.prototype.createLabel = function (id) {
         var label = new Label(id);
-        label.setHTMLContainer(this.renderer.getLabelContainer());
-        var divObject = document.createElement('div');
-        divObject.id = "div_" + id;
-        divObject.style.width = '100px';
-        divObject.style.height = '20px';
-        divObject.style.position = 'absolute';
-        divObject.style.backgroundColor = 'yellow';
-        label.setHTML(divObject);
+        // label.setHTMLContainer(this.renderer.getLabelContainer());
+        // let divObject = document.createElement('div');
+        // divObject.id = "div_" + id;
+        // divObject.style.width = '100px';
+        // divObject.style.height = '20px';
+        // divObject.style.position = 'absolute';
+        // divObject.style.backgroundColor = 'yellow';
+        // label.setHTML(divObject);
         label.setCanvasPosition([0, 0]);
         this.label = label;
     };
@@ -16336,6 +16321,8 @@ var Label3D = /** @class */ (function () {
                 sub$1(lineDir, this.lineStartPos, center);
                 normalize$1(lineDir, lineDir);
                 scaleAndAdd(this.lineEndPos, this.lineStartPos, lineDir, bbox.getRadius());
+                //manual reset for different implementation
+                this.lineEndPos = clone$1$1(this.lineStartPos);
                 if (this.is3DPointVisible(this.lineEndPos)) {
                     var point2d = this.renderer.camControl.project(__spread$1(this.lineEndPos), mvMatrix, [canvas.width, canvas.height], this.renderer.camControl.getCameraMatrix2(this.renderer.camControl.camType));
                     x = point2d[0];
@@ -16355,22 +16342,26 @@ var Label3D = /** @class */ (function () {
     return Label3D;
 }());var LabelManager$1 = /** @class */ (function () {
     function LabelManager() {
-        this.labelArray = [];
+        this.labelMap = new Map();
         this.shader = new Shader(LabelVertex, LabelFrag);
         ShaderCache.labelShader = this.shader;
         this.eventListener = AppObjects.externalEventDispatcher;
     }
     LabelManager.prototype.render = function () {
-        this.labelArray.forEach(function (label) {
+        __spread$1(this.labelMap.values()).forEach(function (label) {
             label.render();
         });
     };
     LabelManager.prototype.addLabel = function (id, hitpt, message) {
-        var label = new Label3D(id + '_' + this.labelArray.length, Label3DType.PROBE);
+        var label = new Label3D(id, Label3DType.PROBE);
         label.setOrigin(fromValues$1$1(hitpt[0], hitpt[1], hitpt[2]));
         label.setMessage(message);
         label.setShader(this.shader);
-        this.labelArray.push(label);
+        this.labelMap.set(id, label);
+    };
+    LabelManager.prototype.get3DLabelCanvasPos = function (id) {
+        var label = this.labelMap.get(id);
+        return label ? label.getCanvasPosition() : null;
     };
     return LabelManager;
 }());var PointCloudMesh = /** @class */ (function (_super) {
@@ -16477,6 +16468,10 @@ var MouseInput = /** @class */ (function () {
     }
     MouseInput.prototype.registerEvents = function () {
         this.container.addEventListener("click", function (event) {
+            AppObjects.externalEventDispatcher.dispatchEvent({
+                type: Events.CLICK,
+                data: event
+            });
             event.preventDefault();
         });
         this.container.addEventListener("dblclick", function (event) {
@@ -18053,6 +18048,9 @@ var Commands = /** @class */ (function () {
         var labelManager = AppObjects.labelManager;
         labelManager.addLabel(id, hitpt, message);
     };
+    App.prototype.get3DLabelCanvasPos = function (id) {
+        return AppObjects.labelManager.get3DLabelCanvasPos(id);
+    };
     //#endregion
     //#region networking API
     App.prototype.printNetworkMetrics = function () {
@@ -18315,6 +18313,9 @@ var vctViewer = /** @class */ (function () {
     vctViewer.prototype.addLabel = function (id, hitpt, message) {
         this.appli.addLabel(id, hitpt, message);
     };
+    vctViewer.prototype.get3DLabelCanvasPos = function (id) {
+        return this.appli.get3DLabelCanvasPos(id);
+    };
     //#endregion
     //#region Custom Rendering API
     vctViewer.prototype.addPoint = function (uid, point, size, color) {
@@ -18543,9 +18544,18 @@ var vctViewer = /** @class */ (function () {
         }); });
     };
     Viewer.prototype.registerEvents = function () {
+        this.externalEventDispatcher.addEventListener(this.externalEvents.CLICK, this.handleClick.bind(this));
         this.externalEventDispatcher.addEventListener(this.externalEvents.DBL_CLICK, this.handleDBLClick.bind(this));
         this.externalEventDispatcher.addEventListener(this.externalEvents.MODEL_LOADED, this.handleModelLoad.bind(this));
         this.externalEventDispatcher.addEventListener(this.externalEvents.CAMERA_MOVED, this.handleCameraMove.bind(this));
+    };
+    Viewer.prototype.handleClick = function (e) {
+        var event = {
+            type: viewerEvents.VIEWER_CLICK,
+            data: e.data,
+            viewerID: this.UUID,
+        };
+        this.eventDispatcher.dispatchEvent(event);
     };
     Viewer.prototype.handleDBLClick = function (e) {
         var event = e.data;
@@ -19120,6 +19130,14 @@ var vctViewer = /** @class */ (function () {
         //console.log(data);
     };
     //#endregion
+    //#region Labels
+    Viewer.prototype.add3DLabel = function (uid, hitPoint) {
+        this.labelManager.add3DLabel(uid, hitPoint, "test");
+    };
+    Viewer.prototype.get3DLabelCanvasPos = function (uid) {
+        return this.labelManager.get3DLabelCanvasPos(uid);
+    };
+    //#endregion
     //#region Results
     Viewer.prototype.getIsCAEResultAvailable = function () {
         if (this.caeResult)
@@ -19545,6 +19563,16 @@ var ViewerManager = /** @class */ (function () {
             return viewer.probeFromNodes(pointerData);
         else
             return "Invalid viewer id";
+    };
+    //#endregion
+    //#region Labels
+    ViewerManager.prototype.add3DLabel = function (uid, hitPoint, viewerUUID) {
+        var viewer = this.getViewer(viewerUUID);
+        viewer.add3DLabel(uid, hitPoint);
+    };
+    ViewerManager.prototype.get3DLabelCanvasPos = function (uid, viewerUUID) {
+        var viewer = this.getViewer(viewerUUID);
+        return viewer.get3DLabelCanvasPos(uid);
     };
     //#endregion
     //#region Section

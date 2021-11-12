@@ -1,6 +1,8 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import type { RootState } from '../../index';
 
+export const windowPrefixId = "Label2D";
+
 type Note2DList = {
     id: number,
     name: string,

@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import { RootState } from '.';
 import { probe } from '../backend/viewerAPIProxy';
+import { InteractionMode } from './appSlice';
 
 type props = {
     position : {
@@ -35,7 +36,7 @@ export const fetchProbeData = createAsyncThunk(
     async (data:{pointerData:PointerData},{dispatch,getState}) => {
         let rootState = getState() as RootState;
         let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
-        if(rootState.probe.enabled) {
+        if(rootState.probe.enabled && rootState.app.interactionMode === InteractionMode.CONTINUOUS_PROBE) {
             let start = performance.now();
             let probeData = probe(data.pointerData,viewerId);
             let end = performance.now();
@@ -84,4 +85,6 @@ export const probeSlice = createSlice ({
 })
 
 export const {update, enableProbe } = probeSlice.actions;
+
+export const selectProbeEnabled = (rootState:RootState) => rootState.probe.enabled; 
 export default probeSlice.reducer;

@@ -6,6 +6,9 @@
 .pnp.js
 *.bak
 /.vscode
+/src/backend
+!/src/backend/*.ts
+!/src/backend/*.js
 
 # testing
 /coverage

@@ -1,12 +1,19 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from './index';
 import { sideBarContentTypes, popupMenuContentTypes, displayMenuItems } from '../config';
-
+import {enableProbe} from './probeSlice';
+import * as viewerAPIProxy from '../backend/viewerAPIProxy';
 type Viewer  = {
     name :string,
     id :string
 }
 
+export enum InteractionMode {
+    DEFAULT,
+    CONTINUOUS_PROBE,
+    PROBE_LABEL,
+    PICK_AND_MOVE
+}
 // Define a type for the slice state
 type AppState = {
     isAppBarVisible: boolean
@@ -17,7 +24,7 @@ type AppState = {
     popupMenuActiveContent :string,
     popupMenuDisplayMode : any | null,
 
-
+    interactionMode: InteractionMode,
     isModelLoaded:boolean,
     modelLoadingStatus : string ,
     modelInfo : Array<any>,
@@ -35,6 +42,7 @@ const initialState: AppState = {
     popupMenuActiveContent : popupMenuContentTypes.none,
     popupMenuDisplayMode : null,
 
+    interactionMode: InteractionMode.DEFAULT,
     isModelLoaded:false,
     modelLoadingStatus : '' ,
     modelInfo:[],
@@ -42,6 +50,37 @@ const initialState: AppState = {
     activeViewer : null
 }
 
+const setDefaultInteractModeAsync = createAsyncThunk("appSlice/setDefaultInteractModeAsync",
+(data:any,{dispatch,getState}) => {
+    let rootState:RootState = getState() as RootState;
+    let viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
+    viewerAPIProxy.enablePickAndMove(viewerId,false);
+    dispatch(enableProbe({isEnabled: false}));
+});
+
+export const setInteractionModeAsync = createAsyncThunk("appSlice/setInteractionModeAsync",
+(data:InteractionMode,{dispatch, getState}) => {
+    let rootState:RootState = getState() as RootState;
+    let viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
+    dispatch(setDefaultInteractModeAsync({}));
+    switch (data) {
+        case InteractionMode.DEFAULT:
+            break;
+        case InteractionMode.CONTINUOUS_PROBE:
+            dispatch(enableProbe({isEnabled:true}));
+            break;
+        case InteractionMode.PICK_AND_MOVE:
+            viewerAPIProxy.enablePickAndMove(viewerId,true);
+            break;
+        case InteractionMode.PROBE_LABEL:
+            
+            break;
+        default:
+            break;
+    }
+    
+    dispatch(appSlice.actions.setInteractionMode(data));
+});
 export const appSlice = createSlice({
   name: 'app',
   initialState,
@@ -71,7 +110,11 @@ export const appSlice = createSlice({
         state.modelLoadingStatus = action.payload
     },
     setModelInfo : (state, action : PayloadAction<Array<any>>) => {
-        state.modelInfo = action.payload
+        state.modelInfo = action.payload;
+    },
+    setInteractionMode :(state, action: PayloadAction<InteractionMode>) => {
+        state.interactionMode = action.payload;
+        // viewerAPIProxy.enablePickAndMove(activeViewerID,!isPickAndMoveEnabled)
     },
     addViewer : (state,action : PayloadAction<Viewer>) => {
         state.viewers[action.payload.name] = action.payload.id;
@@ -100,7 +143,6 @@ export const { setAppBarVisibility,
                 addViewer,
                 setActiveViewer,
                 setPopupMenuDisplayMode,
-                
             } = appSlice.actions;
 
 //Define the Selectors
@@ -118,6 +160,7 @@ export const selectModelName= (state : RootState) => {
         return state.app.modelInfo[0].name
     return "";
 };
+export const selectInteractionMode = (state:RootState):InteractionMode => state.app.interactionMode;
 export const selectActiveViewerID = (state : RootState) => state.app.viewers[state.app.activeViewer  || ''];
 export const selectPopupMenuDisplayMode= (state : RootState) => {
     const data = [...displayMenuItems];

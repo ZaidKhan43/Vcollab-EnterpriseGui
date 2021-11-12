@@ -160,6 +160,8 @@ const CustomWindow = (props:CustomWindowProps) => {
         
         if(props.width && props.height)
         dispatch(setWindowSize({uid,size:[props.width,props.height]}))
+        else if(windowRef.current)
+            dispatch(setWindowSize({uid,size:[windowRef.current.clientWidth, windowRef.current.clientHeight]}))
         return () => {
             dispatch(removeWindow({uid}));
         }
@@ -197,7 +199,7 @@ const CustomWindow = (props:CustomWindowProps) => {
             //onDoubleClick = {() => dispatch(setEditMode({uid,isEdit:true}))}
             enableResizing={window?.isEditMode && props.resize ? props.resize : false}
             dragHandleClassName={`${classes.grabHandle}`}
-            size={{ width,  height: height + titleBarHeight}}
+            size= {props.width ?{ width,  height: height + titleBarHeight} : undefined}
             position={{ x: pos[0], y: pos[1]}}
             onDragStop={(e, d) => {
                 let q = findNearestQuadrant(parentSize as [number,number],[d.x,d.y] as [number,number],[width,height]);

@@ -116,6 +116,23 @@ export const setCheckedNodesAsync = createAsyncThunk(
   }
 )
 
+export const handleHighlightAsync = createAsyncThunk(
+  'productTree/handleHighlightAsync',
+  (data:{nodeIds:string[], toHighlight:boolean},{dispatch,getState}) => {
+    const treeData = (getState() as RootState).productTree;
+    const {nodeIds,toHighlight} = data;
+    if(nodeIds.length > 0)
+    {
+      nodeIds.forEach((nodeId:string) => {
+        dispatch(setHightLightedNodesAsync({toHighlight, nodeId }))
+      })
+    }
+    else{
+      let rootIds = treeData.rootIds;
+      dispatch(setHightLightedNodesAsync({toHighlight,nodeId:rootIds[0]}))
+    }
+  }
+)
 export const setHightLightedNodesAsync = createAsyncThunk(
   'productTree/setHighLightedNodesAsync',
   async (data:{toHighlight: boolean, nodeId:string},

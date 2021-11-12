@@ -1,5 +1,7 @@
 import { mat4 } from 'gl-matrix';
-import viewerMgr, {StdView} from './viewerMgr';
+import viewerMgr from './viewerMgr';
+import {EventDispatcher} from './EventDispatcher.d.ts';
+import { viewerEvents,globalEvents } from './Events.d.ts';
 
 export function createViewer(viewerDivID : string){
     return viewerMgr.createViewer(viewerDivID);
@@ -7,8 +9,8 @@ export function createViewer(viewerDivID : string){
 export function getProductTree(viewerDivID : string){
     return viewerMgr.getProductTree(viewerDivID);
 }
-export function getEventDispatcher(){
-    return viewerMgr.getEventDispatcher();
+export function getEventDispatcher():EventDispatcher | null {
+    return viewerMgr.getEventDispatcher() as EventDispatcher | null;
 }
 
 export function getEventsList(){
@@ -113,6 +115,14 @@ export function probe(pointerData:{xyFromTop:number[], width:number,height:numbe
     return viewerMgr.probeFromNodes(pointerData,activeViewerID);
 }
 //#endregion
+//#region Labels
+export function add3DLabel(uid:string,hitPoint:number[],activeViewerID:string) {
+    viewerMgr.add3DLabel(uid,hitPoint,activeViewerID);
+}
+export function get3DLabelCanvasPos(uid:string,activeViewerID:string):number[] | null {
+    return viewerMgr.get3DLabelCanvasPos(uid,activeViewerID);
+}
+//#endregion
 //#region Section
 export function getSectionGUIData(activeViewerID:string) {
     return viewerMgr.getSectionGUIData(activeViewerID);
@@ -141,4 +151,6 @@ export function setSectionPlaneGUIData(planeId:number,selectedPlaneOptions:any, 
     viewerMgr.setSectionPlaneGUIData(planeId,selectedPlaneOptions,activeViewerID);
     return 'SUCCESS'
 }
+
+export {EventDispatcher, viewerEvents,globalEvents};
 //#endregion

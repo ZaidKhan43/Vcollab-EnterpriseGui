@@ -1,24 +1,24 @@
 import React, { useEffect } from 'react'
-import { selectAllNotes2D, windowPrefixId } from '../../../../store/sideBar/labelSlice/label2DSlice'
+import { select3DLabelData, windowPrefixId } from '../../../../store/sideBar/labelSlice/label3DSlice'
 import { useAppDispatch, useAppSelector } from '../../../../store/storeHooks'
 import { setEditMode } from '../../../../store/windowMgrSlice';
-import CustomWindow from '../../../shared/CustomWindow'
+import CustomWindow from '../../../shared/CustomWindow';
 interface Props {
     parentRef:any
 }
-function Label2DWindowLayer(props:Props) {
-    const notes = useAppSelector(selectAllNotes2D);
+function Label3DWindowLayer(props:Props) {
+    const labelTree = useAppSelector(select3DLabelData);
     const dispatch = useAppDispatch();
     
     return (
         <>{
-            notes.map(note => {
+            [...Object.values(labelTree)].map(label3D => {
                 return (
-                <CustomWindow uid={windowPrefixId+note.id} 
+                <CustomWindow uid={windowPrefixId + label3D.id} 
                     parentRef={props.parentRef} 
                     >
                     
-                    <div>{note.label}</div>
+                    <div>{label3D.label}</div>
                 
                 </CustomWindow>
                 )
@@ -28,4 +28,4 @@ function Label2DWindowLayer(props:Props) {
     )
 }
 
-export default Label2DWindowLayer
+export default Label3DWindowLayer
