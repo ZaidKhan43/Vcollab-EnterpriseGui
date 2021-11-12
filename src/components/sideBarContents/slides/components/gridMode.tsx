@@ -34,36 +34,43 @@ export default function ListView (props : any){
 
   const [current, setCurrent] = useState("0")
 
-  const imageViewGenerator = ( data : any) => {
+  const imageViewGenerator = ( data : any, height: number, width: number, border: number) => {
 
     if(data.slideType === props.slideType.VIEW){
       return(
-        <img src={data.data.image} width="150px" height="100px"></img>
+        <img src={data.data.image} width={`${width}px`} height={`${height}px`}></img>
       )
       }
 
       if(data.slideType === props.slideType.GROUP){
         const childrenImages : any[] = [];
         Object.keys(treeDataRedux).map(key => {
-          if(treeDataRedux[key].pid === data.id && treeDataRedux[key].slideType === props.slideType.VIEW)
-          childrenImages.push(treeDataRedux[key].data.image)
+          if(treeDataRedux[key].pid === data.id)
+          childrenImages.push(treeDataRedux[key])
       })
 
       const toRenderImages = childrenImages.slice(0, 4) 
-        
     return(
-      <div style={{width:"150px", height:"100px",border: "1px solid", borderColor:"white" }}>
+      <div style={{width:`${width}px`, height:`${height}px`,border: `${border}px solid`, borderColor:"white" }}>
         <MuiGrid container >
         <MuiGrid container item>
           {
             toRenderImages.map(element =>
+
+                  <MuiGrid item xs={6} style={{marginBottom: "-5px"}}>
+                    {
+(element.slideType === props.slideType.VIEW) ?
+<img src={element.data.image} width={`${width*0.49}px`} height={`${height*0.49}px`}></img>
+:
+imageViewGenerator(element, height/2, width/2, 0)
+                    }
               
-              <MuiGrid item xs={6}>
-              <img src={element} width="75px" height="50px"></img>
             </MuiGrid>
-           
-            )
-          }
+                )
+
+                // else 
+              }
+
            </MuiGrid>
         </MuiGrid>
       </div>
@@ -119,7 +126,7 @@ export default function ListView (props : any){
                       null
                     :
                           <MuiGrid item>
-                            {imageViewGenerator(treeDataRedux[node.id])}
+                            {imageViewGenerator(treeDataRedux[node.id], 100, 150,1)}
                           </MuiGrid>
                 }
                </MuiGrid>

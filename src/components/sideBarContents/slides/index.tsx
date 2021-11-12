@@ -69,15 +69,24 @@ export default function Slides (){
   const [openDelete, setOpenDelete] = useState(false);
   const [copied, setCopied] = useState<any>();
 
+  const [listView, setListView] = useState<boolean>(true);
+
     const dispatch = useAppDispatch();
 
     const onClickBackIcon = () => {
         dispatch(goBack());
     }
 
+    const handleSwitchView = () => {
+      setListView(!listView)
+    }
+
     const handleExpand = (toOpen:boolean,nodeId:string) => {
-      // if(treeDataRedux[nodeId].slideType === SlideType.GROUP)
-        dispatch(expandNode({toOpen,nodeId}));
+      if(treeDataRedux[nodeId].slideType === SlideType.GROUP){
+
+        dispatch(setSlideSelection("-1"));
+        dispatch(expandNode({toOpen,nodeId})); 
+      }
     }    
     
     const handleRowClick = (node : any) => {
@@ -90,9 +99,9 @@ export default function Slides (){
     }
 
     const handleCreateNode = (nodeId :string) => {
-      // dispatch(setSlideSelection("-1"));
+      
+      dispatch(setSlideSelection("-1"));
       dispatch(createNode(nodeId));
-
       dispatch(downloadParentFolder(nodeId));
     }
 
@@ -179,7 +188,7 @@ export default function Slides (){
     const getHeaderRightIcon = () => {
         return ( 
           <MuiIconButton
-          //   onClick={() => handleCreateLabel(node.id)}
+            onClick={handleSwitchView}
           >
               <GridViewIcon /> 
           </MuiIconButton> 
@@ -194,10 +203,21 @@ export default function Slides (){
 
     const getBody = () => {
         return (
-          <GridMode treeData={treeDataRedux} rootIds={treeRootIds} selectedSlideId={selectedSlideId}
-            appliedSlideId={appliedSlideId} handleExpand={handleExpand} handleRowClick={handleRowClick}
-            handleCreateNode={handleCreateNode} slideType={SlideType}
-          />
+          <span>
+            { listView 
+              ?
+                <ListView treeData={treeDataRedux} rootIds={treeRootIds} selectedSlideId={selectedSlideId}
+                  appliedSlideId={appliedSlideId} handleExpand={handleExpand} handleRowClick={handleRowClick}
+                  handleCreateNode={handleCreateNode} slideType={SlideType}
+                />
+              :
+                <GridMode treeData={treeDataRedux} rootIds={treeRootIds} selectedSlideId={selectedSlideId}
+                  appliedSlideId={appliedSlideId} handleExpand={handleExpand} handleRowClick={handleRowClick}
+                  handleCreateNode={handleCreateNode} slideType={SlideType}
+                />
+            }
+          </span>
+          
         )        
     }
 
