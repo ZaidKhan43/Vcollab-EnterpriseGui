@@ -29,7 +29,7 @@ export type SimpleData = {
 
 export type NotificationList= {
     id: string,
-    time: Date,
+    time: string,
     card:{
         icon:IconType,
         type:NotificationType,
@@ -46,20 +46,20 @@ type messages = {
 
 const initialState : messages = {
     notificationLists : [
-        {
-            id: "xyz",
-            time: new Date(),
-            tags: ["Colormap"],
-            collapsed: true,
-            card: {
-                title: "Applied Color map 1",
-                icon: IconType.APPLIED,
-                data: {
-                    body: ["Hello"]
-                },
-                type: NotificationType.SIMPLE_MESSAGE
-            }
-        }
+        // {
+        //     id: "xyz",
+        //     time: new Date(),
+        //     tags: ["Colormap"],
+        //     collapsed: true,
+        //     card: {
+        //         title: "Applied Color map 1",
+        //         icon: IconType.APPLIED,
+        //         data: {
+        //             body: ["Hello"]
+        //         },
+        //         type: NotificationType.SIMPLE_MESSAGE
+        //     }
+        // }
     ],
 }
 
@@ -74,11 +74,17 @@ export const messageSlice = createSlice({
              data: SimpleData | NetworkData,
              tags: string[] }>) => {
             let {id, type, title, data, tags} = action.payload;
+
+            const date = () => {
+                const time = new Date();
+                return(time.toLocaleString())
+            };
+            
                 state.notificationLists.push(
                     {
                         id,
                         tags,
-                        time: new Date(),
+                        time: date(),
                         collapsed: true,
                         card: {
                             data,
@@ -121,7 +127,7 @@ export const messageSlice = createSlice({
             }
         },
         
-        editCancel: (state,action: PayloadAction<number>) => {
+        editCancel: (state,action: PayloadAction<string>) => {
             const index = state.notificationLists.findIndex((item) => item.id === action.payload);
             if(index >= 0){
                 let changeItem = state.notificationLists[index];
