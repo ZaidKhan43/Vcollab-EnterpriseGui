@@ -92,11 +92,13 @@ const TitleBar = React.forwardRef((props:TitleProps, ref) => {
 
 type CustomWindowProps = {
     uid: string,
+    xy?:[number,number],
     title?: string,
     width?: number,
     height?: number,
     resize?:boolean,
     anchor?:[number,number],
+    autoPositionOnResize?:boolean,
     onClickOutside?: (uid:string) => void,
     parentRef: React.MutableRefObject<null | HTMLDivElement>,
     children: JSX.Element | null
@@ -117,6 +119,7 @@ const CustomWindow = (props:CustomWindowProps) => {
     const titleBarRef = useRef<HTMLDivElement | null>(null);
 
     const onResize = (newWidth ?:number, newHeight ?: number) => {
+    
      if(windowRef.current && newWidth && newHeight && pos[0] !== -1 && pos[1] !== -1)
         {
             const windowEl = windowRef.current as any;
@@ -124,6 +127,7 @@ const CustomWindow = (props:CustomWindowProps) => {
                 
                 let xNorm = (pos[0] + anchor[0])/parentSize[0];
                 let yNorm = (pos[1] + anchor[1])/parentSize[1];
+                if(props.autoPositionOnResize )
                 dispatch(setWindowPos({uid,pos:[xNorm*newWidth-anchor[0],yNorm*newHeight-anchor[1]]}))
 
                 windowEl.updateOffsetFromParent();
@@ -154,7 +158,7 @@ const CustomWindow = (props:CustomWindowProps) => {
     useEffect(() => {
         console.log(`window ${uid} mounted`);
         dispatch(addWindow({uid}));
-        dispatch(setWindowPos({uid,pos:[0,0]}))
+        dispatch(setWindowPos({uid,pos: props.xy ? props.xy : [0,0]}))
         if(props.parentRef.current)
         setParentSize([props.parentRef.current.clientWidth,props.parentRef.current.clientHeight]);
         
@@ -242,5 +246,7 @@ const CustomWindow = (props:CustomWindowProps) => {
         </>
     )
 }
-
+CustomWindow.defaultProps = {
+    autoPositionOnResize : true
+} as CustomWindowProps;
 export default CustomWindow

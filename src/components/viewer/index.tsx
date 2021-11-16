@@ -144,7 +144,7 @@ function Viewer(){
             dispatch(addViewer({name : viewerDomID, id: viewerID }));
             let eventDispatcher = viewerAPIProxy.getEventDispatcher();
             let events = viewerAPIProxy.getEventsList();
-            registerEvents(eventDispatcher,events,dispatch);
+            registerEvents(eventDispatcher,events,dispatch,viewerID);
             loadModel(api, url, viewerID);
           }
     },[ loadModel, dispatch, mount, viewerRefs, viewerDomID ]);

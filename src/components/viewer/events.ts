@@ -1,13 +1,13 @@
 import {EventDispatcher, viewerEvents} from '../../backend/viewerAPIProxy';
 import { setModelLoadingStatus } from '../../store/appSlice';
 import { handlePlaneSelection } from '../../store/sideBar/clipSlice';
-import { handleCameraChange, handleClick } from '../../store/sideBar/labelSlice/label3DSlice';
+import {  handleClick } from '../../store/sideBar/labelSlice/label3DSlice';
 import { addMessage, updateMessage, NetworkData, NotificationType, finishMessage } from '../../store/sideBar/messageSlice';
 import { handleHighlightAsync } from '../../store/sideBar/productTreeSlice';
 import { fetchCameraMatrix } from '../../store/sideBar/sceneSlice';
 import { toastMsg } from '../../store/toastSlice';
 
-export const registerEvents = (eventDispatcher:EventDispatcher, events:viewerEvents, dispatch:any) => {
+export const registerEvents = (eventDispatcher:EventDispatcher, events:viewerEvents, dispatch:any, viewerId:string) => {
     if (events) {
         eventDispatcher?.addEventListener(
           events.viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE,
@@ -78,7 +78,6 @@ export const registerEvents = (eventDispatcher:EventDispatcher, events:viewerEve
           events.viewerEvents.CAMERA_MOVED,
           (event:any) => {
             dispatch(fetchCameraMatrix())
-            dispatch(handleCameraChange(event))
           }
         );
         eventDispatcher?.addEventListener(

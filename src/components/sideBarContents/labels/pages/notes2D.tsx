@@ -66,12 +66,12 @@ export default function Notes2D(){
 
     const onHandledSelect = (id : number, value : boolean) => {
       dispatch(editSelect({id : id,value :!value}))
-      dispatch(setEditMode({uid:`${windowPrefixId} ${id}`,isEdit:!value}))
+      dispatch(setEditMode({uid: windowPrefixId + id,isEdit:!value}))
     }
 
     const onHandleShow = (id: number , value : boolean) => {
         dispatch(editShow({id : id,value :!value}))
-        dispatch(setHiddenState({uid:`${windowPrefixId} ${id}`,isHidden: value}))
+        dispatch(setHiddenState({uid:windowPrefixId+id,isHidden: value}))
     }
 
     const onHandleDeleteButton = ()=> {

@@ -110,6 +110,7 @@ export const windowMgrSlice = createSlice({
         },
         setWindowPos: (state, action:PayloadAction<{uid:string, pos:[number,number]}>) => {
             let {uid,pos} = action.payload;
+            if(state.windows[uid])
             state.windows[uid].pos = pos;
         },
         setWindowAnchor: (state, action:PayloadAction<{uid:string, anchor:[number,number]}>) => {

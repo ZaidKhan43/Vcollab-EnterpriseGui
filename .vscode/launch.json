@@ -24,6 +24,5 @@
             "name": "Launch Chrome against localhost release",
             "url": "http://localhost:5000/viewer.html/?api=http://localhost:8181/api/1.0/model&url=file%3A%2F%2FE%3A%5Ccaxserver%5CAssembly.cax",
             "webRoot": "${workspaceFolder}"
-        }
-    ]
+        }]
 }

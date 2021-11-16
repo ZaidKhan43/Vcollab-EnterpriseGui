@@ -10277,6 +10277,7 @@ var CameraControl = /** @class */ (function (_super) {
             this.perspCamera.camMatrix[14] -= this.translation[2];
         }
         this.update();
+        AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.CAMERA_MOVED, data: { camType: this.camType } });
     };
     CameraControl.prototype.zoomOut = function (scale) {
         this.updateSensitivity();
@@ -10309,6 +10310,7 @@ var CameraControl = /** @class */ (function (_super) {
                 this.translation[2] = ((-0.015 / window.devicePixelRatio) * scale * this.params.zoomSensitivity);
             this.perspCamera.camMatrix[14] -= this.translation[2];
         }
+        AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.CAMERA_MOVED, data: { camType: this.camType } });
     };
     CameraControl.prototype.pointZoomIn = function (posX, posY, factor) {
         this.updateSensitivity();
@@ -10365,6 +10367,7 @@ var CameraControl = /** @class */ (function (_super) {
         translate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, negate(finalPoint, finalPoint));
         //this.orthCamera.camMatrix[14] = this.perspCamera.camMatrix[14];
         this.update();
+        AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.CAMERA_MOVED, data: { camType: this.camType } });
     };
     CameraControl.prototype.pointZoomOut = function (posX, posY, factor) {
         this.updateSensitivity();
@@ -10416,6 +10419,7 @@ var CameraControl = /** @class */ (function (_super) {
         }
         translate(this.perspCamera.camMatrix, this.perspCamera.camMatrix, finalPoint);
         this.update();
+        AppObjects.externalEventDispatcher.dispatchEvent({ type: Events.CAMERA_MOVED, data: { camType: this.camType } });
     };
     CameraControl.prototype.setZoomType = function (value) {
         this.params.zoomType = value;
