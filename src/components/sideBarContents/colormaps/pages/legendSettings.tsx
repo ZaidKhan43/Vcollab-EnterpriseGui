@@ -122,7 +122,7 @@ export default function LegendSettings() {
           <MuiMenuItem value={menu.id} style={{height:"40px"}}>
             <MuiGrid container>
               <MuiGrid item>
-              <ListItemIcon style={{verticalAlign: "middle", marginLeft:"10px", height:"30px"}}>
+              <ListItemIcon style={{verticalAlign: "middle", marginLeft:"10px", height:"30px", paddingBottom:"5px"}}>
                 <img height="40px" width="50px" src={menu.image}></img>
             </ListItemIcon>
               </MuiGrid>
@@ -143,7 +143,7 @@ export default function LegendSettings() {
             <div>
               <span>{menu.name}</span>
               <div>
-                <ListItemIcon style={{verticalAlign: "middle", marginLeft:"10px"}}>
+                <ListItemIcon style={{verticalAlign: "middle", marginLeft:"10px", paddingBottom:"5px"}}>
                   <img src={menu.image}></img>
                 </ListItemIcon>
               </div>
