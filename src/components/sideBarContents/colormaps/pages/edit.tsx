@@ -114,7 +114,7 @@ export default function Edit(){
 
     return(
       <SelectAction
-      id="grouped-select" label="Grouping"
+      id="grouped-select"
       value={selectedColorMapId}
       onChange={(e : any) => {if(e.target.value) onHandleSelect(e.target.value)}}
       MenuProps={{
