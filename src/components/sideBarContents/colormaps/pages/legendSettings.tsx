@@ -5,22 +5,22 @@ import BackButton from "../../../icons/back";
 import FormControl from "@material-ui/core/FormControl";
 import { useAppDispatch, useAppSelector } from "../../../../store/storeHooks";
 import { goBack, push } from "connected-react-router/immutable";
-import { InputLabel, ListItemIcon, Typography } from "@material-ui/core";
+import { InputLabel, ListItemIcon, SvgIcon, Typography } from "@material-ui/core";
 import { Select } from "@material-ui/core";
 import { MenuItem } from "@material-ui/core";
 import { ListItemText } from "@material-ui/core";
 import MuiButton from "@material-ui/core/Button";
 import MuiTextField from "@material-ui/core/TextField";
-import MuiGrid from '@material-ui/core/Grid'
-
-
-import {useState, useEffect} from 'react';
 import SelectAction from "../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction";
 import MuiMenuItem from "@material-ui/core/MenuItem";
 import { selectcolormapData, colormapElements, setColorMapSelection, paletteTypeDataList, directionDataList, ticPositionDataList, titlePlacementDataList, valuePlacementDataList, setLegendSettings,ColormapType } from "../../../../store/sideBar/colormapSlice";
 
 import MuiListSubHeader from '@material-ui/core/ListSubheader';
 import styles from "./style";
+
+import MuiGrid from '@material-ui/core/Grid'
+
+import { useEffect, useState } from "react";
 
 export default function LegendSettings() {
 
@@ -119,22 +119,31 @@ export default function LegendSettings() {
     if (column === false) {
       return listmenu.map((menu: any) => {
         return (
-          <MuiMenuItem value={menu.id}>
-            <ListItemIcon>
-              <img src={menu.image}></img>
+          <MuiMenuItem value={menu.id} style={{height:"40px"}}>
+            <MuiGrid container>
+              <MuiGrid item>
+              <ListItemIcon style={{verticalAlign: "middle", marginLeft:"10px", height:"30px"}}>
+                <img height="40px" width="50px" src={menu.image}></img>
             </ListItemIcon>
-            {menu.name}
+              </MuiGrid>
+              <MuiGrid item style={{marginTop:"10px"}}>
+              {menu.name}
+              </MuiGrid>
+            </MuiGrid>
+            
+            
           </MuiMenuItem>
         );
       });
-    } else {
+    } 
+    else {
       return listmenu.map((menu: any) => {
         return (
-          <MuiMenuItem value={menu.id}>
+          <MuiMenuItem value={menu.id} style={{height:"55px"}}>
             <div>
               <span>{menu.name}</span>
               <div>
-                <ListItemIcon>
+                <ListItemIcon style={{verticalAlign: "middle", marginLeft:"10px"}}>
                   <img src={menu.image}></img>
                 </ListItemIcon>
               </div>
@@ -201,7 +210,7 @@ export default function LegendSettings() {
 
     return (
       <div className={classes.scrollBar}>
-        <div style={{marginTop:"10px", }}>
+        <div className={classes.legendSelection}>
          <SelectAction
             style={{ textAlign: "left"}}
             labelId="display-modes-selection-label-id"
@@ -223,7 +232,7 @@ export default function LegendSettings() {
           </SelectAction>
           </div>
 
-          <div style={{marginTop:"20px"}}>
+          <div className={classes.legendSelection}>
           <SelectAction
             style={{ textAlign: "left" }}
             labelId="display-modes-selection-label-id"
@@ -245,7 +254,7 @@ export default function LegendSettings() {
           </SelectAction>
           </div>
 
-          <div style={{marginTop:"20px"}}>
+          <div className={classes.legendSelection}>
           <SelectAction
             style={{ textAlign: "left" }}
             labelId="display-modes-selection-label-id"
@@ -267,7 +276,7 @@ export default function LegendSettings() {
           </SelectAction>
           </div>
 
-          <div style={{marginTop:"20px"}}>
+          <div className={classes.legendSelection}>
           <SelectAction
             style={{ textAlign: "left" }}
             labelId="display-modes-selection-label-id"
@@ -289,7 +298,7 @@ export default function LegendSettings() {
           </SelectAction>
           </div>
 
-          <div style={{marginTop:"20px"}}>
+          <div className={classes.legendSelection}>
           <SelectAction
             style={{ textAlign: "left" }}
             labelId="display-modes-selection-label-id"
@@ -311,17 +320,22 @@ export default function LegendSettings() {
           </SelectAction>
           </div>
 
-        <div style={{ textAlign: "left", marginTop: "5%" }}>
-          <span style={{ marginRight: "5%" }}>Gap</span>
-
-          <MuiTextField
-            type="number"
-            variant="outlined"
-            style={{ width: "30%" }}
-            size="small"
-            value={gapValue}
-            onChange={handleGap}
-          />
+        <div style={{ textAlign: "left", marginTop: "30px", marginLeft:"10px",marginBottom:"5px" }}>
+        <MuiGrid container>
+            <MuiGrid item style={{ marginRight: "5%", marginTop:"10px" }}>
+              <span >Gap</span>
+            </MuiGrid>
+            <MuiGrid item>
+              <MuiTextField
+                type="number"
+                variant="outlined"
+                style={{ width: "30%" }}
+                size="small"
+                value={gapValue}
+                onChange={handleGap}
+              />
+            </MuiGrid>
+          </MuiGrid>
         </div>
       </div>
     );
@@ -334,7 +348,12 @@ export default function LegendSettings() {
     if(paletteType !== selectedData.paletteType || direction !== selectedData.direction || ticPosition !== selectedData.ticPosition || titlePlacement !== selectedData.titlePlacement || valuePlacement !== selectedData.valuePlacement || gapValue !== selectedData.gap)
       disabled = false;
     return (
-      <div style={{marginTop:"20px", marginBottom:"20px"}}>
+      <div>
+        { readOnly 
+          ?
+          null
+          :
+<div style={{marginTop:"20px", marginBottom:"20px"}}>
         <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
           autoFocus 
           onClick={onHandleApply} 
@@ -353,6 +372,9 @@ export default function LegendSettings() {
           Reset
         </MuiButton>
       </div>
+        }
+      </div>
+      
     );
   };
   return (

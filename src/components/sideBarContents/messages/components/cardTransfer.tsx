@@ -15,26 +15,28 @@ import MuiIconButton from '@material-ui/core/IconButton';
 
 import {useAppDispatch } from '../../../../store/storeHooks';
 
+import sizeCalculator from '../../../../customHooks/useSizeCalculator';
+
 export default function CardTransfer(props:any){
     const {item, handleCollapse, handlePause, handleCancel} = props;
     const classes = styles();
     const dispatch = useAppDispatch();
-    
-    const fileSize = (size : number) => {
-        if (size >= 1024) {
-          const kbSize = size / 1024
-          if (kbSize >= 1024) {
-            const mbSize = kbSize / 1024
-            if(mbSize >= 1024){
-              const gbSize = mbSize / 1024;
-              return `${ (Math.round(gbSize * Math.pow(10, 2)) / Math.pow(10, 2)).toFixed(2)} GB`
-            }
-            return `${ (Math.round(mbSize * Math.pow(10, 2)) / Math.pow(10, 2)).toFixed(2)} MB`
-          }
-          return `${Math.round(kbSize)} kB`
-        }
-        return `${size} B`
-      }
+
+    // const fileSize = (size : number) => {
+    //     if (size >= 1024) {
+    //       const kbSize = size / 1024
+    //       if (kbSize >= 1024) {
+    //         const mbSize = kbSize / 1024
+    //         if(mbSize >= 1024){
+    //           const gbSize = mbSize / 1024;
+    //           return `${ (Math.round(gbSize * Math.pow(10, 2)) / Math.pow(10, 2)).toFixed(2)} GB`
+    //         }
+    //         return `${ (Math.round(mbSize * Math.pow(10, 2)) / Math.pow(10, 2)).toFixed(2)} MB`
+    //       }
+    //       return `${Math.round(kbSize)} kB`
+    //     }
+    //     return `${size} B`
+    //   }
 
     const getIcon = () => {
         switch(item.card.icon){
@@ -107,9 +109,9 @@ export default function CardTransfer(props:any){
                                             :
                                                 item.card.icon === IconType.COMPLETED 
                                                     ?
-                                                        `${fileSize(item.card.data.transfferedSize)}`
+                                                        `${sizeCalculator(item.card.data.transfferedSize)}`
                                                     :
-                                                        `${fileSize(item.card.data.transfferedSize)} / ${fileSize(item.card.data.totalSize)}, ${item.card.data.timeLeft}`
+                                                        `${sizeCalculator(item.card.data.transfferedSize)} / ${sizeCalculator(item.card.data.totalSize)}, ${item.card.data.timeLeft}`
                                         }
                                     </Typography>
                                 </MuiGrid>

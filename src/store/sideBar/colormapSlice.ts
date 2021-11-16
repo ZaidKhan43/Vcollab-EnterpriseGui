@@ -5,7 +5,6 @@ import {TreeNode} from "./shared/ProductExplorer/types";
 
 import {ITreeState} from "./shared/ProductExplorer/types";
 import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer, addNodeReducer} from "./shared/ProductExplorer/reducers";
-import ColorPalette from '../../components/sideBarContents/colormaps/pages/colorPalette';
 
 import autoBar from "../../assets/images/autoBar.png";
 import topright from "../../assets/images/topright.png";
@@ -21,14 +20,19 @@ import bottomright from "../../assets/images/bottomright.png";
 import bottommiddle from "../../assets/images/bottommiddle.png";
 import vertical from "../../assets/images/vertical.png";
 import horizontal from "../../assets/images/horizontal.png";
-import discrete from "../../assets/images/discrete.svg"
-import bottom from "../../assets/images/bottom.svg";
-import top from "../../assets/images/top.svg";
-import colorBar from '../../assets/images/colorbar.svg';
+import discrete from "../../assets/images/discrete.png"
+import bottom from "../../assets/images/bottom.png";
+import top from "../../assets/images/top.png";
+import colorBar from '../../assets/images/horizontal.png';
 import noticksBar from '../../assets/images/noticks.svg';
 import insideBar from '../../assets/images/inside.svg';
 import outsideBar from '../../assets/images/outside.svg';
 import acrossBar from '../../assets/images/across.svg';
+
+
+
+
+
 
 type ColormapSettings = {
     idGenerator : number,

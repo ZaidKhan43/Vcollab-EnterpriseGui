@@ -10,7 +10,7 @@ import SelectAction from '../../layout/sideBar/sideBarContainer/sideBarHeader/ut
 import MuiMenuItem from '@material-ui/core/MenuItem';
 import { useState} from "react";
 import {useAppSelector,useAppDispatch } from '../../../store/storeHooks';
-import {editPause, editCancel, editCollapse, editSearch, sortedNotification,NotificationType,NotificationList, selectTags} from "../../../store/sideBar/messageSlice";
+import {editPause, editCancel, editCollapse, editSearch, sortedNotification,NotificationType,NotificationList, selectTags, addMessage} from "../../../store/sideBar/messageSlice";
 
 import BackButton from '../../../components/icons/back';
 import MuiGrid from '@material-ui/core/Grid';
@@ -59,6 +59,16 @@ export default function Annotations(){
         
       },[notificationList]);
 
+    useEffect(() => {
+        const length = notificationList.length;
+     dispatch(addMessage( 
+        {id:`${length}`, 
+            type:NotificationType.SIMPLE_MESSAGE, 
+            title:  `Applied Color map ${length + 1}`, 
+            data:  ["Hello"],
+            tags: ["Colormap"] })) 
+    },[])
+
     const onClickBackIcon = () =>{
         dispatch(goBack());
     }
@@ -76,7 +86,7 @@ export default function Annotations(){
         );
     }
 
-    const onHandlePause = (id : number, pause : boolean) => {
+    const onHandlePause = (id : string, pause : boolean) => {
         // console.log(id,pause)
         if(pause)
             dispatch(editPause({id:id, value: false}));
@@ -93,7 +103,7 @@ export default function Annotations(){
         dispatch(editCollapse({id, value: true}))
     }
 
-    const onHandleCancel = (id: number) => {
+    const onHandleCancel = (id: string) => {
        dispatch(editCancel(id));
     }
 
@@ -180,7 +190,7 @@ export default function Annotations(){
     }
 
     const getBody = () => {
-        // console.log(notificationList)
+        console.log("baei",notificationList)
         return (
             <div className={classes.scrollBar}>
                 {notificationList.map((item: any,index:number) => 

@@ -5,6 +5,11 @@ import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReduc
 import { pid } from 'process';
 // Define a type for the slice state
 
+import imageOne from "../../assets/3dSlideImages/image1.png";
+import imageTwo from "../../assets/3dSlideImages/image2.png";
+import imageThree from "../../assets/3dSlideImages/image3.png";
+import imageFour from "../../assets/3dSlideImages/image4.png";
+
 export enum SlideType {
     GROUP = 0,
     VIEW = 1,
@@ -12,6 +17,7 @@ export enum SlideType {
 
 interface SlideTreeNode extends TreeNode {
     downloaded : boolean,
+    size: number,
     slideType: SlideType,
     data : {
         cameraView?:string,
@@ -33,6 +39,7 @@ interface SlideTreeState extends ITreeState {
         cameraView?:string,
         position?: string,
         image?: string,
+        size: number,
     },
 
     stepCount : number,
@@ -54,12 +61,13 @@ const initialState: SlideTreeState = {
                     visibility: true,
                 },
                 downloaded: false,
+                size:500,
                 slideType : SlideType.GROUP,
                 data:{},
                 attributes: {},
         },
 
-      "3" : {
+        "3" : {
             id : "3",
                 pid : "0",
                 title: "Stress Animation",
@@ -69,6 +77,7 @@ const initialState: SlideTreeState = {
                     visibility: true,
                 },
                 downloaded: false,
+                size: 300,
                 slideType: SlideType.GROUP,
                 data:{},
                 attributes: {},
@@ -80,182 +89,230 @@ const initialState: SlideTreeState = {
               title: "Step 1",
               children: [],
               state: {
-                  expanded: true,
+                  expanded: false,
                   visibility: true,
               },
               downloaded:false,
+              size:100,
               slideType: SlideType.VIEW,
-              data : {cameraView:"persp", position:"(3,13)", image:""},
+              data : {
+                cameraView:"persp", 
+                position:"(3,13)", 
+                image:imageOne
+                },
               attributes: {},
-      },
+        },
 
-      "10" : {
-        id : "10",
+        "10" : {
+            id : "10",
             pid : "3",
             title: "Step 2",
             children: [],
             state: {
-                expanded: true,
+                expanded: false,
                 visibility: true,
             },
             downloaded: true,
+            size:100,
             slideType: SlideType.VIEW,
-            data : {cameraView:"ortho", position:"(23,13)", image:""},
+            data : {
+                cameraView:"ortho", 
+                position:"(23,13)", 
+                image:imageTwo
+            },
             attributes: {},
-    },
-
-    "11" : {
-      id : "11",
-          pid : "3",
-          title: "Step 3",
-          children: [],
-          state: {
-              expanded: true,
-              visibility: true,
-          },
-          downloaded: false,
-          slideType: SlideType.VIEW,
-          data : {cameraView:"persp", position:"(3,13)", image:""},
-          attributes: {},
-  },
-
-  "12" : {
-    id : "12",
-        pid : "3",
-        title: "Step 4",
-        children: [],
-        state: {
-            expanded: true,
-            visibility: true,
         },
-        downloaded:false,
-        slideType: SlideType.VIEW,
-        data : {cameraView:"ortho", position:"(3,13)", image:""},
-        attributes: {},
-},
 
-"13" : {
-  id : "13",
-      pid : "3",
-      title: "Step 5",
-      children: [],
-      state: {
-          expanded: true,
-          visibility: true,
-      },
-      downloaded: true,
-      slideType: SlideType.VIEW,
-      data : {cameraView:"persp", position:"(3,13)", image:""},
-      attributes: {},
-},
+        "11" : {
+            id : "11",
+            pid : "3",
+            title: "Step 3",
+            children: [],
+            state: {
+              expanded: false,
+              visibility: true,
+            },
+            downloaded: false,
+            size:100,
+            slideType: SlideType.VIEW,
+            data : {
+                cameraView:"persp", 
+                position:"(3,13)", 
+                image:imageThree
+            },
+            attributes: {},
+        },
 
+        "12" : {
+            id : "12",
+            pid : "3",
+            title: "Step 4",
+            children: [],
+            state: {
+                expanded: false,
+                visibility: true,
+            },
+            downloaded:false,
+            size:100,
+            slideType: SlideType.VIEW,
+            data : {
+                cameraView:"ortho", 
+                position:"(3,13)", 
+                image:imageFour
+            },
+            attributes: {},
+        },
 
-
+        "13" : {
+            id : "13",
+            pid : "3",
+            title: "Step 5",
+            children: [],
+            state: {
+                expanded: false,
+                visibility: true,
+            },
+            downloaded: true,
+            size:100,
+            slideType: SlideType.VIEW,
+            data : {
+                cameraView:"persp", 
+                position:"(3,13)", 
+                image:imageOne
+            },
+            attributes: {},
+        },
 
         "4" : {
-          id : "4",
-              pid : "0",
-              title: "Reaction Force",
-              children: [],
-              state: {
-                  expanded: true,
-                  visibility: true,
-              },
-              downloaded: true,
-              slideType: SlideType.VIEW,
-              data : {cameraView:"persp", position:"(123,13)", image:""},
-              attributes: {},
-      },
+            id : "4",
+            pid : "0",
+            title: "Reaction Force",
+            children: [],
+            state: {
+                expanded: false,
+                visibility: true,
+            },
+            downloaded: true,
+            size:100,
+            slideType: SlideType.VIEW,
+            data : {
+                cameraView:"persp", 
+                position:"(123,13)", 
+                image:imageOne
+            },
+            attributes: {},
+        },
 
-      "5" : {
-        id : "5",
+        "5" : {
+            id : "5",
             pid : "0",
             title: "Applied Loads",
             children: [],
             state: {
-                expanded: true,
+                expanded: false,
                 visibility: true,
             },
             downloaded: false,
+            size:100,
             slideType: SlideType.VIEW,
-            data : {cameraView:"persp", position:"(3,13)", image:""},
+            data : {
+                cameraView:"persp", 
+                position:"(3,13)", 
+                image:imageTwo
+            },
             attributes: {},
-    },
-
-    "6" : {
-      id : "6",
-          pid : "0",
-          title: "Displacement",
-          children: [],
-          state: {
-              expanded: true,
-              visibility: true,
-          },
-          downloaded:true,
-          slideType: SlideType.VIEW,
-          data : {cameraView:"ortho", position:"(3,13)", image:""},
-          attributes: {},
-  },
-
-  "7" : {
-    id : "7",
-        pid : "0",
-        title: "View 1",
-        children: [],
-        state: {
-            expanded: true,
-            visibility: true,
         },
-        downloaded: true,
-        slideType: SlideType.VIEW,
-        data : {cameraView:"persp", position:"(123,13)", image:""},
-        attributes: {},
-},
 
-"8" : {
-  id : "8",
-      pid : "0",
-      title: "View 2",
-      children: [],
-      state: {
-          expanded: true,
-          visibility: true,
-      },
-      downloaded: false,
-      slideType: SlideType.VIEW,
-      data : {cameraView:"ortho", position:"(3,13)", image:""},
-      attributes: {},
-},
+        "6" : {
+            id : "6",
+            pid : "0",
+            title: "Displacement",
+            children: [],
+            state: {
+              expanded: false,
+              visibility: true,
+            },
+            downloaded:true,
+            size: 100,
+            slideType: SlideType.VIEW,
+            data : {
+                cameraView:"ortho", 
+                position:"(3,13)", 
+                image:imageThree
+            },
+          attributes: {},
+        },
+
+        "7" : {
+            id : "7",
+            pid : "0",
+            title: "View 1",
+            children: [],
+            state: {
+                expanded: false,
+                visibility: true,
+            },
+            downloaded: true,
+            size: 100,
+            slideType: SlideType.VIEW,
+            data : {
+                cameraView:"persp", 
+                position:"(123,13)", 
+                image:imageFour
+            },
+            attributes: {},
+        },
+
+        "8" : {
+            id : "8",
+            pid : "0",
+            title: "View 2",
+            children: [],
+            state: {
+                expanded: false,
+                visibility: true,
+            },
+            downloaded: false,
+            size: 100,
+            slideType: SlideType.VIEW,
+            data : {
+                cameraView:"ortho", 
+                position:"(3,13)", image:imageOne
+            },
+            attributes: {},
+        },
 
         "1" : {
           id : "1",
-              pid : "-1",
-              title: "Group 1",
-              children: [],
-              state: {
-                  expanded: true,
-                  visibility: true,
-              },
-              downloaded: false,
-              slideType: SlideType.GROUP,
-              data:{},
-              attributes: {},
-      },
+            pid : "-1",
+            title: "Group 1",
+            children: [],
+            state: {
+                expanded: false,
+                visibility: true,
+            },
+            downloaded: false,
+            size: 0,
+            slideType: SlideType.GROUP,
+            data:{},
+            attributes: {},
+        },
 
-      "2" : {
-        id : "2",
+        "2" : {
+            id : "2",
             pid : "-1",
             title: "Group 2",
             children: [],
             state: {
-                expanded: true,
+                expanded: false,
                 visibility: true,
             },
             downloaded:false,
+            size: 0,
             slideType: SlideType.GROUP,
             data:{},
             attributes: {},
-    },
+        },
     },
     rootIds: ["0","1","2"],
     appliedSlide : "8",
@@ -269,17 +326,18 @@ const initialState: SlideTreeState = {
         pid:"-1",
         children: [],
                 state: {
-                    expanded: true,
+                    expanded: false,
                     visibility: true,
                 },
                 downloaded: false,
+                size: 200,
                 slideType : SlideType.GROUP,
                 data : {},
                 attributes: {},
 
     },
 
-    currentData : {cameraView:"ortho", position:"(23,213)", image:""},
+    currentData : {cameraView:"ortho", position:"(23,213)", image:imageThree, size:400},
 
     stepCount : 5,
     viewCount : 2,
@@ -319,6 +377,7 @@ export const slideSlice = createSlice({
                 state.groupCount ++;
                 newData.title =  `Group ${state.groupCount}`;
                 newData.data = {}
+                newData.size = 0;
                 state.data[`${state.idGenerator}`] =newData;
                 state.rootIds.push(newData.id)
             break;
@@ -341,11 +400,15 @@ export const slideSlice = createSlice({
                 state.data[`${action.payload}`].children.push(newData.id) 
             break;
         }
-        
+
+        if(action.payload !== "-1")
+            slideSlice.caseReducers.downloadParentFolder(state, {payload: state.data[action.payload].id, type:"slideSlice/downloadParentFolder"});
     },
 
     downloadFile : (state, action : PayloadAction<string>) => {
         state.data[ action.payload].downloaded = true;
+
+        slideSlice.caseReducers.downloadParentFolder(state, {payload: state.data[action.payload] ? state.data[action.payload].pid : "-1", type:"slideSlice/downloadParentFolder"});
     },
 
     downloadParentFolder : (state, action: PayloadAction<string>) => {
@@ -354,11 +417,18 @@ export const slideSlice = createSlice({
                 const parentId = state.data[pId].id
                 const parentChildren = state.data[parentId ? parentId : -1].children;
                 let downloadedCount = 0;
+
+                let folderSize =0 ;
     
                 parentChildren.forEach(item => {
-                    if (state.data[item].downloaded)
+                    if (state.data[item].downloaded === true)
                         downloadedCount ++;
+                    
+                    if (state.data[item].downloaded === false)
+                        folderSize = folderSize + state.data[item].size;
                 })
+
+                state.data[parentId].size = folderSize;
     
                 if (parentChildren.length === downloadedCount)
                     state.data[parentId ? parentId : -1].downloaded = true;
@@ -381,6 +451,15 @@ export const slideSlice = createSlice({
 
     replaceViewData : (state,action : PayloadAction<string>) => {
         state.data[action.payload].data = JSON.parse(JSON.stringify(state.currentData))
+
+        state.data[action.payload].size = state.currentData.size;
+        state.data[action.payload].downloaded = false;
+
+        if(state.data[action.payload].id === state.selectedSlide)
+            state.appliedSlide = "-1";
+
+        slideSlice.caseReducers.downloadParentFolder(state, {payload: state.data[action.payload] ? state.data[action.payload].pid : "-1", type:"slideSlice/downloadParentFolder"});
+
     },
 
     deleteNode : (state, action: PayloadAction<string>) => {
@@ -419,6 +498,8 @@ export const slideSlice = createSlice({
         if(toDelete.slideType === SlideType.GROUP){
             deleteGroup(action.payload)
         }
+
+        slideSlice.caseReducers.downloadParentFolder(state, {payload: toDelete.pid, type:"slideSlice/downloadParentFolder"});
     },
 
 
@@ -475,12 +556,14 @@ export const slideSlice = createSlice({
                 if(item.slideType === SlideType.GROUP){
                     pid = toCopiedGroupData.id;
                     copyPasteGroup(item, pid);
+                    slideSlice.caseReducers.downloadParentFolder(state, {payload: pid, type:"slideSlice/downloadParentFolder"});
                 }
             })
         }
 
         if(copiedSlideData.slideType === SlideType.GROUP){
             copyPasteGroup(copiedSlideData, action.payload.pid);
+            slideSlice.caseReducers.downloadParentFolder(state, {payload: action.payload.pid, type:"slideSlice/downloadParentFolder"});
         }
 
         if(copiedSlideData.slideType === SlideType.VIEW){
@@ -495,6 +578,8 @@ export const slideSlice = createSlice({
 
                 state.data[`${state.idGenerator}`] = JSON.parse(JSON.stringify(copiedSlideData));
                 state.data[copiedSlideData.pid].children.push(copiedSlideData.id)
+
+                slideSlice.caseReducers.downloadParentFolder(state, {payload: action.payload.pid, type:"slideSlice/downloadParentFolder"});
             }            
         }
     },
