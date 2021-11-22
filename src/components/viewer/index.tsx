@@ -12,7 +12,8 @@ import { fetchFieldData } from '../../store/sideBar/fieldSlice';
 import { fetchMouseData } from '../../store/sideBar/settings';
 import { fetchCameraStdViews } from '../../store/sideBar/sceneSlice';
 import Snackbars from '../sideBarContents/messages/SnackBar';
-import {registerEvents} from './events';
+import WindowsContainer from "../layout/windowsContainer";
+import EventRegistry from './EventRegistry';
 
 function Viewer(){
     
@@ -142,9 +143,6 @@ function Viewer(){
       
             let viewerID = viewerAPIProxy.createViewer(viewerDivID);
             dispatch(addViewer({name : viewerDomID, id: viewerID }));
-            let eventDispatcher = viewerAPIProxy.getEventDispatcher();
-            let events = viewerAPIProxy.getEventsList();
-            registerEvents(eventDispatcher,events,dispatch,viewerID);
             loadModel(api, url, viewerID);
           }
     },[ loadModel, dispatch, mount, viewerRefs, viewerDomID ]);
@@ -158,8 +156,10 @@ function Viewer(){
         ref={viewerRefs}
         className="viewer"
       >
+        <EventRegistry mount={mount}/>
         <ProbeLabel containerRef={viewerRefs}></ProbeLabel>
         <Snackbars parentRef = {viewerRefs}/>
+        <WindowsContainer parentRef = {viewerRefs}/>
       </div>
       
       </>

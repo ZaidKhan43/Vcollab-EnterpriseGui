@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Launch Chrome against server",
             "url": "http://localhost:3000/viewer.html/?api=http%3A%2F%2Fec2-54-88-72-27.compute-1.amazonaws.com%3A8080%2Fapi%2F1.0%2Fmodel&url=file%3A%2F%2FC%3A%5Cserver%5Centerprise-1.1-win64%5Csamples%5Cbracket.cax",
-            "webRoot": "${workspaceFolder}"
+            "webRoot": "${workspaceFolder}",
         },
         {
             "type": "pwa-chrome",
@@ -23,6 +23,15 @@
             "request": "launch",
             "name": "Launch Chrome against localhost release",
             "url": "http://localhost:5000/viewer.html/?api=http://localhost:8181/api/1.0/model&url=file%3A%2F%2FE%3A%5Ccaxserver%5CAssembly.cax",
+            "webRoot": "${workspaceFolder}",
+            "runtimeExecutable": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+        },
+        {
+            "type": "pwa-chrome",
+            "request": "launch",
+            "name": "Launch Chrome against server release",
+            "url": "http://localhost:5000/viewer.html/?api=http%3A%2F%2Fec2-54-88-72-27.compute-1.amazonaws.com%3A8080%2Fapi%2F1.0%2Fmodel&url=file%3A%2F%2FC%3A%5Cserver%5Centerprise-1.1-win64%5Csamples%5Cbracket.cax",
             "webRoot": "${workspaceFolder}"
-        }]
+        },
+    ]
 }

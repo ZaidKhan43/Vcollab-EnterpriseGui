@@ -12,7 +12,6 @@ import { useAppSelector, useAppDispatch } from '../store/storeHooks';
 import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
         setAppBarVisibility, setFullscreenState ,selectModelLoadedState, setPopupMenuActiveContent } from '../store/appSlice';
 import { appBarMinHeight, popupMenuContentTypes } from '../config';
-import WindowsContainer from "./layout/windowsContainer";
 import Viewer from './viewer';
 import { fetchCameraStdViews } from '../store/sideBar/sceneSlice';
 
@@ -82,7 +81,6 @@ function App() {
         <main  className={ clsx(classes.content , {[classes.contentWithSideBar]: isSidebarVisible} , {[classes.contentWithTopBar]: isAppBarVisible}) }>
           <div ref = {viewerContainerRef} className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
             <Viewer />
-            <WindowsContainer parentRef={viewerContainerRef}/>
           </div>     
         </main>
       </div>

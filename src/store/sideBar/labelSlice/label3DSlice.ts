@@ -47,7 +47,7 @@ const initialState : InitialState = {
                     partiallyChecked : false,
                     expanded : true,
                     highlighted : false,
-                    visibility : false,
+                    visibility : true,
                 },
                 attributes: {},
                 label: "Lorem ipsum dolor sit amet",
@@ -81,19 +81,10 @@ export const handleClick = createAsyncThunk(
 
 
         let data = probe({xyFromTop, width: rect.width, height: rect.height },viewerId);
-        const labelId = rootState.label3D.labels3DSettings.idGenerator + 1;
-        add3DLabel(labelId.toString(),data.hitPoint, viewerId);
-        dispatch(createLabel(0))
-        setTimeout(() => {
-        let labelTree = (getState() as RootState).label3D.data;
-        [...Object.values(labelTree)].forEach(l => {
-            if(l.pid !== "-1") {
-                let pos = get3DLabelCanvasPos(l.id,viewerId);
-                 if(pos)
-                 dispatch(setLabelPos({id:l.id,pos:[pos[0],pos[1]]}));
-            }
-        })}
-        ,50);
+        const labelId = (rootState.label3D.labels3DSettings.idGenerator + 1).toString();
+        add3DLabel(labelId,data.hitPoint, viewerId);
+        let pos = get3DLabelCanvasPos(labelId,viewerId) as [number,number];
+        dispatch(createLabel({id:labelId,pid:"0",pos,msg:data.hitPoint.toString()}));
 });
 
 export const label3DSlice = createSlice({
@@ -120,12 +111,14 @@ export const label3DSlice = createSlice({
 
             state.rootIds.push(newParent.id)
         },
-        createLabel : (state , action: PayloadAction<number>) => {
+        createLabel : (state , action: PayloadAction<{id:string,pid:string,pos:[number,number],msg:string}>) => {
                 state.labels3DSettings.idGenerator += 1;
-                const id =state.labels3DSettings.idGenerator;
+                const {id,pid,pos,msg} = action.payload;
                 let newNote = {...state.labels3DSettings.defaultParameters};
-                newNote.id = `${state.labels3DSettings.idGenerator}`;
-                newNote.pid = `${action.payload}`;
+                newNote.id = id
+                newNote.pid = pid
+                newNote.pos = pos
+                newNote.label = msg;
                 if(newNote.pid === "0"){
                     state.labels3DSettings.pointCount+= 1;
                     newNote.title = `Point Label ${state.labels3DSettings.pointCount}`;
@@ -134,10 +127,10 @@ export const label3DSlice = createSlice({
                     state.labels3DSettings.faceCount += 1;
                     newNote.title = `Face Label ${state.labels3DSettings.faceCount}`
                 }
-                state.data[`${id}`] =newNote;
+                state.data[id] =newNote;
 
 
-                state.data[`${action.payload}`].children.push(newNote.id)
+                state.data[pid].children.push(newNote.id)
                 // Object.keys(state.data).find(key => state.data[key] === `${action.payload}`)
                 label3DSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/addNode"})
         },

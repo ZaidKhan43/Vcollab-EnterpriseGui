@@ -52,6 +52,7 @@ class PaletteElement {
     }
 
     draw(ctx:CanvasRenderingContext2D) {
+
         ctx.beginPath();
         ctx.rect(this.x,this.y,this.width,this.height);
         ctx.lineWidth = 1;
@@ -64,6 +65,7 @@ class PaletteElement {
             ctx.fillStyle = this.textColor;
             const text = this.valueType === ValueType.NA ? 'NA' : this.textCenter;
             ctx.fillText(text,this.x + this.width + this.width/3 , this.y + this.height/2);
+
             
         }
         else if(this.paletteType === LegendType.CONTINUOUS)
@@ -107,7 +109,7 @@ export class Palette {
         this.bandWidth =  20;
         this.bandHeight = 20;
         this.baseline = 'middle';
-        this.colors = ['#ee4035', '#f37736', '#fdf498', '#7bc043'];
+        this.colors = ['#ee4035', '#f37736', '#fdf498','#7bc043'];
         this.values = [100,50,30,0];
         this.paletteType = LegendType.DISCRETE;
         this.width = 300;
@@ -128,8 +130,8 @@ export class Palette {
 
         const xOffset = 0;
         const yOffset = this.bandHeight;
-        const colorCount = LegendType.CONTINUOUS?(this.colors.length-1):this.colors.length;
-        for(let i=0; i< colorCount; i++) {
+        const colorCount = this.paletteType === LegendType.CONTINUOUS ? this.colors.length-1:this.colors.length;
+        for(let i=0; i<colorCount; i++) {
             const options = {
                 x: this.position.x+i*xOffset,
                 y: this.position.y+i*yOffset,
@@ -145,18 +147,19 @@ export class Palette {
                 paletteType: this.paletteType,
                 ticks: this.ticks
             } as PaletteElementOptions;
-            const paletteElement = new PaletteElement( options);
+            const paletteElement = new PaletteElement(options);
             paletteElement.draw(ctx);
         }
     }
-} 
 
+} 
 
 export class PaletteBuilder {
     palette: Palette;
     constructor() {
         this.palette = new Palette();
     }
+
     build() {
         return this.palette
     }

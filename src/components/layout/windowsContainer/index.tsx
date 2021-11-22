@@ -11,7 +11,7 @@ function WindowsContainer(props:WindowsContainerProps) {
         <>
         <AxisTriadWindow parentRef={props.parentRef}/>
         <Label2DWindowLayer parentRef={props.parentRef}/>
-        <Label3DWindowLayer parentRef={props.parentRef}/>
+        <Label3DWindowLayer parentRef={props.parentRef}/> 
         </>
     )
     
