@@ -2,6 +2,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { stringify } from 'querystring';
 import type { RootState } from './index';
 
+export enum Layers {
+    BACK = 'BACK',
+    MIDDLE = 'MIDDLE',
+    FRONT = 'FRONT'
+}
 export type WindowState = {
     id:string,
     zOrder: number,
@@ -17,7 +22,8 @@ type WindowMgrState = {
     windowsCount: number,
     isEnabled: boolean,
     editModeZIndex: number,
-    viewModeZIndex: number
+    viewModeZIndex: number,
+    activeLayer: Layers
 }
 
 const initialState = {
@@ -25,7 +31,8 @@ const initialState = {
     windowsCount: 0,
     windows: {},
     editModeZIndex: 100,
-    viewModeZIndex: 5
+    viewModeZIndex: 5,
+    activeLayer: Layers.MIDDLE
 } as WindowMgrState
 
 export const windowMgrSlice = createSlice({
@@ -120,6 +127,9 @@ export const windowMgrSlice = createSlice({
         setWindowSize: (state, action:PayloadAction<{uid:string, size:[number,number]}>) => {
             let {uid,size} = action.payload;
             state.windows[uid].size = size;
+        },
+        setActiveLayer: (state, action:PayloadAction<Layers>) => {
+            state.activeLayer = action.payload;
         }
     }
 }) 
@@ -132,9 +142,11 @@ export const {
     setWindowAccess,
     setWindowPos,
     setWindowSize,
-    setWindowAnchor
+    setWindowAnchor,
+    setActiveLayer
 } = windowMgrSlice.actions;
 
+export const selectActiveLayer = (state: RootState) => state.windowMgr.activeLayer;
 export const selectWindowMgr = (state: RootState) => state.windowMgr
 export const selectWindowSize = (state: RootState, id:string) => state.windowMgr.windows[id]? state.windowMgr.windows[id].size : [-1,-1];
 export const selectWindowXY =  (state: RootState, id:string) => state.windowMgr.windows[id]? state.windowMgr.windows[id].pos : [-1,-1];

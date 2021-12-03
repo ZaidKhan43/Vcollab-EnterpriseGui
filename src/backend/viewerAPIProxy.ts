@@ -1,7 +1,6 @@
 import { mat4 } from 'gl-matrix';
-import viewerMgr from './viewerMgr';
-import {EventDispatcher} from './EventDispatcher.d.ts';
-import { viewerEvents,globalEvents } from './Events.d.ts';
+import viewerMgr from './ViewerManager';
+import {viewerEvents,globalEvents,EventDispatcher,InteractionMode} from './ViewerManager';
 
 export function createViewer(viewerDivID : string){
     return viewerMgr.createViewer(viewerDivID);
@@ -12,7 +11,9 @@ export function getProductTree(viewerDivID : string){
 export function getEventDispatcher():EventDispatcher | null {
     return viewerMgr.getEventDispatcher() as EventDispatcher | null;
 }
-
+export function setInteractionMode(viewerDivID:string,mode:InteractionMode) {
+    viewerMgr.setInterationMode(viewerDivID,mode);
+}
 export function getEventsList(){
     return viewerMgr.getEventsList();
 }
@@ -60,9 +61,7 @@ export function getSystemMouseMappings(activeViewerID:string):any[] {
     //console.log(JSON.stringify(data));
     return data;
 }
-export function setBackground(activeViewerID:string,type:number,data:any){
-    viewerMgr.setBackground(activeViewerID,type,data);
-}
+
 //#region Camera
 export function getCameraStdViews(activeViewerID:string) : any {
     console.log(viewerMgr.getCameraStdViews(activeViewerID));
@@ -152,5 +151,5 @@ export function setSectionPlaneGUIData(planeId:number,selectedPlaneOptions:any, 
     return 'SUCCESS'
 }
 
-export {EventDispatcher, viewerEvents,globalEvents};
 //#endregion
+export {EventDispatcher, viewerEvents,globalEvents, InteractionMode};

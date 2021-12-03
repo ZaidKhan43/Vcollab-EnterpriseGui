@@ -12,7 +12,6 @@ import { fetchFieldData } from '../../store/sideBar/fieldSlice';
 import { fetchMouseData } from '../../store/sideBar/settings';
 import { fetchCameraStdViews } from '../../store/sideBar/sceneSlice';
 import Snackbars from '../sideBarContents/messages/SnackBar';
-import WindowsContainer from "../layout/windowsContainer";
 import EventRegistry from './EventRegistry';
 
 function Viewer(){
@@ -151,7 +150,7 @@ function Viewer(){
     return (
       <>
       <div
-        style={{ flex: 1 }}
+        style={{ width:'100%',height:'100%'}}
         id={viewerDomID}
         ref={viewerRefs}
         className="viewer"
@@ -159,7 +158,6 @@ function Viewer(){
         <EventRegistry mount={mount}/>
         <ProbeLabel containerRef={viewerRefs}></ProbeLabel>
         <Snackbars parentRef = {viewerRefs}/>
-        <WindowsContainer parentRef = {viewerRefs}/>
       </div>
       
       </>

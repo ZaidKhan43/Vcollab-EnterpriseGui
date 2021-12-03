@@ -2,18 +2,13 @@ import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from './index';
 import { sideBarContentTypes, popupMenuContentTypes, displayMenuItems } from '../config';
 import {enableProbe} from './probeSlice';
+import {InteractionMode} from '../backend/viewerAPIProxy';
 import * as viewerAPIProxy from '../backend/viewerAPIProxy';
 type Viewer  = {
     name :string,
     id :string
 }
 
-export enum InteractionMode {
-    DEFAULT,
-    CONTINUOUS_PROBE,
-    PROBE_LABEL,
-    PICK_AND_MOVE
-}
 // Define a type for the slice state
 type AppState = {
     isAppBarVisible: boolean
@@ -60,25 +55,6 @@ const setDefaultInteractModeAsync = createAsyncThunk("appSlice/setDefaultInterac
 
 export const setInteractionModeAsync = createAsyncThunk("appSlice/setInteractionModeAsync",
 (data:InteractionMode,{dispatch, getState}) => {
-    let rootState:RootState = getState() as RootState;
-    let viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
-    dispatch(setDefaultInteractModeAsync({}));
-    switch (data) {
-        case InteractionMode.DEFAULT:
-            break;
-        case InteractionMode.CONTINUOUS_PROBE:
-            dispatch(enableProbe({isEnabled:true}));
-            break;
-        case InteractionMode.PICK_AND_MOVE:
-            viewerAPIProxy.enablePickAndMove(viewerId,true);
-            break;
-        case InteractionMode.PROBE_LABEL:
-            
-            break;
-        default:
-            break;
-    }
-    
     dispatch(appSlice.actions.setInteractionMode(data));
 });
 export const appSlice = createSlice({

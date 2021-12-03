@@ -1,8 +1,8 @@
 import { Grid, IconButton, Typography, ClickAwayListener } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-import React, { useEffect, useRef, useLayoutEffect, useState } from 'react'
-import { Rnd } from 'react-rnd'
+import React, { useEffect, useRef, useLayoutEffect, useState, forwardRef } from 'react'
+import { Rnd, Position, ResizableDelta, DraggableData  } from 'react-rnd'
 import { useResizeDetector } from 'react-resize-detector';
 import clsx from 'clsx'
 import { selectWindowMgr, selectWindowAnchor,addWindow, removeWindow, setEditMode, setHiddenState, setWindowSize,setWindowAccess, setWindowPos, selectWindowXY, setWindowAnchor} from '../../../store/windowMgrSlice'
@@ -34,7 +34,6 @@ const useStyles = makeStyles(theme => createStyles({
     },
     grabHandle:{
         cursor: "grab",
-        maxHeight: theme.spacing(3)
     },
     edit: {
         border: "solid 1px #ddd",
@@ -64,6 +63,7 @@ type TitleProps = {
     title: string,
     isEditMode: boolean,
     height: number,
+    onClick: (e:any) => void,
     onClose: (e:any) => void
 }
 const TitleBar = React.forwardRef((props:TitleProps, ref) => {
@@ -100,11 +100,25 @@ type CustomWindowProps = {
     anchor?:[number,number],
     autoPositionOnResize?:boolean,
     onClickOutside?: (uid:string) => void,
+    onDrag?:DraggableEventHandler,
+    onResize?:RndResizeCallback,
     parentRef: React.MutableRefObject<null | HTMLDivElement>,
     children: JSX.Element | null
 } 
+  
+type DraggableEventHandler = (
+    e: any, data: DraggableData,
+  ) => void | false;
 
-const CustomWindow = (props:CustomWindowProps) => {
+type RndResizeCallback = (
+    e: any,
+    dir: any,
+    refToElement: any,
+    delta: any,
+    position: any,
+  ) => void;
+
+const CustomWindow = forwardRef((props:CustomWindowProps, ref:any) => {
     const dispatch = useAppDispatch();
     const windowMgr = useAppSelector(selectWindowMgr);
     const uid = props.uid;
@@ -154,7 +168,9 @@ const CustomWindow = (props:CustomWindowProps) => {
     const toggleVisibility = (v:boolean) => {
         dispatch(setHiddenState({uid, isHidden: window ? !window.isHidden : false}));
     }
-
+    const handleClick = (e:any) => {
+        e.stopPropagation()
+    }
     useEffect(() => {
         console.log(`window ${uid} mounted`);
         dispatch(addWindow({uid}));
@@ -203,8 +219,10 @@ const CustomWindow = (props:CustomWindowProps) => {
             //onDoubleClick = {() => dispatch(setEditMode({uid,isEdit:true}))}
             enableResizing={window?.isEditMode && props.resize ? props.resize : false}
             dragHandleClassName={`${classes.grabHandle}`}
-            size= {props.width ?{ width,  height: height + titleBarHeight} : undefined}
+            size= {props.width ?{ width,  height: height} : undefined}
             position={{ x: pos[0], y: pos[1]}}
+            onDrag={props.onDrag}
+            onResize={props.onResize}
             onDragStop={(e, d) => {
                 let q = findNearestQuadrant(parentSize as [number,number],[d.x,d.y] as [number,number],[width,height]);
                 let anchor:[number,number] = [0,0];
@@ -232,20 +250,17 @@ const CustomWindow = (props:CustomWindowProps) => {
                 dispatch(setWindowPos({uid,pos:[position.x,position.y]}))
             }}
             >
-             {
-                 window?.isEditMode ?
-                <TitleBar ref={titleBarRef} title={title} height={titleBarHeight} onClose = {toggleVisibility} isEditMode={window?.isEditMode}></TitleBar>
-                :null
-             }
+            <div ref={ref} className={window?.isEditMode?classes.grabHandle:''} onClick={handleClick} style={{width:'100%',height:'100%', cursor: window?.isEditMode ? 'move': 'pointer' }}>
              
              {
                props.children
              }
+             </div>
             </Rnd>
             </ClickAwayListener>
         </>
     )
-}
+})
 CustomWindow.defaultProps = {
     autoPositionOnResize : true
 } as CustomWindowProps;

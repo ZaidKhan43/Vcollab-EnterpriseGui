@@ -1,5 +1,7 @@
 import MuiIconButton from '@material-ui/core/IconButton';
+import MuiToggleButton from '@material-ui/lab/ToggleButton';
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
+import PanToolIcon from '@material-ui/icons/PanTool';
 
 import styles from './style'
 
@@ -10,8 +12,8 @@ import BackButton from '../../../icons/back';
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree from '../../../shared/RsTreeTable';
-import {invertNode, expandNode, selectmeasurementsData ,selectRootIds, setCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel} from '../../../../store/sideBar/labelSlice/measurementsSlice'
-
+import {windowPrefixId, invertNode, expandNode, selectMeasurementsData ,selectRootIds, setCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, selectLabelMode, setLabelMode} from '../../../../store/sideBar/labelSlice/measurementsSlice'
+import { setEditMode } from '../../../../store/windowMgrSlice';
 // import EyeIcon from '@material-ui/icons//Visibility';
 // import EyeSlashIcon from '@material-ui/icons/VisibilityOff';
 // import IconButton  from '@material-ui/core/IconButton';
@@ -38,6 +40,8 @@ import { convertListToTree } from '../../../utils/tree';
 
 import { useRef, useEffect } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
+import { LabelMode , Label3DType} from '../../../../store/sideBar/labelSlice/shared';
+
 
 export default function Measurements(){
 
@@ -47,23 +51,16 @@ export default function Measurements(){
     dispatch(goBack());
   }
   
-  const treeDataRedux = useAppSelector(selectmeasurementsData);
+  const treeDataRedux = useAppSelector(selectMeasurementsData);
   const treeRootIds = useAppSelector(selectRootIds);
   const selectedCount = useAppSelector(selectedLength)
-
+  const labelMode = useAppSelector(selectLabelMode);
+  const isPanBtnPressed = labelMode === LabelMode.EDIT;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
   const containerRef = useRef(null);
   const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
 
-  useEffect(() => {
-    if(treeRootIds.length === 0) {
-      dispatch(createParentLabel({name:"Point to Point"}));
-      dispatch(createParentLabel({name:"3 Point Arc Length"}));
-      dispatch(createParentLabel({name:"Point to Edge"}));
-      dispatch(createParentLabel({name:"Point to Face"}));
-    }
-  },[]);
 
   const getHeaderLeftIcon= () => {
     return (
@@ -71,10 +68,21 @@ export default function Measurements(){
     );
   }
 
+  const handlePanChange = () => {
+      Object.values(treeDataRedux).forEach(e => {
+          dispatch(setEditMode({
+            uid: windowPrefixId+e.id,
+            isEdit: !isPanBtnPressed
+          }))
+      })
+      dispatch(setLabelMode( isPanBtnPressed ? LabelMode.VIEW : LabelMode.EDIT))
+  }
+
   const getHeaderRightIcon = () => {
     return (
-      <div>
-      </div>
+      <MuiToggleButton selected={isPanBtnPressed} onChange={handlePanChange}>
+        <PanToolIcon/>
+      </MuiToggleButton>
     )
   }
 
@@ -141,7 +149,7 @@ export default function Measurements(){
                   <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
                     <MuiGrid item xs={4}></MuiGrid>
                     <MuiGrid item xs={6}>
-                      <MuiIconButton size='small' onClick={() => dispatch(createLabel(Number(node.id)))}>
+                      <MuiIconButton size='small' >
                         <AddIcon fontSize='default'/> 
                       </MuiIconButton> 
                     </MuiGrid>

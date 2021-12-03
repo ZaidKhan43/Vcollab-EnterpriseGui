@@ -50,12 +50,6 @@ export default function Labels3D(){
   const containerRef = useRef(null);
   const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
 
-  useEffect(() => {
-    if(treeRootIds.length === 0) {
-      dispatch(createParentLabel({name:"point"}));
-      dispatch(createParentLabel({name:"Face"}));
-    }
-  },[]);
 
   const getHeaderLeftIcon= () => {
     return (

@@ -1,29 +1,21 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
-// import Labels3D from '../../components/sideBarContents/labels/pages/labels3D';
 import type { RootState } from '../../index';
-import {TreeNode} from "../shared/ProductExplorer/types";
 
 import {ITreeState} from "../shared/ProductExplorer/types";
 import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer} from "../shared/ProductExplorer/reducers";
+import { Labels3DList } from './label3DSlice';
+import {LabelMode, LabelSettings, setLabelModeReducer, Label3DType} from './shared';
 
-type MeasurementsSettings = {
-    idGenerator : number,
+export const windowPrefixId = "Measurement";
+
+interface MeasurementsSettings extends LabelSettings  {
     defaultParameters : MeasurementsList,
     childCount : number,
 } 
 
-export interface MeasurementsList extends TreeNode {
-    id: string;
-    pid: string | null;
-    title: string;
-    children: string[];
-    state: any;
-    attributes: any;
-    label: string,
+export interface MeasurementsList extends Labels3DList {
+    type: Label3DType
 }
-
-
-
 
 interface InitialState extends ITreeState {
     data : {[id:string]:MeasurementsList},
@@ -36,12 +28,12 @@ const initialState : InitialState = {
     data : {},
     rootIds : [],
     measurementsSettings :{
-        idGenerator: -1,
         defaultParameters:{
                 id: "",
                 pid: null,
                 title: "",
                 children: [],
+                pos: [0,0],
                 state: {
                     checked : false,
                     partiallyChecked : false,
@@ -51,12 +43,39 @@ const initialState : InitialState = {
                 },
                 attributes: {},
                 label: "Lorem ipsum dolor sit amet",
+                type: Label3DType.ANNOTATION,
         },
+        mode: LabelMode.VIEW,
         childCount : 0,
     }
 }
 
+export const init = createAsyncThunk(
+    "measurementsSlice/init",
+    (e:any,{dispatch,getState}) => {
+        const rootState = getState() as RootState;
+        const treeRootIds = rootState.measurements.rootIds;
+        if(treeRootIds.length === 0) {
+            dispatch(createParentLabel({id:Label3DType.DISTANCE ,name:"Point to Point"}));
+            dispatch(createParentLabel({id:Label3DType.ARC, name:"3 Point Arc Length"}));
+            dispatch(createParentLabel({id:Label3DType.EDGE ,name:"Point to Edge"}));
+            dispatch(createParentLabel({id:Label3DType.FACE, name:"Point to Face"}));
+          }
+    }
+)
 
+export const handleMeasurementLabelCreation = createAsyncThunk(
+    'measurementSlice/handleMeasurementLabelCreation',
+    async (data:any, {getState,dispatch}) => {
+        let e = data.data;
+        dispatch(createLabel({
+            pid: e.type,
+            id: e.labelId,
+            msg: e.dist,
+            type: e.type
+        }));
+    }
+)
 export const measurementsSlice = createSlice({
     name: "measurements",
     initialState : initialState,
@@ -68,37 +87,41 @@ export const measurementsSlice = createSlice({
         expandNode: expandNodeReducer,
         toggleVisibility: toggleVisibilityReducer,
         setCheckedVisibility: setCheckedVisibilityReducer,
-
-        createParentLabel : (state, action: PayloadAction<{name:string}>) => {
-            state.measurementsSettings.idGenerator += 1;
-            const id =state.measurementsSettings.idGenerator;
+        setLabelMode: (state, action) => {setLabelModeReducer(state.measurementsSettings,action)},
+        createParentLabel : (state, action: PayloadAction<{id:string,name:string}>) => {
+            const id =action.payload.id;
             let newParent = {...state.measurementsSettings.defaultParameters};
-            newParent.id = `${state.measurementsSettings.idGenerator}`;
+            newParent.id = id;
             newParent.pid = "-1";
             newParent.title = action.payload.name;
             newParent.label = "";
-            state.data[`${id}`] =newParent;
-
+            state.data[id] =newParent;
             state.rootIds.push(newParent.id);
         },
         
-        createLabel : (state , action: PayloadAction<number>) => {
-                state.measurementsSettings.idGenerator += 1;
+        createLabel : (state , action: PayloadAction<{pid:string,id:string,type:Label3DType,msg:string}>) => {
                 state.measurementsSettings.childCount +=1;
-                const id =state.measurementsSettings.idGenerator;
+                const {id,pid,type,msg} = action.payload;
                 let newNote = {...state.measurementsSettings.defaultParameters};
-                newNote.id = `${state.measurementsSettings.idGenerator}`;
-                newNote.pid = `${action.payload}`;
+                newNote.id = id;
+                newNote.type = type;
+                newNote.pid = pid;
                 newNote.title = `Measurement ${state.measurementsSettings.childCount}`;
-                state.data[`${id}`] =newNote;
-                state.data[`${action.payload}`].children.push(newNote.id)
+                newNote.label = msg;
+                state.data[id] =newNote;
+                state.data[pid].children.push(newNote.id)
                 // Object.keys(state.data).find(key => state.data[key] === `${action.payload}`)
                 measurementsSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/addNode"})
         },
-
-        editLabel: (state, action: PayloadAction<{id:number, value:string}>) => {
-            if( action.payload.id >= 0){
-                const key = `${action.payload.id}`
+        setLabelPos:(state, action:PayloadAction<{id:string,pos:[number,number]}>) => {
+            const {id,pos} = action.payload;
+            if(id !== "-1") {
+                state.data[id].pos = pos;
+            }
+        },
+        editLabel: (state, action: PayloadAction<{id:string, value:string}>) => {
+            if( action.payload.id !== '-1'){
+                const key = action.payload.id
                 state.data[key].label = action.payload.value;
             }
         },
@@ -124,12 +147,25 @@ export const measurementsSlice = createSlice({
 })
 
 export default measurementsSlice.reducer;
-export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility , createLabel,editLabel, delete3DLabel, createParentLabel} = measurementsSlice.actions;
+export const {
+    saveTree , 
+    checkNode , 
+    highlightNode , 
+    invertNode, 
+    expandNode, 
+    toggleVisibility, 
+    setLabelPos, 
+    setLabelMode,
+    setCheckedVisibility , 
+    createLabel,
+    editLabel, 
+    delete3DLabel, 
+    createParentLabel} = measurementsSlice.actions;
 
 //Selectors
 
 export const selectRootIds = (state:RootState) => state.measurements.rootIds
-export const selectmeasurementsData = (state:RootState) => state.measurements.data
+export const selectMeasurementsData = (state:RootState) => state.measurements.data
 export const selectedLength = (state:RootState) => {
     const array : string[] = [];
      Object.keys(state.measurements.data).forEach(key => {
@@ -139,7 +175,7 @@ export const selectedLength = (state:RootState) => {
 
      return (array.length);
 }
-
+export const selectLabelMode = (state:RootState):LabelMode => state.measurements.measurementsSettings.mode;
 export const selectedMeasurement = (state: RootState) => {
     let node;
     const length = selectedLength(state);

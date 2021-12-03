@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MuiAppBar from '@material-ui/core/AppBar';
 import MuiToolbar from '@material-ui/core/Toolbar';
 import MuiTypography from '@material-ui/core/Typography';
@@ -6,12 +6,14 @@ import MuiIconButton from '@material-ui/core/IconButton';
 import MuiTooltip from '@material-ui/core/Tooltip';
 import MuiClickAwayListener from '@material-ui/core/ClickAwayListener';
 import MuiToggleButton from '@material-ui/lab/ToggleButton';
-//import MuiSwitch from "@material-ui/core/Switch";
+
 
 import clsx from 'clsx';
 import Displaymodes from '../../icons/displaymodes';
 import Fitview from '../../icons/fitview';
 import Fullscreen from '../../icons/fullscreen';
+import MeasureP2PIcon from '@material-ui/icons/Straighten';
+import MeasureArcIcon from '@material-ui/icons/Looks';
 import PickAndMoveIcon from '@material-ui/icons/ThreeDRotation';
 import ProbeLabelIcon from "@material-ui/icons/Room";
 import ProbeIcon from '@material-ui/icons/Colorize'
@@ -22,12 +24,13 @@ import More from '../../icons/more';
 
 import { selectModelName, selectFullscreenStatus,selectSidebarVisibility, 
   selectActiveViewerID,setFullscreenState, setSidebarVisibility ,  
-  setPopupMenuActiveContent, setPopupMenuDisplayMode , setInteractionModeAsync, InteractionMode, selectInteractionMode } from '../../../store/appSlice';
+  setPopupMenuActiveContent, setPopupMenuDisplayMode , setInteractionModeAsync, selectInteractionMode } from '../../../store/appSlice';
 import {enableProbe,selectProbeEnabled} from '../../../store/probeSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
 
 
 import * as viewerAPIProxy from '../../../backend/viewerAPIProxy';
+import { InteractionMode } from '../../../backend/viewerAPIProxy';
 import { popupMenuContentTypes } from '../../../config';
 import PopupMenu from '../popupMenu';
 import  styles from './style';
@@ -37,9 +40,11 @@ function AppBar() {
     const classes = styles();
     const isFullscreenEnabled = useAppSelector(selectFullscreenStatus);
     const isSidebarVisible = useAppSelector(selectSidebarVisibility);
-    const isContinousProbeEnabled = useAppSelector(selectProbeEnabled);
     const interactionMode = useAppSelector(selectInteractionMode); 
-    const isPinLabel3DEnabled = interactionMode === InteractionMode.PROBE_LABEL; 
+    const isMeasureP2PEnabled = interactionMode === InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT;
+    const isMeasureArcEnabled = interactionMode === InteractionMode.LABEL_MEASUREMENT_3PT_ARC;
+    const isContinousProbeEnabled = interactionMode === InteractionMode.CONTINUOUS_PROBE;
+    const isPinLabel3DEnabled = interactionMode === InteractionMode.LABEL3D_POINT; 
     const isPickAndMoveEnabled = interactionMode === InteractionMode.PICK_AND_MOVE;
     const activeViewerID = useAppSelector(selectActiveViewerID);
     const modelName = useAppSelector(selectModelName);
@@ -49,13 +54,20 @@ function AppBar() {
     const [clickedMenu, setClickedMenu] = useState<string>(popupMenuContentTypes.none);
     const popupMenuDisplayMode = useAppSelector(state => state.app.popupMenuActiveContent);
     
-    const OnClickFullscreen = function(){
+    const onClickFullscreen = () => {
       dispatch(setFullscreenState(!isFullscreenEnabled));
     }
 
-    const OnClickPickAndMove = function(){
-        dispatch(setInteractionModeAsync( !isPickAndMoveEnabled ? InteractionMode.PICK_AND_MOVE : InteractionMode.DEFAULT));
+    const onClickMeasureP2P = () => {
+      viewerAPIProxy.setInteractionMode( activeViewerID,!isMeasureP2PEnabled ? InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT : InteractionMode.DEFAULT);
+    }
 
+    const onClickMeasureArc = () => {
+      viewerAPIProxy.setInteractionMode(activeViewerID,!isMeasureArcEnabled ? InteractionMode.LABEL_MEASUREMENT_3PT_ARC : InteractionMode.DEFAULT);
+    }
+
+    const onClickPickAndMove = () => {
+        viewerAPIProxy.setInteractionMode( activeViewerID,!isPickAndMoveEnabled ? InteractionMode.PICK_AND_MOVE : InteractionMode.DEFAULT);
     }
 
     const resetPickAndMove = () => {
@@ -63,14 +75,14 @@ function AppBar() {
     }
 
     const onClickPin = () => {
-      dispatch(setInteractionModeAsync( !isPinLabel3DEnabled ? InteractionMode.PROBE_LABEL : InteractionMode.DEFAULT));
-      
-    }
-    const onClickProbe = () => {
-      dispatch(setInteractionModeAsync( !isContinousProbeEnabled ? InteractionMode.CONTINUOUS_PROBE : InteractionMode.DEFAULT));
+      viewerAPIProxy.setInteractionMode( activeViewerID, !isPinLabel3DEnabled ? InteractionMode.LABEL3D_POINT : InteractionMode.DEFAULT);
     }
 
-    const OnClickFitview = function(){
+    const onClickProbe = () => {
+      viewerAPIProxy.setInteractionMode( activeViewerID, !isContinousProbeEnabled ? InteractionMode.CONTINUOUS_PROBE : InteractionMode.DEFAULT);
+    }
+
+    const onClickFitview = function(){
       viewerAPIProxy.fitView(activeViewerID);
     }
 
@@ -78,7 +90,7 @@ function AppBar() {
       dispatch(setSidebarVisibility(!isSidebarVisible));
     } 
 
-    const OnClickAwayMenuPopup = function(){
+    const onClickAwayMenuPopup = function(){
       if(clickedMenu === popupMenuContentTypes.displayModes || clickedMenu === popupMenuContentTypes.more)
         setClickedMenu(popupMenuContentTypes.none);
       else{
@@ -86,7 +98,7 @@ function AppBar() {
       }
     }
 
-    const OnClickMenuIcon= (evt: any, selectedMode : string) => {
+    const onClickMenuIcon= (evt: any, selectedMode : string) => {
       if(selectedMode === popupMenuContentTypes.displayModes)
       {
         viewerAPIProxy.getDisplayModes(activeViewerID, []) 
@@ -133,13 +145,22 @@ function AppBar() {
           </div>
      
           <div className={classes.toolBarRightContent}>
-          
+            <div className={classes.divIcon} onClick={ onClickMeasureP2P}>
+              <MuiToggleButton value='measure p2p label' selected={isMeasureP2PEnabled}>
+                  <MeasureP2PIcon></MeasureP2PIcon>
+              </MuiToggleButton>
+            </div>
+            <div className={classes.divIcon} onClick={ onClickMeasureArc}>
+              <MuiToggleButton value='measure arc label' selected={isMeasureArcEnabled}>
+                  <MeasureArcIcon></MeasureArcIcon>
+              </MuiToggleButton>
+            </div>
             <div className={classes.divIcon} onClick={ onClickPin}>
               <MuiToggleButton value='probe label' selected={isPinLabel3DEnabled}>
                   <ProbeLabelIcon></ProbeLabelIcon>
               </MuiToggleButton>
             </div>
-            <div className={classes.divIcon} onClick={ OnClickPickAndMove } >
+            <div className={classes.divIcon} onClick={ onClickPickAndMove } >
                   <MuiToggleButton value='pick & move' selected={ isPickAndMoveEnabled } ><PickAndMoveIcon /></MuiToggleButton> 
             </div>
             
@@ -151,19 +172,19 @@ function AppBar() {
             <MuiToggleButton value='cont probe' selected={ isContinousProbeEnabled } ><ProbeIcon /></MuiToggleButton> 
             </div>
 
-            <div className={classes.divIcon}  onClick={(evt) => OnClickMenuIcon(evt, popupMenuContentTypes.displayModes) }>
+            <div className={classes.divIcon}  onClick={(evt) => onClickMenuIcon(evt, popupMenuContentTypes.displayModes) }>
               <MuiIconButton><Displaymodes /></MuiIconButton> 
             </div>
             
-            <div className={classes.divIcon} onClick={ OnClickFitview }>
+            <div className={classes.divIcon} onClick={ onClickFitview }>
               <MuiIconButton><Fitview/></MuiIconButton>
             </div>
             
-            <div className={classes.divIcon} onClick={(evt) => OnClickMenuIcon(evt,  popupMenuContentTypes.more) }>
+            <div className={classes.divIcon} onClick={(evt) => onClickMenuIcon(evt,  popupMenuContentTypes.more) }>
               <MuiIconButton><More /></MuiIconButton>
             </div>
              
-            <div className={classes.divIcon} onClick={ OnClickFullscreen }>
+            <div className={classes.divIcon} onClick={ onClickFullscreen }>
               {(isFullscreenEnabled ?
                 <MuiIconButton><FullscreenClose  /></MuiIconButton>  :
                 <MuiIconButton><Fullscreen /> </MuiIconButton> 
@@ -174,7 +195,7 @@ function AppBar() {
         
         </MuiToolbar>     
 
-        <MuiClickAwayListener onClickAway= {() => OnClickAwayMenuPopup() }>
+        <MuiClickAwayListener onClickAway= {() => onClickAwayMenuPopup() }>
             <div>
               <PopupMenu anchorEl={ anchorEl }/>
             </div> 

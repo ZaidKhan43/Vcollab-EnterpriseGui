@@ -2,15 +2,13 @@ import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import {add3DLabel, get3DLabelCanvasPos, probe} from '../../../backend/viewerAPIProxy';
 import type { RootState } from '../../index';
 import {TreeNode} from "../shared/ProductExplorer/types";
-
+import {LabelMode,LabelSettings, setLabelModeReducer, Label3DType} from './shared'
 import {ITreeState} from "../shared/ProductExplorer/types";
 import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer} from "../shared/ProductExplorer/reducers";
-import { InteractionMode } from '../../appSlice';
-import { setEditMode, setHiddenState, setWindowPos } from '../../windowMgrSlice';
+import {InteractionMode} from '../../../backend/viewerAPIProxy';
 
 export const windowPrefixId = "Label3D";
-type Labels3DSettings = {
-    idGenerator : number,
+interface Labels3DSettings extends LabelSettings {
     defaultParameters : Labels3DList,
     pointCount : number,
     faceCount: number,
@@ -20,9 +18,6 @@ export interface Labels3DList extends TreeNode {
     pos:[number,number];
     label: string,
 }
-
-
-
 
 interface InitialState extends ITreeState {
     data : {[id:string]:Labels3DList},
@@ -35,7 +30,6 @@ const initialState : InitialState = {
     data : {},
     rootIds : [],
     labels3DSettings :{
-        idGenerator :-1,
         defaultParameters:{
                 id: "",
                 pid: null,
@@ -52,39 +46,30 @@ const initialState : InitialState = {
                 attributes: {},
                 label: "Lorem ipsum dolor sit amet",
         },
+        mode: LabelMode.VIEW,
         pointCount : 0,
         faceCount : 0,
     }
 }
 
-export const handleClick = createAsyncThunk(
-    "label3DSlice/handleClick",
+export const init = createAsyncThunk(
+    "label3DSlice/init",
     (e:any,{dispatch,getState}) => {
-        
         const rootState = getState() as RootState;
-        if(rootState.app.interactionMode !== InteractionMode.PROBE_LABEL)
-        return;
-        const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
-        let event = e.data;
-        let rect = []
-        try{
-            rect = event.target.getBoundingClientRect();
-        }
-        catch(e:any){
-            throw new Error(e);
-        }
+        const treeRootIds = rootState.label3D.rootIds;
+        if(treeRootIds.length === 0) {
+            dispatch(createParentLabel({id:Label3DType.PROBE,name:"point"}));
+            dispatch(createParentLabel({id:Label3DType.FACE,name:"Face"}));
+          }
+    }
+)
+
+export const handleProbeLabelCreation = createAsyncThunk(
+    "label3DSlice/handleProbeLabelCreation",
+    (data:any,{dispatch,getState}) => {
         
-        let xyFromTop = [
-            event.clientX - rect.left,
-            event.clientY - rect.top
-        ];
-
-
-        let data = probe({xyFromTop, width: rect.width, height: rect.height },viewerId);
-        const labelId = (rootState.label3D.labels3DSettings.idGenerator + 1).toString();
-        add3DLabel(labelId,data.hitPoint, viewerId);
-        let pos = get3DLabelCanvasPos(labelId,viewerId) as [number,number];
-        dispatch(createLabel({id:labelId,pid:"0",pos,msg:data.hitPoint.toString()}));
+        let e = data.data;
+        dispatch(createLabel({id:e.labelId,pid:e.type,type:e.type,msg:e.msg}));
 });
 
 export const label3DSlice = createSlice({
@@ -98,28 +83,26 @@ export const label3DSlice = createSlice({
         expandNode: expandNodeReducer,
         toggleVisibility: toggleVisibilityReducer,
         setCheckedVisibility: setCheckedVisibilityReducer,
-
-        createParentLabel : (state, action : PayloadAction<{name: string}>) => {
-            state.labels3DSettings.idGenerator += 1;
-            const id =state.labels3DSettings.idGenerator;
+        setlabelMode: (state,action) => setLabelModeReducer(state.labels3DSettings,action),
+        createParentLabel : (state, action : PayloadAction<{id:string,name: string}>) => {
+            const {id,name} = action.payload;
             let newParent = {...state.labels3DSettings.defaultParameters};
-            newParent.id = `${state.labels3DSettings.idGenerator}`;
+            newParent.id = id;
             newParent.pid = "-1";
-            newParent.title = action.payload.name;
+            newParent.title = name;
             newParent.label = "";
             state.data[`${id}`] =newParent;
 
             state.rootIds.push(newParent.id)
         },
-        createLabel : (state , action: PayloadAction<{id:string,pid:string,pos:[number,number],msg:string}>) => {
-                state.labels3DSettings.idGenerator += 1;
-                const {id,pid,pos,msg} = action.payload;
+        createLabel : (state , action: PayloadAction<{pid:string,id:string,type:Label3DType,msg:string}>) => {
+                
+                const {id,pid,type,msg} = action.payload;
                 let newNote = {...state.labels3DSettings.defaultParameters};
                 newNote.id = id
                 newNote.pid = pid
-                newNote.pos = pos
                 newNote.label = msg;
-                if(newNote.pid === "0"){
+                if(newNote.pid === Label3DType.PROBE){
                     state.labels3DSettings.pointCount+= 1;
                     newNote.title = `Point Label ${state.labels3DSettings.pointCount}`;
                 }
@@ -170,6 +153,7 @@ export const {
     saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility , 
     createLabel,
     editLabel,
+    setlabelMode,
     setLabelPos, 
     delete3DLabel,
     createParentLabel
@@ -188,6 +172,7 @@ export const selectedLength = (state:RootState) => {
 
      return (array.length);
 }
+export const selectLabelMode = (state:RootState):LabelMode => state.label3D.labels3DSettings.mode;
 export const selectedLabel3D = (state: RootState) => {
     let node;
     const length = selectedLength(state);

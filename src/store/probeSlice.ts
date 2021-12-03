@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction} from '@reduxjs/toolkit';
 import { RootState } from '.';
 import { probe } from '../backend/viewerAPIProxy';
-import { InteractionMode } from './appSlice';
+import { InteractionMode } from '../backend/viewerAPIProxy';
 
 type props = {
     position : {
@@ -36,7 +36,7 @@ export const fetchProbeData = createAsyncThunk(
     async (data:{pointerData:PointerData},{dispatch,getState}) => {
         let rootState = getState() as RootState;
         let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
-        if(rootState.probe.enabled && rootState.app.interactionMode === InteractionMode.CONTINUOUS_PROBE) {
+        if(rootState.app.interactionMode === InteractionMode.CONTINUOUS_PROBE) {
             let start = performance.now();
             let probeData = probe(data.pointerData,viewerId);
             let end = performance.now();
@@ -44,8 +44,9 @@ export const fetchProbeData = createAsyncThunk(
             dispatch(probeSlice.actions.setProbeTimeout({timeout:time}));
             let content = 'dummy';
             dispatch(probeSlice.actions.showProbeLabel({toShow:probeData?true:false}));
-            if(probeData)
-            content = JSON.stringify(probeData.hitPoint,null,2)
+            if(probeData){
+                content = JSON.stringify(probeData.hitPoint,null,2);
+            }
             content += ` time ${time} ms`;
             dispatch(probeSlice.actions.updateContent({text:content}))
         }
@@ -70,16 +71,12 @@ export const probeSlice = createSlice ({
             state.timeout = action.payload.timeout;
         },
         updateContent: (state, action:PayloadAction<{text:string}>) => {
-            if(state.enabled) {
                 state.text = action.payload.text;
-            }
         },
         update: (state,action:PayloadAction<{position:{x:number,y:number}}>) => {
             let {position} = action.payload;
-            if(state.enabled) {
                 state.position.x = Number(position.x);
                 state.position.y = Number(position.y);
-            }
         },
     }
 })

@@ -1,12 +1,15 @@
 import ProbeLabel from './probeLabel';
 import { fetchProbeData, update, PointerData } from '../../store/probeSlice';
+import {selectInteractionMode} from '../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../store/storeHooks';
 import { useCallback, useEffect, useRef } from 'react';
+import { InteractionMode } from '../../backend/viewerAPIProxy';
 
 export default function Probe (props:{containerRef:React.RefObject<HTMLDivElement>}){
 
-  const dispatch = useAppDispatch();  
-  const isEnabled = useAppSelector((state) => state.probe.enabled)
+  const dispatch = useAppDispatch();
+  const interactionMode = useAppSelector(selectInteractionMode);  
+  const isEnabled = InteractionMode.CONTINUOUS_PROBE === interactionMode;
   const showLabel = useAppSelector((state) => state.probe.showLabel)
   const timerRef = useRef<any>(null);
   const timeoutRef = useRef<any>(useAppSelector((state) => state.probe.timeout));

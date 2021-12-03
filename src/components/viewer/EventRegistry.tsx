@@ -2,22 +2,31 @@ import React, { useEffect, useState } from 'react'
 import { EventDispatcher } from '../../backend/EventDispatcher';
 import {getEventDispatcher,getEventsList} from "../../backend/viewerAPIProxy";
 import { useAppDispatch } from '../../store/storeHooks';
-import { setModelLoadingStatus } from '../../store/appSlice';
+import { setModelLoadingStatus, setInteractionModeAsync } from '../../store/appSlice';
 import { handlePlaneSelection } from '../../store/sideBar/clipSlice';
-import {  handleClick } from '../../store/sideBar/labelSlice/label3DSlice';
+import {  handleProbeLabelCreation, init as label3dInit } from '../../store/sideBar/labelSlice/label3DSlice';
+import { handleMeasurementLabelCreation, init as measurementInit } from '../../store/sideBar/labelSlice/measurementsSlice';
 import { addMessage, updateMessage, NetworkData, NotificationType, finishMessage } from '../../store/sideBar/messageSlice';
 import { handleHighlightAsync } from '../../store/sideBar/productTreeSlice';
 import { fetchCameraMatrix } from '../../store/sideBar/sceneSlice';
 import { toastMsg } from '../../store/toastSlice';
+import { viewerEvents } from '../../backend/ViewerManager';
 type Props = {
     mount: boolean
 }
+
+function setup(dispatch:any) {
+  dispatch(label3dInit({}));
+  dispatch(measurementInit({}));
+}
 function EventRegistry(props: Props) {
     const dispatch = useAppDispatch();
+    setup(dispatch);
     useEffect(() => {
         if(props.mount) {
             let eventDispatcher = getEventDispatcher();
             let events = getEventsList();
+            
             eventDispatcher?.addEventListener(
                 events.viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE,
                 (event : any) => {
@@ -90,9 +99,17 @@ function EventRegistry(props: Props) {
                 }
               );
               eventDispatcher?.addEventListener(
-                events.viewerEvents.VIEWER_CLICK,
+                events.viewerEvents.INTERACTION_MODE_CHANGED,
                 (event:any) => {
-                  dispatch(handleClick(event));
+                  let mode = event.data.currState;
+                  dispatch(setInteractionModeAsync(mode));
+                }
+              );
+              eventDispatcher?.addEventListener(
+                events.viewerEvents.LABEL3D_CREATED,
+                (event:any) => {
+                  dispatch(handleProbeLabelCreation(event));
+                  dispatch(handleMeasurementLabelCreation(event));
                 }
               )
         }

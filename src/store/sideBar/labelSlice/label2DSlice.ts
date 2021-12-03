@@ -1,5 +1,6 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import type { RootState } from '../../index';
+import { LabelMode } from './shared';
 
 export const windowPrefixId = "Label2D";
 
@@ -9,6 +10,7 @@ type Note2DList = {
     show: boolean,
     selected: boolean,
     label: string,
+    mode: LabelMode
 }
 
 type Node2DSettings = {
@@ -34,6 +36,7 @@ const initialState : InitialState = {
                 show:   false,
                 selected: false,
                 label: "Lorem ipsum dolor sit amet",
+                mode: LabelMode.VIEW
             }
         }
 }
