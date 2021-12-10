@@ -1,4 +1,5 @@
 import { PayloadAction } from "@reduxjs/toolkit";
+import {TreeNode} from "../shared/ProductExplorer/types";
 
 export enum LabelMode {
     EDIT,
@@ -12,6 +13,12 @@ export enum Label3DType{
     ARC = "ARC", 
     EDGE = "EDGE", 
     FACE = "FACE"
+}
+
+export interface Label3D extends TreeNode {
+    pos:[number,number],
+    anchor: [number,number],
+    label: string,
 }
 
 export type LabelSettings = {

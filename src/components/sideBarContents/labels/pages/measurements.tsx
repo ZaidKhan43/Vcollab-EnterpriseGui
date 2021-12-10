@@ -40,7 +40,7 @@ import { convertListToTree } from '../../../utils/tree';
 
 import { useRef, useEffect } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
-import { LabelMode , Label3DType} from '../../../../store/sideBar/labelSlice/shared';
+import {Layers,selectActiveLayer,setActiveLayer} from '../../../../store/windowMgrSlice'
 
 
 export default function Measurements(){
@@ -54,8 +54,8 @@ export default function Measurements(){
   const treeDataRedux = useAppSelector(selectMeasurementsData);
   const treeRootIds = useAppSelector(selectRootIds);
   const selectedCount = useAppSelector(selectedLength)
-  const labelMode = useAppSelector(selectLabelMode);
-  const isPanBtnPressed = labelMode === LabelMode.EDIT;
+  const activeLayer = useAppSelector(selectActiveLayer);
+  const isPanBtnPressed = activeLayer === Layers.LABEL3D;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
   const containerRef = useRef(null);
@@ -69,14 +69,15 @@ export default function Measurements(){
   }
 
   const handlePanChange = () => {
-      Object.values(treeDataRedux).forEach(e => {
-          dispatch(setEditMode({
-            uid: windowPrefixId+e.id,
-            isEdit: !isPanBtnPressed
-          }))
-      })
-      dispatch(setLabelMode( isPanBtnPressed ? LabelMode.VIEW : LabelMode.EDIT))
-  }
+    Object.values(treeDataRedux).forEach(e => {
+        if(e.pid !== "-1")
+        dispatch(setEditMode({
+          uid: windowPrefixId+e.id,
+          isEdit: !isPanBtnPressed
+        }))
+    })
+    dispatch(setActiveLayer(!isPanBtnPressed ? Layers.LABEL3D : Layers.VIEWER));
+}
 
   const getHeaderRightIcon = () => {
     return (

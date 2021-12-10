@@ -1,4 +1,5 @@
 import MuiIconButton from '@material-ui/core/IconButton';
+import MuiToggleButton from '@material-ui/lab/ToggleButton';
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
 
 import styles from './style'
@@ -29,11 +30,14 @@ import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
 import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
 import ShowHideCell from '../../../shared/RsTreeTable/ShowHide';
 import MuiGrid from '@material-ui/core/Grid';
+import PanToolIcon from '@material-ui/icons/PanTool';
 
 import { convertListToTree } from '../../../utils/tree';
 
 import { useRef, useEffect } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
+import { Layers, selectActiveLayer , setActiveLayer, setEditMode} from '../../../../store/windowMgrSlice';
+import { windowPrefixId } from '../../../../store/sideBar/labelSlice/label3DSlice';
 
 export default function Labels3D(){
 
@@ -44,7 +48,9 @@ export default function Labels3D(){
   
   const treeDataRedux = useAppSelector(select3DLabelData);
   const treeRootIds = useAppSelector(selectRootIds);
-  const selectedCount = useAppSelector(selectedLength)
+  const selectedCount = useAppSelector(selectedLength);
+  const activeLayer = useAppSelector(selectActiveLayer);
+  const isPanBtnPressed = activeLayer === Layers.LABEL3D;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
   const containerRef = useRef(null);
@@ -57,10 +63,22 @@ export default function Labels3D(){
     );
   }
 
+  const handlePanChange = () => {
+    Object.values(treeDataRedux).forEach(e => {
+        if(e.pid !== "-1")
+        dispatch(setEditMode({
+          uid: windowPrefixId+e.id,
+          isEdit: !isPanBtnPressed
+        }))
+    })
+    dispatch(setActiveLayer(!isPanBtnPressed ? Layers.LABEL3D : Layers.VIEWER));
+}
+
   const getHeaderRightIcon = () => {
     return (
-      <div>
-      </div>
+      <MuiToggleButton selected={isPanBtnPressed} onChange={handlePanChange}>
+        <PanToolIcon/>
+      </MuiToggleButton>
     )
   }
 
@@ -131,7 +149,7 @@ export default function Labels3D(){
                   <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
                     <MuiGrid item xs={4}></MuiGrid>
                     <MuiGrid item xs={6}>
-                      <MuiIconButton size='small' onClick={() => dispatch(createLabel(Number(node.id)))}>
+                      <MuiIconButton size='small' >
                         <AddIcon fontSize='default'/> 
                       </MuiIconButton> 
                     </MuiGrid>

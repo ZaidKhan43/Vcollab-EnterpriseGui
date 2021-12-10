@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
         position:'absolute',
         width: '100%',
         height: '100%',
-        pointerEvents: props.isActive ? 'unset' : 'none'
+        pointerEvents: props.isActive ? 'all' : 'none'
     })
 }))
 function Layer(props: LayerProps) {
@@ -21,7 +21,7 @@ function Layer(props: LayerProps) {
     const isActive = props.id === activeLayer; 
     const classes = useStyles({isActive})
     return (
-        <div className={classes.root}>
+        <div id={'windows_container' + props.id} className={classes.root}>
             {
                 props.children
             }

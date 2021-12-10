@@ -1,91 +1,75 @@
-import React,{useRef,useEffect, useState} from 'react'
-import { get3DLabelCanvasPos } from '../../../../backend/viewerAPIProxy';
-import { selectActiveViewerID } from '../../../../store/appSlice';
-import { select3DLabelData, setLabelPos, toggleVisibility, windowPrefixId } from '../../../../store/sideBar/labelSlice/label3DSlice'
-import { selectCameraMatrix } from '../../../../store/sideBar/sceneSlice';
-import { useAppDispatch, useAppSelector } from '../../../../store/storeHooks'
-import { setEditMode, setWindowPos } from '../../../../store/windowMgrSlice';
+import React,{useRef,useEffect, memo} from 'react'
+import { Label3D as ILabel3D } from '../../../../store/sideBar/labelSlice/shared'
+import { useAppDispatch} from '../../../../store/storeHooks'
+import { setWindowSize } from '../../../../store/windowMgrSlice';
 import LabelMsg from './LabelMsg';
 import LabelAnchor from './LabelAnchor';
 import CustomWindow from '../../../shared/CustomWindow';
 import Xarrow, {useXarrow, Xwrapper} from 'react-xarrows';
+import { AnyAction } from 'redux';
 type Label3DProps = {
-    id: string,
+    label:ILabel3D,
+    windowPrefixId:string,
+    setLabelPosReducer: (payload:{id:string, pos:[number,number], anchor:[number,number]}) => AnyAction;
     parentRef: any
 }
 
 function Label3D(props:Label3DProps) {
-    const cameraMat = useAppSelector(selectCameraMatrix);
-    const labelTree = useAppSelector(select3DLabelData);
-    const label = labelTree[props.id];
-    const viewerId = useAppSelector(selectActiveViewerID)
-    const timer = useRef<any | null>(null);
-    const wasVisible = useRef<boolean | null>(null);
     const startRef = useRef<any | null>(null);
     const endRef = useRef<any | null>(null);
+    const childRef = useRef<any | null>(null);
     const updateArrow = useXarrow();
     const dispatch = useAppDispatch();
-    const handleWindowDrag = () => {
+    const handleWindowDrag = (e:any,data:any) => {
         updateArrow();
+        let l = props.label;
+        let a = l.anchor;
+        
+        dispatch(props.setLabelPosReducer({id: l.id,pos:[data.x,data.y], anchor:a}));
+        
     }
     const handleWindowResize = () => {
         updateArrow();
     }
     useEffect(() => {
-            let l = label;
-            if (timer.current !== null){
-                clearTimeout(timer.current);
-            } 
-            else{
-                //first
-                wasVisible.current = l.state.visibility as boolean;
-                dispatch(toggleVisibility({
-                    toShow: false,
-                    nodeId: l.id
-                }))
-            }
-            timer.current = setTimeout(() => {
-                        let pos = get3DLabelCanvasPos(l.id,viewerId);
-                        if(pos){
-                            dispatch(setLabelPos({id:l.id,pos:[pos[0],pos[1]]}));
-                        }
-                //last
-                timer.current = null; 
-                if(wasVisible.current)
-                dispatch(toggleVisibility({
-                    toShow: true,
-                    nodeId: l.id
-                }))
-            },500);
-            
-    },[cameraMat])
-    useEffect(() => {
-        
-            dispatch(setEditMode({uid:windowPrefixId+label.id,isEdit:label.state.checked ? true : false}))
-    },[label.state.checked])
+        if(childRef.current) {
+            const div = childRef.current as HTMLDivElement;
+            dispatch(setWindowSize({uid:props.windowPrefixId+props.label.id, size:[div.clientWidth,div.clientHeight]}));
+        }
+    },[childRef])
+    const label = props.label;
     return (
         label.state.visibility ?
-        <>
-            <Xwrapper>
-            <LabelAnchor ref={startRef} pos={label.pos}/>
+        < >
+            {console.log("rendering label",label.id)}
+            <Xwrapper key={label.id}>
+            <LabelAnchor ref={startRef} pos={label.anchor}/>
             
                <CustomWindow 
                ref={endRef} 
-               uid={windowPrefixId+label.id} 
-               width={100} 
-               height={100} 
+               uid={props.windowPrefixId+label.id} 
+               width={childRef?.current?.clientWidth | 0} 
+               height={childRef?.current?.clientHeight | 0} 
                resize 
                parentRef={props.parentRef} 
                onDrag={handleWindowDrag}
                onResize={handleWindowResize}
                xy={label.pos}>
-                    <LabelMsg msg={label.label}/>
+                    <LabelMsg ref={childRef} msg={label.label}/>
                 </CustomWindow>
-                <Xarrow start={startRef} end={endRef}/>
+                <Xarrow 
+                start={startRef} 
+                end={endRef} 
+                path={'straight'} 
+                strokeWidth={2}
+                color={'black'}
+                tailColor={'yellow'}
+                showHead={false} 
+                showTail={false}/>
             </Xwrapper>
         </>
         :null
     )
 }
 
-export default Label3D
+export default memo(Label3D)

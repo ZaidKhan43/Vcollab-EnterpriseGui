@@ -1,12 +1,12 @@
-import React from 'react'
+import React, {forwardRef} from 'react'
 
 type LabelMsgProps = {
     msg:string
 }
-function LabelMsg(props:LabelMsgProps) {
+function LabelMsg(props:LabelMsgProps, ref:any) {
     return (
-        <div style={{ backgroundColor:"yellow"}}>{props.msg}</div>
+        <div ref={ref} style={{ backgroundColor:"yellow", width:'100%' , height:'100%'}}>{props.msg}</div>
     )
 }
 
-export default LabelMsg
+export default forwardRef(LabelMsg)

@@ -3,9 +3,10 @@ import { stringify } from 'querystring';
 import type { RootState } from './index';
 
 export enum Layers {
-    BACK = 'BACK',
-    MIDDLE = 'MIDDLE',
-    FRONT = 'FRONT'
+    BACKGROUND = 'BACKGROUND',
+    VIEWER = 'VIEWER',
+    LABEL2D = 'LABEL2D',
+    LABEL3D = 'LABEL3D'
 }
 export type WindowState = {
     id:string,
@@ -32,7 +33,7 @@ const initialState = {
     windows: {},
     editModeZIndex: 100,
     viewModeZIndex: 5,
-    activeLayer: Layers.MIDDLE
+    activeLayer: Layers.VIEWER
 } as WindowMgrState
 
 export const windowMgrSlice = createSlice({

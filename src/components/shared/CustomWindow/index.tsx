@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useLayoutEffect, useState, forwardRef } from 
 import { Rnd, Position, ResizableDelta, DraggableData  } from 'react-rnd'
 import { useResizeDetector } from 'react-resize-detector';
 import clsx from 'clsx'
-import { selectWindowMgr, selectWindowAnchor,addWindow, removeWindow, setEditMode, setHiddenState, setWindowSize,setWindowAccess, setWindowPos, selectWindowXY, setWindowAnchor} from '../../../store/windowMgrSlice'
+import { selectWindowMgr, selectWindowAnchor,addWindow, removeWindow, setEditMode, setHiddenState, setWindowSize,setWindowAccess, setWindowPos, selectWindowXY, setWindowAnchor, setActiveLayer, Layers} from '../../../store/windowMgrSlice'
 import {useAppSelector, useAppDispatch} from "../../../store/storeHooks";
 import { vec2, vec3 } from 'gl-matrix';
 
@@ -103,7 +103,7 @@ type CustomWindowProps = {
     onDrag?:DraggableEventHandler,
     onResize?:RndResizeCallback,
     parentRef: React.MutableRefObject<null | HTMLDivElement>,
-    children: JSX.Element | null
+    children: any | null
 } 
   
 type DraggableEventHandler = (
@@ -198,11 +198,12 @@ const CustomWindow = forwardRef((props:CustomWindowProps, ref:any) => {
         <>
             <ClickAwayListener onClickAway={
                 (e:any) => {
-                    if(e.target.id.includes('_vct-viewer-'))  
+                    if(e.target.id.includes('windows_container'))  
                     {
                         if(props.onClickOutside)
                         props.onClickOutside(uid);
                         dispatch(setEditMode({uid,isEdit:false}))
+                        dispatch(setActiveLayer(Layers.VIEWER));
                     }
                 }
             }

@@ -3,6 +3,7 @@ import { selectAllNotes2D, windowPrefixId } from '../../../../store/sideBar/labe
 import { useAppDispatch, useAppSelector } from '../../../../store/storeHooks'
 import { setEditMode } from '../../../../store/windowMgrSlice';
 import CustomWindow from '../../../shared/CustomWindow'
+import LabelMsg from './LabelMsg'
 interface Props {
     parentRef:any
 }
@@ -17,9 +18,7 @@ function Label2DWindowLayer(props:Props) {
                 <CustomWindow uid={windowPrefixId+note.id} 
                     parentRef={props.parentRef} 
                     >
-                    
-                    <div>{note.label}</div>
-                
+                <LabelMsg key={note.id} msg={note.label}/>
                 </CustomWindow>
                 )
             })

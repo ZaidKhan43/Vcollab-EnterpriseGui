@@ -12,10 +12,8 @@ import { useAppSelector, useAppDispatch } from '../store/storeHooks';
 import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
         setAppBarVisibility, setFullscreenState ,selectModelLoadedState, setPopupMenuActiveContent } from '../store/appSlice';
 import { appBarMinHeight, popupMenuContentTypes } from '../config';
-import Layer from '../components/layout/Layer';
 import Viewer from './viewer';
-import Background from './viewer/Background';
-import WindowsContainer from "./layout/windowsContainer";
+import LayerStack from "./layout/LayerStack";
 import { fetchCameraMatrix, fetchCameraStdViews } from '../store/sideBar/sceneSlice';
 import { Layers } from '../store/windowMgrSlice';
 
@@ -85,9 +83,7 @@ function App() {
         : null ) }
         <main  className={ clsx(classes.content , {[classes.contentWithSideBar]: isSidebarVisible} , {[classes.contentWithTopBar]: isAppBarVisible}) }>
           <div ref = {viewerContainerRef} className={ clsx(classes.viewerContainer , {[classes.viewerContainerWithTopBar]: isAppBarVisible})}>
-            <Layer id={Layers.BACK} ><Background /></Layer>
-            <Layer id={Layers.MIDDLE}><Viewer/></Layer>
-            <Layer id={Layers.FRONT}><WindowsContainer parentRef = {viewerContainerRef}/></Layer>
+            <LayerStack parentRef={viewerContainerRef}/>
           </div>     
         </main>
       </div>

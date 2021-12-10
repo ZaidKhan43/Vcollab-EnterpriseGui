@@ -1,26 +1,22 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
-import {add3DLabel, get3DLabelCanvasPos, probe} from '../../../backend/viewerAPIProxy';
+import {delete3DLabel as delete3DLabelApi, get3DLabelCanvasPos, probe} from '../../../backend/viewerAPIProxy';
 import type { RootState } from '../../index';
-import {TreeNode} from "../shared/ProductExplorer/types";
-import {LabelMode,LabelSettings, setLabelModeReducer, Label3DType} from './shared'
+import {LabelMode, Label3D, LabelSettings, setLabelModeReducer, Label3DType} from './shared'
 import {ITreeState} from "../shared/ProductExplorer/types";
-import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer} from "../shared/ProductExplorer/reducers";
-import {InteractionMode} from '../../../backend/viewerAPIProxy';
+import {saveTreeReducer, checkNodeReducer, highlightNodeReducer,deleteNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer} from "../shared/ProductExplorer/reducers";
+import { batch } from 'react-redux';
+
 
 export const windowPrefixId = "Label3D";
 interface Labels3DSettings extends LabelSettings {
-    defaultParameters : Labels3DList,
+    defaultParameters : Label3D,
     pointCount : number,
     faceCount: number,
 } 
 
-export interface Labels3DList extends TreeNode {
-    pos:[number,number];
-    label: string,
-}
 
 interface InitialState extends ITreeState {
-    data : {[id:string]:Labels3DList},
+    data : {[id:string]:Label3D},
     rootIds : string[],
     labels3DSettings : Labels3DSettings,
     
@@ -36,6 +32,7 @@ const initialState : InitialState = {
                 title: "",
                 children: [],
                 pos:[0,0],
+                anchor: [-1,-1],
                 state: {
                     checked : false,
                     partiallyChecked : false,
@@ -69,7 +66,26 @@ export const handleProbeLabelCreation = createAsyncThunk(
     (data:any,{dispatch,getState}) => {
         
         let e = data.data;
-        dispatch(createLabel({id:e.labelId,pid:e.type,type:e.type,msg:e.msg}));
+        let rootState = getState() as RootState;
+        let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
+        let pos = get3DLabelCanvasPos(e.labelId,viewerId);
+        dispatch(createLabel({id:e.labelId,pid:e.type,pos:pos as [number,number],type:e.type,msg:e.msg}));
+});
+
+export const delete3DLabel = createAsyncThunk(
+    "label3DSlice/delete3DLabel",
+    (data:any,{dispatch,getState}) => {
+        let rootState = getState() as RootState;
+        let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
+        let state = rootState.label3D;
+        let keys:string[] = [];
+        Object.keys(state.data).forEach( key => {
+            if( state.data[key].state.checked === true && state.data[key].pid !== "-1"){
+                delete3DLabelApi(key,viewerId);
+                keys.push(key);
+            }
+        })
+        dispatch(label3DSlice.actions.deleteLabel({keys}));
 });
 
 export const label3DSlice = createSlice({
@@ -95,13 +111,15 @@ export const label3DSlice = createSlice({
 
             state.rootIds.push(newParent.id)
         },
-        createLabel : (state , action: PayloadAction<{pid:string,id:string,type:Label3DType,msg:string}>) => {
+        createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],type:Label3DType,msg:string}>) => {
                 
-                const {id,pid,type,msg} = action.payload;
+                const {id,pid,pos,type,msg} = action.payload;
                 let newNote = {...state.labels3DSettings.defaultParameters};
                 newNote.id = id
                 newNote.pid = pid
                 newNote.label = msg;
+                newNote.anchor = pos;
+                newNote.pos = pos;
                 if(newNote.pid === Label3DType.PROBE){
                     state.labels3DSettings.pointCount+= 1;
                     newNote.title = `Point Label ${state.labels3DSettings.pointCount}`;
@@ -117,34 +135,33 @@ export const label3DSlice = createSlice({
                 // Object.keys(state.data).find(key => state.data[key] === `${action.payload}`)
                 label3DSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/addNode"})
         },
-        setLabelPos:(state, action:PayloadAction<{id:string,pos:[number,number]}>) => {
-            const {id,pos} = action.payload;
+        setLabelPos:(state, action:PayloadAction<{id:string,pos:[number,number],anchor:[number,number]}>) => {
+            const {id,pos,anchor} = action.payload;
             if(id !== "-1") {
                 state.data[id].pos = pos;
+                state.data[id].anchor = anchor; 
             }
         },
-        editLabel: (state, action: PayloadAction<{id:number, value:string}>) => {
-            if( action.payload.id >= 0){
-                const key = `${action.payload.id}`
-                state.data[key].label = action.payload.value;
+        editLabel: (state, action: PayloadAction<{id:string, value:string}>) => {
+            const {id,value} = action.payload;
+            if(id !== "-1"){
+                state.data[id].label = value;
             }
         },
-
-        delete3DLabel:(state) => {
-            Object.keys(state.data).forEach(key => {
-                if( state.data[key].state.checked === true && state.data[key].pid !== "-1"){
-                    delete state.data[key];
-                    Object.keys(state.data).forEach(key1 => {
-                        state.data[key1].children = state.data[key1].children.filter(item => item !== key)
-                    });
-                }    
-            });
-            Object.keys(state.data).forEach(key => {
-                label3DSlice.caseReducers.checkNode(state,{payload:{toCheck:false,nodeId: key}, type: "label3D/deleteNode/reverseCheckValues"});
+        deleteLabel: (state, action: PayloadAction<{keys:string[]}>) => {
+            let keys = action.payload.keys;
+            keys.forEach(k => {
+                let pid = state.data[k].pid
+                delete state.data[k];
+                if(pid)
+                {
+                    let index = state.data[pid].children.findIndex((e) => e === k);
+                    if(index > -1){
+                        state.data[pid].children.splice(index,1);
+                    }
+                }
             })
-            label3DSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/deleteNode"})
-              
-        },
+        }
     }
 })
 
@@ -155,7 +172,6 @@ export const {
     editLabel,
     setlabelMode,
     setLabelPos, 
-    delete3DLabel,
     createParentLabel
 } = label3DSlice.actions;
 
@@ -173,8 +189,8 @@ export const selectedLength = (state:RootState) => {
      return (array.length);
 }
 export const selectLabelMode = (state:RootState):LabelMode => state.label3D.labels3DSettings.mode;
-export const selectedLabel3D = (state: RootState) => {
-    let node;
+export const selectedLabel3D = (state: RootState):Label3D | null=> {
+    let node:Label3D | null = null;
     const length = selectedLength(state);
 
     if(length === 1){

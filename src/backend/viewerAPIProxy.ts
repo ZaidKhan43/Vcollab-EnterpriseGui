@@ -118,6 +118,9 @@ export function probe(pointerData:{xyFromTop:number[], width:number,height:numbe
 export function add3DLabel(uid:string,hitPoint:number[],activeViewerID:string) {
     viewerMgr.add3DLabel(uid,hitPoint,activeViewerID);
 }
+export function delete3DLabel(uid:string,activeViewerID:string):boolean{
+    return viewerMgr.delete3DLabel(uid,activeViewerID);
+}
 export function get3DLabelCanvasPos(uid:string,activeViewerID:string):number[] | null {
     return viewerMgr.get3DLabelCanvasPos(uid,activeViewerID);
 }
