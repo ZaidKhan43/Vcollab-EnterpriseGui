@@ -30,7 +30,43 @@ import outsideBar from '../../assets/images/outside.svg';
 import acrossBar from '../../assets/images/across.svg';
 
 
+// Legend Setting Type
 
+export enum LegendType{
+    AUTO,
+    DISCRETE,
+    CONTINUOUS
+}
+export enum LegendDirection{
+    AUTO,
+    VERTICAL,
+    HORIZONTAL
+}
+export enum LegendTicsType{
+    INSIDE,
+    OUTSIDE,
+    NO_TICS,
+    RUNNING_ACROSS
+}
+export enum LegendTitlePlacement{
+    AUTO,
+    TOP,
+    BOTTOM,
+    TOP_LEFT,
+    TOP_MIDDLE,
+    TOP_RIGHT,
+    BOTTOM_LEFT,
+    BOTTOM_MIDDLE,
+    BOTTOM_RIGHT,
+}
+export enum LegendValuePlacement{
+    AUTO,
+    LEFT,
+    RIGHT,
+    TOP,
+    BOTTOM,
+    ALTERNATING
+}
 
 
 
@@ -100,10 +136,44 @@ export interface ColorPalette extends TreeNode {
 
 }
 
-type LegendSettings = {
+type paletteType = {
     id: string,
     name: string,
     image: string,
+    type:LegendType,
+
+}[];
+
+type paletteDirection = {
+    id: string,
+    name: string,
+    image: string,
+    direction:LegendDirection,
+
+}[];
+
+type tickType = {
+    id: string,
+    name: string,
+    image: string,
+    ticktype:LegendTicsType,
+
+}[];
+
+type titlePlacement = {
+    id: string,
+    name: string,
+    image: string,
+    position:LegendTitlePlacement,
+
+}[];
+
+type valuePlacement = {
+    id: string,
+    name: string,
+    image: string,
+    position:LegendValuePlacement,
+
 }[];
 
 
@@ -129,11 +199,11 @@ interface InitialState {
     appliedColorMapId : string,
     selectedColorPaletteId : string,
 
-    paletteType : LegendSettings,
-    direction : LegendSettings,
-    ticPosition : LegendSettings,
-    titlePlacement : LegendSettings,
-    valuePlacement : LegendSettings,
+    paletteType : paletteType,
+    direction : paletteDirection,
+    ticPosition : tickType,
+    titlePlacement : titlePlacement,
+    valuePlacement : valuePlacement,
 
 }
 
@@ -275,41 +345,41 @@ const initialState : InitialState = {
     selectedColorPaletteId: "-1",
 
     paletteType : [
-        { id:"0", name: "Auto", image: autoBar },
-        { id:"1", name: "Continious", image: colorBar },
-        { id:"2", name: "Discrete", image: discrete },
+        { id:"0", name: "Auto", image: autoBar ,type:LegendType.AUTO },
+        { id:"1", name: "Continious", image: colorBar ,type:LegendType.CONTINUOUS},
+        { id:"2", name: "Discrete", image: discrete,type:LegendType.DISCRETE },
     ],
 
     direction : [
-        { id:"0", name: "Vertical", image: vertical },
-        { id:"1", name: "Horizontal", image: horizontal },
-        { id:"2", name: "Auto", image: autoBar },
+        { id:"0", name: "Vertical", image: vertical ,direction:LegendDirection.VERTICAL },
+        { id:"1", name: "Horizontal", image: horizontal ,direction:LegendDirection.HORIZONTAL},
+        { id:"2", name: "Auto", image: autoBar ,direction:LegendDirection.AUTO },
     ],
 
     ticPosition : [
-        { id:"0", name: "No tics", image: noticksBar },
-        { id:"1", name: "Inside", image: insideBar },
-        { id:"2", name: "Outside", image: outsideBar },
-        { id:"3", name: "Running across", image: acrossBar },
+        { id:"0", name: "No tics", image: noticksBar ,ticktype:LegendTicsType.NO_TICS},
+        { id:"1", name: "Inside", image: insideBar ,ticktype:LegendTicsType.INSIDE},
+        { id:"2", name: "Outside", image: outsideBar , ticktype:LegendTicsType.OUTSIDE },
+        { id:"3", name: "Running across", image: acrossBar ,ticktype:LegendTicsType.RUNNING_ACROSS },
     ],
 
     titlePlacement : [
-        { id:"0", name: "Top", image:top },
-        { id:"1", name: "Bottom", image:bottom},
-        { id:"2", name: "Top Left", image: topleft },
-        { id:"3", name: "Top Middle", image: topmiddle },
-        { id:"4", name: "Top Right", image: topright },
-        { id:"5", name: "Bottom Left", image:bottomleft },
-        { id:"6", name: "Bottom Middle", image:bottommiddle },
-        { id:"7", name: "Bottom Right", image:bottomright },
+        { id:"0", name: "Top", image:top ,position:LegendTitlePlacement.TOP},
+        { id:"1", name: "Bottom", image:bottom ,position:LegendTitlePlacement.BOTTOM},
+        { id:"2", name: "Top Left", image: topleft ,position:LegendTitlePlacement.TOP_LEFT},
+        { id:"3", name: "Top Middle", image: topmiddle ,position:LegendTitlePlacement.TOP_MIDDLE},
+        { id:"4", name: "Top Right", image: topright ,position:LegendTitlePlacement.TOP_RIGHT },
+        { id:"5", name: "Bottom Left", image:bottomleft ,position:LegendTitlePlacement.BOTTOM_LEFT },
+        { id:"6", name: "Bottom Middle", image:bottommiddle ,position:LegendTitlePlacement.BOTTOM_MIDDLE },
+        { id:"7", name: "Bottom Right", image:bottomright , position:LegendTitlePlacement.BOTTOM_RIGHT },
     ],
     
     valuePlacement : [
-        { id:"0", name: "Left", image: leftplace },
-        { id:"1", name: "Right", image: rightplace },
-        { id:"2", name: "Top", image: topplace },
-        { id:"3", name: "Bottom", image: bottomplace },
-        { id:"4", name: "Alternating", image: alterplace },
+        { id:"0", name: "Left", image: leftplace ,position:LegendValuePlacement.LEFT },
+        { id:"1", name: "Right", image: rightplace ,position:LegendValuePlacement.RIGHT},
+        { id:"2", name: "Top", image: topplace,position:LegendValuePlacement.TOP },
+        { id:"3", name: "Bottom", image: bottomplace ,position:LegendValuePlacement.BOTTOM },
+        { id:"4", name: "Alternating", image: alterplace ,position:LegendValuePlacement.ALTERNATING},
     ],  
 }
 
@@ -437,6 +507,7 @@ export const colormapSlice = createSlice({
                 state.selectedColorMapId = "-1";
             else 
             state.selectedColorMapId = action.payload;
+
         }, 
 
         deleteColorMap : (state, action : PayloadAction<string>) => {
@@ -581,6 +652,7 @@ export const colormapSlice = createSlice({
         },
 
         setLegendSettings : (state, action : PayloadAction<{colorMapId :string, newPaletteType :string, newDirection: string, newTicPosition: string, newTitlePlacement: string, newValuePlacement: string, newGap: number}>) => {
+
             state.colormapTree.data[action.payload.colorMapId].paletteType = action.payload.newPaletteType;
             state.colormapTree.data[action.payload.colorMapId].direction = action.payload.newDirection;
             state.colormapTree.data[action.payload.colorMapId].ticPosition = action.payload.newTicPosition;
@@ -624,10 +696,12 @@ export const selectColorPaletteData = (state:RootState) => state.colormap.colorP
 export const selectColorPaletteRootIds = (state:RootState) => state.colormap.colorPaletteTree.rootIds;
 
 export const paletteTypeDataList = (state: RootState) => state.colormap.paletteType;
-export const  directionDataList = (state: RootState) => state.colormap.direction;
+export const directionDataList = (state: RootState) => state.colormap.direction;
 export const ticPositionDataList = (state: RootState) => state.colormap.ticPosition;
 export const titlePlacementDataList = (state: RootState) => state.colormap.titlePlacement;
 export const valuePlacementDataList = (state: RootState) => state.colormap.valuePlacement;
+
+export const selectedColormapID =(state:RootState) => state.colormap.selectedColorMapId;
 
 // export const selectVariableData = (state: RootState) => state.colormap.variableTree.data;
 // export const selectVariableRootIds = (state : RootState) => state.colormap.variableTree.rootIds;

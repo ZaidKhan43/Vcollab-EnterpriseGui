@@ -58,8 +58,8 @@ export const init = createAsyncThunk(
         if(treeRootIds.length === 0) {
             dispatch(createParentLabel({id:Label3DType.DISTANCE ,name:"Point to Point"}));
             dispatch(createParentLabel({id:Label3DType.ARC, name:"3 Point Arc Length"}));
-            dispatch(createParentLabel({id:Label3DType.EDGE ,name:"Point to Edge"}));
-            dispatch(createParentLabel({id:Label3DType.FACE, name:"Point to Face"}));
+            //dispatch(createParentLabel({id:Label3DType.EDGE ,name:"Point to Edge"}));
+            //dispatch(createParentLabel({id:Label3DType.FACE, name:"Point to Face"}));
           }
     }
 )
@@ -159,6 +159,9 @@ export const measurementsSlice = createSlice({
                     let index = state.data[pid].children.findIndex((e) => e === k);
                     if(index > -1){
                         state.data[pid].children.splice(index,1);
+                        if(state.data[pid].children.length === 0){
+                            state.data[pid].state.checked = false;
+                        }
                     }
                 }
             })

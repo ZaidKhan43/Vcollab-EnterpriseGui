@@ -102,7 +102,7 @@ export default function Labels3D(){
   }
 
   const onHandleDeleteButton = () => {
-    dispatch(delete3DLabel());
+    dispatch(delete3DLabel({}));
   }
 
   

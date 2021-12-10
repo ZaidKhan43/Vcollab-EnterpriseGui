@@ -17,6 +17,8 @@ function Label2DWindowLayer(props:Props) {
                 return (
                 <CustomWindow uid={windowPrefixId+note.id} 
                     parentRef={props.parentRef} 
+                    resize 
+                    autoPositionOnResize
                     >
                 <LabelMsg key={note.id} msg={note.label}/>
                 </CustomWindow>

@@ -1,4 +1,6 @@
 import MuiIconButton from '@material-ui/core/IconButton';
+import MuiToggleButton from '@material-ui/lab/ToggleButton';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
 import {goBack,push} from 'connected-react-router/immutable';
 import {Routes} from "../../../../routes"
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
@@ -28,9 +30,10 @@ import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilC
 
 import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
 import MuiEditIcon from '@material-ui/icons/EditOutlined';
+import PanToolIcon from '@material-ui/icons/PanTool';
 
 import {createNote, editSelect, editShow, delete2DNote, windowPrefixId} from '../../../../store/sideBar/labelSlice/label2DSlice';
-import { setEditMode, setHiddenState } from '../../../../store/windowMgrSlice';
+import { setEditMode, setHiddenState, selectActiveLayer, setActiveLayer, Layers } from '../../../../store/windowMgrSlice';
 
 export default function Notes2D(){
     
@@ -39,6 +42,8 @@ export default function Notes2D(){
     
     const noteList= useAppSelector((state) =>  state.label2D.note2DList);
     const listLimit = useAppSelector((state) => state.label2D.note2DSettings.limit)
+    const activeLayer = useAppSelector(selectActiveLayer);
+    const isPanBtnPressed = activeLayer === Layers.LABEL2D;
         
     const selectedNotes = noteList.filter(item => item.selected === true)
     
@@ -46,17 +51,29 @@ export default function Notes2D(){
         dispatch(goBack());
     }
 
+    const handlePanChange = () => {
+      noteList.forEach(e => {
+          dispatch(setEditMode({
+            uid: windowPrefixId+e.id,
+            isEdit: !isPanBtnPressed
+          }))
+      })
+      dispatch(setActiveLayer(!isPanBtnPressed ? Layers.LABEL2D : Layers.VIEWER));
+  }
+
     const getHeaderLeftIcon= () => {
         return (
             <MuiIconButton  onClick={() => onClickBackIcon()}><BackButton/></MuiIconButton> 
         );
     }
 
+
+
   const getHeaderRightIcon = () => {
     return (
-        <MuiIconButton disabled={noteList.length >= listLimit} onClick={onHandleAdd}>
-                   <AddIcon/>
-                 </MuiIconButton> 
+          <MuiIconButton disabled={noteList.length >= listLimit} onClick={onHandleAdd}>
+              <AddIcon/>
+          </MuiIconButton>
     )
   }
 
@@ -66,7 +83,6 @@ export default function Notes2D(){
 
     const onHandledSelect = (id : number, value : boolean) => {
       dispatch(editSelect({id : id,value :!value}))
-      dispatch(setEditMode({uid: windowPrefixId + id,isEdit:!value}))
     }
 
     const onHandleShow = (id: number , value : boolean) => {
@@ -137,7 +153,13 @@ export default function Notes2D(){
   return (
           <SideBarContainer
             headerLeftIcon = { getHeaderLeftIcon() }
-            headerContent={ <Title text={"2D Notes" } group="Labels"/> }
+            headerContent={ 
+            <div style={{display:'flex'}}>
+            <Title text={"2D Notes" } group="Labels"/> <MuiToggleButton selected={isPanBtnPressed} onChange={handlePanChange}>
+            <PanToolIcon/>
+            </MuiToggleButton>
+            </div>
+            }
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }
             footer = { getFooter() }

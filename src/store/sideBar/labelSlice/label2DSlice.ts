@@ -33,7 +33,7 @@ const initialState : InitialState = {
             defaultParameters : {
                 id: 0,
                 name: "Note",
-                show:   false,
+                show:   true,
                 selected: false,
                 label: "Lorem ipsum dolor sit amet",
                 mode: LabelMode.VIEW

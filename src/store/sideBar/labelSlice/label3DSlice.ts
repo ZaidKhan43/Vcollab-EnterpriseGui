@@ -56,7 +56,7 @@ export const init = createAsyncThunk(
         const treeRootIds = rootState.label3D.rootIds;
         if(treeRootIds.length === 0) {
             dispatch(createParentLabel({id:Label3DType.PROBE,name:"point"}));
-            dispatch(createParentLabel({id:Label3DType.FACE,name:"Face"}));
+            //dispatch(createParentLabel({id:Label3DType.FACE,name:"Face"}));
           }
     }
 )
@@ -158,6 +158,9 @@ export const label3DSlice = createSlice({
                     let index = state.data[pid].children.findIndex((e) => e === k);
                     if(index > -1){
                         state.data[pid].children.splice(index,1);
+                        if(state.data[pid].children.length === 0){
+                            state.data[pid].state.checked = false;
+                        }
                     }
                 }
             })

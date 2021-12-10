@@ -106,7 +106,7 @@ export default function Measurements(){
   }
 
   const onHandleDeleteButton = () => {
-    dispatch(delete3DLabel());
+    dispatch(delete3DLabel({}));
   }
 
   const getBody = () => {
@@ -191,6 +191,5 @@ export default function Measurements(){
             body ={ getBody() }
             footer = { getFooter() }
           />
-
   )
 }
