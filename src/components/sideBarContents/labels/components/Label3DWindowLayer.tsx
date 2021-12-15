@@ -4,7 +4,6 @@ import { selectActiveViewerID } from '../../../../store/appSlice';
 import {  select3DLabelData, setLabelPos, toggleVisibility, windowPrefixId  } from '../../../../store/sideBar/labelSlice/label3DSlice';
 import { selectCameraMatrix } from '../../../../store/sideBar/sceneSlice';
 import { useAppDispatch, useAppSelector } from '../../../../store/storeHooks';
-import { setEditMode, setWindowPos, setWindowSize } from '../../../../store/windowMgrSlice';
 import {batch} from 'react-redux';
 import Label3D from '../components/Label3D';
 interface Props {
@@ -64,6 +63,7 @@ function Label3DWindowLayer(props:Props) {
         <>{
             [...Object.values(labelTree)].map(label3D => {
                 return label3D.pid !== "-1" ? <Label3D 
+                key = {label3D.id}
                 windowPrefixId={windowPrefixId}
                 label = {label3D}
                 setLabelPosReducer = {setLabelPos}

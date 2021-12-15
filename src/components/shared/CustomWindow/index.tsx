@@ -90,7 +90,7 @@ const TitleBar = React.forwardRef((props:TitleProps, ref) => {
 });
 
 
-type CustomWindowProps = {
+export type CustomWindowProps = {
     uid: string,
     xy?:[number,number],
     title?: string,
@@ -101,7 +101,9 @@ type CustomWindowProps = {
     autoPositionOnResize?:boolean,
     onClickOutside?: (uid:string) => void,
     onDrag?:DraggableEventHandler,
+    onDragStop?:(x:number,y:number) => void,
     onResize?:RndResizeCallback,
+    onResizeStop?:(x:number,y:number) => void,
     parentRef: React.MutableRefObject<null | HTMLDivElement>,
     children: any | null
 } 
@@ -244,14 +246,18 @@ const CustomWindow = forwardRef((props:CustomWindowProps, ref:any) => {
                         break;
                 }
                 dispatch(setWindowAnchor({uid,anchor}));
+                if(props.onDragStop)
+                props.onDragStop(d.x,d.y);
                 dispatch(setWindowPos({uid,pos:[d.x,d.y]}))
              }}
             onResizeStop={(e, direction, ref, delta, position) => {
                 dispatch(setWindowSize({uid,size:[ref.offsetWidth,ref.offsetHeight - titleBarHeight]}))
+                if(props.onResizeStop)
+                props.onResizeStop(position.x,position.y);
                 dispatch(setWindowPos({uid,pos:[position.x,position.y]}))
             }}
             >
-            <div ref={ref} className={window?.isEditMode?classes.grabHandle:''} onClick={handleClick} style={{width:'100%',height:'100%', cursor: window?.isEditMode ? 'move': 'pointer' }}>
+            <div ref={ref} id={uid} className={window?.isEditMode?classes.grabHandle:''} onClick={handleClick} style={{width:'100%',height:'100%', cursor: window?.isEditMode ? 'move': 'pointer' }}>
              
              {
                props.children

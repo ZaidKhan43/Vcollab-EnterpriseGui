@@ -54,7 +54,7 @@ function RsTree(props:TreeProps) {
     const scrollPos = useRef<{x:number,y:number} | null>(null)
 
     useEffect(() => {
-      console.log("tree mounted")
+      // console.log("tree mounted")
       return () => {
         if(lastSelected.current !== null && props.setNodeStateReducer) {
           let lastSelectedState = {...lastSelected.current.state};
@@ -65,7 +65,7 @@ function RsTree(props:TreeProps) {
     },[])
 
     useEffect(() => {
-      console.log("tree data changed")
+      // console.log("tree data changed")
     },[props.data])
 
     const handleExpand = (expanded:boolean, rowData: ITreeNode) => {

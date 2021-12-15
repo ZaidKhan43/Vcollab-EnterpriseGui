@@ -21,7 +21,7 @@ function LabelAnchor(props:LabelAnchorProps, ref:any ) {
     const pos = props.pos;
     const classes = useStyles({size:10});
     return (
-        <div  ref = {ref} style={{ position:'absolute', top:`${pos[1]}px`, left:`${pos[0]}px`, width:0, height:0, backgroundColor:'violet'}}>
+        <div ref = {ref} style={{ position:'absolute', top:`${pos[1]}px`, left:`${pos[0]}px`, width:0, height:0, backgroundColor:'violet'}}>
             {/* <AdjustIcon classes={{root: classes.root}} /> */}
             <DotIcon classes={{root:classes.dot}}/>
         </div>
