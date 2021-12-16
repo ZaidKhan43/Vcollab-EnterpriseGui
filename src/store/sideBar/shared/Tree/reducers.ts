@@ -36,10 +36,13 @@ export const toggleVisibilityReducer = (state:ITreeState, action : PayloadAction
     if(node)
     RtoggleVisibility(toShow,node,state);
 }
-export const setCheckedVisibilityReducer = (state:ITreeState, action:PayloadAction<{toShow:boolean,pids:string[],leafIds:string[]}>) => {
-    const {toShow,pids,leafIds} = action.payload;
+export const setCheckedVisibilityReducer = (state:ITreeState, action:PayloadAction<{toShow:boolean,leafIds:string[]}>) => {
+    const {toShow,leafIds} = action.payload;
+    let pids = new Set<string>();
     leafIds.forEach((nodeId:string) => {
       let node = getNode(nodeId,state);
+      if(node?.pid) 
+      pids.add(node.pid);
       if(node && node.children.length === 0)
       {
         setVisibility(toShow,node,true,state);
@@ -53,6 +56,29 @@ export const setCheckedVisibilityReducer = (state:ITreeState, action:PayloadActi
         updateParent(firstChild,state);
       }
     })
+}
+export const invertCheckedVisibilityReducer = (state:ITreeState, action:PayloadAction<{leafIds:string[]}>) => {
+   const leafIds = action.payload.leafIds;
+   let visible:string[] = [];
+   let invisible:string[] = [];
+   leafIds.forEach(id => {
+     const node = getNode(id,state);
+     node?.state.visibility ? visible.push(id) : invisible.push(id);  
+   });
+   setCheckedVisibilityReducer(state,{
+     payload: {
+       toShow: false,
+       leafIds: visible
+     },
+     type: 'invertCheckedVisibilityReducer/setCheckedVisibilityReducer'
+   });
+   setCheckedVisibilityReducer(state,{
+    payload: {
+      toShow: true,
+      leafIds: invisible
+    },
+    type: 'invertCheckedVisibilityReducer/setCheckedVisibilityReducer'
+  });
 }
 export const selectNodeReducer = (state:ITreeState, action:PayloadAction<{leafOnly:boolean,nodeId:string}>) => {
   const {leafOnly,nodeId} = action.payload;

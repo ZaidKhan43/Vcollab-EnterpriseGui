@@ -2,8 +2,12 @@ import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import {delete3DLabel as delete3DLabelApi, get3DLabelCanvasPos, probe} from '../../../backend/viewerAPIProxy';
 import type { RootState } from '../../index';
 import {LabelMode, Label3D, LabelSettings, setLabelModeReducer, Label3DType} from './shared'
-import {ITreeState} from "../shared/ProductExplorer/types";
-import {saveTreeReducer, checkNodeReducer, highlightNodeReducer,deleteNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer} from "../shared/ProductExplorer/reducers";
+import {ITreeState} from "../shared/Tree/types";
+import {   
+    selectCheckedLeafNodes as selectCheckedLeafNodesTree, 
+    selectUnCheckedLeafNodes as selectUnCheckedLeafNodesTree
+} from 'store/sideBar/shared/Tree/selectors';
+import {saveTreeReducer, checkNodeReducer, highlightNodeReducer,deleteNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer, invertCheckedVisibilityReducer} from "../shared/Tree/reducers";
 import { batch } from 'react-redux';
 
 
@@ -99,6 +103,7 @@ export const label3DSlice = createSlice({
         expandNode: expandNodeReducer,
         toggleVisibility: toggleVisibilityReducer,
         setCheckedVisibility: setCheckedVisibilityReducer,
+        invertCheckedVisibility: invertCheckedVisibilityReducer,
         setlabelMode: (state,action) => setLabelModeReducer(state.labels3DSettings,action),
         createParentLabel : (state, action : PayloadAction<{id:string,name: string}>) => {
             const {id,name} = action.payload;
@@ -170,7 +175,16 @@ export const label3DSlice = createSlice({
 
 export default label3DSlice.reducer;
 export const {
-    saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility , 
+    //reuse from tree 
+    saveTree , 
+    checkNode, 
+    highlightNode, 
+    invertNode, 
+    expandNode, 
+    toggleVisibility, 
+    setCheckedVisibility,
+    invertCheckedVisibility,
+    //current 
     createLabel,
     editLabel,
     setlabelMode,
@@ -204,3 +218,5 @@ export const selectedLabel3D = (state: RootState):Label3D | null=> {
     }
     return(node);
 }
+export const selectCheckedLeafNodes = (state:RootState) =>  selectCheckedLeafNodesTree(state.label3D)
+export const selectUnCheckedLeafNodes = (state:RootState) =>  selectUnCheckedLeafNodesTree(state.label3D)

@@ -1,16 +1,16 @@
 import React ,{useState} from 'react'
-import EyeIcon from '../../../icons/eyeIcon';
-import EyeSlashIcon from '../../../icons/eyeSlashIcon';
-import EyeInvert from '../../../icons/eyeInvert';
-import {setCheckedVisibilityAsync, invertVisibilityAsync} from "../../../../store/sideBar/productTreeSlice"
-import { useAppDispatch } from '../../../../store/storeHooks';
-import OptionPopper from '../../../shared/Footer/OptionPopper';
+import EyeIcon from '../../../../../../icons/eyeIcon';
+import EyeSlashIcon from '../../../../../../icons/eyeSlashIcon';
+import EyeInvert from '../../../../../../icons/eyeInvert';
+import OptionPopper from '../../../../../../shared/Footer/OptionPopper';
 
 type VisibilityOptionsProps = {
     disabled: boolean,
+    showClick: () => void,
+    hideClick: () => void,
+    invertClick: () => void
 }
 function VisibilityOptions(props:VisibilityOptionsProps) {
-    const dispatch = useAppDispatch();
     return (
         <OptionPopper 
          disabled={props.disabled}
@@ -24,17 +24,17 @@ function VisibilityOptions(props:VisibilityOptionsProps) {
                 {
                     id: 'Show',
                     icon: <EyeIcon/>,
-                    onClick: () => dispatch(setCheckedVisibilityAsync({toShow:true}))
+                    onClick: props.showClick
                 },
                 {
                     id: 'Hide',
                     icon: <EyeSlashIcon/>,
-                    onClick: () => dispatch(setCheckedVisibilityAsync({toShow:false}))
+                    onClick: props.hideClick
                 },
                 {
                     id: 'Invert',
                     icon: <EyeInvert viewBox = '0 0 19 20'></EyeInvert>,
-                    onClick: () => dispatch(invertVisibilityAsync())
+                    onClick: props.invertClick
                 }
             ]
         } />

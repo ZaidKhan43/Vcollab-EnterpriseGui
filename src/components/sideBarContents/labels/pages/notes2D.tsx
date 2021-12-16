@@ -27,6 +27,7 @@ import MuiVisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
 import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
+import VisibilityOptions from '../components/shared/Footer/Options/VisibilityOption';
 
 import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
 import MuiEditIcon from '@material-ui/icons/EditOutlined';
@@ -40,8 +41,8 @@ export default function Notes2D(){
     const classes = styles();
     const dispatch = useAppDispatch(); 
     
-    const noteList= useAppSelector((state) =>  state.label2D.note2DList);
-    const listLimit = useAppSelector((state) => state.label2D.note2DSettings.limit)
+    const noteList= useAppSelector((state) =>  state.label2D.list);
+    const listLimit = useAppSelector((state) => state.label2D.settings.limit)
     const activeLayer = useAppSelector(selectActiveLayer);
     const isPanBtnPressed = activeLayer === Layers.LABEL2D;
         
@@ -137,6 +138,15 @@ export default function Notes2D(){
     return(
         <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
             <OptionContainer>
+            <Option label="Visibility" 
+            icon={
+              <VisibilityOptions 
+              disabled={selectedNotes.length < 1}
+              showClick={() => {}}
+              hideClick={() => {}}
+              invertClick={() => {}}
+              />
+            }/>
             <Option label="Edit" icon={<MuiIconButton disabled={selectedNotes.length ===  1 ? false : true} onClick={onHandleEdit}>
                 <MuiEditIcon/>
               </MuiIconButton>} 

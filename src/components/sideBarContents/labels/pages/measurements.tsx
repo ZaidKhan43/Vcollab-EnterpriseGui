@@ -12,16 +12,15 @@ import BackButton from '../../../icons/back';
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree from '../../../shared/RsTreeTable';
-import {windowPrefixId, invertNode, expandNode, selectMeasurementsData ,selectRootIds, setCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, selectLabelMode, setLabelMode} from '../../../../store/sideBar/labelSlice/measurementsSlice'
+import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/measurementsSlice';
+import {windowPrefixId, invertNode, expandNode, selectMeasurementsData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, selectLabelMode, setLabelMode} from '../../../../store/sideBar/labelSlice/measurementsSlice'
 import { setEditMode } from '../../../../store/windowMgrSlice';
-// import EyeIcon from '@material-ui/icons//Visibility';
-// import EyeSlashIcon from '@material-ui/icons/VisibilityOff';
-// import IconButton  from '@material-ui/core/IconButton';
 
 import AddIcon from "@material-ui/icons/Add";
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
 import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
+import VisibilityOptions from '../components/shared/Footer/Options/VisibilityOption';
 
 import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
 import MuiEditIcon from '@material-ui/icons/EditOutlined';
@@ -53,7 +52,9 @@ export default function Measurements(){
   
   const treeDataRedux = useAppSelector(selectMeasurementsData);
   const treeRootIds = useAppSelector(selectRootIds);
-  const selectedCount = useAppSelector(selectedLength)
+  const selectedCount = useAppSelector(selectedLength);
+  const checkedNodes = useAppSelector(selectCheckedLeafNodes);
+  console.log("cn",checkedNodes);
   const activeLayer = useAppSelector(selectActiveLayer);
   const isPanBtnPressed = activeLayer === Layers.LABEL3D;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
@@ -102,7 +103,7 @@ export default function Measurements(){
   const handleVisibility = (toShow:boolean,node:any) => {
     const leafIds = [node.id];
     const pids = [node.pid];
-    dispatch(setCheckedVisibility({toShow, pids, leafIds}))
+    dispatch(setCheckedVisibility({toShow, leafIds}))
   }
 
   const onHandleDeleteButton = () => {
@@ -170,6 +171,23 @@ export default function Measurements(){
     return(
         <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
           <OptionContainer>
+            <Option label="Visibility" 
+              icon={
+                <VisibilityOptions 
+                disabled={selectedCount < 1}
+                showClick={() => {dispatch(setCheckedVisibility({
+                  toShow: true,
+                  leafIds: checkedNodes.map(n => n.id)
+                }))}}
+                hideClick={() => {dispatch(setCheckedVisibility({
+                  toShow: false,
+                  leafIds: checkedNodes.map(n => n.id)
+                }))}}
+                invertClick={() => {dispatch(invertCheckedVisibility({
+                  leafIds: checkedNodes.map(n => n.id)
+                }))}}
+                />
+            }/>
             <Option label="Edit" icon={<MuiIconButton disabled={selectedCount === 1 ? false : true} onClick={() =>dispatch(push(Routes.LABELS_MEASUREMENTS_EDITS))}>
                 <MuiEditIcon/>
               </MuiIconButton>} 

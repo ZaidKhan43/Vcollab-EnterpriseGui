@@ -1,5 +1,5 @@
 import { PayloadAction } from "@reduxjs/toolkit";
-import {TreeNode} from "../shared/ProductExplorer/types";
+import {TreeNode} from "../shared/Tree/types";
 
 export enum LabelMode {
     EDIT,

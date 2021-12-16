@@ -1,10 +1,10 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 // import Labels3D from '../../components/sideBarContents/labels/pages/labels3D';
 import type { RootState } from '../index';
-import {TreeNode} from "./shared/ProductExplorer/types";
+import {TreeNode} from "./shared/Tree/types";
 
-import {ITreeState} from "./shared/ProductExplorer/types";
-import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer, addNodeReducer} from "./shared/ProductExplorer/reducers";
+import {ITreeState} from "./shared/Tree/types";
+import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer, addNodeReducer} from "./shared/Tree/reducers";
 
 import autoBar from "../../assets/images/autoBar.png";
 import topright from "../../assets/images/topright.png";

@@ -11,12 +11,13 @@ import BackButton from '../../../icons/back';
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree from '../../../shared/RsTreeTable';
-import {invertNode, expandNode, select3DLabelData ,selectRootIds, setCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel} from '../../../../store/sideBar/labelSlice/label3DSlice'
-
+import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/label3DSlice';
+import {invertNode, expandNode, select3DLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel} from '../../../../store/sideBar/labelSlice/label3DSlice'
 import AddIcon from "@material-ui/icons/Add";
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
 import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
+import VisibilityOptions from '../components/shared/Footer/Options/VisibilityOption';
 
 import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
 import MuiEditIcon from '@material-ui/icons/EditOutlined';
@@ -48,6 +49,7 @@ export default function Labels3D(){
   
   const treeDataRedux = useAppSelector(select3DLabelData);
   const treeRootIds = useAppSelector(selectRootIds);
+  const checkedNodes = useAppSelector(selectCheckedLeafNodes);
   const selectedCount = useAppSelector(selectedLength);
   const activeLayer = useAppSelector(selectActiveLayer);
   const isPanBtnPressed = activeLayer === Layers.LABEL3D;
@@ -98,7 +100,7 @@ export default function Labels3D(){
     const leafIds = [node.id];
     const pids = [node.pid];
     console.log(leafIds, pids)
-    dispatch(setCheckedVisibility({toShow, pids, leafIds}))
+    dispatch(setCheckedVisibility({toShow, leafIds}))
   }
 
   const onHandleDeleteButton = () => {
@@ -169,6 +171,23 @@ export default function Labels3D(){
     return(
         <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
           <OptionContainer>
+          <Option label="Visibility" 
+            icon={
+              <VisibilityOptions 
+              disabled={selectedCount < 1}
+              showClick={() => {dispatch(setCheckedVisibility({
+                toShow: true,
+                leafIds: checkedNodes.map(n => n.id)
+              }))}}
+              hideClick={() => {dispatch(setCheckedVisibility({
+                toShow: false,
+                leafIds: checkedNodes.map(n => n.id)
+              }))}}
+              invertClick={() => {dispatch(invertCheckedVisibility({
+                leafIds: checkedNodes.map(n => n.id)
+              }))}}
+              />
+            }/>
             <Option label="Edit" icon={<MuiIconButton disabled={selectedCount === 1 ? false : true} onClick={() =>dispatch(push(Routes.LABELS_3D_EDITS))}>
                 <MuiEditIcon/>
               </MuiIconButton>} 

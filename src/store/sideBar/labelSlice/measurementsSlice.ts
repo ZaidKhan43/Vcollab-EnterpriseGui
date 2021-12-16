@@ -1,8 +1,12 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import type { RootState } from '../../index';
 import {get3DLabelCanvasPos,delete3DLabel as delete3DLabelApi} from '../../../backend/viewerAPIProxy';
-import {ITreeState} from "../shared/ProductExplorer/types";
-import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer} from "../shared/ProductExplorer/reducers";
+import {ITreeState} from "../shared/Tree/types";
+import {  
+    selectCheckedLeafNodes as selectCheckedLeafNodesTree, 
+    selectUnCheckedLeafNodes as selectUnCheckedLeafNodesTree 
+} from 'store/sideBar/shared/Tree/selectors';
+import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer, invertCheckedVisibilityReducer} from "../shared/Tree/reducers";
 import {LabelMode, Label3D, LabelSettings, setLabelModeReducer, Label3DType} from './shared';
 
 export const windowPrefixId = "Measurement";
@@ -108,6 +112,7 @@ export const measurementsSlice = createSlice({
         expandNode: expandNodeReducer,
         toggleVisibility: toggleVisibilityReducer,
         setCheckedVisibility: setCheckedVisibilityReducer,
+        invertCheckedVisibility: invertCheckedVisibilityReducer,
         setLabelMode: (state, action) => {setLabelModeReducer(state.measurementsSettings,action)},
         createParentLabel : (state, action: PayloadAction<{id:string,name:string}>) => {
             const id =action.payload.id;
@@ -171,15 +176,17 @@ export const measurementsSlice = createSlice({
 
 export default measurementsSlice.reducer;
 export const {
+    //reuse from tree
     saveTree , 
     checkNode , 
     highlightNode , 
     invertNode, 
     expandNode, 
-    toggleVisibility, 
+    toggleVisibility,
+    setCheckedVisibility , 
+    invertCheckedVisibility, 
     setLabelPos, 
     setLabelMode,
-    setCheckedVisibility , 
     createLabel,
     editLabel, 
     createParentLabel} = measurementsSlice.actions;
@@ -209,3 +216,5 @@ export const selectedMeasurement = (state: RootState):Label3D | null => {
     }
     return(node);
 }
+export const selectCheckedLeafNodes = (state:RootState) =>  selectCheckedLeafNodesTree(state.measurements)
+export const selectUnCheckedLeafNodes = (state:RootState) =>  selectUnCheckedLeafNodesTree(state.measurements)
