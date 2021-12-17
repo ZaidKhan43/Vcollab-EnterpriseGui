@@ -1,6 +1,8 @@
 import { PaletteColor } from "../palette/types/palette"
 import { LegendType, LegendDirection, LegendTicsType, LegendValuePlacement, LegendTitlePlacement  } from '../../../store/sideBar/colormapSlice';
 
+import {setWindowSize} from '../../../store/windowMgrSlice';
+
 type PaletteElementOptions = {
     x: number;
     y: number;
@@ -18,6 +20,11 @@ type PaletteElementOptions = {
     valuePlacement: LegendValuePlacement;
     titlePlacement: LegendTitlePlacement;
     ticks: LegendTicsType;
+    gap:number;
+    valuePlacementRight:number;  
+    valuePlacementLeft:number;   
+    valuePlacementTop:number;   
+    valuePlaceentBottom:number;  
 }
 enum ValueType {
     NA = 'na',
@@ -40,6 +47,9 @@ class PaletteElement {
     private valuePlacement: LegendValuePlacement;
     private titlePlacement: LegendTitlePlacement;
     private ticks: LegendTicsType;
+    private gap:number;
+
+
 
     constructor(options: PaletteElementOptions) {
         this.x = options.x;
@@ -58,241 +68,947 @@ class PaletteElement {
         this.valuePlacement = options.valuePlacement;
         this.titlePlacement = options.titlePlacement;
         this.ticks = options.ticks;
+        this.gap = options.gap;
     }
 
-    draw(ctx: CanvasRenderingContext2D, paletteCount: number, colorCount: number) {
+    draw(ctx: CanvasRenderingContext2D, paletteCount: number, colorCountLength: number , paletteElementGap:number) {
 
-        this.createTickPosition(ctx, colorCount, paletteCount);
+      
+         this.setGap(paletteElementGap);
+         this.createPaletteFillColor(ctx , paletteElementGap);
+         this.createTicPosition(ctx , colorCountLength,paletteCount);
+         this.setValuePosition(ctx,paletteElementGap,paletteCount);
 
 
-        if (this.paletteType === LegendType.DISCRETE) {
+    }
 
-            this.createDiscreteLegend(ctx, paletteCount);
+    setGap(paletteElementGap:number) {
+
+        if(this.paletteDirection === LegendDirection.VERTICAL) {
+
+            this.height = this.height - paletteElementGap
 
         }
 
-        else if (this.paletteType === LegendType.CONTINUOUS) {
+        if(this.paletteDirection === LegendDirection.HORIZONTAL) {
 
-            this.createContinuousLegend(ctx, paletteCount);
+           this.width = this.width -  paletteElementGap
 
         }
+
+
+    }
+
+    createPaletteFillColor(ctx: CanvasRenderingContext2D ,paletteElementGap:number) {
 
         
+        if(this.paletteType === LegendType.DISCRETE) {
 
-    }
-
-    createDiscreteLegend(ctx: CanvasRenderingContext2D, paletteCount: number) {
-
-        paletteCount = paletteCount + 1;
-
-        ctx.fillStyle = this.colorTop;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
-        ctx.fillStyle = this.textColor;
-        const text = this.valueType === ValueType.NA ? 'NA' : this.textCenter;
-
-    // value placement 
-
-        if (this.paletteDirection === LegendDirection.HORIZONTAL) {
-
-
-            if (this.valuePlacement === LegendValuePlacement.TOP) {
-
-                ctx.fillText(text, this.x + this.width / 2, this.y - 10);
-            }
-
-            if (this.valuePlacement === LegendValuePlacement.BOTTOM) {
-
-                ctx.fillText(text, this.x + this.width / 2, this.y + this.height + 10)
-            }
-
-            if (this.valuePlacement === LegendValuePlacement.ALTERNATING) {
-
-                if (paletteCount % 2 === 0) {
-
-                    ctx.fillText(text, this.x + this.width / 2, this.y + this.height + 10)
-
-                }
-                else {
-
-                    ctx.fillText(text, this.x + this.width / 2, this.y - 10)
-                }
-
-            }
-
+            ctx.fillStyle = this.colorTop;
+            ctx.fillRect(this.x,this.y,this.width,this.height);
 
         }
 
-        else if (this.paletteDirection === LegendDirection.VERTICAL) {
+        if(this.paletteType === LegendType.CONTINUOUS) {
 
-            if (this.valuePlacement === LegendValuePlacement.RIGHT) {
+            let grd:any ;
 
-                ctx.fillText(text, this.x + this.width + 30, this.y + this.height / 2);
+            if(this.paletteDirection === LegendDirection.VERTICAL) {
 
-            }
-
-            if (this.valuePlacement === LegendValuePlacement.LEFT) {
-
-                ctx.fillText(text, this.x - 30, this.y + this.height / 2);
-
+               grd = ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.height);
 
             }
 
-            if (this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+            if(this.paletteDirection === LegendDirection.HORIZONTAL) {
 
-                if (paletteCount % 2 === 0) {
-
-
-                    ctx.fillText(text, this.x - 30, this.y + this.height / 2);
-
-                }
-                else {
-
-                    ctx.fillText(text, this.x + this.width + 30, this.y + this.height / 2);
-                }
-
+              grd = ctx.createLinearGradient(this.x, this.y, this.x + this.width, this.y);
             }
 
-        }
-
-
-    }
-
-    createContinuousLegend(ctx: CanvasRenderingContext2D, paletteCount: number) {
-
-        paletteCount = paletteCount + 1;
-
-        const textTop = this.valueType === ValueType.NA ? 'NA' : this.textTop;
-        const textBtm = this.valueType === ValueType.NA ? 'NA' : this.textBottom;
-
-        if (this.paletteDirection === LegendDirection.HORIZONTAL) {
-
-            let grd = ctx.createLinearGradient(this.x, this.y, this.x + this.width, this.y);
             grd.addColorStop(0, this.colorTop);
             grd.addColorStop(1, this.colorBottom);
             ctx.fillStyle = grd;
             ctx.fillRect(this.x, this.y, this.width, this.height);
-            ctx.fillStyle = this.textColor;
+
+        }
+    }
+
+    createTicPosition(ctx: CanvasRenderingContext2D ,colorCountLength:number,paletteCount:number) {
+
+        if(this.paletteType === LegendType.DISCRETE) {
 
 
-            if (this.valuePlacement === LegendValuePlacement.TOP) {
+            if(this.paletteDirection === LegendDirection.VERTICAL) {
 
-                if (textTop !== ValueType.NA && textTop)
+            // Tic position based on value position 
+                if (this.ticks === LegendTicsType.NO_TICS) {
+        
 
-                    ctx.fillText(textTop, this.x, this.y - 8)
-
-                if (textBtm !== ValueType.NA && textBtm)
-
-                    ctx.fillText(textBtm, this.x + this.width, this.y - 8)
-
-            }
-
-            if (this.valuePlacement === LegendValuePlacement.BOTTOM) {
-
-
-                if (textTop !== ValueType.NA && textTop)
-
-                    ctx.fillText(textTop, this.x, this.y + this.height + 10);
-
-                if (textBtm !== ValueType.NA && textBtm)
-
-                    ctx.fillText(textBtm, this.x + this.width, this.y + this.height + 10);
-
-            }
-
-
-            if (this.valuePlacement === LegendValuePlacement.ALTERNATING) {
-
-
-                if (paletteCount === 1) {
-
-                    ctx.fillText(textTop, this.x, this.y - 10);
-                    ctx.fillText(textBtm, this.x + this.width, this.y + this.height + 10);
 
                 }
 
+                if(this.ticks === LegendTicsType.INSIDE) {
 
-                if (paletteCount % 2 === 0) {
+                      if(this.valuePlacement === LegendValuePlacement.RIGHT) {
 
-                    ctx.fillText(textBtm, this.x + this.width, this.y - 10);
+                        this.drawTic(ctx,this.x+this.width, this.y + this.height / 2,this.x + this.width - 10, this.y + this.height / 2);
+
+                      }
+
+                      if(this.valuePlacement === LegendValuePlacement.LEFT) { 
+
+                        this.drawTic(ctx,this.x,this.y + this.height / 2,this.x+10, this.y + this.height / 2);
+                      }
+
+                      if(this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+
+                        let count = paletteCount + 1;
+
+                           if (count % 2 === 0) {
+
+                            
+                            this.drawTic(ctx,this.x,this.y + this.height / 2,this.x+10, this.y + this.height / 2);
+
+                           }
+                           else {
+
+                            this.drawTic(ctx,this.x+this.width, this.y + this.height / 2,this.x + this.width - 10, this.y + this.height / 2);
+
+                           }
+
+
+                          
+
+                      }
+
 
                 }
-                else if (paletteCount !== 1) {
+
+                if(this.ticks === LegendTicsType.OUTSIDE) {
+
+                      if(this.valuePlacement === LegendValuePlacement.RIGHT) {
+
+                        this.drawTic(ctx,this.x+this.width, this.y + this.height / 2,this.x + this.width + 10, this.y + this.height / 2);
+
+                      }
+
+                      if(this.valuePlacement === LegendValuePlacement.LEFT) { 
+
+                        this.drawTic(ctx,this.x,this.y + this.height / 2,this.x-10, this.y + this.height / 2);
+                      }
+
+                      if(this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+
+                        let count = paletteCount + 1;
+
+                           if (count % 2 === 0) {
+
+                            
+                            this.drawTic(ctx,this.x,this.y + this.height / 2,this.x-10, this.y + this.height / 2);
+
+                           }
+                           else {
+
+                            this.drawTic(ctx,this.x+this.width, this.y + this.height / 2,this.x + this.width + 10, this.y + this.height / 2);
+
+                           }
 
 
-                    ctx.fillText(textBtm, this.x + this.width, this.y + this.height + 10);
+                          
 
+                      }
+
+
+                }
+
+                if(this.ticks === LegendTicsType.RUNNING_ACROSS) {
+
+                      if(this.valuePlacement === LegendValuePlacement.RIGHT) {
+
+                        this.drawTic(ctx,this.x, this.y + this.height / 2,this.x + this.width + 10, this.y + this.height / 2);
+
+                      }
+
+                      if(this.valuePlacement === LegendValuePlacement.LEFT) { 
+
+                        this.drawTic(ctx,this.x+this.width,this.y + this.height / 2,this.x-10, this.y + this.height / 2);
+                      }
+
+                      if(this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+
+                        let count = paletteCount + 1;
+
+                           if (count % 2 === 0) {
+
+                            this.drawTic(ctx,this.x+this.width,this.y + this.height / 2,this.x-10, this.y + this.height / 2);
+
+                           }
+                           else {
+
+                            this.drawTic(ctx,this.x, this.y + this.height / 2,this.x + this.width + 10, this.y + this.height / 2);
+
+                           }
+
+
+                          
+
+                      }
+                }
+
+            }
+
+            if(this.paletteDirection === LegendDirection.HORIZONTAL) { 
+
+                if (this.ticks === LegendTicsType.NO_TICS) {
+        
+
+
+                }
+
+                if(this.ticks === LegendTicsType.INSIDE) {
+
+                      if(this.valuePlacement === LegendValuePlacement.TOP) {
+
+                        this.drawTic(ctx,this.x+this.width/2,this.y,this.x+this.width/2,this.y+10);
+
+                      }
+
+                      if(this.valuePlacement === LegendValuePlacement.BOTTOM) { 
+
+                        this.drawTic(ctx,this.x + this.width / 2, this.y + this.height,this.x + this.width / 2, this.y + this.height - 10);
+                      }
+
+                      if(this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+
+                        let count = paletteCount + 1;
+
+                           if (count % 2 === 0) {
+
+                            
+                            this.drawTic(ctx,this.x+this.width/2,this.y,this.x+this.width/2,this.y+10);
+
+                           }
+                           else {
+
+                            this.drawTic(ctx,this.x + this.width / 2, this.y + this.height,this.x + this.width / 2, this.y + this.height - 10);
+
+                           }
+
+
+                          
+
+                      }
+
+
+                }
+
+                if(this.ticks === LegendTicsType.OUTSIDE) {
+
+                      if(this.valuePlacement === LegendValuePlacement.TOP) {
+
+                        this.drawTic(ctx,this.x+this.width/2,this.y,this.x+this.width/2,this.y-10);
+
+                      }
+
+                      if(this.valuePlacement === LegendValuePlacement.BOTTOM) { 
+
+                        this.drawTic(ctx,this.x + this.width / 2, this.y + this.height,this.x + this.width / 2, this.y + this.height + 10);
+                      }
+
+                      if(this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+
+                        let count = paletteCount + 1;
+
+                           if (count % 2 === 0) {
+
+                            this.drawTic(ctx,this.x + this.width / 2, this.y + this.height,this.x + this.width / 2, this.y + this.height + 10);
+
+                           }
+                           else {
+
+                            this.drawTic(ctx,this.x+this.width/2,this.y,this.x+this.width/2,this.y-10);
+
+                          
+                           }
+
+
+                          
+
+                      }
+
+
+                }
+
+                if(this.ticks === LegendTicsType.RUNNING_ACROSS) {
+
+                      if(this.valuePlacement === LegendValuePlacement.TOP) {
+
+                        this.drawTic(ctx,this.x+this.width/2,this.y+this.height,this.x+this.width/2,this.y-10);
+
+                      }
+
+                      if(this.valuePlacement === LegendValuePlacement.BOTTOM) { 
+
+                        this.drawTic(ctx,this.x + this.width / 2, this.y ,this.x + this.width / 2, this.y + this.height + 10);
+                      }
+
+                      if(this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+
+                        let count = paletteCount + 1;
+
+                           if (count % 2 === 0) {
+
+                            this.drawTic(ctx,this.x + this.width / 2, this.y ,this.x + this.width / 2, this.y + this.height + 10);
+
+                           }
+                           else {
+
+                            this.drawTic(ctx,this.x+this.width/2,this.y+this.height,this.x+this.width/2,this.y-10);
+
+                           }
+
+
+                          
+
+                      }
+                }
+
+
+            }
+
+
+        }
+
+        if(this.paletteType === LegendType.CONTINUOUS) {
+
+            if(this.paletteDirection === LegendDirection.VERTICAL) {
+
+                if (this.ticks === LegendTicsType.NO_TICS) {
+        
+
+
+                }
+
+                if(this.ticks === LegendTicsType.INSIDE) {
+
+                     if(this.valuePlacement === LegendValuePlacement.RIGHT) {
+
+                        this.drawTic(ctx,this.x + this.width, this.y,this.x + this.width - 10, this.y);
+                     
+                        // Create End Tic     
+                        if(colorCountLength-1 === paletteCount) {
+
+                          this.drawTic(ctx,this.x + this.width, this.y+this.height,this.x + this.width - 10, this.y+this.height);
+                          
+
+                        }
+
+                     }
+                     if(this.valuePlacement === LegendValuePlacement.LEFT) {
+
+                        this.drawTic(ctx,this.x, this.y ,this.x + 10, this.y );
+
+                        // Create End Tic     
+                        if(colorCountLength-1 === paletteCount) {
+
+                            this.drawTic(ctx,this.x, this.y+this.height ,this.x + 10, this.y+this.height);
+  
+                          }
+                         
+                     }
+                     if(this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+
+
+                        let count = paletteCount + 1;
+
+                           if (count % 2 === 0) {
+
+                            this.drawTic(ctx,this.x, this.y ,this.x + 10, this.y );
+
+                           }
+                           else {
+
+                            this.drawTic(ctx,this.x + this.width, this.y,this.x + this.width - 10, this.y);
+
+                           }
+
+                           if(colorCountLength-1 === paletteCount) {
+
+                                if (count % 2 === 0) {
+
+                                    this.drawTic(ctx,this.x + this.width, this.y+this.height,this.x + this.width - 10, this.y+this.height);
+
+                                }
+                                else {
+
+                                    this.drawTic(ctx,this.x, this.y+this.height ,this.x + 10, this.y+this.height );
+
+                                }
+  
+                          }
+
+
+                         
+                     }
+                }
+
+                if(this.ticks === LegendTicsType.OUTSIDE) {
+
+
+                    if(this.valuePlacement === LegendValuePlacement.RIGHT) {
+
+                        this.drawTic(ctx,this.x + this.width, this.y,this.x + this.width + 10, this.y);
+
+                        // Create End Tic     
+                        if(colorCountLength-1 === paletteCount) {
+
+                            this.drawTic(ctx,this.x + this.width, this.y+this.height,this.x + this.width + 10, this.y+this.height);
+                            
+  
+                        }
+
+                     }
+                    if(this.valuePlacement === LegendValuePlacement.LEFT) {
+
+                        this.drawTic(ctx,this.x, this.y ,this.x - 10, this.y );
+
+                        // Create End Tic     
+                        if(colorCountLength-1 === paletteCount) {
+
+                            this.drawTic(ctx,this.x, this.y+this.height ,this.x - 10, this.y+this.height);
+  
+                          }
+                         
+                     }
+                    if(this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+
+
+                        let count = paletteCount + 1;
+
+                           if (count % 2 === 0) {
+
+                            this.drawTic(ctx,this.x, this.y ,this.x - 10, this.y );
+
+                           }
+                           else {
+
+                            this.drawTic(ctx,this.x + this.width, this.y,this.x + this.width + 10, this.y);
+
+                           }
+
+                           if(colorCountLength-1 === paletteCount) {
+
+                            if (count % 2 === 0) {
+
+                                this.drawTic(ctx,this.x + this.width, this.y+this.height,this.x + this.width + 10, this.y+this.height);
+
+                            }
+                            else {
+
+                                this.drawTic(ctx,this.x, this.y+this.height ,this.x - 10, this.y+this.height );
+
+                            }
+
+                      }
+
+
+                         
+                     }
+
+
+                }
+
+                if(this.ticks === LegendTicsType.RUNNING_ACROSS) {
+
+                    if(this.valuePlacement === LegendValuePlacement.RIGHT) {
+
+                        this.drawTic(ctx,this.x, this.y,this.x + this.width + 10, this.y);
+
+                        if(colorCountLength-1 === paletteCount) {
+
+                            this.drawTic(ctx,this.x, this.y+this.height,this.x + this.width + 10, this.y+this.height);
+                            
+  
+                        }
+
+                     }
+                    if(this.valuePlacement === LegendValuePlacement.LEFT) {
+
+                        this.drawTic(ctx,this.x+this.width, this.y ,this.x - 10, this.y );
+
+                         // Create End Tic     
+                         if(colorCountLength-1 === paletteCount) {
+
+                            this.drawTic(ctx,this.x+this.width, this.y+this.height ,this.x - 10, this.y+this.height );
+                            
+  
+                        }
+
+                        
+                         
+                     }
+                    if(this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+
+
+                        let count = paletteCount + 1;
+
+                           if (count % 2 === 0) {
+
+                            this.drawTic(ctx,this.x+this.width, this.y ,this.x - 10, this.y );
+
+                           }
+                           else {
+
+                            this.drawTic(ctx,this.x, this.y,this.x + this.width + 10, this.y);
+
+                           }
+
+                           if(colorCountLength-1 === paletteCount) {
+
+                            if (count % 2 === 0) {
+
+                                this.drawTic(ctx,this.x, this.y+this.height,this.x + this.width + 10, this.y+this.height);
+
+                            }
+                            else {
+
+                                this.drawTic(ctx,this.x+this.width, this.y+this.height ,this.x - 10, this.y+this.height );
+
+                            }
+
+                      }
+
+
+                         
+                     }
+                }
+
+            }
+
+            if(this.paletteDirection === LegendDirection.HORIZONTAL) {
+
+                if (this.ticks === LegendTicsType.NO_TICS) {
+        
+
+
+                }
+
+                if(this.ticks === LegendTicsType.INSIDE) {
+
+
+                     if(this.valuePlacement === LegendValuePlacement.TOP) {
+
+                        this.drawTic(ctx,this.x, this.y,this.x, this.y + 10);
+
+                        if(colorCountLength-1 === paletteCount) {
+
+                            this.drawTic(ctx,this.x+this.width, this.y,this.x+this.width, this.y + 10);
+                            
+                        }
+
+                     }
+                     if(this.valuePlacement === LegendValuePlacement.BOTTOM) {
+
+                        this.drawTic(ctx,this.x, this.y + this.height,this.x, this.y + this.height - 10);
+
+                        if(colorCountLength-1 === paletteCount) {
+
+                            this.drawTic(ctx,this.x+this.width, this.y + this.height,this.x+this.width, this.y + this.height - 10);
+                            
+                          }
+                         
+                     }
+                     if(this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+
+
+                        let count = paletteCount + 1;
+
+                           if (count % 2 === 0) {
+
+                            this.drawTic(ctx,this.x, this.y + this.height,this.x, this.y + this.height - 10);
+
+                           }
+                           else {
+
+                            this.drawTic(ctx,this.x, this.y,this.x, this.y + 10);
+
+                           }
+
+                           if(colorCountLength-1 === paletteCount) {
+
+                            if (count % 2 === 0) {
+
+                                this.drawTic(ctx,this.x+this.width, this.y,this.x+this.width, this.y + 10);
+
+                            }
+                            else {
+
+                                this.drawTic(ctx,this.x+this.width, this.y + this.height,this.x+this.width, this.y + this.height - 10);
+
+                            }
+
+                      }
+
+
+                         
+                     }
+                }
+
+                if(this.ticks === LegendTicsType.OUTSIDE) {
+
+
+                     if(this.valuePlacement === LegendValuePlacement.TOP) {
+
+                        this.drawTic(ctx,this.x, this.y,this.x, this.y - 10);
+
+                        if(colorCountLength-1 === paletteCount) {
+
+                            this.drawTic(ctx,this.x+this.width, this.y,this.x+this.width, this.y - 10);
+                            
+                        }
+
+                     }
+                     if(this.valuePlacement === LegendValuePlacement.BOTTOM) {
+
+                        this.drawTic(ctx,this.x, this.y + this.height,this.x, this.y + this.height + 10);
+
+                        if(colorCountLength-1 === paletteCount) {
+
+                            this.drawTic(ctx,this.x+this.width, this.y + this.height,this.x+this.width, this.y + this.height + 10);
+                            
+                        }
+                         
+                     }
+                     if(this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+
+                        let count = paletteCount + 1;
+
+                           if (count % 2 === 0) {
+
+                            this.drawTic(ctx,this.x, this.y + this.height,this.x, this.y + this.height + 10);
+
+                           }
+                           else {
+
+                            this.drawTic(ctx,this.x, this.y,this.x, this.y - 10);
+
+                           }
+
+
+                           if(colorCountLength-1 === paletteCount) {
+
+                            if (count % 2 === 0) {
+
+                                this.drawTic(ctx,this.x+this.width, this.y,this.x+this.width, this.y - 10);
+
+                            }
+                            else {
+
+                                this.drawTic(ctx,this.x+this.width, this.y + this.height,this.x+this.width, this.y + this.height + 10);
+
+                            }
+
+                      }
+
+
+                         
+                     }
+
+                }
+
+                if(this.ticks === LegendTicsType.RUNNING_ACROSS) {
+
+                     if(this.valuePlacement === LegendValuePlacement.TOP) {
+
+                        this.drawTic(ctx,this.x, this.y+this.height,this.x, this.y - 10);
+
+                        if(colorCountLength-1 === paletteCount) {
+
+                            this.drawTic(ctx,this.x+this.width, this.y+this.height,this.x+this.width, this.y - 10);
+                            
+                        }
+
+                     }
+                     if(this.valuePlacement === LegendValuePlacement.BOTTOM) {
+
+                        this.drawTic(ctx,this.x, this.y ,this.x, this.y + this.height + 10);
+
+                        if(colorCountLength-1 === paletteCount) {
+
+                            this.drawTic(ctx,this.x+this.width, this.y ,this.x+this.width, this.y + this.height + 10);
+                            
+                        }
+                         
+                     }
+                     if(this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+
+
+                        let count = paletteCount + 1;
+
+                           if (count % 2 === 0) {
+
+                            this.drawTic(ctx,this.x, this.y ,this.x, this.y + this.height + 10);
+
+                           }
+                           else {
+
+                            this.drawTic(ctx,this.x, this.y+this.height,this.x, this.y - 10);
+
+                           }
+
+
+                           if(colorCountLength-1 === paletteCount) {
+
+                            if (count % 2 === 0) {
+
+                                this.drawTic(ctx,this.x+this.width, this.y+this.height,this.x+this.width, this.y - 10);
+
+                            }
+                            else {
+
+                                this.drawTic(ctx,this.x+this.width, this.y ,this.x+this.width, this.y + this.height + 10);
+
+                            }
+
+                           }
+
+
+                         
+                     }
                 }
 
             }
 
 
         }
-        else if (this.paletteDirection === LegendDirection.VERTICAL) {
 
-            let grd = ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.height);
-            grd.addColorStop(0, this.colorTop);
-            grd.addColorStop(1, this.colorBottom);
-            ctx.fillStyle = grd;
-            ctx.fillRect(this.x, this.y, this.width, this.height);
-            ctx.fillStyle = this.textColor;
+
+    }
+
+    drawTic(ctx: CanvasRenderingContext2D,X1:number , Y1:number ,X2:number , Y2:number) {
+
+        ctx.beginPath();
+        ctx.moveTo(X1,Y1);
+        ctx.lineTo(X2,Y2);
+        ctx.stroke();
+
+
+    }
+
+    setValuePosition(ctx: CanvasRenderingContext2D ,paletteElementGap:number,paletteCount:number) {
+
+        let count = paletteCount+1;
+
+        if(this.paletteType === LegendType.DISCRETE) {
+
+            const text = this.valueType === ValueType.NA ? 'NA' : this.textCenter;
+
+            if(this.paletteDirection === LegendDirection.VERTICAL) {
+
+                    if (this.valuePlacement === LegendValuePlacement.RIGHT) {
+
+                        this.setTextPosition(ctx,text, this.x + this.width + 15, this.y + this.height / 2);
+        
+                    }
+
+                    if (this.valuePlacement === LegendValuePlacement.LEFT) {
+
+                        this.setTextPosition(ctx,text, this.x - 15, this.y + this.height / 2);
+        
+                    }
+
+                    if (this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+
+                        if (count % 2 === 0) {
+
+                            ctx.textAlign = "right";
+                            this.setTextPosition(ctx,text, this.x - 15, this.y + this.height / 2);
+
+                        }
+                        else {
+        
+                            ctx.textAlign = "left";
+                            this.setTextPosition(ctx,text , this.x + this.width + 15, this.y + this.height / 2);
+                        }
+        
+                    }
+
+                    ctx.textAlign = "left";
+
+            }
+
+            if(this.paletteDirection === LegendDirection.HORIZONTAL) {
+
+                  if(this.valuePlacement === LegendValuePlacement.TOP) {
+
+                    this.setTextPosition(ctx,text,this.x+this.width/2,this.y-15);
+
+                  }
+
+                  if(this.valuePlacement === LegendValuePlacement.BOTTOM) { 
+
+                    this.setTextPosition(ctx,text,this.x + this.width / 2, this.y + this.height +15);
+                  }
+
+                  if(this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+
+                    let count = paletteCount + 1;
+
+                       if (count % 2 === 0) {
+
+                        this.setTextPosition(ctx,text,this.x + this.width / 2, this.y + this.height +15);
+
+                       }
+                       else {
+
+                        this.setTextPosition(ctx,text,this.x+this.width/2,this.y-15);
+
+                       }
+
+
+                      
+
+                  }
+
+
+            }
+
+        }
+
+        if(this.paletteType === LegendType.CONTINUOUS) {
+
             const textTop = this.valueType === ValueType.NA ? 'NA' : this.textTop;
             const textBtm = this.valueType === ValueType.NA ? 'NA' : this.textBottom;
 
-            if (this.valuePlacement === LegendValuePlacement.RIGHT) {
 
-                if (textTop !== ValueType.NA && textTop)
-                    ctx.fillText(textTop, this.x + this.width + 30, this.y);
-                if (textBtm !== ValueType.NA && textBtm)
-                    ctx.fillText(textBtm, this.x + this.width + 30, this.y + this.height);
+            if(this.paletteDirection === LegendDirection.VERTICAL) {
 
-            }
-
-            if (this.valuePlacement === LegendValuePlacement.LEFT) {
-
-                if (textTop !== ValueType.NA && textTop)
-                    ctx.fillText(textTop, this.x - 30, this.y)
-                if (textBtm !== ValueType.NA && textBtm)
-                    ctx.fillText(textBtm, this.x - 30, this.y + this.height);
-
-            }
-
-            if (this.valuePlacement === LegendValuePlacement.ALTERNATING) {
-
-                if (paletteCount === 1) {
-
-                    ctx.fillText(textTop, this.x + this.width + 30, this.y)
-                    ctx.fillText(textBtm, this.x - 30, this.y + this.height);
+                if (this.valuePlacement === LegendValuePlacement.RIGHT) {  
+                    if (textTop !== ValueType.NA && textTop)
+                        this.setTextPosition(ctx,textTop, this.x + this.width + 15, this.y);
+                    if (textBtm !== ValueType.NA && textBtm)
+                        this.setTextPosition(ctx,textBtm, this.x + this.width + 15, this.y + this.height + paletteElementGap);
 
                 }
 
-                if (paletteCount % 2 === 0) {
+                if (this.valuePlacement === LegendValuePlacement.LEFT) {
 
-
-                    ctx.fillText(textBtm, this.x + this.width + 30, this.y + this.height)
-
-                }
-                else if (paletteCount !== 1) {
-
-                    ctx.fillText(textBtm, this.x - 30, this.y + this.height);
+                    if (textTop !== ValueType.NA && textTop)
+                      this.setTextPosition(ctx,textTop, this.x - 15, this.y)
+                    if (textBtm !== ValueType.NA && textBtm)
+                      this.setTextPosition(ctx,textBtm, this.x - 15, this.y + this.height + paletteElementGap);
 
                 }
 
+                if (this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+
+                    if (count === 1) {
+                        ctx.textAlign = "left";
+                        this.setTextPosition(ctx,textTop, this.x + this.width + 15, this.y);
+                        ctx.textAlign = "right";
+                        this.setTextPosition(ctx,textBtm, this.x - 15, this.y + this.height + paletteElementGap);
+
+                    }
+
+                    if (count % 2 === 0) {
+
+                        ctx.textAlign = "left";
+                        this.setTextPosition(ctx,textBtm, this.x + this.width + 15, this.y + this.height + paletteElementGap)
+
+                    }
+                    else if (count !== 1) {
+
+                        ctx.textAlign = "right";
+                        this.setTextPosition(ctx,textBtm, this.x - 15, this.y + this.height + paletteElementGap);
+
+                    }
+
+                }
+
+                ctx.textAlign = "left";
             }
+
+            if(this.paletteDirection === LegendDirection.HORIZONTAL) {
+
+
+                if (this.valuePlacement === LegendValuePlacement.TOP) {
+
+                    if (textTop !== ValueType.NA && textTop)
+    
+                        this.setTextPosition(ctx,textTop, this.x, this.y - 15);
+    
+                    if (textBtm !== ValueType.NA && textBtm)
+    
+                        this.setTextPosition(ctx,textBtm, this.x + this.width + paletteElementGap, this.y - 15);
+    
+                }
+    
+                if (this.valuePlacement === LegendValuePlacement.BOTTOM) {
+    
+    
+                    if (textTop !== ValueType.NA && textTop)
+    
+                    this.setTextPosition(ctx,textTop, this.x, this.y + this.height + 15);
+    
+                    if (textBtm !== ValueType.NA && textBtm)
+    
+                    this.setTextPosition(ctx,textBtm, this.x + this.width + paletteElementGap, this.y + this.height + 15);
+    
+                }
+    
+    
+                if (this.valuePlacement === LegendValuePlacement.ALTERNATING) {
+    
+    
+                    if (count === 1) {
+    
+                        this.setTextPosition(ctx,textTop, this.x, this.y - 15);
+                        this.setTextPosition(ctx,textBtm, this.x + this.width + paletteElementGap, this.y + this.height + 15);
+    
+                    }
+    
+    
+                    if (count % 2 === 0) {
+    
+                        this.setTextPosition(ctx,textBtm, this.x + this.width + paletteElementGap, this.y - 15);
+    
+                    }
+                    else if (count !== 1) {
+    
+    
+                        this.setTextPosition(ctx,textBtm, this.x + this.width+paletteElementGap, this.y + this.height + 15);
+    
+                    }
+    
+                }
+
+                
+            }
+
 
 
         }
+    }
+
+    setTextPosition(ctx: CanvasRenderingContext2D,Text:string,positionX:number , positonY:number) {
+
+        ctx.fillStyle = this.textColor;
+        if(this.valuePlacement === LegendValuePlacement.LEFT) {
+            ctx.textAlign = "right";
+        }
+
+        ctx.fillText(Text, positionX, positonY);
 
     }
 
-    titlePlacementPosition(ctx: CanvasRenderingContext2D, i: number, canvasHeight: number, canvasWidth: number) {
+    setTitlePosition(ctx: CanvasRenderingContext2D , count:number , paletteGap:number ,colorCountLength:number ) {
 
-    // function will call only one time 
+        // function will call only one time 
 
         if (this.paletteDirection === LegendDirection.VERTICAL) {
 
-            if (i === 0) {
+            if (count === 0) {
 
-                this.verticalTitlePlacement(ctx, canvasHeight);
+                this.verticalTitlePlacement(ctx, colorCountLength ,paletteGap);
 
             }
 
@@ -304,20 +1020,25 @@ class PaletteElement {
 
         else if (this.paletteDirection === LegendDirection.HORIZONTAL) {
 
-            if (i === 0) {
+            if (count === 0) {
 
-                this.horizontalTitlePlacement(ctx, canvasWidth);
+                this.horizontalTitlePlacement(ctx, colorCountLength,paletteGap);
 
 
             }
-
-
         }
 
 
     }
 
-    verticalTitlePlacement(ctx: CanvasRenderingContext2D, canvasHeight: number) {
+    verticalTitlePlacement(ctx: CanvasRenderingContext2D,colorCountLength:number ,paletteGap:number ) {
+
+        let legendHeight:number = 0 ;
+        let paletteTotalGap = (paletteGap * colorCountLength);
+        colorCountLength = colorCountLength +1;
+        legendHeight = (this.height * colorCountLength) ; 
+        legendHeight = legendHeight+ paletteTotalGap;
+
 
         if (this.titlePlacement === LegendTitlePlacement.TOP) {
 
@@ -327,14 +1048,23 @@ class PaletteElement {
 
         else if (this.titlePlacement === LegendTitlePlacement.BOTTOM) {
 
-            ctx.fillText("Legend", this.x, canvasHeight - 50);
+            ctx.fillText("Legend", this.x, (legendHeight+50) );
 
         }
 
 
     }
 
-    horizontalTitlePlacement(ctx: CanvasRenderingContext2D, canvasWidth: number) {
+    horizontalTitlePlacement(ctx: CanvasRenderingContext2D ,colorCountLength:number ,paletteGap:number) {
+
+
+        let legendWidth:number = 0 ;
+        let paletteTotalGap = (paletteGap * colorCountLength);
+        colorCountLength = colorCountLength ;
+        legendWidth = (this.width * colorCountLength) ; 
+        legendWidth = legendWidth + paletteTotalGap;
+
+
 
         switch (true) {
 
@@ -344,744 +1074,35 @@ class PaletteElement {
 
             case this.titlePlacement === LegendTitlePlacement.TOP_MIDDLE:
 
-                return ctx.fillText("Legend", (this.x + canvasWidth / 2) - 100, this.y - 40);
+                return ctx.fillText("Legend", (this.x + legendWidth / 2) , this.y - 40);
 
             case this.titlePlacement === LegendTitlePlacement.TOP_RIGHT:
 
-                return ctx.fillText("Legend", (this.x + canvasWidth) - 100, this.y - 40);
+                return ctx.fillText("Legend", (this.x + legendWidth) , this.y - 40);
 
             case this.titlePlacement === LegendTitlePlacement.BOTTOM_LEFT:
 
-                return ctx.fillText("Legend", this.x, this.y + this.height + 20);
+                return ctx.fillText("Legend", this.x, this.y + this.height + 40);
 
             case this.titlePlacement === LegendTitlePlacement.BOTTOM_MIDDLE:
 
-                return ctx.fillText("Legend", this.x + canvasWidth / 2, this.y + this.height + 20);
+                return ctx.fillText("Legend", this.x + legendWidth / 2, this.y + this.height + 40);
 
             case this.titlePlacement === LegendTitlePlacement.BOTTOM_RIGHT:
 
-                return ctx.fillText("Legend", this.x + canvasWidth, this.y + this.height + 20);
+                return ctx.fillText("Legend", this.x + legendWidth, this.y + this.height + 20);
 
         }
 
 
-        // if(this.titlePlacement === LegendTitlePlacement.TOP_LEFT) {
-
-        //         ctx.fillText("Legend", this.x ,this.y-20);
-
-        // }
-
-        // else if(this.titlePlacement === LegendTitlePlacement.TOP_MIDDLE) {
-
-        //     ctx.fillText("Legend", this.x ,this.y-20);
-
-        // }
-
-        // else if(this.titlePlacement === LegendTitlePlacement.TOP_RIGHT) {
-
-        //     ctx.fillText("Legend", this.x ,this.y-20);
-
-        // }
-
-
-
     }
 
-    createTickPosition(ctx: CanvasRenderingContext2D, colorCount: number, paletteCount: number) {
-
-
-        // Tic position for horizontal type 
-    
-            if (this.paletteType === LegendType.CONTINUOUS && this.paletteDirection === LegendDirection.HORIZONTAL) {
-    
-                    // Tic Position start  
-    
-                        if (this.ticks === LegendTicsType.NO_TICS) {
-    
-                            ctx.beginPath();
-    
-                        }
-    
-                        else if (this.ticks === LegendTicsType.INSIDE) {
-    
-                            ctx.beginPath();
-                            ctx.rect(this.x, this.y, this.width, this.height);
-                            ctx.lineWidth = 1;
-                            ctx.strokeStyle = 'black';
-                            ctx.stroke();
-    
-                        }
-    
-                        else if (this.ticks === LegendTicsType.OUTSIDE) {
-    
-                            ctx.beginPath();
-                            ctx.moveTo(this.x, this.y);
-                            ctx.lineTo(this.x + this.width, this.y);
-    
-                            if (this.valuePlacement === LegendValuePlacement.TOP) {
-    
-                                ctx.moveTo(this.x, this.y);
-                                ctx.lineTo(this.x, this.y - 10);
-    
-                                if (paletteCount === (colorCount - 1)) {
-    
-                                    ctx.moveTo(this.x + this.width, this.y);
-                                    ctx.lineTo(this.x + this.width, this.y - 10);
-    
-    
-                                }
-    
-    
-                            }
-    
-                            if (this.valuePlacement === LegendValuePlacement.BOTTOM) {
-    
-                                ctx.moveTo(this.x, this.y + this.height);
-                                ctx.lineTo(this.x, this.y + this.height + 10);
-    
-                                if (paletteCount === (colorCount - 1)) {
-    
-                                    ctx.moveTo(this.x + this.width, this.y + this.height);
-                                    ctx.lineTo(this.x + this.width, this.y + this.height + 10);
-    
-    
-                                }
-    
-    
-                            }
-    
-                            if (this.valuePlacement === LegendValuePlacement.ALTERNATING) {
-    
-                                let count = paletteCount + 1;
-    
-                                if (count % 2 === 0) {
-    
-                                    ctx.moveTo(this.x, this.y + this.height);
-                                    ctx.lineTo(this.x, this.y + this.height + 10);
-    
-                                    if (paletteCount === (colorCount - 1)) {
-    
-                                        ctx.moveTo(this.x + this.width, this.y);
-                                        ctx.lineTo(this.x + this.width, this.y - 10);
-    
-    
-                                    }
-    
-    
-                                }
-                                else {
-    
-                                    ctx.moveTo(this.x, this.y);
-                                    ctx.lineTo(this.x, this.y - 10);
-    
-                                    if (paletteCount === (colorCount - 1)) {
-    
-                                        ctx.moveTo(this.x + this.width, this.y + this.height);
-                                        ctx.lineTo(this.x + this.width, this.y + this.height + 10);
-    
-    
-                                    }
-    
-    
-                                }
-    
-                            }
-    
-    
-                            // Starting close line            
-    
-                            if (paletteCount === 0) {
-    
-                                ctx.moveTo(this.x, this.y);
-                                ctx.lineTo(this.x, this.y + this.height);
-    
-                            }
-    
-                            // Ending close line     
-    
-                            if (paletteCount === (colorCount - 1)) {
-    
-                                ctx.moveTo(this.x + this.width, this.y);
-                                ctx.lineTo(this.x + this.width, this.y + this.height);
-    
-                            }
-    
-                            ctx.save();
-                            ctx.translate(this.x, this.y + this.height);
-                            ctx.moveTo(0, 0);
-                            ctx.lineTo(this.width, 0);
-                            ctx.restore();
-                            ctx.stroke();
-    
-                        }
-    
-                        else if (this.ticks === LegendTicsType.RUNNING_ACROSS) {
-    
-                            ctx.beginPath();
-                            ctx.rect(this.x, this.y, this.width, this.height);
-    
-                            if (this.valuePlacement === LegendValuePlacement.TOP) {
-    
-                                ctx.moveTo(this.x, this.y);
-                                ctx.lineTo(this.x, this.y - 10);
-    
-                                if (paletteCount === (colorCount - 1)) {
-    
-                                    ctx.moveTo(this.x + this.width, this.y);
-                                    ctx.lineTo(this.x + this.width, this.y - 10);
-    
-    
-                                }
-    
-    
-                            }
-    
-                            if (this.valuePlacement === LegendValuePlacement.BOTTOM) {
-    
-                                ctx.moveTo(this.x, this.y + this.height);
-                                ctx.lineTo(this.x, this.y + this.height + 10);
-    
-                                if (paletteCount === (colorCount - 1)) {
-    
-                                    ctx.moveTo(this.x + this.width, this.y + this.height);
-                                    ctx.lineTo(this.x + this.width, this.y + this.height + 10);
-                                }
-    
-                            }
-    
-                            if (this.valuePlacement === LegendValuePlacement.ALTERNATING) {
-    
-                                let count = paletteCount + 1;
-    
-                                if (count % 2 === 0) {
-    
-                                    ctx.moveTo(this.x, this.y + this.height);
-                                    ctx.lineTo(this.x, this.y + this.height + 10);
-    
-                                    if (paletteCount === (colorCount - 1)) {
-    
-                                        ctx.moveTo(this.x + this.width, this.y);
-                                        ctx.lineTo(this.x + this.width, this.y - 10);
-    
-    
-                                    }
-    
-    
-                                }
-                                else {
-    
-                                    ctx.moveTo(this.x, this.y);
-                                    ctx.lineTo(this.x, this.y - 10);
-    
-                                    if (paletteCount === (colorCount - 1)) {
-    
-                                        ctx.moveTo(this.x + this.width, this.y + this.height);
-                                        ctx.lineTo(this.x + this.width, this.y + this.height + 10);
-    
-    
-                                    }
-    
-    
-                                }
-    
-                            }
-    
-                            ctx.stroke();
-    
-                        }
-    
-                    // Tic Position end 
-            }
-
-            else if (this.paletteType === LegendType.DISCRETE && this.paletteDirection === LegendDirection.HORIZONTAL) {
-    
-                // Tic position start 
-    
-                    if (this.ticks === LegendTicsType.NO_TICS) {
-    
-                        ctx.beginPath();
-    
-                    }
-    
-                    else if (this.ticks === LegendTicsType.INSIDE) {
-    
-                        ctx.beginPath();
-                        ctx.rect(this.x, this.y, this.width, this.height);
-                        ctx.lineWidth = 1;
-                        ctx.strokeStyle = 'black';
-                        ctx.stroke();
-    
-                    }
-    
-                    else if (this.ticks === LegendTicsType.OUTSIDE) {
-    
-                        ctx.beginPath();
-                        ctx.moveTo(this.x, this.y);
-                        ctx.lineTo(this.x + this.width, this.y);
-    
-                        // Starting close line            
-    
-                        if (paletteCount === 0) {
-    
-                            ctx.moveTo(this.x, this.y);
-                            ctx.lineTo(this.x, this.y + this.height);
-    
-                        }
-    
-                        // Ending close line     
-    
-                        if (paletteCount === (colorCount - 1)) {
-    
-                            ctx.moveTo(this.x + this.width, this.y);
-                            ctx.lineTo(this.x + this.width, this.y + this.height);
-    
-                            // // End outside tick 
-    
-                            //         ctx.moveTo(this.x+this.width,this.y);
-                            //         ctx.lineTo(this.x+this.width,this.y-10);
-    
-                        }
-                        // value placement
-    
-                        if (this.valuePlacement === LegendValuePlacement.TOP) {
-    
-                            ctx.moveTo(this.x + this.width / 2, this.y);
-                            ctx.lineTo(this.x + this.width / 2, this.y - 10);
-    
-                        }
-    
-                        if (this.valuePlacement === LegendValuePlacement.BOTTOM) {
-    
-                            ctx.moveTo(this.x + this.width / 2, this.y + this.height);
-                            ctx.lineTo(this.x + this.width / 2, this.y + this.height + 10);
-    
-    
-                        }
-    
-                        if (this.valuePlacement === LegendValuePlacement.ALTERNATING) {
-    
-                            let count = paletteCount + 1;
-    
-                            if (count % 2 === 0) {
-    
-                                ctx.moveTo(this.x + this.width / 2, this.y + this.height);
-                                ctx.lineTo(this.x + this.width / 2, this.y + this.height + 10);
-    
-    
-                            }
-                            else {
-    
-    
-    
-                                ctx.moveTo(this.x + this.width / 2, this.y);
-                                ctx.lineTo(this.x + this.width / 2, this.y - 10);
-                            }
-    
-                        }
-    
-    
-                        ctx.save();
-                        ctx.translate(this.x, this.y + this.height);
-                        ctx.moveTo(0, 0);
-                        ctx.lineTo(this.width, 0);
-                        ctx.restore();
-                        ctx.stroke();
-    
-                    }
-    
-                    else if (this.ticks === LegendTicsType.RUNNING_ACROSS) {
-    
-                        ctx.beginPath();
-                        ctx.rect(this.x, this.y, this.width, this.height);
-                        // ctx.moveTo(this.x , this.y);
-                        // ctx.lineTo(this.x,this.y-10);
-    
-    
-                        if (this.valuePlacement === LegendValuePlacement.TOP) {
-    
-                            ctx.moveTo(this.x + this.width / 2, this.y);
-                            ctx.lineTo(this.x + this.width / 2, this.y - 10);
-    
-                        }
-    
-                        if (this.valuePlacement === LegendValuePlacement.BOTTOM) {
-    
-                            ctx.moveTo(this.x + this.width / 2, this.y + this.height);
-                            ctx.lineTo(this.x + this.width / 2, this.y + this.height + 10);
-    
-                        }
-    
-                        if (this.valuePlacement === LegendValuePlacement.ALTERNATING) {
-    
-                            let count = paletteCount + 1;
-    
-                            if (count % 2 === 0) {
-    
-                                ctx.moveTo(this.x + this.width / 2, this.y + this.height);
-                                ctx.lineTo(this.x + this.width / 2, this.y + this.height + 10);
-    
-    
-                            }
-                            else {
-    
-                                ctx.moveTo(this.x + this.width / 2, this.y);
-                                ctx.lineTo(this.x + this.width / 2, this.y - 10);
-    
-    
-                            }
-    
-                        }
-    
-    
-                        ctx.stroke();
-    
-                    }
-    
-                 // Tic position end    
-    
-            }
-         
-        // Tic position for vertical type 
-    
-            if (this.paletteType === LegendType.CONTINUOUS && this.paletteDirection === LegendDirection.VERTICAL) {
-    
-    
-               // Tic position start 
-    
-                        if (this.ticks === LegendTicsType.NO_TICS) {
-    
-                            ctx.beginPath();
-    
-                        }
-    
-                        else if (this.ticks === LegendTicsType.INSIDE) {
-    
-                            ctx.beginPath();
-                            ctx.rect(this.x, this.y, this.width, this.height);
-                            ctx.lineWidth = 1;
-                            ctx.strokeStyle = 'black';
-                            ctx.stroke();
-    
-                        }
-    
-                        else if (this.ticks === LegendTicsType.OUTSIDE) {
-    
-                            ctx.beginPath();
-                            ctx.moveTo(this.x, this.y);
-                            ctx.lineTo(this.x, this.y + this.height);
-    
-                            // Starting close line            
-    
-                            if (paletteCount === 0) {
-    
-                                ctx.moveTo(this.x, this.y);
-                                ctx.lineTo(this.x + this.width, this.y);
-    
-                            }
-    
-                            // Ending close line   
-    
-                            if (paletteCount === colorCount - 1) {
-    
-                                ctx.moveTo(this.x, this.y + this.height);
-                                ctx.lineTo(this.x + this.width, this.y + this.height);
-    
-                            }
-    
-                            ctx.save();
-                            ctx.translate(this.x + this.width, this.y);
-                            ctx.moveTo(0, 0);
-                            ctx.lineTo(0, this.height);
-                            ctx.restore();
-    
-    
-    
-                            if (this.valuePlacement === LegendValuePlacement.LEFT) {
-    
-                                ctx.moveTo(this.x, this.y);
-                                ctx.lineTo(this.x - 10, this.y);
-    
-                                // End outside tick left side     
-    
-                                if (paletteCount === colorCount - 1) {
-    
-                                    ctx.moveTo(this.x, this.y + this.height);
-                                    ctx.lineTo(this.x - 10, this.y + this.height);
-    
-    
-                                }
-                            }
-    
-                            if (this.valuePlacement === LegendValuePlacement.RIGHT) {
-    
-                                ctx.moveTo(this.x + this.width, this.y);
-                                ctx.lineTo(this.x + this.width + 10, this.y);
-    
-                                // End outside tick right side     
-    
-                                if (paletteCount === colorCount - 1) {
-    
-                                    ctx.moveTo(this.x + this.width, this.y + this.height);
-                                    ctx.lineTo(this.x + this.width + 10, this.y + this.height);
-    
-    
-                                }
-    
-    
-                            }
-    
-                            if (this.valuePlacement === LegendValuePlacement.ALTERNATING) {
-    
-                                let count = paletteCount + 1;
-    
-                                if (count % 2 === 0) {
-    
-    
-                                    ctx.moveTo(this.x, this.y);
-                                    ctx.lineTo(this.x - 10, this.y);
-    
-                                }
-                                else {
-    
-                                    ctx.moveTo(this.x + this.width, this.y);
-                                    ctx.lineTo(this.x + this.width + 10, this.y);
-                                }
-    
-                                // End tic position
-                                if (paletteCount === colorCount - 1) {
-    
-                                    ctx.moveTo(this.x, this.y + this.height);
-                                    ctx.lineTo(this.x + this.width + 10, this.y + this.height);
-    
-                                }
-    
-                            }
-    
-    
-                            ctx.stroke();
-    
-                        }
-    
-                        else if (this.ticks === LegendTicsType.RUNNING_ACROSS) {
-    
-                            ctx.beginPath();
-                            ctx.rect(this.x, this.y, this.width, this.height);
-    
-    
-                            if (this.valuePlacement === LegendValuePlacement.LEFT) {
-    
-                                ctx.moveTo(this.x, this.y);
-                                ctx.lineTo(this.x - 10, this.y);
-    
-                                // End outside tick left side     
-    
-                                if (paletteCount === colorCount - 1) {
-    
-                                    ctx.moveTo(this.x, this.y + this.height);
-                                    ctx.lineTo(this.x - 10, this.y + this.height);
-    
-    
-                                }
-                            }
-    
-                            if (this.valuePlacement === LegendValuePlacement.RIGHT) {
-    
-                                ctx.moveTo(this.x + this.width, this.y);
-                                ctx.lineTo(this.x + this.width + 10, this.y);
-    
-                                // End outside tick right side     
-    
-                                if (paletteCount === colorCount - 1) {
-    
-                                    ctx.moveTo(this.x + this.width, this.y + this.height);
-                                    ctx.lineTo(this.x + this.width + 10, this.y + this.height);
-    
-    
-                                }
-    
-    
-                            }
-    
-                            if (this.valuePlacement === LegendValuePlacement.ALTERNATING) {
-    
-                                let count = paletteCount + 1;
-    
-                                if (count % 2 === 0) {
-    
-    
-                                    ctx.moveTo(this.x, this.y);
-                                    ctx.lineTo(this.x - 10, this.y);
-    
-                                }
-                                else {
-    
-                                    ctx.moveTo(this.x + this.width, this.y);
-                                    ctx.lineTo(this.x + this.width + 10, this.y);
-                                }
-    
-                                // End tic position
-                                if (paletteCount === colorCount - 1) {
-    
-                                    ctx.moveTo(this.x, this.y + this.height);
-                                    ctx.lineTo(this.x + this.width + 10, this.y + this.height);
-    
-                                }
-    
-                            }
-    
-                            ctx.stroke();
-    
-                        }
-               // Tic position end 
-            }
-            else if (this.paletteType === LegendType.DISCRETE && this.paletteDirection === LegendDirection.VERTICAL) {
-    
-                // Tic position  start 
-    
-                        if (this.ticks === LegendTicsType.NO_TICS) {
-    
-                            ctx.beginPath();
-    
-                        }
-    
-                        else if (this.ticks === LegendTicsType.INSIDE) {
-    
-                            ctx.beginPath();
-                            ctx.rect(this.x, this.y, this.width, this.height);
-                            ctx.lineWidth = 1;
-                            ctx.strokeStyle = 'black';
-                            ctx.stroke();
-    
-                        }
-    
-                        else if (this.ticks === LegendTicsType.OUTSIDE) {
-    
-                            ctx.beginPath();
-                            ctx.moveTo(this.x, this.y);
-                            ctx.lineTo(this.x, this.y + this.height);
-    
-                            if (this.valuePlacement === LegendValuePlacement.LEFT) {
-    
-                                ctx.moveTo(this.x, this.y + this.height / 2);
-                                ctx.lineTo(this.x - 10, this.y + this.height / 2);
-    
-                            }
-    
-                            if (this.valuePlacement === LegendValuePlacement.RIGHT) {
-    
-                                ctx.moveTo(this.x, this.y + this.height / 2);
-                                ctx.lineTo(this.x + this.width + 10, this.y + this.height / 2);
-    
-                            }
-    
-                            if (this.valuePlacement === LegendValuePlacement.ALTERNATING) {
-    
-                                let count = paletteCount + 1;
-    
-                                if (count % 2 === 0) {
-    
-    
-                                    ctx.moveTo(this.x, this.y + this.height / 2);
-                                    ctx.lineTo(this.x - 10, this.y + this.height / 2);
-    
-                                }
-                                else {
-    
-                                    ctx.moveTo(this.x, this.y + this.height / 2);
-                                    ctx.lineTo(this.x + this.width + 10, this.y + this.height / 2);
-                                }
-    
-                            }
-    
-    
-                            // Starting close line            
-    
-                            if (paletteCount === 0) {
-    
-                                ctx.moveTo(this.x, this.y);
-                                ctx.lineTo(this.x + this.width, this.y);
-    
-                            }
-    
-                            // Ending close line   
-    
-                            if (paletteCount === colorCount - 1) {
-    
-                                ctx.moveTo(this.x, this.y + this.height);
-                                ctx.lineTo(this.x + this.width, this.y + this.height);
-    
-                                // End outside tick 
-    
-                                // ctx.moveTo(this.x,this.y+this.height);
-                                // ctx.lineTo(this.x+this.width+10,this.y+this.height);
-    
-                            }
-    
-                            ctx.save();
-                            ctx.translate(this.x + this.width, this.y);
-                            ctx.moveTo(0, 0);
-                            ctx.lineTo(0, this.height);
-                            ctx.restore();
-    
-    
-                            ctx.stroke();
-    
-                        }
-    
-                        else if (this.ticks === LegendTicsType.RUNNING_ACROSS) {
-    
-                            ctx.beginPath();
-                            ctx.rect(this.x, this.y, this.width, this.height);
-    
-    
-                            if (this.valuePlacement === LegendValuePlacement.LEFT) {
-    
-                                ctx.moveTo(this.x, this.y + this.height / 2);
-                                ctx.lineTo(this.x - 10, this.y + this.height / 2);
-    
-                            }
-    
-                            if (this.valuePlacement === LegendValuePlacement.RIGHT) {
-    
-                                ctx.moveTo(this.x, this.y + this.height / 2);
-                                ctx.lineTo(this.x + this.width + 10, this.y + this.height / 2);
-    
-                            }
-    
-                            if (this.valuePlacement === LegendValuePlacement.ALTERNATING) {
-    
-                                let count = paletteCount + 1;
-    
-                                if (count % 2 === 0) {
-    
-    
-                                    ctx.moveTo(this.x, this.y + this.height / 2);
-                                    ctx.lineTo(this.x - 10, this.y + this.height / 2);
-    
-                                }
-                                else {
-    
-                                    ctx.moveTo(this.x, this.y + this.height / 2);
-                                    ctx.lineTo(this.x + this.width + 10, this.y + this.height / 2);
-                                }
-    
-                            }
-    
-                            ctx.stroke();
-    
-                        }
-                
-                // Tic position  end 
-    
-            }
-    
-    }
-    
 
 }
 
+
 export class Palette {
-    private position: { x: number, y: number };
+    private position: { x: number, y: number};
     private width: number;
     private height: number;
     private bandWidth: number;
@@ -1100,6 +1121,7 @@ export class Palette {
     private scale: string;
     private paletteElements: PaletteElement[];
     private ticks: LegendTicsType;
+    private gap:number;
 
     constructor() {
         this.position = { x: 50, y: 50 };
@@ -1113,6 +1135,7 @@ export class Palette {
         this.paletteDirection = LegendDirection.VERTICAL;
         this.valuePlacement = LegendValuePlacement.RIGHT;
         this.titlePlacement = LegendTitlePlacement.TOP;
+        this.gap = 0;
         this.width = 0;
         this.height = 0;
         this.minMax = [0, 10];
@@ -1123,7 +1146,7 @@ export class Palette {
         this.paletteElements = [];
     }
 
-    draw(ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) {
+    draw(ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number,) {
 
         ctx.font = this.font;
         ctx.textAlign = this.textAlign as any;
@@ -1133,6 +1156,7 @@ export class Palette {
         var xOffset = 0;
         var yOffset = 0;
         const colorCount = this.paletteType === LegendType.CONTINUOUS ? (this.colors.length - 1) : this.colors.length;
+
 
         if (this.paletteDirection === LegendDirection.VERTICAL) {
 
@@ -1145,12 +1169,13 @@ export class Palette {
 
         else if (this.paletteDirection === LegendDirection.HORIZONTAL) {
 
-            this.bandWidth = (canvasWidth - 100) / this.colors.length;
+            this.bandWidth = (canvasWidth - 100)  / this.colors.length;
             this.bandHeight = canvasHeight - 100;
 
             xOffset = this.bandWidth;
             yOffset = 0;
         }
+
 
         for (let i = 0; i < colorCount; i++) {
             const options = {
@@ -1172,20 +1197,21 @@ export class Palette {
                 ticks: this.ticks
             } as PaletteElementOptions;
             const paletteElement = new PaletteElement(options);
-            paletteElement.draw(ctx, i, colorCount);
-            paletteElement.titlePlacementPosition(ctx, i, canvasHeight, canvasWidth);
+            paletteElement.draw(ctx, i, colorCount ,this.gap);
+            paletteElement.setTitlePosition(ctx, i, this.gap,colorCount);
         }
 
 
     }
 
-    // Set selected legend settings    
+    // Set selected legend settings data 
 
     setPaletteType(type: any) {
 
         if (type === LegendType.AUTO) {
 
-            this.paletteType = LegendType.AUTO;
+            this.paletteType = LegendType.DISCRETE;
+
         }
         else if (type === LegendType.CONTINUOUS) {
 
@@ -1204,6 +1230,7 @@ export class Palette {
         if (direction === LegendDirection.AUTO) {
 
             this.paletteDirection = LegendDirection.AUTO;
+
         }
         else if (direction === LegendDirection.HORIZONTAL) {
 
@@ -1213,6 +1240,7 @@ export class Palette {
         else if (direction === LegendDirection.VERTICAL) {
 
             this.paletteDirection = LegendDirection.VERTICAL;
+
 
         }
     }
@@ -1325,11 +1353,7 @@ export class Palette {
 
     }
 
-
-
     setPaletteColor(colors:any) {
-
-        console.log("maniks",colors);
 
         this.colors = colors;
 
@@ -1337,9 +1361,14 @@ export class Palette {
 
     setPaletteValue(values:any) {
 
-        this.values =values
+        this.values = values
 
 
+    }
+
+    setPaletteGap(Gap:number) {
+
+        this.gap = Gap;
     }
 }
 
