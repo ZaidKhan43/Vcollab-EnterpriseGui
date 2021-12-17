@@ -72,14 +72,14 @@ const updateVisiblityState = (parent:any,state:ITreeState) =>{
 
 const updateCheckedState = (parent:any,state:ITreeState) => {
   let [checkedCount,partialCount] = getCheckedChildCount(parent.children.map((c:any) => getNode(c,state))); 
-  if(checkedCount === parent.children.length){
-    parent.state.checked = true;
-    parent.state.partiallyChecked = partialCount > 0 ? true: false;
-  }
-  else if(checkedCount === 0){
+  if(checkedCount === 0){
     parent.state.checked = false;
     parent.state.partiallyChecked = false;
   }
+  else if(checkedCount === parent.children.length){
+    parent.state.checked = true;
+    parent.state.partiallyChecked = partialCount > 0 ? true: false;
+  } 
   else{
     parent.state.checked = true;
     parent.state.partiallyChecked = true;

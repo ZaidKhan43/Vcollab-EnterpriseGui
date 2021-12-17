@@ -15,7 +15,7 @@ function ClipPlanes() {
         <Switch>
             <Route path={Routes.LABELS_2D_NOTES}>
                 <Notes2D/>
-            </Route>
+            </Route> 
             <Route path={Routes.LABEL_2D_EDITS}>
                 <EditNotes2D/>
             </Route>

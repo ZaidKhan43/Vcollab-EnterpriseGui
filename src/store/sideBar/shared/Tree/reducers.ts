@@ -100,20 +100,26 @@ export const addNodeReducer = (state:ITreeState, action:PayloadAction<TreeNode>)
     parent.children.push(node.id);
 
   }
+  else{
+    state.rootIds.push(node.id);
+  }
   state.data[node.id] = node;
   
 }
 export const deleteNodeReducer = (state:ITreeState, action:PayloadAction<{nodeId:string}>) => {
   let nodeId = action.payload.nodeId;
   let current = state.data[nodeId];
+  if(!current)
+  return;
+
   let pid = current.pid;
   delete state.data[nodeId];
-  if(pid) {
+
+  if(pid && pid !== "-1") {
     let parent = state.data[pid];
     let index = parent.children.indexOf(nodeId);
     if(index > -1)
     parent.children.splice(index,1);
-    if(parent.children.length === 0)
-    delete state.data[pid];
   }
+  updateParent(current,state);
 }

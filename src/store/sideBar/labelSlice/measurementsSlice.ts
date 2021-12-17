@@ -6,8 +6,20 @@ import {
     selectCheckedLeafNodes as selectCheckedLeafNodesTree, 
     selectUnCheckedLeafNodes as selectUnCheckedLeafNodesTree 
 } from 'store/sideBar/shared/Tree/selectors';
-import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer, invertCheckedVisibilityReducer} from "../shared/Tree/reducers";
-import {LabelMode, Label3D, LabelSettings, setLabelModeReducer, Label3DType} from './shared';
+import {
+    saveTreeReducer, 
+    checkNodeReducer, 
+    highlightNodeReducer, 
+    invertNodeReducer, 
+    expandNodeReducer, 
+    toggleVisibilityReducer, 
+    setCheckedVisibilityReducer, 
+    invertCheckedVisibilityReducer, 
+    addNodeReducer,
+    deleteNodeReducer
+} from "../shared/Tree/reducers";
+import {LabelMode, Label3D, LabelSettings, Label3DType} from './shared/types';
+import { setLabelModeReducer } from './shared/reducers';
 
 export const windowPrefixId = "Measurement";
 
@@ -121,8 +133,7 @@ export const measurementsSlice = createSlice({
             newParent.pid = "-1";
             newParent.title = action.payload.name;
             newParent.label = "";
-            state.data[id] =newParent;
-            state.rootIds.push(newParent.id);
+            addNodeReducer(state,{payload:newParent,type:'ITreeNode'});
         },
         
         createLabel : (state , action: PayloadAction<{pid:string,id:string,type:Label3DType,pos:number[],msg:string}>) => {
@@ -136,10 +147,7 @@ export const measurementsSlice = createSlice({
                 newNote.label = msg;
                 newNote.pos= pos as [number,number];
                 newNote.anchor = pos as [number,number];
-                state.data[id] =newNote;
-                state.data[pid].children.push(newNote.id)
-                // Object.keys(state.data).find(key => state.data[key] === `${action.payload}`)
-                measurementsSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/addNode"})
+                addNodeReducer(state,{payload:newNote,type:'ITreeNode'});
         },
         setLabelPos:(state, action:PayloadAction<{id:string,pos:[number,number],anchor:[number,number]}>) => {
             const {id,pos,anchor} = action.payload;
@@ -157,18 +165,7 @@ export const measurementsSlice = createSlice({
         deleteLabel: (state, action: PayloadAction<{keys:string[]}>) => {
             let keys = action.payload.keys;
             keys.forEach(k => {
-                let pid = state.data[k].pid
-                delete state.data[k];
-                if(pid)
-                {
-                    let index = state.data[pid].children.findIndex((e) => e === k);
-                    if(index > -1){
-                        state.data[pid].children.splice(index,1);
-                        if(state.data[pid].children.length === 0){
-                            state.data[pid].state.checked = false;
-                        }
-                    }
-                }
+                deleteNodeReducer(state, {payload:{nodeId:k},type:'string'})
             })
         }
     }

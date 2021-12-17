@@ -1,10 +1,10 @@
 import React,{useRef,useEffect, memo} from 'react'
-import { Label3D as ILabel3D } from '../../../../store/sideBar/labelSlice/shared'
+import { Label3D as ILabel3D } from '../../../../store/sideBar/labelSlice/shared/types'
 import { useAppDispatch, useAppSelector} from '../../../../store/storeHooks'
 import { selectWindowMgr, setWindowSize } from '../../../../store/windowMgrSlice';
-import Label3DWindow from './Label3DWindow';
-import LabelMsg from './LabelMsg';
-import LabelAnchor from './LabelAnchor';
+import Label3DWindow from './shared/Label3DWindow';
+import LabelMsg from './shared/LabelMsg';
+import LabelAnchor from './shared/LabelAnchor';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import Xarrow, {useXarrow, Xwrapper} from 'react-xarrows';
 

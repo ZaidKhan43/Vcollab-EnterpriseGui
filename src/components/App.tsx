@@ -12,10 +12,8 @@ import { useAppSelector, useAppDispatch } from '../store/storeHooks';
 import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
         setAppBarVisibility, setFullscreenState ,selectModelLoadedState, setPopupMenuActiveContent } from '../store/appSlice';
 import { appBarMinHeight, popupMenuContentTypes } from '../config';
-import Viewer from './viewer';
 import LayerStack from "./layout/LayerStack";
 import { fetchCameraMatrix, fetchCameraStdViews } from '../store/sideBar/sceneSlice';
-import { Layers } from '../store/windowMgrSlice';
 
 export const ViewerContext = createContext<React.MutableRefObject<HTMLDivElement | null> | null>(null);
 

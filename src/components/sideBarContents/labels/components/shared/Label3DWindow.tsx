@@ -1,10 +1,10 @@
 import React, { forwardRef } from 'react'
-import CustomWindow,{CustomWindowProps} from '../../../shared/CustomWindow';
+import CustomWindow,{CustomWindowProps} from '../../../../shared/CustomWindow';
 import {useXarrow} from 'react-xarrows';
-import { useAppDispatch } from '../../../../store/storeHooks';
+import { useAppDispatch } from '../../../../../store/storeHooks';
 import {ActionCreatorWithPayload} from '@reduxjs/toolkit'
-import { Label3D } from '../../../../store/sideBar/labelSlice/shared';
-import {setLabelPos} from '../../../../store/sideBar/labelSlice/label3DSlice';
+import { Label3D } from '../../../../../store/sideBar/labelSlice/shared/types';
+import {setLabelPos} from '../../../../../store/sideBar/labelSlice/label3DSlice';
 interface Label3DWindowProps extends CustomWindowProps {
     label: Label3D,
     setLabelPosReducer: ActionCreatorWithPayload<{

@@ -4,6 +4,7 @@ import {getEventDispatcher,getEventsList} from "../../backend/viewerAPIProxy";
 import { useAppDispatch } from '../../store/storeHooks';
 import { setModelLoadingStatus, setInteractionModeAsync } from '../../store/appSlice';
 import { handlePlaneSelection } from '../../store/sideBar/clipSlice';
+import {init as label2dInit, handleLabel2DCreation} from '../../store/sideBar/labelSlice/label2DSlice';
 import {  handleProbeLabelCreation, init as label3dInit } from '../../store/sideBar/labelSlice/label3DSlice';
 import { handleMeasurementLabelCreation, init as measurementInit } from '../../store/sideBar/labelSlice/measurementsSlice';
 import { addMessage, updateMessage, NetworkData, NotificationType, finishMessage } from '../../store/sideBar/messageSlice';
@@ -16,6 +17,7 @@ type Props = {
 }
 
 function setup(dispatch:any) {
+  dispatch(label2dInit({}));
   dispatch(label3dInit({}));
   dispatch(measurementInit({}));
 }
@@ -110,6 +112,12 @@ function EventRegistry(props: Props) {
                 (event:any) => {
                   dispatch(handleProbeLabelCreation(event));
                   dispatch(handleMeasurementLabelCreation(event));
+                }
+              );
+              eventDispatcher?.addEventListener(
+                events.viewerEvents.VIEWER_CLICK,
+                (event:any) => {
+                  dispatch(handleLabel2DCreation(event));
                 }
               )
         }

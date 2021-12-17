@@ -1,13 +1,24 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import {delete3DLabel as delete3DLabelApi, get3DLabelCanvasPos, probe} from '../../../backend/viewerAPIProxy';
 import type { RootState } from '../../index';
-import {LabelMode, Label3D, LabelSettings, setLabelModeReducer, Label3DType} from './shared'
+import {LabelMode, Label3D, LabelSettings, Label3DType} from './shared/types';
+import { setLabelModeReducer } from './shared/reducers';
 import {ITreeState} from "../shared/Tree/types";
 import {   
     selectCheckedLeafNodes as selectCheckedLeafNodesTree, 
     selectUnCheckedLeafNodes as selectUnCheckedLeafNodesTree
 } from 'store/sideBar/shared/Tree/selectors';
-import {saveTreeReducer, checkNodeReducer, highlightNodeReducer,deleteNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer, invertCheckedVisibilityReducer} from "../shared/Tree/reducers";
+import {
+    saveTreeReducer, 
+    checkNodeReducer, 
+    highlightNodeReducer,
+    addNodeReducer,
+    deleteNodeReducer, 
+    invertNodeReducer, 
+    expandNodeReducer, 
+    toggleVisibilityReducer, 
+    setCheckedVisibilityReducer, 
+    invertCheckedVisibilityReducer} from "../shared/Tree/reducers";
 import { batch } from 'react-redux';
 
 
@@ -112,9 +123,7 @@ export const label3DSlice = createSlice({
             newParent.pid = "-1";
             newParent.title = name;
             newParent.label = "";
-            state.data[`${id}`] =newParent;
-
-            state.rootIds.push(newParent.id)
+            addNodeReducer(state,{payload: newParent, type: 'ITreeNode'});
         },
         createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],type:Label3DType,msg:string}>) => {
                 
@@ -133,12 +142,7 @@ export const label3DSlice = createSlice({
                     state.labels3DSettings.faceCount += 1;
                     newNote.title = `Face Label ${state.labels3DSettings.faceCount}`
                 }
-                state.data[id] =newNote;
-
-
-                state.data[pid].children.push(newNote.id)
-                // Object.keys(state.data).find(key => state.data[key] === `${action.payload}`)
-                label3DSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/addNode"})
+                addNodeReducer(state,{payload: newNote, type: 'ITreeNode'});
         },
         setLabelPos:(state, action:PayloadAction<{id:string,pos:[number,number],anchor:[number,number]}>) => {
             const {id,pos,anchor} = action.payload;
@@ -156,18 +160,7 @@ export const label3DSlice = createSlice({
         deleteLabel: (state, action: PayloadAction<{keys:string[]}>) => {
             let keys = action.payload.keys;
             keys.forEach(k => {
-                let pid = state.data[k].pid
-                delete state.data[k];
-                if(pid)
-                {
-                    let index = state.data[pid].children.findIndex((e) => e === k);
-                    if(index > -1){
-                        state.data[pid].children.splice(index,1);
-                        if(state.data[pid].children.length === 0){
-                            state.data[pid].state.checked = false;
-                        }
-                    }
-                }
+                deleteNodeReducer(state, {payload:{nodeId:k},type:'string'})
             })
         }
     }

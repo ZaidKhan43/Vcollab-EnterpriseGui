@@ -443,7 +443,6 @@ export const colormapSlice = createSlice({
                 parentNode = parent[0];
             } else{
                 parentNode = createParent((state.colormapSettings.idGenerator++).toString(), modelName);
-                state.colormapTree.rootIds.push(parentNode.id);
                 addNodeReducer(state.colormapTree, {payload: parentNode, type:"colormapSlice/addColorMap/addNodeReducer"});
             } 
 
