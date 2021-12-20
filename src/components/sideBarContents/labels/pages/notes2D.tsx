@@ -10,10 +10,10 @@ import BackButton from '../../../icons/back';
 
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
-import RTree from '../../../shared/RsTreeTable';
+import RTree, { ITreeNode } from '../../../shared/RsTreeTable';
 import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/label2DSlice';
 import {invertNode, expandNode, select2DLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel} from '../../../../store/sideBar/labelSlice/label2DSlice'
-import AddIcon from "@material-ui/icons/Add";
+import AddCell from '../components/shared/TreeIcons/AddCell'
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
 import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
@@ -39,6 +39,8 @@ import { useRef, useEffect } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
 import { Layers, selectActiveLayer , setActiveLayer, setEditMode} from '../../../../store/windowMgrSlice';
 import { windowPrefixId } from '../../../../store/sideBar/labelSlice/label2DSlice';
+import { selectInteractionMode, setInteractionModeAsync } from 'store/appSlice';
+import { InteractionMode } from 'backend/viewerAPIProxy';
 
 export default function Labels2D(){
 
@@ -52,6 +54,7 @@ export default function Labels2D(){
   const checkedNodes = useAppSelector(selectCheckedLeafNodes);
   const selectedCount = useAppSelector(selectedLength);
   const activeLayer = useAppSelector(selectActiveLayer);
+  const interactionMode = useAppSelector(selectInteractionMode);
   const isPanBtnPressed = activeLayer === Layers.LABEL2D;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
@@ -88,7 +91,7 @@ export default function Labels2D(){
     dispatch(expandNode({toOpen,nodeId}));
   }
 
-  const handleInvert = (node:any) => {
+  const handleInvert = (node:ITreeNode) => {
     dispatch(invertNode({nodeId:node.id}));
   }
   
@@ -96,13 +99,16 @@ export default function Labels2D(){
     dispatch(checkNode({toCheck,nodeId}));
   }
 
-  const handleVisibility = (toShow:boolean,node:any) => {
+  const handleVisibility = (toShow:boolean,node:ITreeNode) => {
     const leafIds = [node.id];
     const pids = [node.pid];
     console.log(leafIds, pids)
     dispatch(setCheckedVisibility({toShow, leafIds}))
   }
 
+  const handleAdd = (node:ITreeNode) => {
+     dispatch(setInteractionModeAsync(interactionMode !== InteractionMode.LABEL2D ? InteractionMode.LABEL2D : InteractionMode.DEFAULT))
+  }
   const onHandleDeleteButton = () => {
     dispatch(delete3DLabel({}));
   }
@@ -114,11 +120,11 @@ export default function Labels2D(){
     return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
       <RTree 
-      treeData={roots} 
-      expandedRowIds = {expanded}
+        treeData={roots} 
+        expandedRowIds = {expanded}
         onExpand={handleExpand}
         onRowClick = {() => {}}
-        width = {300}
+        width = {containerWidth}
         height = {containerHeight ? containerHeight - 5: 0}
         renderTreeToggle = {
           (icon,rowData) => {
@@ -148,14 +154,7 @@ export default function Labels2D(){
                 ?
                  <ShowHideCell node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
                 :        
-                  <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
-                    <MuiGrid item xs={4}></MuiGrid>
-                    <MuiGrid item xs={6}>
-                      <MuiIconButton size='small' >
-                        <AddIcon fontSize='default'/> 
-                      </MuiIconButton> 
-                    </MuiGrid>
-                  </MuiGrid>
+                <AddCell node = {treeDataRedux[node.id]} selected={interactionMode === InteractionMode.LABEL2D} onToggle={handleAdd}/>
               }    
             </div>
           )
@@ -188,7 +187,7 @@ export default function Labels2D(){
               }))}}
               />
             }/>
-            <Option label="Edit" icon={<MuiIconButton disabled={selectedCount === 1 ? false : true} onClick={() =>dispatch(push(Routes.LABELS_3D_EDITS))}>
+            <Option label="Edit" icon={<MuiIconButton disabled={selectedCount === 1 ? false : true} onClick={() =>dispatch(push(Routes.LABEL_2D_EDITS))}>
                 <MuiEditIcon/>
               </MuiIconButton>} 
             />
@@ -204,7 +203,7 @@ export default function Labels2D(){
   return (
           <SideBarContainer
             headerLeftIcon = { getHeaderLeftIcon() }
-            headerContent={ <Title text={"2D Labels" } group="Labels"/> }
+            headerContent={ <Title text={"Notes" } group="Labels"/> }
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }
             footer = { getFooter() }

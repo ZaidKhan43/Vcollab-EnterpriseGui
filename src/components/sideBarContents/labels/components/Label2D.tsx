@@ -1,50 +1,43 @@
 import React,{useRef,useEffect, memo} from 'react'
-import { ILabel2D as ILabel3D } from '../../../../store/sideBar/labelSlice/shared/types'
+import { Label2D as ILabel2D } from '../../../../store/sideBar/labelSlice/shared/types'
 import { useAppDispatch, useAppSelector} from '../../../../store/storeHooks'
 import { selectWindowMgr, setWindowSize } from '../../../../store/windowMgrSlice';
-import Window from 'components/shared/CustomWindow';
+import Window from '../../../shared/CustomWindow';
 import LabelMsg from './shared/LabelMsg';
-import LabelAnchor from './shared/LabelAnchor';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
-import Xarrow, {useXarrow, Xwrapper} from 'react-xarrows';
 
-type Label3DProps = {
-    label:ILabel3D,
+type Label2DProps = {
+    label:ILabel2D,
     windowPrefixId:string,
     setLabelPosReducer: ActionCreatorWithPayload<{
         id: string;
         pos: [number, number];
-        anchor: [number, number];
     }, string>,
     parentRef: any
 }
 
-function Label3D(props:Label3DProps) {
-    const startRef = useRef<any | null>(null);
-    const endRef = useRef<any | null>(null);
+function Label2D(props:Label2DProps) {
+
     const childRef = useRef<any | null>(null);
     const dispatch = useAppDispatch();
     const handleWindowDrag = (e:any,data:any) => {
         console.log("drag",data);
         let l = props.label;
-        let a = l.anchor;
         let newPos:[number,number] = [Math.max(0,l.pos[0] + data.deltaX),Math.max(0,l.pos[1]+data.deltaY)];
-        dispatch(props.setLabelPosReducer({id: l.id,pos:newPos, anchor:a}));
+        dispatch(props.setLabelPosReducer({id: l.id,pos:newPos}));
     }
     const handleWindowDragStop = (x:number,y:number) => {
         let l = props.label;
-        let a = l.anchor;
         console.log("drag Stop",x,y);
-        dispatch(props.setLabelPosReducer({id: l.id,pos:[x,y], anchor:a}));
+        dispatch(props.setLabelPosReducer({id: l.id,pos:[x,y]}));
     }
     const handleWindowResize = () => {
         console.log("resize");
     }
     const handleWindowResizeStop = (x:number,y:number) => {
         let l = props.label;
-        let a = l.anchor;
         console.log("resize stop",x,y);
-        dispatch(props.setLabelPosReducer({id: l.id,pos:[x,y], anchor:a}));
+        dispatch(props.setLabelPosReducer({id: l.id,pos:[x,y]}));
     }
     useEffect(() => {
         if(childRef.current) {
@@ -57,9 +50,7 @@ function Label3D(props:Label3DProps) {
     return (
         label.state.visibility ?
         < >
-            <LabelAnchor ref={startRef} pos={label.anchor}/>
                 <Window
-                ref={endRef} 
                 uid={props.windowPrefixId+label.id} 
                 width={childRef?.current?.clientWidth | 0} 
                 height={childRef?.current?.clientHeight | 0} 
@@ -73,18 +64,9 @@ function Label3D(props:Label3DProps) {
                 >
                     <LabelMsg ref={childRef} msg={label.label}/>
                 </Window>
-                <Xarrow 
-                start={startRef} 
-                end={endRef} 
-                path={'straight'} 
-                strokeWidth={2}
-                color={'black'}
-                tailColor={'yellow'}
-                showHead={false} 
-                showTail={false}/>
         </>
         :null
     )
 }
 
-export default Label3D
+export default Label2D

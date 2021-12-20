@@ -21,6 +21,9 @@ import {
     invertCheckedVisibilityReducer} from "../shared/Tree/reducers";
 import nextId from 'react-id-generator';
 import { Layers, selectActiveLayer } from 'store/windowMgrSlice';
+import { selectInteractionMode } from 'store/appSlice';
+import { InteractionMode } from 'backend/ViewerManager';
+
 export const windowPrefixId = "Label2D";
 interface labels2DSettings extends LabelSettings {
     defaultParameters : Label2D,
@@ -77,10 +80,11 @@ export const handleLabel2DCreation = createAsyncThunk(
         
         let e = data.data as PointerEvent;
         let rootState = getState() as RootState;
-        let active = selectActiveLayer(rootState);
-        if(active === Layers.LABEL2D) {
-            let pos = [e.clientX,e.clientY];
-            dispatch(createLabel({id:nextId('label-2d'),pid:Label2DType.DEFAULT,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:''}));
+        let mode = selectInteractionMode(rootState);
+        if(mode === InteractionMode.LABEL2D) {
+            let pos = [e.offsetX,e.offsetY];
+            console.log("e",e);
+            dispatch(createLabel({id:nextId('label-2d'),pid:Label2DType.DEFAULT,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:'testing label2d'}));
         }
 });
 
@@ -124,7 +128,7 @@ export const Label2DSlice = createSlice({
         },
         createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],type:Label2DType,msg:string}>) => {
                 
-                const {id,pid,pos,type,msg} = action.payload;
+                const {id,pid,pos,msg} = action.payload;
                 let newNote = {...state.labels2DSettings.defaultParameters};
                 newNote.id = id
                 newNote.pid = pid

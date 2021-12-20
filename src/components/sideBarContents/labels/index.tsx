@@ -9,7 +9,7 @@ import EditNotes2D from './pages/editNotes2D';
 import EditLabels3D from './pages/editLabels3D';
 import EditMeasurements from './pages/editMeasurements'
 
-function ClipPlanes() {
+function Labels() {
     
     return (
         <Switch>
@@ -35,4 +35,4 @@ function ClipPlanes() {
     )
 }
 
-export default ClipPlanes
+export default Labels

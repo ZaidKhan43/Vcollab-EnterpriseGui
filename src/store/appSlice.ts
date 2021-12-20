@@ -90,7 +90,6 @@ export const appSlice = createSlice({
     },
     setInteractionMode :(state, action: PayloadAction<InteractionMode>) => {
         state.interactionMode = action.payload;
-        // viewerAPIProxy.enablePickAndMove(activeViewerID,!isPickAndMoveEnabled)
     },
     addViewer : (state,action : PayloadAction<Viewer>) => {
         state.viewers[action.payload.name] = action.payload.id;

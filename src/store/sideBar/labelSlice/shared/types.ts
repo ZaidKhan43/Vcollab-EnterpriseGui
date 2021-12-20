@@ -23,7 +23,7 @@ export interface ILabel extends TreeNode {
     pos: [number, number],
 }
 
-export interface Label3D extends ILabel {
+export interface ILabel2D extends ILabel {
     anchor: [number,number],
 }
 

@@ -1,29 +1,22 @@
-import React, { useEffect } from 'react'
-//import { selectAllNotes2D, windowPrefixId } from '../../../../store/sideBar/labelSlice/label2DSlice'
-import { useAppDispatch, useAppSelector } from '../../../../store/storeHooks'
-import { setEditMode } from '../../../../store/windowMgrSlice';
-import CustomWindow from '../../../shared/CustomWindow'
-import LabelMsg from './shared/LabelMsg'
+import {  select2DLabelData, setLabelPos, toggleVisibility, windowPrefixId  } from '../../../../store/sideBar/labelSlice/label2DSlice';
+import { useAppSelector } from '../../../../store/storeHooks';
+import Label2D from './Label2D';
 interface Props {
     parentRef:any
 }
 function Label2DWindowLayer(props:Props) {
-    //const notes = useAppSelector(selectAllNotes2D);
-    const dispatch = useAppDispatch();
     
+    const labelTree = useAppSelector(select2DLabelData);
     return (
         <>{
-            // notes.map(note => {
-            //     return (
-            //     <CustomWindow uid={windowPrefixId+note.id} 
-            //         parentRef={props.parentRef} 
-            //         resize 
-            //         autoPositionOnResize
-            //         >
-            //     <LabelMsg key={note.id} msg={note.label}/>
-            //     </CustomWindow>
-            //     )
-            // })
+            [...Object.values(labelTree)].map(label2D => {
+                return label2D.pid !== "-1" ? <Label2D 
+                key = {label2D.id}
+                windowPrefixId={windowPrefixId}
+                label = {label2D}
+                setLabelPosReducer = {setLabelPos}
+                parentRef={props.parentRef}/> : null
+            })
         }
         </>    
     )

@@ -19,7 +19,7 @@ import MuiButton from '@material-ui/core/Button';
 
 import {useState} from 'react';
 
-export default function EditLabels3D(){
+export default function EditLabels2D(){
 
   const label2D = useAppSelector(selectedLabel2D)
   const [labelText,setLabelText] = useState(label2D?label2D.label : "");

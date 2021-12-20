@@ -54,7 +54,6 @@ export default function Measurements(){
   const treeRootIds = useAppSelector(selectRootIds);
   const selectedCount = useAppSelector(selectedLength);
   const checkedNodes = useAppSelector(selectCheckedLeafNodes);
-  console.log("cn",checkedNodes);
   const activeLayer = useAppSelector(selectActiveLayer);
   const isPanBtnPressed = activeLayer === Layers.LABEL3D;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);

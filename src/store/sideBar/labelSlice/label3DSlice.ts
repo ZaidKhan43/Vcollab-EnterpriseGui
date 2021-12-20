@@ -1,7 +1,7 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import {delete3DLabel as delete3DLabelApi, get3DLabelCanvasPos, probe} from '../../../backend/viewerAPIProxy';
 import type { RootState } from '../../index';
-import {LabelMode, Label3D, LabelSettings, Label3DType} from './shared/types';
+import {LabelMode, ILabel2D, LabelSettings, Label3DType} from './shared/types';
 import { setLabelModeReducer } from './shared/reducers';
 import {ITreeState} from "../shared/Tree/types";
 import {   
@@ -24,14 +24,14 @@ import { batch } from 'react-redux';
 
 export const windowPrefixId = "Label3D";
 interface Labels3DSettings extends LabelSettings {
-    defaultParameters : Label3D,
+    defaultParameters : ILabel2D,
     pointCount : number,
     faceCount: number,
 } 
 
 
 interface InitialState extends ITreeState {
-    data : {[id:string]:Label3D},
+    data : {[id:string]:ILabel2D},
     rootIds : string[],
     labels3DSettings : Labels3DSettings,
     
@@ -199,8 +199,8 @@ export const selectedLength = (state:RootState) => {
      return (array.length);
 }
 export const selectLabelMode = (state:RootState):LabelMode => state.label3D.labels3DSettings.mode;
-export const selectedLabel3D = (state: RootState):Label3D | null=> {
-    let node:Label3D | null = null;
+export const selectedLabel3D = (state: RootState):ILabel2D | null=> {
+    let node:ILabel2D | null = null;
     const length = selectedLength(state);
 
     if(length === 1){
