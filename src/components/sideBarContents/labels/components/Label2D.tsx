@@ -48,10 +48,10 @@ function Label2D(props:Label2DProps) {
     
     const label = props.label;
     return (
-        label.state.visibility ?
         < >
                 <Window
                 uid={props.windowPrefixId+label.id} 
+                visible = {label.state.visibility ? true : false} 
                 width={childRef?.current?.clientWidth | 0} 
                 height={childRef?.current?.clientHeight | 0} 
                 resize 
@@ -65,7 +65,6 @@ function Label2D(props:Label2DProps) {
                     <LabelMsg ref={childRef} msg={label.label}/>
                 </Window>
         </>
-        :null
     )
 }
 

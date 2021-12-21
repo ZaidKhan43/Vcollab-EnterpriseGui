@@ -10,6 +10,9 @@ import { get3DLabelCanvasPos } from '../../../../../../backend/viewerAPIProxy';
 
 type Props = {
     labelTree: {[id:string]:ILabel},
+    onStart?: () => void,
+    onRotate?: () => void,
+    onStop?: () => void,
     toggleVisibilityReducer: ActionCreatorWithPayload<
     {
         toShow: boolean;
@@ -31,15 +34,20 @@ function useHideOnRotate(props:Props) {
     const toggleVisibility = props.toggleVisibilityReducer;
     const setLabelPos = props.setLabelPosReducer;
     useEffect(() => {
+        if(Object.values(labelTree).length === 0)
+        return;
+
+        if(props.onRotate)props.onRotate();
         if (timer.current !== null){
             clearTimeout(timer.current);
         } 
         else{
             //first
+            if(props.onStart)props.onStart() 
             batch(() => {
                 Object.values(labelTree).forEach(l => {
                     if(l.pid !== "-1"){
-                        wasVisible.current[l.id] = l.state.visibility as boolean;
+                        wasVisible.current[l.id] = l.state.visibility ? true : false;
                          dispatch(toggleVisibility({
                             toShow: false,
                             nodeId: l.id
@@ -49,6 +57,7 @@ function useHideOnRotate(props:Props) {
             })
         }
         timer.current = setTimeout(() => {
+            if(props.onStop)props.onStop();
             batch(() => {
                 Object.values(labelTree).forEach(l => {
                     if(l.pid !== "-1") {
@@ -59,7 +68,6 @@ function useHideOnRotate(props:Props) {
                             dispatch(setLabelPos({id:l.id,pos:isInitial?hitPos:p, anchor:hitPos}));
                         }
                         //last
-                        timer.current = null; 
                         if(wasVisible.current[l.id]){
                             dispatch(toggleVisibility({
                                 toShow: true,
@@ -68,7 +76,8 @@ function useHideOnRotate(props:Props) {
                         }
                     }
                 });
-            })
+            });
+            timer.current = null; 
             
         },500);
 },[cameraMat])

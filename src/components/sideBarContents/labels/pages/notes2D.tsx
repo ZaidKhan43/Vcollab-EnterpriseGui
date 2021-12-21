@@ -39,8 +39,8 @@ import { useRef, useEffect } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
 import { Layers, selectActiveLayer , setActiveLayer, setEditMode} from '../../../../store/windowMgrSlice';
 import { windowPrefixId } from '../../../../store/sideBar/labelSlice/label2DSlice';
-import { selectInteractionMode, setInteractionModeAsync } from 'store/appSlice';
-import { InteractionMode } from 'backend/viewerAPIProxy';
+import { selectInteractionMode, setLabelInsertionState, selectActiveViewerID } from 'store/appSlice';
+import { InteractionMode, setInteractionMode } from 'backend/viewerAPIProxy';
 
 export default function Labels2D(){
 
@@ -55,6 +55,7 @@ export default function Labels2D(){
   const selectedCount = useAppSelector(selectedLength);
   const activeLayer = useAppSelector(selectActiveLayer);
   const interactionMode = useAppSelector(selectInteractionMode);
+  const viewerId = useAppSelector(selectActiveViewerID);
   const isPanBtnPressed = activeLayer === Layers.LABEL2D;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
@@ -107,7 +108,9 @@ export default function Labels2D(){
   }
 
   const handleAdd = (node:ITreeNode) => {
-     dispatch(setInteractionModeAsync(interactionMode !== InteractionMode.LABEL2D ? InteractionMode.LABEL2D : InteractionMode.DEFAULT))
+    let mode = interactionMode !== InteractionMode.LABEL2D ? InteractionMode.LABEL2D : InteractionMode.DEFAULT;
+    setInteractionMode(viewerId, mode);
+    dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL2D));
   }
   const onHandleDeleteButton = () => {
     dispatch(delete3DLabel({}));

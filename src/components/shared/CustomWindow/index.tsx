@@ -92,6 +92,7 @@ const TitleBar = React.forwardRef((props:TitleProps, ref) => {
 
 export type CustomWindowProps = {
     uid: string,
+    visible: boolean,
     xy?:[number,number],
     title?: string,
     width?: number,
@@ -167,9 +168,6 @@ const CustomWindow = forwardRef((props:CustomWindowProps, ref:any) => {
     }
     let classes = useStyles(styleProps);
 
-    const toggleVisibility = (v:boolean) => {
-        dispatch(setHiddenState({uid, isHidden: window ? !window.isHidden : false}));
-    }
     const handleClick = (e:any) => {
         e.stopPropagation()
     }
@@ -188,6 +186,14 @@ const CustomWindow = forwardRef((props:CustomWindowProps, ref:any) => {
             dispatch(removeWindow({uid}));
         }
     },[])
+
+    useEffect(() => {
+        const toggleVisibility = (v:boolean) => {
+            dispatch(setHiddenState({uid, isHidden: window ? !window.isHidden : false}));
+        }
+
+        toggleVisibility(props.visible);
+    },[props.visible])
 
     useLayoutEffect(() => {
         if(titleBarRef.current) {

@@ -24,27 +24,32 @@ function Label3D(props:Label3DProps) {
     const endRef = useRef<any | null>(null);
     const childRef = useRef<any | null>(null);
     const dispatch = useAppDispatch();
+    const updateArrow = useXarrow();
     const handleWindowDrag = (e:any,data:any) => {
         console.log("drag",data);
         let l = props.label;
         let a = l.anchor;
         let newPos:[number,number] = [Math.max(0,l.pos[0] + data.deltaX),Math.max(0,l.pos[1]+data.deltaY)];
         dispatch(props.setLabelPosReducer({id: l.id,pos:newPos, anchor:a}));
+        //updateArrow();
     }
     const handleWindowDragStop = (x:number,y:number) => {
         let l = props.label;
         let a = l.anchor;
         console.log("drag Stop",x,y);
         dispatch(props.setLabelPosReducer({id: l.id,pos:[x,y], anchor:a}));
+        //updateArrow();
     }
     const handleWindowResize = () => {
         console.log("resize");
+        //updateArrow();
     }
     const handleWindowResizeStop = (x:number,y:number) => {
         let l = props.label;
         let a = l.anchor;
         console.log("resize stop",x,y);
         dispatch(props.setLabelPosReducer({id: l.id,pos:[x,y], anchor:a}));
+        //updateArrow();
     }
     useEffect(() => {
         if(childRef.current) {
@@ -52,15 +57,18 @@ function Label3D(props:Label3DProps) {
             dispatch(setWindowSize({uid:props.windowPrefixId+props.label.id, size:[div.clientWidth,div.clientHeight]}));
         }
     },[childRef])
-    
+    useEffect(() => {
+        //updateArrow();
+    },[props.label.anchor,props.label.pos])
     const label = props.label;
     return (
-        label.state.visibility ?
+        
         < >
-            <LabelAnchor ref={startRef} pos={label.anchor}/>
+            <LabelAnchor ref={startRef} pos={label.anchor} visible={label.state.visibility ? true :false} />
                 <Window
                 ref={endRef} 
                 uid={props.windowPrefixId+label.id} 
+                visible={label.state.visibility ? true : false}
                 width={childRef?.current?.clientWidth | 0} 
                 height={childRef?.current?.clientHeight | 0} 
                 resize 
@@ -70,11 +78,13 @@ function Label3D(props:Label3DProps) {
                 onDragStop={handleWindowDragStop}
                 onResize={handleWindowResize}
                 onResizeStop={handleWindowResizeStop}
+                autoPositionOnResize = {false}
                 >
                     <LabelMsg ref={childRef} msg={label.label}/>
                 </Window>
                 <Xarrow 
                 start={startRef} 
+                showXarrow={label.state.visibility}
                 end={endRef} 
                 path={'straight'} 
                 strokeWidth={2}
@@ -83,7 +93,6 @@ function Label3D(props:Label3DProps) {
                 showHead={false} 
                 showTail={false}/>
         </>
-        :null
     )
 }
 

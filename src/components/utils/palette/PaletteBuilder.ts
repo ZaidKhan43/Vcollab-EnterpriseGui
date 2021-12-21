@@ -15,6 +15,7 @@ type PaletteElementOptions = {
     textBottom: string;
     textColor: string;
     valueType: ValueType;
+    title:string;
     paletteType: LegendType;
     paletteDirection: LegendDirection;
     valuePlacement: LegendValuePlacement;
@@ -42,6 +43,7 @@ class PaletteElement {
     private textBottom: string;
     private textColor: string;
     private valueType: ValueType;
+    private title :string;
     private paletteType: LegendType;
     private paletteDirection: LegendDirection;
     private valuePlacement: LegendValuePlacement;
@@ -63,6 +65,7 @@ class PaletteElement {
         this.textBottom = options.textBottom;
         this.textColor = options.textColor;
         this.valueType = options.valueType;
+        this.title = options.title;
         this.paletteType = options.paletteType;
         this.paletteDirection = options.paletteDirection;
         this.valuePlacement = options.valuePlacement;
@@ -1042,13 +1045,13 @@ class PaletteElement {
 
         if (this.titlePlacement === LegendTitlePlacement.TOP) {
 
-            ctx.fillText("Legend", this.x, this.y - 20);
+            ctx.fillText(this.title, this.x, this.y - 20);
 
         }
 
         else if (this.titlePlacement === LegendTitlePlacement.BOTTOM) {
 
-            ctx.fillText("Legend", this.x, (legendHeight+50) );
+            ctx.fillText(this.title, this.x, (legendHeight+50) );
 
         }
 
@@ -1070,27 +1073,27 @@ class PaletteElement {
 
             case this.titlePlacement === LegendTitlePlacement.TOP_LEFT:
 
-                return ctx.fillText("Legend", this.x, this.y - 40);
+                return ctx.fillText(this.title, this.x, this.y - 40);
 
             case this.titlePlacement === LegendTitlePlacement.TOP_MIDDLE:
 
-                return ctx.fillText("Legend", (this.x + legendWidth / 2) , this.y - 40);
+                return ctx.fillText(this.title, (this.x + legendWidth / 2) , this.y - 40);
 
             case this.titlePlacement === LegendTitlePlacement.TOP_RIGHT:
 
-                return ctx.fillText("Legend", (this.x + legendWidth) , this.y - 40);
+                return ctx.fillText(this.title, (this.x + legendWidth) , this.y - 40);
 
             case this.titlePlacement === LegendTitlePlacement.BOTTOM_LEFT:
 
-                return ctx.fillText("Legend", this.x, this.y + this.height + 40);
+                return ctx.fillText(this.title, this.x, this.y + this.height + 40);
 
             case this.titlePlacement === LegendTitlePlacement.BOTTOM_MIDDLE:
 
-                return ctx.fillText("Legend", this.x + legendWidth / 2, this.y + this.height + 40);
+                return ctx.fillText(this.title, this.x + legendWidth / 2, this.y + this.height + 40);
 
             case this.titlePlacement === LegendTitlePlacement.BOTTOM_RIGHT:
 
-                return ctx.fillText("Legend", this.x + legendWidth, this.y + this.height + 20);
+                return ctx.fillText(this.title, this.x + legendWidth, this.y + this.height + 20);
 
         }
 
@@ -1099,7 +1102,6 @@ class PaletteElement {
 
 
 }
-
 
 export class Palette {
     private position: { x: number, y: number};
@@ -1114,6 +1116,7 @@ export class Palette {
     private minMax: [number, number];
     private colors: string[];
     private values: number[];
+    private title:string;
     private paletteType: LegendType;
     private paletteDirection: LegendDirection;
     private valuePlacement: LegendValuePlacement;
@@ -1130,6 +1133,7 @@ export class Palette {
         this.baseline = 'middle';
         this.colors = ['#ee4035', '#f37736', '#fdf498', '#7bc043', '#ee4035', '#f37736', '#fdf498'];
         this.values = [100, 50, 30, 0, 10, 15, 20];
+        this.title = "Legend";
         this.paletteType = LegendType.DISCRETE;
         this.ticks = LegendTicsType.RUNNING_ACROSS;
         this.paletteDirection = LegendDirection.VERTICAL;
@@ -1184,6 +1188,7 @@ export class Palette {
                 width: this.bandWidth,
                 height: this.bandHeight,
                 colorTop: this.colors[i],
+                title:this.title,
                 colorBottom: this.paletteType === LegendType.CONTINUOUS ? this.colors[i + 1] : this.colors[i],
                 textTop: this.paletteType === LegendType.CONTINUOUS && i === 0 ? (this.values[i]).toString() : null,
                 textCenter: this.paletteType === LegendType.DISCRETE ? (this.values[i]).toString() : null,
@@ -1271,11 +1276,7 @@ export class Palette {
 
     setPaletteTittlePlacement(tittle: any) {
 
-        if (tittle === LegendTitlePlacement.AUTO) {
-
-            this.titlePlacement = LegendTitlePlacement.AUTO;
-        }
-        else if (tittle === LegendTitlePlacement.BOTTOM) {
+         if (tittle === LegendTitlePlacement.BOTTOM) {
 
             this.titlePlacement = LegendTitlePlacement.BOTTOM;
 
@@ -1320,11 +1321,7 @@ export class Palette {
 
     setPaletteValuePlacement(value: any) {
 
-        if (value === LegendValuePlacement.AUTO) {
-
-            this.valuePlacement = LegendValuePlacement.AUTO;
-        }
-        else if (value === LegendValuePlacement.BOTTOM) {
+        if (value === LegendValuePlacement.BOTTOM) {
 
             this.valuePlacement = LegendValuePlacement.BOTTOM;
 
@@ -1371,7 +1368,6 @@ export class Palette {
         this.gap = Gap;
     }
 }
-
 
 export class PaletteBuilder {
 

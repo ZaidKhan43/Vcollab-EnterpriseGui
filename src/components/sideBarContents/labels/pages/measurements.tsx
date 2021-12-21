@@ -8,7 +8,7 @@ import styles from './style'
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import BackButton from '../../../icons/back';
 
-
+import {InteractionMode, setInteractionMode} from 'backend/viewerAPIProxy';
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree from '../../../shared/RsTreeTable';
@@ -16,7 +16,7 @@ import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/mea
 import {windowPrefixId, invertNode, expandNode, selectMeasurementsData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, selectLabelMode, setLabelMode} from '../../../../store/sideBar/labelSlice/measurementsSlice'
 import { setEditMode } from '../../../../store/windowMgrSlice';
 
-import AddIcon from "@material-ui/icons/Add";
+import AddCell from '../components/shared/TreeIcons/AddCell'
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
 import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
@@ -40,7 +40,8 @@ import { convertListToTree } from '../../../utils/tree';
 import { useRef, useEffect } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
 import {Layers,selectActiveLayer,setActiveLayer} from '../../../../store/windowMgrSlice'
-
+import { selectInteractionMode, selectActiveViewerID, setLabelInsertionState, setSelectedLabelMode } from 'store/appSlice';
+import { Label3DType } from 'store/sideBar/labelSlice/shared/types';
 
 export default function Measurements(){
 
@@ -49,12 +50,13 @@ export default function Measurements(){
   const onClickBackIcon = () =>{
     dispatch(goBack());
   }
-  
+  const interactionMode = useAppSelector(selectInteractionMode);
   const treeDataRedux = useAppSelector(selectMeasurementsData);
   const treeRootIds = useAppSelector(selectRootIds);
   const selectedCount = useAppSelector(selectedLength);
   const checkedNodes = useAppSelector(selectCheckedLeafNodes);
   const activeLayer = useAppSelector(selectActiveLayer);
+  const viewerId = useAppSelector(selectActiveViewerID);
   const isPanBtnPressed = activeLayer === Layers.LABEL3D;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
@@ -109,6 +111,33 @@ export default function Measurements(){
     dispatch(delete3DLabel({}));
   }
 
+  const handleAdd = (node:any) => {
+      if(node.id === Label3DType.DISTANCE){
+        let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT ? InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT : InteractionMode.DEFAULT;
+        setInteractionMode(viewerId, mode);
+        dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT));
+      }
+      else if(node.id === Label3DType.ARC){
+        let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC ? InteractionMode.LABEL_MEASUREMENT_3PT_ARC : InteractionMode.DEFAULT;
+        setInteractionMode(viewerId, mode);
+        dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC));
+      }
+  }
+
+  const isNodeSelected = (node:any):boolean => {
+    let out = false;
+    switch(node.id) {
+      case Label3DType.DISTANCE:
+        out = interactionMode === InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT;
+        break;
+      case Label3DType.ARC:
+        out = interactionMode === InteractionMode.LABEL_MEASUREMENT_3PT_ARC;
+        break;
+      default:
+        break;
+    }
+    return out;
+  }
   const getBody = () => {
     return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
@@ -147,14 +176,7 @@ export default function Measurements(){
                 ?
                  <ShowHideCell node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
                 :        
-                  <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
-                    <MuiGrid item xs={4}></MuiGrid>
-                    <MuiGrid item xs={6}>
-                      <MuiIconButton size='small' >
-                        <AddIcon fontSize='default'/> 
-                      </MuiIconButton> 
-                    </MuiGrid>
-                  </MuiGrid>
+                <AddCell node = {treeDataRedux[node.id]} selected={isNodeSelected(node)} onToggle={() => handleAdd(node)}/>
               }    
             </div>
           ) 

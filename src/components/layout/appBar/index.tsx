@@ -6,7 +6,7 @@ import MuiIconButton from '@material-ui/core/IconButton';
 import MuiTooltip from '@material-ui/core/Tooltip';
 import MuiClickAwayListener from '@material-ui/core/ClickAwayListener';
 import MuiToggleButton from '@material-ui/lab/ToggleButton';
-
+import ToggleSplitBtn from 'components/shared/ToggleSplitBtn';
 
 import clsx from 'clsx';
 import Displaymodes from '../../icons/displaymodes';
@@ -17,6 +17,7 @@ import MeasureArcIcon from '@material-ui/icons/Looks';
 import PickAndMoveIcon from '@material-ui/icons/ThreeDRotation';
 import ProbeLabelIcon from "@material-ui/icons/Room";
 import ProbeIcon from '@material-ui/icons/Colorize'
+import NoteIcon from '@material-ui/icons/NoteAdd';
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import FullscreenClose from '../../icons/fullscreen_exit';
 import Hamburger from '../../icons/hamburger';
@@ -24,7 +25,7 @@ import More from '../../icons/more';
 
 import { selectModelName, selectFullscreenStatus,selectSidebarVisibility, 
   selectActiveViewerID,setFullscreenState, setSidebarVisibility ,  
-  setPopupMenuActiveContent, setPopupMenuDisplayMode , setInteractionModeAsync, selectInteractionMode } from '../../../store/appSlice';
+  setPopupMenuActiveContent, setPopupMenuDisplayMode , setInteractionModeAsync, selectInteractionMode, selectLabelInsertState, selectSelectedLabelInsertMode, setSelectedLabelMode, setLabelInsertionState } from '../../../store/appSlice';
 import {enableProbe,selectProbeEnabled} from '../../../store/probeSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
 
@@ -41,10 +42,32 @@ function AppBar() {
     const isFullscreenEnabled = useAppSelector(selectFullscreenStatus);
     const isSidebarVisible = useAppSelector(selectSidebarVisibility);
     const interactionMode = useAppSelector(selectInteractionMode); 
-    const isMeasureP2PEnabled = interactionMode === InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT;
-    const isMeasureArcEnabled = interactionMode === InteractionMode.LABEL_MEASUREMENT_3PT_ARC;
+    const labelInsertionState = useAppSelector(selectLabelInsertState);
+    const [selectedLabelInsertionMode, setSelectedLabelInsertionMode] = useState(InteractionMode.LABEL2D);
+    const labelInsertModeOptions = [
+      {
+        id: InteractionMode.LABEL2D,
+        title: '2D Note',
+        icon: <NoteIcon/>
+      },
+      {
+        id: InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT,
+        title:'P2P',
+        icon:<MeasureP2PIcon></MeasureP2PIcon>
+      },
+      {
+        id: InteractionMode.LABEL_MEASUREMENT_3PT_ARC,
+        title:'Arc',
+        icon: <MeasureArcIcon></MeasureArcIcon>
+      },
+      {
+        id:InteractionMode.LABEL3D_POINT,
+        title:'Probe Point',
+        icon: <ProbeLabelIcon/>
+      }
+    ]
+   
     const isContinousProbeEnabled = interactionMode === InteractionMode.CONTINUOUS_PROBE;
-    const isPinLabel3DEnabled = interactionMode === InteractionMode.LABEL3D_POINT; 
     const isPickAndMoveEnabled = interactionMode === InteractionMode.PICK_AND_MOVE;
     const activeViewerID = useAppSelector(selectActiveViewerID);
     const modelName = useAppSelector(selectModelName);
@@ -58,12 +81,36 @@ function AppBar() {
       dispatch(setFullscreenState(!isFullscreenEnabled));
     }
 
-    const onClickMeasureP2P = () => {
-      viewerAPIProxy.setInteractionMode( activeViewerID,!isMeasureP2PEnabled ? InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT : InteractionMode.DEFAULT);
+    const handleLabelInsertModeChange = (id:number) => {
+      setSelectedLabelInsertionMode(id)
     }
 
-    const onClickMeasureArc = () => {
-      viewerAPIProxy.setInteractionMode(activeViewerID,!isMeasureArcEnabled ? InteractionMode.LABEL_MEASUREMENT_3PT_ARC : InteractionMode.DEFAULT);
+    useEffect(() => {
+      let id = labelInsertionState ? selectedLabelInsertionMode : InteractionMode.DEFAULT;
+      viewerAPIProxy.setInteractionMode( activeViewerID, id);
+    },[labelInsertionState, activeViewerID, selectedLabelInsertionMode])
+
+    useEffect(() => {
+      switch (interactionMode) {
+        case InteractionMode.LABEL2D:
+          setSelectedLabelInsertionMode(InteractionMode.LABEL2D);
+          break;
+        case InteractionMode.LABEL3D_POINT:
+          setSelectedLabelInsertionMode(InteractionMode.LABEL3D_POINT);
+          break;
+        case InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT:
+          setSelectedLabelInsertionMode(InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT);
+          break;
+        case InteractionMode.LABEL_MEASUREMENT_3PT_ARC:
+          setSelectedLabelInsertionMode(InteractionMode.LABEL_MEASUREMENT_3PT_ARC);
+          break;
+        default:
+          break;
+      }
+    },[interactionMode])
+
+    const handleLabelInsertModeClick = () => {
+      dispatch(setLabelInsertionState(!labelInsertionState));
     }
 
     const onClickPickAndMove = () => {
@@ -74,10 +121,7 @@ function AppBar() {
         viewerAPIProxy.resetPickAndMove(activeViewerID);
     }
 
-    const onClickPin = () => {
-      viewerAPIProxy.setInteractionMode( activeViewerID, !isPinLabel3DEnabled ? InteractionMode.LABEL3D_POINT : InteractionMode.DEFAULT);
-    }
-
+    
     const onClickProbe = () => {
       viewerAPIProxy.setInteractionMode( activeViewerID, !isContinousProbeEnabled ? InteractionMode.CONTINUOUS_PROBE : InteractionMode.DEFAULT);
     }
@@ -145,21 +189,16 @@ function AppBar() {
           </div>
      
           <div className={classes.toolBarRightContent}>
-            <div className={classes.divIcon} onClick={ onClickMeasureP2P}>
-              <MuiToggleButton value='measure p2p label' selected={isMeasureP2PEnabled}>
-                  <MeasureP2PIcon></MeasureP2PIcon>
-              </MuiToggleButton>
+            <div className={classes.divIcon} onClick={() => {}}>
+            <ToggleSplitBtn 
+              options={labelInsertModeOptions}
+              selectedId={selectedLabelInsertionMode}
+              isSelectionEnabled={labelInsertionState}
+              onChange={handleLabelInsertModeChange}
+              onClick={handleLabelInsertModeClick}
+            />
             </div>
-            <div className={classes.divIcon} onClick={ onClickMeasureArc}>
-              <MuiToggleButton value='measure arc label' selected={isMeasureArcEnabled}>
-                  <MeasureArcIcon></MeasureArcIcon>
-              </MuiToggleButton>
-            </div>
-            <div className={classes.divIcon} onClick={ onClickPin}>
-              <MuiToggleButton value='probe label' selected={isPinLabel3DEnabled}>
-                  <ProbeLabelIcon></ProbeLabelIcon>
-              </MuiToggleButton>
-            </div>
+            
             <div className={classes.divIcon} onClick={ onClickPickAndMove } >
                   <MuiToggleButton value='pick & move' selected={ isPickAndMoveEnabled } ><PickAndMoveIcon /></MuiToggleButton> 
             </div>

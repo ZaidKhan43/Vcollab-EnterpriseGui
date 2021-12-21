@@ -20,6 +20,8 @@ type AppState = {
     popupMenuDisplayMode : any | null,
 
     interactionMode: InteractionMode,
+    labelInsertState: boolean,
+    selectedLabelInsertMode: InteractionMode,
     isModelLoaded:boolean,
     modelLoadingStatus : string ,
     modelInfo : Array<any>,
@@ -38,6 +40,8 @@ const initialState: AppState = {
     popupMenuDisplayMode : null,
 
     interactionMode: InteractionMode.DEFAULT,
+    labelInsertState: false,
+    selectedLabelInsertMode: InteractionMode.LABEL2D,
     isModelLoaded:false,
     modelLoadingStatus : '' ,
     modelInfo:[],
@@ -53,6 +57,7 @@ const setDefaultInteractModeAsync = createAsyncThunk("appSlice/setDefaultInterac
     dispatch(enableProbe({isEnabled: false}));
 });
 
+// do not use it, will be called from event of app
 export const setInteractionModeAsync = createAsyncThunk("appSlice/setInteractionModeAsync",
 (data:InteractionMode,{dispatch, getState}) => {
     dispatch(appSlice.actions.setInteractionMode(data));
@@ -91,6 +96,12 @@ export const appSlice = createSlice({
     setInteractionMode :(state, action: PayloadAction<InteractionMode>) => {
         state.interactionMode = action.payload;
     },
+    setLabelInsertionState :(state, action: PayloadAction<boolean>) => {
+        state.labelInsertState = action.payload;
+    },
+    setSelectedLabelMode: (state, action:PayloadAction<InteractionMode>) => {
+        state.selectedLabelInsertMode = action.payload;
+    },
     addViewer : (state,action : PayloadAction<Viewer>) => {
         state.viewers[action.payload.name] = action.payload.id;
         if(state.activeViewer === null)
@@ -115,6 +126,8 @@ export const { setAppBarVisibility,
                 setModelLoadedState,
                 setModelLoadingStatus,
                 setModelInfo,
+                setLabelInsertionState,
+                setSelectedLabelMode,
                 addViewer,
                 setActiveViewer,
                 setPopupMenuDisplayMode,
@@ -136,6 +149,8 @@ export const selectModelName= (state : RootState) => {
     return "";
 };
 export const selectInteractionMode = (state:RootState):InteractionMode => state.app.interactionMode;
+export const selectLabelInsertState = (state:RootState):boolean => state.app.labelInsertState;
+export const selectSelectedLabelInsertMode = (state:RootState):InteractionMode => state.app.selectedLabelInsertMode;
 export const selectActiveViewerID = (state : RootState) => state.app.viewers[state.app.activeViewer  || ''];
 export const selectPopupMenuDisplayMode= (state : RootState) => {
     const data = [...displayMenuItems];

@@ -13,7 +13,7 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 import RTree from '../../../shared/RsTreeTable';
 import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/label3DSlice';
 import {invertNode, expandNode, select3DLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel} from '../../../../store/sideBar/labelSlice/label3DSlice'
-import AddIcon from "@material-ui/icons/Add";
+import AddCell from '../components/shared/TreeIcons/AddCell'
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
 import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
@@ -39,6 +39,8 @@ import { useRef, useEffect } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
 import { Layers, selectActiveLayer , setActiveLayer, setEditMode} from '../../../../store/windowMgrSlice';
 import { windowPrefixId } from '../../../../store/sideBar/labelSlice/label3DSlice';
+import { selectActiveViewerID, selectInteractionMode, setLabelInsertionState, setSelectedLabelMode } from 'store/appSlice';
+import { InteractionMode , setInteractionMode} from 'backend/viewerAPIProxy';
 
 export default function Labels3D(){
 
@@ -46,12 +48,13 @@ export default function Labels3D(){
   const onClickBackIcon = () =>{
     dispatch(goBack()); 
   }
-  
+  const interactionMode = useAppSelector(selectInteractionMode);
   const treeDataRedux = useAppSelector(select3DLabelData);
   const treeRootIds = useAppSelector(selectRootIds);
   const checkedNodes = useAppSelector(selectCheckedLeafNodes);
   const selectedCount = useAppSelector(selectedLength);
   const activeLayer = useAppSelector(selectActiveLayer);
+  const viewerId = useAppSelector(selectActiveViewerID);
   const isPanBtnPressed = activeLayer === Layers.LABEL3D;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
@@ -107,6 +110,11 @@ export default function Labels3D(){
     dispatch(delete3DLabel({}));
   }
 
+  const handleAdd = () => {
+     let mode = interactionMode !== InteractionMode.LABEL3D_POINT ? InteractionMode.LABEL3D_POINT : InteractionMode.DEFAULT;
+     setInteractionMode(viewerId, mode);
+     dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL3D_POINT));
+  }
   
 
   const getBody = () => {
@@ -148,14 +156,7 @@ export default function Labels3D(){
                 ?
                  <ShowHideCell node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
                 :        
-                  <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
-                    <MuiGrid item xs={4}></MuiGrid>
-                    <MuiGrid item xs={6}>
-                      <MuiIconButton size='small' >
-                        <AddIcon fontSize='default'/> 
-                      </MuiIconButton> 
-                    </MuiGrid>
-                  </MuiGrid>
+                <AddCell node = {treeDataRedux[node.id]} selected={interactionMode === InteractionMode.LABEL3D_POINT} onToggle={handleAdd}/>
               }    
             </div>
           )
