@@ -46,6 +46,7 @@ export default function LegendSettings() {
   const [isTitleOptionsError , setTitleOptionsError] = useState<boolean>(false);
   const [isValueOptionsError , setValueOptionsError] = useState<boolean>(false);
   const [isLegendSettingsError , setLegendSettingsError] = useState<boolean>(false);
+  const ErrorMsg:string = "please select correct option"; 
 
 
 
@@ -111,8 +112,6 @@ export default function LegendSettings() {
     dispatch(setLegendSettings({colorMapId: selectedColorMapId, newPaletteType: paletteType, newDirection: direction, newTicPosition: ticPosition, newTitlePlacement: titlePlacement, newValuePlacement: valuePlacement, newGap: gapValue}))
   }
 
-
-
   const getHeaderLeftIcon = () => {
     return (
       <MuiIconButton onClick={() => onClickBackIcon()}>
@@ -163,6 +162,7 @@ export default function LegendSettings() {
   const getHeaderRightIcon = () => {
     return <div></div>;
   };
+  
   const getAction = () => {
     
     const parentNodes = list.filter(item => item.children?.length !== 0)
@@ -210,7 +210,6 @@ export default function LegendSettings() {
     )
   };
 
-
   
   const getBody = () => {
 
@@ -223,6 +222,7 @@ export default function LegendSettings() {
             id="display-modes-selection-id"
             label = {"Palette Type"}
             value={paletteType}
+            error={false}
             disabled = {readOnly}
             onChange={(e : any) => handleSelectChange(e.target.value, "paletteType") }
             MenuProps={{
@@ -245,6 +245,7 @@ export default function LegendSettings() {
             id="display-modes-selection-id"
             label = {"Direction"}
             value={direction}
+            error={false}
             disabled = {readOnly}
             onChange={(e : any) => handleSelectChange(e.target.value, "direction")}
             MenuProps={{
@@ -267,6 +268,7 @@ export default function LegendSettings() {
             id="display-modes-selection-id"
             label = {"Tic Position"}
             value={ticPosition}
+            error={false}
             disabled = {readOnly}
             onChange={(e : any) => handleSelectChange(e.target.value, "ticPosition")}
             MenuProps={{
@@ -291,6 +293,7 @@ export default function LegendSettings() {
             id="demo-simple-select-error"
             label = {"Title Placement"}
             value={titlePlacement}
+            error={isTitleOptionsError}
             disabled = {readOnly}
             onChange={(e : any) => handleSelectChange(e.target.value, "titlePlacement")}
             MenuProps={{
@@ -306,8 +309,6 @@ export default function LegendSettings() {
 
           </SelectAction>
 
-          {isTitleOptionsError ? <div className={classes.invalid}>please select correct option</div>:null}
-
           </div>
 
           <div className={classes.legendSelection}>
@@ -317,6 +318,7 @@ export default function LegendSettings() {
             id="display-modes-selection-id"
             label = {"Value Placement"}
             value={valuePlacement}
+            error={isValueOptionsError}
             disabled = {readOnly}
             onChange={(e : any) => handleSelectChange(e.target.value, "valuePlacement")}
             MenuProps={{
@@ -330,7 +332,6 @@ export default function LegendSettings() {
           >
             {getmenuItems(valuePlacementList, false)}
           </SelectAction>
-          {isValueOptionsError ? <div className={classes.invalid}>please select correct option</div>:null}
           </div>
 
         <div style={{ textAlign: "left", marginTop: "30px", marginLeft:"10px",marginBottom:"5px" }}>
@@ -355,18 +356,20 @@ export default function LegendSettings() {
   };
 
 
-
 const compareLegendOptions =()=> {
 
   let isSelectedOption ;
   let horizontalTitlePlacement ;
   let verticalTitlePlacement ;
 
+  let selectedLegendType = parseInt(paletteType);
   let selectedLegendDirection = parseInt(direction) ;
   let selectedTitlePlacement = parseInt(titlePlacement);
   let selectedValuePlacement = parseInt(valuePlacement);
 
-  if(selectedLegendDirection === LegendDirection.HORIZONTAL) {
+
+
+  if(selectedLegendDirection === LegendDirection.HORIZONTAL || selectedLegendDirection === LegendDirection.AUTO) {
 
         if(selectedValuePlacement === LegendValuePlacement.TOP || selectedValuePlacement === LegendValuePlacement.BOTTOM || selectedValuePlacement === LegendValuePlacement.ALTERNATING) {
 
@@ -411,7 +414,7 @@ const compareLegendOptions =()=> {
   }
 
 
-  if(selectedLegendDirection === LegendDirection.HORIZONTAL) {
+  if(selectedLegendDirection === LegendDirection.HORIZONTAL ||selectedLegendDirection === LegendDirection.AUTO) {
 
       if(horizontalTitlePlacement === true && horizontalTitlePlacement !== undefined && isSelectedOption === true) {
 
@@ -442,7 +445,14 @@ const compareLegendOptions =()=> {
     }
 
   }
-  
+
+  // if(selectedLegendType === LegendType.AUTO || selectedLegendDirection === LegendDirection.AUTO) {
+
+  //   isSelectedOption = false ;
+  //   return isSelectedOption ;
+
+  // }
+
 } 
 
 const compareHorizontalTitlePlacementOptions = (selectedLegendDirection:number ,selectedTitlePlacement:number)=> {
@@ -510,8 +520,72 @@ useEffect(() => {
     setLegendSettingsError(true);
   }
 
-
 },[paletteType ,direction , titlePlacement ,valuePlacement]);
+
+//Automatically change legend option
+
+useEffect(()=> {
+
+  let selectedLegendDirection = parseInt(direction) ;
+
+  if(selectedLegendDirection === LegendDirection.VERTICAL) {
+
+    titlePlacementList.map((menu:any)=> {
+
+      let id = parseInt(menu.id);
+
+      if(id === LegendTitlePlacement.TOP) {
+
+        setTitlePlacement(id.toString());
+      }
+
+
+    })
+
+    valuePlacementList.map((menu:any)=> {
+
+      let id = parseInt(menu.id);
+
+      if(id === LegendValuePlacement.RIGHT) {
+
+        setValuePlacament(id.toString());
+      }
+
+
+    })
+
+  }
+  else if(selectedLegendDirection === LegendDirection.HORIZONTAL || selectedLegendDirection === LegendDirection.AUTO ) {
+
+    titlePlacementList.map((menu:any)=> {
+
+      let id = parseInt(menu.id);
+
+      if(id === LegendTitlePlacement.TOP_LEFT) {
+
+        setTitlePlacement(id.toString());
+      }
+
+
+    })
+
+    valuePlacementList.map((menu:any)=> {
+
+      let id = parseInt(menu.id);
+
+      if(id === LegendValuePlacement.TOP) {
+
+        setValuePlacament(id.toString());
+      }
+
+
+    })
+
+
+  }
+
+
+},[direction])
 
 
   const getFooter = () => {
@@ -525,11 +599,13 @@ useEffect(() => {
       
     return (
       <div>
+       {isTitleOptionsError ? <div className={classes.invalid}>{ErrorMsg}</div>:isValueOptionsError ?<div className={classes.invalid}>{ErrorMsg}</div>:null}
         { readOnly 
           ?
           null
           :
 <div style={{marginTop:"20px", marginBottom:"20px"}}>
+
         <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
           autoFocus 
           onClick={onHandleApply} 
@@ -547,8 +623,11 @@ useEffect(() => {
         >
           Reset
         </MuiButton>
+     
       </div>
+      
         }
+        
       </div>
       
     );

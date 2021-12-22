@@ -76,12 +76,10 @@ class PaletteElement {
 
     draw(ctx: CanvasRenderingContext2D, paletteCount: number, colorCountLength: number , paletteElementGap:number) {
 
-      
          this.setGap(paletteElementGap);
          this.createPaletteFillColor(ctx , paletteElementGap);
          this.createTicPosition(ctx , colorCountLength,paletteCount);
          this.setValuePosition(ctx,paletteElementGap,paletteCount);
-
 
     }
 
@@ -93,7 +91,7 @@ class PaletteElement {
 
         }
 
-        if(this.paletteDirection === LegendDirection.HORIZONTAL) {
+        if(this.paletteDirection === LegendDirection.HORIZONTAL || this.paletteDirection === LegendDirection.AUTO) {
 
            this.width = this.width -  paletteElementGap
 
@@ -122,7 +120,7 @@ class PaletteElement {
 
             }
 
-            if(this.paletteDirection === LegendDirection.HORIZONTAL) {
+            if(this.paletteDirection === LegendDirection.HORIZONTAL || this.paletteDirection === LegendDirection.AUTO ) {
 
               grd = ctx.createLinearGradient(this.x, this.y, this.x + this.width, this.y);
             }
@@ -259,7 +257,7 @@ class PaletteElement {
 
             }
 
-            if(this.paletteDirection === LegendDirection.HORIZONTAL) { 
+            if(this.paletteDirection === LegendDirection.HORIZONTAL || this.paletteDirection === LegendDirection.AUTO ) { 
 
                 if (this.ticks === LegendTicsType.NO_TICS) {
         
@@ -587,7 +585,7 @@ class PaletteElement {
 
             }
 
-            if(this.paletteDirection === LegendDirection.HORIZONTAL) {
+            if(this.paletteDirection === LegendDirection.HORIZONTAL || this.paletteDirection === LegendDirection.AUTO ) {
 
                 if (this.ticks === LegendTicsType.NO_TICS) {
         
@@ -839,7 +837,7 @@ class PaletteElement {
 
             }
 
-            if(this.paletteDirection === LegendDirection.HORIZONTAL) {
+            if(this.paletteDirection === LegendDirection.HORIZONTAL || this.paletteDirection === LegendDirection.AUTO ) {
 
                   if(this.valuePlacement === LegendValuePlacement.TOP) {
 
@@ -930,7 +928,7 @@ class PaletteElement {
                 ctx.textAlign = "left";
             }
 
-            if(this.paletteDirection === LegendDirection.HORIZONTAL) {
+            if(this.paletteDirection === LegendDirection.HORIZONTAL || this.paletteDirection === LegendDirection.AUTO ) {
 
 
                 if (this.valuePlacement === LegendValuePlacement.TOP) {
@@ -1021,7 +1019,7 @@ class PaletteElement {
 
     // function will call only one time     
 
-        else if (this.paletteDirection === LegendDirection.HORIZONTAL) {
+        else if (this.paletteDirection === LegendDirection.HORIZONTAL || this.paletteDirection === LegendDirection.AUTO ) {
 
             if (count === 0) {
 
@@ -1156,7 +1154,6 @@ export class Palette {
         ctx.textAlign = this.textAlign as any;
         ctx.textBaseline = this.baseline as any;
 
-
         var xOffset = 0;
         var yOffset = 0;
         const colorCount = this.paletteType === LegendType.CONTINUOUS ? (this.colors.length - 1) : this.colors.length;
@@ -1171,7 +1168,7 @@ export class Palette {
             yOffset = this.bandHeight;
         }
 
-        else if (this.paletteDirection === LegendDirection.HORIZONTAL) {
+        else if (this.paletteDirection === LegendDirection.HORIZONTAL || this.paletteDirection === LegendDirection.AUTO ) {
 
             this.bandWidth = (canvasWidth - 100)  / this.colors.length;
             this.bandHeight = canvasHeight - 100;
@@ -1234,7 +1231,7 @@ export class Palette {
 
         if (direction === LegendDirection.AUTO) {
 
-            this.paletteDirection = LegendDirection.AUTO;
+            this.paletteDirection = LegendDirection.HORIZONTAL;
 
         }
         else if (direction === LegendDirection.HORIZONTAL) {
@@ -1366,6 +1363,11 @@ export class Palette {
     setPaletteGap(Gap:number) {
 
         this.gap = Gap;
+    }
+
+    setLegendTitle(title:any) {
+
+        this.title = title;
     }
 }
 

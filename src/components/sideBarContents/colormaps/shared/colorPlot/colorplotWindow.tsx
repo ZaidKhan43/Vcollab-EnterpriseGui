@@ -6,7 +6,7 @@ import {selectWindowSize} from 'store/windowMgrSlice'
 import { setEditMode , selectWindowMgr} from 'store/windowMgrSlice'
 
 import CustomWindow from "components/shared/CustomWindow"
-import Legend from "./legend";
+import Legend from "components/shared/colorPlot/legend";
 
 import { selectcolormapData } from "store/sideBar/colormapSlice";
 
@@ -40,7 +40,13 @@ function ColorPlotdWindow(props:Props) {
 
     return (
 
-            <CustomWindow uid={windowId} resize={true} parentRef = {props.parentRef} width={100} height={300} >
+            <CustomWindow 
+            uid={windowId}
+            visible={true} 
+            resize={true} 
+            parentRef = {props.parentRef} 
+            width={100} 
+            height={300} >
                 {
                         
                         Object.values(colorMapData).length > 0 ?  <Legend></Legend> :null
