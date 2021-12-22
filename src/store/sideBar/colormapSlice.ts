@@ -1,10 +1,10 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 // import Labels3D from '../../components/sideBarContents/labels/pages/labels3D';
 import type { RootState } from '../index';
-import {TreeNode} from "./shared/Tree/types";
+import {TreeNode} from "./shared/ProductExplorer/types";
 
-import {ITreeState} from "./shared/Tree/types";
-import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer, addNodeReducer} from "./shared/Tree/reducers";
+import {ITreeState} from "./shared/ProductExplorer/types";
+import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer, addNodeReducer} from "./shared/ProductExplorer/reducers";
 
 import autoBar from "../../assets/images/autoBar.png";
 import topright from "../../assets/images/topright.png";
@@ -34,22 +34,25 @@ import acrossBar from '../../assets/images/across.svg';
 
 export enum LegendType{
     AUTO,
+    CONTINUOUS,
     DISCRETE,
-    CONTINUOUS
 }
 export enum LegendDirection{
-    AUTO,
+
     VERTICAL,
-    HORIZONTAL
+    HORIZONTAL,
+    AUTO,
+
 }
 export enum LegendTicsType{
+
+    NO_TICS,
     INSIDE,
     OUTSIDE,
-    NO_TICS,
     RUNNING_ACROSS
 }
 export enum LegendTitlePlacement{
-    AUTO,
+
     TOP,
     BOTTOM,
     TOP_LEFT,
@@ -60,7 +63,6 @@ export enum LegendTitlePlacement{
     BOTTOM_RIGHT,
 }
 export enum LegendValuePlacement{
-    AUTO,
     LEFT,
     RIGHT,
     TOP,
@@ -199,6 +201,7 @@ interface InitialState {
     appliedColorMapId : string,
     selectedColorPaletteId : string,
 
+    legendTitle:string,
     paletteType : paletteType,
     direction : paletteDirection,
     ticPosition : tickType,
@@ -343,6 +346,7 @@ const initialState : InitialState = {
     selectedColorMapId: "-1",
     appliedColorMapId : "7",
     selectedColorPaletteId: "-1",
+    legendTitle:"Legend",
 
     paletteType : [
         { id:"0", name: "Auto", image: autoBar ,type:LegendType.AUTO },
@@ -443,6 +447,7 @@ export const colormapSlice = createSlice({
                 parentNode = parent[0];
             } else{
                 parentNode = createParent((state.colormapSettings.idGenerator++).toString(), modelName);
+                state.colormapTree.rootIds.push(parentNode.id);
                 addNodeReducer(state.colormapTree, {payload: parentNode, type:"colormapSlice/addColorMap/addNodeReducer"});
             } 
 
@@ -540,7 +545,6 @@ export const colormapSlice = createSlice({
             state.colormapTree.data[ action.payload].downloaded = true;
         },
 
-
         createPalette : (state) => {
             state.colorPaletteSettings.idGenerator += 1;
             state.colorPaletteSettings.counter += 1;
@@ -572,8 +576,6 @@ export const colormapSlice = createSlice({
             else
                 state.selectedColorPaletteId = action.payload;
         },
-
-        
 
         setColorPalette : (state , action : PayloadAction<{colorMapId :string, colorPaletteId : string}>) => {
             state.colormapTree.data[action.payload.colorMapId].colorPalette = action.payload.colorPaletteId;
@@ -701,6 +703,8 @@ export const titlePlacementDataList = (state: RootState) => state.colormap.title
 export const valuePlacementDataList = (state: RootState) => state.colormap.valuePlacement;
 
 export const selectedColormapID =(state:RootState) => state.colormap.selectedColorMapId;
+
+export const selectLegendTitle = (state:RootState) => state.colormap.legendTitle;
 
 // export const selectVariableData = (state: RootState) => state.colormap.variableTree.data;
 // export const selectVariableRootIds = (state : RootState) => state.colormap.variableTree.rootIds;
