@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useLayoutEffect, useState, forwardRef } from 
 import { Rnd, Position, ResizableDelta, DraggableData  } from 'react-rnd'
 import { useResizeDetector } from 'react-resize-detector';
 import clsx from 'clsx'
-import { selectWindowMgr, selectWindowAnchor,addWindow, removeWindow, setEditMode, setHiddenState, setWindowSize,setWindowAccess, setWindowPos, selectWindowXY, setWindowAnchor, setActiveLayer, Layers} from '../../../store/windowMgrSlice'
+import { selectWindowMgr, selectWindowAnchor,addWindow, removeWindow, setEditMode, setHiddenState, setWindowSize, setWindowPos, selectWindowXY, setWindowAnchor, setActiveLayer, Layers} from '../../../store/windowMgrSlice'
 import {useAppSelector, useAppDispatch} from "../../../store/storeHooks";
 import { vec2, vec3 } from 'gl-matrix';
 

@@ -57,7 +57,7 @@ export default function Measurements(){
   const checkedNodes = useAppSelector(selectCheckedLeafNodes);
   const activeLayer = useAppSelector(selectActiveLayer);
   const viewerId = useAppSelector(selectActiveViewerID);
-  const isPanBtnPressed = activeLayer === Layers.LABEL3D;
+  const isPanBtnPressed = activeLayer === Layers.FRONT;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
   const containerRef = useRef(null);
@@ -78,7 +78,7 @@ export default function Measurements(){
           isEdit: !isPanBtnPressed
         }))
     })
-    dispatch(setActiveLayer(!isPanBtnPressed ? Layers.LABEL3D : Layers.VIEWER));
+    dispatch(setActiveLayer(!isPanBtnPressed ? Layers.FRONT : Layers.VIEWER));
 }
 
   const getHeaderRightIcon = () => {

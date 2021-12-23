@@ -5,7 +5,7 @@ import {Layers} from "../../../store/windowMgrSlice";
 interface ViewerContainerProps {
     parentRef: any
 }
-function Label2DContainer(props:ViewerContainerProps) {
+function ViewerContainer(props:ViewerContainerProps) {
     return (
         <Layer id={Layers.VIEWER}>
             <Viewer/>
@@ -13,4 +13,4 @@ function Label2DContainer(props:ViewerContainerProps) {
     )
 }
 
-export default Label2DContainer
+export default ViewerContainer

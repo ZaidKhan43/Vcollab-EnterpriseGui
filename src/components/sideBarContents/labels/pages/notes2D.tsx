@@ -56,7 +56,7 @@ export default function Labels2D(){
   const activeLayer = useAppSelector(selectActiveLayer);
   const interactionMode = useAppSelector(selectInteractionMode);
   const viewerId = useAppSelector(selectActiveViewerID);
-  const isPanBtnPressed = activeLayer === Layers.LABEL2D;
+  const isPanBtnPressed = activeLayer === Layers.FRONT;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
   const containerRef = useRef(null);
@@ -77,7 +77,7 @@ export default function Labels2D(){
           isEdit: !isPanBtnPressed
         }))
     })
-    dispatch(setActiveLayer(!isPanBtnPressed ? Layers.LABEL2D : Layers.VIEWER));
+    dispatch(setActiveLayer(!isPanBtnPressed ? Layers.FRONT : Layers.VIEWER));
 }
 
   const getHeaderRightIcon = () => {

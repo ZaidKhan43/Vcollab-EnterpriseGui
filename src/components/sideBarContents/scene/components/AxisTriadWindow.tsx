@@ -199,7 +199,7 @@ function AxisTriadWindow(props:Props) {
         <>
         <CustomWindow uid={windowId} visible={showAxis} resize parentRef = {props.parentRef} width={150} height={150}>
             {
-                <canvas ref={canvasRef} width={width} height={height} onChange={() => alert("chagne")} ></canvas>
+                <canvas ref={canvasRef} width={width} height={height} ></canvas>
             }
         </CustomWindow>
         </>

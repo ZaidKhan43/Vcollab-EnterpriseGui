@@ -20,7 +20,6 @@ import {
     setCheckedVisibilityReducer, 
     invertCheckedVisibilityReducer} from "../shared/Tree/reducers";
 import nextId from 'react-id-generator';
-import { Layers, selectActiveLayer } from 'store/windowMgrSlice';
 import { selectInteractionMode } from 'store/appSlice';
 import { InteractionMode } from 'backend/ViewerManager';
 
