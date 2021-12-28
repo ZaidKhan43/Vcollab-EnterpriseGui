@@ -39,7 +39,7 @@ import { convertListToTree } from '../../../utils/tree';
 
 import { useRef, useEffect } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
-import {Layers,selectActiveLayer,setActiveLayer} from '../../../../store/windowMgrSlice'
+import {Layers,selectActiveLayers,setActiveLayers} from '../../../../store/windowMgrSlice'
 import { selectInteractionMode, selectActiveViewerID, setLabelInsertionState, setSelectedLabelMode } from 'store/appSlice';
 import { Label3DType } from 'store/sideBar/labelSlice/shared/types';
 
@@ -55,9 +55,9 @@ export default function Measurements(){
   const treeRootIds = useAppSelector(selectRootIds);
   const selectedCount = useAppSelector(selectedLength);
   const checkedNodes = useAppSelector(selectCheckedLeafNodes);
-  const activeLayer = useAppSelector(selectActiveLayer);
+  const activeLayer = useAppSelector(selectActiveLayers);
   const viewerId = useAppSelector(selectActiveViewerID);
-  const isPanBtnPressed = activeLayer === Layers.FRONT;
+  const isPanBtnPressed = activeLayer.includes(Layers.FRONT);
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
   const containerRef = useRef(null);
@@ -78,7 +78,6 @@ export default function Measurements(){
           isEdit: !isPanBtnPressed
         }))
     })
-    dispatch(setActiveLayer(!isPanBtnPressed ? Layers.FRONT : Layers.VIEWER));
 }
 
   const getHeaderRightIcon = () => {

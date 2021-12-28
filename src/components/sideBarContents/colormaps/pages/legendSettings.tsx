@@ -17,7 +17,7 @@ import SelectAction from "../../../layout/sideBar/sideBarContainer/sideBarHeader
 import MuiMenuItem from "@material-ui/core/MenuItem";
 import { selectcolormapData, colormapElements, setColorMapSelection, paletteTypeDataList, directionDataList, ticPositionDataList, titlePlacementDataList, valuePlacementDataList, setLegendSettings,ColormapType ,LegendDirection,LegendTitlePlacement,LegendValuePlacement, LegendType } from "../../../../store/sideBar/colormapSlice";
 
-import { Layers, selectActiveLayer , setActiveLayer, setEditMode} from '../../../../store/windowMgrSlice';
+import { Layers, selectActiveLayers, setEditMode} from '../../../../store/windowMgrSlice';
 
 
 import MuiListSubHeader from '@material-ui/core/ListSubheader';
@@ -41,8 +41,8 @@ export default function LegendSettings() {
   const ticPositionList = useAppSelector(ticPositionDataList);
   const titlePlacementList = useAppSelector(titlePlacementDataList);
   const valuePlacementList = useAppSelector(valuePlacementDataList);
-  const activeLayer = useAppSelector(selectActiveLayer);
-  const isPanBtnPressed = activeLayer === Layers.BACK;
+  const activeLayer = useAppSelector(selectActiveLayers);
+  const isPanBtnPressed = activeLayer.includes(Layers.BACK);
 
   const [paletteType, setPaletteType] = useState<string>(colormapsData[selectedColorMapId].paletteType);
   const [direction, setDirection] = useState<string>(colormapsData[selectedColorMapId].direction);
@@ -170,9 +170,7 @@ const handlePanChange = () => {
         dispatch(setEditMode({
           uid: "colorPlotWindow",
           isEdit: !isPanBtnPressed
-    }))
-
-      dispatch(setActiveLayer(!isPanBtnPressed ? Layers.BACK: Layers.VIEWER)); 
+    }));
 }
 
 

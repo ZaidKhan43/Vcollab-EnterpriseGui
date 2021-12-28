@@ -7,10 +7,11 @@ type ContainerProps = {
     parentRef:any
 }
 function Container(props:ContainerProps) {
+    const layer = Layers.BACK;
     return (
-        <Layer id={Layers.BACK} >
-            <AxisTriadWindow parentRef={props.parentRef}/>
-            <Legend parentRef={props.parentRef}/>
+        <Layer id={layer} >
+            <AxisTriadWindow parentRef={props.parentRef} layerId={layer}/>
+            <Legend parentRef={props.parentRef} layerId={layer}/>
         </Layer>
     )
 }

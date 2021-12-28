@@ -1,7 +1,7 @@
 import React,{useRef,useEffect, memo} from 'react'
 import { ILabel2D as ILabel3D } from '../../../../store/sideBar/labelSlice/shared/types'
 import { useAppDispatch, useAppSelector} from '../../../../store/storeHooks'
-import { selectWindowMgr, setWindowSize } from '../../../../store/windowMgrSlice';
+import { Layers, selectWindowMgr, setWindowSize } from '../../../../store/windowMgrSlice';
 import Window from 'components/shared/CustomWindow';
 import LabelMsg from './shared/LabelMsg';
 import LabelAnchor from './shared/LabelAnchor';
@@ -16,7 +16,8 @@ type Label3DProps = {
         pos: [number, number];
         anchor: [number, number];
     }, string>,
-    parentRef: any
+    parentRef: any,
+    layerId:Layers
 }
 
 function Label3D(props:Label3DProps) {
@@ -66,6 +67,7 @@ function Label3D(props:Label3DProps) {
         < >
             <LabelAnchor ref={startRef} pos={label.anchor} visible={label.state.visibility ? true :false} />
                 <Window
+                layer={props.layerId}
                 ref={endRef} 
                 uid={props.windowPrefixId+label.id} 
                 visible={label.state.visibility ? true : false}

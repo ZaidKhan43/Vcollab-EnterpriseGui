@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {useAppDispatch, useAppSelector} from 'store/storeHooks'
 
-import {selectWindowSize} from 'store/windowMgrSlice'
+import {Layers, selectWindowSize} from 'store/windowMgrSlice'
 
 import { setEditMode , selectWindowMgr} from 'store/windowMgrSlice'
 
@@ -14,7 +14,8 @@ import { selectcolormapData } from "store/sideBar/colormapSlice";
 export const  windowId = "colorPlotWindow";
 
 interface Props {
-    parentRef: any
+    parentRef: any,
+    layerId:Layers
 }
 
 
@@ -30,6 +31,7 @@ function ColorPlotdWindow(props:Props) {
 
             <CustomWindow 
             uid={windowId}
+            layer={props.layerId}
             visible={true} 
             resize={true} 
             parentRef = {props.parentRef} 
