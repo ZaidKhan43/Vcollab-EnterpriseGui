@@ -2,18 +2,17 @@ import { memo, useEffect , useRef, useState, useCallback, createContext } from '
 import { createRef } from 'react';
 import * as viewerAPIProxy from '../../backend/viewerAPIProxy';
 import nextId from 'react-id-generator';
-import { setModelInfo, setModelLoadedState, setModelLoadingStatus } from '../../store/appSlice';
+import { setModelInfo, setModelLoadedState} from '../../store/appSlice';
 import { useAppDispatch } from '../../store/storeHooks';
-import {saveTree, fetchSearchHints,setHightLightedNodesAsync } from "../../store/sideBar/productTreeSlice";
-import {fetchSectionPlaneData, handlePlaneSelection} from "../../store/sideBar/clipSlice";
+import {saveTree, fetchSearchHints } from "../../store/sideBar/productTreeSlice";
+import {fetchSectionPlaneData} from "../../store/sideBar/clipSlice";
 import { addViewer } from '../../store/appSlice';
 import ProbeLabel from "../probe";
 import { fetchFieldData } from '../../store/sideBar/fieldSlice';
 import { fetchMouseData } from '../../store/sideBar/settings';
-import { fetchCameraMatrix, fetchCameraStdViews } from '../../store/sideBar/sceneSlice';
-import { addMessage, updateMessage, NetworkData, NotificationType, finishMessage } from '../../store/sideBar/messageSlice';
-import { toastMsg } from '../../store/toastSlice';
+import { fetchCameraStdViews } from '../../store/sideBar/sceneSlice';
 import Snackbars from '../sideBarContents/messages/SnackBar';
+import EventRegistry from './EventRegistry';
 
 function Viewer(){
     
@@ -143,92 +142,6 @@ function Viewer(){
       
             let viewerID = viewerAPIProxy.createViewer(viewerDivID);
             dispatch(addViewer({name : viewerDomID, id: viewerID }));
-            let eventDispatcher = viewerAPIProxy.getEventDispatcher();
-            let events = viewerAPIProxy.getEventsList();
-            if (events) {
-              eventDispatcher?.addEventListener(
-                events.viewerEvents.MODEL_DOWNLOAD_STATUS_UPDATE,
-                (event : any) => {
-                  dispatch(setModelLoadingStatus(event.data));
-                }
-              );
-              eventDispatcher?.addEventListener(
-                events.viewerEvents.DOWNLOAD_START,
-                (event: any) => {
-                  let data = event.data;
-                  let networkData:NetworkData = {
-                    transfferedSize: 0,
-                    totalSize: data.event.totalSize,
-                    pause: false,
-                    cancel: false,
-                    timeLeft: ""
-                  }
-                  dispatch(addMessage({
-                    id: data.id,
-                    type: NotificationType.NETWORK_TRANSFER_MESSAGE,
-                    tags: ["Downloads","Display Mode"],
-                    data: networkData,
-                    title: data.event.title
-                  }))
-                  dispatch(toastMsg({msg:`Downloading ${data.event.title}`}));
-                  console.log("start",networkData.totalSize);
-                }
-              );
-              eventDispatcher?.addEventListener(
-                events.viewerEvents.DOWNLOAD_PROGRESS,
-                (event: any) => {
-                  let data = event.data;
-                  dispatch(updateMessage({
-                    id: data.id,
-                    transferredSize: data.event.loaded
-                  }))
-                  console.log("update",data.event);
-                }
-              );
-              eventDispatcher?.addEventListener(
-                events.viewerEvents.DOWNLOAD_END,
-                (event: any) => {
-                  let data = event.data;
-                 
-                  dispatch(finishMessage({
-                    id: data.id
-                  }))
-                  dispatch(toastMsg({msg:`${data.event.title}`}));
-                }
-              );
-              eventDispatcher?.addEventListener(
-                events.viewerEvents.MODEL_PART_HIGHLIGHTED,
-                (event: any) => {
-                  //console.log(event);
-                  const toHighlight = event.data.isHighlighted;
-                  const nodeIds = event.data.nodeIds
-                  if(nodeIds.length > 0)
-                  {
-                    nodeIds.forEach((nodeId:string) => {
-                      dispatch(setHightLightedNodesAsync({toHighlight, nodeId }))
-                    })
-                  }
-                  else{
-                    let treeData = tree.current as any;
-                    dispatch(setHightLightedNodesAsync({toHighlight,nodeId:treeData.rootNodeIds[0]}))
-                  }
-                  
-                }
-              );
-              eventDispatcher?.addEventListener(
-                events.viewerEvents.SECTION_PLANE_SELECTED,
-                (event : any) => {
-                  let data = event.data;
-                  dispatch(handlePlaneSelection({e:data}));
-                }
-              );
-              eventDispatcher?.addEventListener(
-                events.viewerEvents.CAMERA_MOVED,
-                (event:any) => {
-                  dispatch(fetchCameraMatrix())
-                }
-              )
-            }
             loadModel(api, url, viewerID);
           }
     },[ loadModel, dispatch, mount, viewerRefs, viewerDomID ]);
@@ -237,11 +150,12 @@ function Viewer(){
     return (
       <>
       <div
-        style={{ flex: 1 }}
+        style={{ width:'100%',height:'100%'}}
         id={viewerDomID}
         ref={viewerRefs}
         className="viewer"
       >
+        <EventRegistry mount={mount}/>
         <ProbeLabel containerRef={viewerRefs}></ProbeLabel>
         <Snackbars parentRef = {viewerRefs}/>
       </div>

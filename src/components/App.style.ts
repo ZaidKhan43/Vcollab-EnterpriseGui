@@ -36,7 +36,8 @@ export default makeStyles((theme) => ({
     height: '100vh',
     display: 'flex',
     zIndex: 1000,
-    background: `linear-gradient(${colors.vcollabColor}, white)`,
+    // background: `linear-gradient(${colors.vcollabColor}, white)`,
+    position: 'relative',
     //backgroundColor : 'blue'
   },
   viewerContainerWithTopBar: {

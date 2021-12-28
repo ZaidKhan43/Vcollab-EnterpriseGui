@@ -39,7 +39,7 @@ export default function EditMeasurements(){
   }
 
   const onHandleSave = () => {
-    dispatch(editLabel({id: measurement ? Number(measurement.id) : -1, value: labelText}))
+    dispatch(editLabel({id: measurement ? measurement.id : "-1", value: labelText}))
   }
 
   const getHeaderLeftIcon= () => {

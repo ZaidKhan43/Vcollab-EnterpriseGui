@@ -38,7 +38,7 @@
     "react-redux": "^7.2.3",
     "react-resize-detector": "^6.6.4",
     "react-resize-panel": "^0.3.5",
-    "react-rnd": "^10.2.4",
+    "react-rnd": "^10.3.5",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
@@ -46,6 +46,7 @@
     "react-switch": "^6.0.0",
     "react-toggle": "^4.1.2",
     "react-virtualized-auto-sizer": "^1.0.5",
+    "react-xarrows": "^2.0.2",
     "redux-toolkit": "^1.1.2",
     "rsuite": "^4.9.3",
     "rsuite-table": "^3.14.3",
@@ -87,6 +88,7 @@
     "@types/react-router": "^5.1.15",
     "@types/react-slick": "^0.23.6",
     "@types/react-toggle": "^4.0.2",
-    "ncp": "^2.0.0"
+    "ncp": "^2.0.0",
+    "serve": "^13.0.2"
   }
 }

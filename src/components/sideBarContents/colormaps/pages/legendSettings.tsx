@@ -10,15 +10,20 @@ import { Select } from "@material-ui/core";
 import { MenuItem } from "@material-ui/core";
 import { ListItemText } from "@material-ui/core";
 import MuiButton from "@material-ui/core/Button";
+import MuiToggleButton from '@material-ui/lab/ToggleButton';
+import PanToolIcon from '@material-ui/icons/PanTool';
 import MuiTextField from "@material-ui/core/TextField";
 import SelectAction from "../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction";
 import MuiMenuItem from "@material-ui/core/MenuItem";
-import { selectcolormapData, colormapElements, setColorMapSelection, paletteTypeDataList, directionDataList, ticPositionDataList, titlePlacementDataList, valuePlacementDataList, setLegendSettings,ColormapType } from "../../../../store/sideBar/colormapSlice";
+import { selectcolormapData, colormapElements, setColorMapSelection, paletteTypeDataList, directionDataList, ticPositionDataList, titlePlacementDataList, valuePlacementDataList, setLegendSettings,ColormapType ,LegendDirection,LegendTitlePlacement,LegendValuePlacement, LegendType } from "../../../../store/sideBar/colormapSlice";
 
-import MuiListSubHeader from '@material-ui/core/ListSubheader';
-import styles from "./style";
+import { Layers, selectActiveLayer , setActiveLayer, setEditMode} from '../../../../store/windowMgrSlice';
 
 import MuiGrid from '@material-ui/core/Grid'
+
+import styles from "./style";
+
+import MuiListSubHeader from '@material-ui/core/ListSubheader'
 
 import { useEffect, useState } from "react";
 
@@ -35,6 +40,8 @@ export default function LegendSettings() {
   const ticPositionList = useAppSelector(ticPositionDataList);
   const titlePlacementList = useAppSelector(titlePlacementDataList);
   const valuePlacementList = useAppSelector(valuePlacementDataList);
+  const activeLayer = useAppSelector(selectActiveLayer);
+  const isPanBtnPressed = activeLayer === Layers.BACK;
 
   const [paletteType, setPaletteType] = useState<string>(colormapsData[selectedColorMapId].paletteType);
   const [direction, setDirection] = useState<string>(colormapsData[selectedColorMapId].direction);
@@ -42,6 +49,12 @@ export default function LegendSettings() {
   const [titlePlacement, setTitlePlacement] = useState<string>(colormapsData[selectedColorMapId].titlePlacement);
   const [valuePlacement, setValuePlacament] = useState<string>(colormapsData[selectedColorMapId].valuePlacement);
   const [gapValue, setGapValue] = useState<number>(colormapsData[selectedColorMapId].gap);
+
+  const [isTitleOptionsError , setTitleOptionsError] = useState<boolean>(false);
+  const [isValueOptionsError , setValueOptionsError] = useState<boolean>(false);
+  const [isLegendSettingsError , setLegendSettingsError] = useState<boolean>(false);
+  const ErrorMsg:string = "please select correct option"; 
+
 
   const readOnly = useAppSelector(state => state.colormap.colormapTree.data[selectedColorMapId].colormapType === ColormapType.SYSTEM ? true : false)
 
@@ -54,16 +67,15 @@ export default function LegendSettings() {
     setGapValue(colormapsData[selectedColorMapId].gap)
   },[selectedColorMapId]);
   
-  const onClickBackIcon = () => {
+const onClickBackIcon = () => {
     dispatch(goBack());
-  };
+};
 
-  const onHandleSelect = (id : string) => {
-    console.log(id)
+const onHandleSelect = (id : string) => {
     dispatch(setColorMapSelection(id));
-  }
+}
 
-  const handleSelectChange = (newValue : string, valueType: string) => {
+const handleSelectChange = (newValue : string, valueType: string) => {
     switch(valueType){
       case "paletteType" :
         setPaletteType(newValue);
@@ -86,36 +98,34 @@ export default function LegendSettings() {
       break;
     }
     
-  }
+}
 
-  const handleGap = (e : any) => {
+const handleGap = (e : any) => {
     setGapValue(Number(e.currentTarget.value));
-  }
+}
 
-  const onHandleReset = () => {
+const onHandleReset = () => {
     setPaletteType(colormapsData[selectedColorMapId].paletteType);
     setDirection(colormapsData[selectedColorMapId].direction);
     setTicPosition(colormapsData[selectedColorMapId].ticPosition);
     setTitlePlacement(colormapsData[selectedColorMapId].titlePlacement);
     setValuePlacament(colormapsData[selectedColorMapId].valuePlacement);
-    setGapValue(colormapsData[selectedColorMapId].gap)
-  }
+    setGapValue(colormapsData[selectedColorMapId].gap);
+}
 
-  const onHandleApply = () => {
+const onHandleApply = () => {
     dispatch(setLegendSettings({colorMapId: selectedColorMapId, newPaletteType: paletteType, newDirection: direction, newTicPosition: ticPosition, newTitlePlacement: titlePlacement, newValuePlacement: valuePlacement, newGap: gapValue}))
-  }
+}
 
-
-
-  const getHeaderLeftIcon = () => {
+const getHeaderLeftIcon = () => {
     return (
       <MuiIconButton onClick={() => onClickBackIcon()}>
         <BackButton />
       </MuiIconButton>
     );
-  };
+};
 
-  const getmenuItems = (listmenu: any, column: boolean) => {
+const getmenuItems = (listmenu: any, column: boolean) => {
     if (column === false) {
       return listmenu.map((menu: any) => {
         return (
@@ -152,18 +162,35 @@ export default function LegendSettings() {
         );
       });
     }
-  };
+};
 
-  const getHeaderRightIcon = () => {
-    return <div></div>;
-  };
-  const getAction = () => {
+const handlePanChange = () => {
+
+        dispatch(setEditMode({
+          uid: "colorPlotWindow",
+          isEdit: !isPanBtnPressed
+    }))
+
+      dispatch(setActiveLayer(!isPanBtnPressed ? Layers.BACK: Layers.VIEWER)); 
+}
+
+
+const getHeaderRightIcon = () => {
+    return (
+     <MuiToggleButton selected={isPanBtnPressed} onChange={handlePanChange}>
+      <PanToolIcon/>
+    </MuiToggleButton>
+
+    );
+};
+  
+const getAction = () => {
     
     const parentNodes = list.filter(item => item.children?.length !== 0)
 
     return(
       <SelectAction
-      id="grouped-select"
+      id="grouped-select" label="Grouping"
       value={selectedColorMapId}
       onChange={(e : any) => {if(e.target.value) onHandleSelect(e.target.value)}}
       MenuProps={{
@@ -202,11 +229,10 @@ export default function LegendSettings() {
         }
       </SelectAction>
     )
-  };
-
+};
 
   
-  const getBody = () => {
+const getBody = () => {
 
     return (
       <div className={classes.scrollBar}>
@@ -217,8 +243,9 @@ export default function LegendSettings() {
             id="display-modes-selection-id"
             label = {"Palette Type"}
             value={paletteType}
+            error={false}
             disabled = {readOnly}
-            onChange={(e : any) => handleSelectChange(e.target.value, "paletteType")}
+            onChange={(e : any) => handleSelectChange(e.target.value, "paletteType") }
             MenuProps={{
               disablePortal: true,
               anchorOrigin: {

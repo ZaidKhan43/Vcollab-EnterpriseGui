@@ -5,13 +5,11 @@ import MuiAlert from '@material-ui/lab/Alert';
 
 export default function ProbeLabel (){
     const position = useAppSelector((state) => state.probe.position)
-    const isEnabled = useAppSelector((state) => state.probe.enabled)
    
     const text = useAppSelector((state) => state.probe.text);
     return (
       <div>
-      { isEnabled 
-          &&
+      {
           <div>
           { position.x < 1032
             ?

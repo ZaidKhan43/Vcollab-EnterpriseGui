@@ -1,25 +1,26 @@
 import MuiIconButton from '@material-ui/core/IconButton';
+import MuiToggleButton from '@material-ui/lab/ToggleButton';
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
+import PanToolIcon from '@material-ui/icons/PanTool';
 
 import styles from './style'
 
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import BackButton from '../../../icons/back';
 
-
+import {InteractionMode, setInteractionMode} from 'backend/viewerAPIProxy';
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree from '../../../shared/RsTreeTable';
-import {invertNode, expandNode, selectmeasurementsData ,selectRootIds, setCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel} from '../../../../store/sideBar/labelSlice/measurementsSlice'
+import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/measurementsSlice';
+import {windowPrefixId, invertNode, expandNode, selectMeasurementsData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, selectLabelMode, setLabelMode} from '../../../../store/sideBar/labelSlice/measurementsSlice'
+import { setEditMode } from '../../../../store/windowMgrSlice';
 
-// import EyeIcon from '@material-ui/icons//Visibility';
-// import EyeSlashIcon from '@material-ui/icons/VisibilityOff';
-// import IconButton  from '@material-ui/core/IconButton';
-
-import AddIcon from "@material-ui/icons/Add";
+import AddCell from '../components/shared/TreeIcons/AddCell'
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
 import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
+import VisibilityOptions from '../components/shared/Footer/Options/VisibilityOption';
 
 import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
 import MuiEditIcon from '@material-ui/icons/EditOutlined';
@@ -38,6 +39,9 @@ import { convertListToTree } from '../../../utils/tree';
 
 import { useRef, useEffect } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
+import {Layers,selectActiveLayer,setActiveLayer} from '../../../../store/windowMgrSlice'
+import { selectInteractionMode, selectActiveViewerID, setLabelInsertionState, setSelectedLabelMode } from 'store/appSlice';
+import { Label3DType } from 'store/sideBar/labelSlice/shared/types';
 
 export default function Measurements(){
 
@@ -46,24 +50,19 @@ export default function Measurements(){
   const onClickBackIcon = () =>{
     dispatch(goBack());
   }
-  
-  const treeDataRedux = useAppSelector(selectmeasurementsData);
+  const interactionMode = useAppSelector(selectInteractionMode);
+  const treeDataRedux = useAppSelector(selectMeasurementsData);
   const treeRootIds = useAppSelector(selectRootIds);
-  const selectedCount = useAppSelector(selectedLength)
-
+  const selectedCount = useAppSelector(selectedLength);
+  const checkedNodes = useAppSelector(selectCheckedLeafNodes);
+  const activeLayer = useAppSelector(selectActiveLayer);
+  const viewerId = useAppSelector(selectActiveViewerID);
+  const isPanBtnPressed = activeLayer === Layers.FRONT;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
   const containerRef = useRef(null);
   const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
 
-  useEffect(() => {
-    if(treeRootIds.length === 0) {
-      dispatch(createParentLabel({name:"Point to Point"}));
-      dispatch(createParentLabel({name:"3 Point Arc Length"}));
-      dispatch(createParentLabel({name:"Point to Edge"}));
-      dispatch(createParentLabel({name:"Point to Face"}));
-    }
-  },[]);
 
   const getHeaderLeftIcon= () => {
     return (
@@ -71,10 +70,22 @@ export default function Measurements(){
     );
   }
 
+  const handlePanChange = () => {
+    Object.values(treeDataRedux).forEach(e => {
+        if(e.pid !== "-1")
+        dispatch(setEditMode({
+          uid: windowPrefixId+e.id,
+          isEdit: !isPanBtnPressed
+        }))
+    })
+    dispatch(setActiveLayer(!isPanBtnPressed ? Layers.FRONT : Layers.VIEWER));
+}
+
   const getHeaderRightIcon = () => {
     return (
-      <div>
-      </div>
+      <MuiToggleButton selected={isPanBtnPressed} onChange={handlePanChange}>
+        <PanToolIcon/>
+      </MuiToggleButton>
     )
   }
 
@@ -93,13 +104,40 @@ export default function Measurements(){
   const handleVisibility = (toShow:boolean,node:any) => {
     const leafIds = [node.id];
     const pids = [node.pid];
-    dispatch(setCheckedVisibility({toShow, pids, leafIds}))
+    dispatch(setCheckedVisibility({toShow, leafIds}))
   }
 
   const onHandleDeleteButton = () => {
-    dispatch(delete3DLabel());
+    dispatch(delete3DLabel({}));
   }
 
+  const handleAdd = (node:any) => {
+      if(node.id === Label3DType.DISTANCE){
+        let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT ? InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT : InteractionMode.DEFAULT;
+        setInteractionMode(viewerId, mode);
+        dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT));
+      }
+      else if(node.id === Label3DType.ARC){
+        let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC ? InteractionMode.LABEL_MEASUREMENT_3PT_ARC : InteractionMode.DEFAULT;
+        setInteractionMode(viewerId, mode);
+        dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC));
+      }
+  }
+
+  const isNodeSelected = (node:any):boolean => {
+    let out = false;
+    switch(node.id) {
+      case Label3DType.DISTANCE:
+        out = interactionMode === InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT;
+        break;
+      case Label3DType.ARC:
+        out = interactionMode === InteractionMode.LABEL_MEASUREMENT_3PT_ARC;
+        break;
+      default:
+        break;
+    }
+    return out;
+  }
   const getBody = () => {
     return (
       <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
@@ -138,14 +176,7 @@ export default function Measurements(){
                 ?
                  <ShowHideCell node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
                 :        
-                  <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
-                    <MuiGrid item xs={4}></MuiGrid>
-                    <MuiGrid item xs={6}>
-                      <MuiIconButton size='small' onClick={() => dispatch(createLabel(Number(node.id)))}>
-                        <AddIcon fontSize='default'/> 
-                      </MuiIconButton> 
-                    </MuiGrid>
-                  </MuiGrid>
+                <AddCell node = {treeDataRedux[node.id]} selected={isNodeSelected(node)} onToggle={() => handleAdd(node)}/>
               }    
             </div>
           ) 
@@ -161,6 +192,23 @@ export default function Measurements(){
     return(
         <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
           <OptionContainer>
+            <Option label="Visibility" 
+              icon={
+                <VisibilityOptions 
+                disabled={selectedCount < 1}
+                showClick={() => {dispatch(setCheckedVisibility({
+                  toShow: true,
+                  leafIds: checkedNodes.map(n => n.id)
+                }))}}
+                hideClick={() => {dispatch(setCheckedVisibility({
+                  toShow: false,
+                  leafIds: checkedNodes.map(n => n.id)
+                }))}}
+                invertClick={() => {dispatch(invertCheckedVisibility({
+                  leafIds: checkedNodes.map(n => n.id)
+                }))}}
+                />
+            }/>
             <Option label="Edit" icon={<MuiIconButton disabled={selectedCount === 1 ? false : true} onClick={() =>dispatch(push(Routes.LABELS_MEASUREMENTS_EDITS))}>
                 <MuiEditIcon/>
               </MuiIconButton>} 
@@ -182,6 +230,5 @@ export default function Measurements(){
             body ={ getBody() }
             footer = { getFooter() }
           />
-
   )
 }

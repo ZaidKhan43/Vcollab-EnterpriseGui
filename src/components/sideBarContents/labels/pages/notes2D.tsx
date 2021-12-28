@@ -1,6 +1,5 @@
 import MuiIconButton from '@material-ui/core/IconButton';
-import {goBack,push} from 'connected-react-router/immutable';
-import {Routes} from "../../../../routes"
+import MuiToggleButton from '@material-ui/lab/ToggleButton';
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
 
 import styles from './style'
@@ -8,111 +7,163 @@ import styles from './style'
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import BackButton from '../../../icons/back';
 
-import {useAppSelector,useAppDispatch } from '../../../../store/storeHooks';
 
-import AddIcon from "../../../icons/plus";
-import { useState} from "react";
+import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
-import MuiList from '@material-ui/core/List';
-import MuiListItem from '@material-ui/core/ListItem';
-import MuiListItemIcon from '@material-ui/core/ListItemIcon';
-import MuiListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import MuiListItemText from '@material-ui/core/ListItemText';
-import MuiCheckbox from '@material-ui/core/Checkbox';
-
-import MuiVisibilityIcon from '@material-ui/icons/Visibility';
-import MuiVisibilityOffIcon from '@material-ui/icons/VisibilityOff';
+import RTree, { ITreeNode } from '../../../shared/RsTreeTable';
+import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/label2DSlice';
+import {invertNode, expandNode, select2DLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel} from '../../../../store/sideBar/labelSlice/label2DSlice'
+import AddCell from '../components/shared/TreeIcons/AddCell'
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
 import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
+import VisibilityOptions from '../components/shared/Footer/Options/VisibilityOption';
 
 import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
 import MuiEditIcon from '@material-ui/icons/EditOutlined';
 
-import {createNote, editSelect, editShow, delete2DNote} from '../../../../store/sideBar/labelSlice/label2DSlice';
-import { setEditMode, setHiddenState } from '../../../../store/windowMgrSlice';
+import {goBack,push} from 'connected-react-router/immutable';
+import {Routes} from "../../../../routes"
 
-export const windowPrefix = "label2d";
-export default function Notes2D(){
-    
-    const classes = styles();
-    const dispatch = useAppDispatch(); 
-    
-    const noteList= useAppSelector((state) =>  state.label2D.note2DList);
-    const listLimit = useAppSelector((state) => state.label2D.note2DSettings.limit)
-        
-    const selectedNotes = noteList.filter(item => item.selected === true)
-    
-    const onClickBackIcon = () =>{
-        dispatch(goBack());
-    }
+import InvertCell from '../../../shared/RsTreeTable/Invert';
+import TreeNode from '../../../shared/RsTreeTable/TreeNode';
+import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
+import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
+import ShowHideCell from '../../../shared/RsTreeTable/ShowHide';
+import MuiGrid from '@material-ui/core/Grid';
+import PanToolIcon from '@material-ui/icons/PanTool';
 
-    const getHeaderLeftIcon= () => {
-        return (
-            <MuiIconButton  onClick={() => onClickBackIcon()}><BackButton/></MuiIconButton> 
-        );
-    }
+import { convertListToTree } from '../../../utils/tree';
+
+import { useRef, useEffect } from 'react';
+import useContainer from '../../../../customHooks/useContainer';
+import { Layers, selectActiveLayer , setActiveLayer, setEditMode} from '../../../../store/windowMgrSlice';
+import { windowPrefixId } from '../../../../store/sideBar/labelSlice/label2DSlice';
+import { selectInteractionMode, setLabelInsertionState, selectActiveViewerID } from 'store/appSlice';
+import { InteractionMode, setInteractionMode } from 'backend/viewerAPIProxy';
+
+export default function Labels2D(){
+
+  const dispatch = useAppDispatch();  
+  const onClickBackIcon = () =>{
+    dispatch(goBack()); 
+  }
+  
+  const treeDataRedux = useAppSelector(select2DLabelData);
+  const treeRootIds = useAppSelector(selectRootIds);
+  const checkedNodes = useAppSelector(selectCheckedLeafNodes);
+  const selectedCount = useAppSelector(selectedLength);
+  const activeLayer = useAppSelector(selectActiveLayer);
+  const interactionMode = useAppSelector(selectInteractionMode);
+  const viewerId = useAppSelector(selectActiveViewerID);
+  const isPanBtnPressed = activeLayer === Layers.FRONT;
+  const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
+
+  const containerRef = useRef(null);
+  const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
+
+
+  const getHeaderLeftIcon= () => {
+    return (
+     <MuiIconButton  onClick={() => onClickBackIcon()}><BackButton/></MuiIconButton> 
+    );
+  }
+
+  const handlePanChange = () => {
+    Object.values(treeDataRedux).forEach(e => {
+        if(e.pid !== "-1")
+        dispatch(setEditMode({
+          uid: windowPrefixId+e.id,
+          isEdit: !isPanBtnPressed
+        }))
+    })
+    dispatch(setActiveLayer(!isPanBtnPressed ? Layers.FRONT : Layers.VIEWER));
+}
 
   const getHeaderRightIcon = () => {
     return (
-        <MuiIconButton disabled={noteList.length >= listLimit} onClick={onHandleAdd}>
-                   <AddIcon/>
-                 </MuiIconButton> 
+      <MuiToggleButton selected={isPanBtnPressed} onChange={handlePanChange}>
+        <PanToolIcon/>
+      </MuiToggleButton>
     )
   }
 
-  const onHandleAdd = () => {
-    dispatch(createNote());
+  const handleExpand = (toOpen:boolean,nodeId:string) => {
+    dispatch(expandNode({toOpen,nodeId}));
   }
 
-    const onHandledSelect = (id : number, value : boolean) => {
-      dispatch(editSelect({id : id,value :!value}))
-      dispatch(setEditMode({uid:`${windowPrefix} ${id}`,isEdit:!value}))
-    }
+  const handleInvert = (node:ITreeNode) => {
+    dispatch(invertNode({nodeId:node.id}));
+  }
+  
+  const handleCheck = (toCheck:boolean, nodeId:string) => {
+    dispatch(checkNode({toCheck,nodeId}));
+  }
 
-    const onHandleShow = (id: number , value : boolean) => {
-        dispatch(editShow({id : id,value :!value}))
-        dispatch(setHiddenState({uid:`${windowPrefix} ${id}`,isHidden: value}))
-    }
+  const handleVisibility = (toShow:boolean,node:ITreeNode) => {
+    const leafIds = [node.id];
+    const pids = [node.pid];
+    console.log(leafIds, pids)
+    dispatch(setCheckedVisibility({toShow, leafIds}))
+  }
 
-    const onHandleDeleteButton = ()=> {
-      dispatch(delete2DNote())
-    }
-    
-    const onHandleEdit = () => {
-      dispatch(push(Routes.LABEL_2D_EDITS))
-    }
+  const handleAdd = (node:ITreeNode) => {
+    let mode = interactionMode !== InteractionMode.LABEL2D ? InteractionMode.LABEL2D : InteractionMode.DEFAULT;
+    setInteractionMode(viewerId, mode);
+    dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL2D));
+  }
+  const onHandleDeleteButton = () => {
+    dispatch(delete3DLabel({}));
+  }
+
+  
 
   const getBody = () => {
 
-    // console.log("selected",clickedValues)
     return (
-      <div className={classes.scrollBar}>
-        <div style={{marginLeft:"20px"}}>
-           <MuiList>
-               {
-                   noteList.map(item => 
-                    <div key={'divParent_' + item.id}>
-                        <MuiListItem dense key={item.id} role={undefined}>
-            <MuiListItemIcon>
-              <MuiCheckbox edge="start" checked={item.selected} color="primary" onChange={() => onHandledSelect(item.id, item.selected)}/>
-            </MuiListItemIcon>
-            <MuiListItemText primary={item.name} />
-            <MuiListItemSecondaryAction>
-              <MuiIconButton size="small" edge="end" aria-label="comments" onClick={() => onHandleShow(item.id, item.show)}>
-                {item.show ?
-                <MuiVisibilityIcon fontSize="small" />
-            :
-            <MuiVisibilityOffIcon fontSize="small" />}
-              </MuiIconButton>
-            </MuiListItemSecondaryAction>
-          </MuiListItem>
-                    </div>
-                   )
-               }
-            </MuiList> 
-        </div>
-      </div>
+      <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
+      <RTree 
+        treeData={roots} 
+        expandedRowIds = {expanded}
+        onExpand={handleExpand}
+        onRowClick = {() => {}}
+        width = {containerWidth}
+        height = {containerHeight ? containerHeight - 5: 0}
+        renderTreeToggle = {
+          (icon,rowData) => {
+            if (rowData.children && rowData.children.length === 0) {
+              return null;
+            }
+            let state = treeDataRedux[rowData.id].state;
+            return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
+          }
+        }
+        treeNode = {(node) => {
+          return (
+            <TreeNode 
+              node={treeDataRedux[node.id]}
+              onCheck={handleCheck}
+            >
+            </TreeNode>
+          )
+        }}
+        column1 = {(node) => {
+          return <InvertCell node = {treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
+        }}
+        column2 = {(node) => {
+          return (
+            <div>
+              { node?.pid !== "-1"
+                ?
+                 <ShowHideCell node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
+                :        
+                <AddCell node = {treeDataRedux[node.id]} selected={interactionMode === InteractionMode.LABEL2D} onToggle={handleAdd}/>
+              }    
+            </div>
+          )
+        }}
+      />  
+    </div>
     )
   }
 
@@ -121,12 +172,29 @@ export default function Notes2D(){
 
     return(
         <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
-            <OptionContainer>
-            <Option label="Edit" icon={<MuiIconButton disabled={selectedNotes.length ===  1 ? false : true} onClick={onHandleEdit}>
+          <OptionContainer>
+          <Option label="Visibility" 
+            icon={
+              <VisibilityOptions 
+              disabled={selectedCount < 1}
+              showClick={() => {dispatch(setCheckedVisibility({
+                toShow: true,
+                leafIds: checkedNodes.map(n => n.id)
+              }))}}
+              hideClick={() => {dispatch(setCheckedVisibility({
+                toShow: false,
+                leafIds: checkedNodes.map(n => n.id)
+              }))}}
+              invertClick={() => {dispatch(invertCheckedVisibility({
+                leafIds: checkedNodes.map(n => n.id)
+              }))}}
+              />
+            }/>
+            <Option label="Edit" icon={<MuiIconButton disabled={selectedCount === 1 ? false : true} onClick={() =>dispatch(push(Routes.LABEL_2D_EDITS))}>
                 <MuiEditIcon/>
               </MuiIconButton>} 
             />
-             <Option label="Delete" icon={<MuiIconButton disabled ={selectedNotes.length >= 1 ? false : true} style={{ }}  onClick={onHandleDeleteButton} > 
+             <Option label="Delete" icon={<MuiIconButton disabled={selectedCount >= 1? false : true} onClick={onHandleDeleteButton} > 
                   <MuiDeleteForeverOutlinedIcon/>
                 </MuiIconButton> }
             />
@@ -138,7 +206,7 @@ export default function Notes2D(){
   return (
           <SideBarContainer
             headerLeftIcon = { getHeaderLeftIcon() }
-            headerContent={ <Title text={"2D Notes" } group="Labels"/> }
+            headerContent={ <Title text={"Notes" } group="Labels"/> }
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }
             footer = { getFooter() }

@@ -1,7 +1,7 @@
 import { PlaylistAddOutlined } from '@material-ui/icons';
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import { mat4 } from 'gl-matrix';
-import { getCameraInfo, getCameraStdViews, setBackground, setCameraInfo, setCameraProjection } from '../../backend/viewerAPIProxy';
+import { getCameraInfo, getCameraStdViews, setCameraInfo, setCameraProjection } from '../../backend/viewerAPIProxy';
 import {perspectiveToOrtho,orthoToPerspective} from '../../components/utils/camera'
 import type { RootState } from '../index';
 
@@ -84,6 +84,7 @@ type Scenes = {
     settings : Settings,
     colorList : ColorList[],
     file: any,
+    isImageActive: boolean,
     showAxis:boolean,
     axisTriodList : AxisTriodList[],
 }
@@ -103,6 +104,7 @@ const initialState : Scenes = {
     camMatrix: [],
     colorList : [{ id:1, color:{r:160, g:160, b:252, a:1}} , {id:2, color:{r:255, g:255, b:255, a:1}}],
     file : null ,
+    isImageActive: false,
     showAxis:true,
     axisTriodList:[
         {id:'1',text:'Top Right',selected:false,applied:false},
@@ -228,9 +230,6 @@ export const setProjectionAsync = createAsyncThunk(
 export const setBackgroundColorAsync = createAsyncThunk(
     'scene/setBackgroundColorAsync',
     async (data:ColorList[], {dispatch,getState}) => {
-        const state = getState() as RootState;
-        const viewerId = state.app.viewers[state.app.activeViewer || ''];
-        setBackground(viewerId,0,data.map(e => [e.color.r,e.color.g,e.color.b,e.color.a]));
         dispatch(sceneSlice.actions.updateBackgroundColor(data));
     }
 )
@@ -238,9 +237,6 @@ export const setBackgroundColorAsync = createAsyncThunk(
 export const setBackgroundImageAsync = createAsyncThunk(
     'scene/setBackgroundImageAsync',
     async (data:any, {dispatch,getState}) => {
-        const state = getState() as RootState;
-        const viewerId = state.app.viewers[state.app.activeViewer || ''];
-        setBackground(viewerId,1,data);
         dispatch(sceneSlice.actions.updateBackgroundImage(data));
     }
 )
@@ -324,10 +320,12 @@ export const sceneSlice = createSlice({
         //background
         updateBackgroundColor : (state, action : PayloadAction<ColorList[]>) => {
             state.colorList = action.payload;
+            state.isImageActive = false;
         },
 
         updateBackgroundImage : (state, action) => {
             state.file = action.payload;
+            state.isImageActive = true;
         },
         // axisTriad
         setApplyItem:(state, action:PayloadAction<any>)=>{
@@ -422,3 +420,8 @@ export const selectedCameraView = (state : RootState) => {
   }
 
 export const selectCameraMatrix = (state: RootState) => state.scene.camMatrix;
+
+//background
+export const selectIsImageActive = (state:RootState) => state.scene.isImageActive;
+export const selectColor = (state:RootState) => state.scene.colorList;
+export const selectImage = (state:RootState) => state.scene.file;
