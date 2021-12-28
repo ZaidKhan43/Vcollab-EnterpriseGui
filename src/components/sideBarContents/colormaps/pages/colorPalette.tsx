@@ -51,7 +51,7 @@ export default function ColorPalette(){
 
   const selectedColorPalette = useAppSelector(selectedColorPaletteId);
 
-  const readOnly = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false)
+  const readOnly = colormapsData[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false;
 
   const treeDataRedux = useAppSelector(selectColorPaletteData);
   const treeRootIds = useAppSelector(selectColorPaletteRootIds);

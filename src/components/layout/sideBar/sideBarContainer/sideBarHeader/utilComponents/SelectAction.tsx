@@ -13,7 +13,7 @@ function SelectAction(props:any) {
     
     return (
         <FormControl style={{width:'100%', margin:'auto',padding:2}}>
-            <InputLabel>Apply To</InputLabel>
+            <InputLabel>{props.label ?? "Apply To"}</InputLabel>
             <Select
             {...props}
             >

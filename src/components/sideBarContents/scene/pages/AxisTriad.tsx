@@ -14,7 +14,7 @@ import { useAppDispatch,useAppSelector } from '../../../../store/storeHooks';
 
 import useStyles from './axistriadstyle';
 import { windowId } from '../components/AxisTriadWindow';
-import { selectWindowSize, setEditMode, setWindowAnchor, setWindowPos } from '../../../../store/windowMgrSlice';
+import { Layers, selectWindowSize, setActiveLayer, setEditMode, setWindowAnchor, setWindowPos } from '../../../../store/windowMgrSlice';
 import { ViewerContext } from '../../../App';
 
 export default function AxisTriad() {
@@ -81,11 +81,12 @@ const applySelcetedItem=(id:string,isSeleced:boolean)=>{
                 dispatch(setWindowAnchor({uid,anchor:[winWidth,winHeight]}));
                 break;
             case "7":
+                dispatch(setEditMode({uid, isEdit:true }));
+                dispatch(setActiveLayer(Layers.BACK));
                 break;
             default:
                 break;
         }
-        dispatch(setEditMode({uid, isEdit:id==='7'?true:false }));
         dispatch(setApplyItem(id));
     }
 

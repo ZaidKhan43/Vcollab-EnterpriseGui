@@ -46,7 +46,7 @@ export default function Variable(){
   const appliedSection = colormapsData[activeColormapId].section;
   const colormapNameList = useAppSelector(colormapElements)
 
-  const readOnly = useAppSelector(state => state.colormap.colormapTree.data[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false)
+  const readOnly = colormapsData[activeColormapId].colormapType === ColormapType.SYSTEM ? true : false;
 
   // const classes = styles();
   const onClickBackIcon = () =>{

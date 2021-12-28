@@ -39,7 +39,7 @@ export default function EditLabels3D(){
   }
 
   const onHandleSave = () => {
-    dispatch(editLabel({id: label3D ? Number(label3D.id) : -1, value: labelText}))
+    dispatch(editLabel({id: label3D ? label3D.id : "-1", value: labelText}))
   }
 
   const getHeaderLeftIcon= () => {

@@ -1,12 +1,18 @@
 import ProbeLabel from './probeLabel';
 import { fetchProbeData, update, PointerData } from '../../store/probeSlice';
+import {selectInteractionMode} from '../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../store/storeHooks';
 import { useCallback, useEffect, useRef } from 'react';
+import { InteractionMode } from '../../backend/viewerAPIProxy';
 
 export default function Probe (props:{containerRef:React.RefObject<HTMLDivElement>}){
 
-  const dispatch = useAppDispatch();  
-  const isEnabled = useAppSelector((state) => state.probe.enabled)
+  const dispatch = useAppDispatch();
+  const interactionMode = useAppSelector(selectInteractionMode);  
+  const isEnabled = InteractionMode.CONTINUOUS_PROBE === interactionMode ||
+                    InteractionMode.LABEL3D_POINT === interactionMode ||
+                    InteractionMode.LABEL_MEASUREMENT_3PT_ARC === interactionMode ||
+                    InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT === interactionMode;
   const showLabel = useAppSelector((state) => state.probe.showLabel)
   const timerRef = useRef<any>(null);
   const timeoutRef = useRef<any>(useAppSelector((state) => state.probe.timeout));
@@ -16,7 +22,7 @@ export default function Probe (props:{containerRef:React.RefObject<HTMLDivElemen
       }
       timerRef.current = setTimeout(
         function() {
-          let guiPos = {x:e.clientX,y:e.clientY};
+          
           let container = e.target as HTMLDivElement;
           let rect = container.getBoundingClientRect();
           let pointerData:PointerData = {
@@ -30,6 +36,8 @@ export default function Probe (props:{containerRef:React.RefObject<HTMLDivElemen
           let end = performance.now();
           let time = end - start;
           //alert(`dispatch time ${time} ms`);
+          let guiPos = {x: e.clientX - rect.left,
+            y: e.clientY - rect.top};
           dispatch(update({position:guiPos}));
         }, timeoutRef.current
       )

@@ -46,6 +46,8 @@ import { useState } from 'react';
 
 import {setChildItem} from "../../../../store/mainMenuSlice";
 
+import sizeCalculator from '../../../../customHooks/useSizeCalculator';
+
 export default function List(){
 
   const treeDataRedux = useAppSelector(selectcolormapData);
@@ -118,6 +120,7 @@ export default function List(){
   }
 
   const handleRowClick = (node : any) => {
+    setOpenDelete(false);
     if(node.children.length === 0)
       dispatch(setColorMapSelection(node.id));
   }
@@ -148,23 +151,6 @@ export default function List(){
   const onHandleApply = () => {
     dispatch(applyColorMap(selectedColorMapId))
   }
-
-  const fileSize = (size : number) => {
-    if (size >= 1024) {
-      const kbSize = size / 1024
-      if (kbSize >= 1024) {
-        const mbSize = kbSize / 1024
-        if(mbSize >= 1024){
-          const gbSize = mbSize / 1024;
-          return `${ (Math.round(gbSize * Math.pow(10, 2)) / Math.pow(10, 2)).toFixed(2)} GB`
-        }
-        return `${ (Math.round(mbSize * Math.pow(10, 2)) / Math.pow(10, 2)).toFixed(2)} MB`
-      }
-      return `${Math.round(kbSize)} kB`
-    }
-    return `${size} B`
-  }
-
 
   const getBody = () => {
     return (
@@ -254,16 +240,25 @@ export default function List(){
             <div>
               { selectedColorMapId !== "-1" && selectedColorMapId !== appliedColorMapId 
                 ?
-                  <div style={{marginTop:"20px", marginBottom:"20px"}}>
-                    <MuiButton style={{backgroundColor:"#5958FF",width:"50%", fontSize:"9px" , marginRight:"5px"}} 
-                      autoFocus 
-                      onClick={onHandleApply} 
-                      // disabled={readOnly}
-                      // color="primary"
-                    >
-                     {treeDataRedux[selectedColorMapId].downloaded === true ? "Apply" : `${fileSize(treeDataRedux[selectedColorMapId].size)} Download & Apply`} 
-                    </MuiButton>
-                  </div>
+                  <MuiGrid container  style={{marginTop:"20px", marginBottom:"20px"}}>
+                    { treeDataRedux[selectedColorMapId].downloaded === true
+                      ?
+                        <MuiGrid item xs={4}></MuiGrid>
+                      :
+                        <MuiGrid item xs={4}> {sizeCalculator(treeDataRedux[selectedColorMapId].size)} </MuiGrid> 
+                    }
+                    <MuiGrid item>
+                      <MuiButton style={{backgroundColor:"#5958FF",width:"100%", fontSize:"9px" , marginRight:"5px"}} 
+                        autoFocus 
+                        onClick={onHandleApply} 
+                        // disabled={readOnly}
+                        // color="primary"
+                      >
+                        {treeDataRedux[selectedColorMapId].downloaded === true ? "Apply" : "Download & Apply"} 
+                      </MuiButton>
+                    </MuiGrid>
+                  </MuiGrid>
+                  
                 :
                    null
               }                                 
@@ -317,7 +312,7 @@ export default function List(){
               <div>
                 <div style={{marginBottom:"5px", marginTop:"5px"}}>
                   <MuiTypography style={{marginBottom:"5px", fontSize:"14px"}}>
-                    Are you sure want to delete the selected Color Palette?
+                    Are you sure want to delete the selected Color Map?
                   </MuiTypography>
                   <div style={{alignContent:"center",}}>
                     <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 

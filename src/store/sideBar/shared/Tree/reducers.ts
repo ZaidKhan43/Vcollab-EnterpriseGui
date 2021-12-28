@@ -36,10 +36,13 @@ export const toggleVisibilityReducer = (state:ITreeState, action : PayloadAction
     if(node)
     RtoggleVisibility(toShow,node,state);
 }
-export const setCheckedVisibilityReducer = (state:ITreeState, action:PayloadAction<{toShow:boolean,pids:string[],leafIds:string[]}>) => {
-    const {toShow,pids,leafIds} = action.payload;
+export const setCheckedVisibilityReducer = (state:ITreeState, action:PayloadAction<{toShow:boolean,leafIds:string[]}>) => {
+    const {toShow,leafIds} = action.payload;
+    let pids = new Set<string>();
     leafIds.forEach((nodeId:string) => {
       let node = getNode(nodeId,state);
+      if(node?.pid) 
+      pids.add(node.pid);
       if(node && node.children.length === 0)
       {
         setVisibility(toShow,node,true,state);
@@ -53,6 +56,29 @@ export const setCheckedVisibilityReducer = (state:ITreeState, action:PayloadActi
         updateParent(firstChild,state);
       }
     })
+}
+export const invertCheckedVisibilityReducer = (state:ITreeState, action:PayloadAction<{leafIds:string[]}>) => {
+   const leafIds = action.payload.leafIds;
+   let visible:string[] = [];
+   let invisible:string[] = [];
+   leafIds.forEach(id => {
+     const node = getNode(id,state);
+     node?.state.visibility ? visible.push(id) : invisible.push(id);  
+   });
+   setCheckedVisibilityReducer(state,{
+     payload: {
+       toShow: false,
+       leafIds: visible
+     },
+     type: 'invertCheckedVisibilityReducer/setCheckedVisibilityReducer'
+   });
+   setCheckedVisibilityReducer(state,{
+    payload: {
+      toShow: true,
+      leafIds: invisible
+    },
+    type: 'invertCheckedVisibilityReducer/setCheckedVisibilityReducer'
+  });
 }
 export const selectNodeReducer = (state:ITreeState, action:PayloadAction<{leafOnly:boolean,nodeId:string}>) => {
   const {leafOnly,nodeId} = action.payload;
@@ -74,20 +100,26 @@ export const addNodeReducer = (state:ITreeState, action:PayloadAction<TreeNode>)
     parent.children.push(node.id);
 
   }
+  else{
+    state.rootIds.push(node.id);
+  }
   state.data[node.id] = node;
   
 }
 export const deleteNodeReducer = (state:ITreeState, action:PayloadAction<{nodeId:string}>) => {
   let nodeId = action.payload.nodeId;
   let current = state.data[nodeId];
+  if(!current)
+  return;
+
   let pid = current.pid;
   delete state.data[nodeId];
-  if(pid) {
+
+  if(pid && pid !== "-1") {
     let parent = state.data[pid];
     let index = parent.children.indexOf(nodeId);
     if(index > -1)
     parent.children.splice(index,1);
-    if(parent.children.length === 0)
-    delete state.data[pid];
   }
+  updateParent(current,state);
 }

@@ -2,7 +2,7 @@ import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@r
 import { getDisplayResult } from '../../backend/viewerAPIProxy';
 import type { RootState } from '../index';
 import {ITreeNode, ITreeNodeState} from '../../components/shared/RsTreeWithSearch';
-import { expandNodeReducer, selectNodeReducer, addNodeReducer, deleteNodeReducer, toggleVisibilityReducer } from './shared/ProductExplorer/reducers';
+import { expandNodeReducer, selectNodeReducer, addNodeReducer, deleteNodeReducer, toggleVisibilityReducer } from './shared/Tree/reducers';
 import { addColorMap, Colormap } from './colormapSlice';
 
 type FieldState = {

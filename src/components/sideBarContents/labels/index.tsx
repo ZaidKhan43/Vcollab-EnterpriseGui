@@ -9,13 +9,13 @@ import EditNotes2D from './pages/editNotes2D';
 import EditLabels3D from './pages/editLabels3D';
 import EditMeasurements from './pages/editMeasurements'
 
-function ClipPlanes() {
+function Labels() {
     
     return (
         <Switch>
             <Route path={Routes.LABELS_2D_NOTES}>
                 <Notes2D/>
-            </Route>
+            </Route> 
             <Route path={Routes.LABEL_2D_EDITS}>
                 <EditNotes2D/>
             </Route>
@@ -35,4 +35,4 @@ function ClipPlanes() {
     )
 }
 
-export default ClipPlanes
+export default Labels

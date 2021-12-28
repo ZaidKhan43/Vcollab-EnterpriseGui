@@ -2,6 +2,12 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { stringify } from 'querystring';
 import type { RootState } from './index';
 
+export enum Layers {
+    BACKGROUND = 'BACKGROUND',
+    VIEWER = 'VIEWER',
+    BACK = 'BACK',
+    FRONT = 'FRONT'
+}
 export type WindowState = {
     id:string,
     zOrder: number,
@@ -16,16 +22,14 @@ type WindowMgrState = {
     windows : {[id: string] : WindowState},
     windowsCount: number,
     isEnabled: boolean,
-    editModeZIndex: number,
-    viewModeZIndex: number
+    activeLayer: Layers
 }
 
 const initialState = {
     isEnabled: false,
     windowsCount: 0,
     windows: {},
-    editModeZIndex: 100,
-    viewModeZIndex: 5
+    activeLayer: Layers.VIEWER
 } as WindowMgrState
 
 export const windowMgrSlice = createSlice({
@@ -45,7 +49,7 @@ export const windowMgrSlice = createSlice({
                 size: [300,300],
                 isEditMode: false, 
                 isHidden: false, 
-                zOrder: state.windowsCount
+                zOrder: 0
             };
             state.windowsCount = state.windowsCount+1;
         },
@@ -60,39 +64,29 @@ export const windowMgrSlice = createSlice({
                 throw new Error("The provided window id does not exist")
             }
         },
-        setWindowAccess: (state, action:PayloadAction<{enable:boolean}>) => {
-            let windows = state.windows;
-            const {enable} = action.payload;
-          
-            const windowsSorted = [...Object.values(windows)].sort((a,b) => {
-                return (a.zOrder < b.zOrder) ? -1 : 1
-            });
-            windowsSorted.forEach((v,i) => {
-                v.zOrder = i + (enable ? state.editModeZIndex : state.viewModeZIndex);
-                windows[v.id] = v;
-            })
-            
-            state.isEnabled = enable;
-        },
         setEditMode: (state, action:PayloadAction<{uid:string,isEdit:boolean}>) => {
             const {uid, isEdit} = action.payload;
             if(state.windows[uid] !== undefined) {
                 state.windows[uid].isEditMode = isEdit;
+                let selectedWindow = state.windows[uid];
                 if(isEdit === true)
                 {
-                    let selectedWindow = state.windows[uid];
-                    [...Object.entries(state.windows)].forEach(([id,window]) => {
-                        if(window.zOrder > selectedWindow.zOrder){
-                            window.zOrder = window.zOrder-1;
-                        }
-                    })
-                    const topIndex = state.windowsCount -1 + state.editModeZIndex;
-                    if(selectedWindow.zOrder !== topIndex)
-                    {
-                        let diffToTop = topIndex-selectedWindow.zOrder;
-                        selectedWindow.zOrder = selectedWindow.zOrder + diffToTop;
-                    }
                     
+                    // [...Object.entries(state.windows)].forEach(([id,window]) => {
+                    //     if(window.zOrder > selectedWindow.zOrder){
+                    //         window.zOrder = window.zOrder-1;
+                    //     }
+                    // })
+                    // const topIndex = state.windowsCount -1 + state.editModeZIndex;
+                    // if(selectedWindow.zOrder !== topIndex)
+                    // {
+                    //     let diffToTop = topIndex-selectedWindow.zOrder;
+                    //     selectedWindow.zOrder = selectedWindow.zOrder + diffToTop;
+                    // }
+                    selectedWindow.zOrder =1;
+                }
+                else{
+                    selectedWindow.zOrder =0;
                 }
             }
             else{
@@ -110,6 +104,7 @@ export const windowMgrSlice = createSlice({
         },
         setWindowPos: (state, action:PayloadAction<{uid:string, pos:[number,number]}>) => {
             let {uid,pos} = action.payload;
+            if(state.windows[uid])
             state.windows[uid].pos = pos;
         },
         setWindowAnchor: (state, action:PayloadAction<{uid:string, anchor:[number,number]}>) => {
@@ -119,6 +114,9 @@ export const windowMgrSlice = createSlice({
         setWindowSize: (state, action:PayloadAction<{uid:string, size:[number,number]}>) => {
             let {uid,size} = action.payload;
             state.windows[uid].size = size;
+        },
+        setActiveLayer: (state, action:PayloadAction<Layers>) => {
+            state.activeLayer = action.payload;
         }
     }
 }) 
@@ -128,12 +126,13 @@ export const {
     removeWindow,
     setEditMode,
     setHiddenState,
-    setWindowAccess,
     setWindowPos,
     setWindowSize,
-    setWindowAnchor
+    setWindowAnchor,
+    setActiveLayer
 } = windowMgrSlice.actions;
 
+export const selectActiveLayer = (state: RootState) => state.windowMgr.activeLayer;
 export const selectWindowMgr = (state: RootState) => state.windowMgr
 export const selectWindowSize = (state: RootState, id:string) => state.windowMgr.windows[id]? state.windowMgr.windows[id].size : [-1,-1];
 export const selectWindowXY =  (state: RootState, id:string) => state.windowMgr.windows[id]? state.windowMgr.windows[id].pos : [-1,-1];

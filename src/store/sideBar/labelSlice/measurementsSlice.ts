@@ -1,29 +1,36 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
-// import Labels3D from '../../components/sideBarContents/labels/pages/labels3D';
 import type { RootState } from '../../index';
-import {TreeNode} from "../shared/ProductExplorer/types";
+import {get3DLabelCanvasPos,delete3DLabel as delete3DLabelApi} from '../../../backend/viewerAPIProxy';
+import {ITreeState} from "../shared/Tree/types";
+import {  
+    selectCheckedLeafNodes as selectCheckedLeafNodesTree, 
+    selectUnCheckedLeafNodes as selectUnCheckedLeafNodesTree 
+} from 'store/sideBar/shared/Tree/selectors';
+import {
+    saveTreeReducer, 
+    checkNodeReducer, 
+    highlightNodeReducer, 
+    invertNodeReducer, 
+    expandNodeReducer, 
+    toggleVisibilityReducer, 
+    setCheckedVisibilityReducer, 
+    invertCheckedVisibilityReducer, 
+    addNodeReducer,
+    deleteNodeReducer
+} from "../shared/Tree/reducers";
+import {LabelMode, ILabel2D, LabelSettings, Label3DType} from './shared/types';
+import { setLabelModeReducer } from './shared/reducers';
 
-import {ITreeState} from "../shared/ProductExplorer/types";
-import {saveTreeReducer, checkNodeReducer, highlightNodeReducer, invertNodeReducer, expandNodeReducer, toggleVisibilityReducer, setCheckedVisibilityReducer} from "../shared/ProductExplorer/reducers";
+export const windowPrefixId = "Measurement";
 
-type MeasurementsSettings = {
-    idGenerator : number,
+interface MeasurementsSettings extends LabelSettings  {
     defaultParameters : MeasurementsList,
     childCount : number,
 } 
 
-export interface MeasurementsList extends TreeNode {
-    id: string;
-    pid: string | null;
-    title: string;
-    children: string[];
-    state: any;
-    attributes: any;
-    label: string,
+export interface MeasurementsList extends ILabel2D {
+    type: Label3DType
 }
-
-
-
 
 interface InitialState extends ITreeState {
     data : {[id:string]:MeasurementsList},
@@ -33,211 +40,16 @@ interface InitialState extends ITreeState {
 }
 
 const initialState : InitialState = {
-    data : {
-        "0" :{
-            id: "0",
-            pid: "-1",
-            title: "Point to Point",
-            children: ["4","5","6"],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "",
-        },
-        "1" :{
-            id: "1",
-            pid: "-1",
-            title: "3 Point Arc Length",
-            children: ["7","8"],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "",
-        },
-        "2" :{
-            id: "2",
-            pid: "-1",
-            title: "Point to Edge",
-            children: ["9","10"],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "",
-        },
-        "3" :{
-            id: "3",
-            pid: "-1",
-            title: "Point to Face",
-            children: ["11","12"],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "",
-        },
-        "4" :{
-            id: "4",
-            pid: "0",
-            title: "Measurement 1",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet,",
-        },
-        "5" :{
-            id: "5",
-            pid: "0",
-            title: "Measurement 2",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        },
-        "6" :{
-            id: "6",
-            pid: "0",
-            title: "Measurement 3",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        },
-        "7" :{
-            id: "7",
-            pid: "1",
-            title: "Measurement 4",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        },
-        "8" :{
-            id: "8",
-            pid: "1",
-            title: "Measurement 5",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet,",
-        },
-        "9" :{
-            id: "9",
-            pid: "2",
-            title: "Measurement 6",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean neque mi,",
-        },
-        "10" :{
-            id: "10",
-            pid: "2",
-            title: "Measurement 7",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        },
-        "11" :{
-            id: "11",
-            pid: "3",
-            title: "Measurement 8",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet,",
-        },
-        "12" :{
-            id: "12",
-            pid: "3",
-            title: "Measurement 9",
-            children: [],
-            state: {
-                checked : false,
-                partiallyChecked : false,
-                expanded : true,
-                highlighted : false,
-                visibility : true,
-            },
-            attributes: {},
-            label: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        },
-    },
-    rootIds : ["0","1","2","3"],
+    data : {},
+    rootIds : [],
     measurementsSettings :{
-        idGenerator:12,
         defaultParameters:{
                 id: "",
                 pid: null,
                 title: "",
                 children: [],
+                pos: [0,0],
+                anchor: [-1,-1],
                 state: {
                     checked : false,
                     partiallyChecked : false,
@@ -247,11 +59,59 @@ const initialState : InitialState = {
                 },
                 attributes: {},
                 label: "Lorem ipsum dolor sit amet",
+                type: Label3DType.ANNOTATION,
         },
-        childCount : 9,
+        mode: LabelMode.VIEW,
+        childCount : 0,
     }
 }
 
+export const init = createAsyncThunk(
+    "measurementsSlice/init",
+    (e:any,{dispatch,getState}) => {
+        const rootState = getState() as RootState;
+        const treeRootIds = rootState.measurements.rootIds;
+        if(treeRootIds.length === 0) {
+            dispatch(createParentLabel({id:Label3DType.DISTANCE ,name:"Point to Point"}));
+            dispatch(createParentLabel({id:Label3DType.ARC, name:"3 Point Arc Length"}));
+            //dispatch(createParentLabel({id:Label3DType.EDGE ,name:"Point to Edge"}));
+            //dispatch(createParentLabel({id:Label3DType.FACE, name:"Point to Face"}));
+          }
+    }
+)
+
+export const handleMeasurementLabelCreation = createAsyncThunk(
+    'measurementSlice/handleMeasurementLabelCreation',
+    async (data:any, {getState,dispatch}) => {
+        let e = data.data;
+        let rootState = getState() as RootState;
+        let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
+        let pos = get3DLabelCanvasPos(e.labelId,viewerId);
+        dispatch(createLabel({
+            pid: e.type,
+            id: e.labelId,
+            msg: e.msg,
+            pos:pos as number[],
+            type: e.type
+        }));
+    }
+)
+
+export const delete3DLabel = createAsyncThunk(
+    "measurementSlice/delete3DLabel",
+    (data:any,{dispatch,getState}) => {
+        let rootState = getState() as RootState;
+        let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
+        let state = rootState.measurements;
+        let keys:string[] = [];
+        Object.keys(state.data).forEach( key => {
+            if( state.data[key].state.checked === true && state.data[key].pid !== "-1"){
+                delete3DLabelApi(key,viewerId);
+                keys.push(key);
+            }
+        })
+        dispatch(measurementsSlice.actions.deleteLabel({keys}));
+});
 
 export const measurementsSlice = createSlice({
     name: "measurements",
@@ -264,55 +124,74 @@ export const measurementsSlice = createSlice({
         expandNode: expandNodeReducer,
         toggleVisibility: toggleVisibilityReducer,
         setCheckedVisibility: setCheckedVisibilityReducer,
-        
-        createLabel : (state , action: PayloadAction<number>) => {
-                state.measurementsSettings.idGenerator += 1;
-                state.measurementsSettings.childCount +=1;
-                const id =state.measurementsSettings.idGenerator;
-                let newNote = {...state.measurementsSettings.defaultParameters};
-                newNote.id = `${state.measurementsSettings.idGenerator}`;
-                newNote.pid = `${action.payload}`;
-                newNote.title = `Measurement ${state.measurementsSettings.childCount}`;
-                state.data[`${id}`] =newNote;
-                state.data[`${action.payload}`].children.push(newNote.id)
-                // Object.keys(state.data).find(key => state.data[key] === `${action.payload}`)
-                measurementsSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/addNode"})
+        invertCheckedVisibility: invertCheckedVisibilityReducer,
+        setLabelMode: (state, action) => {setLabelModeReducer(state.measurementsSettings,action)},
+        createParentLabel : (state, action: PayloadAction<{id:string,name:string}>) => {
+            const id =action.payload.id;
+            let newParent = {...state.measurementsSettings.defaultParameters};
+            newParent.id = id;
+            newParent.pid = "-1";
+            newParent.title = action.payload.name;
+            newParent.label = "";
+            addNodeReducer(state,{payload:newParent,type:'ITreeNode'});
         },
-
-        editLabel: (state, action: PayloadAction<{id:number, value:string}>) => {
-            if( action.payload.id >= 0){
-                const key = `${action.payload.id}`
-                state.data[key].label = action.payload.value;
+        
+        createLabel : (state , action: PayloadAction<{pid:string,id:string,type:Label3DType,pos:number[],msg:string}>) => {
+                state.measurementsSettings.childCount +=1;
+                const {id,pid,type,pos,msg} = action.payload;
+                let newNote = {...state.measurementsSettings.defaultParameters};
+                newNote.id = id;
+                newNote.type = type;
+                newNote.pid = pid;
+                newNote.title = `Measurement ${state.measurementsSettings.childCount}`;
+                newNote.label = msg;
+                newNote.pos= pos as [number,number];
+                newNote.anchor = pos as [number,number];
+                addNodeReducer(state,{payload:newNote,type:'ITreeNode'});
+        },
+        setLabelPos:(state, action:PayloadAction<{id:string,pos:[number,number],anchor:[number,number]}>) => {
+            const {id,pos,anchor} = action.payload;
+            if(id !== "-1") {
+                state.data[id].pos = pos;
+                state.data[id].anchor = anchor;
             }
         },
-
-        delete3DLabel:(state) => {
-            Object.keys(state.data).forEach(key => {
-                if( state.data[key].state.checked === true && state.data[key].pid !== "-1"){
-                    delete state.data[key];
-                    Object.keys(state.data).forEach(key1 => {
-                        state.data[key1].children = state.data[key1].children.filter(item => item !== key)
-                    });
-                }    
-            });
-            Object.keys(state.data).forEach(key => {
-                measurementsSlice.caseReducers.checkNode(state,{payload:{toCheck:false,nodeId: key}, type: "label3D/deleteNode/reverseCheckValues"});
-            })
-            measurementsSlice.caseReducers.saveTree(state,{payload:{tree: state.data, rootIds: state.rootIds},type:"label3D/deleteNode"})
-              
+        editLabel: (state, action: PayloadAction<{id:string, value:string}>) => {
+            const {id,value} = action.payload;
+            if(id !== '-1'){
+                state.data[id].label = value;
+            }
         },
-
-        
+        deleteLabel: (state, action: PayloadAction<{keys:string[]}>) => {
+            let keys = action.payload.keys;
+            keys.forEach(k => {
+                deleteNodeReducer(state, {payload:{nodeId:k},type:'string'})
+            })
+        }
     }
 })
 
 export default measurementsSlice.reducer;
-export const {saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility , createLabel,editLabel, delete3DLabel} = measurementsSlice.actions;
+export const {
+    //reuse from tree
+    saveTree , 
+    checkNode , 
+    highlightNode , 
+    invertNode, 
+    expandNode, 
+    toggleVisibility,
+    setCheckedVisibility , 
+    invertCheckedVisibility, 
+    setLabelPos, 
+    setLabelMode,
+    createLabel,
+    editLabel, 
+    createParentLabel} = measurementsSlice.actions;
 
 //Selectors
 
 export const selectRootIds = (state:RootState) => state.measurements.rootIds
-export const selectmeasurementsData = (state:RootState) => state.measurements.data
+export const selectMeasurementsData = (state:RootState) => state.measurements.data
 export const selectedLength = (state:RootState) => {
     const array : string[] = [];
      Object.keys(state.measurements.data).forEach(key => {
@@ -322,11 +201,10 @@ export const selectedLength = (state:RootState) => {
 
      return (array.length);
 }
-
-export const selectedMeasurement = (state: RootState) => {
-    let node;
+export const selectLabelMode = (state:RootState):LabelMode => state.measurements.measurementsSettings.mode;
+export const selectedMeasurement = (state: RootState):ILabel2D | null => {
+    let node:ILabel2D | null=null;
     const length = selectedLength(state);
-
     if(length === 1){
     Object.keys(state.measurements.data).forEach(key => {
         if (state.measurements.data[key].state.checked === true && state.measurements.data[key].pid !== "-1" )
@@ -335,3 +213,5 @@ export const selectedMeasurement = (state: RootState) => {
     }
     return(node);
 }
+export const selectCheckedLeafNodes = (state:RootState) =>  selectCheckedLeafNodesTree(state.measurements)
+export const selectUnCheckedLeafNodes = (state:RootState) =>  selectUnCheckedLeafNodesTree(state.measurements)

@@ -1,129 +1,209 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
+import {delete3DLabel as delete3DLabelApi, get3DLabelCanvasPos, probe} from '../../../backend/viewerAPIProxy';
 import type { RootState } from '../../index';
+import {LabelMode, Label2D, LabelSettings, Label2DType} from './shared/types';
+import { setLabelModeReducer } from './shared/reducers';
+import {ITreeState} from "../shared/Tree/types";
+import {   
+    selectCheckedLeafNodes as selectCheckedLeafNodesTree, 
+    selectUnCheckedLeafNodes as selectUnCheckedLeafNodesTree
+} from 'store/sideBar/shared/Tree/selectors';
+import {
+    saveTreeReducer, 
+    checkNodeReducer, 
+    highlightNodeReducer,
+    addNodeReducer,
+    deleteNodeReducer, 
+    invertNodeReducer, 
+    expandNodeReducer, 
+    toggleVisibilityReducer, 
+    setCheckedVisibilityReducer, 
+    invertCheckedVisibilityReducer} from "../shared/Tree/reducers";
+import nextId from 'react-id-generator';
+import { selectInteractionMode } from 'store/appSlice';
+import { InteractionMode } from 'backend/ViewerManager';
 
-type Note2DList = {
-    id: number,
-    name: string,
-    show: boolean,
-    selected: boolean,
-    label: string,
-}
-
-type Node2DSettings = {
-    idGenerator : number,
-    limit : number,
-    defaultParameters : Note2DList,
-}
+export const windowPrefixId = "Label2D";
+interface labels2DSettings extends LabelSettings {
+    defaultParameters : Label2D,
+    count: number
+} 
 
 
-type InitialState = {
-    note2DList : Note2DList[],
-   note2DSettings : Node2DSettings,
+interface InitialState extends ITreeState {
+    data : {[id:string]:Label2D},
+    rootIds : string[],
+    labels2DSettings : labels2DSettings,
+    
 }
 
 const initialState : InitialState = {
-        note2DList : 
-            [        
-                {
-                    id: 0,
-                    name: "Note 1",
-                    show: true,
-                    selected: false,
-                    label:"Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    data : {},
+    rootIds : [],
+    labels2DSettings :{
+        defaultParameters:{
+                id: "",
+                pid: null,
+                title: "",
+                children: [],
+                pos:[0,0],
+                state: {
+                    checked : false,
+                    partiallyChecked : false,
+                    expanded : true,
+                    highlighted : false,
+                    visibility : true,
                 },
-                {
-                    id: 1,
-                    name: "Note 2",
-                    show: true,
-                    selected: false,
-                    label:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean neque mi,",
-                },
-                {
-                    id: 2,
-                    name: "Note 3",
-                    show: false,
-                    selected: false,
-                    label:"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean neque mi, vulputate ac erat vitae, scelerisque fermentum odio. Nulla rutrum consequat facilisis."
-                },
-                {
-                    id: 3,
-                    name: "Note 4",
-                    show:   false,
-                    selected: true,
-                    label:"Lorem ipsum dolor sit amet, "
-                },
-            ],
-        note2DSettings : {
-            idGenerator : 3,
-            limit : 6,
-            defaultParameters : {
-                id: 3,
-                name: "Note",
-                show:   false,
-                selected: false,
-                label:"",
-            }
-        }
+                attributes: {},
+                label: "Lorem ipsum dolor sit amet",
+        },
+        mode: LabelMode.VIEW,
+        count: 0
+    }
 }
 
-export const label2DSlice = createSlice({
-    name: "label2D",
+export const init = createAsyncThunk(
+    "Label2DSlice/init",
+    (e:any,{dispatch,getState}) => {
+        const rootState = getState() as RootState;
+        const treeRootIds = rootState.label2D.rootIds;
+        if(treeRootIds.length === 0) {
+            dispatch(createParentLabel({id:Label2DType.DEFAULT,name:"Notes"}));
+          }
+    }
+)
+
+export const handleLabel2DCreation = createAsyncThunk(
+    "Label2DSlice/handleLabel2DCreation",
+    (data:any,{dispatch,getState}) => {
+        
+        let e = data.data as PointerEvent;
+        let rootState = getState() as RootState;
+        let mode = selectInteractionMode(rootState);
+        if(mode === InteractionMode.LABEL2D) {
+            let pos = [e.offsetX,e.offsetY];
+            console.log("e",e);
+            dispatch(createLabel({id:nextId('label-2d'),pid:Label2DType.DEFAULT,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:'testing label2d'}));
+        }
+});
+
+export const delete3DLabel = createAsyncThunk(
+    "Label2DSlice/delete3DLabel",
+    (data:any,{dispatch,getState}) => {
+        let rootState = getState() as RootState;
+        let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
+        let state = rootState.label2D;
+        let keys:string[] = [];
+        Object.keys(state.data).forEach( key => {
+            if( state.data[key].state.checked === true && state.data[key].pid !== "-1"){
+                delete3DLabelApi(key,viewerId);
+                keys.push(key);
+            }
+        })
+        dispatch(Label2DSlice.actions.deleteLabel({keys}));
+});
+
+export const Label2DSlice = createSlice({
+    name: "Label2D",
     initialState : initialState,
     reducers: {
-        
-        createNote: (state) => {
-            if(state.note2DList.length < state.note2DSettings.limit){
-                state.note2DSettings.idGenerator = state.note2DSettings.idGenerator + 1;
-                let newNote = {...state.note2DSettings.defaultParameters};
-                newNote.id = state.note2DSettings.idGenerator;
-                newNote.name = newNote.name + ` ${newNote.id +1}`;
-                state.note2DList = [...state.note2DList , newNote];
+        saveTree: saveTreeReducer,
+        checkNode: checkNodeReducer,
+        highlightNode: highlightNodeReducer,
+        invertNode: invertNodeReducer,
+        expandNode: expandNodeReducer,
+        toggleVisibility: toggleVisibilityReducer,
+        setCheckedVisibility: setCheckedVisibilityReducer,
+        invertCheckedVisibility: invertCheckedVisibilityReducer,
+        setlabelMode: (state,action) => setLabelModeReducer(state.labels2DSettings,action),
+        createParentLabel : (state, action : PayloadAction<{id:string,name: string}>) => {
+            const {id,name} = action.payload;
+            let newParent = {...state.labels2DSettings.defaultParameters};
+            newParent.id = id;
+            newParent.pid = "-1";
+            newParent.title = name;
+            newParent.label = "";
+            addNodeReducer(state,{payload: newParent, type: 'ITreeNode'});
+        },
+        createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],type:Label2DType,msg:string}>) => {
+                
+                const {id,pid,pos,msg} = action.payload;
+                let newNote = {...state.labels2DSettings.defaultParameters};
+                newNote.id = id
+                newNote.pid = pid
+                newNote.label = msg;
+                newNote.pos = pos;
+                if(newNote.pid === Label2DType.DEFAULT){
+                    state.labels2DSettings.count+= 1;
+                    newNote.title = `Label ${state.labels2DSettings.count}`;
+                }
+                addNodeReducer(state,{payload: newNote, type: 'ITreeNode'});
+        },
+        setLabelPos:(state, action:PayloadAction<{id:string,pos:[number,number]}>) => {
+            const {id,pos} = action.payload;
+            if(id !== "-1") {
+                state.data[id].pos = pos;
             }
         },
-
-        editSelect : (state,action: PayloadAction<{id:number, value:boolean}>) => {
-            const index= state.note2DList.findIndex((item) => item.id === action.payload.id);
-            if ( index >= 0 ) {
-              let changeItem : Note2DList = state.note2DList[index];
-              changeItem.selected = action.payload.value
-              state.note2DList[index] = changeItem;
-            }       
-        },
-
-        editShow : (state,action: PayloadAction<{id:number, value:boolean}>) => {
-            const index= state.note2DList.findIndex((item) => item.id === action.payload.id);
-            if ( index >= 0 ) {
-              let changeItem : Note2DList = state.note2DList[index];
-              changeItem.show = action.payload.value;
-              state.note2DList[index] = changeItem;
-            }       
-        },
-        delete2DNote: (state) => {
-            state.note2DList = state.note2DList.filter(item => item.selected === false);
-        },
-
-        editLabel: (state, action: PayloadAction<{id:number, value:string}>) => {
-            const index= state.note2DList.findIndex((item) => item.id === action.payload.id);
-            if ( index >= 0 ) {
-                let changeItem : Note2DList = state.note2DList[index];
-                changeItem.label = action.payload.value;
-                state.note2DList[index] = changeItem;
+        editLabel: (state, action: PayloadAction<{id:string, value:string}>) => {
+            const {id,value} = action.payload;
+            if(id !== "-1"){
+                state.data[id].label = value;
             }
         },
+        deleteLabel: (state, action: PayloadAction<{keys:string[]}>) => {
+            let keys = action.payload.keys;
+            keys.forEach(k => {
+                deleteNodeReducer(state, {payload:{nodeId:k},type:'string'})
+            })
+        }
     }
 })
 
-export default label2DSlice.reducer;
-export const {createNote, editSelect, editShow,delete2DNote, editLabel} = label2DSlice.actions;
+export default Label2DSlice.reducer;
+export const {
+    //reuse from tree 
+    saveTree , 
+    checkNode, 
+    highlightNode, 
+    invertNode, 
+    expandNode, 
+    toggleVisibility, 
+    setCheckedVisibility,
+    invertCheckedVisibility,
+    //current 
+    createLabel,
+    editLabel,
+    setlabelMode,
+    setLabelPos, 
+    createParentLabel
+} = Label2DSlice.actions;
 
 //Selectors
 
-export const selectedNote2D = (state : RootState) => {
-    const selectedNote = state.label2D.note2DList.filter(item => item.selected === true);
-    if(selectedNote.length === 1)
-        return(selectedNote[0])
-  }
+export const selectRootIds = (state:RootState) => state.label2D.rootIds
+export const select2DLabelData = (state:RootState) => state.label2D.data
+export const selectedLength = (state:RootState) => {
+    const array : string[] = [];
+     Object.keys(state.label2D.data).forEach(key => {
+        if (state.label2D.data[key].state.checked === true && state.label2D.data[key].pid !== "-1" )
+            array.push(key)
+     })
 
-export const selectAllNotes2D = (state : RootState): Note2DList[] => {
-    return state.label2D.note2DList
+     return (array.length);
 }
+export const selectLabelMode = (state:RootState):LabelMode => state.label2D.labels2DSettings.mode;
+export const selectedLabel2D = (state: RootState):Label2D | null=> {
+    let node:Label2D | null = null;
+    const length = selectedLength(state);
+
+    if(length === 1){
+    Object.keys(state.label2D.data).forEach(key => {
+        if (state.label2D.data[key].state.checked === true && state.label2D.data[key].pid !== "-1" )
+            node = state.label2D.data[key]
+     })
+    }
+    return(node);
+}
+export const selectCheckedLeafNodes = (state:RootState) =>  selectCheckedLeafNodesTree(state.label2D)
+export const selectUnCheckedLeafNodes = (state:RootState) =>  selectUnCheckedLeafNodesTree(state.label2D)

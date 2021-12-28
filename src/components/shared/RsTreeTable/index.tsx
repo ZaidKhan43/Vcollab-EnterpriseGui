@@ -65,6 +65,7 @@ export interface ITreeTableProps {
   width: number,
   height: number,
   selected?: string[],
+  rowHeight?: (rowData : any) => number,
   renderTreeToggle: (icon:any, rowData:any) => any,
   onExpand: (toOpen:boolean,nodeId:string) => void,
   onRowClick: (node:ITreeNode) => void,
@@ -82,7 +83,7 @@ function RTree(props:ITreeTableProps) {
             isTree
             expandedRowKeys = {props.expandedRowIds}
             rowKey="id"
-            rowHeight = {(rowData:any) => 40}
+            rowHeight = {(rowData:any) => (props.rowHeight? props.rowHeight(rowData) : 40)}
             onRowClick = {props.onRowClick}
             rowExpandedHeight = { 40}
             width={props.width}

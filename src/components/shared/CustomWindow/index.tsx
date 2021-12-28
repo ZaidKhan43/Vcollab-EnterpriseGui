@@ -1,11 +1,11 @@
 import { Grid, IconButton, Typography, ClickAwayListener } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
-import React, { useEffect, useRef, useLayoutEffect, useState } from 'react'
-import { Rnd } from 'react-rnd'
+import React, { useEffect, useRef, useLayoutEffect, useState, forwardRef } from 'react'
+import { Rnd, Position, ResizableDelta, DraggableData  } from 'react-rnd'
 import { useResizeDetector } from 'react-resize-detector';
 import clsx from 'clsx'
-import { selectWindowMgr, selectWindowAnchor,addWindow, removeWindow, setEditMode, setHiddenState, setWindowSize,setWindowAccess, setWindowPos, selectWindowXY, setWindowAnchor} from '../../../store/windowMgrSlice'
+import { selectWindowMgr, selectWindowAnchor,addWindow, removeWindow, setEditMode, setHiddenState, setWindowSize, setWindowPos, selectWindowXY, setWindowAnchor, setActiveLayer, Layers} from '../../../store/windowMgrSlice'
 import {useAppSelector, useAppDispatch} from "../../../store/storeHooks";
 import { vec2, vec3 } from 'gl-matrix';
 
@@ -34,7 +34,6 @@ const useStyles = makeStyles(theme => createStyles({
     },
     grabHandle:{
         cursor: "grab",
-        maxHeight: theme.spacing(3)
     },
     edit: {
         border: "solid 1px #ddd",
@@ -64,6 +63,7 @@ type TitleProps = {
     title: string,
     isEditMode: boolean,
     height: number,
+    onClick: (e:any) => void,
     onClose: (e:any) => void
 }
 const TitleBar = React.forwardRef((props:TitleProps, ref) => {
@@ -90,19 +90,38 @@ const TitleBar = React.forwardRef((props:TitleProps, ref) => {
 });
 
 
-type CustomWindowProps = {
+export type CustomWindowProps = {
     uid: string,
+    visible: boolean,
+    xy?:[number,number],
     title?: string,
     width?: number,
     height?: number,
     resize?:boolean,
     anchor?:[number,number],
+    autoPositionOnResize?:boolean,
     onClickOutside?: (uid:string) => void,
+    onDrag?:DraggableEventHandler,
+    onDragStop?:(x:number,y:number) => void,
+    onResize?:RndResizeCallback,
+    onResizeStop?:(x:number,y:number) => void,
     parentRef: React.MutableRefObject<null | HTMLDivElement>,
-    children: JSX.Element | null
+    children: any | null
 } 
+  
+type DraggableEventHandler = (
+    e: any, data: DraggableData,
+  ) => void | false;
 
-const CustomWindow = (props:CustomWindowProps) => {
+type RndResizeCallback = (
+    e: any,
+    dir: any,
+    refToElement: any,
+    delta: any,
+    position: any,
+  ) => void;
+
+const CustomWindow = forwardRef((props:CustomWindowProps, ref:any) => {
     const dispatch = useAppDispatch();
     const windowMgr = useAppSelector(selectWindowMgr);
     const uid = props.uid;
@@ -117,6 +136,7 @@ const CustomWindow = (props:CustomWindowProps) => {
     const titleBarRef = useRef<HTMLDivElement | null>(null);
 
     const onResize = (newWidth ?:number, newHeight ?: number) => {
+    
      if(windowRef.current && newWidth && newHeight && pos[0] !== -1 && pos[1] !== -1)
         {
             const windowEl = windowRef.current as any;
@@ -124,6 +144,7 @@ const CustomWindow = (props:CustomWindowProps) => {
                 
                 let xNorm = (pos[0] + anchor[0])/parentSize[0];
                 let yNorm = (pos[1] + anchor[1])/parentSize[1];
+                if(props.autoPositionOnResize )
                 dispatch(setWindowPos({uid,pos:[xNorm*newWidth-anchor[0],yNorm*newHeight-anchor[1]]}))
 
                 windowEl.updateOffsetFromParent();
@@ -147,23 +168,32 @@ const CustomWindow = (props:CustomWindowProps) => {
     }
     let classes = useStyles(styleProps);
 
-    const toggleVisibility = (v:boolean) => {
-        dispatch(setHiddenState({uid, isHidden: window ? !window.isHidden : false}));
+    const handleClick = (e:any) => {
+        e.stopPropagation()
     }
-
     useEffect(() => {
         console.log(`window ${uid} mounted`);
         dispatch(addWindow({uid}));
-        dispatch(setWindowPos({uid,pos:[0,0]}))
+        dispatch(setWindowPos({uid,pos: props.xy ? props.xy : [0,0]}))
         if(props.parentRef.current)
         setParentSize([props.parentRef.current.clientWidth,props.parentRef.current.clientHeight]);
         
         if(props.width && props.height)
         dispatch(setWindowSize({uid,size:[props.width,props.height]}))
+        else if(windowRef.current)
+            dispatch(setWindowSize({uid,size:[windowRef.current.clientWidth, windowRef.current.clientHeight]}))
         return () => {
             dispatch(removeWindow({uid}));
         }
     },[])
+
+    useEffect(() => {
+        const toggleVisibility = (v:boolean) => {
+            dispatch(setHiddenState({uid, isHidden: window ? !window.isHidden : false}));
+        }
+
+        toggleVisibility(props.visible);
+    },[props.visible])
 
     useLayoutEffect(() => {
         if(titleBarRef.current) {
@@ -176,11 +206,12 @@ const CustomWindow = (props:CustomWindowProps) => {
         <>
             <ClickAwayListener onClickAway={
                 (e:any) => {
-                    if(e.target.id.includes('_vct-viewer-'))  
+                    if(e.target.id.includes('windows_container'))  
                     {
                         if(props.onClickOutside)
                         props.onClickOutside(uid);
                         dispatch(setEditMode({uid,isEdit:false}))
+                        dispatch(setActiveLayer(Layers.VIEWER));
                     }
                 }
             }
@@ -197,8 +228,10 @@ const CustomWindow = (props:CustomWindowProps) => {
             //onDoubleClick = {() => dispatch(setEditMode({uid,isEdit:true}))}
             enableResizing={window?.isEditMode && props.resize ? props.resize : false}
             dragHandleClassName={`${classes.grabHandle}`}
-            size={{ width,  height: height + titleBarHeight}}
+            size= {props.width ?{ width,  height: height} : undefined}
             position={{ x: pos[0], y: pos[1]}}
+            onDrag={props.onDrag}
+            onResize={props.onResize}
             onDragStop={(e, d) => {
                 let q = findNearestQuadrant(parentSize as [number,number],[d.x,d.y] as [number,number],[width,height]);
                 let anchor:[number,number] = [0,0];
@@ -219,26 +252,29 @@ const CustomWindow = (props:CustomWindowProps) => {
                         break;
                 }
                 dispatch(setWindowAnchor({uid,anchor}));
+                if(props.onDragStop)
+                props.onDragStop(d.x,d.y);
                 dispatch(setWindowPos({uid,pos:[d.x,d.y]}))
              }}
             onResizeStop={(e, direction, ref, delta, position) => {
                 dispatch(setWindowSize({uid,size:[ref.offsetWidth,ref.offsetHeight - titleBarHeight]}))
+                if(props.onResizeStop)
+                props.onResizeStop(position.x,position.y);
                 dispatch(setWindowPos({uid,pos:[position.x,position.y]}))
             }}
             >
-             {
-                 window?.isEditMode ?
-                <TitleBar ref={titleBarRef} title={title} height={titleBarHeight} onClose = {toggleVisibility} isEditMode={window?.isEditMode}></TitleBar>
-                :null
-             }
+            <div ref={ref} id={uid} className={window?.isEditMode?classes.grabHandle:''} onClick={handleClick} style={{width:'100%',height:'100%', cursor: window?.isEditMode ? 'move': 'pointer' }}>
              
              {
                props.children
              }
+             </div>
             </Rnd>
             </ClickAwayListener>
         </>
     )
-}
-
+})
+CustomWindow.defaultProps = {
+    autoPositionOnResize : true
+} as CustomWindowProps;
 export default CustomWindow
