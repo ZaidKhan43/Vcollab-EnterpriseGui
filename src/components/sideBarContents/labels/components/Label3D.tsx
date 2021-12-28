@@ -83,6 +83,7 @@ function Label3D(props:Label3DProps) {
                     <LabelMsg ref={childRef} msg={label.label}/>
                 </Window>
                 <Xarrow 
+                zIndex={0}
                 start={startRef} 
                 showXarrow={label.state.visibility}
                 end={endRef} 

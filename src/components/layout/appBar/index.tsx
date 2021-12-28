@@ -85,10 +85,10 @@ function AppBar() {
       setSelectedLabelInsertionMode(id)
     }
 
-    useEffect(() => {
-      let id = labelInsertionState ? selectedLabelInsertionMode : InteractionMode.DEFAULT;
-      viewerAPIProxy.setInteractionMode( activeViewerID, id);
-    },[labelInsertionState, activeViewerID, selectedLabelInsertionMode])
+    // useEffect(() => {
+    //   let id = labelInsertionState ? selectedLabelInsertionMode : InteractionMode.DEFAULT;
+    //   viewerAPIProxy.setInteractionMode( activeViewerID, id);
+    // },[labelInsertionState, activeViewerID, selectedLabelInsertionMode])
 
     useEffect(() => {
       switch (interactionMode) {
@@ -105,16 +105,21 @@ function AppBar() {
           setSelectedLabelInsertionMode(InteractionMode.LABEL_MEASUREMENT_3PT_ARC);
           break;
         default:
+          dispatch(setLabelInsertionState(false));
           break;
       }
     },[interactionMode])
 
     const handleLabelInsertModeClick = () => {
+      let id = !labelInsertionState ? selectedLabelInsertionMode : InteractionMode.DEFAULT;
+      viewerAPIProxy.setInteractionMode( activeViewerID, id);
       dispatch(setLabelInsertionState(!labelInsertionState));
     }
 
     const onClickPickAndMove = () => {
+        viewerAPIProxy.enablePickAndMove(activeViewerID,!isPickAndMoveEnabled);
         viewerAPIProxy.setInteractionMode( activeViewerID,!isPickAndMoveEnabled ? InteractionMode.PICK_AND_MOVE : InteractionMode.DEFAULT);
+        
     }
 
     const resetPickAndMove = () => {

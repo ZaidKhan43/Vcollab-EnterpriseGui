@@ -5,7 +5,7 @@ type LabelMsgProps = {
 }
 function LabelMsg(props:LabelMsgProps, ref:any) {
     return (
-        <div ref={ref} style={{ backgroundColor:"yellow", width:'100%' , height:'100%'}}>{props.msg}</div>
+        <div ref={ref} style={{ backgroundColor:"yellow", width:'100%' , height:'100%', zIndex:1}}>{props.msg}</div>
     )
 }
 

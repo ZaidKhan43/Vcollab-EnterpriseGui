@@ -26,18 +26,6 @@ function ColorPlotdWindow(props:Props) {
 
     const dispatch = useAppDispatch();
 
-
- useEffect(()=>{
-
-    if(Object.values(colorMapData).length > 0) {
-
-        dispatch(setEditMode({uid:windowId , isEdit :true}));
-
-    }
- 
- });
-
-
     return (
 
             <CustomWindow 
