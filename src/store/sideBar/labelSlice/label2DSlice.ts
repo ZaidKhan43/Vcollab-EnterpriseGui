@@ -134,7 +134,7 @@ export const delete3DLabel = createAsyncThunk(
         let state = rootState.label2D;
         let keys:string[] = [];
         Object.keys(state.data).forEach( key => {
-            if( state.data[key].state.checked === true && state.data[key].pid !== "-1"){
+            if( state.data[key].state.checked === true && state.data[key].pid !== "-1" && state.data[key].id !== Label3DType.PROBE && state.data[key].id !== Label3DType.DISTANCE && state.data[key].id !== Label3DType.ARC){
                 delete3DLabelApi(key,viewerId);
                 keys.push(key);
             }
@@ -238,8 +238,11 @@ export const select2DLabelData = (state:RootState) => state.label2D.data
 export const selectedLength = (state:RootState) => {
     const array : string[] = [];
      Object.keys(state.label2D.data).forEach(key => {
-        if (state.label2D.data[key].state.checked === true && state.label2D.data[key].pid !== "-1" )
-            array.push(key)
+        if (state.label2D.data[key].state.checked === true)
+            if(state.label2D.data[key].pid === "-1" || state.label2D.data[key].pid === LabelType.LABEL3D || state.label2D.data[key].pid === LabelType.MEASUREMENT)
+                return null
+            else
+                array.push(key)
      })
 
      return (array.length);
