@@ -41,6 +41,7 @@ import { Layers, selectActiveLayer , setActiveLayer, setEditMode} from '../../..
 import { windowPrefixId } from '../../../../store/sideBar/labelSlice/label2DSlice';
 import { selectInteractionMode, setLabelInsertionState, selectActiveViewerID } from 'store/appSlice';
 import { InteractionMode, setInteractionMode } from 'backend/viewerAPIProxy';
+import { LabelType,Label3DType } from 'store/sideBar/labelSlice/shared/types';
 
 export default function Labels2D(){
 
@@ -108,10 +109,32 @@ export default function Labels2D(){
   }
 
   const handleAdd = (node:ITreeNode) => {
-    let mode = interactionMode !== InteractionMode.LABEL2D ? InteractionMode.LABEL2D : InteractionMode.DEFAULT;
-    setInteractionMode(viewerId, mode);
-    dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL2D));
+    if(node.id === LabelType.LABEL2D){
+      let mode = interactionMode !== InteractionMode.LABEL2D ? InteractionMode.LABEL2D : InteractionMode.DEFAULT;
+      setInteractionMode(viewerId, mode);
+      dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL2D));
+    }
+
+    if(node.id === Label3DType.PROBE){
+      let mode = interactionMode !== InteractionMode.LABEL3D_POINT ? InteractionMode.LABEL3D_POINT : InteractionMode.DEFAULT;
+      setInteractionMode(viewerId, mode);
+      dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL3D_POINT));
+    }
+
+    if(node.id === Label3DType.DISTANCE){
+      let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT ? InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT : InteractionMode.DEFAULT;
+      setInteractionMode(viewerId, mode);
+      dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT));
+    }
+    
+    if(node.id === Label3DType.ARC){
+      let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC ? InteractionMode.LABEL_MEASUREMENT_3PT_ARC : InteractionMode.DEFAULT;
+      setInteractionMode(viewerId, mode);
+      dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC));
+    }
+
   }
+
   const onHandleDeleteButton = () => {
     dispatch(delete3DLabel({}));
   }
@@ -153,11 +176,15 @@ export default function Labels2D(){
         column2 = {(node) => {
           return (
             <div>
-              { node?.pid !== "-1"
+              { node?.pid === "-1" || node?.pid === LabelType.MEASUREMENT || node?.pid === LabelType.LABEL3D
                 ?
-                 <ShowHideCell node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
-                :        
-                <AddCell node = {treeDataRedux[node.id]} selected={interactionMode === InteractionMode.LABEL2D} onToggle={handleAdd}/>
+                  node?.id === LabelType.LABEL3D || node?.id === LabelType.MEASUREMENT
+                    ?
+                      null
+                    :
+                      <AddCell node = {treeDataRedux[node.id]} selected={interactionMode === InteractionMode.LABEL2D && node.id === LabelType.LABEL2D} onToggle={handleAdd}/>
+                :
+                  <ShowHideCell node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
               }    
             </div>
           )

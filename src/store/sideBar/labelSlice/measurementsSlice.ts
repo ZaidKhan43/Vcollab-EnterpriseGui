@@ -18,26 +18,22 @@ import {
     addNodeReducer,
     deleteNodeReducer
 } from "../shared/Tree/reducers";
-import {LabelMode, ILabel2D, LabelSettings, Label3DType} from './shared/types';
+import {LabelMode, LabelMeasurements, Label3D,LabelSettings, Label3DType, LabelType} from './shared/types';
 import { setLabelModeReducer } from './shared/reducers';
 
 export const windowPrefixId = "Measurement";
 
 interface MeasurementsSettings extends LabelSettings  {
-    defaultParameters : MeasurementsList,
+    defaultParameters : LabelMeasurements,
     childCount : number,
 } 
 
-export interface MeasurementsList extends ILabel2D {
-    type: Label3DType
-}
-
 interface InitialState extends ITreeState {
-    data : {[id:string]:MeasurementsList},
+    data : {[id:string]:LabelMeasurements},
     rootIds : string[],
     measurementsSettings : MeasurementsSettings,
     
-}
+} 
 
 const initialState : InitialState = {
     data : {},
@@ -48,6 +44,7 @@ const initialState : InitialState = {
                 pid: null,
                 title: "",
                 children: [],
+                labelType: LabelType.MEASUREMENT,
                 pos: [0,0],
                 anchor: [-1,-1],
                 state: {
@@ -202,8 +199,8 @@ export const selectedLength = (state:RootState) => {
      return (array.length);
 }
 export const selectLabelMode = (state:RootState):LabelMode => state.measurements.measurementsSettings.mode;
-export const selectedMeasurement = (state: RootState):ILabel2D | null => {
-    let node:ILabel2D | null=null;
+export const selectedMeasurement = (state: RootState):Label3D | null => {
+    let node:Label3D | null=null;
     const length = selectedLength(state);
     if(length === 1){
     Object.keys(state.measurements.data).forEach(key => {

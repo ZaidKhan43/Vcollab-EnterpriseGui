@@ -1,7 +1,7 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import {delete3DLabel as delete3DLabelApi, get3DLabelCanvasPos, probe} from '../../../backend/viewerAPIProxy';
 import type { RootState } from '../../index';
-import {LabelMode, Label2D, LabelSettings, Label2DType} from './shared/types';
+import {LabelMode, Label2D, LabelSettings, Label2DType, LabelType, LabelGeneral, Label3DType} from './shared/types';
 import { setLabelModeReducer } from './shared/reducers';
 import {ITreeState} from "../shared/Tree/types";
 import {   
@@ -25,13 +25,15 @@ import { InteractionMode } from 'backend/ViewerManager';
 
 export const windowPrefixId = "Label2D";
 interface labels2DSettings extends LabelSettings {
-    defaultParameters : Label2D,
-    count: number
+    defaultParameters : LabelGeneral,
+    count2D: number,
+    countPoint : number,
+    countMeasurement : number
 } 
 
 
 interface InitialState extends ITreeState {
-    data : {[id:string]:Label2D},
+    data : {[id:string]:LabelGeneral},
     rootIds : string[],
     labels2DSettings : labels2DSettings,
     
@@ -46,7 +48,8 @@ const initialState : InitialState = {
                 pid: null,
                 title: "",
                 children: [],
-                pos:[0,0],
+                labelType: LabelType.LABEL2D,
+                pos:[0,0], 
                 state: {
                     checked : false,
                     partiallyChecked : false,
@@ -58,7 +61,9 @@ const initialState : InitialState = {
                 label: "Lorem ipsum dolor sit amet",
         },
         mode: LabelMode.VIEW,
-        count: 0
+        count2D: 0,
+        countPoint : 0,
+        countMeasurement : 0,
     }
 }
 
@@ -68,7 +73,13 @@ export const init = createAsyncThunk(
         const rootState = getState() as RootState;
         const treeRootIds = rootState.label2D.rootIds;
         if(treeRootIds.length === 0) {
-            dispatch(createParentLabel({id:Label2DType.DEFAULT,name:"Notes"}));
+            dispatch(createParentLabel({id:LabelType.LABEL2D,name:"Notes", pid:"-1"}));
+            dispatch(createParentLabel({id:LabelType.LABEL3D,name:"3D Labels",pid:"-1"}));
+            dispatch(createParentLabel({id:LabelType.MEASUREMENT,name:"Measurements",pid:"-1"}));
+
+            dispatch(createParentLabel({id:Label3DType.PROBE,name:"Point",pid:LabelType.LABEL3D}))
+            dispatch(createParentLabel({id:Label3DType.DISTANCE ,name:"Point to Point",pid:LabelType.MEASUREMENT}));
+            dispatch(createParentLabel({id:Label3DType.ARC, name:"3 Point Arc Length",pid:LabelType.MEASUREMENT}));
           }
     }
 )
@@ -83,9 +94,37 @@ export const handleLabel2DCreation = createAsyncThunk(
         if(mode === InteractionMode.LABEL2D) {
             let pos = [e.offsetX,e.offsetY];
             console.log("e",e);
-            dispatch(createLabel({id:nextId('label-2d'),pid:Label2DType.DEFAULT,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:'testing label2d'}));
+            dispatch(createLabel({id:nextId('label-2d'),pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:'testing label2d'}));
         }
 });
+
+export const handleProbeLabelCreation = createAsyncThunk(
+    "label3DSlice/handleProbeLabelCreation",
+    (data:any,{dispatch,getState}) => {
+        
+        let e = data.data;
+        let rootState = getState() as RootState;
+        let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
+        let pos = get3DLabelCanvasPos(e.labelId,viewerId);
+        dispatch(createLabel({id:e.labelId,pid:e.type,pos:pos as [number,number],type:e.type,msg:e.msg}));
+});
+
+export const handleMeasurementLabelCreation = createAsyncThunk(
+    'measurementSlice/handleMeasurementLabelCreation',
+    async (data:any, {getState,dispatch}) => {
+        let e = data.data;
+        let rootState = getState() as RootState;
+        let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
+        let pos = get3DLabelCanvasPos(e.labelId,viewerId);
+        dispatch(createLabel({
+            pid: e.type,
+            id: e.labelId,
+            msg: e.msg,
+            pos:pos as [number,number],
+            type: e.type
+        }));
+    }
+)
 
 export const delete3DLabel = createAsyncThunk(
     "Label2DSlice/delete3DLabel",
@@ -116,11 +155,11 @@ export const Label2DSlice = createSlice({
         setCheckedVisibility: setCheckedVisibilityReducer,
         invertCheckedVisibility: invertCheckedVisibilityReducer,
         setlabelMode: (state,action) => setLabelModeReducer(state.labels2DSettings,action),
-        createParentLabel : (state, action : PayloadAction<{id:string,name: string}>) => {
-            const {id,name} = action.payload;
+        createParentLabel : (state, action : PayloadAction<{id:string,name: string, pid: string}>) => {
+            const {id,name, pid} = action.payload;
             let newParent = {...state.labels2DSettings.defaultParameters};
             newParent.id = id;
-            newParent.pid = "-1";
+            newParent.pid = pid;
             newParent.title = name;
             newParent.label = "";
             addNodeReducer(state,{payload: newParent, type: 'ITreeNode'});
@@ -133,10 +172,23 @@ export const Label2DSlice = createSlice({
                 newNote.pid = pid
                 newNote.label = msg;
                 newNote.pos = pos;
-                if(newNote.pid === Label2DType.DEFAULT){
-                    state.labels2DSettings.count+= 1;
-                    newNote.title = `Label ${state.labels2DSettings.count}`;
+                if(newNote.pid === LabelType.LABEL2D){
+                    state.labels2DSettings.count2D+= 1;
+                    newNote.title = `Label ${state.labels2DSettings.count2D}`;
                 }
+
+                if(newNote.pid === Label3DType.PROBE){
+                    newNote.anchor = pos;
+                    state.labels2DSettings.countPoint+= 1;
+                    newNote.title = `Point Label ${state.labels2DSettings.countPoint}`;
+                }
+
+                if(newNote.pid === Label3DType.DISTANCE || newNote.pid === Label3DType.ARC){
+                    newNote.anchor = pos; 
+                    state.labels2DSettings.countMeasurement+= 1;
+                    newNote.title = `Measurement ${state.labels2DSettings.countMeasurement}`;
+                }
+
                 addNodeReducer(state,{payload: newNote, type: 'ITreeNode'});
         },
         setLabelPos:(state, action:PayloadAction<{id:string,pos:[number,number]}>) => {

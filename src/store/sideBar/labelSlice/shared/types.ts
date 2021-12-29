@@ -5,9 +5,17 @@ export enum LabelMode {
     EDIT,
     VIEW
 }
+
+export enum LabelType {
+    LABEL2D = "LABEL2D",
+    LABEL3D = "LABEL3D",
+    MEASUREMENT = "MEASUREMENT",
+}
+
 export enum Label2DType {
     DEFAULT = 'DEFAULT'
 }
+
 export enum Label3DType {
     ANNOTATION = "ANNOTATION", 
     MINMAX = "MINMAX", 
@@ -21,14 +29,27 @@ export enum Label3DType {
 export interface ILabel extends TreeNode {
     label: string,
     pos: [number, number],
-}
-
-export interface ILabel2D extends ILabel {
-    anchor: [number,number],
+    labelType: LabelType,
 }
 
 export interface Label2D extends ILabel {
-    
+}
+
+export interface Label3D extends ILabel {
+    anchor: [number,number],
+}
+
+export interface LabelMeasurements extends ILabel {
+    anchor: [number,number],
+    type: Label3DType,
+}
+
+export interface LabelGeneral extends TreeNode {
+    label: string,
+    pos: [number, number],
+    labelType: LabelType,
+    anchor?: [number,number],
+    type?: Label3DType,
 }
 
 export type LabelSettings = {
