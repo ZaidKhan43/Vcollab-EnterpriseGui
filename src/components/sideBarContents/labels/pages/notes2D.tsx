@@ -12,7 +12,7 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree, { ITreeNode } from '../../../shared/RsTreeTable';
 import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/label2DSlice';
-import {invertNode, expandNode, select2DLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel} from '../../../../store/sideBar/labelSlice/label2DSlice'
+import {invertNode, expandNode, select2DLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, setActiveLabel, handleProbeHeadCreation} from '../../../../store/sideBar/labelSlice/label2DSlice'
 import AddCell from '../components/shared/TreeIcons/AddCell'
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
@@ -43,6 +43,8 @@ import { selectInteractionMode, setLabelInsertionState, selectActiveViewerID } f
 import { InteractionMode, setInteractionMode } from 'backend/viewerAPIProxy';
 import { LabelType,Label3DType } from 'store/sideBar/labelSlice/shared/types';
 
+import SelectPointIcon from 'components/icons/selectPoint';
+
 export default function Labels2D(){
 
   const dispatch = useAppDispatch();  
@@ -57,6 +59,9 @@ export default function Labels2D(){
   const activeLayer = useAppSelector(selectActiveLayer);
   const interactionMode = useAppSelector(selectInteractionMode);
   const viewerId = useAppSelector(selectActiveViewerID);
+
+  const activeLabelId = useAppSelector(state => state.label2D.activeLabel)
+
   const isPanBtnPressed = activeLayer === Layers.FRONT;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
@@ -116,9 +121,12 @@ export default function Labels2D(){
     }
 
     if(node.id === Label3DType.PROBE){
-      let mode = interactionMode !== InteractionMode.LABEL3D_POINT ? InteractionMode.LABEL3D_POINT : InteractionMode.DEFAULT;
-      setInteractionMode(viewerId, mode);
-      dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL3D_POINT));
+
+      dispatch(handleProbeHeadCreation())
+
+      // let mode = interactionMode !== InteractionMode.LABEL3D_POINT ? InteractionMode.LABEL3D_POINT : InteractionMode.DEFAULT;
+      // setInteractionMode(viewerId, mode);
+      // dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL3D_POINT));
     }
 
     if(node.id === Label3DType.DISTANCE){
@@ -135,8 +143,21 @@ export default function Labels2D(){
 
   }
 
+  const handleSelectPoints = () => {
+    const node = treeDataRedux[activeLabelId]
+    if(node.pid === Label3DType.PROBE){
+      let mode = interactionMode !== InteractionMode.LABEL3D_POINT ? InteractionMode.LABEL3D_POINT : InteractionMode.DEFAULT;
+      setInteractionMode(viewerId, mode);
+      dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL3D_POINT));
+    }
+  }
+
   const onHandleDeleteButton = () => {
     dispatch(delete3DLabel({}));
+  }
+
+  const handleSetActive = (node : any) => {
+    dispatch(setActiveLabel({id: node.id}))
   }
 
   
@@ -149,7 +170,9 @@ export default function Labels2D(){
         treeData={roots} 
         expandedRowIds = {expanded}
         onExpand={handleExpand}
-        onRowClick = {() => {}}
+        selectable={true}
+        selected={[activeLabelId]}
+        onRowClick = {handleSetActive}
         width = {containerWidth}
         height = {containerHeight ? containerHeight - 5: 0}
         renderTreeToggle = {
@@ -217,6 +240,10 @@ export default function Labels2D(){
               }))}}
               />
             }/>
+            <Option label="Select" icon={<MuiIconButton disabled={!activeLabelId} onClick={handleSelectPoints}>
+                <SelectPointIcon/>
+              </MuiIconButton>} 
+            />
             <Option label="Edit" icon={<MuiIconButton disabled={selectedCount === 1 ? false : true} onClick={() =>dispatch(push(Routes.LABEL_2D_EDITS))}>
                 <MuiEditIcon/>
               </MuiIconButton>} 
