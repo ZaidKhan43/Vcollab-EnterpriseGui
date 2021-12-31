@@ -218,11 +218,17 @@ export default function Labels2D(){
           )
         }}
         column1 = {(node) => {
-
-          if(node?.id === LabelType.LABEL3D || node?.id === LabelType.MEASUREMENT)
-            return null
-          else
-            return <InvertCell node = {treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
+            return (
+              <div>
+                {node?.id === LabelType.LABEL3D || node?.id === LabelType.MEASUREMENT
+                  ?
+                     null
+                  :
+                    <InvertCell node = {treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
+                }
+              </div>
+              
+            )
         }}
         column2 = {(node) => {
           return (
