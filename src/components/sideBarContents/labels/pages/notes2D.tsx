@@ -12,7 +12,7 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree, { ITreeNode } from '../../../shared/RsTreeTable';
 import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/label2DSlice';
-import {invertNode, expandNode, select2DLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, setActiveLabel, handleProbeHeadCreation} from '../../../../store/sideBar/labelSlice/label2DSlice'
+import {invertNode, expandNode, select2DLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, setActiveLabel, handleProbeHeadCreation, handleMeasurementHeadCreation} from '../../../../store/sideBar/labelSlice/label2DSlice'
 import AddCell from '../components/shared/TreeIcons/AddCell'
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
@@ -121,25 +121,28 @@ export default function Labels2D(){
     }
 
     if(node.id === Label3DType.PROBE){
-
       dispatch(handleProbeHeadCreation())
-
-      // let mode = interactionMode !== InteractionMode.LABEL3D_POINT ? InteractionMode.LABEL3D_POINT : InteractionMode.DEFAULT;
-      // setInteractionMode(viewerId, mode);
-      // dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL3D_POINT));
     }
 
     if(node.id === Label3DType.DISTANCE){
-      let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT ? InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT : InteractionMode.DEFAULT;
-      setInteractionMode(viewerId, mode);
-      dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT));
+      dispatch(handleMeasurementHeadCreation({pid :Label3DType.DISTANCE }))
     }
-    
+
     if(node.id === Label3DType.ARC){
-      let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC ? InteractionMode.LABEL_MEASUREMENT_3PT_ARC : InteractionMode.DEFAULT;
-      setInteractionMode(viewerId, mode);
-      dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC));
+      dispatch(handleMeasurementHeadCreation({pid : Label3DType.ARC}))
     }
+
+    // if(node.id === Label3DType.DISTANCE){
+    //   let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT ? InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT : InteractionMode.DEFAULT;
+    //   setInteractionMode(viewerId, mode);
+    //   dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT));
+    // }
+    
+    // if(node.id === Label3DType.ARC){
+    //   let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC ? InteractionMode.LABEL_MEASUREMENT_3PT_ARC : InteractionMode.DEFAULT;
+    //   setInteractionMode(viewerId, mode);
+    //   dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC));
+    // }
 
   }
 
@@ -150,6 +153,20 @@ export default function Labels2D(){
       setInteractionMode(viewerId, mode);
       dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL3D_POINT));
     }
+
+    if(node.pid === Label3DType.DISTANCE){
+      let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT ? InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT : InteractionMode.DEFAULT;
+      setInteractionMode(viewerId, mode);
+      dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT));
+    }
+
+    if(node.pid === Label3DType.ARC){
+          let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC ? InteractionMode.LABEL_MEASUREMENT_3PT_ARC : InteractionMode.DEFAULT;
+          setInteractionMode(viewerId, mode);
+          dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC));
+    }
+
+    
   }
 
   const onHandleDeleteButton = () => {
@@ -240,7 +257,7 @@ export default function Labels2D(){
               }))}}
               />
             }/>
-            <Option label="Select" icon={<MuiIconButton disabled={!activeLabelId} onClick={handleSelectPoints}>
+            <Option label="Select" icon={<MuiIconButton disabled={activeLabelId === "-1"} onClick={handleSelectPoints}>
                 <SelectPointIcon/>
               </MuiIconButton>} 
             />

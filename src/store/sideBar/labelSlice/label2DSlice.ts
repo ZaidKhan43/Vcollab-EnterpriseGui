@@ -109,6 +109,22 @@ export const handleProbeHeadCreation = createAsyncThunk(
 }
 )
 
+export const handleMeasurementHeadCreation = createAsyncThunk(
+    'measurementSlice/handleMeasurementLabelCreation',
+    async (data: any, {dispatch,getState}) => {
+        let e = data.pid;
+        const idNew = nextId('label-3d')
+        dispatch(createLabel({
+            id: idNew,
+            pid: e,
+            type:e,
+            msg: "nill",
+            pos:[-10,-10],
+        }));
+        dispatch(setActiveLabel({id: idNew}));
+    }
+)
+
 export const handleProbeLabelCreation = createAsyncThunk(
     "label3DSlice/handleProbeLabelCreation",
     (data:any,{dispatch,getState}) => {
@@ -203,8 +219,15 @@ export const Label2DSlice = createSlice({
                 if(newNote.pid === state.activeLabel){
 
                     if(state.data[state.activeLabel].pid === Label3DType.PROBE){
-                        state.labels2DSettings.count2D+= 1;
                         newNote.title = `N: ${[21323,213,12312,1232][Math.floor(Math.random()*[21323,213,12312,1232].length)]}`;
+                    }
+
+                    if(state.data[state.activeLabel].pid === Label3DType.DISTANCE){
+                        newNote.title = `N: ${[21323,213,12312,1232][Math.floor(Math.random()*[21323,213,12312,1232].length)]} - N: ${[1232,1223,4324,3423][Math.floor(Math.random()*[1232,1223,4324,3423].length)]}`;
+                    }
+
+                    if(state.data[state.activeLabel].pid === Label3DType.ARC){
+                        newNote.title = `N: ${[21323,213,12312,1232][Math.floor(Math.random()*[21323,213,12312,1232].length)]} - N: ${[1232,1223,4324,3423][Math.floor(Math.random()*[1232,1223,4324,3423].length)]} - N: ${[545,6456,4654,462][Math.floor(Math.random()*[545,6456,4654,462].length)]}`;
                     }
                 }
 
@@ -224,6 +247,7 @@ export const Label2DSlice = createSlice({
         },
         deleteLabel: (state, action: PayloadAction<{keys:string[]}>) => {
             let keys = action.payload.keys;
+            console.log("deleteKeys", keys)
             keys.forEach(k => {
                 deleteNodeReducer(state, {payload:{nodeId:k},type:'string'})
             })
@@ -236,7 +260,7 @@ export const Label2DSlice = createSlice({
             }
 
             else{
-                if(state.data[action.payload.id].pid === Label3DType.PROBE)
+                if(state.data[action.payload.id].pid === Label3DType.PROBE ||state.data[action.payload.id].pid === Label3DType.DISTANCE || state.data[action.payload.id].pid === Label3DType.ARC)
                     state.activeLabel = action.payload.id;
             }
         }
