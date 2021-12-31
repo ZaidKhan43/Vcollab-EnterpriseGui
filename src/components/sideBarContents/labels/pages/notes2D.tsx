@@ -177,9 +177,9 @@ export default function Labels2D(){
         height = {containerHeight ? containerHeight - 5: 0}
         renderTreeToggle = {
           (icon,rowData) => {
-            if (rowData.children && rowData.children.length === 0) {
-              return null;
-            }
+            // if (rowData.children && rowData.children.length === 0) {
+            //   return null;
+            // }
             let state = treeDataRedux[rowData.id].state;
             return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
           }
