@@ -45,6 +45,8 @@ import { LabelType,Label3DType } from 'store/sideBar/labelSlice/shared/types';
 
 import SelectPointIcon from 'components/icons/selectPoint';
 
+import MuiAddIcon from '@material-ui/icons/Add';
+
 export default function Labels2D(){
 
   const dispatch = useAppDispatch();  
@@ -194,11 +196,16 @@ export default function Labels2D(){
         height = {containerHeight ? containerHeight - 5: 0}
         renderTreeToggle = {
           (icon,rowData) => {
-            // if (rowData.children && rowData.children.length === 0) {
-            //   return null;
-            // }
-            let state = treeDataRedux[rowData.id].state;
+            if (rowData.pid === "-1" || rowData.id === Label3DType.PROBE || 
+                  rowData.id === Label3DType.DISTANCE || 
+                  rowData.id === Label3DType.ARC || rowData.pid === Label3DType.PROBE || 
+                  rowData.pid === Label3DType.DISTANCE || 
+                  rowData.pid === Label3DType.ARC) {
+              let state = treeDataRedux[rowData.id].state;
             return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
+            }
+            
+            return null
           }
         }
         treeNode = {(node) => {
@@ -211,7 +218,11 @@ export default function Labels2D(){
           )
         }}
         column1 = {(node) => {
-          return <InvertCell node = {treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
+
+          if(node?.id === LabelType.LABEL3D || node?.id === LabelType.MEASUREMENT)
+            return null
+          else
+            return <InvertCell node = {treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
         }}
         column2 = {(node) => {
           return (
@@ -261,6 +272,12 @@ export default function Labels2D(){
                 <SelectPointIcon/>
               </MuiIconButton>} 
             />
+            
+            <Option label="Add" icon={<MuiIconButton disabled={activeLabelId === "-1"}>
+                <MuiAddIcon/>
+              </MuiIconButton>} 
+            />
+
             <Option label="Edit" icon={<MuiIconButton disabled={selectedCount === 1 ? false : true} onClick={() =>dispatch(push(Routes.LABEL_2D_EDITS))}>
                 <MuiEditIcon/>
               </MuiIconButton>} 
