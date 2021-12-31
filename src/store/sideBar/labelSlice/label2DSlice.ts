@@ -163,7 +163,13 @@ export const delete3DLabel = createAsyncThunk(
         Object.keys(state.data).forEach( key => {
             if( state.data[key].state.checked === true && state.data[key].pid !== "-1" && state.data[key].id !== Label3DType.PROBE && state.data[key].id !== Label3DType.DISTANCE && state.data[key].id !== Label3DType.ARC){
                 delete3DLabelApi(key,viewerId);
+
+                // if(state.data[key].state.partiallyChecked === false)
+                // keys.push(key);
+
+                if(state.data[key].children.length === 0)
                 keys.push(key);
+                
             }
         })
         dispatch(Label2DSlice.actions.deleteLabel({keys}));
