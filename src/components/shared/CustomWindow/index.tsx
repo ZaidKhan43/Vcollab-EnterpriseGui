@@ -1,5 +1,4 @@
 import { Grid, IconButton, Typography, ClickAwayListener } from '@material-ui/core';
-import { Close } from '@material-ui/icons';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import React, { useEffect, useRef, useLayoutEffect, useState, forwardRef } from 'react'
 import { Rnd, Position, ResizableDelta, DraggableData  } from 'react-rnd'
@@ -82,6 +81,17 @@ const TitleBar = React.forwardRef((props:TitleProps, ref:any) => {
     )
 });
 
+const Move = (props: {show:Boolean}) => {
+    const classes = useStyles(props);
+    return(
+    <div className={classes.grabHandle} 
+    style={{
+    position:'absolute', 
+    width: '10px',
+    height:'10px',
+    backgroundColor:'red'}} >
+    </div>)
+}
 
 export type CustomWindowProps = {
     uid: string,
@@ -269,8 +279,9 @@ const CustomWindow = forwardRef((props:CustomWindowProps, ref:any) => {
                 dispatch(setWindowPos({uid,pos:[position.x,position.y]}))
             }}
             >
-            <TitleBar ref={titleBarRef} isEditMode={window?.isEditMode} height={10} />
-            <div ref={ref} id={uid} onClick={handleClick} style={{width:'100%',height:'100%'}}>
+            {/* <TitleBar ref={titleBarRef} isEditMode={window?.isEditMode} height={10} /> */}
+            
+            <div ref={ref} id={uid} className={classes.grabHandle} onClick={handleClick} style={{width:'100%',height:'100%'}}>
              {
                props.children
              }
