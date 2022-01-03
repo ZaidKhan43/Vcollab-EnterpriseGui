@@ -12,7 +12,7 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree, { ITreeNode } from '../../../shared/RsTreeTable';
 import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/label2DSlice';
-import {invertNode, expandNode, select2DLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, setActiveLabel, handleProbeHeadCreation, handleMeasurementHeadCreation} from '../../../../store/sideBar/labelSlice/label2DSlice'
+import {invertNode, expandNode, select2DLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, setActiveLabel, handleProbeHeadCreation, handleMeasurementHeadCreation, selectedLeafNodes, reGroupLabel} from '../../../../store/sideBar/labelSlice/label2DSlice'
 import AddCell from '../components/shared/TreeIcons/AddCell'
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
@@ -46,6 +46,7 @@ import { LabelType,Label3DType } from 'store/sideBar/labelSlice/shared/types';
 import SelectPointIcon from 'components/icons/selectPoint';
 
 import MuiAddIcon from '@material-ui/icons/Add';
+import MuiCreateNewFolderOutlinedIcon from '@material-ui/icons/CreateNewFolderOutlined';
 
 export default function Labels2D(){
 
@@ -58,6 +59,8 @@ export default function Labels2D(){
   const treeRootIds = useAppSelector(selectRootIds);
   const checkedNodes = useAppSelector(selectCheckedLeafNodes);
   const selectedCount = useAppSelector(selectedLength);
+  const selectedLeafNode = useAppSelector(selectedLeafNodes)
+  const selectedLeafCount = selectedLeafNode.length
   const activeLayer = useAppSelector(selectActiveLayer);
   const interactionMode = useAppSelector(selectInteractionMode);
   const viewerId = useAppSelector(selectActiveViewerID);
@@ -173,6 +176,30 @@ export default function Labels2D(){
 
   const onHandleDeleteButton = () => {
     dispatch(delete3DLabel({}));
+  }
+
+  const onHandleRegroup = () => {
+    const id = selectedLeafNode[0]
+    const pid = treeDataRedux[id].pid;
+
+    const mainPid = treeDataRedux[pid].pid;
+
+    if(mainPid === Label3DType.PROBE){
+      dispatch(handleProbeHeadCreation())
+    }
+
+    if(mainPid === Label3DType.DISTANCE){
+      dispatch(handleMeasurementHeadCreation({pid :Label3DType.DISTANCE }))
+    }
+
+    if(mainPid === Label3DType.ARC){
+      dispatch(handleMeasurementHeadCreation({pid : Label3DType.ARC}))
+    }
+
+    selectedLeafNode.forEach( item => {
+      dispatch(reGroupLabel({key : item}))
+    })
+    
   }
 
   const handleSetActive = (node : any) => {
@@ -292,7 +319,17 @@ export default function Labels2D(){
                   <MuiDeleteForeverOutlinedIcon/>
                 </MuiIconButton> }
             />
+
+            <Option label="New Group" icon={<MuiIconButton disabled={selectedLeafCount >= 1 ? false : true} onClick={onHandleRegroup} > 
+                  <MuiCreateNewFolderOutlinedIcon/>
+                </MuiIconButton> }
+            />
+
             </OptionContainer>
+
+            
+
+            
       </div>
     ) 
   }

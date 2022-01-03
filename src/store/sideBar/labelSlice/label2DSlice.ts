@@ -95,7 +95,7 @@ export const handleLabel2DCreation = createAsyncThunk(
         if(mode === InteractionMode.LABEL2D) {
             let pos = [e.offsetX,e.offsetY];
             console.log("e",e);
-            dispatch(createLabel({id:nextId('label-2d'),pid:LabelType.LABEL2D,pos:[-10,-10],type:Label2DType.DEFAULT,msg:'testing label2d'}));
+            dispatch(createLabel({id:nextId('label-2d'),pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:'testing label2d'}));
         }
 });
 
@@ -175,6 +175,15 @@ export const delete3DLabel = createAsyncThunk(
         dispatch(Label2DSlice.actions.deleteLabel({keys}));
 });
 
+export const reGroupLabel = createAsyncThunk(
+    "Label2DSlice/RegroupLabel",
+    (data:any,{dispatch,getState})=>{
+        let id = data.key;
+
+        dispatch(Label2DSlice.actions.regroupLabel({key: id}))
+    }
+)
+
 export const Label2DSlice = createSlice({
     name: "Label2D",
     initialState : initialState,
@@ -208,32 +217,41 @@ export const Label2DSlice = createSlice({
                 if(newNote.pid === LabelType.LABEL2D){
                     state.labels2DSettings.count2D+= 1;
                     newNote.title = `Label ${state.labels2DSettings.count2D}`;
+                    newNote.labelType = LabelType.LABEL2D
                 }
 
                 if(newNote.pid === Label3DType.PROBE){
                     newNote.anchor = pos;
                     state.labels2DSettings.countPoint+= 1;
                     newNote.title = `Point Label ${state.labels2DSettings.countPoint}`;
+                    newNote.labelType = LabelType.LABEL3D;
                 }
 
                 if(newNote.pid === Label3DType.DISTANCE || newNote.pid === Label3DType.ARC){
                     newNote.anchor = pos; 
                     state.labels2DSettings.countMeasurement+= 1;
                     newNote.title = `Measurement ${state.labels2DSettings.countMeasurement}`;
+                    newNote.labelType = LabelType.LABEL3D;
                 }
                 
                 if(newNote.pid === state.activeLabel){
 
                     if(state.data[state.activeLabel].pid === Label3DType.PROBE){
                         newNote.title = `N: ${[21323,213,12312,1232][Math.floor(Math.random()*[21323,213,12312,1232].length)]}`;
+                        newNote.labelType = LabelType.LABEL3D;
+                        newNote.type = Label3DType.PROBE;
                     }
 
                     if(state.data[state.activeLabel].pid === Label3DType.DISTANCE){
                         newNote.title = `N: ${[21323,213,12312,1232][Math.floor(Math.random()*[21323,213,12312,1232].length)]} - N: ${[1232,1223,4324,3423][Math.floor(Math.random()*[1232,1223,4324,3423].length)]}`;
+                        newNote.labelType = LabelType.LABEL3D;
+                        newNote.type = Label3DType.DISTANCE;
                     }
 
                     if(state.data[state.activeLabel].pid === Label3DType.ARC){
                         newNote.title = `N: ${[21323,213,12312,1232][Math.floor(Math.random()*[21323,213,12312,1232].length)]} - N: ${[1232,1223,4324,3423][Math.floor(Math.random()*[1232,1223,4324,3423].length)]} - N: ${[545,6456,4654,462][Math.floor(Math.random()*[545,6456,4654,462].length)]}`;
+                        newNote.labelType = LabelType.LABEL3D;
+                        newNote.type = Label3DType.ARC;
                     }
                 }
 
@@ -257,6 +275,16 @@ export const Label2DSlice = createSlice({
             keys.forEach(k => {
                 deleteNodeReducer(state, {payload:{nodeId:k},type:'string'})
             })
+        },
+
+        regroupLabel: (state, action: PayloadAction<{key:string}>) => {
+            let key = action.payload.key;
+            const elementPid = state.data[key].pid;
+
+            state.data[elementPid?elementPid : "-1"].children = state.data[elementPid?elementPid : "-1"].children.filter(item => item !== key)
+            state.data[state.activeLabel].children.push(key);
+
+            state.data[key].pid = state.activeLabel;
         },
 
         setActiveLabel : (state, action: PayloadAction<{id:string}>) => {
@@ -309,6 +337,28 @@ export const selectedLength = (state:RootState) => {
 
      return (array.length);
 }
+
+export const selectedLeafNodes = (state:RootState) => {
+    const array : string[] = [];
+    const typeLabel : any[] = [];
+     Object.keys(state.label2D.data).forEach(key => {
+        if (state.label2D.data[key].state.checked === true)
+            if(state.label2D.data[key].pid === "-1" || state.label2D.data[key].pid === LabelType.LABEL3D || state.label2D.data[key].pid === LabelType.MEASUREMENT || state.label2D.data[key].pid === LabelType.LABEL2D || state.label2D.data[key].pid === Label3DType.PROBE || state.label2D.data[key].pid === Label3DType.ARC || state.label2D.data[key].pid === Label3DType.DISTANCE)
+                return null
+            else{
+                array.push(key)
+                typeLabel.push(state.label2D.data[key].type);
+            }
+            })
+     
+        const filtered = typeLabel.filter(item => item === typeLabel[0]);
+
+        if(filtered.length === typeLabel.length)
+            return (array);
+        else    
+            return([])
+}
+
 export const selectLabelMode = (state:RootState):LabelMode => state.label2D.labels2DSettings.mode;
 export const selectedLabel2D = (state: RootState):Label2D | null=> {
     let node:Label2D | null = null;
