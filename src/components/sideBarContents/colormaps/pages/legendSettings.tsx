@@ -17,13 +17,14 @@ import SelectAction from "../../../layout/sideBar/sideBarContainer/sideBarHeader
 import MuiMenuItem from "@material-ui/core/MenuItem";
 import { selectcolormapData, colormapElements, setColorMapSelection, paletteTypeDataList, directionDataList, ticPositionDataList, titlePlacementDataList, valuePlacementDataList, setLegendSettings,ColormapType ,LegendDirection,LegendTitlePlacement,LegendValuePlacement, LegendType } from "../../../../store/sideBar/colormapSlice";
 
+
 import { Layers, selectActiveLayers, setEditMode} from '../../../../store/windowMgrSlice';
 
+import MuiGrid from '@material-ui/core/Grid'
 
-import MuiListSubHeader from '@material-ui/core/ListSubheader';
 import styles from "./style";
 
-import MuiGrid from '@material-ui/core/Grid'
+import MuiListSubHeader from '@material-ui/core/ListSubheader'
 
 import { useEffect, useState } from "react";
 
@@ -133,7 +134,7 @@ const getmenuItems = (listmenu: any, column: boolean) => {
           <MuiMenuItem value={menu.id} style={{height:"40px"}}>
             <MuiGrid container>
               <MuiGrid item>
-              <ListItemIcon style={{verticalAlign: "middle", marginLeft:"10px", height:"30px"}}>
+              <ListItemIcon style={{verticalAlign: "middle", marginLeft:"10px", height:"30px", paddingBottom:"5px"}}>
                 <img height="40px" width="50px" src={menu.image}></img>
             </ListItemIcon>
               </MuiGrid>
@@ -154,7 +155,7 @@ const getmenuItems = (listmenu: any, column: boolean) => {
             <div>
               <span>{menu.name}</span>
               <div>
-                <ListItemIcon style={{verticalAlign: "middle", marginLeft:"10px"}}>
+                <ListItemIcon style={{verticalAlign: "middle", marginLeft:"10px", paddingBottom:"5px"}}>
                   <img src={menu.image}></img>
                 </ListItemIcon>
               </div>

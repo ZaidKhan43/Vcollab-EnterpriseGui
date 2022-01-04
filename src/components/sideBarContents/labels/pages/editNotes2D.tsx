@@ -140,6 +140,8 @@ export default function EditLabels2D(){
     
     console.log("selected", label2D)
 
+    console.log("selected", label2D)
+
     // console.log("selected",clickedValues)
     return (
         <Basic/>

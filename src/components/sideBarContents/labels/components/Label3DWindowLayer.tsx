@@ -3,6 +3,7 @@ import { useAppSelector } from '../../../../store/storeHooks';
 import useHideOnRotate from './shared/hooks/useHideOnRotate'; 
 import Label3D from '../components/Label3D';
 import { Layers } from 'store/windowMgrSlice';
+import { LabelType } from 'store/sideBar/labelSlice/shared/types';
 
 interface Props {
     parentRef:any,
@@ -20,7 +21,7 @@ function Label3DWindowLayer(props:Props) {
     return (
         <>{
             [...Object.values(labelTree)].map(label3D => {
-                return label3D.pid !== "-1" ? <Label3D 
+                return label3D.pid !== "-1" && label3D.labelType === LabelType.LABEL3D ? <Label3D 
                 key = {label3D.id}
                 layerId={props.layerId}
                 windowPrefixId={windowPrefixId}

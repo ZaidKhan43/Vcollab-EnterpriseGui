@@ -4,9 +4,8 @@ import {getEventDispatcher,getEventsList} from "../../backend/viewerAPIProxy";
 import { useAppDispatch } from '../../store/storeHooks';
 import { setModelLoadingStatus, setInteractionModeAsync } from '../../store/appSlice';
 import { handlePlaneSelection } from '../../store/sideBar/clipSlice';
-import {init as label2dInit, handleLabel2DCreation} from '../../store/sideBar/labelSlice/label2DSlice';
-import {  handleProbeLabelCreation, init as label3dInit } from '../../store/sideBar/labelSlice/label3DSlice';
-import { handleMeasurementLabelCreation, init as measurementInit } from '../../store/sideBar/labelSlice/measurementsSlice';
+import {init as label2dInit, handleLabel2DCreation, handleProbeLabelCreation, handleMeasurementLabelCreation} from '../../store/sideBar/labelSlice/label2DSlice';
+// import {  handleProbeLabelCreation, init as label3dInit } from '../../store/sideBar/labelSlice/label3DSlice';
 import { addMessage, updateMessage, NetworkData, NotificationType, finishMessage } from '../../store/sideBar/messageSlice';
 import { handleHighlightAsync } from '../../store/sideBar/productTreeSlice';
 import { fetchCameraMatrix } from '../../store/sideBar/sceneSlice';
@@ -18,8 +17,6 @@ type Props = {
 
 function setup(dispatch:any) {
   dispatch(label2dInit({}));
-  dispatch(label3dInit({}));
-  dispatch(measurementInit({}));
 }
 function EventRegistry(props: Props) {
     const dispatch = useAppDispatch();

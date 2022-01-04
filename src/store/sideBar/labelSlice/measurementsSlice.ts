@@ -33,11 +33,11 @@ export interface MeasurementsList extends ILabel2D {
 }
 
 interface InitialState extends ITreeState {
-    data : {[id:string]:MeasurementsList},
+    data : {[id:string]:LabelMeasurements},
     rootIds : string[],
     measurementsSettings : MeasurementsSettings,
     
-}
+} 
 
 const initialState : InitialState = {
     data : {},

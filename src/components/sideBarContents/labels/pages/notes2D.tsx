@@ -12,7 +12,7 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree, { ITreeNode } from '../../../shared/RsTreeTable';
 import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/label2DSlice';
-import {invertNode, expandNode, select2DLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel} from '../../../../store/sideBar/labelSlice/label2DSlice'
+import {invertNode, expandNode, select2DLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, setActiveLabel, handleProbeHeadCreation, handleMeasurementHeadCreation, selectedLeafNodes, reGroupLabel} from '../../../../store/sideBar/labelSlice/label2DSlice'
 import AddCell from '../components/shared/TreeIcons/AddCell'
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
@@ -41,6 +41,12 @@ import { Layers, selectActiveLayers , setActiveLayers, setEditMode} from '../../
 import { windowPrefixId } from '../../../../store/sideBar/labelSlice/label2DSlice';
 import { selectInteractionMode, setLabelInsertionState, selectActiveViewerID } from 'store/appSlice';
 import { InteractionMode, setInteractionMode } from 'backend/viewerAPIProxy';
+import { LabelType,Label3DType } from 'store/sideBar/labelSlice/shared/types';
+
+import SelectPointIcon from 'components/icons/selectPoint';
+
+import MuiAddIcon from '@material-ui/icons/Add';
+import MuiCreateNewFolderOutlinedIcon from '@material-ui/icons/CreateNewFolderOutlined';
 
 export default function Labels2D(){
 
@@ -53,10 +59,15 @@ export default function Labels2D(){
   const treeRootIds = useAppSelector(selectRootIds);
   const checkedNodes = useAppSelector(selectCheckedLeafNodes);
   const selectedCount = useAppSelector(selectedLength);
+  const selectedLeafNode = useAppSelector(selectedLeafNodes)
+  const selectedLeafCount = selectedLeafNode.length
   const activeLayer = useAppSelector(selectActiveLayers);
   const interactionMode = useAppSelector(selectInteractionMode);
   const viewerId = useAppSelector(selectActiveViewerID);
-  const isPanBtnPressed = activeLayer.includes(Layers.FRONT);
+
+  const activeLabelId = useAppSelector(state => state.label2D.activeLabel)
+
+  const isPanBtnPressed = activeLayer === Layers.FRONT;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
 
   const containerRef = useRef(null);
@@ -107,12 +118,93 @@ export default function Labels2D(){
   }
 
   const handleAdd = (node:ITreeNode) => {
-    let mode = interactionMode !== InteractionMode.LABEL2D ? InteractionMode.LABEL2D : InteractionMode.DEFAULT;
-    setInteractionMode(viewerId, mode);
-    dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL2D));
+    if(node.id === LabelType.LABEL2D){
+      let mode = interactionMode !== InteractionMode.LABEL2D ? InteractionMode.LABEL2D : InteractionMode.DEFAULT;
+      setInteractionMode(viewerId, mode);
+      dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL2D));
+    }
+
+    if(node.id === Label3DType.PROBE){
+      dispatch(handleProbeHeadCreation())
+    }
+
+    if(node.id === Label3DType.DISTANCE){
+      dispatch(handleMeasurementHeadCreation({pid :Label3DType.DISTANCE }))
+    }
+
+    if(node.id === Label3DType.ARC){
+      dispatch(handleMeasurementHeadCreation({pid : Label3DType.ARC}))
+    }
+
+    setInteractionMode(viewerId, InteractionMode.DEFAULT);
+    dispatch(setLabelInsertionState(false));
+    // if(node.id === Label3DType.DISTANCE){
+    //   let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT ? InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT : InteractionMode.DEFAULT;
+    //   setInteractionMode(viewerId, mode);
+    //   dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT));
+    // }
+    
+    // if(node.id === Label3DType.ARC){
+    //   let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC ? InteractionMode.LABEL_MEASUREMENT_3PT_ARC : InteractionMode.DEFAULT;
+    //   setInteractionMode(viewerId, mode);
+    //   dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC));
+    // }
+
   }
+
+  const handleSelectPoints = () => {
+    const node = treeDataRedux[activeLabelId]
+    if(node.pid === Label3DType.PROBE){
+      let mode = interactionMode !== InteractionMode.LABEL3D_POINT ? InteractionMode.LABEL3D_POINT : InteractionMode.DEFAULT;
+      setInteractionMode(viewerId, mode);
+      dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL3D_POINT));
+    }
+
+    if(node.pid === Label3DType.DISTANCE){
+      let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT ? InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT : InteractionMode.DEFAULT;
+      setInteractionMode(viewerId, mode);
+      dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT));
+    }
+
+    if(node.pid === Label3DType.ARC){
+          let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC ? InteractionMode.LABEL_MEASUREMENT_3PT_ARC : InteractionMode.DEFAULT;
+          setInteractionMode(viewerId, mode);
+          dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL_MEASUREMENT_3PT_ARC));
+    }
+
+    
+  }
+
   const onHandleDeleteButton = () => {
     dispatch(delete3DLabel({}));
+  }
+
+  const onHandleRegroup = () => {
+    const id = selectedLeafNode[0]
+    const pid = treeDataRedux[id].pid;
+
+    const mainPid = treeDataRedux[pid].pid;
+
+    if(mainPid === Label3DType.PROBE){
+      dispatch(handleProbeHeadCreation())
+    }
+
+    if(mainPid === Label3DType.DISTANCE){
+      dispatch(handleMeasurementHeadCreation({pid :Label3DType.DISTANCE }))
+    }
+
+    if(mainPid === Label3DType.ARC){
+      dispatch(handleMeasurementHeadCreation({pid : Label3DType.ARC}))
+    }
+
+    setInteractionMode(viewerId, InteractionMode.DEFAULT);
+    dispatch(setLabelInsertionState(false));
+
+    dispatch(reGroupLabel({selectedNodes : selectedLeafNode}))
+  }
+
+  const handleSetActive = (node : any) => {
+    dispatch(setActiveLabel({id: node.id}))
   }
 
   
@@ -125,16 +217,23 @@ export default function Labels2D(){
         treeData={roots} 
         expandedRowIds = {expanded}
         onExpand={handleExpand}
-        onRowClick = {() => {}}
+        selectable={true}
+        selected={[activeLabelId]}
+        onRowClick = {handleSetActive}
         width = {containerWidth}
         height = {containerHeight ? containerHeight - 5: 0}
         renderTreeToggle = {
           (icon,rowData) => {
-            if (rowData.children && rowData.children.length === 0) {
-              return null;
-            }
-            let state = treeDataRedux[rowData.id].state;
+            if (rowData.pid === "-1" || rowData.id === Label3DType.PROBE || 
+                  rowData.id === Label3DType.DISTANCE || 
+                  rowData.id === Label3DType.ARC || rowData.pid === Label3DType.PROBE || 
+                  rowData.pid === Label3DType.DISTANCE || 
+                  rowData.pid === Label3DType.ARC) {
+              let state = treeDataRedux[rowData.id].state;
             return state.expanded? <TreeExpandedIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>:<TreeCollapseIcon style={state.visibility ? {opacity:1.0} : {opacity:0.5}} viewBox="0 -7 24 24"/>
+            }
+            
+            return null
           }
         }
         treeNode = {(node) => {
@@ -147,16 +246,30 @@ export default function Labels2D(){
           )
         }}
         column1 = {(node) => {
-          return <InvertCell node = {treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
+            return (
+              <div>
+                {node?.id === LabelType.LABEL3D || node?.id === LabelType.MEASUREMENT
+                  ?
+                     null
+                  :
+                    <InvertCell node = {treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
+                }
+              </div>
+              
+            )
         }}
         column2 = {(node) => {
           return (
             <div>
-              { node?.pid !== "-1"
+              { node?.pid === "-1" || node?.pid === LabelType.MEASUREMENT || node?.pid === LabelType.LABEL3D
                 ?
-                 <ShowHideCell node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
-                :        
-                <AddCell node = {treeDataRedux[node.id]} selected={interactionMode === InteractionMode.LABEL2D} onToggle={handleAdd}/>
+                  node?.id === LabelType.LABEL3D || node?.id === LabelType.MEASUREMENT
+                    ?
+                      null
+                    :
+                      <AddCell node = {treeDataRedux[node.id]} selected={interactionMode === InteractionMode.LABEL2D && node.id === LabelType.LABEL2D} onToggle={handleAdd}/>
+                :
+                  <ShowHideCell node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
               }    
             </div>
           )
@@ -189,6 +302,16 @@ export default function Labels2D(){
               }))}}
               />
             }/>
+            <Option label="Select" icon={<MuiIconButton disabled={activeLabelId === "-1"} onClick={handleSelectPoints}>
+                <SelectPointIcon/>
+              </MuiIconButton>} 
+            />
+            
+            <Option label="Add" icon={<MuiIconButton disabled={activeLabelId === "-1"}>
+                <MuiAddIcon/>
+              </MuiIconButton>} 
+            />
+
             <Option label="Edit" icon={<MuiIconButton disabled={selectedCount === 1 ? false : true} onClick={() =>dispatch(push(Routes.LABEL_2D_EDITS))}>
                 <MuiEditIcon/>
               </MuiIconButton>} 
@@ -197,6 +320,12 @@ export default function Labels2D(){
                   <MuiDeleteForeverOutlinedIcon/>
                 </MuiIconButton> }
             />
+
+            <Option label="New Group" icon={<MuiIconButton disabled={selectedLeafCount >= 1 ? false : true} onClick={onHandleRegroup} > 
+                  <MuiCreateNewFolderOutlinedIcon/>
+                </MuiIconButton> }
+            />
+
             </OptionContainer>
       </div>
     ) 

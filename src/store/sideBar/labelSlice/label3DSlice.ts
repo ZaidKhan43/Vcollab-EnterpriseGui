@@ -44,7 +44,7 @@ const initialState : InitialState = {
         defaultParameters:{
                 id: "",
                 pid: null,
-                title: "",
+                title: "", 
                 children: [],
                 pos:[0,0],
                 anchor: [-1,-1],

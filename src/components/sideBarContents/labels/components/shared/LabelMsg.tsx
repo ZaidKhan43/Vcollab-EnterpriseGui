@@ -24,7 +24,8 @@ const useEditorStyles = makeStyles(theme => (
 const EditorWithRef = forwardRef<ReactFrameworkOutput<Extensions>>((props:any, ref) => {
     const classes = useEditorStyles();
     const { manager, state, setState, getContext, onChange } = useRemirror({ extensions,
-      content: JSON.parse(props.content),
+      content: props.content,
+      stringHandler: 'html',
       selection: 'start',
     });
   
@@ -55,7 +56,7 @@ type LabelMsgProps = {
 function LabelMsg(props:LabelMsgProps, ref:any) {
     return (
         <div ref={ref} style={{ backgroundColor:"yellow", width:'100%' , height:'100%', zIndex:1}}>{
-           <EditorWithRef content = {props.msg}/>
+           <EditorWithRef content = {"<p>test</p>"}/>
         }</div>
         
     )

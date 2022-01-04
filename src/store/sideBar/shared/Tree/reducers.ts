@@ -123,3 +123,25 @@ export const deleteNodeReducer = (state:ITreeState, action:PayloadAction<{nodeId
   }
   updateParent(current,state);
 }
+
+export const regroupReducer = (state:ITreeState, action:PayloadAction<{nodeId:string, newParentId: string}>) => {
+  let nodeId = action.payload.nodeId;
+  let node = state.data[nodeId]
+  let newPid = action.payload.newParentId;
+  const elementPid = state.data[nodeId].pid;
+
+  state.data[elementPid?elementPid : "-1"].children = state.data[elementPid?elementPid : "-1"].children.filter(item => item !== nodeId)
+  
+
+  updateParent(node, state);
+
+  // state.data[elementPid?elementPid : "-1"].state.checked = false;
+  // state.data[elementPid?elementPid : "-1"].state.partiallyChecked = false;
+
+  let newNote = {...state.data[nodeId]};
+  newNote.pid = newPid;
+  newNote.state.checked = false;
+
+  addNodeReducer(state,{payload: newNote, type: 'ITreeNode'});
+  updateParent(newNote, state);
+}
