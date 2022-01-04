@@ -137,6 +137,8 @@ export default function Labels2D(){
       dispatch(handleMeasurementHeadCreation({pid : Label3DType.ARC}))
     }
 
+    setInteractionMode(viewerId, InteractionMode.DEFAULT);
+    dispatch(setLabelInsertionState(false));
     // if(node.id === Label3DType.DISTANCE){
     //   let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT ? InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT : InteractionMode.DEFAULT;
     //   setInteractionMode(viewerId, mode);
@@ -196,10 +198,10 @@ export default function Labels2D(){
       dispatch(handleMeasurementHeadCreation({pid : Label3DType.ARC}))
     }
 
-    selectedLeafNode.forEach( item => {
-      dispatch(reGroupLabel({key : item}))
-    })
-    
+    setInteractionMode(viewerId, InteractionMode.DEFAULT);
+    dispatch(setLabelInsertionState(false));
+
+    dispatch(reGroupLabel({selectedNodes : selectedLeafNode}))
   }
 
   const handleSetActive = (node : any) => {

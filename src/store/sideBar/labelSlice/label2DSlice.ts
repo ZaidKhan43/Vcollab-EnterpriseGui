@@ -1,7 +1,7 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import {delete3DLabel as delete3DLabelApi, get3DLabelCanvasPos, probe} from '../../../backend/viewerAPIProxy';
 import type { RootState } from '../../index';
-import {LabelMode, Label2D, LabelSettings, Label2DType, LabelType, LabelGeneral, Label3DType} from './shared/types';
+import {LabelMode, Label2D, LabelSettings, Label2DType, LabelType, ILabelGeneral, Label3DType} from './shared/types';
 import { setLabelModeReducer } from './shared/reducers';
 import {ITreeState} from "../shared/Tree/types";
 import {   
@@ -18,14 +18,15 @@ import {
     expandNodeReducer, 
     toggleVisibilityReducer, 
     setCheckedVisibilityReducer, 
-    invertCheckedVisibilityReducer} from "../shared/Tree/reducers";
+    invertCheckedVisibilityReducer,
+    regroupReducer} from "../shared/Tree/reducers";
 import nextId from 'react-id-generator';
 import { selectInteractionMode } from 'store/appSlice';
 import { InteractionMode } from 'backend/ViewerManager';
 
 export const windowPrefixId = "Label2D";
 interface labels2DSettings extends LabelSettings {
-    defaultParameters : LabelGeneral,
+    defaultParameters : ILabelGeneral,
     count2D: number,
     countPoint : number,
     countMeasurement : number
@@ -33,7 +34,7 @@ interface labels2DSettings extends LabelSettings {
 
 
 interface InitialState extends ITreeState {
-    data : {[id:string]:LabelGeneral},
+    data : {[id:string]:ILabelGeneral},
     rootIds : string[],
     labels2DSettings : labels2DSettings,
     activeLabel : string,
@@ -178,9 +179,11 @@ export const delete3DLabel = createAsyncThunk(
 export const reGroupLabel = createAsyncThunk(
     "Label2DSlice/RegroupLabel",
     (data:any,{dispatch,getState})=>{
-        let id = data.key;
+        let nodes = data.selectedNodes;
 
-        dispatch(Label2DSlice.actions.regroupLabel({key: id}))
+        nodes.forEach((item: string )=> 
+        dispatch(Label2DSlice.actions.regroupLabel({key: item}))
+        )
     }
 )
 
@@ -278,13 +281,9 @@ export const Label2DSlice = createSlice({
         },
 
         regroupLabel: (state, action: PayloadAction<{key:string}>) => {
+            
             let key = action.payload.key;
-            const elementPid = state.data[key].pid;
-
-            state.data[elementPid?elementPid : "-1"].children = state.data[elementPid?elementPid : "-1"].children.filter(item => item !== key)
-            state.data[state.activeLabel].children.push(key);
-
-            state.data[key].pid = state.activeLabel;
+            regroupReducer(state,{payload: {nodeId : key, newParentId : state.activeLabel}, type:'ITreeNode'})
         },
 
         setActiveLabel : (state, action: PayloadAction<{id:string}>) => {

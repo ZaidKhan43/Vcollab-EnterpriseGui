@@ -44,7 +44,7 @@ export interface LabelMeasurements extends ILabel {
     type: Label3DType,
 }
 
-export interface LabelGeneral extends TreeNode {
+export interface ILabelGeneral extends TreeNode {
     label: string,
     pos: [number, number],
     labelType: LabelType,
