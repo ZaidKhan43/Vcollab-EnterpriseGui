@@ -83,7 +83,7 @@ export const handleLabel2DCreation = createAsyncThunk(
         if(mode === InteractionMode.LABEL2D) {
             let pos = [e.offsetX,e.offsetY];
             console.log("e",e);
-            dispatch(createLabel({id:nextId('label-2d'),pid:Label2DType.DEFAULT,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:'testing label2d'}));
+            dispatch(createLabel({id:nextId('label-2d'),pid:Label2DType.DEFAULT,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:'{}'}));
         }
 });
 

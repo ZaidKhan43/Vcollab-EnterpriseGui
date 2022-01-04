@@ -11,32 +11,67 @@ import styles from './style';
 
 import { useAppSelector, useAppDispatch} from '../../../../store/storeHooks';
 
-import {selectedLabel2D,editLabel} from '../../../../store/sideBar/labelSlice/label2DSlice'
+import {selectedLabel2D,editLabel, select2DLabelData} from '../../../../store/sideBar/labelSlice/label2DSlice'
 
-import MuiTextField from '@material-ui/core/TextField';
-import MuiTypography from '@material-ui/core/Typography';
 import MuiButton from '@material-ui/core/Button';
 import {useRef, useState} from 'react';
 import React, { forwardRef, useImperativeHandle, useCallback } from 'react';
-import 'remirror/styles/all.css';
 
 import { cx, htmlToProsemirrorNode } from 'remirror';
-import { BoldExtension } from 'remirror/extensions';
-import { Remirror, ThemeProvider, useActive, useCommands, useRemirror } from '@remirror/react';
+import { BoldExtension, ItalicExtension, UnderlineExtension } from 'remirror/extensions';
+import { Remirror, ThemeProvider, useActive, useCommands, useHelpers, useKeymap, useRemirror } from '@remirror/react';
 
-const extensions = () => [new BoldExtension()];
+const extensions = () => [new BoldExtension(), new ItalicExtension(), new UnderlineExtension()];
 
-const BoldButton = () => {
+const hooks = [
+  () => {
+    const { getJSON, getHTML } = useHelpers();
+    const labels2d = useAppSelector(select2DLabelData);
+    const dispatch = useAppDispatch();
+    const handleSaveShortcut = useCallback(
+      ({ state }) => {
+        Object.values(labels2d).forEach(l => {
+          dispatch(editLabel({id: l.id,value: JSON.stringify(getJSON(state))}));
+        }) 
+        console.log(`Save to backend: ${JSON.stringify(getJSON(state))}`);
+
+        return true; // Prevents any further key handlers from being run.
+      },
+      [getJSON],
+    );
+
+    // "Mod" means platform agnostic modifier key - i.e. Ctrl on Windows, or Cmd on MacOS
+    useKeymap('Mod-s', handleSaveShortcut);
+  },
+];
+
+const Buttons = () => {
   const commands = useCommands();
   const active = useActive(true);
   return (
+    <>
     <button
       onMouseDown={(event) => event.preventDefault()}
       onClick={() => commands.toggleBold()}
       className={cx(active.bold() && 'active')}
     >
-      Bold
+      B
     </button>
+    <button
+    onMouseDown={(event) => event.preventDefault()}
+    onClick={() => commands.toggleItalic()}
+    className={cx(active.italic() && 'active')}
+  >
+    I
+  </button>
+  <button
+  onMouseDown={(event) => event.preventDefault()}
+  onClick={() => commands.toggleUnderline()}
+  className={cx(active.underline() && 'active')}
+>
+  U
+</button>
+</>
   );
 };
 
@@ -54,9 +89,10 @@ const Basic = (): JSX.Element => {
         autoFocus
         onChange={onChange}
         initialContent={state}
+        hooks={hooks}
         autoRender='end'
       >
-        <BoldButton />
+        <Buttons />
       </Remirror>
     </ThemeProvider>
   );

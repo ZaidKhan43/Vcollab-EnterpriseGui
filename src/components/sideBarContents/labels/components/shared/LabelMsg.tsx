@@ -1,6 +1,5 @@
-import 'remirror/styles/all.css';
-import React, { forwardRef, useImperativeHandle, useCallback } from 'react';
-import { BoldExtension, MarkdownExtension, MarkdownOptions } from 'remirror/extensions';
+import React, { forwardRef, useImperativeHandle, useCallback, useEffect } from 'react';
+import { BoldExtension, ItalicExtension, MarkdownExtension, MarkdownOptions } from 'remirror/extensions';
 import {
   ReactExtensions,
   ReactFrameworkOutput,
@@ -10,30 +9,42 @@ import {
   useCommands,
   useKeymap
 } from '@remirror/react';
+import { makeStyles } from '@material-ui/core';
 
-const extensions = () => [new BoldExtension(), new MarkdownExtension()];
-type Extensions = ReactExtensions<BoldExtension>;
+const extensions = () => [new BoldExtension(), new ItalicExtension(), new MarkdownExtension()];
+type Extensions = ReactExtensions<BoldExtension & ItalicExtension & MarkdownExtension>;
 
+const useEditorStyles = makeStyles(theme => (
+  {
+    root: {
+      overflowY: 'hidden !important'
+    }
+  }
+));
 const EditorWithRef = forwardRef<ReactFrameworkOutput<Extensions>>((props:any, ref) => {
-  
-    const { manager, state, setState, getContext } = useRemirror({ extensions,
-      content: props.content,
+    const classes = useEditorStyles();
+    const { manager, state, setState, getContext, onChange } = useRemirror({ extensions,
+      content: JSON.parse(props.content),
       selection: 'start',
-      stringHandler: 'html',
     });
   
     useImperativeHandle(ref, () => getContext(), [getContext]);
+
+    useEffect(() => {
+      console.log("c",props.content)
+      getContext()?.setContent(props.content,{
+        triggerChange: true
+      });
+    },[props.content])
   
     // Add the state and create an `onChange` handler for the state.
     return (
       <Remirror
         {...props}
+        classNames={[classes.root]}
         manager={manager}
         state={state}
-        onChange={(parameter) => {
-          // Update the state to the latest value.
-          setState(parameter.state);
-        }}
+        onChange={onChange}
       >
       </Remirror>
     );
@@ -44,7 +55,7 @@ type LabelMsgProps = {
 function LabelMsg(props:LabelMsgProps, ref:any) {
     return (
         <div ref={ref} style={{ backgroundColor:"yellow", width:'100%' , height:'100%', zIndex:1}}>{
-           <EditorWithRef content = {`<p>${props.msg}</p>`}/>
+           <EditorWithRef content = {props.msg}/>
         }</div>
         
     )

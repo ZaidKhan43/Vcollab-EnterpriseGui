@@ -4,6 +4,13 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+    {
+        "name": "Launch Edge against server",
+        "request": "launch",
+        "type": "pwa-msedge",
+        "url": "http://localhost:3000/viewer.html/?api=http%3A%2F%2Fec2-54-88-72-27.compute-1.amazonaws.com%3A8080%2Fapi%2F1.0%2Fmodel&url=file%3A%2F%2FC%3A%5Cserver%5Centerprise-1.1-win64%5Csamples%5Cbracket.cax",
+        "webRoot": "${workspaceFolder}"
+    },
 
         {
             "type": "pwa-chrome",

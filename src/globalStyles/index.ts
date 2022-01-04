@@ -1,4 +1,9 @@
-//import 'rsuite/dist/styles/rsuite-default.css';
+//defaults
+import 'remirror/styles/all.css';
+
+//copied defaults
 import './RsTable-default.css';
+
+
+//overrides
 import './RsTable-override.css';
-//import './RsuiteTreePicker.css';
