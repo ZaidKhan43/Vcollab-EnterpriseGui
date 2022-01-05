@@ -11,7 +11,7 @@ import styles from './style';
 
 import { useAppSelector, useAppDispatch} from '../../../../store/storeHooks';
 
-import {selectedLabel2D,editLabel} from '../../../../store/sideBar/labelSlice/label2DSlice'
+import {selectedLabel2D,editLabel} from '../../../../store/sideBar/labelSlice/labelAllSlice'
 
 import MuiTextField from '@material-ui/core/TextField';
 import MuiTypography from '@material-ui/core/Typography';

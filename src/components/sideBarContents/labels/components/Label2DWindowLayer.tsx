@@ -1,4 +1,4 @@
-import {  select2DLabelData, setLabelPos, toggleVisibility, windowPrefixId  } from '../../../../store/sideBar/labelSlice/label2DSlice';
+import {  select2DLabelData, setLabelPos, toggleVisibility, windowPrefixId  } from '../../../../store/sideBar/labelSlice/labelAllSlice';
 import { useAppSelector } from '../../../../store/storeHooks';
 import Label2D from './Label2D';
 interface Props {
