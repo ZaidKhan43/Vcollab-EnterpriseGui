@@ -64,8 +64,8 @@ function Label2D(props:Label2DProps) {
                 onResize={handleWindowResize}
                 onResizeStop={handleWindowResizeStop}
                 >
-                    {/* <LabelMsg ref={childRef} msg={label.label}/> */}
-                    {label.title}
+                    <LabelMsg ref={childRef} msg={label.label}/>
+                    {/* {label.title} */}
                 </Window>
         </>
     )

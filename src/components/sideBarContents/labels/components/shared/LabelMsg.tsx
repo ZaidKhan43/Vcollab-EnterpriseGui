@@ -1,5 +1,5 @@
 import React, { forwardRef, useImperativeHandle, useCallback, useEffect } from 'react';
-import { BoldExtension, ItalicExtension, MarkdownExtension, MarkdownOptions } from 'remirror/extensions';
+import { BoldExtension, ItalicExtension, UnderlineExtension, MarkdownExtension, MarkdownOptions } from 'remirror/extensions';
 import {
   ReactExtensions,
   ReactFrameworkOutput,
@@ -11,8 +11,8 @@ import {
 } from '@remirror/react';
 import { makeStyles } from '@material-ui/core';
 
-const extensions = () => [new BoldExtension(), new ItalicExtension(), new MarkdownExtension()];
-type Extensions = ReactExtensions<BoldExtension & ItalicExtension & MarkdownExtension>;
+const extensions = () => [new BoldExtension(), new ItalicExtension(),new UnderlineExtension(), new MarkdownExtension()];
+type Extensions = ReactExtensions<BoldExtension & ItalicExtension & UnderlineExtension & MarkdownExtension>;
 
 const useEditorStyles = makeStyles(theme => (
   {
@@ -24,7 +24,7 @@ const useEditorStyles = makeStyles(theme => (
 const EditorWithRef = forwardRef<ReactFrameworkOutput<Extensions>>((props:any, ref) => {
     const classes = useEditorStyles();
     const { manager, state, setState, getContext, onChange } = useRemirror({ extensions,
-      content: props.content,
+      content: '<p> Some dummy content</p>',
       stringHandler: 'html',
       selection: 'start',
     });
@@ -32,10 +32,10 @@ const EditorWithRef = forwardRef<ReactFrameworkOutput<Extensions>>((props:any, r
     useImperativeHandle(ref, () => getContext(), [getContext]);
 
     useEffect(() => {
-      console.log("c",props.content)
-      getContext()?.setContent(props.content,{
-        triggerChange: true
-      });
+      manager.view.updateState(manager.createState({ content: props.content }));
+    },[])
+    useEffect(() => {
+      manager.view.updateState(manager.createState({ content: props.content }));
     },[props.content])
   
     // Add the state and create an `onChange` handler for the state.
@@ -56,7 +56,7 @@ type LabelMsgProps = {
 function LabelMsg(props:LabelMsgProps, ref:any) {
     return (
         <div ref={ref} style={{ backgroundColor:"yellow", width:'100%' , height:'100%', zIndex:1}}>{
-           <EditorWithRef content = {"<p>test</p>"}/>
+           <EditorWithRef content = {JSON.parse(props.msg)}/>
         }</div>
         
     )

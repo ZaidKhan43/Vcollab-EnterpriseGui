@@ -14,8 +14,7 @@ function Label2DWindowLayer(props:Props) {
     return (
         <>{
             [...Object.values(labelTree)].map(label => {
-                return label.children.length == 0 && 
-                label.labelType === LabelType.LABEL2D ? <Label2D 
+                return label.pid === LabelType.LABEL2D  ? <Label2D 
                 key = {label.id}
                 layerId={props.layerId}
                 windowPrefixId={windowPrefixId}
