@@ -36,14 +36,14 @@ interface labels2DSettings extends LabelSettings {
 interface InitialState extends ITreeState {
     data : {[id:string]:ILabelGeneral},
     rootIds : string[],
-    labels2DSettings : labels2DSettings,
+    labelsListSettings : labels2DSettings,
     activeLabel : string,
 }
 
 const initialState : InitialState = {
     data : {},
     rootIds : [],
-    labels2DSettings :{
+    labelsListSettings :{
         defaultParameters:{
                 id: "",
                 pid: null,
@@ -70,7 +70,7 @@ const initialState : InitialState = {
 }
 
 export const init = createAsyncThunk(
-    "Label2DSlice/init",
+    "LabelListSlice/init",
     (e:any,{dispatch,getState}) => {
         const rootState = getState() as RootState;
         const treeRootIds = rootState.labelAll.rootIds;
@@ -87,13 +87,13 @@ export const init = createAsyncThunk(
 )
 
 export const handleLabel2DCreation = createAsyncThunk(
-    "Label2DSlice/handleLabel2DCreation",
+    "LabelListSlice/handleLabel2DCreation",
     (data:any,{dispatch,getState}) => {
         let rootState = getState() as RootState;
         let mode = selectInteractionMode(rootState);
 
-        if(mode === InteractionMode.DEFAULT)
-            return;
+        // if(mode === InteractionMode.DEFAULT)
+        //     return;
         
         let e = data.data as PointerEvent;
         
@@ -116,7 +116,7 @@ export const handleLabel2DCreation = createAsyncThunk(
 });
 
 export const handleProbeHeadCreation = createAsyncThunk(
-"label3DSlice/handleProbeLabelCreation",
+"labelListSlice/handleProbeLabelCreation",
 (data,{dispatch, getState}) => {
     // let e = data.data;
     const idNew = nextId('label-3d')
@@ -126,7 +126,7 @@ export const handleProbeHeadCreation = createAsyncThunk(
 )
 
 export const handleMeasurementHeadCreation = createAsyncThunk(
-    'measurementSlice/handleMeasurementLabelCreation',
+    'labelListSlice/handleMeasurementLabelCreation',
     async (data: any, {dispatch,getState}) => {
         let e = data.pid;
         const idNew = nextId('label-3d')
@@ -142,7 +142,7 @@ export const handleMeasurementHeadCreation = createAsyncThunk(
 )
 
 export const handleProbeLabelCreation = createAsyncThunk(
-    "label3DSlice/handleProbeLabelCreation",
+    "labelListSlice/handleProbeLabelCreation",
     (data:any,{dispatch,getState}) => {
         
         let e = data.data;
@@ -153,7 +153,7 @@ export const handleProbeLabelCreation = createAsyncThunk(
 });
 
 export const handleMeasurementLabelCreation = createAsyncThunk(
-    'measurementSlice/handleMeasurementLabelCreation',
+    'labelListSlice/handleMeasurementLabelCreation',
     async (data:any, {getState,dispatch}) => {
         let e = data.data;
         let rootState = getState() as RootState;
@@ -170,7 +170,7 @@ export const handleMeasurementLabelCreation = createAsyncThunk(
 )
 
 export const delete3DLabel = createAsyncThunk(
-    "Label2DSlice/delete3DLabel",
+    "labelListSlice/delete3DLabel",
     (data:any,{dispatch,getState}) => {
         let rootState = getState() as RootState;
         let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
@@ -192,7 +192,7 @@ export const delete3DLabel = createAsyncThunk(
 });
 
 export const reGroupLabel = createAsyncThunk(
-    "Label2DSlice/RegroupLabel",
+    "labelListSlice/RegroupLabel",
     (data:any,{dispatch,getState})=>{
         let nodes = data.selectedNodes;
 
@@ -214,10 +214,10 @@ export const LabelAllSlice = createSlice({
         toggleVisibility: toggleVisibilityReducer,
         setCheckedVisibility: setCheckedVisibilityReducer,
         invertCheckedVisibility: invertCheckedVisibilityReducer,
-        setlabelMode: (state,action) => setLabelModeReducer(state.labels2DSettings,action),
+        setlabelMode: (state,action) => setLabelModeReducer(state.labelsListSettings,action),
         createParentLabel : (state, action : PayloadAction<{id:string,name: string, pid: string}>) => {
             const {id,name, pid} = action.payload;
-            let newParent = {...state.labels2DSettings.defaultParameters};
+            let newParent = {...state.labelsListSettings.defaultParameters};
             newParent.id = id;
             newParent.pid = pid;
             newParent.title = name;
@@ -227,28 +227,28 @@ export const LabelAllSlice = createSlice({
         createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],type:Label2DType | Label3DType ,msg:string}>) => {
                 
                 const {id,pid,pos,msg} = action.payload;
-                let newNote = {...state.labels2DSettings.defaultParameters};
+                let newNote = {...state.labelsListSettings.defaultParameters};
                 newNote.id = id
                 newNote.pid = pid
                 newNote.label = msg;
                 newNote.pos = pos;
                 if(newNote.pid === LabelType.LABEL2D){
-                    state.labels2DSettings.count2D+= 1;
-                    newNote.title = `Label ${state.labels2DSettings.count2D}`;
+                    state.labelsListSettings.count2D+= 1;
+                    newNote.title = `Label ${state.labelsListSettings.count2D}`;
                     newNote.labelType = LabelType.LABEL2D
                 }
 
                 if(newNote.pid === Label3DType.PROBE){
                     newNote.anchor = pos;
-                    state.labels2DSettings.countPoint+= 1;
-                    newNote.title = `Point Label ${state.labels2DSettings.countPoint}`;
+                    state.labelsListSettings.countPoint+= 1;
+                    newNote.title = `Point Label ${state.labelsListSettings.countPoint}`;
                     newNote.labelType = LabelType.LABEL3D;
                 }
 
                 if(newNote.pid === Label3DType.DISTANCE || newNote.pid === Label3DType.ARC){
                     newNote.anchor = pos; 
-                    state.labels2DSettings.countMeasurement+= 1;
-                    newNote.title = `Measurement ${state.labels2DSettings.countMeasurement}`;
+                    state.labelsListSettings.countMeasurement+= 1;
+                    newNote.title = `Measurement ${state.labelsListSettings.countMeasurement}`;
                     newNote.labelType = LabelType.LABEL3D;
                 }
                 
@@ -373,7 +373,7 @@ export const selectedLeafNodes = (state:RootState) => {
             return([])
 }
 
-export const selectLabelMode = (state:RootState):LabelMode => state.labelAll.labels2DSettings.mode;
+export const selectLabelMode = (state:RootState):LabelMode => state.labelAll.labelsListSettings.mode;
 export const selectedLabel2D = (state: RootState):Label2D | null=> {
     let node:Label2D | null = null;
     const length = selectedLength(state);
