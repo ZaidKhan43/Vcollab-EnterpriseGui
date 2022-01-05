@@ -57,9 +57,7 @@ export enum MainMenuItems {
     CLIP_PLANE_TRANSFORM,
 
     LABELS,
-    LABELS_2D_NOTES,
-    LABELS_3D_LABELS,
-    LABELS_MEASUREMENTS,
+    LABELS_LIST,
 
     TRANSFORMATIONS,
 
@@ -313,30 +311,8 @@ const initialState: MainMenu ={
             expanded: false,
             name: "Labels",
             type: MainMenuItems.LABELS,
-            path:Routes.LABELS,
-            children: [
-                {
-                    id:'61',
-                    name: "2D Notes",
-                    type:MainMenuItems.LABELS_2D_NOTES,
-                    path:Routes.LABELS_2D_NOTES,
-                    disabled: false,
-                },
-                {
-                    id:'62',
-                    name: "3D Labels",
-                    type:MainMenuItems.LABELS_3D_LABELS,
-                    path:Routes.LABELS_3D_LABELS,
-                    disabled: false,
-                },
-                {
-                    id:'63',
-                    name: "Measurements",
-                    type:MainMenuItems.LABELS_MEASUREMENTS,
-                    path:Routes.LABELS_MEASUREMENTS,
-                    disabled: false,
-                },
-            ],
+            path:Routes.LABELS_LIST,
+            children: [],
         },
         {
             id:'7',
