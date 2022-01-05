@@ -11,8 +11,8 @@ import BackButton from '../../../icons/back';
 import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree, { ITreeNode } from '../../../shared/RsTreeTable';
-import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/label2DSlice';
-import {invertNode, expandNode, select2DLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, setActiveLabel, handleProbeHeadCreation, handleMeasurementHeadCreation, selectedLeafNodes, reGroupLabel} from '../../../../store/sideBar/labelSlice/label2DSlice'
+import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/labelAllSlice';
+import {invertNode, expandNode, select2DLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, setActiveLabel, handleProbeHeadCreation, handleMeasurementHeadCreation, selectedLeafNodes, reGroupLabel} from '../../../../store/sideBar/labelSlice/labelAllSlice'
 import AddCell from '../components/shared/TreeIcons/AddCell'
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
@@ -37,8 +37,8 @@ import { convertListToTree } from '../../../utils/tree';
 
 import { useRef, useEffect } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
-import { Layers, selectActiveLayers , setActiveLayers, setEditMode} from '../../../../store/windowMgrSlice';
-import { windowPrefixId } from '../../../../store/sideBar/labelSlice/label2DSlice';
+import { Layers, selectActiveLayers , setEditMode} from '../../../../store/windowMgrSlice';
+import { windowPrefixId } from '../../../../store/sideBar/labelSlice/labelAllSlice';
 import { selectInteractionMode, setLabelInsertionState, selectActiveViewerID } from 'store/appSlice';
 import { InteractionMode, setInteractionMode } from 'backend/viewerAPIProxy';
 import { LabelType,Label3DType } from 'store/sideBar/labelSlice/shared/types';
@@ -48,7 +48,7 @@ import SelectPointIcon from 'components/icons/selectPoint';
 import MuiAddIcon from '@material-ui/icons/Add';
 import MuiCreateNewFolderOutlinedIcon from '@material-ui/icons/CreateNewFolderOutlined';
 
-export default function Labels2D(){
+export default function LabelList(){
 
   const dispatch = useAppDispatch();  
   const onClickBackIcon = () =>{
@@ -65,7 +65,7 @@ export default function Labels2D(){
   const interactionMode = useAppSelector(selectInteractionMode);
   const viewerId = useAppSelector(selectActiveViewerID);
 
-  const activeLabelId = useAppSelector(state => state.label2D.activeLabel)
+  const activeLabelId = useAppSelector(state => state.labelAll.activeLabel)
 
   const isPanBtnPressed = activeLayer === Layers.FRONT;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
@@ -126,18 +126,23 @@ export default function Labels2D(){
 
     if(node.id === Label3DType.PROBE){
       dispatch(handleProbeHeadCreation())
+      setInteractionMode(viewerId, InteractionMode.DEFAULT);
+      dispatch(setLabelInsertionState(false));
     }
 
     if(node.id === Label3DType.DISTANCE){
       dispatch(handleMeasurementHeadCreation({pid :Label3DType.DISTANCE }))
+      setInteractionMode(viewerId, InteractionMode.DEFAULT);
+      dispatch(setLabelInsertionState(false));
     }
 
     if(node.id === Label3DType.ARC){
       dispatch(handleMeasurementHeadCreation({pid : Label3DType.ARC}))
+      setInteractionMode(viewerId, InteractionMode.DEFAULT);
+      dispatch(setLabelInsertionState(false));
     }
 
-    setInteractionMode(viewerId, InteractionMode.DEFAULT);
-    dispatch(setLabelInsertionState(false));
+    
     // if(node.id === Label3DType.DISTANCE){
     //   let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT ? InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT : InteractionMode.DEFAULT;
     //   setInteractionMode(viewerId, mode);

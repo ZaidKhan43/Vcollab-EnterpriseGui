@@ -4,8 +4,9 @@ import {getEventDispatcher,getEventsList} from "../../backend/viewerAPIProxy";
 import { useAppDispatch } from '../../store/storeHooks';
 import { setModelLoadingStatus, setInteractionModeAsync } from '../../store/appSlice';
 import { handlePlaneSelection } from '../../store/sideBar/clipSlice';
-import {init as label2dInit, handleLabel2DCreation, handleProbeLabelCreation, handleMeasurementLabelCreation} from '../../store/sideBar/labelSlice/label2DSlice';
+import {init as label2dInit, handleLabel2DCreation, handleProbeLabelCreation} from '../../store/sideBar/labelSlice/labelAllSlice';
 // import {  handleProbeLabelCreation, init as label3dInit } from '../../store/sideBar/labelSlice/label3DSlice';
+// import { handleMeasurementLabelCreation, init as measurementInit } from '../../store/sideBar/labelSlice/measurementsSlice';
 import { addMessage, updateMessage, NetworkData, NotificationType, finishMessage } from '../../store/sideBar/messageSlice';
 import { handleHighlightAsync } from '../../store/sideBar/productTreeSlice';
 import { fetchCameraMatrix } from '../../store/sideBar/sceneSlice';
@@ -108,7 +109,7 @@ function EventRegistry(props: Props) {
                 events.viewerEvents.LABEL3D_CREATED,
                 (event:any) => {
                   dispatch(handleProbeLabelCreation(event));
-                  dispatch(handleMeasurementLabelCreation(event));
+                  // dispatch(handleMeasurementLabelCreation(event));
                 }
               );
               eventDispatcher?.addEventListener(

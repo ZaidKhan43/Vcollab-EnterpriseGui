@@ -27,11 +27,9 @@ export enum Routes {
     MESSAGES = "/messages",
 
     LABELS = "/labels",
-    LABELS_2D_NOTES = "/labels/2d_notes",
+    LABELS_LIST = "/labels/list",
     LABEL_2D_EDITS = "/labels/2d_notes_edit",
-    LABELS_3D_LABELS = "/labels/3d_labels",
     LABELS_3D_EDITS = '/labels/3d_label_edit',
-    LABELS_MEASUREMENTS = "/labels/measurements",
     LABELS_MEASUREMENTS_EDITS = "/labels/measurements_edit",
 
 
