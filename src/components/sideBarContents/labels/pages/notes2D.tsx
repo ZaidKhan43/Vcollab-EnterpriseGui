@@ -127,18 +127,23 @@ export default function Labels2D(){
 
     if(node.id === Label3DType.PROBE){
       dispatch(handleProbeHeadCreation())
+      setInteractionMode(viewerId, InteractionMode.DEFAULT);
+      dispatch(setLabelInsertionState(false));
     }
 
     if(node.id === Label3DType.DISTANCE){
       dispatch(handleMeasurementHeadCreation({pid :Label3DType.DISTANCE }))
+      setInteractionMode(viewerId, InteractionMode.DEFAULT);
+      dispatch(setLabelInsertionState(false));
     }
 
     if(node.id === Label3DType.ARC){
       dispatch(handleMeasurementHeadCreation({pid : Label3DType.ARC}))
+      setInteractionMode(viewerId, InteractionMode.DEFAULT);
+      dispatch(setLabelInsertionState(false));
     }
 
-    setInteractionMode(viewerId, InteractionMode.DEFAULT);
-    dispatch(setLabelInsertionState(false));
+    
     // if(node.id === Label3DType.DISTANCE){
     //   let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT ? InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT : InteractionMode.DEFAULT;
     //   setInteractionMode(viewerId, mode);
