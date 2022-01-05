@@ -10,8 +10,8 @@ interface Label3DContainerProps {
 function Label3DContainer(props:Label3DContainerProps) {
     return (
         <Layer id={Layers.FRONT}>
-        <Label3DWindowLayer parentRef={props.parentRef}/> 
-        <MeasurementWindowLayer parentRef={props.parentRef}/>
+        {/* <Label3DWindowLayer parentRef={props.parentRef}/>  */}
+        {/* <MeasurementWindowLayer parentRef={props.parentRef}/> */}
         <Label2DWindowLayer parentRef={props.parentRef}/>
         </Layer>
     )

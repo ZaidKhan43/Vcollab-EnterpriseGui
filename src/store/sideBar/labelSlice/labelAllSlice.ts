@@ -89,15 +89,30 @@ export const init = createAsyncThunk(
 export const handleLabel2DCreation = createAsyncThunk(
     "Label2DSlice/handleLabel2DCreation",
     (data:any,{dispatch,getState}) => {
-        
-        let e = data.data as PointerEvent;
         let rootState = getState() as RootState;
         let mode = selectInteractionMode(rootState);
+
+        if(mode === InteractionMode.DEFAULT)
+            return;
+        
+        let e = data.data as PointerEvent;
+        
         if(mode === InteractionMode.LABEL2D) {
             let pos = [e.offsetX,e.offsetY];
             console.log("e",e);
             dispatch(createLabel({id:nextId('label-2d'),pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:'testing label2d'}));
         }
+
+        // else{
+        //     let event = e as any;
+        //     // let e = data.data;
+        //     // let rootState = getState() as RootState;
+        //     let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
+        //     let pos = get3DLabelCanvasPos(event.labelId,viewerId);
+        //     dispatch(createLabel({id:event.labelId,pid: rootState.labelAll.activeLabel,pos: pos as [number,number],type:event.type,msg:event.msg}));
+        // }
+
+
 });
 
 export const handleProbeHeadCreation = createAsyncThunk(
