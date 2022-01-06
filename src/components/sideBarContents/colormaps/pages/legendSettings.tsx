@@ -17,7 +17,8 @@ import SelectAction from "../../../layout/sideBar/sideBarContainer/sideBarHeader
 import MuiMenuItem from "@material-ui/core/MenuItem";
 import { selectcolormapData, colormapElements, setColorMapSelection, paletteTypeDataList, directionDataList, ticPositionDataList, titlePlacementDataList, valuePlacementDataList, setLegendSettings,ColormapType ,LegendDirection,LegendTitlePlacement,LegendValuePlacement, LegendType } from "../../../../store/sideBar/colormapSlice";
 
-import { Layers, selectActiveLayer , setActiveLayer, setEditMode} from '../../../../store/windowMgrSlice';
+
+import { Layers, selectActiveLayers, setEditMode} from '../../../../store/windowMgrSlice';
 
 import MuiGrid from '@material-ui/core/Grid'
 
@@ -28,6 +29,7 @@ import MuiListSubHeader from '@material-ui/core/ListSubheader'
 import { useEffect, useState } from "react";
 
 export default function LegendSettings() {
+
 
   const classes = styles();
   const dispatch = useAppDispatch();
@@ -40,8 +42,8 @@ export default function LegendSettings() {
   const ticPositionList = useAppSelector(ticPositionDataList);
   const titlePlacementList = useAppSelector(titlePlacementDataList);
   const valuePlacementList = useAppSelector(valuePlacementDataList);
-  const activeLayer = useAppSelector(selectActiveLayer);
-  const isPanBtnPressed = activeLayer === Layers.BACK;
+  const activeLayer = useAppSelector(selectActiveLayers);
+  const isPanBtnPressed = activeLayer.includes(Layers.BACK);
 
   const [paletteType, setPaletteType] = useState<string>(colormapsData[selectedColorMapId].paletteType);
   const [direction, setDirection] = useState<string>(colormapsData[selectedColorMapId].direction);
@@ -169,9 +171,7 @@ const handlePanChange = () => {
         dispatch(setEditMode({
           uid: "colorPlotWindow",
           isEdit: !isPanBtnPressed
-    }))
-
-      dispatch(setActiveLayer(!isPanBtnPressed ? Layers.BACK: Layers.VIEWER)); 
+    }));
 }
 
 
@@ -266,6 +266,7 @@ const getBody = () => {
             id="display-modes-selection-id"
             label = {"Direction"}
             value={direction}
+            error={false}
             disabled = {readOnly}
             onChange={(e : any) => handleSelectChange(e.target.value, "direction")}
             MenuProps={{
@@ -288,6 +289,7 @@ const getBody = () => {
             id="display-modes-selection-id"
             label = {"Tic Position"}
             value={ticPosition}
+            error={false}
             disabled = {readOnly}
             onChange={(e : any) => handleSelectChange(e.target.value, "ticPosition")}
             MenuProps={{
@@ -304,12 +306,15 @@ const getBody = () => {
           </div>
 
           <div className={classes.legendSelection}>
+
+            
           <SelectAction
             style={{ textAlign: "left" }}
-            labelId="display-modes-selection-label-id"
-            id="display-modes-selection-id"
+            labelId="demo-simple-select-error-label"
+            id="demo-simple-select-error"
             label = {"Title Placement"}
             value={titlePlacement}
+            error={isTitleOptionsError}
             disabled = {readOnly}
             onChange={(e : any) => handleSelectChange(e.target.value, "titlePlacement")}
             MenuProps={{
@@ -318,11 +323,13 @@ const getBody = () => {
                 vertical: "bottom",
                 horizontal: "left",
               },
-              getContentAnchorEl: null,
+            getContentAnchorEl: null,
             }}
           >
             {getmenuItems(titlePlacementList, false)}
+
           </SelectAction>
+
           </div>
 
           <div className={classes.legendSelection}>
@@ -332,6 +339,7 @@ const getBody = () => {
             id="display-modes-selection-id"
             label = {"Value Placement"}
             value={valuePlacement}
+            error={isValueOptionsError}
             disabled = {readOnly}
             onChange={(e : any) => handleSelectChange(e.target.value, "valuePlacement")}
             MenuProps={{
@@ -366,21 +374,259 @@ const getBody = () => {
         </div>
       </div>
     );
-  };
-  const getFooter = () => {
-    
-    const selectedData = colormapsData[selectedColorMapId]
+};
+
+
+const compareLegendOptions =()=> {
+
+  let isSelectedOption ;
+  let horizontalTitlePlacement ;
+  let verticalTitlePlacement ;
+
+  let selectedLegendType = parseInt(paletteType);
+  let selectedLegendDirection = parseInt(direction) ;
+  let selectedTitlePlacement = parseInt(titlePlacement);
+  let selectedValuePlacement = parseInt(valuePlacement);
+
+
+
+  if(selectedLegendDirection === LegendDirection.HORIZONTAL || selectedLegendDirection === LegendDirection.AUTO) {
+
+        if(selectedValuePlacement === LegendValuePlacement.TOP || selectedValuePlacement === LegendValuePlacement.BOTTOM || selectedValuePlacement === LegendValuePlacement.ALTERNATING) {
+
+          isSelectedOption = true ;
+
+          horizontalTitlePlacement = compareHorizontalTitlePlacementOptions(selectedLegendDirection ,selectedTitlePlacement);
+
+           setValueOptionsError(false);
+
+        }
+        else {
+
+            isSelectedOption = false ;
+            horizontalTitlePlacement = compareHorizontalTitlePlacementOptions(selectedLegendDirection ,selectedTitlePlacement);
+
+            setValueOptionsError(true);
+        
+        }
+  }
+
+  else if (selectedLegendDirection === LegendDirection.VERTICAL) {
+
+
+        if(selectedValuePlacement === LegendValuePlacement.LEFT || selectedValuePlacement === LegendValuePlacement.RIGHT || selectedValuePlacement === LegendValuePlacement.ALTERNATING) {
+
+          isSelectedOption = true ;
+
+          verticalTitlePlacement = compareVerticalTitlePlacementOptions(selectedLegendDirection ,selectedTitlePlacement);
+
+          setValueOptionsError(false);
+
+        }
+        else {
+
+          isSelectedOption = false ;
+          verticalTitlePlacement = compareVerticalTitlePlacementOptions(selectedLegendDirection ,selectedTitlePlacement);
+
+          setValueOptionsError(true);
+
+        }
+
+  }
+
+
+  if(selectedLegendDirection === LegendDirection.HORIZONTAL ||selectedLegendDirection === LegendDirection.AUTO) {
+
+      if(horizontalTitlePlacement === true && horizontalTitlePlacement !== undefined && isSelectedOption === true) {
+
+          isSelectedOption = true ;
+          return isSelectedOption ;
+      }
+      else {
+
+          isSelectedOption = false ;
+          return isSelectedOption ;
+      }
+
+  }
+  else if(selectedLegendDirection === LegendDirection.VERTICAL) {
+
+    if(verticalTitlePlacement === true && verticalTitlePlacement !== undefined && isSelectedOption === true && isSelectedOption !== undefined) {
+
+        isSelectedOption = true ;
+
+        return isSelectedOption ;
+    }
+    else {
+
+        isSelectedOption = false ;
+
+        return isSelectedOption ;
+
+    }
+
+  }
+
+  // if(selectedLegendType === LegendType.AUTO || selectedLegendDirection === LegendDirection.AUTO) {
+
+  //   isSelectedOption = false ;
+  //   return isSelectedOption ;
+
+  // }
+
+} 
+
+const compareHorizontalTitlePlacementOptions = (selectedLegendDirection:number ,selectedTitlePlacement:number)=> {
+
+let horizontalTitlePlacement;
+
+
+      if(selectedTitlePlacement === LegendTitlePlacement.TOP_LEFT ||selectedTitlePlacement === LegendTitlePlacement.TOP_MIDDLE || selectedTitlePlacement === LegendTitlePlacement.TOP_RIGHT ||selectedTitlePlacement === LegendTitlePlacement.BOTTOM_LEFT || selectedTitlePlacement === LegendTitlePlacement.BOTTOM_MIDDLE || selectedTitlePlacement === LegendTitlePlacement.BOTTOM_RIGHT) {
+
+          horizontalTitlePlacement = true ;
+
+          setTitleOptionsError(false);
+
+      }
+      else {
+
+        horizontalTitlePlacement = false ;
+
+        setTitleOptionsError(true);
+      }
+
+
+  return horizontalTitlePlacement;
+
+
+}
+
+const compareVerticalTitlePlacementOptions = (selectedLegendDirection:number ,selectedTitlePlacement:number) => {
+
+let verticalTitlePlacement ;
+
+
+        if(selectedTitlePlacement === LegendTitlePlacement.TOP || selectedTitlePlacement === LegendTitlePlacement.BOTTOM) {
+
+          verticalTitlePlacement = true ;
+
+          setTitleOptionsError(false);
+
+        }
+
+        else {
+
+          verticalTitlePlacement = false ;
+
+          setTitleOptionsError(true);
+
+        }
+
+    return verticalTitlePlacement ;
+
+
+}
+
+
+useEffect(() => {
+
+  let isSelectedOptions = compareLegendOptions();
+
+  if(isSelectedOptions === true) {
+
+    setLegendSettingsError(false);
+  }
+  else {
+
+    setLegendSettingsError(true);
+  }
+
+},[paletteType ,direction , titlePlacement ,valuePlacement]);
+
+//Automatically change legend option
+
+useEffect(()=> {
+
+  let selectedLegendDirection = parseInt(direction) ;
+
+  if(selectedLegendDirection === LegendDirection.VERTICAL) {
+
+    titlePlacementList.map((menu:any)=> {
+
+      let id = parseInt(menu.id);
+
+      if(id === LegendTitlePlacement.TOP) {
+
+        setTitlePlacement(id.toString());
+      }
+
+
+    })
+
+    valuePlacementList.map((menu:any)=> {
+
+      let id = parseInt(menu.id);
+
+      if(id === LegendValuePlacement.RIGHT) {
+
+        setValuePlacament(id.toString());
+      }
+
+
+    })
+
+  }
+  else if(selectedLegendDirection === LegendDirection.HORIZONTAL || selectedLegendDirection === LegendDirection.AUTO ) {
+
+    titlePlacementList.map((menu:any)=> {
+
+      let id = parseInt(menu.id);
+
+      if(id === LegendTitlePlacement.TOP_LEFT) {
+
+        setTitlePlacement(id.toString());
+      }
+
+
+    })
+
+    valuePlacementList.map((menu:any)=> {
+
+      let id = parseInt(menu.id);
+
+      if(id === LegendValuePlacement.TOP) {
+
+        setValuePlacament(id.toString());
+      }
+
+
+    })
+
+
+  }
+
+
+},[direction])
+
+
+const getFooter = () => {
+
+    const selectedData = colormapsData[selectedColorMapId];
     let disabled = true;
 
     if(paletteType !== selectedData.paletteType || direction !== selectedData.direction || ticPosition !== selectedData.ticPosition || titlePlacement !== selectedData.titlePlacement || valuePlacement !== selectedData.valuePlacement || gapValue !== selectedData.gap)
-      disabled = false;
+
+    isLegendSettingsError? disabled = true: disabled = false ;
+      
     return (
       <div>
+       {isTitleOptionsError ? <div className={classes.invalid}>{ErrorMsg}</div>:isValueOptionsError ?<div className={classes.invalid}>{ErrorMsg}</div>:null}
         { readOnly 
           ?
           null
           :
 <div style={{marginTop:"20px", marginBottom:"20px"}}>
+
         <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
           autoFocus 
           onClick={onHandleApply} 
@@ -398,12 +644,16 @@ const getBody = () => {
         >
           Reset
         </MuiButton>
+     
       </div>
+      
         }
+        
       </div>
       
     );
-  };
+};
+
   return (
     <SideBarContainer
       headerLeftIcon={getHeaderLeftIcon()}

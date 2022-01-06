@@ -652,6 +652,7 @@ export const colormapSlice = createSlice({
         },
 
         setLegendSettings : (state, action : PayloadAction<{colorMapId :string, newPaletteType :string, newDirection: string, newTicPosition: string, newTitlePlacement: string, newValuePlacement: string, newGap: number}>) => {
+
             state.colormapTree.data[action.payload.colorMapId].paletteType = action.payload.newPaletteType;
             state.colormapTree.data[action.payload.colorMapId].direction = action.payload.newDirection;
             state.colormapTree.data[action.payload.colorMapId].ticPosition = action.payload.newTicPosition;

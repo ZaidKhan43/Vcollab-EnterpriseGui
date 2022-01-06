@@ -4,7 +4,7 @@ import {useAppDispatch, useAppSelector} from '../../../../../../store/storeHooks
 import {ActionCreatorWithPayload} from '@reduxjs/toolkit'
 import { batch} from 'react-redux';
 import { selectActiveViewerID } from '../../../../../../store/appSlice';
-import { ILabel } from '../../../../../../store/sideBar/labelSlice/shared/types';
+import { ILabel, Label3D, Label3DType, LabelType } from '../../../../../../store/sideBar/labelSlice/shared/types';
 import { selectCameraMatrix } from '../../../../../../store/sideBar/sceneSlice';
 import { get3DLabelCanvasPos } from '../../../../../../backend/viewerAPIProxy';
 
@@ -21,8 +21,12 @@ type Props = {
     setLabelPosReducer: ActionCreatorWithPayload<{
         id: string;
         pos: [number, number];
-        anchor: [number, number];
+        anchor?: [number, number];
     },string>
+}
+
+const isLeafNode = (node:Label3D):boolean => {
+    return node.title.includes("N:");
 }
 function useHideOnRotate(props:Props) {
     const timer = useRef<any | null>(null);
@@ -46,7 +50,7 @@ function useHideOnRotate(props:Props) {
             if(props.onStart)props.onStart() 
             batch(() => {
                 Object.values(labelTree).forEach(l => {
-                    if(l.pid !== "-1"){
+                    if(l.labelType !== LabelType.LABEL2D && isLeafNode(l)){
                         wasVisible.current[l.id] = l.state.visibility ? true : false;
                          dispatch(toggleVisibility({
                             toShow: false,
@@ -60,7 +64,7 @@ function useHideOnRotate(props:Props) {
             if(props.onStop)props.onStop();
             batch(() => {
                 Object.values(labelTree).forEach(l => {
-                    if(l.pid !== "-1") {
+                    if(l.labelType !== LabelType.LABEL2D && isLeafNode(l)) {
                         let hitPos = get3DLabelCanvasPos(l.id,viewerId) as [number,number];
                         let p = l.pos;
                         if(hitPos){

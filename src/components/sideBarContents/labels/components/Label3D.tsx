@@ -1,7 +1,8 @@
-import React,{useRef,useEffect, memo} from 'react'
+import React,{useRef,useEffect} from 'react'
+import ReactDOM from 'react-dom';
 import { ILabel2D as ILabel3D } from '../../../../store/sideBar/labelSlice/shared/types'
 import { useAppDispatch, useAppSelector} from '../../../../store/storeHooks'
-import { selectWindowMgr, setWindowSize } from '../../../../store/windowMgrSlice';
+import { Layers, selectWindowMgr, setWindowSize } from '../../../../store/windowMgrSlice';
 import Window from 'components/shared/CustomWindow';
 import LabelMsg from './shared/LabelMsg';
 import LabelAnchor from './shared/LabelAnchor';
@@ -14,15 +15,17 @@ type Label3DProps = {
     setLabelPosReducer: ActionCreatorWithPayload<{
         id: string;
         pos: [number, number];
-        anchor: [number, number];
+        anchor?: [number, number];
     }, string>,
-    parentRef: any
+    parentRef: any,
+    layerId:Layers
 }
 
 function Label3D(props:Label3DProps) {
     const startRef = useRef<any | null>(null);
     const endRef = useRef<any | null>(null);
     const childRef = useRef<any | null>(null);
+    const viewerDivRef = useRef<HTMLDivElement | null>(null);
     const dispatch = useAppDispatch();
     const updateArrow = useXarrow();
     const handleWindowDrag = (e:any,data:any) => {
@@ -52,20 +55,33 @@ function Label3D(props:Label3DProps) {
         //updateArrow();
     }
     useEffect(() => {
+        let viewerDiv = document.getElementById("windows_container"+Layers.VIEWER);
+        viewerDivRef.current = viewerDiv as HTMLDivElement;
+
+    },[])
+    useEffect(() => {
         if(childRef.current) {
             const div = childRef.current as HTMLDivElement;
             dispatch(setWindowSize({uid:props.windowPrefixId+props.label.id, size:[div.clientWidth,div.clientHeight]}));
         }
     },[childRef])
     useEffect(() => {
-        //updateArrow();
+        updateArrow();
     },[props.label.anchor,props.label.pos])
     const label = props.label;
     return (
         
         < >
-            <LabelAnchor ref={startRef} pos={label.anchor} visible={label.state.visibility ? true :false} />
+            {
+                viewerDivRef.current ?
+                ReactDOM.createPortal(
+                <LabelAnchor ref={startRef} pos={label.anchor} visible={label.state.visibility ? true :false} />,
+                viewerDivRef.current)
+                :null
+            }
+            
                 <Window
+                layer={props.layerId}
                 ref={endRef} 
                 uid={props.windowPrefixId+label.id} 
                 visible={label.state.visibility ? true : false}
@@ -82,8 +98,10 @@ function Label3D(props:Label3DProps) {
                 >
                     <LabelMsg ref={childRef} msg={label.label}/>
                 </Window>
-                <Xarrow 
-                zIndex={0}
+                {
+                    viewerDivRef.current ?
+                ReactDOM.createPortal(
+                    <Xarrow 
                 start={startRef} 
                 showXarrow={label.state.visibility}
                 end={endRef} 
@@ -92,7 +110,11 @@ function Label3D(props:Label3DProps) {
                 color={'black'}
                 tailColor={'yellow'}
                 showHead={false} 
-                showTail={false}/>
+                showTail={false}/>,
+                viewerDivRef.current
+                ):null
+                }
+                
         </>
     )
 }

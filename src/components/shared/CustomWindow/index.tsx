@@ -1,11 +1,10 @@
 import { Grid, IconButton, Typography, ClickAwayListener } from '@material-ui/core';
-import { Close } from '@material-ui/icons';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import React, { useEffect, useRef, useLayoutEffect, useState, forwardRef } from 'react'
 import { Rnd, Position, ResizableDelta, DraggableData  } from 'react-rnd'
 import { useResizeDetector } from 'react-resize-detector';
 import clsx from 'clsx'
-import { selectWindowMgr, selectWindowAnchor,addWindow, removeWindow, setEditMode, setHiddenState, setWindowSize, setWindowPos, selectWindowXY, setWindowAnchor, setActiveLayer, Layers} from '../../../store/windowMgrSlice'
+import { selectWindowMgr, selectWindowAnchor,addWindow, removeWindow, setEditMode, setHiddenState, setWindowSize, setWindowPos, selectWindowXY, setWindowAnchor, setActiveLayers, Layers} from '../../../store/windowMgrSlice'
 import {useAppSelector, useAppDispatch} from "../../../store/storeHooks";
 import { vec2, vec3 } from 'gl-matrix';
 
@@ -60,38 +59,43 @@ const useStyles = makeStyles(theme => createStyles({
 }))
 
 type TitleProps = {
-    title: string,
     isEditMode: boolean,
     height: number,
-    onClick: (e:any) => void,
-    onClose: (e:any) => void
 }
-const TitleBar = React.forwardRef((props:TitleProps, ref) => {
+const TitleBar = React.forwardRef((props:TitleProps, ref:any) => {
     
     const classes = useStyles(props);
     return (
-        <Grid container justify="space-between" alignItems="center" innerRef={ref} className={clsx(
+        props.isEditMode ? <div 
+        ref={ref}
+        style={{height:props.height}}
+        className={clsx(
             {
                 [classes.titleBar]: props.isEditMode,
                 [classes.grabHandle]: props.isEditMode,
                 [classes.hide]: !props.isEditMode
-            }
-        )} >
-                <Grid item xs zeroMinWidth style={{paddingLeft:'4px'}}>
-                    <Typography noWrap variant="subtitle2" color='textPrimary' >{props.title}</Typography>
-                </Grid>
-                <Grid item justify="flex-end" >
-                    <IconButton size='small' onClick={props.onClose}>
-                        <Close fontSize='small' color="secondary"></Close>
-                    </IconButton>
-                </Grid>
-        </Grid>
+            })}
+            >
+        </div>
+        :null
     )
 });
 
+const Move = (props: {show:Boolean}) => {
+    const classes = useStyles(props);
+    return(
+    <div className={classes.grabHandle} 
+    style={{
+    position:'absolute', 
+    width: '10px',
+    height:'10px',
+    backgroundColor:'red'}} >
+    </div>)
+}
 
 export type CustomWindowProps = {
     uid: string,
+    layer: Layers,
     visible: boolean,
     xy?:[number,number],
     title?: string,
@@ -198,9 +202,14 @@ const CustomWindow = forwardRef((props:CustomWindowProps, ref:any) => {
     useLayoutEffect(() => {
         if(titleBarRef.current) {
             setTitleBarHeight(titleBarRef.current.clientHeight);
-            console.log(titleBarHeight)
         }
     },[titleBarRef.current, window?.isEditMode])
+
+    useEffect(() => {
+        if(window?.isEditMode){
+            dispatch(setActiveLayers([props.layer]));
+        }
+    },[window?.isEditMode])
 
     return (
         <>
@@ -210,8 +219,9 @@ const CustomWindow = forwardRef((props:CustomWindowProps, ref:any) => {
                     {
                         if(props.onClickOutside)
                         props.onClickOutside(uid);
+                        dispatch(setActiveLayers([Layers.VIEWER]));
                         dispatch(setEditMode({uid,isEdit:false}))
-                        dispatch(setActiveLayer(Layers.VIEWER));
+                        
                     }
                 }
             }
@@ -228,7 +238,13 @@ const CustomWindow = forwardRef((props:CustomWindowProps, ref:any) => {
             //onDoubleClick = {() => dispatch(setEditMode({uid,isEdit:true}))}
             enableResizing={window?.isEditMode && props.resize ? props.resize : false}
             dragHandleClassName={`${classes.grabHandle}`}
-            size= {props.width ?{ width,  height: height} : undefined}
+            resizeHandleStyles={
+                {top: {
+                    cursor: 'initial',
+                    display:'none'
+                }}
+            }
+            size= {props.width ?{ width,  height: height + titleBarHeight} : undefined}
             position={{ x: pos[0], y: pos[1]}}
             onDrag={props.onDrag}
             onResize={props.onResize}
@@ -263,8 +279,9 @@ const CustomWindow = forwardRef((props:CustomWindowProps, ref:any) => {
                 dispatch(setWindowPos({uid,pos:[position.x,position.y]}))
             }}
             >
-            <div ref={ref} id={uid} className={window?.isEditMode?classes.grabHandle:''} onClick={handleClick} style={{width:'100%',height:'100%', cursor: window?.isEditMode ? 'move': 'pointer' }}>
-             
+            {/* <TitleBar ref={titleBarRef} isEditMode={window?.isEditMode} height={10} /> */}
+            
+            <div ref={ref} id={uid} className={classes.grabHandle} onClick={handleClick} style={{width:'100%',height:'100%'}}>
              {
                props.children
              }

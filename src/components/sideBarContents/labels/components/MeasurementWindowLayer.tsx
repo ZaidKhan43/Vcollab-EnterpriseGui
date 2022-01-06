@@ -1,13 +1,16 @@
-import {  selectMeasurementsData, setLabelPos, toggleVisibility, windowPrefixId  } from '../../../../store/sideBar/labelSlice/measurementsSlice';
+import {  select2DLabelData, setLabelPos, toggleVisibility, windowPrefixId  } from '../../../../store/sideBar/labelSlice/labelAllSlice';
 import { useAppSelector } from '../../../../store/storeHooks';
 import useHideOnRotate from './shared/hooks/useHideOnRotate'; 
 import Label3D from '../components/Label3D';
+import { Layers } from 'store/windowMgrSlice';
+import { Label3DType, LabelType } from 'store/sideBar/labelSlice/shared/types';
 interface Props {
-    parentRef:any
+    parentRef:any,
+    layerId:Layers
 }
 function MeasurementWindowLayer(props:Props) {
     
-    const labelTree = useAppSelector(selectMeasurementsData);
+    const labelTree = useAppSelector(select2DLabelData);
     useHideOnRotate({
         labelTree,
         setLabelPosReducer: setLabelPos,
@@ -17,8 +20,11 @@ function MeasurementWindowLayer(props:Props) {
     return (
         <>{
             [...Object.values(labelTree)].map(label3D => {
-                return label3D.pid !== "-1" ? <Label3D 
+                return label3D.labelType === LabelType.MEASUREMENT &&
+                label3D.title.includes("N:") 
+                 ? <Label3D 
                 key = {label3D.id}
+                layerId={props.layerId}
                 windowPrefixId={windowPrefixId}
                 label = {label3D}
                 setLabelPosReducer = {setLabelPos}

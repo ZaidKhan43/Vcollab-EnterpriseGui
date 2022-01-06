@@ -22,14 +22,16 @@ type WindowMgrState = {
     windows : {[id: string] : WindowState},
     windowsCount: number,
     isEnabled: boolean,
-    activeLayer: Layers
+    activeLayers: {[key in keyof typeof Layers]:boolean}
 }
 
 const initialState = {
     isEnabled: false,
     windowsCount: 0,
     windows: {},
-    activeLayer: Layers.VIEWER
+    activeLayers: {
+        "VIEWER" : true
+    }
 } as WindowMgrState
 
 export const windowMgrSlice = createSlice({
@@ -115,8 +117,17 @@ export const windowMgrSlice = createSlice({
             let {uid,size} = action.payload;
             state.windows[uid].size = size;
         },
-        setActiveLayer: (state, action:PayloadAction<Layers>) => {
-            state.activeLayer = action.payload;
+        setActiveLayers: (state, action:PayloadAction<Layers[]>) => {
+            const layers = action.payload;
+            let selection:any = {};
+            layers.forEach(l => {
+                selection[l] = true;
+            });
+            if(selection[Layers.VIEWER]){
+                selection = {};
+                selection[Layers.VIEWER] = true;
+            } 
+            state.activeLayers = selection;
         }
     }
 }) 
@@ -129,10 +140,10 @@ export const {
     setWindowPos,
     setWindowSize,
     setWindowAnchor,
-    setActiveLayer
+    setActiveLayers
 } = windowMgrSlice.actions;
 
-export const selectActiveLayer = (state: RootState) => state.windowMgr.activeLayer;
+export const selectActiveLayers = (state: RootState): Layers[] => Object.keys(state.windowMgr.activeLayers) as Layers[];
 export const selectWindowMgr = (state: RootState) => state.windowMgr
 export const selectWindowSize = (state: RootState, id:string) => state.windowMgr.windows[id]? state.windowMgr.windows[id].size : [-1,-1];
 export const selectWindowXY =  (state: RootState, id:string) => state.windowMgr.windows[id]? state.windowMgr.windows[id].pos : [-1,-1];

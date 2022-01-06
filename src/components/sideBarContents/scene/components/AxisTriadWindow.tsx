@@ -3,7 +3,7 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks'
 import {fetchCameraMatrix, selectCameraMatrix, selectShowAxis} from '../../../../store/sideBar/sceneSlice'
 import CustomWindow from "../../../shared/CustomWindow"
 import {vec3, mat4} from "gl-matrix";
-import { selectWindowSize } from '../../../../store/windowMgrSlice';
+import { Layers, selectWindowSize } from '../../../../store/windowMgrSlice';
 
 export const  windowId = "axisTriadWindow";
 type Color = [number,number,number,number];
@@ -173,7 +173,8 @@ function drawAxes(ctx: CanvasRenderingContext2D, rotMat:mat4, width:number,heigh
 }
 
 interface Props {
-    parentRef: any
+    parentRef: any,
+    layerId:Layers
 }
 
 function AxisTriadWindow(props:Props) {
@@ -197,7 +198,7 @@ function AxisTriadWindow(props:Props) {
     },[rotMat, width, height])
     return (
         <>
-        <CustomWindow uid={windowId} visible={showAxis} resize parentRef = {props.parentRef} width={150} height={150}>
+        <CustomWindow uid={windowId} layer={props.layerId} visible={showAxis} resize parentRef = {props.parentRef} width={150} height={150}>
             {
                 <canvas ref={canvasRef} width={width} height={height} ></canvas>
             }

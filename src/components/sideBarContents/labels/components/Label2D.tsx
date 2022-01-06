@@ -1,13 +1,14 @@
 import React,{useRef,useEffect, memo} from 'react'
 import { Label2D as ILabel2D } from '../../../../store/sideBar/labelSlice/shared/types'
 import { useAppDispatch, useAppSelector} from '../../../../store/storeHooks'
-import { selectWindowMgr, setWindowSize } from '../../../../store/windowMgrSlice';
+import { Layers, selectWindowMgr, setWindowSize } from '../../../../store/windowMgrSlice';
 import Window from '../../../shared/CustomWindow';
 import LabelMsg from './shared/LabelMsg';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 
 type Label2DProps = {
     label:ILabel2D,
+    layerId:Layers,
     windowPrefixId:string,
     setLabelPosReducer: ActionCreatorWithPayload<{
         id: string;
@@ -51,6 +52,7 @@ function Label2D(props:Label2DProps) {
         < >
                 <Window
                 uid={props.windowPrefixId+label.id} 
+                layer={props.layerId}
                 visible = {label.state.visibility ? true : false} 
                 width={childRef?.current?.clientWidth | 0} 
                 height={childRef?.current?.clientHeight | 0} 

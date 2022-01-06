@@ -8,11 +8,12 @@ interface Label3DContainerProps {
     parentRef: any
 }
 function Label3DContainer(props:Label3DContainerProps) {
+    const layer = Layers.FRONT;
     return (
-        <Layer id={Layers.FRONT}>
-        {/* <Label3DWindowLayer parentRef={props.parentRef}/>  */}
-        {/* <MeasurementWindowLayer parentRef={props.parentRef}/> */}
-        <Label2DWindowLayer parentRef={props.parentRef}/>
+        <Layer id={layer}>
+        <Label3DWindowLayer parentRef={props.parentRef} layerId={layer} /> 
+        <MeasurementWindowLayer parentRef={props.parentRef} layerId={layer} />
+        <Label2DWindowLayer parentRef={props.parentRef} layerId={layer} />
         </Layer>
     )
 }

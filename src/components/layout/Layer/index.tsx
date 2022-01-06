@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core'
 import React from 'react'
 import { useAppSelector } from '../../../store/storeHooks'
-import { Layers, selectActiveLayer } from '../../../store/windowMgrSlice'
+import { Layers, selectActiveLayers } from '../../../store/windowMgrSlice'
 
 type LayerProps = {
     id: Layers,
@@ -17,8 +17,8 @@ const useStyles = makeStyles(theme => ({
     })
 }))
 function Layer(props: LayerProps) {
-    const activeLayer = useAppSelector(selectActiveLayer);
-    const isActive = props.id === activeLayer; 
+    const activeLayers = useAppSelector(selectActiveLayers);
+    const isActive = activeLayers.includes(props.id); 
     const classes = useStyles({isActive})
     return (
         <div id={'windows_container' + props.id} className={classes.root}>
