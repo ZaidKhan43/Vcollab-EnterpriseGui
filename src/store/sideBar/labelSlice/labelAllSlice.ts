@@ -301,7 +301,7 @@ export const LabelAllSlice = createSlice({
             }
 
             else{
-                if(state.data[action.payload.id].pid === Label3DType.PROBE ||state.data[action.payload.id].pid === Label3DType.DISTANCE || state.data[action.payload.id].pid === Label3DType.ARC)
+                if(state.data[action.payload.id].pid === LabelType.LABEL2D || state.data[action.payload.id].pid === Label3DType.PROBE ||state.data[action.payload.id].pid === Label3DType.DISTANCE || state.data[action.payload.id].pid === Label3DType.ARC)
                     state.activeLabel = action.payload.id;
             }
         }
@@ -331,7 +331,8 @@ export const {
 //Selectors
 
 export const selectRootIds = (state:RootState) => state.labelAll.rootIds
-export const select2DLabelData = (state:RootState) => state.labelAll.data
+export const selectLabelData = (state:RootState) => state.labelAll.data
+
 export const selectedLength = (state:RootState) => {
     const array : string[] = [];
      Object.keys(state.labelAll.data).forEach(key => {

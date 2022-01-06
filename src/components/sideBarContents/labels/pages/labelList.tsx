@@ -12,7 +12,7 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree, { ITreeNode } from '../../../shared/RsTreeTable';
 import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/labelAllSlice';
-import {invertNode, expandNode, select2DLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, setActiveLabel, handleProbeHeadCreation, handleMeasurementHeadCreation, selectedLeafNodes, reGroupLabel} from '../../../../store/sideBar/labelSlice/labelAllSlice'
+import {invertNode, expandNode, selectLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, setActiveLabel, handleProbeHeadCreation, handleMeasurementHeadCreation, selectedLeafNodes, reGroupLabel} from '../../../../store/sideBar/labelSlice/labelAllSlice'
 import AddCell from '../components/shared/TreeIcons/AddCell'
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
@@ -55,10 +55,12 @@ export default function LabelList(){
     dispatch(goBack()); 
   }
   
-  const treeDataRedux = useAppSelector(select2DLabelData);
+  const treeDataRedux = useAppSelector(selectLabelData);
   const treeRootIds = useAppSelector(selectRootIds);
   const checkedNodes = useAppSelector(selectCheckedLeafNodes);
+
   const selectedCount = useAppSelector(selectedLength);
+  
   const selectedLeafNode = useAppSelector(selectedLeafNodes)
   const selectedLeafCount = selectedLeafNode.length
   const activeLayer = useAppSelector(selectActiveLayers);
@@ -210,6 +212,8 @@ export default function LabelList(){
 
   const handleSetActive = (node : any) => {
     dispatch(setActiveLabel({id: node.id}))
+    // setInteractionMode(viewerId, InteractionMode.DEFAULT);
+    // dispatch(setLabelInsertionState(false));
   }
 
   
@@ -307,7 +311,7 @@ export default function LabelList(){
               }))}}
               />
             }/>
-            <Option label="Select" icon={<MuiIconButton disabled={activeLabelId === "-1"} onClick={handleSelectPoints}>
+            <Option label="Select" icon={<MuiIconButton disabled={activeLabelId === "-1" || treeDataRedux[activeLabelId].pid === LabelType.LABEL2D} onClick={handleSelectPoints}>
                 <SelectPointIcon/>
               </MuiIconButton>} 
             />
@@ -317,7 +321,7 @@ export default function LabelList(){
               </MuiIconButton>} 
             />
 
-            <Option label="Edit" icon={<MuiIconButton disabled={selectedCount === 1 ? false : true} onClick={() =>dispatch(push(Routes.LABEL_2D_EDITS))}>
+            <Option label="Edit" icon={<MuiIconButton disabled={activeLabelId === "-1" || treeDataRedux[activeLabelId].pid ==="-1"} onClick={() =>dispatch(push(Routes.LABEL_2D_EDITS))}>
                 <MuiEditIcon/>
               </MuiIconButton>} 
             />

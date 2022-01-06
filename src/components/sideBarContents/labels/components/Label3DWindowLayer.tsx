@@ -1,4 +1,4 @@
-import {  select2DLabelData, setLabelPos, toggleVisibility, windowPrefixId  } from '../../../../store/sideBar/labelSlice/labelAllSlice';
+import {  selectLabelData, setLabelPos, toggleVisibility, windowPrefixId  } from '../../../../store/sideBar/labelSlice/labelAllSlice';
 import { useAppSelector } from '../../../../store/storeHooks';
 import useHideOnRotate from './shared/hooks/useHideOnRotate'; 
 import Label3D from '../components/Label3D';
@@ -11,7 +11,7 @@ interface Props {
 }
 function Label3DWindowLayer(props:Props) {
     
-    const labelTree = useAppSelector(select2DLabelData);
+    const labelTree = useAppSelector(selectLabelData);
     useHideOnRotate({
         labelTree,
         setLabelPosReducer: setLabelPos,

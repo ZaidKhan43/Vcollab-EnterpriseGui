@@ -11,7 +11,7 @@ import styles from './style';
 
 import { useAppSelector, useAppDispatch} from '../../../../store/storeHooks';
 
-import {selectedLabel2D,editLabel, select2DLabelData} from '../../../../store/sideBar/labelSlice/labelAllSlice'
+import {selectedLabel2D,editLabel, selectLabelData} from '../../../../store/sideBar/labelSlice/labelAllSlice'
 
 import MuiButton from '@material-ui/core/Button';
 import {useRef, useState} from 'react';
@@ -26,7 +26,7 @@ const extensions = () => [new BoldExtension(), new ItalicExtension(), new Underl
 const hooks = [
   () => {
     const { getJSON, getHTML } = useHelpers();
-    const labels2d = useAppSelector(select2DLabelData);
+    const labels2d = useAppSelector(selectLabelData);
     const dispatch = useAppDispatch();
     const handleSaveShortcut = useCallback(
       ({ state }) => {

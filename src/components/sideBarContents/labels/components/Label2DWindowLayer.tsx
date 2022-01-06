@@ -1,6 +1,6 @@
 import { LabelType } from 'store/sideBar/labelSlice/shared/types';
 import { Layers } from 'store/windowMgrSlice';
-import {  select2DLabelData, setLabelPos, toggleVisibility, windowPrefixId  } from '../../../../store/sideBar/labelSlice/labelAllSlice';
+import {  selectLabelData, setLabelPos, toggleVisibility, windowPrefixId  } from '../../../../store/sideBar/labelSlice/labelAllSlice';
 import { useAppSelector } from '../../../../store/storeHooks';
 import Label2D from './Label2D';
 
@@ -10,7 +10,7 @@ interface Props {
 }
 function Label2DWindowLayer(props:Props) {
     
-    const labelTree = useAppSelector(select2DLabelData);
+    const labelTree = useAppSelector(selectLabelData);
     return (
         <>{
             [...Object.values(labelTree)].map(label => {
