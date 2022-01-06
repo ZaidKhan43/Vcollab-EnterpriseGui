@@ -19,11 +19,11 @@ function Labels() {
             </Route>
             
             <Route path={Routes.LABELS_3D_EDITS}>
-                <EditLabels3D/>
+                {/* <EditLabels3D/> */}
             </Route>
             
             <Route path={Routes.LABELS_MEASUREMENTS_EDITS}>
-                <EditMeasurements/>
+                {/* <EditMeasurements/> */}
             </Route>
         </Switch>
     )

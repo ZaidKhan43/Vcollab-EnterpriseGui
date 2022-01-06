@@ -11,8 +11,8 @@ function Label3DContainer(props:Label3DContainerProps) {
     const layer = Layers.FRONT;
     return (
         <Layer id={layer}>
-        {/* <Label3DWindowLayer parentRef={props.parentRef} layerId={layer} />  */}
-        {/* <MeasurementWindowLayer parentRef={props.parentRef} layerId={layer} /> */}
+        <Label3DWindowLayer parentRef={props.parentRef} layerId={layer} /> 
+        <MeasurementWindowLayer parentRef={props.parentRef} layerId={layer} />
         <Label2DWindowLayer parentRef={props.parentRef} layerId={layer} />
         </Layer>
     )

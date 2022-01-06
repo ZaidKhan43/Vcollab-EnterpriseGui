@@ -56,7 +56,8 @@ type LabelMsgProps = {
 function LabelMsg(props:LabelMsgProps, ref:any) {
     return (
         <div ref={ref} style={{ backgroundColor:"yellow", width:'100%' , height:'100%', zIndex:1}}>{
-           <EditorWithRef content = {JSON.parse(props.msg)}/>
+          //  <EditorWithRef content = {JSON.parse(props.msg)}/>
+          props.msg
         }</div>
         
     )

@@ -15,7 +15,7 @@ type Label3DProps = {
     setLabelPosReducer: ActionCreatorWithPayload<{
         id: string;
         pos: [number, number];
-        anchor: [number, number];
+        anchor?: [number, number];
     }, string>,
     parentRef: any,
     layerId:Layers

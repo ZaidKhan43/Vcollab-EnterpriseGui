@@ -25,7 +25,7 @@ import { selectInteractionMode } from 'store/appSlice';
 import { InteractionMode } from 'backend/ViewerManager';
 
 export const windowPrefixId = "Label2D";
-interface labels2DSettings extends LabelSettings {
+interface labelSettings extends LabelSettings {
     defaultParameters : ILabelGeneral,
     count2D: number,
     countPoint : number,
@@ -36,7 +36,7 @@ interface labels2DSettings extends LabelSettings {
 interface InitialState extends ITreeState {
     data : {[id:string]:ILabelGeneral},
     rootIds : string[],
-    labelsListSettings : labels2DSettings,
+    labelsListSettings : labelSettings,
     activeLabel : string,
 }
 
@@ -85,6 +85,20 @@ export const init = createAsyncThunk(
           }
     }
 )
+const DOC = {
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            text: `Text `,
+          },
+        ],
+      },
+    ],
+  };
 
 export const handleLabel2DCreation = createAsyncThunk(
     "LabelListSlice/handleLabel2DCreation",
@@ -100,18 +114,8 @@ export const handleLabel2DCreation = createAsyncThunk(
         if(mode === InteractionMode.LABEL2D) {
             let pos = [e.offsetX,e.offsetY];
             console.log("e",e);
-            dispatch(createLabel({id:nextId('label-2d'),pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:'testing label2d'}));
+            dispatch(createLabel({id:nextId('label-2d'),pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(DOC)}));
         }
-
-        // else{
-        //     let event = e as any;
-        //     // let e = data.data;
-        //     // let rootState = getState() as RootState;
-        //     let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
-        //     let pos = get3DLabelCanvasPos(event.labelId,viewerId);
-        //     dispatch(createLabel({id:event.labelId,pid: rootState.labelAll.activeLabel,pos: pos as [number,number],type:event.type,msg:event.msg}));
-        // }
-
 
 });
 
@@ -149,25 +153,8 @@ export const handleProbeLabelCreation = createAsyncThunk(
         let rootState = getState() as RootState;
         let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
         let pos = get3DLabelCanvasPos(e.labelId,viewerId);
-        dispatch(createLabel({id:e.labelId,pid: rootState.labelAll.activeLabel,pos: pos as [number,number],type:e.type,msg:e.msg}));
+        dispatch(createLabel({id:e.labelId,pid: rootState.labelAll.activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:e.msg}));
 });
-
-export const handleMeasurementLabelCreation = createAsyncThunk(
-    'labelListSlice/handleMeasurementLabelCreation',
-    async (data:any, {getState,dispatch}) => {
-        let e = data.data;
-        let rootState = getState() as RootState;
-        let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
-        let pos = get3DLabelCanvasPos(e.labelId,viewerId);
-        dispatch(createLabel({
-            pid: e.type,
-            id: e.labelId,
-            msg: e.msg,
-            pos:[-10,-10],
-            type: e.type
-        }));
-    }
-)
 
 export const delete3DLabel = createAsyncThunk(
     "labelListSlice/delete3DLabel",
@@ -224,7 +211,7 @@ export const LabelAllSlice = createSlice({
             newParent.label = "";
             addNodeReducer(state,{payload: newParent, type: 'ITreeNode'});
         },
-        createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],type:Label2DType | Label3DType ,msg:string}>) => {
+        createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string}>) => {
                 
                 const {id,pid,pos,msg} = action.payload;
                 let newNote = {...state.labelsListSettings.defaultParameters};
@@ -255,18 +242,21 @@ export const LabelAllSlice = createSlice({
                 if(newNote.pid === state.activeLabel){
 
                     if(state.data[state.activeLabel].pid === Label3DType.PROBE){
+                        newNote.anchor = pos;
                         newNote.title = `N: ${[21323,213,12312,1232][Math.floor(Math.random()*[21323,213,12312,1232].length)]}`;
                         newNote.labelType = LabelType.LABEL3D;
                         newNote.type = Label3DType.PROBE;
                     }
 
                     if(state.data[state.activeLabel].pid === Label3DType.DISTANCE){
+                        newNote.anchor = pos;
                         newNote.title = `N: ${[21323,213,12312,1232][Math.floor(Math.random()*[21323,213,12312,1232].length)]} - N: ${[1232,1223,4324,3423][Math.floor(Math.random()*[1232,1223,4324,3423].length)]}`;
                         newNote.labelType = LabelType.LABEL3D;
                         newNote.type = Label3DType.DISTANCE;
                     }
 
                     if(state.data[state.activeLabel].pid === Label3DType.ARC){
+                        newNote.anchor = pos;
                         newNote.title = `N: ${[21323,213,12312,1232][Math.floor(Math.random()*[21323,213,12312,1232].length)]} - N: ${[1232,1223,4324,3423][Math.floor(Math.random()*[1232,1223,4324,3423].length)]} - N: ${[545,6456,4654,462][Math.floor(Math.random()*[545,6456,4654,462].length)]}`;
                         newNote.labelType = LabelType.LABEL3D;
                         newNote.type = Label3DType.ARC;
@@ -275,10 +265,13 @@ export const LabelAllSlice = createSlice({
 
                 addNodeReducer(state,{payload: newNote, type: 'ITreeNode'});
         },
-        setLabelPos:(state, action:PayloadAction<{id:string,pos:[number,number]}>) => {
-            const {id,pos} = action.payload;
+        setLabelPos:(state, action:PayloadAction<{id:string,pos:[number,number],anchor?: [number,number]}>) => {
+            const {id,pos,anchor} = action.payload;
             if(id !== "-1") {
                 state.data[id].pos = pos;
+                if(anchor){
+                    state.data[id].anchor = anchor;
+                }
             }
         },
         editLabel: (state, action: PayloadAction<{id:string, value:string}>) => {

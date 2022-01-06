@@ -1,6 +1,6 @@
 import { LabelType } from 'store/sideBar/labelSlice/shared/types';
 import { Layers } from 'store/windowMgrSlice';
-import {  select2DLabelData, setLabelPos, toggleVisibility, windowPrefixId  } from '../../../../store/sideBar/labelSlice/label2DSlice';
+import {  select2DLabelData, setLabelPos, toggleVisibility, windowPrefixId  } from '../../../../store/sideBar/labelSlice/labelAllSlice';
 import { useAppSelector } from '../../../../store/storeHooks';
 import Label2D from './Label2D';
 
