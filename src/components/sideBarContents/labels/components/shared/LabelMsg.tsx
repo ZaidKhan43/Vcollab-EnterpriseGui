@@ -1,4 +1,5 @@
 import React, { forwardRef, useImperativeHandle, useCallback, useEffect } from 'react';
+
 import { BoldExtension, ItalicExtension, UnderlineExtension, MarkdownExtension, MarkdownOptions } from 'remirror/extensions';
 import {
   ReactExtensions,
@@ -10,7 +11,6 @@ import {
   useKeymap
 } from '@remirror/react';
 import { makeStyles } from '@material-ui/core';
-
 const extensions = () => [new BoldExtension(), new ItalicExtension(),new UnderlineExtension(), new MarkdownExtension()];
 type Extensions = ReactExtensions<BoldExtension & ItalicExtension & UnderlineExtension & MarkdownExtension>;
 
@@ -24,16 +24,12 @@ const useEditorStyles = makeStyles(theme => (
 const EditorWithRef = forwardRef<ReactFrameworkOutput<Extensions>>((props:any, ref) => {
     const classes = useEditorStyles();
     const { manager, state, setState, getContext, onChange } = useRemirror({ extensions,
-      content: '<p> Some dummy content</p>',
-      stringHandler: 'html',
+      content: props.content,
       selection: 'start',
     });
   
     useImperativeHandle(ref, () => getContext(), [getContext]);
 
-    useEffect(() => {
-      manager.view.updateState(manager.createState({ content: props.content }));
-    },[])
     useEffect(() => {
       manager.view.updateState(manager.createState({ content: props.content }));
     },[props.content])
@@ -44,6 +40,7 @@ const EditorWithRef = forwardRef<ReactFrameworkOutput<Extensions>>((props:any, r
         {...props}
         classNames={[classes.root]}
         manager={manager}
+        editable={false}
         state={state}
         onChange={onChange}
       >
@@ -54,10 +51,11 @@ type LabelMsgProps = {
     msg:string
 }
 function LabelMsg(props:LabelMsgProps, ref:any) {
+  console.log(props.msg)
     return (
         <div ref={ref} style={{ backgroundColor:"yellow", width:'100%' , height:'100%', zIndex:1}}>{
-          //  <EditorWithRef content = {JSON.parse(props.msg)}/>
-          props.msg
+          
+           <EditorWithRef content = {JSON.parse(props.msg)}/>
         }</div>
         
     )

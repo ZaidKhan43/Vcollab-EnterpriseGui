@@ -1,7 +1,7 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import {delete3DLabel as delete3DLabelApi, get3DLabelCanvasPos, probe} from '../../../backend/viewerAPIProxy';
 import type { RootState } from '../../index';
-import {LabelMode, Label2D, LabelSettings, Label2DType, LabelType, ILabelGeneral, Label3DType} from './shared/types';
+import {LabelMode, Label2D, LabelSettings, Label2DType, LabelType, ILabel, Label3DType, Label3D} from './shared/types';
 import { setLabelModeReducer } from './shared/reducers';
 import {ITreeState} from "../shared/Tree/types";
 import {   
@@ -26,7 +26,7 @@ import { InteractionMode } from 'backend/ViewerManager';
 
 export const windowPrefixId = "Label2D";
 interface labelSettings extends LabelSettings {
-    defaultParameters : ILabelGeneral,
+    defaultParameters : ILabel,
     count2D: number,
     countPoint : number,
     countMeasurement : number
@@ -34,7 +34,7 @@ interface labelSettings extends LabelSettings {
 
 
 interface InitialState extends ITreeState {
-    data : {[id:string]:ILabelGeneral},
+    data : {[id:string]:ILabel},
     rootIds : string[],
     labelsListSettings : labelSettings,
     activeLabel : string,
@@ -85,7 +85,7 @@ export const init = createAsyncThunk(
           }
     }
 )
-const DOC = {
+const Label2D_DOC = {
     type: 'doc',
     content: [
       {
@@ -99,6 +99,8 @@ const DOC = {
       },
     ],
   };
+
+
 
 export const handleLabel2DCreation = createAsyncThunk(
     "LabelListSlice/handleLabel2DCreation",
@@ -114,7 +116,7 @@ export const handleLabel2DCreation = createAsyncThunk(
         if(mode === InteractionMode.LABEL2D) {
             let pos = [e.offsetX,e.offsetY];
             console.log("e",e);
-            dispatch(createLabel({id:nextId('label-2d'),pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(DOC)}));
+            dispatch(createLabel({id:nextId('label-2d'),pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(Label2D_DOC)}));
         }
 
 });
@@ -153,7 +155,21 @@ export const handleProbeLabelCreation = createAsyncThunk(
         let rootState = getState() as RootState;
         let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
         let pos = get3DLabelCanvasPos(e.labelId,viewerId);
-        dispatch(createLabel({id:e.labelId,pid: rootState.labelAll.activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:e.msg}));
+        const Label3D_DOC = {
+            type: 'doc',
+            content: [
+                {
+                type: 'paragraph',
+                content: [
+                    {
+                    type: 'text',
+                    text: `Text {{ vct.nodeId }}`,
+                    },
+                ],
+                },
+            ],
+            };
+        dispatch(createLabel({id:e.labelId,pid: rootState.labelAll.activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:JSON.stringify(Label3D_DOC),probeData:e.msg}));
 });
 
 export const delete3DLabel = createAsyncThunk(
@@ -211,14 +227,16 @@ export const LabelAllSlice = createSlice({
             newParent.label = "";
             addNodeReducer(state,{payload: newParent, type: 'ITreeNode'});
         },
-        createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string}>) => {
+        createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string, probeData?:any}>) => {
                 
-                const {id,pid,pos,msg} = action.payload;
-                let newNote = {...state.labelsListSettings.defaultParameters};
+                const {id,pid,pos,msg,probeData} = action.payload;
+                let newNote:any = {...state.labelsListSettings.defaultParameters};
                 newNote.id = id
                 newNote.pid = pid
                 newNote.label = msg;
                 newNote.pos = pos;
+                if(probeData)
+                newNote.probeData = probeData;
                 if(newNote.pid === LabelType.LABEL2D){
                     state.labelsListSettings.count2D+= 1;
                     newNote.title = `Label ${state.labelsListSettings.count2D}`;
@@ -270,7 +288,7 @@ export const LabelAllSlice = createSlice({
             if(id !== "-1") {
                 state.data[id].pos = pos;
                 if(anchor){
-                    state.data[id].anchor = anchor;
+                    (state.data[id] as Label3D).anchor = anchor;
                 }
             }
         },

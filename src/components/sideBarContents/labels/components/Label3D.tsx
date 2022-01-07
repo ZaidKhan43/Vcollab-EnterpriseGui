@@ -8,6 +8,8 @@ import LabelMsg from './shared/LabelMsg';
 import LabelAnchor from './shared/LabelAnchor';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import Xarrow, {useXarrow, Xwrapper} from 'react-xarrows';
+import * as Sqrl from 'squirrelly'
+Sqrl.defaultConfig.varName = "vct";
 
 type Label3DProps = {
     label:ILabel3D,
@@ -96,7 +98,7 @@ function Label3D(props:Label3DProps) {
                 onResizeStop={handleWindowResizeStop}
                 autoPositionOnResize = {false}
                 >
-                    <LabelMsg ref={childRef} msg={label.label}/>
+                    <LabelMsg ref={childRef} msg={Sqrl.render(label.label,{nodeId:label.probeData})}/>
                 </Window>
                 {
                     viewerDivRef.current ?
