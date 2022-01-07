@@ -29,7 +29,10 @@ interface labelSettings extends LabelSettings {
     defaultParameters : ILabelGeneral,
     count2D: number,
     countPoint : number,
-    countMeasurement : number
+    countMeasurement : number,
+    probeLeafCount : number,
+    distanceLeafCount : number,
+    arcLeafCount : number
 } 
 
 
@@ -65,6 +68,9 @@ const initialState : InitialState = {
         count2D: 0,
         countPoint : 0,
         countMeasurement : 0,
+        probeLeafCount : 0,
+        distanceLeafCount : 0,
+        arcLeafCount : 0 ,
     },
     activeLabel : "-1"
 }
@@ -243,21 +249,24 @@ export const LabelAllSlice = createSlice({
 
                     if(state.data[state.activeLabel].pid === Label3DType.PROBE){
                         newNote.anchor = pos;
-                        newNote.title = `N: ${[21323,213,12312,1232][Math.floor(Math.random()*[21323,213,12312,1232].length)]}`;
+                        state.labelsListSettings.probeLeafCount +=1 ;
+                        newNote.title = `N: Point ${state.labelsListSettings.probeLeafCount}`;
                         newNote.labelType = LabelType.LABEL3D;
                         newNote.type = Label3DType.PROBE;
                     }
 
                     if(state.data[state.activeLabel].pid === Label3DType.DISTANCE){
                         newNote.anchor = pos;
-                        newNote.title = `N: ${[21323,213,12312,1232][Math.floor(Math.random()*[21323,213,12312,1232].length)]} - N: ${[1232,1223,4324,3423][Math.floor(Math.random()*[1232,1223,4324,3423].length)]}`;
+                        state.labelsListSettings.distanceLeafCount += 1;
+                        newNote.title = `N: Point-Point ${state.labelsListSettings.distanceLeafCount}`;
                         newNote.labelType = LabelType.LABEL3D;
                         newNote.type = Label3DType.DISTANCE;
                     }
 
                     if(state.data[state.activeLabel].pid === Label3DType.ARC){
                         newNote.anchor = pos;
-                        newNote.title = `N: ${[21323,213,12312,1232][Math.floor(Math.random()*[21323,213,12312,1232].length)]} - N: ${[1232,1223,4324,3423][Math.floor(Math.random()*[1232,1223,4324,3423].length)]} - N: ${[545,6456,4654,462][Math.floor(Math.random()*[545,6456,4654,462].length)]}`;
+                        state.labelsListSettings.arcLeafCount += 1;
+                        newNote.title = `N: Arc ${state.labelsListSettings.arcLeafCount}`;
                         newNote.labelType = LabelType.LABEL3D;
                         newNote.type = Label3DType.ARC;
                     }
