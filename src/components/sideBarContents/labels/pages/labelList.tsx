@@ -311,15 +311,15 @@ export default function LabelList(){
               }))}}
               />
             }/>
-            <Option label="Select" icon={<MuiIconButton disabled={activeLabelId === "-1" || treeDataRedux[activeLabelId].pid === LabelType.LABEL2D} onClick={handleSelectPoints}>
+            <Option label="Select" icon={<MuiIconButton disabled={activeLabelId === "-1" || treeDataRedux[activeLabelId].pid === LabelType.LABEL2D || treeDataRedux[activeLabelId].pid !== Label3DType.PROBE || treeDataRedux[activeLabelId].pid === LabelType.LABEL2D || treeDataRedux[activeLabelId].pid !== Label3DType.DISTANCE || treeDataRedux[activeLabelId].pid === LabelType.LABEL2D || treeDataRedux[activeLabelId].pid !== Label3DType.ARC} onClick={handleSelectPoints}>
                 <SelectPointIcon/>
               </MuiIconButton>} 
             />
             
-            <Option label="Add" icon={<MuiIconButton disabled={activeLabelId === "-1"}>
+            {/* <Option label="Add" icon={<MuiIconButton disabled={activeLabelId === "-1"}>
                 <MuiAddIcon/>
               </MuiIconButton>} 
-            />
+            /> */}
 
             <Option label="Edit" icon={<MuiIconButton disabled={activeLabelId === "-1" || treeDataRedux[activeLabelId].pid ==="-1"} onClick={() =>dispatch(push(Routes.LABEL_2D_EDITS))}>
                 <MuiEditIcon/>

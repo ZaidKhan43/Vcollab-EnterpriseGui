@@ -310,7 +310,7 @@ export const LabelAllSlice = createSlice({
             }
 
             else{
-                if(state.data[action.payload.id].pid === LabelType.LABEL2D || state.data[action.payload.id].pid === Label3DType.PROBE ||state.data[action.payload.id].pid === Label3DType.DISTANCE || state.data[action.payload.id].pid === Label3DType.ARC)
+                if(state.data[action.payload.id].pid === LabelType.LABEL2D || state.data[action.payload.id].pid === Label3DType.PROBE ||state.data[action.payload.id].pid === Label3DType.DISTANCE || state.data[action.payload.id].pid === Label3DType.ARC || state.data[action.payload.id].type === Label3DType.PROBE)
                     state.activeLabel = action.payload.id;
             }
         }
