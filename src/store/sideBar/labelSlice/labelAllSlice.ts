@@ -169,7 +169,7 @@ export const handleProbeLabelCreation = createAsyncThunk(
                 content: [
                     {
                     type: 'text',
-                    text: `Text {{ vct.nodeId }}`,
+                    text: `Text {{ nodeId(options) }}`,
                     },
                 ],
                 },
@@ -231,6 +231,7 @@ export const LabelAllSlice = createSlice({
             newParent.pid = pid;
             newParent.title = name;
             newParent.label = "";
+            newParent.isGroup = true;
             addNodeReducer(state,{payload: newParent, type: 'ITreeNode'});
         },
         createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string, probeData?:any}>) => {

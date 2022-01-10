@@ -11,7 +11,7 @@ import styles from './style';
 
 import { useAppSelector, useAppDispatch} from '../../../../store/storeHooks';
 
-import {selectedLabel2D,editLabel, selectLabelData} from '../../../../store/sideBar/labelSlice/labelAllSlice'
+import {editLabel, selectLabelData, selectedLeafNodes, selectCheckedLeafNodes} from '../../../../store/sideBar/labelSlice/labelAllSlice'
 
 import MuiButton from '@material-ui/core/Button';
 import {useRef, useState} from 'react';
@@ -20,6 +20,7 @@ import React, { forwardRef, useImperativeHandle, useCallback } from 'react';
 import { cx, htmlToProsemirrorNode } from 'remirror';
 import { BoldExtension, ItalicExtension, UnderlineExtension } from 'remirror/extensions';
 import { Remirror, ThemeProvider, useActive, useCommands, useHelpers, useKeymap, useRemirror } from '@remirror/react';
+import { ILabel, LabelType } from 'store/sideBar/labelSlice/shared/types';
 
 const extensions = () => [new BoldExtension(), new ItalicExtension(), new UnderlineExtension()];
 
@@ -75,11 +76,37 @@ const Buttons = () => {
   );
 };
 
-const Basic = (): JSX.Element => {
+const getInitialContent = (selectedLabels:ILabel[]) => {
+  if(selectedLabels.length > 1) {
+    switch(selectedLabels[0].labelType) {
+      case LabelType.LABEL2D:
+      return  {
+          type: 'doc',
+          content: [
+            {
+              type: 'paragraph',
+              content: [
+                {
+                  type: 'text',
+                  text: `Cannot edit Multiple 2d labels selected`,
+                },
+              ],
+            },
+          ]
+      }
+    
+      default:
+        return JSON.parse(selectedLabels[0].label)
+    }
+  }
+  else{
+    return JSON.parse(selectedLabels[0].label)
+  }
+}
+const Basic = (props:{selectedLabels:ILabel[]}): JSX.Element => {
   const { manager, state, onChange } = useRemirror({
     extensions: extensions,
-    content: '<p>Text in <b>bold</b></p>',
-    stringHandler: htmlToProsemirrorNode,
+    content: getInitialContent(props.selectedLabels)
   });
 
   return (
@@ -100,8 +127,8 @@ const Basic = (): JSX.Element => {
 
 export default function EditLabels2D(){
 
-  const label2D = useAppSelector(selectedLabel2D)
-  const [labelText,setLabelText] = useState(label2D?label2D.label : "");
+  const labelTree = useAppSelector(selectLabelData);
+  const selectedLabelsIds = useAppSelector(selectCheckedLeafNodes)
   const remirrorRef = useRef<any>(null);
   
 
@@ -111,16 +138,12 @@ export default function EditLabels2D(){
     dispatch(goBack());
   }
 
-  const onHandleEdit = (e :any)=>{
-    setLabelText(e.currentTarget.value)
-  }
-
   const onHandleReset = () => {
-    setLabelText(label2D?label2D.label : "");
+    //setLabelText(label2D?label2D.label : "");
   }
 
   const onHandleSave = () => {
-    dispatch(editLabel({id: label2D ? label2D.id : "-1", value: labelText}))
+    //dispatch(editLabel({id: label2D ? label2D.id : "-1", value: labelText}))
   }
 
   const getHeaderLeftIcon= () => {
@@ -137,14 +160,8 @@ export default function EditLabels2D(){
   }
     
   const getBody = () => {
-    
-    console.log("selected", label2D)
-
-    console.log("selected", label2D)
-
-    // console.log("selected",clickedValues)
     return (
-        <Basic/>
+        <Basic selectedLabels={selectedLabelsIds.map(label => labelTree[label.id])}/>
     )
   }
 
@@ -152,8 +169,8 @@ export default function EditLabels2D(){
   const getFooter = () => {
 
     let change = false;
-    if(label2D?.label !== labelText)
-      change = true;
+    // if(label2D?.label !== labelText)
+    //   change = true;
 
     return(
       <div className={classes.editPageFooter}>
@@ -178,10 +195,15 @@ export default function EditLabels2D(){
     ) 
   }
 
+  const getHeaderContent = () => {
+      const type = (selectedLabelsIds[0] as ILabel).labelType;
+      const text = selectedLabelsIds.length > 1 ? "..." : selectedLabelsIds[0].title;
+      return(<Title text={text} group={`Labels - ${type}`}/>)
+  }
   return (
           <SideBarContainer
             headerLeftIcon = { getHeaderLeftIcon() }
-            headerContent={ <Title text={`${label2D?.title}`} group="Labels - 2D Labels"/> }
+            headerContent={ getHeaderContent() }
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }
             footer = { getFooter() }

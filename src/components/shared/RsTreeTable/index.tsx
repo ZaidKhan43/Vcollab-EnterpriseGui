@@ -53,6 +53,7 @@ export interface ITreeNode {
   pid:string|null,
   title:string,
   children:string[],
+  isGroup?:boolean,
   state:ITreeNodeState,
   attributes?:any
 }

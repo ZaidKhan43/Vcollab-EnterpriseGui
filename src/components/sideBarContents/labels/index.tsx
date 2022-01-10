@@ -17,14 +17,6 @@ function Labels() {
             <Route path={Routes.LABEL_2D_EDITS}>
                 <EditNotes2D/>
             </Route>
-            
-            <Route path={Routes.LABELS_3D_EDITS}>
-                {/* <EditLabels3D/> */}
-            </Route>
-            
-            <Route path={Routes.LABELS_MEASUREMENTS_EDITS}>
-                {/* <EditMeasurements/> */}
-            </Route>
         </Switch>
     )
 }
