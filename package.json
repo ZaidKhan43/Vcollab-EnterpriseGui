@@ -50,7 +50,7 @@
     "react-virtualized-auto-sizer": "^1.0.5",
     "react-xarrows": "^2.0.2",
     "redux-toolkit": "^1.1.2",
-    "remirror": "^1.0.53",
+    "remirror": "^1.0.57",
     "rsuite": "^4.9.3",
     "rsuite-table": "^3.14.3",
     "slick-carousel": "^1.8.1",

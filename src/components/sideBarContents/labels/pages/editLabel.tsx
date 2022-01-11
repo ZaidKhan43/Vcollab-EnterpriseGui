@@ -11,18 +11,19 @@ import styles from './style';
 
 import { useAppSelector, useAppDispatch} from '../../../../store/storeHooks';
 
-import {selectedLabel3D,editLabel} from '../../../../store/sideBar/labelSlice/label3DSlice'
+import {editLabel, selectLabelData, selectedLeafNodes, selectCheckedLeafNodes, editLabelBackground} from '../../../../store/sideBar/labelSlice/labelAllSlice'
 
-import MuiTextField from '@material-ui/core/TextField';
-import MuiTypography from '@material-ui/core/Typography';
 import MuiButton from '@material-ui/core/Button';
+import {useRef, useState} from 'react';
+import { ILabel, LabelType } from 'store/sideBar/labelSlice/shared/types';
+import Editor from '../components/shared/Editor/RMEditorSidebar'
+import { Typography } from '@material-ui/core';
+import { batch } from 'react-redux';
+export default function EditLabels2D(){
 
-import {useState} from 'react';
-
-export default function EditLabels3D(){
-
-  const label3D = useAppSelector(selectedLabel3D)
-  const [labelText,setLabelText] = useState(label3D?label3D.label : "");
+  const selectedLabels = useAppSelector(selectCheckedLeafNodes)
+  const remirrorRef = useRef<any>(null);
+  
 
   const classes = styles();
   const dispatch = useAppDispatch();  
@@ -30,16 +31,12 @@ export default function EditLabels3D(){
     dispatch(goBack());
   }
 
-  const onHandleEdit = (e :any)=>{
-    setLabelText(e.currentTarget.value)
-  }
-
   const onHandleReset = () => {
-    setLabelText(label3D?label3D.label : "");
+    //setLabelText(label2D?label2D.label : "");
   }
 
   const onHandleSave = () => {
-    dispatch(editLabel({id: label3D ? label3D.id : "-1", value: labelText}))
+    //dispatch(editLabel({id: label2D ? label2D.id : "-1", value: labelText}))
   }
 
   const getHeaderLeftIcon= () => {
@@ -54,26 +51,29 @@ export default function EditLabels3D(){
       </div>
     )
   }
-    
+  
+  const handleColorChange = (e:any) => {
+        batch(() => {
+          selectedLabels.forEach(l => {
+            dispatch(editLabelBackground({id:l.id, color: e.target.value}));
+          });
+        });
+       
+  }
+
+  const getSelectedLabelColor = () => {
+    return (selectedLabels[0] as ILabel).bgColor 
+  }
   const getBody = () => {
-
-    console.log("selected", label3D)
-
-    // console.log("selected",clickedValues)
     return (
-      <div style={{marginTop:"20px", marginLeft:"10px"}}>
-        <MuiTypography variant="h2" className={classes.pageCaption} noWrap>
-          Label
-        </MuiTypography>
-        <MuiTextField
-          style={{marginLeft:"-40px"}}
-          id="filled-textarea"
-          value={labelText}
-          multiline
-          variant="filled"
-          onChange={onHandleEdit}
-        />
+      <div style={{textAlign: 'initial', width:'100%', height:'100%'}}>
+        <Editor selectedLabels={selectedLabels as ILabel[]}/>
+        <Typography>
+          Background Color
+        </Typography>
+        <input type="color" id="html5colorpicker" onChange={handleColorChange} value={getSelectedLabelColor()} ></input>
       </div>
+        
     )
   }
 
@@ -81,8 +81,8 @@ export default function EditLabels3D(){
   const getFooter = () => {
 
     let change = false;
-    if(label3D?.label !== labelText)
-      change = true;
+    // if(label2D?.label !== labelText)
+    //   change = true;
 
     return(
       <div className={classes.editPageFooter}>
@@ -107,10 +107,15 @@ export default function EditLabels3D(){
     ) 
   }
 
+  const getHeaderContent = () => {
+      const type = (selectedLabels[0] as ILabel).labelType;
+      const text = selectedLabels.length > 1 ? "..." : selectedLabels[0].title;
+      return(<Title text={text} group={`Labels - ${type}`}/>)
+  }
   return (
           <SideBarContainer
             headerLeftIcon = { getHeaderLeftIcon() }
-            headerContent={ <Title text={`${label3D?.title}`} group="Labels - 3D Labels"/> }
+            headerContent={ getHeaderContent() }
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }
             footer = { getFooter() }

@@ -23,6 +23,7 @@ import {
 import nextId from 'react-id-generator';
 import { selectInteractionMode } from 'store/appSlice';
 import { InteractionMode } from 'backend/ViewerManager';
+import { Label2DTemplate, Label3DTemplate } from 'components/sideBarContents/labels/components/shared/Editor/common';
 
 export const windowPrefixId = "Label2D";
 interface labelSettings extends LabelSettings {
@@ -63,6 +64,7 @@ const initialState : InitialState = {
                 },
                 attributes: {},
                 label: "Lorem ipsum dolor sit amet",
+                bgColor: "#ff0000"
         },
         mode: LabelMode.VIEW,
         count2D: 0,
@@ -91,20 +93,6 @@ export const init = createAsyncThunk(
           }
     }
 )
-const Label2D_DOC = {
-    type: 'doc',
-    content: [
-      {
-        type: 'paragraph',
-        content: [
-          {
-            type: 'text',
-            text: `Text `,
-          },
-        ],
-      },
-    ],
-  };
 
 
 
@@ -122,7 +110,7 @@ export const handleLabel2DCreation = createAsyncThunk(
         if(mode === InteractionMode.LABEL2D) {
             let pos = [e.offsetX,e.offsetY];
             console.log("e",e);
-            dispatch(createLabel({id:nextId('label-2d'),pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(Label2D_DOC)}));
+            dispatch(createLabel({id:nextId('label-2d'),pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(Label2DTemplate)}));
         }
 
 });
@@ -161,21 +149,7 @@ export const handleProbeLabelCreation = createAsyncThunk(
         let rootState = getState() as RootState;
         let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
         let pos = get3DLabelCanvasPos(e.labelId,viewerId);
-        const Label3D_DOC = {
-            type: 'doc',
-            content: [
-                {
-                type: 'paragraph',
-                content: [
-                    {
-                    type: 'text',
-                    text: `Text {{ nodeId(options) }}`,
-                    },
-                ],
-                },
-            ],
-            };
-        dispatch(createLabel({id:e.labelId,pid: rootState.labelAll.activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:JSON.stringify(Label3D_DOC),probeData:e.msg}));
+        dispatch(createLabel({id:e.labelId,pid: rootState.labelAll.activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:JSON.stringify(Label3DTemplate),probeData:e.msg}));
 });
 
 export const delete3DLabel = createAsyncThunk(
@@ -308,6 +282,10 @@ export const LabelAllSlice = createSlice({
                 state.data[id].label = value;
             }
         },
+        editLabelBackground: (state, action: PayloadAction<{id:string, color:string}>) => {
+            const {id,color} = action.payload;
+            state.data[id].bgColor = color;
+        },
         deleteLabel: (state, action: PayloadAction<{keys:string[]}>) => {
             let keys = action.payload.keys;
             console.log("deleteKeys", keys)
@@ -350,6 +328,7 @@ export const {
     //current 
     createLabel,
     editLabel,
+    editLabelBackground,
     setlabelMode,
     setLabelPos, 
     createParentLabel,

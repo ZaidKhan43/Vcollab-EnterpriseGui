@@ -1,6 +1,6 @@
 import React,{useRef,useEffect} from 'react'
 import ReactDOM from 'react-dom';
-import { ILabel2D as ILabel3D } from '../../../../store/sideBar/labelSlice/shared/types'
+import { Label3D as ILabel3D } from '../../../../store/sideBar/labelSlice/shared/types'
 import { useAppDispatch, useAppSelector} from '../../../../store/storeHooks'
 import { Layers, selectWindowMgr, setWindowSize } from '../../../../store/windowMgrSlice';
 import Window from 'components/shared/CustomWindow';
@@ -106,7 +106,10 @@ function Label3D(props:Label3DProps) {
                 autoPositionOnResize = {false}
                 >
                     
-                    <LabelMsg ref={childRef} msg={Sqrl.render(label.label,getSQRLObj(label),{useWith:true})}/>
+                    <LabelMsg ref={childRef} 
+                    msg={Sqrl.render(label.label,getSQRLObj(label),{useWith:true})}
+                    bgColor={label.bgColor}
+                    />
                 </Window>
                 {
                     viewerDivRef.current ?

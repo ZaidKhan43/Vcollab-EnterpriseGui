@@ -2,9 +2,7 @@ import React from 'react'
 import {Switch,Route} from 'react-router'
 import { Routes } from '../../../routes'
 
-import EditNotes2D from './pages/editNotes2D';
-import EditLabels3D from './pages/editLabels3D';
-import EditMeasurements from './pages/editMeasurements'
+import EditLabel from './pages/editLabel';
 import LabelList from './pages/labelList';
 
 function Labels() {
@@ -14,8 +12,8 @@ function Labels() {
             <Route path={Routes.LABELS_LIST}>
                 <LabelList/>
             </Route> 
-            <Route path={Routes.LABEL_2D_EDITS}>
-                <EditNotes2D/>
+            <Route path={Routes.LABEL_EDIT}>
+                <EditLabel/>
             </Route>
         </Switch>
     )
