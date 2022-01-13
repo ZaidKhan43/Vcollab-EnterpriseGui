@@ -266,7 +266,7 @@ export default function LabelList(){
                   ?
                      null
                   :
-                    <InvertCell node = {treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
+                    <InvertCell selected={activeLabelId.includes(node.id)} node={treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
                 }
               </div>
               
@@ -283,7 +283,7 @@ export default function LabelList(){
                     :
                       <AddCell node = {treeDataRedux[node.id]} selected={interactionMode === InteractionMode.LABEL2D && node.id === LabelType.LABEL2D} onToggle={handleAdd}/>
                 :
-                  <ShowHideCell node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
+                  <ShowHideCell selected={activeLabelId.includes(node.id)} node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
               }    
             </div>
           )
