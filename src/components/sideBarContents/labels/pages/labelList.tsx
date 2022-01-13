@@ -12,7 +12,7 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree, { ITreeNode } from '../../../shared/RsTreeTable';
 import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/labelAllSlice';
-import {invertNode, expandNode, selectLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, setActiveLabel, handleProbeHeadCreation, handleMeasurementHeadCreation, selectedLeafNodes, reGroupLabel} from '../../../../store/sideBar/labelSlice/labelAllSlice'
+import {invertNode, expandNode, selectLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, setActiveLabel, handleProbeHeadCreation, handleMeasurementHeadCreation, selectedLeafNodes, reGroupLabel, selectActiveId} from '../../../../store/sideBar/labelSlice/labelAllSlice'
 import AddCell from '../components/shared/TreeIcons/AddCell'
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
@@ -68,7 +68,7 @@ export default function LabelList(){
   const viewerId = useAppSelector(selectActiveViewerID);
   
   const [selectToggle, setSelectToggle] = useState<boolean>(false);
-  const activeLabelId = useAppSelector(state => state.labelAll.activeLabel)
+  const activeLabelId : string = useAppSelector(selectActiveId)
 
   const isPanBtnPressed = activeLayer === Layers.FRONT;
   const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
@@ -317,8 +317,8 @@ export default function LabelList(){
               />
             }/>
             <Option label="Select" icon={<MuiToggleButton disabled={activeLabelId === "-1"
-             ||
-             treeDataRedux[activeLabelId].pid === LabelType.LABEL2D 
+            //  ||
+            //  treeDataRedux[activeLabelId].pid === LabelType.LABEL2D 
             //  || 
             //  treeDataRedux[activeLabelId].pid !== Label3DType.PROBE 
 
