@@ -12,7 +12,7 @@ import {useAppDispatch, useAppSelector} from '../../../../store/storeHooks';
 
 import RTree, { ITreeNode } from '../../../shared/RsTreeTable';
 import { selectCheckedLeafNodes } from '../../../../store/sideBar/labelSlice/labelAllSlice';
-import {invertNode, expandNode, selectLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, setActiveLabel, handleProbeHeadCreation, handleMeasurementHeadCreation, selectedLeafNodes, reGroupLabel, selectActiveId} from '../../../../store/sideBar/labelSlice/labelAllSlice'
+import {invertNode, expandNode, selectLabelData ,selectRootIds, setCheckedVisibility, invertCheckedVisibility, checkNode, createLabel, delete3DLabel , selectedLength, createParentLabel, setActiveLabel, handleProbeHeadCreation, handleMeasurementHeadCreation, selectedLeafNodes, reGroupLabel, selectActiveId, handleFaceHeadCreation} from '../../../../store/sideBar/labelSlice/labelAllSlice'
 import AddCell from '../components/shared/TreeIcons/AddCell'
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
@@ -133,6 +133,12 @@ export default function LabelList(){
       dispatch(setLabelInsertionState(false));
     }
 
+    if(node.id === Label3DType.FACE){
+      dispatch(handleFaceHeadCreation())
+      setInteractionMode(viewerId, InteractionMode.DEFAULT);
+      dispatch(setLabelInsertionState(false));
+    }
+
     if(node.id === Label3DType.DISTANCE){
       dispatch(handleMeasurementHeadCreation({pid :Label3DType.DISTANCE }))
       setInteractionMode(viewerId, InteractionMode.DEFAULT);
@@ -171,6 +177,12 @@ export default function LabelList(){
       dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL3D_POINT));
     }
 
+    if(node.pid === Label3DType.FACE){
+      let mode = interactionMode !== InteractionMode.LABEL3D_FACE ? InteractionMode.LABEL3D_FACE : InteractionMode.DEFAULT;
+      setInteractionMode(viewerId, mode);
+      dispatch(setLabelInsertionState(interactionMode !== InteractionMode.LABEL3D_FACE));
+    }
+
     if(node.pid === Label3DType.DISTANCE){
       let mode = interactionMode !== InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT ? InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT : InteractionMode.DEFAULT;
       setInteractionMode(viewerId, mode);
@@ -198,6 +210,10 @@ export default function LabelList(){
 
     if(mainPid === Label3DType.PROBE){
       dispatch(handleProbeHeadCreation())
+    }
+
+    if(mainPid === Label3DType.FACE){
+      dispatch(handleFaceHeadCreation())
     }
 
     if(mainPid === Label3DType.DISTANCE){
@@ -238,9 +254,13 @@ export default function LabelList(){
         height = {containerHeight ? containerHeight - 5: 0}
         renderTreeToggle = {
           (icon,rowData) => {
-            if (rowData.pid === "-1" || rowData.id === Label3DType.PROBE || 
+            if (  rowData.pid === "-1" || 
+                  rowData.id === Label3DType.PROBE ||
+                  rowData.id === Label3DType.FACE ||  
                   rowData.id === Label3DType.DISTANCE || 
-                  rowData.id === Label3DType.ARC || rowData.pid === Label3DType.PROBE || 
+                  rowData.id === Label3DType.ARC ||
+                  rowData.pid === Label3DType.PROBE || 
+                  rowData.pid === Label3DType.FACE || 
                   rowData.pid === Label3DType.DISTANCE || 
                   rowData.pid === Label3DType.ARC) {
               let state = treeDataRedux[rowData.id].state;
@@ -296,6 +316,13 @@ export default function LabelList(){
 
   const getFooter = () => {
 
+    let disableSelect = true;
+
+    if(activeLabelId !== "-1"){
+      if(treeDataRedux[activeLabelId].pid === Label3DType.PROBE || treeDataRedux[activeLabelId].pid === Label3DType.FACE || treeDataRedux[activeLabelId].pid === Label3DType.DISTANCE || treeDataRedux[activeLabelId].pid === Label3DType.ARC)
+        disableSelect = false;
+    }
+
     return(
         <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
           <OptionContainer>
@@ -316,12 +343,9 @@ export default function LabelList(){
               }))}}
               />
             }/>
-            <Option label="Select" icon={<MuiToggleButton disabled={activeLabelId === "-1"
-            //  ||
-            //  treeDataRedux[activeLabelId].pid === LabelType.LABEL2D 
+            <Option label="Select" icon={<MuiToggleButton disabled={disableSelect
             //  || 
             //  treeDataRedux[activeLabelId].pid !== Label3DType.PROBE 
-
             //   ||
             //   treeDataRedux[activeLabelId].pid !== Label3DType.DISTANCE 
               // || treeDataRedux[activeLabelId].pid !== Label3DType.ARC
