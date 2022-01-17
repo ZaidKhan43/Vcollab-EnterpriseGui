@@ -19,6 +19,8 @@ import ProbeLabelIcon from "@material-ui/icons/Room";
 import ProbeIcon from '@material-ui/icons/Colorize'
 import NoteIcon from '@material-ui/icons/NoteAdd';
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
+import UndoIcon from '@material-ui/icons/Undo';
+import RedoIcon from '@material-ui/icons/Redo';
 import FullscreenClose from '../../icons/fullscreen_exit';
 import Hamburger from '../../icons/hamburger';
 import More from '../../icons/more';
@@ -35,6 +37,7 @@ import { InteractionMode } from '../../../backend/viewerAPIProxy';
 import { popupMenuContentTypes } from '../../../config';
 import PopupMenu from '../popupMenu';
 import  styles from './style';
+import {undo, redo, undoStack, UndoEvents} from '../../utils/undoStack';
 
 function AppBar() {
     
@@ -76,7 +79,8 @@ function AppBar() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [clickedMenu, setClickedMenu] = useState<string>(popupMenuContentTypes.none);
     const popupMenuDisplayMode = useAppSelector(state => state.app.popupMenuActiveContent);
-    
+    const [isUndoable, setIsUndoable] = useState(false);
+    const [isRedoable, setIsRedoable] = useState(false);
     const onClickFullscreen = () => {
       dispatch(setFullscreenState(!isFullscreenEnabled));
     }
@@ -85,10 +89,16 @@ function AppBar() {
       setSelectedLabelInsertionMode(id)
     }
 
-    // useEffect(() => {
-    //   let id = labelInsertionState ? selectedLabelInsertionMode : InteractionMode.DEFAULT;
-    //   viewerAPIProxy.setInteractionMode( activeViewerID, id);
-    // },[labelInsertionState, activeViewerID, selectedLabelInsertionMode])
+    const handleUndoStackUpdate = (e:any) => {
+      setIsUndoable(undoStack.isUndoable());
+      setIsRedoable(undoStack.isRedoable());
+    }
+    useEffect(() => {
+      undoStack.addEventListener(UndoEvents.UPDATE, handleUndoStackUpdate);
+      return () => {
+        undoStack.removeEventListener(UndoEvents.UPDATE);
+      }
+    },[])
 
     useEffect(() => {
       switch (interactionMode) {
@@ -171,6 +181,13 @@ function AppBar() {
       }
     }
   
+    const handleUndo = () => {
+      undo(dispatch);
+    }
+
+    const handleRedo = () => {
+      redo(dispatch);
+    }
     return (
         <MuiAppBar 
           className = { clsx( classes.appBar , {[classes.appBarwithSideBar]: isSidebarVisible}) }
@@ -194,6 +211,12 @@ function AppBar() {
           </div>
      
           <div className={classes.toolBarRightContent}>
+            <div className={classes.divIcon} onClick={handleUndo} >
+            <MuiIconButton disabled={!isUndoable}><UndoIcon /></MuiIconButton> 
+            </div>
+            <div className={classes.divIcon} onClick={handleRedo}>
+            <MuiIconButton disabled={!isRedoable}><RedoIcon /></MuiIconButton> 
+            </div>
             <div className={classes.divIcon} onClick={() => {}}>
             <ToggleSplitBtn 
               options={labelInsertModeOptions}
