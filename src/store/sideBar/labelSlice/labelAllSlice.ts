@@ -40,7 +40,6 @@ interface InitialState extends ITreeState {
     data : {[id:string]:ILabelGeneral},
     rootIds : string[],
     labelsListSettings : labelSettings,
-    activeLabel : string,
 }
 
 const initialState : InitialState = {
@@ -73,7 +72,6 @@ const initialState : InitialState = {
         distanceLeafCount : 0,
         arcLeafCount : 0 ,
     },
-    activeLabel : "-1"
 }
 
 export const init = createAsyncThunk(
@@ -324,7 +322,13 @@ export const LabelAllSlice = createSlice({
         regroupLabel: (state, action: PayloadAction<{key:string}>) => {
             
             let key = action.payload.key;
-            regroupReducer(state,{payload: {nodeId : key, newParentId : state.activeLabel}, type:'ITreeNode'})
+            let array: string[] = [];
+            Object.keys(state.data).forEach( key => {
+                if( state.data[key].state.selected === true)
+                    array.push(state.data[key].id)
+            })
+            
+            regroupReducer(state,{payload: {nodeId : key, newParentId : array[0]}, type:'ITreeNode'})
         },
 
         setActiveLabel : (state, action: PayloadAction<{id:string}>) => {

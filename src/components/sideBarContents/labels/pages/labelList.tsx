@@ -216,7 +216,7 @@ export default function LabelList(){
 
   const handleSetActive = (node : any) => {
     dispatch(setActiveLabel({id: node.id}))
-    setInteractionMode(viewerId, InteractionMode.DEFAULT);
+    // setInteractionMode(viewerId, InteractionMode.DEFAULT);
     setSelectToggle(false)
     // dispatch(setLabelInsertionState(false));
   }
