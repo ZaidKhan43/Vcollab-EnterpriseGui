@@ -30,8 +30,10 @@ interface labelSettings extends LabelSettings {
     defaultParameters : ILabel,
     count2D: number,
     countPoint : number,
+    countFace : number,
     countMeasurement : number,
     probeLeafCount : number,
+    faceLeafCount : number,
     distanceLeafCount : number,
     arcLeafCount : number
 } 
@@ -41,7 +43,6 @@ interface InitialState extends ITreeState {
     data : {[id:string]:ILabel},
     rootIds : string[],
     labelsListSettings : labelSettings,
-    activeLabel : string,
 }
 
 const initialState : InitialState = {
@@ -61,6 +62,7 @@ const initialState : InitialState = {
                     expanded : true,
                     highlighted : false,
                     visibility : true,
+                    selected: false,
                 },
                 attributes: {},
                 label: "Lorem ipsum dolor sit amet",
@@ -69,12 +71,13 @@ const initialState : InitialState = {
         mode: LabelMode.VIEW,
         count2D: 0,
         countPoint : 0,
+        countFace : 0,
         countMeasurement : 0,
         probeLeafCount : 0,
+        faceLeafCount :0,
         distanceLeafCount : 0,
         arcLeafCount : 0 ,
     },
-    activeLabel : "-1"
 }
 
 export const init = createAsyncThunk(
@@ -88,6 +91,8 @@ export const init = createAsyncThunk(
             dispatch(createParentLabel({id:LabelType.MEASUREMENT,name:"Measurements",pid:"-1"}));
 
             dispatch(createParentLabel({id:Label3DType.PROBE,name:"Point",pid:LabelType.LABEL3D}))
+            dispatch(createParentLabel({id:Label3DType.FACE,name:"Face",pid:LabelType.LABEL3D}))
+
             dispatch(createParentLabel({id:Label3DType.DISTANCE ,name:"Point to Point",pid:LabelType.MEASUREMENT}));
             dispatch(createParentLabel({id:Label3DType.ARC, name:"3 Point Arc Length",pid:LabelType.MEASUREMENT}));
           }
@@ -106,7 +111,6 @@ export const handleLabel2DCreation = createAsyncThunk(
         //     return;
         
         let e = data.data as PointerEvent;
-        
         if(mode === InteractionMode.LABEL2D) {
             let pos = [e.offsetX,e.offsetY];
             console.log("e",e);
@@ -120,17 +124,27 @@ export const handleProbeHeadCreation = createAsyncThunk(
 (data,{dispatch, getState}) => {
     // let e = data.data;
     const idNew = nextId('label-3d')
-    dispatch(createLabel({id:idNew,pid:Label3DType.PROBE,pos:[-10,-10],type:Label3DType.PROBE,msg:"nill"}));
+    dispatch(createInterLabel({id:idNew,pid:Label3DType.PROBE,pos:[-10,-10],type:Label3DType.PROBE,msg:"nill"}));
     dispatch(setActiveLabel({id: idNew}));
 }
 )
+
+export const handleFaceHeadCreation = createAsyncThunk(
+    "labelListSlice/handleProbeLabelCreation",
+    (data,{dispatch, getState}) => {
+        // let e = data.data;
+        const idNew = nextId('label-3d')
+        dispatch(createInterLabel({id:idNew,pid:Label3DType.FACE,pos:[-10,-10],type:Label3DType.FACE,msg:"nill"}));
+        dispatch(setActiveLabel({id: idNew}));
+    }
+    )
 
 export const handleMeasurementHeadCreation = createAsyncThunk(
     'labelListSlice/handleMeasurementLabelCreation',
     async (data: any, {dispatch,getState}) => {
         let e = data.pid;
         const idNew = nextId('label-3d')
-        dispatch(createLabel({
+        dispatch(createInterLabel({
             id: idNew,
             pid: e,
             type:e,
@@ -149,7 +163,19 @@ export const handleProbeLabelCreation = createAsyncThunk(
         let rootState = getState() as RootState;
         let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
         let pos = get3DLabelCanvasPos(e.labelId,viewerId);
-        dispatch(createLabel({id:e.labelId,pid: rootState.labelAll.activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:JSON.stringify(Label3DTemplate),probeData:e.msg}));
+
+
+        let array : string[] = [];
+                let activeLabel = "-1"
+                Object.keys(rootState.labelAll.data).forEach(key => {
+                    if (rootState.labelAll.data[key].state.selected === true)
+                        array.push(rootState.labelAll.data[key].id)
+                })
+            
+                if(array.length >= 1)
+                   activeLabel = array[0];
+
+        dispatch(createLabel({id:e.labelId,pid: activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:e.msg, activeLabel: activeLabel}));
 });
 
 export const delete3DLabel = createAsyncThunk(
@@ -208,7 +234,39 @@ export const LabelAllSlice = createSlice({
             newParent.isGroup = true;
             addNodeReducer(state,{payload: newParent, type: 'ITreeNode'});
         },
-        createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string, probeData?:any}>) => {
+
+        createInterLabel: (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string}>) => {
+            const {id,pid,pos,msg} = action.payload;
+            let newNote = {...state.labelsListSettings.defaultParameters};
+            newNote.id = id
+            newNote.pid = pid
+            newNote.label = msg;
+            newNote.pos = pos;
+
+            if(newNote.pid === Label3DType.PROBE){
+                newNote.anchor = pos;
+                state.labelsListSettings.countPoint+= 1;
+                newNote.title = `Point Label ${state.labelsListSettings.countPoint}`;
+                newNote.labelType = LabelType.LABEL3D;
+            }
+
+            if(newNote.pid === Label3DType.FACE){
+                newNote.anchor = pos;
+                state.labelsListSettings.countFace+= 1;
+                newNote.title = `Face Label ${state.labelsListSettings.countFace}`;
+                newNote.labelType = LabelType.LABEL3D;
+            }
+
+            if(newNote.pid === Label3DType.DISTANCE || newNote.pid === Label3DType.ARC){
+                newNote.anchor = pos; 
+                state.labelsListSettings.countMeasurement+= 1;
+                newNote.title = `Measurement ${state.labelsListSettings.countMeasurement}`;
+                newNote.labelType = LabelType.LABEL3D;
+            }
+            addNodeReducer(state,{payload: newNote, type: 'ITreeNode'});
+        },
+
+        createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string, activeLabel?:string}>) => {
                 
                 const {id,pid,pos,msg,probeData} = action.payload;
                 let newNote:any = {...state.labelsListSettings.defaultParameters};
@@ -224,23 +282,10 @@ export const LabelAllSlice = createSlice({
                     newNote.labelType = LabelType.LABEL2D
                 }
 
-                if(newNote.pid === Label3DType.PROBE){
-                    newNote.anchor = pos;
-                    state.labelsListSettings.countPoint+= 1;
-                    newNote.title = `Point Label ${state.labelsListSettings.countPoint}`;
-                    newNote.labelType = LabelType.LABEL3D;
-                }
 
-                if(newNote.pid === Label3DType.DISTANCE || newNote.pid === Label3DType.ARC){
-                    newNote.anchor = pos; 
-                    state.labelsListSettings.countMeasurement+= 1;
-                    newNote.title = `Measurement ${state.labelsListSettings.countMeasurement}`;
-                    newNote.labelType = LabelType.LABEL3D;
-                }
-                
-                if(newNote.pid === state.activeLabel){
+                if(newNote.pid === action.payload.activeLabel){
 
-                    if(state.data[state.activeLabel].pid === Label3DType.PROBE){
+                    if(state.data[action.payload.activeLabel].pid === Label3DType.PROBE){
                         newNote.anchor = pos;
                         state.labelsListSettings.probeLeafCount +=1 ;
                         newNote.title = `N: Point ${state.labelsListSettings.probeLeafCount}`;
@@ -248,7 +293,15 @@ export const LabelAllSlice = createSlice({
                         newNote.type = Label3DType.PROBE;
                     }
 
-                    if(state.data[state.activeLabel].pid === Label3DType.DISTANCE){
+                    if(state.data[action.payload.activeLabel].pid === Label3DType.FACE){
+                        newNote.anchor = pos;
+                        state.labelsListSettings.faceLeafCount +=1 ;
+                        newNote.title = `N: Face ${state.labelsListSettings.faceLeafCount}`;
+                        newNote.labelType = LabelType.LABEL3D;
+                        newNote.type = Label3DType.FACE;
+                    }
+
+                    if(state.data[action.payload.activeLabel].pid === Label3DType.DISTANCE){
                         newNote.anchor = pos;
                         state.labelsListSettings.distanceLeafCount += 1;
                         newNote.title = `N: Point-Point ${state.labelsListSettings.distanceLeafCount}`;
@@ -256,7 +309,7 @@ export const LabelAllSlice = createSlice({
                         newNote.type = Label3DType.DISTANCE;
                     }
 
-                    if(state.data[state.activeLabel].pid === Label3DType.ARC){
+                    if(state.data[action.payload.activeLabel].pid === Label3DType.ARC){
                         newNote.anchor = pos;
                         state.labelsListSettings.arcLeafCount += 1;
                         newNote.title = `N: Arc ${state.labelsListSettings.arcLeafCount}`;
@@ -297,19 +350,27 @@ export const LabelAllSlice = createSlice({
         regroupLabel: (state, action: PayloadAction<{key:string}>) => {
             
             let key = action.payload.key;
-            regroupReducer(state,{payload: {nodeId : key, newParentId : state.activeLabel}, type:'ITreeNode'})
+            let array: string[] = [];
+            Object.keys(state.data).forEach( key => {
+                if( state.data[key].state.selected === true)
+                    array.push(state.data[key].id)
+            })
+            
+            regroupReducer(state,{payload: {nodeId : key, newParentId : array[0]}, type:'ITreeNode'})
         },
 
         setActiveLabel : (state, action: PayloadAction<{id:string}>) => {
 
-            if(action.payload.id === state.activeLabel){
-                state.activeLabel = "-1";
-            }
+            if(state.data[action.payload.id].state.selected === true)
+                state.data[action.payload.id].state.selected = false;
+            else
+                if(state.data[action.payload.id].pid === LabelType.LABEL2D || state.data[action.payload.id].pid === Label3DType.PROBE ||state.data[action.payload.id].pid === Label3DType.DISTANCE || state.data[action.payload.id].pid === Label3DType.ARC || state.data[action.payload.id].pid === Label3DType.FACE || state.data[action.payload.id].type === Label3DType.PROBE || state.data[action.payload.id].type === Label3DType.FACE || state.data[action.payload.id].type === Label3DType.DISTANCE || state.data[action.payload.id].type === Label3DType.ARC )
+                    state.data[action.payload.id].state.selected = true;
 
-            else{
-                if(state.data[action.payload.id].pid === LabelType.LABEL2D || state.data[action.payload.id].pid === Label3DType.PROBE ||state.data[action.payload.id].pid === Label3DType.DISTANCE || state.data[action.payload.id].pid === Label3DType.ARC || state.data[action.payload.id].type === Label3DType.PROBE)
-                    state.activeLabel = action.payload.id;
-            }
+            Object.keys(state.data).forEach( key => {
+                if( state.data[key].state.selected === true && key !== action.payload.id)
+                    state.data[key].state.selected = false;
+            })
         }
     }
 })
@@ -327,6 +388,7 @@ export const {
     invertCheckedVisibility,
     //current 
     createLabel,
+    createInterLabel,
     editLabel,
     editLabelBackground,
     setlabelMode,
@@ -358,7 +420,7 @@ export const selectedLeafNodes = (state:RootState) => {
     const typeLabel : any[] = [];
      Object.keys(state.labelAll.data).forEach(key => {
         if (state.labelAll.data[key].state.checked === true)
-            if(state.labelAll.data[key].pid === "-1" || state.labelAll.data[key].pid === LabelType.LABEL3D || state.labelAll.data[key].pid === LabelType.MEASUREMENT || state.labelAll.data[key].pid === LabelType.LABEL2D || state.labelAll.data[key].pid === Label3DType.PROBE || state.labelAll.data[key].pid === Label3DType.ARC || state.labelAll.data[key].pid === Label3DType.DISTANCE)
+            if(state.labelAll.data[key].pid === "-1" || state.labelAll.data[key].pid === LabelType.LABEL3D || state.labelAll.data[key].pid === LabelType.MEASUREMENT || state.labelAll.data[key].pid === LabelType.LABEL2D || state.labelAll.data[key].pid === Label3DType.PROBE || state.labelAll.data[key].pid === Label3DType.ARC || state.labelAll.data[key].pid === Label3DType.DISTANCE || state.labelAll.data[key].pid === Label3DType.FACE)
                 return null
             else{
                 array.push(key)
@@ -387,5 +449,20 @@ export const selectedLabel2D = (state: RootState):Label2D | null=> {
     }
     return(node);
 }
+
+export const selectActiveId = (state:RootState) => {
+
+    let array : string[] = [];
+
+    Object.keys(state.labelAll.data).forEach(key => {
+        if (state.labelAll.data[key].state.selected === true)
+            array.push(state.labelAll.data[key].id)
+    })
+
+    if(array.length >= 1)
+        return(array[0])
+    else return("-1")
+}
+
 export const selectCheckedLeafNodes = (state:RootState) =>  selectCheckedLeafNodesTree(state.labelAll)
 export const selectUnCheckedLeafNodes = (state:RootState) =>  selectUnCheckedLeafNodesTree(state.labelAll)

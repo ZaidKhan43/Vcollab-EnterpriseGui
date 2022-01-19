@@ -17,6 +17,10 @@ export const useStyles = makeStyles((theme) => (
             [theme.breakpoints.down("sm")]: {
               backgroundColor: theme.palette.background.paper,
             },
+        },
+
+        selectedHideText:{
+            background: theme.palette.primary.main
         }
     })
 ));
