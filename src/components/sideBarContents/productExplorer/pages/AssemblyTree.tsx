@@ -61,10 +61,10 @@ function AssemblyTree(props:any) {
     }
 
     const handleExpand = (toOpen:boolean,nodeId:string) => {
-      dispatch(expandNode({toOpen,nodeId}));
+      dispatch(expandNode({toOpen,nodeId,undoable:true}));
     }
     const handleCheck = (toCheck:boolean, nodeId:string) => {
-      dispatch(setCheckedNodesAsync({toCheck,nodeId}));
+      dispatch(setCheckedNodesAsync({toCheck,nodeId, undoable:true}));
     }
     const handleHighlight = (toHighlight:boolean, nodeId:string) => {
       dispatch(setHightLightedNodesAsync({toHighlight,nodeId}))

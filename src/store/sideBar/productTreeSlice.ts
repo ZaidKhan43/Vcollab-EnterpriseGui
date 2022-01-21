@@ -8,6 +8,7 @@ import {
 } from './shared/Tree/selectors';
 import {setPartVisibility, setHighlightedNodes, fitView, getSearchHints} from "../../backend/viewerAPIProxy";
 import {traverseNode} from "./shared/Tree/helpers"
+import {undoStack} from "../../components/utils/undoStack"
 // Define a type for the slice state
 
 
@@ -100,10 +101,20 @@ export const invertVisibilityAsync = createAsyncThunk(
 
 export const setCheckedNodesAsync = createAsyncThunk(
   'productTree/setCheckedNodesAsync',
-  async (data:{toCheck: boolean, nodeId:string},
+  async (data:{toCheck: boolean, nodeId:string, undoable?:boolean },
          {dispatch, getState}) => {
     const rootState = getState() as RootState;
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
+
+    if(data.undoable) {
+        undoStack.add(
+          {
+            undo: {reducer: setCheckedNodesAsync, payload:{toCheck: !data.toCheck, nodeId: data.nodeId}},
+            redo: {reducer: setCheckedNodesAsync, payload:{toCheck: data.toCheck, nodeId: data.nodeId}},
+          }
+        )
+    }
+
     let leafNodesId:string[] = [];
     traverseNode(data.nodeId,rootState.productTree,(node) => {
        if(node.children.length == 0)
@@ -213,7 +224,17 @@ export const productTreeSlice = createSlice({
     checkNode: checkNodeReducer,
     highlightNode: highlightNodeReducer,
     invertNode: invertNodeReducer,
-    expandNode: expandNodeReducer,
+    expandNode: (state, action:PayloadAction<{toOpen:boolean, nodeId:string, undoable?:boolean}>) => {
+      const {toOpen, nodeId,undoable} = action.payload;
+      if(undoable)
+      undoStack.add(
+        {
+          undo: {reducer: expandNode, payload:{toOpen: !toOpen, nodeId}},
+          redo: {reducer: expandNode, payload:{toOpen,nodeId}}
+        }
+      )
+      expandNodeReducer(state,action);
+    },
     toggleVisibility: toggleVisibilityReducer,
     setCheckedVisibility: setCheckedVisibilityReducer,
     invertCheckedVisibility: invertCheckedVisibilityReducer,
