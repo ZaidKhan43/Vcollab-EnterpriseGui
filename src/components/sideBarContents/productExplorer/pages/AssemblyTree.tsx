@@ -106,11 +106,11 @@ function AssemblyTree(props:any) {
             }
           }
           column1 = {(node) => {
-            return <InvertCell selected={false} node = {treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
+            return <InvertCell node = {treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
             }
           }
           column2 = {(node) => {
-            return <ShowHideCell selected={false} node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
+            return <ShowHideCell node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
           }
 
           }
