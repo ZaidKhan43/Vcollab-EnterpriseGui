@@ -70,11 +70,11 @@ function AssemblyTree(props:any) {
       dispatch(setHightLightedNodesAsync({toHighlight,nodeId}))
     }
     const handleVisibility = (toShow:boolean,node:any) => {
-      dispatch(toggleVisibilityAsync({toShow, nodeId:node.id}));
+      dispatch(toggleVisibilityAsync({toShow, nodeId:node.id, undoable: true}));
     
     }
     const handleInvert = (node:any) => {
-      dispatch(invertNode({nodeId:node.id}));
+      dispatch(invertNode({nodeId:node.id, undoable:true}));
     }
     const getBody = () => {
       return(

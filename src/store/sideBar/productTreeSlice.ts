@@ -46,6 +46,15 @@ export const toggleVisibilityAsync = createAsyncThunk(
   async (data:any,{dispatch, getState}) => {
      let {toShow, nodeId} = data;
      const rootState = getState() as RootState;
+
+     if(data.undoable) {
+        undoStack.add(
+          {
+            undo: {reducer: toggleVisibilityAsync, payload:{toShow: rootState.productTree.data[nodeId].state.visibility, nodeId}},
+            redo: {reducer: toggleVisibilityAsync, payload:{toShow: data.toShow, nodeId: data.nodeId}},
+          }
+        )
+     }
      let leafNodesId:string[] = [];
      traverseNode(nodeId,rootState.productTree,(node) => {
         if(node.children.length === 0)
@@ -66,7 +75,7 @@ export const toggleVisibilityAsync = createAsyncThunk(
 
 export const invertVisibilityAsync = createAsyncThunk(
   'productTree/invertVisibilityAsync',
-  async (data,{dispatch, getState}) => {
+  async (data:{undoable?:boolean},{dispatch, getState}) => {
     const rootState = getState() as RootState;
      let checkedNodes:TreeNode[] = selectCheckedLeafNodes(rootState);
      let visibleNodeIds:string[] = [];
@@ -74,6 +83,12 @@ export const invertVisibilityAsync = createAsyncThunk(
      let invisibleNodeIds:string[] = [];
      let invisibleNodePids:string[] = [];
 
+     if(data.undoable) {
+       undoStack.add({
+         undo: {reducer: invertVisibilityAsync, payload: {}},
+         redo: {reducer: invertVisibilityAsync, payload: {}} 
+       })
+     }
      let pid:string | null = null;
      checkedNodes.forEach((node:TreeNode) => {
         if(node.pid && node.pid !== pid)
@@ -105,12 +120,12 @@ export const setCheckedNodesAsync = createAsyncThunk(
          {dispatch, getState}) => {
     const rootState = getState() as RootState;
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
-
+    const {toCheck, nodeId} = data;
     if(data.undoable) {
         undoStack.add(
           {
-            undo: {reducer: setCheckedNodesAsync, payload:{toCheck: !data.toCheck, nodeId: data.nodeId}},
-            redo: {reducer: setCheckedNodesAsync, payload:{toCheck: data.toCheck, nodeId: data.nodeId}},
+            undo: {reducer: setCheckedNodesAsync, payload:{toCheck: rootState.productTree.data[nodeId].state.checked, nodeId}},
+            redo: {reducer: setCheckedNodesAsync, payload:{toCheck: toCheck, nodeId}},
           }
         )
     }
@@ -179,6 +194,22 @@ export const setCheckedVisibilityAsync = createAsyncThunk(
      const rootState = getState() as RootState;
      let checkedNodes:TreeNode[] = selectCheckedLeafNodes(rootState);
      let checkedNodesId:string[] = checkedNodes.map(e => e.id);
+
+     if(data.undoable) {
+      let visibleCount = 0;
+      checkedNodes.forEach(e => {
+        if(e.state.visibility !== undefined && e.state.visibility === true ){
+          visibleCount+=1;
+        }
+      })
+      undoStack.add(
+        {
+          undo: {reducer: setCheckedVisibilityAsync, payload:{toShow: checkedNodes.length === visibleCount}},
+          redo: {reducer: setCheckedVisibilityAsync, payload:{toShow: data.toShow}},
+        }
+      )
+   }
+    
      const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
      let result = "";
      if(viewerId)
@@ -223,7 +254,17 @@ export const productTreeSlice = createSlice({
     saveTree: saveTreeReducer,
     checkNode: checkNodeReducer,
     highlightNode: highlightNodeReducer,
-    invertNode: invertNodeReducer,
+    invertNode: (state, action:PayloadAction<{ nodeId:string, undoable?:boolean}>) => {
+      const {nodeId,undoable} = action.payload;
+      if(undoable)
+      undoStack.add(
+        {
+          undo: {reducer: invertNode, payload:{nodeId}},
+          redo: {reducer: invertNode, payload:{nodeId}}
+        }
+      )
+      invertNodeReducer(state,action);
+    },
     expandNode: (state, action:PayloadAction<{toOpen:boolean, nodeId:string, undoable?:boolean}>) => {
       const {toOpen, nodeId,undoable} = action.payload;
       if(undoable)
