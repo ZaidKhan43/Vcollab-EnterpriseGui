@@ -1,6 +1,6 @@
 import React,{useRef,useEffect} from 'react'
 import ReactDOM from 'react-dom';
-import { ILabel2D as ILabel3D } from '../../../../store/sideBar/labelSlice/shared/types'
+import { Label3D as ILabel3D } from '../../../../store/sideBar/labelSlice/shared/types'
 import { useAppDispatch, useAppSelector} from '../../../../store/storeHooks'
 import { Layers, selectWindowMgr, setWindowSize } from '../../../../store/windowMgrSlice';
 import Window from 'components/shared/CustomWindow';
@@ -8,6 +8,8 @@ import LabelMsg from './shared/LabelMsg';
 import LabelAnchor from './shared/LabelAnchor';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import Xarrow, {useXarrow, Xwrapper} from 'react-xarrows';
+import * as Sqrl from 'squirrelly'
+
 
 type Label3DProps = {
     label:ILabel3D,
@@ -19,6 +21,13 @@ type Label3DProps = {
     }, string>,
     parentRef: any,
     layerId:Layers
+}
+
+const getSQRLObj = (label:ILabel3D) => {
+    return {
+        nodeId: (options:any) => label.probeData +" "+ options.id,
+        options: {id: label.title}
+    }
 }
 
 function Label3D(props:Label3DProps) {
@@ -96,7 +105,11 @@ function Label3D(props:Label3DProps) {
                 onResizeStop={handleWindowResizeStop}
                 autoPositionOnResize = {false}
                 >
-                    <LabelMsg ref={childRef} msg={label.label}/>
+                    
+                    <LabelMsg ref={childRef} 
+                    msg={Sqrl.render(label.label,getSQRLObj(label),{useWith:true})}
+                    bgColor={label.bgColor}
+                    />
                 </Window>
                 {
                     viewerDivRef.current ?

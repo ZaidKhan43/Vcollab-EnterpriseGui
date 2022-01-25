@@ -30,6 +30,9 @@ export interface ILabel extends TreeNode {
     label: string,
     pos: [number, number],
     labelType: LabelType,
+    bgColor:string,
+    anchor?: [number,number],
+    type?: Label3DType,
 }
 
 export interface Label2D extends ILabel {
@@ -37,20 +40,10 @@ export interface Label2D extends ILabel {
 
 export interface Label3D extends ILabel {
     anchor: [number,number],
-}
-
-export interface LabelMeasurements extends ILabel {
-    anchor: [number,number],
+    probeData: any,
     type: Label3DType,
 }
 
-export interface ILabelGeneral extends TreeNode {
-    label: string,
-    pos: [number, number],
-    labelType: LabelType,
-    anchor?: [number,number],
-    type?: Label3DType,
-}
 
 export type LabelSettings = {
     mode: LabelMode

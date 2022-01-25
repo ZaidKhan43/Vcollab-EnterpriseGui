@@ -1,7 +1,7 @@
 import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import {delete3DLabel as delete3DLabelApi, get3DLabelCanvasPos, probe} from '../../../backend/viewerAPIProxy';
 import type { RootState } from '../../index';
-import {LabelMode, Label2D, LabelSettings, Label2DType, LabelType, ILabelGeneral, Label3DType} from './shared/types';
+import {LabelMode, Label2D, LabelSettings, Label2DType, LabelType, ILabel, Label3DType, Label3D} from './shared/types';
 import { setLabelModeReducer } from './shared/reducers';
 import {ITreeState} from "../shared/Tree/types";
 import {   
@@ -23,10 +23,11 @@ import {
 import nextId from 'react-id-generator';
 import { selectInteractionMode } from 'store/appSlice';
 import { InteractionMode } from 'backend/ViewerManager';
+import { Label2DTemplate, Label3DTemplate } from 'components/sideBarContents/labels/components/shared/Editor/common';
 
 export const windowPrefixId = "Label2D";
 interface labelSettings extends LabelSettings {
-    defaultParameters : ILabelGeneral,
+    defaultParameters : ILabel,
     count2D: number,
     countPoint : number,
     countFace : number,
@@ -39,7 +40,7 @@ interface labelSettings extends LabelSettings {
 
 
 interface InitialState extends ITreeState {
-    data : {[id:string]:ILabelGeneral},
+    data : {[id:string]:ILabel},
     rootIds : string[],
     labelsListSettings : labelSettings,
 }
@@ -65,6 +66,7 @@ const initialState : InitialState = {
                 },
                 attributes: {},
                 label: "Lorem ipsum dolor sit amet",
+                bgColor: "#ff0000"
         },
         mode: LabelMode.VIEW,
         count2D: 0,
@@ -96,20 +98,8 @@ export const init = createAsyncThunk(
           }
     }
 )
-const DOC = {
-    type: 'doc',
-    content: [
-      {
-        type: 'paragraph',
-        content: [
-          {
-            type: 'text',
-            text: `Text `,
-          },
-        ],
-      },
-    ],
-  };
+
+
 
 export const handleLabel2DCreation = createAsyncThunk(
     "LabelListSlice/handleLabel2DCreation",
@@ -121,10 +111,11 @@ export const handleLabel2DCreation = createAsyncThunk(
         //     return;
         
         let e = data.data as PointerEvent;
+        
         if(mode === InteractionMode.LABEL2D) {
             let pos = [e.offsetX,e.offsetY];
             console.log("e",e);
-            dispatch(createLabel({id:nextId('label-2d'),pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(DOC)}));
+            dispatch(createLabel({id:nextId('label-2d'),pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(Label2DTemplate)}));
         }
 
 });
@@ -185,7 +176,7 @@ export const handleProbeLabelCreation = createAsyncThunk(
                 if(array.length >= 1)
                    activeLabel = array[0];
 
-        dispatch(createLabel({id:e.labelId,pid: activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:e.msg, activeLabel: activeLabel}));
+        dispatch(createLabel({id:e.labelId,pid: activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:JSON.stringify(Label3DTemplate),probeData:e.msg, activeLabel: activeLabel}));
 });
 
 export const delete3DLabel = createAsyncThunk(
@@ -241,6 +232,7 @@ export const LabelAllSlice = createSlice({
             newParent.pid = pid;
             newParent.title = name;
             newParent.label = "";
+            newParent.isGroup = true;
             addNodeReducer(state,{payload: newParent, type: 'ITreeNode'});
         },
 
@@ -275,20 +267,28 @@ export const LabelAllSlice = createSlice({
             addNodeReducer(state,{payload: newNote, type: 'ITreeNode'});
         },
 
-        createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string, activeLabel?:string}>) => {
+       createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string, probeData?:any, activeLabel?:string}>) => {
                 
-                const {id,pid,pos,msg} = action.payload;
-                let newNote = {...state.labelsListSettings.defaultParameters};
+                const {id,pid,pos,msg,probeData} = action.payload;
+                let newNote:any = {...state.labelsListSettings.defaultParameters};
                 newNote.id = id
                 newNote.pid = pid
                 newNote.label = msg;
                 newNote.pos = pos;
+                if(probeData)
+                newNote.probeData = probeData;
                 if(newNote.pid === LabelType.LABEL2D){
                     state.labelsListSettings.count2D+= 1;
                     newNote.title = `Label ${state.labelsListSettings.count2D}`;
                     newNote.labelType = LabelType.LABEL2D
                 }
 
+                if(newNote.pid === Label3DType.PROBE){
+                    newNote.anchor = pos;
+                    state.labelsListSettings.countPoint+= 1;
+                    newNote.title = `Point Label ${state.labelsListSettings.countPoint}`;
+                    newNote.labelType = LabelType.LABEL3D;
+                }
 
                 if(newNote.pid === action.payload.activeLabel){
 
@@ -332,7 +332,7 @@ export const LabelAllSlice = createSlice({
             if(id !== "-1") {
                 state.data[id].pos = pos;
                 if(anchor){
-                    state.data[id].anchor = anchor;
+                    (state.data[id] as Label3D).anchor = anchor;
                 }
             }
         },
@@ -341,6 +341,10 @@ export const LabelAllSlice = createSlice({
             if(id !== "-1"){
                 state.data[id].label = value;
             }
+        },
+        editLabelBackground: (state, action: PayloadAction<{id:string, color:string}>) => {
+            const {id,color} = action.payload;
+            state.data[id].bgColor = color;
         },
         deleteLabel: (state, action: PayloadAction<{keys:string[]}>) => {
             let keys = action.payload.keys;
@@ -393,6 +397,7 @@ export const {
     createLabel,
     createInterLabel,
     editLabel,
+    editLabelBackground,
     setlabelMode,
     setLabelPos, 
     createParentLabel,
