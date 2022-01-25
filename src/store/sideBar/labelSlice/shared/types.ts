@@ -30,7 +30,9 @@ export interface ILabel extends TreeNode {
     label: string,
     pos: [number, number],
     labelType: LabelType,
-    bgColor:string
+    bgColor:string,
+    anchor?: [number,number],
+    type?: Label3DType,
 }
 
 export interface Label2D extends ILabel {

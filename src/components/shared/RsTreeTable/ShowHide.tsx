@@ -27,13 +27,14 @@ const VisiblilityIcon = (props:any) => {
 interface ShowHideProps {
   node: ITreeNode
   onToggle: (toShow:boolean,node:ITreeNode) => void
+  selected : boolean
 }
 
 function ShowHide(props:ShowHideProps) {
     const classes = useStyles();
     const node = props.node;
     return (
-        <Grid container alignItems='center' className={classes.hideText} style={{width:'100%',height:'100%'}}>
+        <Grid container alignItems='center' className={props.selected ? classes.selectedHideText:classes.hideText} style={{width:'100%',height:'100%'}}>
             <Grid item>
             <VisiblilityIcon 
                 style={{marginLeft:10}}
