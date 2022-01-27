@@ -24,17 +24,17 @@ function VisibilityOptions(props:VisibilityOptionsProps) {
                 {
                     id: 'Show',
                     icon: <EyeIcon/>,
-                    onClick: () => dispatch(setCheckedVisibilityAsync({toShow:true}))
+                    onClick: () => dispatch(setCheckedVisibilityAsync({toShow:true, undoable:true}))
                 },
                 {
                     id: 'Hide',
                     icon: <EyeSlashIcon/>,
-                    onClick: () => dispatch(setCheckedVisibilityAsync({toShow:false}))
+                    onClick: () => dispatch(setCheckedVisibilityAsync({toShow:false, undoable:true}))
                 },
                 {
                     id: 'Invert',
                     icon: <EyeInvert viewBox = '0 0 19 20'></EyeInvert>,
-                    onClick: () => dispatch(invertVisibilityAsync())
+                    onClick: () => dispatch(invertVisibilityAsync({undoable: true}))
                 }
             ]
         } />

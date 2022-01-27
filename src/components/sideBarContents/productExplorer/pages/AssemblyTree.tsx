@@ -61,20 +61,20 @@ function AssemblyTree(props:any) {
     }
 
     const handleExpand = (toOpen:boolean,nodeId:string) => {
-      dispatch(expandNode({toOpen,nodeId}));
+      dispatch(expandNode({toOpen,nodeId,undoable:true}));
     }
     const handleCheck = (toCheck:boolean, nodeId:string) => {
-      dispatch(setCheckedNodesAsync({toCheck,nodeId}));
+      dispatch(setCheckedNodesAsync({toCheck,nodeId, undoable:true}));
     }
     const handleHighlight = (toHighlight:boolean, nodeId:string) => {
       dispatch(setHightLightedNodesAsync({toHighlight,nodeId}))
     }
     const handleVisibility = (toShow:boolean,node:any) => {
-      dispatch(toggleVisibilityAsync({toShow, nodeId:node.id}));
+      dispatch(toggleVisibilityAsync({toShow, nodeId:node.id, undoable: true}));
     
     }
     const handleInvert = (node:any) => {
-      dispatch(invertNode({nodeId:node.id}));
+      dispatch(invertNode({nodeId:node.id, undoable:true}));
     }
     const getBody = () => {
       return(
@@ -106,11 +106,11 @@ function AssemblyTree(props:any) {
             }
           }
           column1 = {(node) => {
-            return <InvertCell selected={false} node = {treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
+            return <InvertCell node = {treeDataRedux[node.id]} onClick={handleInvert}></InvertCell>
             }
           }
           column2 = {(node) => {
-            return <ShowHideCell selected={false} node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
+            return <ShowHideCell node = {treeDataRedux[node.id]} onToggle={handleVisibility}></ShowHideCell>
           }
 
           }
