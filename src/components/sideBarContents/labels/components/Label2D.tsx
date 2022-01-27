@@ -43,7 +43,7 @@ function Label2D(props:Label2DProps) {
     useEffect(() => {
         if(childRef.current) {
             const div = childRef.current as HTMLDivElement;
-            dispatch(setWindowSize({uid:props.windowPrefixId+props.label.id, size:[div.clientWidth,div.clientHeight]}));
+            dispatch(setWindowSize({uid:props.windowPrefixId+props.label.id, size:[div.clientWidth+2,div.clientHeight+2]}));
         }
     },[childRef])
     

@@ -71,7 +71,7 @@ function Label3D(props:Label3DProps) {
     useEffect(() => {
         if(childRef.current) {
             const div = childRef.current as HTMLDivElement;
-            dispatch(setWindowSize({uid:props.windowPrefixId+props.label.id, size:[div.clientWidth,div.clientHeight]}));
+            dispatch(setWindowSize({uid:props.windowPrefixId+props.label.id, size:[div.clientWidth+2,div.clientHeight+2]}));
         }
     },[childRef])
     useEffect(() => {

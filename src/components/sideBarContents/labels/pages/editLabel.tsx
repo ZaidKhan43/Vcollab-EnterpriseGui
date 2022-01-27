@@ -16,7 +16,7 @@ import {editLabel, selectLabelData, selectedLeafNodes, selectCheckedLeafNodes, e
 import MuiButton from '@material-ui/core/Button';
 import {useRef, useState} from 'react';
 import { ILabel, LabelType } from 'store/sideBar/labelSlice/shared/types';
-import Editor from '../components/shared/Editor/RMEditorSidebar'
+import Editor from '../components/shared/Editor/SlateEditorSidebar'
 import { Typography } from '@material-ui/core';
 import { batch } from 'react-redux';
 export default function EditLabels2D(){
