@@ -148,7 +148,7 @@ export default function List(){
 
   
     const onClickAddItem = () => {
-    dispatch(addPlane());
+    dispatch(addPlane({undoable: true}));
   }
 
 
@@ -189,7 +189,7 @@ export default function List(){
         // setOpenMasterDelete(true);
         dispatch(editEnabled({id:item.id,isEnabled:false}));
         // SetDeleted(item.name);
-        dispatch(removePlane({id:item.id}))
+        dispatch(removePlane({id:item.id, undoable: true}))
         // dispatch(saveSelectedPlane({clicked: item}))
       })
   }

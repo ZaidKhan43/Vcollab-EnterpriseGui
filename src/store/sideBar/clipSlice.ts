@@ -4,6 +4,8 @@ import {getSectionGUIData, setSectionPlaneGUIData, setSectionPlaneEquation, setA
 import {getNormalizedEqn, getPerpendicular, getWorldTransformFromPlaneEqn, planeEqnFrom3pts} from "../../components/utils/Math"
 import type { RootState } from '../index';
 
+import {undoStack} from "../../components/utils/undoStack"
+
 type masterPlane = {
   id: number,
   name: string,
@@ -278,7 +280,7 @@ const generateEqn = (planes:plane[],bbox:any):[number,number,number,number] => {
 
 export const addPlane = createAsyncThunk(
   "clipSlice/addSectionPlane",
-  async (data,{dispatch,getState}) => {
+  async (data:{undoable: boolean},{dispatch,getState}) => {
     const rootState = getState() as RootState;
     const state = rootState.clipPlane;
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
@@ -290,6 +292,7 @@ export const addPlane = createAsyncThunk(
     let newTransform = getWorldTransformFromPlaneEqn(eqn,center);
 
     dispatch(clipSlice.actions.incrementId())
+
     let id = (getState() as RootState).clipPlane.settings.idGenerator;
     let name = generateName(id , eqn);
     let randColorIdx = id % state.colors.length;
@@ -301,6 +304,15 @@ export const addPlane = createAsyncThunk(
     dispatch(createPlane({plane}));
     dispatch(editEnabled({id,isEnabled:true}));
     dispatch(setSectionPlaneData({id}))
+
+    if(data.undoable) {
+      undoStack.add(
+        {
+          undo: {reducer: removePlane, payload:{id: id, redoIncrement : true}},
+          redo: {reducer: addPlane, payload:{id : id,}},
+        }
+      )
+    }
   }
 )
 export const duplicatePlane = createAsyncThunk(
@@ -319,16 +331,50 @@ export const duplicatePlane = createAsyncThunk(
 )
 export const removePlane = createAsyncThunk(
   "clipSlice/addSectionPlane",
-  async (data:{id:number},{dispatch,getState}) => {
+  async (data:{id:number, redoIncrement?: boolean, undoable?: boolean},{dispatch,getState}) => {
     const rootState = getState() as RootState;
+
+    const deletedPlane = rootState.clipPlane.planes.find(item => item.id === data.id);
+
+    console.log("deletedPlane" , deletedPlane)
+
     //const state = rootState.clipPlane;
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
     dispatch(editEnabled({id:data.id,isEnabled:false}));
     dispatch(setSectionPlaneData({id:data.id}))
     deleteSectionPlane(data.id,viewerId);
     dispatch(clipSlice.actions.deletePlane(data.id));
+
+    if(data.redoIncrement === true)
+      dispatch(clipSlice.actions.decrementId())
+
+    if(data.undoable === true){
+      undoStack.add(
+        {
+          undo: {reducer: undoDelete, payload:{plane: deletedPlane}},
+          redo: {reducer: removePlane, payload:{id : data.id,}},
+        }
+      )
+    }
   }
 )
+
+const undoDelete = createAsyncThunk(
+  "clipSlice/addSectionPlane",
+  async (data:{plane : plane},{dispatch,getState}) => {
+    const rootState = getState() as RootState;
+
+    const {plane} = data;
+
+    const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
+
+    addSectionPlane(plane.id,new Float32Array(plane.worldTransform),plane.color,viewerId);
+    dispatch(createPlane({plane}));
+    dispatch(setSectionPlaneData({id : plane.id}))
+
+  }
+)
+
 export const editEquation = createAsyncThunk(
   "clipSlice/editEquation",
   async (data:{id:number,eqn:EqnGUI},{dispatch,getState}) => {
@@ -409,7 +455,15 @@ export const clipSlice = createSlice({
       state.settings.idGenerator = state.settings.idGenerator + 1 ;
     },
 
+    decrementId : (state) => {
+      console.log("sasasdasdsadasd")
+      state.settings.idGenerator = state.settings.idGenerator - 1 ;
+    },
+
     createPlane: (state, action:PayloadAction<{plane:plane}>) => {
+
+      console.log("dasd", action.payload.plane)
+
       if (state.planes.length < state.settings.maxAllowedPlanes){
         state.planes= [...state.planes,action.payload.plane];      
       }
