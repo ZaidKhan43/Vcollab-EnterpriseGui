@@ -78,6 +78,8 @@ import MuiMoreVertIcon from '@material-ui/icons/MoreVert';
 import MuiToolTip from '@material-ui/core/Tooltip';
 import Popper from '../../../shared/popper'
 
+import {undoStack} from "../../../utils/undoStack";
+
 export default function List(){
 
   const dispatch = useAppDispatch();  
@@ -158,6 +160,17 @@ export default function List(){
     dispatch(editEnabled({id:item.id,isEnabled:toCheck}));
     dispatch(setSectionPlaneData({id:item.id}));
 
+    const newValue = !item.enabled;
+    const oldValue = item.enabled
+    if(true){
+      undoStack.add(
+        {
+          undo: () => onHandleCheck(oldValue, item),
+          redo: () => onHandleCheck(newValue, item),
+        }
+      )
+    }
+
   }
 
 
@@ -190,7 +203,7 @@ export default function List(){
         // dispatch(editEnabled({id:item.id,isEnabled:false}));
         // SetDeleted(item.name);
         dispatch(removePlane({id:item.id, undoable: true}))
-        // dispatch(saveSelectedPlane({clicked: item}))
+        dispatch(saveSelectedPlane({clicked: item}))
       })
   }
 
@@ -219,13 +232,12 @@ export default function List(){
   const onHandlePlateKey = (e : any, item : any) => {
     if (e.key === 'Enter') {
       setEditPlane(-1)
-      if(editName === "")
+      if(editName === "" || editName === item.name)
         setEditPlane(-1)
       else{
-      const editPlane = {id : item.id, editName : editName}
-      dispatch(editPlaneName(editPlane))
+        const editPlane = {id : item.id, editName : editName, undoable : true}
+        dispatch(editPlaneName(editPlane))
       }
-   
     }
     if (e.keyCode === 27) {
       e.preventDefault();

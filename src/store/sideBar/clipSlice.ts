@@ -677,13 +677,25 @@ export const clipSlice = createSlice({
       }
     },
 
-    editPlaneName: (state, action: PayloadAction<{id:number, editName:string}>) => {
+    editPlaneName: (state, action: PayloadAction<{id:number, editName:string, undoable : boolean}>) => {
       const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
+      let oldName ="";
       if ( index >= 0) {
         let changeItem : plane = state.planes[index];
+        oldName = changeItem.name;
         changeItem.name = action.payload.editName;
         state.planes[index] = changeItem;
       }
+
+      if(action.payload.undoable){
+        undoStack.add(
+          {
+            undo: {reducer: editPlaneName, payload:{id: action.payload.id , editName: oldName}},
+            redo: {reducer: editPlaneName, payload:{id : action.payload.id, editName : action.payload.editName}},
+          }
+        )
+      }
+      
     },
 
     saveSelectedPlane: (state, action: PayloadAction<{clicked: plane}>) => {
