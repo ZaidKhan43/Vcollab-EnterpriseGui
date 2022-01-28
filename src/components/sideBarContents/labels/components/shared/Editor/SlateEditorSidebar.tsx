@@ -13,7 +13,7 @@ import { HistoryEditor } from 'slate-history';
 import MuiButton from '@material-ui/core/Button';
 
 import { useAppSelector, useAppDispatch} from '../../../../../../store/storeHooks';
-import {selectLabelData,editLabel} from '../../../../../../store/sideBar/labelSlice/labelAllSlice';
+import {selectLabelData,editLabel,selectCheckedLeafNodes} from '../../../../../../store/sideBar/labelSlice/labelAllSlice';
 import {ILabel,LabelType} from '../../../../../../store/sideBar/labelSlice/shared/types';
 import {getInitialContent} from './common';
 
@@ -95,7 +95,7 @@ let {attributes, children ,leaf} = props;
 export default function SidebarEditor(props:{selectedLabels:ILabel[]}) {
 
 
-  const label2D = useAppSelector(selectLabelData);
+  const selectedLabels = useAppSelector(selectCheckedLeafNodes);
   const dispatch = useAppDispatch();
   const [value, setValue] = useState<Descendant[]>(getInitialContent(props.selectedLabels))
   const [editor] = useState(() => withReact(createEditor()))
@@ -107,11 +107,10 @@ export default function SidebarEditor(props:{selectedLabels:ILabel[]}) {
   }, [])  
 
   const onHandleSave = () => {
-    Object.values(label2D).forEach(e => {
-      if(e.pid !== "-1")
-      {
+    selectedLabels.forEach(e => {
+
         dispatch(editLabel({id: e.id, value: JSON.stringify(value)}))
-      }
+      
   })
 
   }
