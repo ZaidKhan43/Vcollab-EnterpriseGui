@@ -173,7 +173,7 @@ export default function List(){
     {
       // dispatch(pastePlane(item))
       if(copy)
-      dispatch(duplicatePlane({pastedPlane: copy}));
+      dispatch(duplicatePlane({pastedPlane: copy, undoable : true}));
     }
   }
 

@@ -188,8 +188,8 @@ const generatePlane = (id:number, name:string, transform:number[], eqn:number[],
   
   
   const plane:plane = {  id,name, 
-    enabled: true, 
-    showClip: true, 
+    enabled: false, 
+    showClip: false, 
     showEdge: false,
     showCap: false,
     clipCordX:eqn[0],
@@ -317,7 +317,7 @@ export const addPlane = createAsyncThunk(
 )
 export const duplicatePlane = createAsyncThunk(
   "clipSlice/duplicatePlane",
-  async (data:{pastedPlane:plane},{dispatch,getState}) => {
+  async (data:{pastedPlane:plane, undoable?: boolean},{dispatch,getState}) => {
     dispatch(pastePlane(data.pastedPlane))
     const rootState = getState() as RootState;
     const state = rootState.clipPlane;
@@ -327,6 +327,15 @@ export const duplicatePlane = createAsyncThunk(
     const curPlane = rootState.clipPlane.planes[index];
     addSectionPlane(cloneId,new Float32Array(curPlane.worldTransform),curPlane.color,viewerId);
     dispatch(setSectionPlaneData({id:cloneId}))
+
+    if(data.undoable) {
+      undoStack.add(
+        {
+          undo: {reducer: removePlane, payload:{id: cloneId, redoIncrement : true}},
+          redo: {reducer: duplicatePlane, payload:{pastedPlane : data.pastedPlane}},
+        }
+      )
+    }
   }
 )
 export const removePlane = createAsyncThunk(
