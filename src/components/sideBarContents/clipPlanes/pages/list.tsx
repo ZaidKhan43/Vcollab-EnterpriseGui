@@ -187,7 +187,7 @@ export default function List(){
       {
         setOpenDelete(false);
         // setOpenMasterDelete(true);
-        dispatch(editEnabled({id:item.id,isEnabled:false}));
+        // dispatch(editEnabled({id:item.id,isEnabled:false}));
         // SetDeleted(item.name);
         dispatch(removePlane({id:item.id, undoable: true}))
         // dispatch(saveSelectedPlane({clicked: item}))

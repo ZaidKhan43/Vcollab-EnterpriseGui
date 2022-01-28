@@ -188,8 +188,8 @@ const generatePlane = (id:number, name:string, transform:number[], eqn:number[],
   
   
   const plane:plane = {  id,name, 
-    enabled: false, 
-    showClip: false, 
+    enabled: true, 
+    showClip: true, 
     showEdge: false,
     showCap: false,
     clipCordX:eqn[0],
@@ -364,13 +364,19 @@ const undoDelete = createAsyncThunk(
   async (data:{plane : plane},{dispatch,getState}) => {
     const rootState = getState() as RootState;
 
-    const {plane} = data;
+    let {plane} = data;
 
     const viewerId = rootState.app.viewers[rootState.app.activeViewer || ""];
+
+    plane = {...plane, selected : false}
+
+    console.log("planes undoDelete", plane)
+
 
     addSectionPlane(plane.id,new Float32Array(plane.worldTransform),plane.color,viewerId);
     dispatch(createPlane({plane}));
     dispatch(setSectionPlaneData({id : plane.id}))
+
 
   }
 )
@@ -478,9 +484,9 @@ export const clipSlice = createSlice({
         //   changeItem.slicePlane.enabled = false;
         //   changeItem.slicePlane.showClip = false;
 
-        if(changeItem.enabled === true && changeItem.showClip === true)
+        if(action.payload.isEnabled === false && changeItem.showClip === true)
           changeItem.showClip = false
-        if(changeItem.enabled === false && changeItem.showClip === false)
+        if(action.payload.isEnabled === true && changeItem.showClip === false)
           changeItem.showClip = true 
         
         changeItem.enabled = action.payload.isEnabled;
