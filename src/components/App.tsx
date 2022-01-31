@@ -7,13 +7,15 @@ import styles from './App.style';
 import FileLoadingOverlay from './layout/fileLoadingOverlay';
 import Sidebar from './layout/sideBar';
 import AppBar from './layout/appBar';
+import LeftBar from './layout/leftBar';
 import FullscreenIcon from './layout/fullscreenIcon';
 import { useAppSelector, useAppDispatch } from '../store/storeHooks';
 import {selectAppBarVisibility,selectFullscreenStatus,selectSidebarVisibility,
         setAppBarVisibility, setFullscreenState ,selectModelLoadedState, setPopupMenuActiveContent } from '../store/appSlice';
-import { appBarMinHeight, popupMenuContentTypes } from '../config';
+import { appBarMinHeight, leftbarWidth, popupMenuContentTypes } from '../config';
 import LayerStack from "./layout/LayerStack";
 import { fetchCameraMatrix, fetchCameraStdViews } from '../store/sideBar/sceneSlice';
+import Grid from '@material-ui/core/Grid'
 
 export const ViewerContext = createContext<React.MutableRefObject<HTMLDivElement | null> | null>(null);
 
@@ -62,6 +64,11 @@ function App() {
     enabled={ isFullscreenOn }
     onChange={(isFullscreenEnabled: any) => handleFullscreen(isFullscreenEnabled)}
     >
+      <Grid container spacing={0}>
+      <Grid item>
+        <LeftBar/>
+      </Grid>
+      <Grid item wrap='nowrap' style={{width:`calc(100% - ${leftbarWidth}px)`}} >
       <div className={classes.root} ref = { targetRef }> 
       
       {isModelLoaded === false ? (
@@ -71,7 +78,7 @@ function App() {
         {( !isAppBarVisible ? 
         <FullscreenIcon />
         : null ) }
-
+      
         { ( isAppBarVisible ?   
         <><AppBar />
         <ViewerContext.Provider value={viewerContainerRef}>
@@ -85,6 +92,8 @@ function App() {
           </div>     
         </main>
       </div>
+      </Grid>
+      </Grid>
     </FullScreen>
 
   );

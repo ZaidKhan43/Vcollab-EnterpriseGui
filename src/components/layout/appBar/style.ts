@@ -1,10 +1,10 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { topbarHeight, drawerWidth } from '../../../config';
+import { topbarHeight, drawerWidth, leftbarWidth } from '../../../config';
 
 export default makeStyles((theme) => ({
     appBar : {
         boxShadow: 'none',
-        width: '100%',
+        width: `calc(100% - ${leftbarWidth}px)`,
         marginLeft: 0,
         transition: theme.transitions.create(['margin', 'width'], {
             easing: theme.transitions.easing.easeIn,
@@ -14,7 +14,7 @@ export default makeStyles((theme) => ({
     },
     appBarwithSideBar : {
         [theme.breakpoints.up('md')]: {
-          width: `calc(100% - ${drawerWidth}px)`,
+          width: `calc(100% - ${drawerWidth + leftbarWidth}px)`,
           //marginLeft: drawerWidth,
         },
         transition: theme.transitions.create(['margin', 'width'], {

@@ -9,6 +9,7 @@ import Transparent from "../components/icons/transparent";
 export const appBarMinHeight = 300;
 export const drawerWidth = 300;
 export const topbarHeight = 48;
+export const leftbarWidth = 48;
 
 export const sideBarHeaderHeight = topbarHeight;
 export const EPSILON = 0.0001;

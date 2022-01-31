@@ -103,6 +103,7 @@ export default function Sidebar(){
         open={ isSidebarVisible }
         classes={{
           paper: classes.drawerPaper,
+          paperAnchorLeft: classes.anchorLeft
         }}
         >  
          {renderContent()}

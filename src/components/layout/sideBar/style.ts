@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { drawerWidth } from '../../../config';
+import { drawerWidth, leftbarWidth } from '../../../config';
 
 export default makeStyles((theme) => ({
   drawer: {
@@ -17,5 +17,9 @@ export default makeStyles((theme) => ({
     },
     overflowX: "hidden",
     overflowY: "hidden",
+  },
+  anchorLeft: {
+    left: leftbarWidth,
+    right: 'auto'
   }
 }));
