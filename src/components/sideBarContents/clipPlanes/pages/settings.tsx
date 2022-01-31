@@ -37,7 +37,7 @@ import MuiToggleButton from '@material-ui/lab/ToggleButton';
 import {goBack, push} from 'connected-react-router/immutable';
 
 // import ClipPlane from "../clipPlane"
-import {plane,SelectionMode,selectActivePlane, setSectionPlaneData, addPlane, editEnabled, setActive, editShowClip, editEdgeClip, editShowCap, editPlaneName, removePlane, duplicatePlane, saveSelectedPlane , editEquation , setChildPlane , setMasterPlane, setSelectionMode, selectedPlane,} from "../../../../store/sideBar/clipSlice";
+import {SelectionMode,selectActivePlane, setSectionPlaneData, editEnabled, setActive, editShowClip, editEdgeClip, editShowCap, editEquation , setChildPlane , setMasterPlane, setSelectionMode, selectedPlane,} from "../../../../store/sideBar/clipSlice";
 
 //Plane Equation
 // import {selectActiveViewerID} from "../../../../store/appSlice";
@@ -61,13 +61,15 @@ import MuiMenuList from '@material-ui/core/MenuList';
 import MuiListItemIcon from '@material-ui/core/ListItemIcon';
 import MuiListItemText from '@material-ui/core/ListItemText';
 
+import {undoStack} from "../../../utils/undoStack";
+
 export default function ClipPlanes(){
 
   const dispatch = useAppDispatch();  
   const classes = styles();
   const planes = useAppSelector((state) => state.clipPlane.planes);
   const enabledPlanes = planes.filter(item => item.enabled === true)
-  const limit = useAppSelector((state) => state.clipPlane.settings.maxAllowedPlanes);
+  // const limit = useAppSelector((state) => state.clipPlane.settings.maxAllowedPlanes);
   const activePlaneId = useAppSelector(selectActivePlane);
   const clickedPlanes = useAppSelector(selectedPlane);
   // const clickedValues = useAppSelector((state) => state.clipPlane.planes.filter(item => item.selected === true && item.enabled === true));
@@ -98,7 +100,7 @@ export default function ClipPlanes(){
 
 // plane Equation
   
-  const [edit, setEdit] = useState<boolean>(false);
+  // const [edit, setEdit] = useState<boolean>(false);
 
   const [editMode, setEditMode] = useState(false)
 
@@ -107,45 +109,85 @@ export default function ClipPlanes(){
   const onClickBackIcon = () =>{
     dispatch(goBack());
   }
+
+  const onHandleClipUndo = (newValues :{id:number, value:boolean, functionName:any}[]) => {
+
+    console.log(newValues)
+      newValues.forEach((item :any) => {
+        switch (item.functionName){ 
+          case "showClip":
+            dispatch(editShowClip({id:item.id,value:item.value}));
+          break;
+          case "showCap":
+            dispatch(editShowCap({id:item.id,value:item.value}));
+          break;
+          case "showEdge":
+            dispatch(editEdgeClip({id:item.id,value:item.value}));
+          break;
+        }
+        dispatch(setSectionPlaneData({id:item.id})); 
+      });
+    
+  }
   
-  const onHandleClip: ( functionName: any , indeterminate : boolean , boolean : boolean) => any = (functionName, indeterminate, boolean) => {
-  
+  const onHandleClip = (functionName: any , indeterminate : boolean , boolean : boolean, undoable?: boolean) => {
+
+    let currentValues : {id: number, value : boolean , functionName : any}[] = [];
+
     const changeBoolean = (index : any) => {
       switch (functionName){ 
         case "showClip":
-          if(indeterminate)          
+          if(indeterminate){          
             dispatch(editShowClip({id:planes[index].id,value:false}));
+            currentValues = [...currentValues, {id: planes[index].id, value: planes[index].showClip, functionName: "showClip"}]
+          }
           else{
-            if(boolean)
+            if(boolean){
               dispatch(editShowClip({id:planes[index].id,value:false}));
-            else
+              currentValues = [...currentValues, {id: planes[index].id, value: planes[index].showClip, functionName: "showClip"}]
+            }
+            else{
             dispatch(editShowClip({id:planes[index].id,value:true}));
+            currentValues = [...currentValues, {id: planes[index].id, value: planes[index].showClip, functionName: "showClip"}]
+            }
           }  
           dispatch(setSectionPlaneData({id:planes[index].id}));         
       break;
 
       case "showEdge":
-        if(indeterminate)          
+        if(indeterminate){          
+          dispatch(editEdgeClip({id:planes[index].id,value:false}));
+          currentValues = [...currentValues, {id: planes[index].id, value: planes[index].showEdge, functionName: "showEdge"}]
+        }
+        else{
+          if(boolean){
             dispatch(editEdgeClip({id:planes[index].id,value:false}));
+            currentValues = [...currentValues, {id: planes[index].id, value: planes[index].showEdge, functionName: "showEdge"}]
+          }
           else{
-            if(boolean)
-              dispatch(editEdgeClip({id:planes[index].id,value:false}));
-            else
             dispatch(editEdgeClip({id:planes[index].id,value:true}));
+            currentValues = [...currentValues, {id: planes[index].id, value: planes[index].showEdge, functionName: "showEdge"}]
+          }
           }  
           dispatch(setSectionPlaneData({id:planes[index].id})); 
       break;
       
       case "showCap":
-        if(indeterminate)          
+        if(indeterminate){   
+          dispatch(editShowCap({id:planes[index].id,value:false}));
+          currentValues = [...currentValues, {id: planes[index].id, value: planes[index].showCap, functionName: "showCap"}]
+        }
+        else{
+          if(boolean){
             dispatch(editShowCap({id:planes[index].id,value:false}));
+            currentValues = [...currentValues, {id: planes[index].id, value: planes[index].showCap, functionName: "showCap"}]
+          }
           else{
-            if(boolean)
-              dispatch(editShowCap({id:planes[index].id,value:false}));
-            else
             dispatch(editShowCap({id:planes[index].id,value:true}));
-          }  
-          dispatch(setSectionPlaneData({id:planes[index].id})); 
+            currentValues = [...currentValues, {id: planes[index].id, value: planes[index].showCap, functionName: "showCap"}]
+          }
+        }  
+        dispatch(setSectionPlaneData({id:planes[index].id})); 
       break;
     } 
   }
@@ -166,6 +208,14 @@ export default function ClipPlanes(){
       })
     }
 
+    if(undoable) {
+      undoStack.add(
+        {
+          undo: () => onHandleClipUndo(currentValues),
+          redo: () => onHandleClip(functionName, indeterminate, boolean),
+        }
+      )
+    }
 
   }
 
@@ -233,17 +283,6 @@ export default function ClipPlanes(){
     dispatch(setMasterPlane({masterId : newMaster.id , masterName: newMaster.name, childId : planes[indexOfActive].id}));
   }
   //Equation
-
-
-
-  const onHandleEdit = () => {
-    setEdit(!edit);  
-  }
-  
-  const onHandleSave = () => {
-    setEdit(!edit);
-    // setClickedVal(null);
-  }
  
   const onHandleTransform = () => {
     dispatch(push(Routes.CLIPPLANES_TRANSFORMATION));
@@ -268,33 +307,56 @@ export default function ClipPlanes(){
       dispatch(setSelectionMode(data))
   }
 
+  const onHandleEnabledUndo = (newEditEnabled:{id:number, isEnabled: boolean}[]) => {
+
+    console.log(newEditEnabled)
+      newEditEnabled.forEach((item :any) => {
+        dispatch(editEnabled({id:item.id,isEnabled: item.isEnabled}));
+        dispatch(setSectionPlaneData({id:item.id})); 
+      });
+  }
+
    
-  const onHandleEnabled = (indeterminate: boolean , boolean: boolean) => {
+  const onHandleEnabled = (indeterminate: boolean , boolean: boolean, undoable?: boolean) => {
     
     setEditMode(false)
     dispatch(setSelectionMode({activeId : -1 , selectionMode : 0}))
 
+    let currentEnabled : {id:number, isEnabled: boolean}[] = [];
+
     if( activeId >= 0){
-      if(indeterminate)          
-          dispatch(editEnabled({id:planes[indexOfActive].id,isEnabled:false}));
+      if(indeterminate){     
+        dispatch(editEnabled({id:planes[indexOfActive].id,isEnabled:false}));
+        currentEnabled = [...currentEnabled, {id:planes[indexOfActive].id,isEnabled:planes[indexOfActive].enabled}]
+      }
         else{
-          if(boolean)
+          if(boolean){
             dispatch(editEnabled({id:planes[indexOfActive].id,isEnabled:false}));
-          else
-          dispatch(editEnabled({id:planes[indexOfActive].id,isEnabled:true}));
+            currentEnabled = [...currentEnabled, {id:planes[indexOfActive].id,isEnabled:planes[indexOfActive].enabled}]
+          }
+          else{
+            dispatch(editEnabled({id:planes[indexOfActive].id,isEnabled:true}));
+            currentEnabled = [...currentEnabled, {id:planes[indexOfActive].id,isEnabled:planes[indexOfActive].enabled}]
+          }
         }  
         dispatch(setSectionPlaneData({id:planes[indexOfActive].id}));         
     } 
 
     if ( activeId === -1 ){
       planes.forEach((item :any) => {
-        if(indeterminate)          
-        dispatch(editEnabled({id:item.id,isEnabled:false}));
+        if(indeterminate){          
+          dispatch(editEnabled({id:item.id,isEnabled:false}));
+          currentEnabled = [...currentEnabled, {id:item.id,isEnabled:item.enabled}]
+        }
         else{
-          if(boolean)
+          if(boolean){
             dispatch(editEnabled({id:item.id,isEnabled:false}));
-          else
-          dispatch(editEnabled({id:item.id,isEnabled:true}));
+            currentEnabled = [...currentEnabled, {id:item.id,isEnabled:item.enabled}]
+          }
+          else{
+            dispatch(editEnabled({id:item.id,isEnabled:true}));
+            currentEnabled = [...currentEnabled, {id:item.id,isEnabled:item.enabled}]
+          }
         }  
         dispatch(setSectionPlaneData({id:item.id}));  
       })
@@ -302,16 +364,31 @@ export default function ClipPlanes(){
 
     if ( activeId === -2 ){
       clickedPlanes.forEach((item :any) => {
-        if(indeterminate)          
-        dispatch(editEnabled({id:item.id,isEnabled:false}));
+        if(indeterminate){          
+          dispatch(editEnabled({id:item.id,isEnabled:false}));
+          currentEnabled = [...currentEnabled, {id:item.id,isEnabled:item.enabled}]
+        }
         else{
-          if(boolean)
+          if(boolean){
             dispatch(editEnabled({id:item.id,isEnabled:false}));
-          else
-          dispatch(editEnabled({id:item.id,isEnabled:true}));
+            currentEnabled = [...currentEnabled, {id:item.id,isEnabled:item.enabled}]
+          }
+          else{
+            dispatch(editEnabled({id:item.id,isEnabled:true}));
+            currentEnabled = [...currentEnabled, {id:item.id,isEnabled:item.enabled}]
+          }
         }  
         dispatch(setSectionPlaneData({id:item.id}));  
       })
+    }
+
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => onHandleEnabledUndo(currentEnabled),
+          redo: () => onHandleEnabled(indeterminate, boolean),
+        }
+      )
     }
   }
 
@@ -356,12 +433,12 @@ export default function ClipPlanes(){
     ) 
   }
 
-  const Test = function(){
-    useEffect(() => {
-      console.log("mounted")
-    },[]);
-    return(<div>hello</div>)
-  }
+  // const Test = function(){
+  //   useEffect(() => {
+  //     console.log("mounted")
+  //   },[]);
+  //   return(<div>hello</div>)
+  // }
 
   const getAction = () => {
     return (
@@ -390,7 +467,7 @@ export default function ClipPlanes(){
     
   const getBody = () => {
 
-    let enableCount = 0;
+    // let enableCount = 0;
     let displayShowClip = false;
     let displayShowEdge = false;
     let displayShowCap = false;
@@ -514,7 +591,7 @@ export default function ClipPlanes(){
         <div className={classes.settingPageContainer}>
           
           <div className={classes.settingItemContainer}>
-            <MuiMenuItem style={{marginTop:"-10px"}} onClick={() => onHandleEnabled(indeterminateEnablePlane,enablePlane)} >
+            <MuiMenuItem style={{marginTop:"-10px"}} onClick={() => onHandleEnabled(indeterminateEnablePlane,enablePlane, true)} >
               <MuiListItemIcon>
                 <MuiCheckbox color="default" indeterminate={indeterminateEnablePlane} checked ={enablePlane} />
               </MuiListItemIcon>
@@ -601,7 +678,7 @@ export default function ClipPlanes(){
                   
           <div className={classes.settingItemContainer}>          
             <MuiMenuList>
-              <MuiMenuItem onClick={() =>onHandleClip("showClip",indeterminateShowClip,displayShowClip)} >
+              <MuiMenuItem onClick={() =>onHandleClip("showClip",indeterminateShowClip,displayShowClip,true )} >
                 <MuiListItemIcon>
                   <MuiCheckbox color="default" indeterminate={indeterminateShowClip} checked ={displayShowClip} />
                 </MuiListItemIcon>
@@ -609,7 +686,7 @@ export default function ClipPlanes(){
                   Show Clip Plane
                 </MuiListItemText>
               </MuiMenuItem>
-              <MuiMenuItem onClick={() =>onHandleClip("showEdge",indeterminateShowEdge,displayShowEdge)} >
+              <MuiMenuItem onClick={() =>onHandleClip("showEdge",indeterminateShowEdge,displayShowEdge,true)} >
                 <MuiListItemIcon>
                   <MuiCheckbox color="default" indeterminate={indeterminateShowEdge} checked={displayShowEdge}/>
                 </MuiListItemIcon>
@@ -617,7 +694,7 @@ export default function ClipPlanes(){
                     Show Edge
                 </MuiListItemText>
               </MuiMenuItem>
-              <MuiMenuItem onClick={() =>onHandleClip("showCap",indeterminateShowCap,displayShowCap)} >
+              <MuiMenuItem onClick={() =>onHandleClip("showCap",indeterminateShowCap,displayShowCap,true)} >
                 <MuiListItemIcon>
                   <MuiCheckbox color="default" indeterminate={indeterminateShowCap} checked={displayShowCap} />
                 </MuiListItemIcon>

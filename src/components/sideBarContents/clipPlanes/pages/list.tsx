@@ -100,13 +100,13 @@ export default function List(){
   }
 
 
-  const onHandleCheck = (toCheck:boolean, item: plane) => {
+  const onHandleCheck = (toCheck:boolean, item: plane, undoable?: boolean) => {
     dispatch(editEnabled({id:item.id,isEnabled:toCheck}));
     dispatch(setSectionPlaneData({id:item.id}));
 
     const newValue = !item.enabled;
     const oldValue = item.enabled
-    if(true){
+    if(undoable){
       undoStack.add(
         {
           undo: () => onHandleCheck(oldValue, item),
@@ -214,7 +214,7 @@ export default function List(){
                           <MuiListItemIcon>
                               <Toggle
                     checked={item.enabled}
-                    onChange={() => onHandleCheck(!item.enabled,item)}/>
+                    onChange={() => onHandleCheck(!item.enabled,item, true)}/>
                           </MuiListItemIcon>
                           </MuiMenuItem>
                       : 
