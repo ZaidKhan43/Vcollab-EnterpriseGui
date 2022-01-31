@@ -276,11 +276,26 @@ export default function ClipPlanes(){
     }
   }
 
-  const onHandleSlicePlane = (masterId : any , masterPlaneList: any) => {
+  const onHandleSlicePlane = (masterId : any , masterPlaneList: any, undoable?: boolean) => {
     const newMaster :any = masterPlaneList.find((item : any) => item.id === masterId)
     console.log("hell0", newMaster)
+
+
+    const childOldMaster = planes[indexOfActive].masterPlane.id;
+
     dispatch(setChildPlane({masterId: newMaster.id, childId : planes[indexOfActive].id}));
     dispatch(setMasterPlane({masterId : newMaster.id , masterName: newMaster.name, childId : planes[indexOfActive].id}));
+  
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => onHandleSlicePlane(childOldMaster,masterPlaneList ),
+          redo: () => onHandleSlicePlane(masterId, masterPlaneList),
+        }
+      )
+    }
+
+  
   }
   //Equation
  
@@ -667,7 +682,7 @@ export default function ClipPlanes(){
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               value={masterPlane.id}
-              onChange={(e) => onHandleSlicePlane(e.target.value , masterPlaneList)}
+              onChange={(e) => onHandleSlicePlane(e.target.value , masterPlaneList, true)}
             >
               {
                 masterPlaneList.map((item) => 
