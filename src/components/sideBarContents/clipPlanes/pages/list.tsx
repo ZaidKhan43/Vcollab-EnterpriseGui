@@ -5,21 +5,14 @@ import {Routes} from "../../../../routes"
 import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 
-import MuiTypography from '@material-ui/core/Typography';
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import BackButton from '../../../icons/back';
 import styles from './style';
-// import { sideBarContentTypes } from '../../../../config';
-// import { setSidebarActiveContent } from '../../../../store/appSlice';
 import {useAppSelector,useAppDispatch } from '../../../../store/storeHooks';
 import { useState} from "react";
 
 import MuiInput from '@material-ui/core/Input';
-import MuiGrid from '@material-ui/core/Grid';
 
-// import MuiCheckbox from '@material-ui/core/Checkbox';
-
-// import Switch from "react-switch";
 import Toggle from 'react-toggle';
 import "react-toggle/style.css";
 
@@ -28,7 +21,6 @@ import MuiFileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 import MuiPaste from '@material-ui/icons/AssignmentOutlined';
 import MuiDeleteForeverOutlinedIcon from '@material-ui/icons/DeleteForeverOutlined';
 import TransformIcon from '../../../icons/transform';
-// import MuiErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined';
 
 import AddIcon from "../../../icons/plus";
 
@@ -37,45 +29,15 @@ import MuiListItemText from '@material-ui/core/ListItemText';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 import MuiMenuList from '@material-ui/core/MenuList';
 
-// import DialogBox from "../../../shared/dialogBox"
+import {plane, setSectionPlaneData, addPlane, editEnabled, setActive, editPlaneName, removePlane, duplicatePlane, saveSelectedPlane, setSelectionMode} from "../../../../store/sideBar/clipSlice";
+import {setChildItem} from "../../../../store/mainMenuSlice";
 
-// import MuiEditIconEquation from '@material-ui/icons/Edit';
-
-// import MuiToggleButton from '@material-ui/lab/ToggleButton';
-
-// import Edit from "../../../assets/images/edit.svg";
-// import Copy from "../../../assets/images/copy.svg";
-// import ClipPlates from "../../../assets/images/clipboard.svg";
-// import Delete from "../../../assets/images/trash.svg";
-// import WarningCircle from "../../../assets/images/warningCircle.svg";
-// import { PlayCircleOutlineSharp } from '@material-ui/icons';
-
-// import ClipPlane from "../clipPlane"
-import {plane,SelectionMode,selectActivePlane, setSectionPlaneData, addPlane, editEnabled, setActive, editShowClip, editEdgeClip, editShowCap, editPlaneName, removePlane, duplicatePlane, saveSelectedPlane , editEquation , setChildPlane , setMasterPlane, setSelectionMode} from "../../../../store/sideBar/clipSlice";
-import {mainMenuSlice, selectMainMenu, setChildItem} from "../../../../store/mainMenuSlice";
-//Plane Equation
-// import {selectActiveViewerID} from "../../../../store/appSlice";
-// import clsx from 'clsx';
-// import MuiGrid from '@material-ui/core/Grid';
-import MuiButton from '@material-ui/core/Button';
-// import Triangle from '../../../icons/triangle'
-// import ThreePoints from '../../../icons/threePoints'
-// import MuiFormControl from '@material-ui/core/FormControl'
-// import MuiInputLabel from '@material-ui/core/InputLabel'
-// import MuiSelect from '@material-ui/core/Select';
-// import MuiMenuItem from '@material-ui/core/MenuItem';
-// import { isTypeNode } from 'typescript';
 import { useEffect } from 'react';
 
 import OptionContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
 import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
 
-
-// import { TypeDivider } from '@material-ui/core/styles/createPalette';
-//palne Equation
-
 import MuiMoreVertIcon from '@material-ui/icons/MoreVert';
-import MuiToolTip from '@material-ui/core/Tooltip';
 import Popper from '../../../shared/popper'
 
 import {undoStack} from "../../../utils/undoStack";
@@ -87,26 +49,16 @@ export default function List(){
   const planes = useAppSelector((state) => state.clipPlane.planes);
   const limit = useAppSelector((state) => state.clipPlane.settings.maxAllowedPlanes);
 
-  // const clickedVal = useAppSelector<any>((state) => state.clipPlane.settings.clickedVal);
   const clickedValues = useAppSelector((state) => state.clipPlane.planes.filter(item => item.selected === true));
-
-  // plane Equation 
-  const clickedValuesCount = clickedValues.length;  
 
   const [copied, setCopied] = useState<boolean>(false); 
   const [copy, setCopy] = useState<plane | null>(null);
-  const [edit, setEdit] = useState<boolean>(false);
-  const [openDelete, setOpenDelete] = useState<boolean>(false);
 
   const [editPlane, setEditPlane] = useState<number>(-1)
   const [editName, SetEditName] = useState<string>("");
 
-  const [deleteMessage, setDeleteMessage] = useState<string>("");
-
   const [openMoreOption,setOpenMoreOption] = useState(false)
   const [anchorElMoreOption, setAnchorElMoreOption] = useState(null);
-
-  const mainMenu = useAppSelector(selectMainMenu);
    
   // disable and inable the clipPlane menu items
   useEffect(() => {
@@ -137,13 +89,7 @@ export default function List(){
 
     // Set SelectionMode to None when mupliple item selected. 
     dispatch(setSelectionMode({activeId : -1 , selectionMode : 0}))
-
-    setOpenDelete(false);
-   
-    //Plane Equation
-
     dispatch(setActive({clicked: click}))
-    
     if(click.id !== editPlane)
       setEditPlane(-1)
   }
@@ -155,8 +101,6 @@ export default function List(){
 
 
   const onHandleCheck = (toCheck:boolean, item: plane) => {
-    // if(clickedVal && clickedVal.id === item.id)
-    // setEnabledOption(!item.enabled)
     dispatch(editEnabled({id:item.id,isEnabled:toCheck}));
     dispatch(setSectionPlaneData({id:item.id}));
 
@@ -184,24 +128,14 @@ export default function List(){
   const onHandlePaste = () => {
     if(planes.length < limit)
     {
-      // dispatch(pastePlane(item))
       if(copy)
       dispatch(duplicatePlane({pastedPlane: copy, undoable : true}));
     }
   }
 
- const onHandleDeleteButton = () => {
-    setOpenDelete(true); 
-    setDeleteMessage("Are you sure want to delete the selected plane?")
- }
-
   const onHandleDelete = () => {
     clickedValues.forEach(item => 
       {
-        setOpenDelete(false);
-        // setOpenMasterDelete(true);
-        // dispatch(editEnabled({id:item.id,isEnabled:false}));
-        // SetDeleted(item.name);
         dispatch(removePlane({id:item.id, undoable: true}))
         dispatch(saveSelectedPlane({clicked: item}))
       })
@@ -213,15 +147,6 @@ export default function List(){
 
   const onHandleTransform = () => {
     dispatch(push(Routes.CLIPPLANES_TRANSFORMATION));
-  }
-  
-  const onHandleSave = () => {
-    setEdit(!edit);
-    // setClickedVal(null);
-  }
-
-  const handleCloseDialog = () => {
-    setOpenDelete(false)
   }
 
   const onHandlePlateNameEdit = (e : any) => {
@@ -328,10 +253,7 @@ export default function List(){
 
     return(
         <div style={{marginLeft:"10px", marginRight:"10px", marginBottom:"10px"}}>
-          { !openDelete
-            ?
-
-            <OptionContainer>
+          <OptionContainer>
             <Option label="Settings" icon={<MuiIconButton disabled={clickedValues.length ===  1 && editPlane === -1 ? false : true} onClick={() => onHandleEdit()}>
                 <MuiEditIcon/>
               </MuiIconButton>} 
@@ -340,17 +262,8 @@ export default function List(){
                     <TransformIcon/>
                 </MuiIconButton>}
             />
-            {/* <Option label="Copy" icon={<MuiIconButton disabled = {clickedValues.length === 1 && editPlane === -1 ? false : true} onClick={() => onHandleCopy(planes.find((item : any )=> 
-                  item.id === clickedValues[0].id))}
-                > 
-                  <MuiFileCopyOutlinedIcon />
-                </MuiIconButton>}
-            />
-            <Option label="Paste" icon={  <MuiIconButton  disabled = {copied && planes.length !== limit ? false : true} onClick={() => onHandlePaste(copy)}>
-                  <MuiPaste/>
-                </MuiIconButton> }
-            /> */}
-            <Option label="Delete" icon={<MuiIconButton disabled ={clickedValues.length === 1 && deleteMaster === false && editPlane === -1 ? false : true} style={{ }}  onClick={onHandleDeleteButton} > 
+    
+            <Option label="Delete" icon={<MuiIconButton disabled ={clickedValues.length === 1 && deleteMaster === false && editPlane === -1 ? false : true} style={{ }}  onClick={onHandleDelete} > 
                   <MuiDeleteForeverOutlinedIcon/>
                 </MuiIconButton> }
             />
@@ -358,58 +271,35 @@ export default function List(){
             <Option label="More" icon={
               <ClickAwayListener onClickAway={onClickAwayMoreOption}>
                 <div>
-              <MuiIconButton aria-label="changle visibility" onClick={handleClickMoreOption}>
-                <MuiMoreVertIcon/>
-              </MuiIconButton>
+                  <MuiIconButton aria-label="changle visibility" onClick={handleClickMoreOption}>
+                    <MuiMoreVertIcon/>
+                  </MuiIconButton>
               
-              <Popper open={openMoreOption} anchorEl={anchorElMoreOption} placement={"top-end"} disablePortal id="display-menu">
-              <MuiMenuList id="simple-menu">
-                <MuiMenuItem alignItems='center' disabled={clickedValues.length === 1 && editPlane === -1 ? false : true} onClick={onHandleCopy} >
-                  <MuiListItemIcon>
-                    <MuiFileCopyOutlinedIcon />
-                  </MuiListItemIcon>
-                  <MuiListItemText>
-                    Copy
-                  </MuiListItemText>
-                </MuiMenuItem>
-                <MuiMenuItem alignItems='center' disabled={copied && planes.length !== limit ? false : true} onClick={onHandlePaste} >
-                  <MuiListItemIcon>
-                    <MuiPaste />
-                  </MuiListItemIcon>
-                  <MuiListItemText>
-                    Paste
-                  </MuiListItemText>
-                </MuiMenuItem>
-                </MuiMenuList>
-              </Popper>
-            </div>
-          </ClickAwayListener>    
-        }
-                  
-            />
+                  <Popper open={openMoreOption} anchorEl={anchorElMoreOption} placement={"top-end"} disablePortal id="display-menu">
+                    <MuiMenuList id="simple-menu">
+                      <MuiMenuItem alignItems='center' disabled={clickedValues.length === 1 && editPlane === -1 ? false : true} onClick={onHandleCopy} >
+                        <MuiListItemIcon>
+                          <MuiFileCopyOutlinedIcon />
+                        </MuiListItemIcon>
+                        <MuiListItemText>
+                          Copy
+                        </MuiListItemText>
+                      </MuiMenuItem>
+                      <MuiMenuItem alignItems='center' disabled={copied && planes.length !== limit ? false : true} onClick={onHandlePaste} >
+                        <MuiListItemIcon>
+                          <MuiPaste />
+                        </MuiListItemIcon>
+                        <MuiListItemText>
+                          Paste
+                        </MuiListItemText>
+                      </MuiMenuItem>
+                    </MuiMenuList>
+                  </Popper>
+                </div>
+              </ClickAwayListener>    
+            }      
+          />
         </OptionContainer>
-            :
-              <div style={{marginBottom:"5px", marginTop:"5px"}}>
-                <MuiTypography style={{marginBottom:"5px", fontSize:"14px"}}>
-                  {deleteMessage}
-                </MuiTypography>
-                <div style={{alignContent:"center",}}>
-                  <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
-                    autoFocus 
-                    onClick={onHandleDelete} 
-                    // color="primary"
-                  >
-                    Confirm
-                  </MuiButton>
-                <MuiButton style={{width:"20%", fontSize:"9px"}}
-                  onClick={handleCloseDialog} 
-                  // color="primary"
-                >
-                  Cancel
-              </MuiButton>
-            </div>
-          </div>
-        }
       </div>
     ) 
   }
