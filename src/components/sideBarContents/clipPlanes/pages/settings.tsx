@@ -251,6 +251,28 @@ export default function ClipPlanes(){
       setClipInputD(planes[indexOfActive].userInputEquation[3])
   }
 
+  const handleEquationSave = (id: number, inputX :number, inputY:number, inputZ:number, inputD:number, undoable?: boolean) => {
+
+    const currentX = planes[indexOfActive].userInputEquation[0]
+    const currentY = planes[indexOfActive].userInputEquation[1]
+    const currentZ = planes[indexOfActive].userInputEquation[2]
+    const currentD = planes[indexOfActive].userInputEquation[3]
+
+    dispatch(editEquation({id:id,eqn:{clipInputX :inputX, clipInputY:inputY,clipInputZ: inputZ, clipInputD :inputD},}));
+    dispatch(setSectionPlaneData({id}));
+
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => handleEquationSave(id, currentX, currentY, currentZ, currentD),
+          redo: () => handleEquationSave(id, inputX, inputY, inputZ, inputD),
+        }
+      )
+    }
+   
+
+  }
+
   const handleEditShow = () => {
     if(editMode === true){
       setEditMode(false)
@@ -266,8 +288,7 @@ export default function ClipPlanes(){
     
         else{
           const id= planes[indexOfActive].id
-          dispatch(editEquation({id:id,eqn:{clipInputX,clipInputY,clipInputZ,clipInputD},}));
-          dispatch(setSectionPlaneData({id}));
+          handleEquationSave(id, clipInputX, clipInputY, clipInputZ, clipInputD, true)
         }
       }
 
