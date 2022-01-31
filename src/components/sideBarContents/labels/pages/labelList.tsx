@@ -85,7 +85,7 @@ export default function LabelList(){
 
   const handlePanChange = () => {
     Object.values(treeDataRedux).forEach(e => {
-        if(e.pid !== "-1")
+        if(e.children.length === 0)
         dispatch(setEditMode({
           uid: windowPrefixId+e.id,
           isEdit: !isPanBtnPressed

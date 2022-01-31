@@ -73,18 +73,6 @@ export const windowMgrSlice = createSlice({
                 let selectedWindow = state.windows[uid];
                 if(isEdit === true)
                 {
-                    
-                    // [...Object.entries(state.windows)].forEach(([id,window]) => {
-                    //     if(window.zOrder > selectedWindow.zOrder){
-                    //         window.zOrder = window.zOrder-1;
-                    //     }
-                    // })
-                    // const topIndex = state.windowsCount -1 + state.editModeZIndex;
-                    // if(selectedWindow.zOrder !== topIndex)
-                    // {
-                    //     let diffToTop = topIndex-selectedWindow.zOrder;
-                    //     selectedWindow.zOrder = selectedWindow.zOrder + diffToTop;
-                    // }
                     selectedWindow.zOrder =1;
                 }
                 else{
@@ -92,7 +80,7 @@ export const windowMgrSlice = createSlice({
                 }
             }
             else{
-                throw new Error("Invalid window uid");
+                console.warn("Invalid window uid");
             }
         },
         setHiddenState: (state, action:PayloadAction<{uid:string,isHidden:boolean}>) => {

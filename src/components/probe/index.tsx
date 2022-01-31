@@ -11,6 +11,7 @@ export default function Probe (props:{containerRef:React.RefObject<HTMLDivElemen
   const interactionMode = useAppSelector(selectInteractionMode);  
   const isEnabled = InteractionMode.CONTINUOUS_PROBE === interactionMode ||
                     InteractionMode.LABEL3D_POINT === interactionMode ||
+                    InteractionMode.LABEL3D_FACE === interactionMode ||
                     InteractionMode.LABEL_MEASUREMENT_3PT_ARC === interactionMode ||
                     InteractionMode.LABEL_MEASUREMENT_POINT_TO_POINT === interactionMode;
   const showLabel = useAppSelector((state) => state.probe.showLabel)
