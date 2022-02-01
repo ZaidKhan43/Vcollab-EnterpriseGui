@@ -35,6 +35,8 @@ import MuiEditIcon from '@material-ui/icons/EditOutlined';
 
 import MuiTooltip from '@material-ui/core/Tooltip'
 
+import {undoStack} from "../../../utils/undoStack";
+
 export default function ClipPlanes(props : any){
 
   const classes = styles();
@@ -82,10 +84,19 @@ export default function ClipPlanes(props : any){
       setStepValueDisplay(Number(stepValue));  
   }
 
-  const onHandleDirection = () => {
+  const onHandleDirection = (undoable? : boolean) => {
     const id= planes[indexofActive].id
     dispatch(editNormalInverted(id))
     dispatch(setSectionPlaneData({id}));
+
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => onHandleDirection(),
+          redo: () => onHandleDirection(),
+        }
+      )
+    }
    
   }
 
@@ -232,7 +243,7 @@ export default function ClipPlanes(props : any){
             <MuiGrid item xs={12} sm={6}>
               <MuiGrid container spacing={1} direction='column' >
                 <MuiGrid item>
-                  <MuiIconButton style={{width:"60px",height: "90px", }}   onClick={() => onHandleDirection()}>
+                  <MuiIconButton style={{width:"60px",height: "90px", }}   onClick={() => onHandleDirection(true)}>
                     { clipNormalInverted === false 
                       ? 
                         <FlipDirectionLeft/>
