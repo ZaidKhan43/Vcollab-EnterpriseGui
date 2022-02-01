@@ -30,14 +30,14 @@ export default function RotateSlider( props : any ){
     const onChangeHandle = (value: any) => {
        const valueOne = value;
        if(Math.round(props.value) !== valueOne)
-        props.handleChange(value)
+        props.handleChange(value, true)
     }
 
     const onChangeHandleOne = (value: any) => {
         if(value)
-            props.handleChange(value)
+            props.handleChange(value, true)
         else
-            props.handleChange(0)
+            props.handleChange(0, true)
     }
 
     const onChangeHandleTwo = (value : any) =>{

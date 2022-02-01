@@ -344,6 +344,7 @@ export const removePlane = createAsyncThunk(
     const rootState = getState() as RootState;
 
     const deletedPlane = rootState.clipPlane.planes.find(item => item.id === data.id);
+    const indexOfDeletedPlane = rootState.clipPlane.planes.findIndex(item => item.id === data.id)
 
     console.log("deletedPlane" , deletedPlane)
 
@@ -360,7 +361,7 @@ export const removePlane = createAsyncThunk(
     if(data.undoable === true){
       undoStack.add(
         {
-          undo: {reducer: undoDelete, payload:{plane: deletedPlane}},
+          undo: {reducer: undoDelete, payload:{plane: deletedPlane, deletedIndex: indexOfDeletedPlane}},
           redo: {reducer: removePlane, payload:{id : data.id,}},
         }
       )
@@ -370,7 +371,7 @@ export const removePlane = createAsyncThunk(
 
 const undoDelete = createAsyncThunk(
   "clipSlice/addSectionPlane",
-  async (data:{plane : plane},{dispatch,getState}) => {
+  async (data:{plane : plane, deletedIndex : number},{dispatch,getState}) => {
     const rootState = getState() as RootState;
 
     let {plane} = data;
@@ -381,9 +382,9 @@ const undoDelete = createAsyncThunk(
 
     console.log("planes undoDelete", plane)
 
-
+    const index = data.deletedIndex;
     addSectionPlane(plane.id,new Float32Array(plane.worldTransform),plane.color,viewerId);
-    dispatch(createPlane({plane}));
+    dispatch(pushPlane({plane, index}));
     dispatch(setSectionPlaneData({id : plane.id}))
 
 
@@ -482,6 +483,10 @@ export const clipSlice = createSlice({
       if (state.planes.length < state.settings.maxAllowedPlanes){
         state.planes= [...state.planes,action.payload.plane];      
       }
+    },
+
+    pushPlane : (state, action:PayloadAction<{plane:plane, index : number}>) => {
+      state.planes.splice(action.payload.index, 0, action.payload.plane);
     },
 
     editEnabled: (state, action:PayloadAction<{id:number, isEnabled:boolean}>) => {
@@ -989,7 +994,7 @@ extraReducers: (builder) => {
 }
 })
 
-export const { createPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, updateMinMaxGUI , saveSelectedPlane , setMasterPlane , setChildPlane } = clipSlice.actions;
+export const { createPlane,pushPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, updateMinMaxGUI , saveSelectedPlane , setMasterPlane , setChildPlane } = clipSlice.actions;
 
 //selectors
 

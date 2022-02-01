@@ -148,22 +148,55 @@ export default function ClipPlanes(props : any){
     dispatch(setSectionPlaneData({id:planes[indexofActive].id}))
   }
 
-  const onHandleRotate = (value : any) => {
+  const onHandleRotate = (value : any, undoable?: boolean) => {
+
+    const oldValue = planes[indexofActive].rotate;
     const update= {id : planes[indexofActive].id, rotate : value};
     dispatch(editRotate(update))
     dispatch(setSectionPlaneData({id:planes[indexofActive].id}))
+
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => onHandleRotate(oldValue),
+          redo: () => onHandleRotate(value),
+        }
+      )
+    }
   }
   
-  const onHandleRotateX = (value : any) => {
+  const onHandleRotateX = (value : any, undoable?: boolean) => {
+
+    const oldValue = planes[indexofActive].axisX;
     const update= {id : planes[indexofActive].id, axisX : value };
     dispatch(editAxisX(update));
     dispatch(setSectionPlaneData({id:planes[indexofActive].id}))
+
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => onHandleRotateX(oldValue),
+          redo: () => onHandleRotateX(value),
+        }
+      )
+    }
   }
 
-  const onHandleRotateY = (value : any) => {
+  const onHandleRotateY = (value : any, undoable?: boolean) => {
+
+    const oldValue = planes[indexofActive].axisY;
     const update= {id : planes[indexofActive].id, axisY : value};
     dispatch(editAxisY(update));
     dispatch(setSectionPlaneData({id:planes[indexofActive].id}))
+
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => onHandleRotateY(oldValue),
+          redo: () => onHandleRotateY(value),
+        }
+      )
+    }
   }
 
   const onHandleTransform = () => {
