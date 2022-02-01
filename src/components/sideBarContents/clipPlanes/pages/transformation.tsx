@@ -22,7 +22,7 @@ import MuiInput from '@material-ui/core/Input';
 
 import {Routes} from "../../../../routes"
 
-import { setSectionPlaneData, editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMaxGUI, selectActivePlane, selectedPlane , setActive} from '../../../../store/sideBar/clipSlice';
+import { setSectionPlaneData, editNormalInverted,editTranslate, editRotate, editAxisX, editAxisY, updateMinMaxGUI, selectActivePlane, selectedPlane , setActive, undoMinMaxGUI} from '../../../../store/sideBar/clipSlice';
 import RotateSlider from '../shared/rotateSlider';
 import TranslateSlider from '../../../shared/translateSlider';
 
@@ -100,22 +100,59 @@ export default function ClipPlanes(props : any){
    
   }
 
-  const onHandleTranslateCommitted= (newValue:any , stepValue : any) => {
+  const undoTranslate = (oldValue : number, minMaxChange : boolean, oldMax: number, oldMin: number) => {
+    const update= {id : planes[indexofActive].id, translate : oldValue};
+    dispatch(editTranslate(update))
+    dispatch(setSectionPlaneData({id:planes[indexofActive].id}))
+
+    if(minMaxChange) {
+      dispatch(undoMinMaxGUI({id:planes[indexofActive].id, min: oldMin, max : oldMax}))
+    }
+
+  }
+
+
+  const onHandleTranslateCommitted= (newValue:any , stepValue : any, undoable? : boolean) => {
     console.log("stepValue",stepValue)
  
     console.log("hwllo" ,translateMax)
 
+    let functionExecuted = false;
+    let minMaxChange = false;
+    let oldMin = 0;
+    let oldMax  =0;
+    const oldValue = planes[indexofActive].translate;
+
     if( (newValue - stepValue) <= translateMin ){
+      functionExecuted = true;
+      minMaxChange = true;
       const update= {id : planes[indexofActive].id, translate : newValue - stepValue};
+      oldMin = planes[indexofActive].translateMin;
+      oldMax = planes[indexofActive].translateMax;
+
       dispatch(editTranslate(update))
       dispatch(updateMinMaxGUI({id:planes[indexofActive].id}));
     }
 
        
     if( (newValue + stepValue) >= translateMax ){
+      functionExecuted = true;
+      minMaxChange = true;
+      oldMin = planes[indexofActive].translateMin;
+      oldMax = planes[indexofActive].translateMax;
+
       const update= {id : planes[indexofActive].id, translate : newValue + stepValue};
       dispatch(editTranslate(update))
       dispatch(updateMinMaxGUI({id:planes[indexofActive].id}));
+    }
+
+    if(undoable && functionExecuted){
+      undoStack.add(
+        {
+          undo: () => undoTranslate(oldValue, minMaxChange, oldMax, oldMin),
+          redo: () => onHandleTranslateTextbox(newValue, stepValue),
+        }
+      )
     }
 
 
@@ -132,20 +169,48 @@ export default function ClipPlanes(props : any){
     setActiveId(id)
   }
 
-  const onHandleTranslate= ( newValue : any) => {
+  const onHandleTranslate= ( newValue : any, undoable?: boolean) => {
     console.log(newValue)
     const update= {id : planes[indexofActive].id, translate : Number(newValue)};
+    const oldValue = planes[indexofActive].translate;
     dispatch(editTranslate(update))
     dispatch(setSectionPlaneData({id:planes[indexofActive].id}))
+
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => undoTranslate(oldValue, false, 0, 0),
+          redo: () => onHandleTranslateTextbox(newValue),
+        }
+      )
+    }
   }
 
-  const onHandleTranslateTextbox= (newValue : number ) => {
+  const onHandleTranslateTextbox= (newValue : number, undoable?: boolean ) => {
     const update= {id : planes[indexofActive].id, translate : newValue};
+    const oldValue = planes[indexofActive].translate;
+
+    let oldMax = 0;
+    let oldMin = 0;
+    let minMaxChange = false;
     dispatch(editTranslate(update))
     if(update.translate >= translateMax || update.translate <= translateMin) {
+      minMaxChange= true;
+      oldMax = planes[indexofActive].translateMax;
+      oldMin = planes[indexofActive].translateMin;
       dispatch(updateMinMaxGUI({id:planes[indexofActive].id}));
     }
     dispatch(setSectionPlaneData({id:planes[indexofActive].id}))
+
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => undoTranslate(oldValue, minMaxChange, oldMax, oldMin),
+          redo: () => onHandleTranslateTextbox(newValue),
+        }
+      )
+    }
+
   }
 
   const onHandleRotate = (value : any, undoable?: boolean) => {

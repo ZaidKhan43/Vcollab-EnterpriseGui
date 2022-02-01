@@ -753,6 +753,18 @@ export const clipSlice = createSlice({
           
         }
       },
+
+      undoMinMaxGUI: (state, action:PayloadAction<{id: number, min: number, max:number}>) => {
+        const index : any = state.planes.findIndex((item) => item.id === action.payload.id);
+
+        if(index >= 0){
+          let curPlane = state.planes[index];
+          curPlane.translateMin = action.payload.min;
+          curPlane.translateMax = action.payload.max;
+        }
+
+      },
+
       updateEqnGUI: (state, action:PayloadAction<{id:number|string}>) => {
         let {id} = action.payload;
         let index = state.planes.findIndex((item) => item.id === id);
@@ -994,7 +1006,7 @@ extraReducers: (builder) => {
 }
 })
 
-export const { createPlane,pushPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, updateMinMaxGUI , saveSelectedPlane , setMasterPlane , setChildPlane } = clipSlice.actions;
+export const { createPlane,pushPlane,editEnabled,editShowClip, editEdgeClip, editShowCap, pastePlane, deletePlane, editNormalInverted , editTranslate, editRotate, editAxisX, editAxisY, editPlaneName, updateMinMaxGUI , saveSelectedPlane , setMasterPlane , setChildPlane , undoMinMaxGUI  } = clipSlice.actions;
 
 //selectors
 
