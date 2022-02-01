@@ -170,7 +170,8 @@ export default function ClipPlanes(props : any){
   }
 
   const onHandleTranslate= ( newValue : any, undoable?: boolean) => {
-    console.log(newValue)
+
+    if(newValue !== planes[indexofActive].translate){
     const update= {id : planes[indexofActive].id, translate : Number(newValue)};
     const oldValue = planes[indexofActive].translate;
     dispatch(editTranslate(update))
@@ -184,6 +185,7 @@ export default function ClipPlanes(props : any){
         }
       )
     }
+  }
   }
 
   const onHandleTranslateTextbox= (newValue : number, undoable?: boolean ) => {
