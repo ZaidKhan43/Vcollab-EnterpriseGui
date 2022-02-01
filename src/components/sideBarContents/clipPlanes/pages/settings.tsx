@@ -286,7 +286,7 @@ export default function ClipPlanes(){
           setClipInputZ(planes[indexOfActive].userInputEquation[2])
         }
     
-        else{
+        if(Number(clipInputX) !== planes[indexOfActive].userInputEquation[0] || Number(clipInputY) !== planes[indexOfActive].userInputEquation[1] || Number(clipInputZ) !== planes[indexOfActive].userInputEquation[2] || Number(clipInputD) !== planes[indexOfActive].userInputEquation[3]){ 
           const id= planes[indexOfActive].id
           handleEquationSave(id, clipInputX, clipInputY, clipInputZ, clipInputD, true)
         }
