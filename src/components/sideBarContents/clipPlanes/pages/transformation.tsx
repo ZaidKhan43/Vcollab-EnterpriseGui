@@ -172,20 +172,20 @@ export default function ClipPlanes(props : any){
   const onHandleTranslate= ( newValue : any, undoable?: boolean) => {
 
     if(newValue !== planes[indexofActive].translate){
-    const update= {id : planes[indexofActive].id, translate : Number(newValue)};
-    const oldValue = planes[indexofActive].translate;
-    dispatch(editTranslate(update))
-    dispatch(setSectionPlaneData({id:planes[indexofActive].id}))
+      const update= {id : planes[indexofActive].id, translate : Number(newValue)};
+      const oldValue = planes[indexofActive].translate;
+      dispatch(editTranslate(update))
+      dispatch(setSectionPlaneData({id:planes[indexofActive].id}))
 
-    if(undoable){
-      undoStack.add(
-        {
-          undo: () => undoTranslate(oldValue, false, 0, 0),
-          redo: () => onHandleTranslateTextbox(newValue),
-        }
-      )
+      if(undoable){
+        undoStack.add(
+          {
+            undo: () => undoTranslate(oldValue, false, 0, 0),
+            redo: () => onHandleTranslateTextbox(newValue),
+          }
+        )
+      }
     }
-  }
   }
 
   const onHandleTranslateTextbox= (newValue : number, undoable?: boolean ) => {

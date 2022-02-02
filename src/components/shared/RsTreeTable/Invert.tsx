@@ -18,7 +18,7 @@ const InvertIcon = (props:any) => {
 interface InvertCellProps {
     node: ITreeNode,
     onClick : (node:ITreeNode) => void,
-    selected : boolean,
+    selected? : boolean,
 }
 
 function InvertCell(props:InvertCellProps) {

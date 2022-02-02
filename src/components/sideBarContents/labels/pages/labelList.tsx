@@ -360,7 +360,7 @@ export default function LabelList(){
               </MuiIconButton>} 
             /> */}
 
-            <Option label="Edit" icon={<MuiIconButton disabled={activeLabelId === "-1" || treeDataRedux[activeLabelId].pid ==="-1"} onClick={() =>dispatch(push(Routes.LABEL_EDIT))}>
+            <Option label="Edit" icon={<MuiIconButton disabled={activeLabelId === "-1" || treeDataRedux[activeLabelId].pid ==="-1" || treeDataRedux[activeLabelId].children.length === 0} onClick={() =>dispatch(push(Routes.LABEL_EDIT))}>
                 <MuiEditIcon/>
               </MuiIconButton>} 
             />

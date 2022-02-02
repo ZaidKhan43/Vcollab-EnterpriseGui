@@ -27,7 +27,7 @@ const VisiblilityIcon = (props:any) => {
 interface ShowHideProps {
   node: ITreeNode
   onToggle: (toShow:boolean,node:ITreeNode) => void
-  selected : boolean
+  selected? : boolean
 }
 
 function ShowHide(props:ShowHideProps) {
