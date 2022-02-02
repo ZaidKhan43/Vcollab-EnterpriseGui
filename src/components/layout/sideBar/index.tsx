@@ -35,7 +35,8 @@ export default function Sidebar(){
     const xsMatches = useMediaQuery(theme.breakpoints.down('xs'));
 
     const handleClickAway = (event : any) => {
-      if (isSidebarVisible && smMatches) {
+      if (isSidebarVisible && smMatches ) {
+        console.log(event);
         dispatch(setSidebarVisibility(false));
       }
     };
@@ -103,6 +104,7 @@ export default function Sidebar(){
         open={ isSidebarVisible }
         classes={{
           paper: classes.drawerPaper,
+          root: classes.anchorLeft,
           paperAnchorLeft: classes.anchorLeft
         }}
         >  

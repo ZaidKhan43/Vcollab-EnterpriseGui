@@ -19,7 +19,9 @@ export default makeStyles((theme) => ({
     overflowY: "hidden",
   },
   anchorLeft: {
-    left: leftbarWidth,
-    right: 'auto'
+    inset: 'unset',
+    left: `${leftbarWidth}px !important`,
+    right: 'auto',
+  
   }
 }));
