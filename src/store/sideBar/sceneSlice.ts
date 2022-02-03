@@ -192,28 +192,29 @@ export const fetchCameraMatrix = createAsyncThunk(
 
 export const setCameraInfoAsync = createAsyncThunk(
     'scene/setCameraInfoAsync',
-    async (data,{dispatch,getState}) => {
+    async (data: {id : number},{dispatch,getState}) => {
         const state = getState() as RootState;
         const viewerId = state.app.viewers[state.app.activeViewer || ''];
-        let activeView = selectedCameraView(state)[0];
+        dispatch(setActiveId(data.id))        
+        let activeView = state.scene.cameraViews.find(item => item.id === data.id)
         let camData = {
-            position: [activeView.cameraPosition[0].value,activeView.cameraPosition[1].value,activeView.cameraPosition[2].value],
-            dir: [activeView.cameraDirection[0].value,activeView.cameraDirection[1].value,activeView.cameraDirection[2].value],
-            up: [activeView.cameraUp[0].value,activeView.cameraUp[1].value,activeView.cameraUp[2].value],
+            position: [activeView?.cameraPosition[0].value,activeView?.cameraPosition[1].value,activeView?.cameraPosition[2].value],
+            dir: [activeView?.cameraDirection[0].value,activeView?.cameraDirection[1].value,activeView?.cameraDirection[2].value],
+            up: [activeView?.cameraUp[0].value,activeView?.cameraUp[1].value,activeView?.cameraUp[2].value],
             perspective: 
             {
-                fov: activeView.valuePerspective[0].value,
-                aspect: activeView.valuePerspective[1].value,
-                far: activeView.valuePerspective[2].value,
-                near: activeView.valuePerspective[3].value
+                fov: activeView?.valuePerspective[0].value,
+                aspect: activeView?.valuePerspective[1].value,
+                far: activeView?.valuePerspective[2].value,
+                near: activeView?.valuePerspective[3].value
             },
             ortho: {
-                left: activeView.valueOrthographic[0].value,
-                right: activeView.valueOrthographic[1].value,
-                top: activeView.valueOrthographic[2].value,
-                bottom: activeView.valueOrthographic[3].value,
-                far: activeView.valueOrthographic[4].value,
-                near: activeView.valueOrthographic[5].value,
+                left: activeView?.valueOrthographic[0].value,
+                right: activeView?.valueOrthographic[1].value,
+                top: activeView?.valueOrthographic[2].value,
+                bottom: activeView?.valueOrthographic[3].value,
+                far: activeView?.valueOrthographic[4].value,
+                near: activeView?.valueOrthographic[5].value,
             }
         }
         setCameraInfo(viewerId,camData);

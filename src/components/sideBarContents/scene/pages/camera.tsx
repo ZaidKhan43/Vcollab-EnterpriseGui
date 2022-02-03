@@ -62,7 +62,9 @@ export default function Camera (){
 
     const onHandleCamera = (id : number) => {
         setOpenDelete(false)
-        dispatch(setActiveId(id))
+        
+        dispatch(setCameraInfoAsync({id}))
+
     }
 
     const onClickBackIcon = () => {
@@ -100,10 +102,6 @@ export default function Camera (){
         const value = Number(e.currentTarget.value);
         dispatch(setProjectionAsync({value, undoable : true}))
     }
-
-    const onHandleApply = () => {
-        dispatch(setCameraInfoAsync())
-    } 
 
     const onHandleEdit = () => {
         dispatch(push(Routes.SCENE_CAMERA_EDIT));  
@@ -197,28 +195,13 @@ export default function Camera (){
     }
 
     const getFooter = () => {
-        const activeItem = cameraList.filter(item => item.id === active) 
+        // const activeItem = cameraList.filter(item => item.id === active) 
         return(
             <div>
                 {
                     openDelete === false
                     ?
-                        <div>
-                        {active > -1
-                        ?
-                        <div style={{marginTop:"20px", marginBottom:"20px"}}>
-                            <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
-                                autoFocus 
-                                onClick={onHandleApply} 
-                                // color="primary"
-                            >
-                                Apply
-                            </MuiButton>
-                        </div>
-                        :
-                         null
-                            }   
-
+                        <div> 
                                {
                                     
                                     <OptionContainer>
