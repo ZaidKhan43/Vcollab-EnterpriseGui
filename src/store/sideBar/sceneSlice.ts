@@ -285,6 +285,10 @@ export const sceneSlice = createSlice({
             }
         },
 
+        pushCameraView : (state, action:PayloadAction<{cameraView: CameraView, index : number}>) => {
+            state.cameraViews.push(action.payload.cameraView);
+          },
+
         pasteCameraView: (state,action :  PayloadAction<{data: CameraView}>) => {
             const userDefinedLength : number = state.cameraViews.filter(item => item.userDefined === true).length;
             let clone = JSON.parse(JSON.stringify(action.payload.data));
@@ -295,8 +299,25 @@ export const sceneSlice = createSlice({
             state.cameraViews = [...state.cameraViews , clone];
         },
 
-        deleteCameraView:(state, action: PayloadAction<{id : number}>) => {
-            state.cameraViews =  state.cameraViews.filter(item => item.id !== action.payload.id)
+        deleteCameraView:(state, action: PayloadAction<{toDeleteItem : CameraView | undefined, undoable?: boolean}>) => {
+
+            
+            const indexOfDeletedCameraView = state.cameraViews.findIndex(item => item.id === action.payload.toDeleteItem?.id)
+            const deletedCameraView = action.payload.toDeleteItem;
+
+            console.log(state.cameraViews)
+
+            sceneSlice.caseReducers.setActiveId(state,{payload:-1,type:"sceneSlice/setActiveId"})
+            state.cameraViews =  state.cameraViews.filter(item => item.id !== action.payload.toDeleteItem?.id)
+
+            if(action.payload.undoable){
+                undoStack.add(
+                    {
+                      undo: {reducer: pushCameraView, payload:{cameraView : deletedCameraView, index : indexOfDeletedCameraView}},
+                      redo: {reducer: deleteCameraView, payload:{toDeleteItem : deletedCameraView}},
+                    }
+                )
+            }
         },
 
         setActiveId:(state, action :  PayloadAction<number>) => {
@@ -433,7 +454,7 @@ export const sceneSlice = createSlice({
     }
 })
 
-export const {addCameraView, setActiveId ,  updateChange, pasteCameraView , deleteCameraView, setShowAxis,setApplyItem} = sceneSlice.actions;
+export const {addCameraView, setActiveId ,  updateChange, pasteCameraView , deleteCameraView, setShowAxis,setApplyItem, pushCameraView} = sceneSlice.actions;
 
 export default sceneSlice.reducer;
 

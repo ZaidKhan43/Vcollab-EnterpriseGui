@@ -89,9 +89,8 @@ export default function Camera (){
 
     const onHandleDelete = () => {
         setOpenDelete(false);
-        const id = active;
-        dispatch(deleteCameraView({id}))
-        dispatch(setActiveId(-1))
+        const toDeleteCameraView = cameraList.find(item => item.id === active)
+        dispatch(deleteCameraView({toDeleteItem : toDeleteCameraView, undoable: true}))
     }
 
     const onHandleViewMode = (e : any) => {
