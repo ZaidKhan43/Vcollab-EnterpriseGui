@@ -4,7 +4,6 @@ import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilCo
 import MuiIconButton from '@material-ui/core/IconButton';
 import BackButton from '../../../icons/back';
 
-import MuiGrid from '@material-ui/core/Grid';
 import MuiTypography from '@material-ui/core/Typography';
 import AddIcon from "../../../icons/plus";
 
@@ -30,8 +29,6 @@ import MuiToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 
 import { Routes } from '../../../../routes/index'
 import styles from '../style';
-
-import { useEffect } from 'react';
 
 import { CameraView ,addCameraView , setActiveId, ViewMode , setProjectionAsync , pasteCameraView , deleteCameraView, setCameraInfoAsync} from '../../../../store/sideBar/sceneSlice';
 
@@ -63,7 +60,7 @@ export default function Camera (){
     const onHandleCamera = (id : number) => {
         setOpenDelete(false)
         
-        dispatch(setCameraInfoAsync({id}))
+        dispatch(setCameraInfoAsync({id, undoable: true}))
 
     }
 

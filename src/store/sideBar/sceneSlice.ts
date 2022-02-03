@@ -192,9 +192,12 @@ export const fetchCameraMatrix = createAsyncThunk(
 
 export const setCameraInfoAsync = createAsyncThunk(
     'scene/setCameraInfoAsync',
-    async (data: {id : number},{dispatch,getState}) => {
+    async (data: {id : number, undoable?: boolean},{dispatch,getState}) => {
         const state = getState() as RootState;
         const viewerId = state.app.viewers[state.app.activeViewer || ''];
+
+        const oldActiveId = state.scene.settings.activeId;
+
         dispatch(setActiveId(data.id))        
         let activeView = state.scene.cameraViews.find(item => item.id === data.id)
         let camData = {
@@ -218,6 +221,15 @@ export const setCameraInfoAsync = createAsyncThunk(
             }
         }
         setCameraInfo(viewerId,camData);
+        
+        if(data.undoable) {
+            undoStack.add(
+              {
+                undo: {reducer: setCameraInfoAsync, payload:{id: oldActiveId}},
+                redo: {reducer: setCameraInfoAsync, payload:{id: data.id}},
+              }
+            )
+          }
     }
 )
 export const setProjectionAsync = createAsyncThunk(
@@ -238,7 +250,7 @@ export const setProjectionAsync = createAsyncThunk(
                 redo: {reducer: setProjectionAsync, payload:{value : data.value}},
               }
             )
-          }
+        }
 
     }
 )
