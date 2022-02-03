@@ -98,7 +98,7 @@ export default function Camera (){
 
     const onHandleViewMode = (e : any) => {
         const value = Number(e.currentTarget.value);
-        dispatch(setProjectionAsync(value))
+        dispatch(setProjectionAsync({value, undoable : true}))
     }
 
     const onHandleApply = () => {

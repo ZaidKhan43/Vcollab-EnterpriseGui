@@ -5,6 +5,8 @@ import { getCameraInfo, getCameraStdViews, setCameraInfo, setCameraProjection } 
 import {perspectiveToOrtho,orthoToPerspective} from '../../components/utils/camera'
 import type { RootState } from '../index';
 
+import {undoStack} from "../../components/utils/undoStack"
+
 export enum ViewMode {
     Perspective = 0,
     Orthographic = 1,
@@ -219,11 +221,24 @@ export const setCameraInfoAsync = createAsyncThunk(
 )
 export const setProjectionAsync = createAsyncThunk(
     'scene/setProjectionAsync',
-    async (data:ViewMode, {dispatch,getState}) => {
+    async (data:{value :ViewMode, undoable?: boolean}, {dispatch,getState}) => {
         const state = getState() as RootState;
         const viewerId = state.app.viewers[state.app.activeViewer || ''];
-        setCameraProjection(viewerId,data);
-        dispatch(sceneSlice.actions.editViewMode({value:data}));
+
+        const oldValue = state.scene.settings.projection;
+
+        setCameraProjection(viewerId,data.value);
+        dispatch(sceneSlice.actions.editViewMode({value:data.value}));
+
+        if(data.undoable) {
+            undoStack.add(
+              {
+                undo: {reducer: setProjectionAsync, payload:{value : oldValue}},
+                redo: {reducer: setProjectionAsync, payload:{value : data.value}},
+              }
+            )
+          }
+
     }
 )
 //color apis
