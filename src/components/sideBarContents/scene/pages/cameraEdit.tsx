@@ -17,7 +17,7 @@ import NumericInput from 'react-numeric-input';
 import styles from '../style';
 
 import MuiButton from '@material-ui/core/Button';
-import { CameraView,ViewMode, updateChange, setActiveId} from '../../../../store/sideBar/sceneSlice';
+import { CameraView,ViewMode, updateChange, setCameraInfoAsync} from '../../../../store/sideBar/sceneSlice';
 
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
 import MuiMenuItem from '@material-ui/core/MenuItem';
@@ -52,7 +52,7 @@ export default function CameraEdit (){
     }
 
     const onHandleSelect = (newId : number) => {
-        dispatch(setActiveId(newId))
+        dispatch(setCameraInfoAsync({id :newId, undoable: true}))
         setCameraView(cameraViews.find(item => item.id === newId))
     }
 

@@ -59,7 +59,6 @@ export default function Camera (){
 
     const onHandleCamera = (id : number) => {
         setOpenDelete(false)
-        
         dispatch(setCameraInfoAsync({id, undoable: true}))
 
     }
