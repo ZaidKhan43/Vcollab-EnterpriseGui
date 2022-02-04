@@ -273,16 +273,30 @@ export const sceneSlice = createSlice({
     initialState : initialState,
     reducers: {
         //camera
-        addCameraView : (state) => {
+        addCameraView : (state, action: PayloadAction<{undoable?:true}>) => {
             if(state.cameraViews.filter(item => item.userDefined === true).length < state.settings.userDefineLimit){
                 const userDefinedLength = state.cameraViews.filter(item => item.userDefined === true).length;
                 const id : number = ++state.settings.idGeneratorUserDefined;
                 const name : string = `Camera View ${userDefinedLength + 1}`;
                 const newCameraView : CameraView = {
-                ...state.settings.defaultCameraParameter,id, name, userDefined:true
+                    ...state.settings.defaultCameraParameter,id, name, userDefined:true
+                }
+                state.cameraViews = [...state.cameraViews, newCameraView];
+
+                if(action.payload.undoable){
+                    undoStack.add(
+                        {
+                            undo: {reducer: undoAddCameraView, payload:{id}},
+                            redo: {reducer: addCameraView, payload:{}},
+                        }
+                    )
+                }
             }
-            state.cameraViews = [...state.cameraViews, newCameraView];
-            }
+        },
+
+        undoAddCameraView : (state,  action: PayloadAction<{id : number}>) => {
+            state.cameraViews =  state.cameraViews.filter(item => item.id !== action.payload.id)
+            state.settings.idGeneratorUserDefined--;
         },
 
         pushCameraView : (state, action:PayloadAction<{cameraView: CameraView, index : number}>) => {
@@ -300,8 +314,6 @@ export const sceneSlice = createSlice({
         },
 
         deleteCameraView:(state, action: PayloadAction<{toDeleteItem : CameraView | undefined, undoable?: boolean}>) => {
-
-            
             const indexOfDeletedCameraView = state.cameraViews.findIndex(item => item.id === action.payload.toDeleteItem?.id)
             const deletedCameraView = action.payload.toDeleteItem;
 
@@ -454,7 +466,7 @@ export const sceneSlice = createSlice({
     }
 })
 
-export const {addCameraView, setActiveId ,  updateChange, pasteCameraView , deleteCameraView, setShowAxis,setApplyItem, pushCameraView} = sceneSlice.actions;
+export const {addCameraView, setActiveId ,  updateChange, pasteCameraView , deleteCameraView, setShowAxis,setApplyItem, pushCameraView, undoAddCameraView} = sceneSlice.actions;
 
 export default sceneSlice.reducer;
 

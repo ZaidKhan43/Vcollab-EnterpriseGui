@@ -68,7 +68,7 @@ export default function Camera (){
     }
 
     const onHandleAdd = () => {
-        dispatch(addCameraView());
+        dispatch(addCameraView({undoable: true}));
     }
 
     const onHandleCopy = () => {
