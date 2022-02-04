@@ -303,7 +303,7 @@ export const sceneSlice = createSlice({
             state.cameraViews.push(action.payload.cameraView);
           },
 
-        pasteCameraView: (state,action :  PayloadAction<{data: CameraView}>) => {
+        pasteCameraView: (state,action :  PayloadAction<{data: CameraView, undoable?: true}>) => {
             const userDefinedLength : number = state.cameraViews.filter(item => item.userDefined === true).length;
             let clone = JSON.parse(JSON.stringify(action.payload.data));
             const newId = ++state.settings.idGeneratorUserDefined;
@@ -311,6 +311,15 @@ export const sceneSlice = createSlice({
             clone.userDefined = true;
             clone.name = `Camera View ${userDefinedLength + 1}`;
             state.cameraViews = [...state.cameraViews , clone];
+
+            if(action.payload.undoable){
+                undoStack.add(
+                    {
+                        undo: {reducer: undoAddCameraView, payload:{id :clone.id}},
+                        redo: {reducer: pasteCameraView, payload:{data: action.payload.data}},
+                    }
+                )
+            }
         },
 
         deleteCameraView:(state, action: PayloadAction<{toDeleteItem : CameraView | undefined, undoable?: boolean}>) => {

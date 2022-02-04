@@ -78,14 +78,9 @@ export default function Camera (){
     const onHandlePaste = () => {
         const data = cameraList.find(item => item.id === copy)
         if(data)
-        dispatch(pasteCameraView({data}))
+        dispatch(pasteCameraView({data, undoable: true}))
         // setCameraList(newCameraList);
     }
-
-    const onHandleDeleteButton = () => {
-        setOpenDelete(true); 
-        // setDeleteMessage("Are you sure want to delete the selected plane?")
-     }
 
     const onHandleDelete = () => {
         setOpenDelete(false);
