@@ -192,13 +192,14 @@ export const fetchCameraMatrix = createAsyncThunk(
 
 export const setCameraInfoAsync = createAsyncThunk(
     'scene/setCameraInfoAsync',
-    async (data: {id : number, undoable?: boolean},{dispatch,getState}) => {
+    async (data: {id : number, undoable?: boolean, callSetActive?: boolean },{dispatch,getState}) => {
         const state = getState() as RootState;
         const viewerId = state.app.viewers[state.app.activeViewer || ''];
 
         const oldActiveId = state.scene.settings.activeId;
 
-        dispatch(setActiveId(data.id))        
+        if (data.callSetActive)
+            dispatch(setActiveId(data.id))        
         let activeView = state.scene.cameraViews.find(item => item.id === data.id)
         let camData = {
             position: [activeView?.cameraPosition[0].value,activeView?.cameraPosition[1].value,activeView?.cameraPosition[2].value],
@@ -354,6 +355,9 @@ export const sceneSlice = createSlice({
         
         updateChange: (state, action :  PayloadAction<{data : CameraView, tab : ViewMode}>) => {
             const {data,tab} = action.payload;
+
+            console.log("datta",data)
+
             const index = state.cameraViews.findIndex(item => item.id === data.id)
             if(index > -1){
                 if(tab === ViewMode.Perspective)
@@ -363,6 +367,7 @@ export const sceneSlice = createSlice({
                     let far = data.valuePerspective[2].value;
                     let near = data.valuePerspective[3].value;
                     let orthoData = perspectiveToOrtho(fov,aspect,near,far);
+                    
                     data.valueOrthographic[0].value = orthoData.left;
                     data.valueOrthographic[1].value = orthoData.right;
                     data.valueOrthographic[2].value = orthoData.top;

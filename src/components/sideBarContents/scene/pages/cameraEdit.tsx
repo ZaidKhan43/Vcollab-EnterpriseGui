@@ -25,6 +25,8 @@ import MuiMenuItem from '@material-ui/core/MenuItem';
 import MuiTabs from '@material-ui/core/Tabs';
 import MuiTab from '@material-ui/core/Tab';
 
+import {undoStack} from "../../../utils/undoStack";
+
 export default function CameraEdit (){
 
     const dispatch = useAppDispatch();
@@ -212,9 +214,23 @@ export default function CameraEdit (){
         setCameraView(cameraViews.find(item => item.id === active))
     }
 
-    const onHandleSave = () => {
-        const data = cameraView;
+    const onHandleSave = (newData: CameraView, undoable?: boolean) => {
+
+        const data = JSON.parse(JSON.stringify(newData));
+        let oldData = cameraViews.find(item => item.id === data?.id)
+        
         dispatch(updateChange({data,tab:projection}))
+        dispatch(setCameraInfoAsync({id : data.id}))
+
+        if(undoable){
+            undoStack.add(
+                {
+                  undo: () => onHandleSave(oldData),
+                  redo: () => onHandleSave(newData),
+                }
+              )
+        }
+
     }
 
 
@@ -417,7 +433,7 @@ export default function CameraEdit (){
                 <MuiButton style={{backgroundColor:"#5958FF",width:"30%", fontSize:"11px" , marginRight:"5px"}} 
                 disabled={!change}
                 autoFocus 
-                onClick={onHandleSave}
+                onClick={() => onHandleSave(cameraView, true)}
                 // color="primary"
               >
                 Save
