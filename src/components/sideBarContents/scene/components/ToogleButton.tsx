@@ -23,7 +23,7 @@ const ThemchangeButton = withStyles((theme) => ({
 
 interface ToggleButtonProps {
   value: boolean,
-  onToggle?: (isOn:boolean) => void 
+  onToggle?: (isOn:boolean, undoable?: boolean) => void 
 }
 
 export default function ToggleButtons(props:ToggleButtonProps) {
@@ -33,12 +33,12 @@ const classes = style();
 
 const handleDarkTheme= function() {
 
-  props.onToggle && props.onToggle(true);
+  props.onToggle && props.onToggle(true, true);
 }
 
 const handleLightTheme= function() {
 
-  props.onToggle && props.onToggle(false);
+  props.onToggle && props.onToggle(false, true);
 }
 
   return (

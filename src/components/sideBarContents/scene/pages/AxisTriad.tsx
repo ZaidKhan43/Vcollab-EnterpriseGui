@@ -17,6 +17,8 @@ import { windowId } from '../components/AxisTriadWindow';
 import { Layers, selectWindowSize, setEditMode, setWindowAnchor, setWindowPos } from '../../../../store/windowMgrSlice';
 import { ViewerContext } from '../../../App';
 
+import {undoStack} from "../../../utils/undoStack";
+
 export default function AxisTriad() {
 
 const classes = useStyles(); 
@@ -25,6 +27,8 @@ const listItems = useAppSelector(selectAxisTriodList);
 const showAxis = useAppSelector(selectShowAxis);
 const windowSize = useAppSelector((state) => selectWindowSize(state,windowId))
 const dispatch = useAppDispatch();
+
+const [currentId, setCurrentId] = useState("-1");
 
 const onClickBackIcon = () =>{
     dispatch(goBack());
@@ -47,7 +51,7 @@ const getHeaderContent=()=>{
 
 }
 
-const applySelcetedItem=(id:string,isSeleced:boolean)=>{
+const applySelcetedItem=(id:string,isSeleced:boolean, undoable?: boolean)=>{
     if(viewerContainerRef?.current) {
         let rect = viewerContainerRef.current.getBoundingClientRect();
         let uid = windowId;
@@ -55,7 +59,17 @@ const applySelcetedItem=(id:string,isSeleced:boolean)=>{
         let h = rect.height;
         let winWidth = windowSize[0];
         let winHeight = windowSize[1];
+
+        let oldValue : any;
+
+        if(currentId === "-1")
+            oldValue =  id;
         
+        else
+            oldValue = currentId
+       
+        setCurrentId(id);
+
         switch(id) {
             case "1":
                 dispatch(setWindowPos({uid,pos:[w-winWidth,0]}))
@@ -88,12 +102,30 @@ const applySelcetedItem=(id:string,isSeleced:boolean)=>{
                 break;
         }
         dispatch(setApplyItem(id));
+
+        if(undoable){
+            undoStack.add(
+                {
+                  undo: () => applySelcetedItem(oldValue, isSeleced),
+                  redo: () => applySelcetedItem(id, isSeleced),
+                }
+            ) 
+        }
     }
 
 }
 
-const handleToggle = (isOn:boolean) => {
+const handleToggle = (isOn:boolean, undoable?: boolean) => {
     dispatch(setShowAxis(isOn));
+
+    if(undoable){
+        undoStack.add(
+            {
+              undo: () => handleToggle(!isOn),
+              redo: () => handleToggle(isOn),
+            }
+        )
+    }
 }
 
 const getBody=()=> {
