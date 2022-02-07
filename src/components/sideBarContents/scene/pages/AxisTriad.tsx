@@ -55,6 +55,7 @@ const applySelcetedItem=(id:string,isSeleced:boolean)=>{
         let h = rect.height;
         let winWidth = windowSize[0];
         let winHeight = windowSize[1];
+        
         switch(id) {
             case "1":
                 dispatch(setWindowPos({uid,pos:[w-winWidth,0]}))

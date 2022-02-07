@@ -228,7 +228,7 @@ export default function CameraEdit (){
                   undo: () => onHandleSave(oldData),
                   redo: () => onHandleSave(newData),
                 }
-              )
+            )
         }
 
     }

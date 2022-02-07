@@ -23,6 +23,8 @@ import { setBackgroundColorAsync , setBackgroundImageAsync } from "../../../../s
 
 import styles from '../style';
 
+import {undoStack} from "../../../utils/undoStack";
+
 export default function Background (){
 
     const classes = styles();
@@ -40,6 +42,8 @@ export default function Background (){
 
     const [selectedColor, setSelectedColor] = useState<any>();
     const dispatch = useAppDispatch();
+
+    const isBackgroundImage = useAppSelector((state) => state.scene.isImageActive)
 
     const handleChangeTab= (e : any, value : any) => {
         setBackgroundMenu(value)
@@ -77,17 +81,64 @@ export default function Background (){
         
     }
 
-    const handleSave = () => {    
-       if (backgroundMenu === 0) {
-            dispatch(setBackgroundColorAsync(colourSet));
-            // setSnackbarContent("Background Colour Applied");
-            // setSnackbarBoolean(true);
-            setSelectedColor(null);
-       }
+    const handleUndo = (oldData : any) => {
 
-       if (backgroundMenu === 1) {{
-           dispatch(setBackgroundImageAsync(file));
-       }}
+        if (typeof(oldData) === 'object') {
+             dispatch(setBackgroundColorAsync(oldData));
+             setSelectedColor(null);
+        }
+
+        if (typeof(oldData) === 'string') {
+            dispatch(setBackgroundImageAsync(oldData));
+        }
+
+ 
+    }
+
+    const handleSave = ( newData? : any, newFile? : any ,undoable? : boolean) => {    
+
+        if (backgroundMenu === 0) {
+
+            let oldData : any;
+            if(isBackgroundImage)
+                oldData = fileRedux;
+            else 
+                oldData = colourList
+
+            dispatch(setBackgroundColorAsync(newData));
+            setSelectedColor(null);
+
+            if(undoable && oldData){
+                undoStack.add(
+                    {
+                      undo: () => handleUndo(oldData),
+                      redo: () => handleSave(newData),
+                    }
+                )
+            }
+        }
+
+       if (backgroundMenu === 1) {
+
+            let oldData : any;
+            if(!fileRedux)
+                oldData = colourList;
+            else
+                oldData = fileRedux;
+
+           dispatch(setBackgroundImageAsync(newFile));
+
+           if(undoable){
+                undoStack.add(
+                    {
+                      undo: () => handleUndo(oldData),
+                      redo: () => handleSave({}, newFile),
+                    }
+                )
+            }
+        }
+
+       
     }
 
         const handleReset = () => { 
@@ -246,7 +297,7 @@ export default function Background (){
                 <div className={classes.saveResetButtonContainer} >
                     <MuiGrid container spacing={3} >
                         <MuiGrid item xs={12} sm={6}>
-                            <MuiButton disabled={ backgroundChange=== false} style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={handleSave}>
+                            <MuiButton disabled={ backgroundChange=== false} style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={() => handleSave(colourSet,file,true)}>
                                 Save
                             </MuiButton>            
                         </MuiGrid>
