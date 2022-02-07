@@ -19,7 +19,7 @@ import MuiMinusIcon from '@material-ui/icons/Remove';
 import Dropzone from 'react-dropzone';
 import MuiTypography from '@material-ui/core/Typography';
 
-import { setBackgroundColorAsync , setBackgroundImageAsync } from "../../../../store/sideBar/sceneSlice";
+import { setBackgroundColorAsync , setBackgroundImageAsync, ColorList } from "../../../../store/sideBar/sceneSlice";
 
 import styles from '../style';
 
@@ -95,24 +95,23 @@ export default function Background (){
  
     }
 
-    const handleSave = ( newData? : any, newFile? : any ,undoable? : boolean) => {    
+    const handleSave = ( newData :{newColorList? : ColorList[], newFile? : any ,undoable? : boolean}) => {    
 
-        if (backgroundMenu === 0) {
-
+        if (backgroundMenu === 0 && newData.newColorList) {
             let oldData : any;
             if(isBackgroundImage)
                 oldData = fileRedux;
             else 
                 oldData = colourList
 
-            dispatch(setBackgroundColorAsync(newData));
+            dispatch(setBackgroundColorAsync(newData.newColorList));
             setSelectedColor(null);
 
-            if(undoable && oldData){
+            if(newData.undoable && oldData){
                 undoStack.add(
                     {
                       undo: () => handleUndo(oldData),
-                      redo: () => handleSave(newData),
+                      redo: () => handleSave({newColorList : newData.newColorList}),
                     }
                 )
             }
@@ -126,13 +125,13 @@ export default function Background (){
             else
                 oldData = fileRedux;
 
-           dispatch(setBackgroundImageAsync(newFile));
+           dispatch(setBackgroundImageAsync(newData.newFile));
 
-           if(undoable){
+           if(newData.undoable){
                 undoStack.add(
                     {
                       undo: () => handleUndo(oldData),
-                      redo: () => handleSave({}, newFile),
+                      redo: () => handleSave( {newFile: newData.newFile}),
                     }
                 )
             }
@@ -297,7 +296,7 @@ export default function Background (){
                 <div className={classes.saveResetButtonContainer} >
                     <MuiGrid container spacing={3} >
                         <MuiGrid item xs={12} sm={6}>
-                            <MuiButton disabled={ backgroundChange=== false} style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={() => handleSave(colourSet,file,true)}>
+                            <MuiButton disabled={ backgroundChange=== false} style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={() => handleSave({newColorList:colourSet, newFile : file, undoable:true})}>
                                 Save
                             </MuiButton>            
                         </MuiGrid>

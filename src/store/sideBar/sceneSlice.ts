@@ -38,7 +38,7 @@ export type CameraView = {
     }[]
 }
 
-type ColorList = {
+export type ColorList = {
     id : number,
     color : {
         r : number,
