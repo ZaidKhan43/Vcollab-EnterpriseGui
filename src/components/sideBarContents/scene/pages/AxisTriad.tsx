@@ -62,8 +62,10 @@ const applySelcetedItem=(id:string,isSeleced:boolean, undoable?: boolean)=>{
 
         let oldValue : any;
 
+        console.log("uid",uid)
+
         if(currentId === "-1")
-            oldValue =  id;
+            oldValue =  "2";
         
         else
             oldValue = currentId

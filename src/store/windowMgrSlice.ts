@@ -2,6 +2,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { stringify } from 'querystring';
 import type { RootState } from './index';
 
+import {undoStack} from "../components/utils/undoStack"
+
 export enum Layers {
     BACKGROUND = 'BACKGROUND',
     VIEWER = 'VIEWER',
@@ -113,10 +115,58 @@ export const windowMgrSlice = createSlice({
             const {uid,anchor} = action.payload;
             state.windows[uid].anchor = anchor;
         },
+
+        undoWindowSize : (state, action:PayloadAction<{uid:string, size:[number,number], pos:[number,number]}>) => {
+            let {uid,size,pos} = action.payload;
+            state.windows[uid].size = size;
+            state.windows[uid].pos = pos;
+
+        },
         setWindowSize: (state, action:PayloadAction<{uid:string, size:[number,number]}>) => {
             let {uid,size} = action.payload;
             state.windows[uid].size = size;
         },
+
+        setWindowPostionHandler:(state, action:PayloadAction<{uid:string, anchor: [number,number],pos: [number,number], undoable?: boolean}>)=> {
+            const {uid,pos,anchor,undoable} = action.payload;
+
+            const oldPos = JSON.parse(JSON.stringify(state.windows[uid].pos));
+            const oldAnchor = JSON.parse(JSON.stringify(state.windows[uid].anchor));
+
+            windowMgrSlice.caseReducers.setWindowAnchor(state, {payload:{uid, anchor}, type:"windowMrgSlice/setWindowAnchor"});
+            windowMgrSlice.caseReducers.setWindowPos(state, {payload:{uid, pos}, type:"windowMrgSlice/setWindowPos"});
+
+            if(undoable){
+                undoStack.add(
+                    {
+                      undo: {reducer: setWindowPostionHandler, payload:{uid, anchor:oldAnchor, pos: oldPos}},
+                      redo: {reducer: setWindowPostionHandler, payload:{uid, anchor, pos}},
+                    }
+                  )
+            }
+        },
+
+        setWindowSizeHandler: (state, action:PayloadAction<{uid:string, size:[number,number],pos: [number,number], undoable?: boolean}>) => {
+            let {uid,size, pos} = action.payload;
+
+           const oldSize =  JSON.parse(JSON.stringify(state.windows[uid].size));
+           const oldPos = JSON.parse(JSON.stringify(state.windows[uid].pos))
+
+            state.windows[uid].size = size;
+            // state.windows[uid].pos = pos;
+            windowMgrSlice.caseReducers.setWindowPos(state, {payload:{uid, pos}, type:"windowMrgSlice/setWindowPos"});
+
+            if(action.payload.undoable) {
+                undoStack.add(
+                  {
+                    undo: {reducer: undoWindowSize, payload:{uid, size:oldSize, pos: oldPos}},
+                    redo: {reducer: setWindowSizeHandler, payload:{uid, size, pos}},
+                  }
+                )
+              }
+
+        },
+
         setActiveLayers: (state, action:PayloadAction<Layers[]>) => {
             const layers = action.payload;
             let selection:any = {};
@@ -139,8 +189,11 @@ export const {
     setHiddenState,
     setWindowPos,
     setWindowSize,
+    setWindowSizeHandler,
+    setWindowPostionHandler,
     setWindowAnchor,
-    setActiveLayers
+    setActiveLayers,
+    undoWindowSize,
 } = windowMgrSlice.actions;
 
 export const selectActiveLayers = (state: RootState): Layers[] => Object.keys(state.windowMgr.activeLayers) as Layers[];
