@@ -190,9 +190,31 @@ export const fetchCameraMatrix = createAsyncThunk(
     }
 )
 
+const undoSetCameraInfoAsync = createAsyncThunk(
+    'scene/undoSetCameraInfoAsync',
+    async (data: {id : number, callSetActive?: boolean, oldActivePresp?: any, oldActiveOrtho?: any },{dispatch,getState}) => {
+        const state = getState() as RootState;
+        const viewerId = state.app.viewers[state.app.activeViewer || ''];
+
+        if (data.callSetActive)
+            dispatch(setActiveId(data.id))        
+
+        const {oldActivePresp, oldActiveOrtho} = data;
+
+        const camData = {
+                position: oldActivePresp?.pos,
+                dir: oldActivePresp.dir,
+                up: oldActivePresp?.up,
+                perspective: oldActivePresp?.frustum,
+                ortho: oldActiveOrtho?.frustum,
+            }
+        setCameraInfo(viewerId,camData);
+    }
+)
+
 export const setCameraInfoAsync = createAsyncThunk(
     'scene/setCameraInfoAsync',
-    async (data: {id : number, undoable?: boolean, callSetActive?: boolean },{dispatch,getState}) => {
+    async (data: {id : number, undoable?: boolean, callSetActive?: boolean, activeView?: any },{dispatch,getState}) => {
         const state = getState() as RootState;
         const viewerId = state.app.viewers[state.app.activeViewer || ''];
 
@@ -200,7 +222,12 @@ export const setCameraInfoAsync = createAsyncThunk(
 
         if (data.callSetActive)
             dispatch(setActiveId(data.id))        
-        let activeView = state.scene.cameraViews.find(item => item.id === data.id)
+
+        const activeView = state.scene.cameraViews.find(item => item.id === data.id)
+          
+        const oldActivePresp = getCameraInfo(viewerId,ViewMode.Perspective)
+        const oldActiveOrtho = getCameraInfo(viewerId,ViewMode.Orthographic)
+            
         let camData = {
             position: [activeView?.cameraPosition[0].value,activeView?.cameraPosition[1].value,activeView?.cameraPosition[2].value],
             dir: [activeView?.cameraDirection[0].value,activeView?.cameraDirection[1].value,activeView?.cameraDirection[2].value],
@@ -226,8 +253,8 @@ export const setCameraInfoAsync = createAsyncThunk(
         if(data.undoable) {
             undoStack.add(
               {
-                undo: {reducer: setCameraInfoAsync, payload:{id: oldActiveId}},
-                redo: {reducer: setCameraInfoAsync, payload:{id: data.id}},
+                undo: {reducer: undoSetCameraInfoAsync, payload:{id: oldActiveId, callSetActive: true, oldActiveOrtho, oldActivePresp }},
+                redo: {reducer: setCameraInfoAsync, payload:{id: data.id, callSetActive: true}},
               }
             )
           }

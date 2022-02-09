@@ -64,7 +64,6 @@ export default function Background (){
             const newArray : any = [...colourList, {id: idNew , color:{r:255,g:255,b:255,a:1}}];
             dispatch(setBackgroundColorAsync(newArray));
             setSelectedColor(newArray[newArray.length - 1])
-            
 
             if(undoable){
                 undoStack.add(
