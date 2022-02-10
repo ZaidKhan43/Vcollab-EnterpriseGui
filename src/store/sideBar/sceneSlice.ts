@@ -200,14 +200,43 @@ const undoSetCameraInfoAsync = createAsyncThunk(
             dispatch(setActiveId(data.id))        
 
         const {oldActivePresp, oldActiveOrtho} = data;
+        let camData;
 
-        const camData = {
+        if(data.id === -1)
+
+            camData = {
                 position: oldActivePresp?.pos,
                 dir: oldActivePresp.dir,
                 up: oldActivePresp?.up,
                 perspective: oldActivePresp?.frustum,
                 ortho: oldActiveOrtho?.frustum,
             }
+
+        if(data.id !== -1){
+            const activeView = state.scene.cameraViews.find(item => item.id === data.id)
+            camData = {
+                position: [activeView?.cameraPosition[0].value,activeView?.cameraPosition[1].value,activeView?.cameraPosition[2].value],
+                dir: [activeView?.cameraDirection[0].value,activeView?.cameraDirection[1].value,activeView?.cameraDirection[2].value],
+                up: [activeView?.cameraUp[0].value,activeView?.cameraUp[1].value,activeView?.cameraUp[2].value],
+                perspective: 
+                {
+                    fov: activeView?.valuePerspective[0].value,
+                    aspect: activeView?.valuePerspective[1].value,
+                    far: activeView?.valuePerspective[2].value,
+                    near: activeView?.valuePerspective[3].value
+                },
+                ortho: {
+                    left: activeView?.valueOrthographic[0].value,
+                    right: activeView?.valueOrthographic[1].value,
+                    top: activeView?.valueOrthographic[2].value,
+                    bottom: activeView?.valueOrthographic[3].value,
+                    far: activeView?.valueOrthographic[4].value,
+                    near: activeView?.valueOrthographic[5].value,
+                }
+            }
+        }
+            
+        
         setCameraInfo(viewerId,camData);
     }
 )
