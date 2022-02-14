@@ -25,6 +25,8 @@ import { selectInteractionMode } from 'store/appSlice';
 import { InteractionMode } from 'backend/ViewerManager';
 import { Label2DTemplate, Label3DTemplate } from 'components/sideBarContents/labels/components/shared/Editor/common';
 
+import {undoStack} from "../../../components/utils/undoStack"
+
 export const windowPrefixId = "Label2D";
 interface labelSettings extends LabelSettings {
     defaultParameters : ILabel,
@@ -103,21 +105,30 @@ export const init = createAsyncThunk(
 
 export const handleLabel2DCreation = createAsyncThunk(
     "LabelListSlice/handleLabel2DCreation",
-    (data:any,{dispatch,getState}) => {
+    (data:{data: any , undoable?:boolean , id?: string },{dispatch,getState}) => {
         let rootState = getState() as RootState;
         let mode = selectInteractionMode(rootState);
 
         // if(mode === InteractionMode.DEFAULT)
         //     return;
         
-        let e = data.data as PointerEvent;
+        let e = data.data.data as PointerEvent;
         
         if(mode === InteractionMode.LABEL2D) {
             let pos = [e.offsetX,e.offsetY];
             console.log("e",e);
-            dispatch(createLabel({id:nextId('label-2d'),pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(Label2DTemplate)}));
-        }
+            let idNew = data.id? data.id : nextId('label-2d')
+            dispatch(createLabel({id:idNew,pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(Label2DTemplate)}));
 
+              if(data.undoable) {
+            undoStack.add(
+              {
+                undo: {reducer: undoCreateLabel, payload:{id : idNew,pid:LabelType.LABEL2D,}},
+                redo: {reducer: handleLabel2DCreation, payload:{id:idNew, data: data.data}},
+              }
+            )
+            }
+        }
 });
 
 export const handleProbeHeadCreation = createAsyncThunk(
@@ -127,6 +138,15 @@ export const handleProbeHeadCreation = createAsyncThunk(
     const idNew = nextId('label-3d')
     dispatch(createInterLabel({id:idNew,pid:Label3DType.PROBE,pos:[-10,-10],type:Label3DType.PROBE,msg:"nill"}));
     dispatch(setActiveLabel({id: idNew}));
+
+     if(true) {
+            undoStack.add(
+              {
+                undo: {reducer: undoCreateLabel, payload:{id : idNew,pid:Label3DType.PROBE,}},
+                redo: {reducer: handleProbeHeadCreation, payload:{}},
+              }
+            )
+            }
 }
 )
 
@@ -137,6 +157,8 @@ export const handleFaceHeadCreation = createAsyncThunk(
         const idNew = nextId('label-3d')
         dispatch(createInterLabel({id:idNew,pid:Label3DType.FACE,pos:[-10,-10],type:Label3DType.FACE,msg:"nill"}));
         dispatch(setActiveLabel({id: idNew}));
+
+        
     }
     )
 
@@ -326,7 +348,47 @@ export const LabelAllSlice = createSlice({
                 }
 
                 addNodeReducer(state,{payload: newNote, type: 'ITreeNode'});
+
+                // if(true) {
+                //     undoStack.add(
+                //       {
+                //         undo: {reducer: undoCreateLabel, payload:{id,pid}},
+                //         redo: {reducer: createLabel, payload: action.payload},
+                //       }
+                //     )
+                //     }
         },
+
+        undoCreateLabel : (state , action: PayloadAction<{id:string, pid: string}>) => {
+            deleteNodeReducer(state, {payload:{nodeId:action.payload.id},type:'string'})
+
+            switch(action.payload.pid){
+                case LabelType.LABEL2D :
+                    state.labelsListSettings.count2D--;
+                break;
+
+                case Label3DType.PROBE:
+                    state.labelsListSettings.countPoint--;
+                break;
+
+                case Label3DType.FACE:
+                    state.labelsListSettings.countFace--;
+                break;
+
+                case Label3DType.DISTANCE :
+                    state.labelsListSettings.countMeasurement--;
+                break;
+
+                case Label3DType.ARC :
+                    state.labelsListSettings.countMeasurement--;
+                break;
+
+                default:
+                break;
+
+            }
+        },
+
         setLabelPos:(state, action:PayloadAction<{id:string,pos:[number,number],anchor?: [number,number]}>) => {
             const {id,pos,anchor} = action.payload;
             if(id !== "-1") {
@@ -402,6 +464,7 @@ export const {
     setLabelPos, 
     createParentLabel,
     setActiveLabel,
+    undoCreateLabel,
 } = LabelAllSlice.actions;
 
 //Selectors

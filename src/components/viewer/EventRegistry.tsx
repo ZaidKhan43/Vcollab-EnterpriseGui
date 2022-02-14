@@ -112,7 +112,7 @@ function EventRegistry(props: Props) {
               eventDispatcher?.addEventListener(
                 events.viewerEvents.VIEWER_CLICK,
                 (event:any) => {
-                  dispatch(handleLabel2DCreation(event));
+                  dispatch(handleLabel2DCreation({data: event, undoable: true}));
                 }
               )
         }
