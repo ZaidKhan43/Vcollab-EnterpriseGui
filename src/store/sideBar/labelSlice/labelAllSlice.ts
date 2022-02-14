@@ -101,11 +101,31 @@ export const init = createAsyncThunk(
     }
 )
 
+const RedoHandleLabel2DCreation =  createAsyncThunk(
+    "LabelListSlice/handleLabel2DCreation",
+    (data:{data: any , undoable?:boolean , id?: string },{dispatch,getState}) => {
+        let rootState = getState() as RootState;
+        
+        let e = data.data.data as PointerEvent;
+            let pos = [e.offsetX,e.offsetY];
+            console.log("e",e);
+            let idNew = data.id? data.id : nextId('label-2d')
+            dispatch(createLabel({id:idNew,pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(Label2DTemplate)}));
+
+              if(data.undoable) {
+            undoStack.add(
+              {
+                undo: {reducer: undoCreateLabel, payload:{id : idNew,pid:LabelType.LABEL2D,}},
+                redo: {reducer: handleLabel2DCreation, payload:{id:idNew, data: data.data}},
+              }
+            )
+            }
+});
 
 
 export const handleLabel2DCreation = createAsyncThunk(
     "LabelListSlice/handleLabel2DCreation",
-    (data:{data: any , undoable?:boolean , id?: string },{dispatch,getState}) => {
+    (data:{data: any , undoable?:boolean},{dispatch,getState}) => {
         let rootState = getState() as RootState;
         let mode = selectInteractionMode(rootState);
 
@@ -117,14 +137,14 @@ export const handleLabel2DCreation = createAsyncThunk(
         if(mode === InteractionMode.LABEL2D) {
             let pos = [e.offsetX,e.offsetY];
             console.log("e",e);
-            let idNew = data.id? data.id : nextId('label-2d')
+            let idNew = nextId('label-2d')
             dispatch(createLabel({id:idNew,pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(Label2DTemplate)}));
 
               if(data.undoable) {
             undoStack.add(
               {
                 undo: {reducer: undoCreateLabel, payload:{id : idNew,pid:LabelType.LABEL2D,}},
-                redo: {reducer: handleLabel2DCreation, payload:{id:idNew, data: data.data}},
+                redo: {reducer: createLabel, payload:{id:idNew,pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(Label2DTemplate)}},
               }
             )
             }
