@@ -128,7 +128,7 @@ export default function LabelList(){
     }
 
     if(node.id === Label3DType.PROBE){
-      dispatch(handleProbeHeadCreation())
+      dispatch(handleProbeHeadCreation({undoable: true}))
       setInteractionMode(viewerId, InteractionMode.DEFAULT);
       dispatch(setLabelInsertionState(false));
     }

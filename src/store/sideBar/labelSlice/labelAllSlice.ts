@@ -153,13 +153,13 @@ export const handleLabel2DCreation = createAsyncThunk(
 
 export const handleProbeHeadCreation = createAsyncThunk(
 "labelListSlice/handleProbeLabelCreation",
-(data,{dispatch, getState}) => {
+(data:{undoable: boolean},{dispatch, getState}) => {
     // let e = data.data;
     const idNew = nextId('label-3d')
     dispatch(createInterLabel({id:idNew,pid:Label3DType.PROBE,pos:[-10,-10],type:Label3DType.PROBE,msg:"nill"}));
     dispatch(setActiveLabel({id: idNew}));
 
-        if(true) {
+        if(data.undoable) {
             undoStack.add(
               {
                 undo: {reducer: undoCreateLabel, payload:{id : idNew,pid:Label3DType.PROBE,}},
@@ -178,8 +178,7 @@ export const handleFaceHeadCreation = createAsyncThunk(
         dispatch(setActiveLabel({id: idNew}));
 
         
-    }
-    )
+});
 
 export const handleMeasurementHeadCreation = createAsyncThunk(
     'labelListSlice/handleMeasurementLabelCreation',
