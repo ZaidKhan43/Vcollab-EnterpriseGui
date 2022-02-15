@@ -199,7 +199,7 @@ export default function LabelList(){
   }
 
   const onHandleDeleteButton = () => {
-    dispatch(delete3DLabel({}));
+    dispatch(delete3DLabel({undoable: true}));
   }
 
   const onHandleRegroup = () => {

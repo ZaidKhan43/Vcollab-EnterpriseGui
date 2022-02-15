@@ -26,6 +26,7 @@ import { InteractionMode } from 'backend/ViewerManager';
 import { Label2DTemplate, Label3DTemplate } from 'components/sideBarContents/labels/components/shared/Editor/common';
 
 import {undoStack} from "../../../components/utils/undoStack"
+import { AnyArray } from 'immer/dist/internal';
 
 export const windowPrefixId = "Label2D";
 interface labelSettings extends LabelSettings {
@@ -247,11 +248,12 @@ export const handleProbeLabelCreation = createAsyncThunk(
 
 export const delete3DLabel = createAsyncThunk(
     "labelListSlice/delete3DLabel",
-    (data:any,{dispatch,getState}) => {
+    (data:{undoable?: boolean},{dispatch,getState}) => {
         let rootState = getState() as RootState;
         let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
         let state = rootState.labelAll;
         let keys:string[] = [];
+        let dataList : any[] = [];
         Object.keys(state.data).forEach( key => {
             if( state.data[key].state.checked === true && state.data[key].pid !== "-1" && state.data[key].id !== Label3DType.PROBE && state.data[key].id !== Label3DType.DISTANCE && state.data[key].id !== Label3DType.ARC){
                 delete3DLabelApi(key,viewerId);
@@ -259,12 +261,48 @@ export const delete3DLabel = createAsyncThunk(
                 // if(state.data[key].state.partiallyChecked === false)
                 // keys.push(key);
 
-                if(state.data[key].children.length === 0)
-                keys.push(key);
+                if(state.data[key].children.length === 0){
+                    keys.push(key);
+                    dataList.push(state.data[key])
+                }
                 
             }
         })
         dispatch(LabelAllSlice.actions.deleteLabel({keys}));
+        
+        if(data.undoable){
+            undoStack.add(
+                {
+                  undo: {reducer: undoDelete, payload:{dataList}},
+                  redo: {reducer: redoDelete, payload:{keys}},
+                }
+              )
+        }
+});
+
+const redoDelete = createAsyncThunk(
+    "labelListSlice/delete3DLabel",
+    (data:{keys: string[]},{dispatch,getState}) => {
+        // let rootState = getState() as RootState;
+        // let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
+
+        // data.keys?.forEach((item :any) => {
+        //     delete3DLabelApi(item,viewerId)
+            
+        // })
+
+        dispatch(LabelAllSlice.actions.deleteLabel({keys: data.keys}));
+});
+
+const undoDelete = createAsyncThunk(
+    "labelListSlice/handleProbeLabelCreation",
+    (data:{dataList : any},{dispatch,getState}) => {
+
+        console.log("item", data.dataList)
+        data.dataList.forEach((item: any) => 
+            dispatch(LabelAllSlice.actions.undoDeleted(item))
+        )
+    
 });
 
 export const reGroupLabel = createAsyncThunk(
@@ -331,6 +369,10 @@ export const LabelAllSlice = createSlice({
                 newNote.labelType = LabelType.LABEL3D;
             }
             addNodeReducer(state,{payload: newNote, type: 'ITreeNode'});
+        },
+
+        undoDeleted : (state, action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string, probeData?:any, activeLabel?:string}>) => {
+            addNodeReducer(state,{payload: action.payload, type: 'ITreeNode'});
         },
 
        createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string, probeData?:any, activeLabel?:string}>) => {
