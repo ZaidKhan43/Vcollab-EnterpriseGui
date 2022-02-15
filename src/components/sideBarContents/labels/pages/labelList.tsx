@@ -208,26 +208,10 @@ export default function LabelList(){
 
     const mainPid = treeDataRedux[pid].pid;
 
-    if(mainPid === Label3DType.PROBE){
-      dispatch(handleProbeHeadCreation())
-    }
-
-    if(mainPid === Label3DType.FACE){
-      dispatch(handleFaceHeadCreation())
-    }
-
-    if(mainPid === Label3DType.DISTANCE){
-      dispatch(handleMeasurementHeadCreation({pid :Label3DType.DISTANCE }))
-    }
-
-    if(mainPid === Label3DType.ARC){
-      dispatch(handleMeasurementHeadCreation({pid : Label3DType.ARC}))
-    }
-
     setInteractionMode(viewerId, InteractionMode.DEFAULT);
     dispatch(setLabelInsertionState(false));
 
-    dispatch(reGroupLabel({selectedNodes : selectedLeafNode}))
+    dispatch(reGroupLabel({selectedNodes : selectedLeafNode, grandPid: mainPid, currentPid:pid, undoable: true}))
   }
 
   const handleSetActive = (node : any) => {

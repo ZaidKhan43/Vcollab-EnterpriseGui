@@ -307,12 +307,45 @@ const undoDelete = createAsyncThunk(
 
 export const reGroupLabel = createAsyncThunk(
     "labelListSlice/RegroupLabel",
-    (data:any,{dispatch,getState})=>{
-        let nodes = data.selectedNodes;
+    (data:{selectedNodes: any, grandPid: any, currentPid: string, undoable?: boolean, redoPid?: string},{dispatch,getState})=>{
 
-        nodes.forEach((item: string )=> 
-        dispatch(LabelAllSlice.actions.regroupLabel({key: item}))
+        let {selectedNodes, grandPid, currentPid, redoPid} = data;
+
+        let newPid : string = "";
+
+        if(grandPid === Label3DType.PROBE){
+            newPid = redoPid? redoPid : nextId('label-3d')
+            dispatch(createInterLabel({id:newPid,pid:Label3DType.PROBE,pos:[-10,-10],type:Label3DType.PROBE,msg:"nill"}))
+          }
+      
+          if(grandPid === Label3DType.FACE){
+            newPid = redoPid? redoPid: nextId('label-3d')
+            dispatch(createInterLabel({id:newPid,pid:Label3DType.FACE,pos:[-10,-10],type:Label3DType.FACE,msg:"nill"}));
+          }
+      
+          if(grandPid === Label3DType.DISTANCE){
+            newPid = redoPid? redoPid: nextId('label-3d')
+                dispatch(createInterLabel({id: newPid,pid: Label3DType.DISTANCE,type:Label3DType.DISTANCE,msg: "nill",pos:[-10,-10],}));
+          }
+      
+          if(grandPid === Label3DType.ARC){
+            newPid = redoPid? redoPid: nextId('label-3d')
+                dispatch(createInterLabel({id: newPid,pid: Label3DType.ARC,type:Label3DType.ARC,msg: "nill",pos:[-10,-10],}));
+          }
+         
+        selectedNodes.forEach((item: string )=> 
+            dispatch(LabelAllSlice.actions.regroupLabel({key: item, newPid : newPid}))
         )
+
+        if(data.undoable){
+            undoStack.add(
+                {
+                  undo: {reducer: undoRegroup, payload:{selectedNodes,oldPid: currentPid, currentPid: newPid, grandPid}},
+                  redo: {reducer: reGroupLabel, payload:{selectedNodes,grandPid, redoPid : newPid}},
+                }
+            )
+        }
+        
     }
 )
 
@@ -502,7 +535,7 @@ export const LabelAllSlice = createSlice({
             })
         },
 
-        regroupLabel: (state, action: PayloadAction<{key:string}>) => {
+        regroupLabel: (state, action: PayloadAction<{key:string, newPid:string}>) => {
             
             let key = action.payload.key;
             let array: string[] = [];
@@ -510,8 +543,18 @@ export const LabelAllSlice = createSlice({
                 if( state.data[key].state.selected === true)
                     array.push(state.data[key].id)
             })
+            regroupReducer(state,{payload: {nodeId : key, newParentId : action.payload.newPid}, type:'ITreeNode'})
+        },
+
+        undoRegroup: (state, action: PayloadAction<{selectedNodes : string[],oldPid: string, currentPid: string, grandPid : string }>) => {
+
+            const {selectedNodes, oldPid, currentPid, grandPid} = action.payload;
             
-            regroupReducer(state,{payload: {nodeId : key, newParentId : array[0]}, type:'ITreeNode'})
+            selectedNodes.forEach(item =>
+                LabelAllSlice.caseReducers.regroupLabel(state, {payload:{key: item, newPid: oldPid}, type:"labelAllSlice/regroupLabel"})
+            )
+           
+            LabelAllSlice.caseReducers.undoCreateLabel(state, {payload:{id: currentPid, pid: grandPid}, type:"labelAllSlice/undoCreateLabel"});
         },
 
         setActiveLabel : (state, action: PayloadAction<{id:string}>) => {
@@ -551,6 +594,7 @@ export const {
     createParentLabel,
     setActiveLabel,
     undoCreateLabel,
+    undoRegroup,
 } = LabelAllSlice.actions;
 
 //Selectors
