@@ -181,7 +181,7 @@ export const handleFaceHeadCreation = createAsyncThunk(
         if(data.undoable) {
             undoStack.add(
               {
-                undo: {reducer: undoCreateLabel, payload:{id : idNew,pid:Label3DType.PROBE,}},
+                undo: {reducer: undoCreateLabel, payload:{id : idNew,pid:Label3DType.FACE,}},
                 redo: {reducer: createInterLabel, payload:{id:idNew,pid:Label3DType.FACE,pos:[-10,-10],type:Label3DType.FACE,msg:"nill"}},
               }
             )
@@ -424,16 +424,10 @@ export const LabelAllSlice = createSlice({
                     newNote.labelType = LabelType.LABEL2D
                 }
 
-                if(newNote.pid === Label3DType.PROBE){
-                    newNote.anchor = pos;
-                    state.labelsListSettings.countPoint+= 1;
-                    newNote.title = `Point Label ${state.labelsListSettings.countPoint}`;
-                    newNote.labelType = LabelType.LABEL3D;
-                }
 
                 if(newNote.pid === action.payload.activeLabel){
 
-                    if(state.data[action.payload.activeLabel].pid === Label3DType.PROBE){
+                    if(state.data[action.payload.activeLabel? action.payload.activeLabel: -1].pid === Label3DType.PROBE){
                         newNote.anchor = pos;
                         state.labelsListSettings.probeLeafCount +=1 ;
                         newNote.title = `N: Point ${state.labelsListSettings.probeLeafCount}`;
@@ -441,7 +435,7 @@ export const LabelAllSlice = createSlice({
                         newNote.type = Label3DType.PROBE;
                     }
 
-                    if(state.data[action.payload.activeLabel].pid === Label3DType.FACE){
+                    if(state.data[action.payload.activeLabel? action.payload.activeLabel: -1].pid === Label3DType.FACE){
                         newNote.anchor = pos;
                         state.labelsListSettings.faceLeafCount +=1 ;
                         newNote.title = `N: Face ${state.labelsListSettings.faceLeafCount}`;
@@ -449,7 +443,7 @@ export const LabelAllSlice = createSlice({
                         newNote.type = Label3DType.FACE;
                     }
 
-                    if(state.data[action.payload.activeLabel].pid === Label3DType.DISTANCE){
+                    if(state.data[action.payload.activeLabel? action.payload.activeLabel: -1].pid === Label3DType.DISTANCE){
                         newNote.anchor = pos;
                         state.labelsListSettings.distanceLeafCount += 1;
                         newNote.title = `N: Point-Point ${state.labelsListSettings.distanceLeafCount}`;
@@ -457,7 +451,7 @@ export const LabelAllSlice = createSlice({
                         newNote.type = Label3DType.DISTANCE;
                     }
 
-                    if(state.data[action.payload.activeLabel].pid === Label3DType.ARC){
+                    if(state.data[action.payload.activeLabel? action.payload.activeLabel: -1].pid === Label3DType.ARC){
                         newNote.anchor = pos;
                         state.labelsListSettings.arcLeafCount += 1;
                         newNote.title = `N: Arc ${state.labelsListSettings.arcLeafCount}`;
@@ -478,7 +472,13 @@ export const LabelAllSlice = createSlice({
                 //     }
         },
 
-        undoCreateLabel : (state , action: PayloadAction<{id:string, pid: string}>) => {
+        undoCreateLabel : (state , action: PayloadAction<{id:string, pid: any}>) => {
+
+            const labelType = JSON.parse(JSON.stringify(state.data[action.payload.id].labelType));
+            console.log("labelType", labelType)
+
+            console.log("sdadasd", action.payload.pid)
+
             deleteNodeReducer(state, {payload:{nodeId:action.payload.id},type:'string'})
 
             switch(action.payload.pid){
@@ -506,6 +506,8 @@ export const LabelAllSlice = createSlice({
                 break;
 
             }
+
+            
         },
 
         setLabelPos:(state, action:PayloadAction<{id:string,pos:[number,number],anchor?: [number,number]}>) => {
