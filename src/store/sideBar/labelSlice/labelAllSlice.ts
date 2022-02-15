@@ -472,41 +472,54 @@ export const LabelAllSlice = createSlice({
                 //     }
         },
 
-        undoCreateLabel : (state , action: PayloadAction<{id:string, pid: any}>) => {
+        undoCreateLabel : (state , action: PayloadAction<{id:string, pid: string}>) => {
 
-            const labelType = JSON.parse(JSON.stringify(state.data[action.payload.id].labelType));
-            console.log("labelType", labelType)
+            const parentnodeList : string[] = [LabelType.LABEL2D,Label3DType.PROBE, Label3DType.FACE, Label3DType.DISTANCE,Label3DType.ARC]
 
-            console.log("sdadasd", action.payload.pid)
+            
 
-            deleteNodeReducer(state, {payload:{nodeId:action.payload.id},type:'string'})
+            if(parentnodeList.includes(action.payload.pid)){
+                console.log("sadsadsad")
+                switch(action.payload.pid){
+                    case LabelType.LABEL2D :
+                        state.labelsListSettings.count2D--;
+                    break;
+                    case Label3DType.PROBE:
+                        state.labelsListSettings.countPoint--;
+                    break;
+                    case Label3DType.FACE:
+                        state.labelsListSettings.countFace--;
+                    break;
+                    case Label3DType.DISTANCE :
+                        state.labelsListSettings.countMeasurement--;
+                    break;
+                    case Label3DType.ARC :
+                        state.labelsListSettings.countMeasurement--;
+                    break;
+                    default:
+                }
+            } 
 
-            switch(action.payload.pid){
-                case LabelType.LABEL2D :
-                    state.labelsListSettings.count2D--;
-                break;
-
-                case Label3DType.PROBE:
-                    state.labelsListSettings.countPoint--;
-                break;
-
-                case Label3DType.FACE:
-                    state.labelsListSettings.countFace--;
-                break;
-
-                case Label3DType.DISTANCE :
-                    state.labelsListSettings.countMeasurement--;
-                break;
-
-                case Label3DType.ARC :
-                    state.labelsListSettings.countMeasurement--;
-                break;
-
-                default:
-                break;
-
+            else{
+                const labelType = JSON.parse(JSON.stringify(state.data[action.payload.id].type ? state.data[action.payload.id].type : "sda"));
+                switch(labelType){
+                    case Label3DType.PROBE:
+                        state.labelsListSettings.probeLeafCount--;
+                    break;
+                    case Label3DType.FACE:
+                        state.labelsListSettings.faceLeafCount--;
+                    break;
+                    case Label3DType.DISTANCE :
+                        state.labelsListSettings.distanceLeafCount--;
+                    break;
+                    case Label3DType.ARC :
+                        state.labelsListSettings.arcLeafCount--;
+                    break;
+                    default:
             }
+        }
 
+        deleteNodeReducer(state, {payload:{nodeId:action.payload.id},type:'string'})
             
         },
 
