@@ -134,19 +134,19 @@ export default function LabelList(){
     }
 
     if(node.id === Label3DType.FACE){
-      dispatch(handleFaceHeadCreation(undoable: true))
+      dispatch(handleFaceHeadCreation({undoable: true}))
       setInteractionMode(viewerId, InteractionMode.DEFAULT);
       dispatch(setLabelInsertionState(false));
     }
 
     if(node.id === Label3DType.DISTANCE){
-      dispatch(handleMeasurementHeadCreation({pid :Label3DType.DISTANCE }))
+      dispatch(handleMeasurementHeadCreation({pid :Label3DType.DISTANCE, undoable: true }))
       setInteractionMode(viewerId, InteractionMode.DEFAULT);
       dispatch(setLabelInsertionState(false));
     }
 
     if(node.id === Label3DType.ARC){
-      dispatch(handleMeasurementHeadCreation({pid : Label3DType.ARC}))
+      dispatch(handleMeasurementHeadCreation({pid : Label3DType.ARC,  undoable: true}))
       setInteractionMode(viewerId, InteractionMode.DEFAULT);
       dispatch(setLabelInsertionState(false));
     }

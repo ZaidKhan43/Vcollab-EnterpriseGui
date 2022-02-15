@@ -181,7 +181,7 @@ export const handleFaceHeadCreation = createAsyncThunk(
             undoStack.add(
               {
                 undo: {reducer: undoCreateLabel, payload:{id : idNew,pid:Label3DType.PROBE,}},
-                redo: {reducer: createInterLabel, payload:{id:idNew,pid:Label3DType.FACE,pos:[-10,-10],type:Label3DType.FACE,msg:"nill"},
+                redo: {reducer: createInterLabel, payload:{id:idNew,pid:Label3DType.FACE,pos:[-10,-10],type:Label3DType.FACE,msg:"nill"}},
               }
             )
         }
@@ -191,7 +191,7 @@ export const handleFaceHeadCreation = createAsyncThunk(
 
 export const handleMeasurementHeadCreation = createAsyncThunk(
     'labelListSlice/handleMeasurementLabelCreation',
-    async (data: any, {dispatch,getState}) => {
+    async (data: {pid: any, undoable?: boolean}, {dispatch,getState}) => {
         let e = data.pid;
         const idNew = nextId('label-3d')
         dispatch(createInterLabel({
@@ -202,14 +202,22 @@ export const handleMeasurementHeadCreation = createAsyncThunk(
             pos:[-10,-10],
         }));
         dispatch(setActiveLabel({id: idNew}));
-    }
-)
+
+        if(data.undoable) {
+            undoStack.add(
+              {
+                undo: {reducer: undoCreateLabel, payload:{id : idNew,pid: e,}},
+                redo: {reducer: createInterLabel, payload:{id: idNew,pid: e,type:e,msg: "nill",pos:[-10,-10],}},
+              }
+            )
+        }
+    })
 
 export const handleProbeLabelCreation = createAsyncThunk(
     "labelListSlice/handleProbeLabelCreation",
-    (data:any,{dispatch,getState}) => {
+    (data:{data:any, undoable?: boolean},{dispatch,getState}) => {
         
-        let e = data.data;
+        let e = data.data.data;
         let rootState = getState() as RootState;
         let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
         let pos = get3DLabelCanvasPos(e.labelId,viewerId);
@@ -226,6 +234,15 @@ export const handleProbeLabelCreation = createAsyncThunk(
                    activeLabel = array[0];
 
         dispatch(createLabel({id:e.labelId,pid: activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:JSON.stringify(Label3DTemplate),probeData:e.msg, activeLabel: activeLabel}));
+
+        if(data.undoable) {
+            undoStack.add(
+              {
+                undo: {reducer: undoCreateLabel, payload:{id : e.labelId,pid: activeLabel,}},
+                redo: {reducer: createLabel, payload:{id:e.labelId,pid: activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:JSON.stringify(Label3DTemplate),probeData:e.msg, activeLabel: activeLabel}},
+              }
+            )
+        }
 });
 
 export const delete3DLabel = createAsyncThunk(

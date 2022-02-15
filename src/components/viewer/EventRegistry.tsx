@@ -106,7 +106,7 @@ function EventRegistry(props: Props) {
               eventDispatcher?.addEventListener(
                 events.viewerEvents.LABEL3D_CREATED,
                 (event:any) => {
-                  dispatch(handleProbeLabelCreation(event));
+                  dispatch(handleProbeLabelCreation({data: event, undoable: true}));
                 }
               );
               eventDispatcher?.addEventListener(
