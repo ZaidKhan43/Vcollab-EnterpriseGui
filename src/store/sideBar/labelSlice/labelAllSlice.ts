@@ -101,31 +101,31 @@ export const init = createAsyncThunk(
     }
 )
 
-const RedoHandleLabel2DCreation =  createAsyncThunk(
-    "LabelListSlice/handleLabel2DCreation",
-    (data:{data: any , undoable?:boolean , id?: string },{dispatch,getState}) => {
-        let rootState = getState() as RootState;
+// const RedoHandleLabel2DCreation =  createAsyncThunk(
+//     "LabelListSlice/handleLabel2DCreation",
+//     (data:{data: any , undoable?:boolean , id?: string },{dispatch,getState}) => {
+//         let rootState = getState() as RootState;
         
-        let e = data.data.data as PointerEvent;
-            let pos = [e.offsetX,e.offsetY];
-            console.log("e",e);
-            let idNew = data.id? data.id : nextId('label-2d')
-            dispatch(createLabel({id:idNew,pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(Label2DTemplate)}));
+//         let e = data.data.data as PointerEvent;
+//             let pos = [e.offsetX,e.offsetY];
+//             console.log("e",e);
+//             let idNew = data.id? data.id : nextId('label-2d')
+//             dispatch(createLabel({id:idNew,pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(Label2DTemplate)}));
 
-              if(data.undoable) {
-            undoStack.add(
-              {
-                undo: {reducer: undoCreateLabel, payload:{id : idNew,pid:LabelType.LABEL2D,}},
-                redo: {reducer: handleLabel2DCreation, payload:{id:idNew, data: data.data}},
-              }
-            )
-            }
-});
+//               if(data.undoable) {
+//             undoStack.add(
+//               {
+//                 undo: {reducer: undoCreateLabel, payload:{id : idNew,pid:LabelType.LABEL2D,}},
+//                 redo: {reducer: handleLabel2DCreation, payload:{id:idNew, data: data.data}},
+//               }
+//             )
+//             }
+// });
 
 
 export const handleLabel2DCreation = createAsyncThunk(
     "LabelListSlice/handleLabel2DCreation",
-    (data:{data: any , undoable?:boolean},{dispatch,getState}) => {
+    (data:{data: any , undoable?:boolean;},{dispatch,getState}) => {
         let rootState = getState() as RootState;
         let mode = selectInteractionMode(rootState);
 
@@ -159,16 +159,15 @@ export const handleProbeHeadCreation = createAsyncThunk(
     dispatch(createInterLabel({id:idNew,pid:Label3DType.PROBE,pos:[-10,-10],type:Label3DType.PROBE,msg:"nill"}));
     dispatch(setActiveLabel({id: idNew}));
 
-     if(true) {
+        if(true) {
             undoStack.add(
               {
                 undo: {reducer: undoCreateLabel, payload:{id : idNew,pid:Label3DType.PROBE,}},
-                redo: {reducer: handleProbeHeadCreation, payload:{}},
+                redo: {reducer: createInterLabel, payload:{id:idNew,pid:Label3DType.PROBE,pos:[-10,-10],type:Label3DType.PROBE,msg:"nill"}},
               }
             )
-            }
-}
-)
+        }
+});
 
 export const handleFaceHeadCreation = createAsyncThunk(
     "labelListSlice/handleProbeLabelCreation",
