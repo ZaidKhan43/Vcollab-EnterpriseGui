@@ -1,4 +1,4 @@
-import { useRef,  useCallback, useEffect, createContext, Ref } from 'react';
+import { useRef,  useCallback, useEffect, createContext, Ref, useState } from 'react';
 import clsx from 'clsx';
 import { useResizeDetector } from 'react-resize-detector';
 import FullScreen from 'react-fullscreen-crossbrowser';
@@ -16,6 +16,7 @@ import { appBarMinHeight, leftbarWidth, popupMenuContentTypes } from '../config'
 import LayerStack from "./layout/LayerStack";
 import { fetchCameraMatrix, fetchCameraStdViews } from '../store/sideBar/sceneSlice';
 import Grid from '@material-ui/core/Grid'
+import { MainMenuItem, MainMenuItems, selectBottonTabOptions, selectDefaultOptions } from 'store/mainMenuSlice';
 
 export const ViewerContext = createContext<React.MutableRefObject<HTMLDivElement | null> | null>(null);
 
@@ -27,6 +28,9 @@ function App() {
   const isAppBarVisible  = useAppSelector(selectAppBarVisibility);
   const isFullscreenOn = useAppSelector(selectFullscreenStatus);
   const isSidebarVisible = useAppSelector(selectSidebarVisibility);
+  const [activeLeftBarItem, setActiveLeftBarItem] = useState<MainMenuItem | null>(null);
+  const leftBarDefaultItems = useAppSelector(selectDefaultOptions);
+  const leftBarBtmOptions = useAppSelector(selectBottonTabOptions);
   const dispatch = useAppDispatch();  
   const targetRef = useRef(null);
   const viewerContainerRef = useRef(null);
@@ -54,6 +58,10 @@ function App() {
       dispatch(setFullscreenState(isFullscreenEnabled));
   }
 
+  const handleLeftBarChange = (activeItem: MainMenuItem | null) => {
+    setActiveLeftBarItem(activeItem);
+  }
+  
   useEffect(() => {
     if(isAppBarVisible === false)
       dispatch(setPopupMenuActiveContent(popupMenuContentTypes.none)); 
@@ -66,7 +74,7 @@ function App() {
     >
       <Grid container spacing={0}>
       <Grid item>
-        <LeftBar/>
+        <LeftBar topTabs={leftBarDefaultItems} bottomTabs={leftBarBtmOptions} onChange={handleLeftBarChange}/>
       </Grid>
       <Grid item wrap='nowrap' style={{width:`calc(100% - ${leftbarWidth}px)`}} >
       <div className={classes.root} ref = { targetRef }> 
@@ -82,7 +90,7 @@ function App() {
         { ( isAppBarVisible ?   
         <><AppBar />
         <ViewerContext.Provider value={viewerContainerRef}>
-          <Sidebar />
+          <Sidebar selectedItem={activeLeftBarItem} />
         </ViewerContext.Provider>
         </>
         : null ) }

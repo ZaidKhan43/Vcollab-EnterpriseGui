@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import LogoMini from 'assets/images/logoMini.svg'
 import useStyles from './style';
 import useIconStyles from '../appBar/style'
@@ -6,24 +6,23 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import MuiIcon from '@material-ui/core/Icon'
 import Box from '@material-ui/core/Box'
 import GeometryIcon  from '../../icons/geometry';
-import FieldIcon from '../../icons/field';
+import Nav from '../nav'
 
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import TabScrollButton from '@material-ui/core/TabScrollButton';
 import { useAppDispatch, useAppSelector } from 'store/storeHooks';
 import { selectSidebarVisibility, setSidebarVisibility } from 'store/appSlice';
 import { Routes } from 'routes';
 import {push} from 'connected-react-router/immutable';
-const items: any[] = [
-  {
-    icon: <GeometryIcon/>,
-    path: Routes.GEOMETRY_ASSEMBLY_TREE
-  },
-  {
-    icon: <FieldIcon/>,
-    path: Routes.FIELD_VARIABLES
-  }
-]
+import clsx from 'clsx';
+import { MainMenuItem, selectActiveTab, selectDefaultOptions, setActiveTab, selectTemporaryTab} from 'store/mainMenuSlice';
+
+type LeftBarProps = {
+    topTabs: MainMenuItem[],
+    bottomTabs: MainMenuItem[],
+    onChange: (active: MainMenuItem | null) => void;
+}
 
 function a11yProps(index: any) {
   return {
@@ -37,84 +36,177 @@ const useTabStyles = makeStyles((theme: Theme) => ({
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,
     display: 'flex',
-    height: 224,
+    height: '80%'
   },
   tabs: {
+    width: '100%',
     borderRight: `1px solid ${theme.palette.divider}`,
+    '& button' : {
+      padding: '0px'
+    }
+  },
+  tabIcon: {
+    fontSize: '0.5rem',
+    '& svg':{
+      width: '1.25rem'
+    }
+  },
+  label: {
+    width: '100%',
+    paddingLeft: '5px',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
   },
   tab:{
     minWidth: '0px',
-    color: theme.palette.text.primary
+    color: theme.palette.text.primary,
+    textTransform: 'capitalize',
+    fontSize: '0.5rem'
   }
 }));
 
-function LeftBar() {
+function LeftBar(props: LeftBarProps) {
   const classes = useStyles();
   const iconClasses = useIconStyles();
   const tabClasses = useTabStyles();
-
+  
   const isSidebarVisible = useAppSelector(selectSidebarVisibility);
+  const temporaryTab = useAppSelector(selectTemporaryTab);
   const dispatch = useAppDispatch();
-  const [value, setValue] = useState(-1);
+  const activeItem = useAppSelector(selectActiveTab);
 
-  const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    if(value === newValue){
-      dispatch(setSidebarVisibility(!isSidebarVisible));
+  const handleValChange = (event: React.ChangeEvent<{}>, newValue: MainMenuItem) => {
+   
+    if(!activeItem) {
+      dispatch(setActiveTab({menuItem:newValue}));
+      dispatch(setSidebarVisibility(true));
+    }
+    else if( activeItem.id !== newValue.id){
+      dispatch(setActiveTab({menuItem:newValue}));
     }
     else{
-      dispatch(setSidebarVisibility(true));
-      setValue(newValue);
-      switch(newValue){
-        case 0:
-          dispatch(push(Routes.GEOMETRY_ASSEMBLY_TREE));
-          break;
-        case 1:
-          dispatch(push(Routes.FIELD_VARIABLES));
-          break;
-        default:
-          break;
-      }
+      dispatch(setSidebarVisibility(false));
+      dispatch(setActiveTab({menuItem:null}));
     }
     
   };
 
   useEffect(() => {
-    if(isSidebarVisible === false) {
-      setValue(-1);
+    if(activeItem)
+    {
+      dispatch(push(activeItem.path))
     }
-  },[isSidebarVisible])
+    else{
+      dispatch(push(Routes.HOME))
+    }
+    props.onChange(activeItem)
+  },[activeItem])
+
 
   return (
+  <>
   <div className={classes.root}>
         <Box>
-        <MuiIcon>
-            <div style={{width:'100%',height:'100px'}}></div>
-        </MuiIcon>
+        <Nav activeItem={activeItem}/>
         </Box>
-        <Box sx={{ width: '100%' }}>
+        <div className={tabClasses.root}>
         <Tabs
            orientation="vertical"
+           textColor='inherit'
            variant="scrollable"
-           value={value}
-           onChange={handleChange}
+           scrollButtons="on"
+           value={activeItem}
+           onChange={handleValChange}
            aria-label="Vertical tabs example"
            className={tabClasses.tabs}
          >
-        {items.map( (e,i) => {
+        
+        {props.topTabs.map( e => {
           
-          return <Tab  icon = {
-            <div className={iconClasses.divIcon}>
-              {e.icon}
+          return <Tab  
+            disableRipple
+            value ={e}
+            icon = {
+            <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
+              {<GeometryIcon/>}
             </div>
           } 
-          {...a11yProps(i)} classes={{root : tabClasses.tab}}
+          label={
+            <div  style={{
+              width: '100%',
+              paddingLeft: '5px',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
+            }}>
+              {e.name}
+            </div>
+          }
+          {...a11yProps(e.name)} classes={{root : tabClasses.tab}}
           />
          
         })
         }
+        {
+            temporaryTab ? 
+            <Tab
+             value={temporaryTab}
+             icon = {
+              <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
+                {<GeometryIcon/>}
+              </div>
+            } 
+            label={
+              <div className={tabClasses.label}>
+                {temporaryTab.name}
+              </div>
+            }
+            {...a11yProps(temporaryTab.name)} classes={{root : tabClasses.tab}}
+            >
+            </Tab>
+            :null
+          }
         </Tabs>
-        </Box>
+        </div>
   </div>
+  <div className={classes.root}>
+        <div className={tabClasses.root} >
+        <Tabs
+           orientation="vertical"
+           variant="fullWidth"
+           scrollButtons='off'
+           value={activeItem}
+           onChange={handleValChange}
+           aria-label="sidebar bottom options"
+           className={tabClasses.tabs}
+         >
+          
+          {
+              props.bottomTabs.map( e => {
+                        
+                return <Tab  
+                  disableRipple
+                  value={e}
+                  icon = {
+                  <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
+                    {<GeometryIcon/>}
+                  </div>
+                } 
+                label={
+                  <div className={tabClasses.label}>
+                    {e.name}
+                  </div>
+                }
+                {...a11yProps(e.name)} classes={{root : tabClasses.tab}}
+                />
+              
+              })
+          }
+        </Tabs>
+        </div>
+  </div>
+  </>
   );
 }
 

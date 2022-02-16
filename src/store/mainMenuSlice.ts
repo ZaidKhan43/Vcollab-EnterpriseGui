@@ -2,21 +2,14 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Routes } from '../routes';
 import type { RootState } from './index';
 
-export type MainMenuItemChild = {
-    id:string,
-    name: string,
-    type: MainMenuItems,
-    path: Routes,
-    disabled: boolean,
-}
-
 export type MainMenuItem = {
     id:string,
     name: string,
     type: MainMenuItems,
     path: Routes,
     expanded: boolean,
-    children: MainMenuItemChild[]
+    disabled: boolean,
+    children: MainMenuItem[]
 }
 
 export enum MainMenuItems {
@@ -70,12 +63,18 @@ export enum MainMenuItems {
     SETTINGS,
     SETTINGS_THEME, 
     SETTINGS_MOUSE_CONTROLS,
-    
+
+    MORE,
+    ADD_GROUP
 
 }
 
 export type MainMenu = {
-    menuItems: MainMenuItem[] 
+    menuItems: MainMenuItem[],
+    activeTab: MainMenuItem | null,
+    defaultOptions: string[] ,
+    bottomTabOptions: string[],
+    temporaryTab: string | null
 }
 const initialState: MainMenu ={
     menuItems: [
@@ -85,34 +84,43 @@ const initialState: MainMenu ={
             name: "Geometry",
             type: MainMenuItems.GEOMETRY,
             path: Routes.GEOMETRY,
+            disabled: false,
             children: [
                 {
-                    id: '11',
+                    id: 'Geometry11',
                     name: "Assembly Tree",
                     type:MainMenuItems.GEOMETRY_ASSEMBLY_TREE,
                     path: Routes.GEOMETRY_ASSEMBLY_TREE,
                     disabled: false,
+                    children: [],
+                    expanded: false
                 },
                 {
-                    id: '12',
+                    id: 'Geometry12',
                     name: "Search",
                     type:MainMenuItems.GEOMETRY_SEARCH,
                     path: Routes.GEOMETRY_SEARCH,
                     disabled: false,
+                    children: [],
+                    expanded: false
                   },
                   {
-                    id: '13',
+                    id: 'Geometry13',
                     name: "Display Mode",
                     type:MainMenuItems.GEOMETRY_DISPLAY_MODE,
                     path: Routes.GEOMETRY_DISPLAY_MODES,
                     disabled: false,
+                    children: [],
+                    expanded: false
                   },
                   {
-                    id: '14',
+                    id: 'Geometry14',
                     name: "Material Color",
                     type:MainMenuItems.GEOMETRY_MATERIAL_COLOR,
                     path: Routes.GEOMERTY_MATERIAL_COLOR,
                     disabled: false,
+                    children: [],
+                    expanded: false
                   },
                 //   {
                 //     id: '15',
@@ -135,35 +143,44 @@ const initialState: MainMenu ={
             expanded: false,
             name: "Field",
             type: MainMenuItems.FIELD,
-            path: Routes.HOME,
+            path: Routes.FIELD,
+            disabled: false,
             children: [
                 {
-                    id:'21',
+                    id:'Field21',
                     name: "Steps & Subcases",
                     type:MainMenuItems.FIELD_STEPS_AND_SUBCASES,
                     path:Routes.FIELD_STEPS_AND_SUBCASES,
                     disabled: false,
+                    children: [],
+                    expanded: false
                   },
                 {
-                    id: '22',
+                    id: 'Field22',
                     name: "Variables",
                     type:MainMenuItems.FIELD_VARIABLES,
                     path:Routes.FIELD_VARIABLES,
                     disabled: false,
+                    children: [],
+                    expanded: false
                   },
                   {
-                    id:'23',
+                    id:'Field23',
                     name: "Derived Types",
                     type:MainMenuItems.FIELD_DERIVED_TYPES,
                     path:Routes.FIELD_DERIVED_TYPES,
                     disabled: false,
+                    children: [],
+                    expanded: false
                   },
                   {
-                    id:'24',
+                    id:'Field24',
                     name: "Sections & Layers",
                     type:MainMenuItems.FIELD_SECTIONS_AND_LAYERS,
                     path:Routes.FIELD_SECTIONS_AND_LAYERS,
                     disabled: false,
+                    children: [],
+                    expanded: false
                   },
             ]
         },
@@ -173,27 +190,34 @@ const initialState: MainMenu ={
             name: "Scene",
             type: MainMenuItems.SCENE,
             path:Routes.SCENE,
+            disabled:false,
             children: [
                 {
-                    id:'31',
+                    id:'Scene31',
                     name: "Camera",
                     type:MainMenuItems.SCENE_CAMERA,
                     path:Routes.SCENE_CAMERA,
-                    disabled:false
+                    disabled:false,
+                    children: [],
+                    expanded: false
                 },
                 {
-                    id:'32',
+                    id:'Scene32',
                     name: "Background",
                     type:MainMenuItems.SCENE_BACKGROUND,
                     path:Routes.SCENE_BACKGROUND,
                     disabled: false,
+                    children: [],
+                    expanded: false
                 },
                 {
-                    id:'33',
+                    id:'Scene33',
                     name: "Axis Triad",
                     type:MainMenuItems.SCENE_AXIS_TRIAD,
                     path:Routes.SCENE_AXIS_TRIAD,
-                    disabled: false
+                    disabled: false,
+                    children: [],
+                    expanded: false
                 },
                 // {
                 //     id:'34',
@@ -210,69 +234,88 @@ const initialState: MainMenu ={
             name: "Color Maps",
             type:MainMenuItems.COLOR_MAPS,
             path:Routes.COLORMAPS,
+            disabled:false,
             children:[
                 {
-                    id:'41',
+                    id:'Color Maps41',
                     name: "List",
                     type:MainMenuItems.COLOR_MAPS_LIST,
                     path:Routes.COLORMAPS_LIST,
                     disabled: false,
+                    children: [],
+                    expanded: false
                 },    
                 {
-                    id:'42',
+                    id:'Color Maps42',
                     name: "Edit",
                     type:MainMenuItems.COLOR_MAPS_EDIT,
                     path:Routes.COLORMAPS_EDIT,
                     disabled: true,
+                    children: [],
+                    expanded: false
                 },
                 {
-                    id:'43',
+                    id:'Color Maps43',
                     name: "Variable",
                     type:MainMenuItems.COLOR_MAPS_VARIABLE,
                     path:Routes.COLORMAPS_VARIABLE,
                     disabled: true,
+                    children: [],
+                    expanded: false
                 },
                 {
-                    id:'44',
+                    id:'Color Maps44',
                     name: "Steps & Subcase",
                     type:MainMenuItems.COLOR_MAPS_STEPS_AND_SUBCASE,
                     path:Routes.COLORMAPS_STEPS_AND_SUBCASE,
                     disabled: true,
+                    children: [],
+                    expanded: false
                 },
                 {
-                    id:'45',
+                    id:'Color Maps45',
                     name: "Section & Layer",
                     type:MainMenuItems.COLOR_MAPS_SELECTION_AND_LAYER,
                     path:Routes.COLORMAPS_SELECTION_AND_LAYER,
                     disabled: true,
+                    children: [],
+                    expanded: false
                 },
                 {
-                    id:'46',
+                    id:'Color Maps46',
                     name: "Derived Type",
                     type:MainMenuItems.COLOR_MAPS_DERIVED_TYPES,
                     path:Routes.COLORMAPS_DERIVED_TYPES,
                     disabled: true,
+                    children: [],
+                    expanded: false
                 },
                 {
-                    id:'47',
+                    id:'Color Maps47',
                     name: "Color Palette",
                     type:MainMenuItems.COLOR_MAPS_COLOR_PALETTE,
                     path:Routes.COLORMAPS_COLOR_PALETTE,
                     disabled: true,
+                    children: [],
+                    expanded: false
                 },
                 {
-                    id:'48',
+                    id:'Color Maps48',
                     name: "Value Setting",
                     type:MainMenuItems.COLOR_MAPS_VALUE_SETTINGS,
                     path:Routes.COLORMAPS_VALUE_SETTINGS,
                     disabled: true,
+                    children: [],
+                    expanded: false
                 },
                 {
-                    id:'49',
+                    id:'Color Maps49',
                     name: "Legend Setting",
                     type:MainMenuItems.COLOR_MAPS_LEGEND_SETTINGS,
                     path:Routes.COLORMAPS_LEGEND_SETTINGS,
                     disabled: true,
+                    children: [],
+                    expanded: false
                 },
             ]
         },
@@ -282,27 +325,34 @@ const initialState: MainMenu ={
             name: "Clip Plane",
             type: MainMenuItems.CLIP_PLANE,
             path:Routes.CLIPPLANES,
+            disabled:false,
             children: [
                 {
-                    id:'51',
+                    id:'Clip Plane51',
                     name: "List",
                     type:MainMenuItems.CLIP_PLANE_LIST,
                     path:Routes.CLIPPLANES_LIST,
                     disabled: false,
+                    children: [],
+                    expanded: false
                 },
                 {
-                    id:'52',
+                    id:'Clip Plane52',
                     name: "Settings",
                     type:MainMenuItems.CLIP_PLANE_SETTINGS,
                     path:Routes.CLIPPLANES_SETTINGS,
                     disabled: true,
+                    children: [],
+                    expanded: false
                 },
                 {
-                    id:'53',
+                    id:'Clip Plane53',
                     name: "Transform",
                     type:MainMenuItems.CLIP_PLANE_TRANSFORM,
                     path:Routes.CLIPPLANES_TRANSFORMATION,
                     disabled: true,
+                    children: [],
+                    expanded: false
                 },
             ]
         },
@@ -312,6 +362,7 @@ const initialState: MainMenu ={
             name: "Labels",
             type: MainMenuItems.LABELS,
             path:Routes.LABELS_LIST,
+            disabled: false,
             children: [],
         },
         {
@@ -320,6 +371,7 @@ const initialState: MainMenu ={
             name: "Transformations",
             type: MainMenuItems.TRANSFORMATIONS,
             path:Routes.HOME,
+            disabled: false,
             children: []
         },
         {
@@ -328,6 +380,7 @@ const initialState: MainMenu ={
             name: "Animations",
             type: MainMenuItems.ANIMATIONS,
             path:Routes.HOME,
+            disabled: false,
             children: []   
         },
 
@@ -337,6 +390,7 @@ const initialState: MainMenu ={
             name: "3D Slides",
             type: MainMenuItems.SLIDES,
             path:Routes.SLIDES,
+            disabled: false,
             children:[]
         },
 
@@ -346,6 +400,7 @@ const initialState: MainMenu ={
             name: "Messages",
             type: MainMenuItems.MESSAGES,
             path:Routes.MESSAGES,
+            disabled: false,
             children:[]
         },
         
@@ -355,34 +410,100 @@ const initialState: MainMenu ={
             name: "Application Settings",
             type: MainMenuItems.SETTINGS,
             path:Routes.HOME,
+            disabled:false,
             children: [
                 {
 
-                    id:'111',
+                    id:'Application Settings111',
                     name: "Color Theme",
                     type:MainMenuItems.SETTINGS_THEME,
                     path:Routes.SETTINGS_THEME ,
                     disabled: false,
+                    children: [],
+                    expanded: false
                 },
                 {
 
-                    id:'112',
+                    id:'Application Settings112',
                     name: "Mouse Controls",
                     type:MainMenuItems.SETTINGS_MOUSE_CONTROLS,
                     path:Routes.SETTINGS_MOUSE_CONTROLS,
                     disabled: false,
+                    children: [],
+                    expanded: false
                 }
 
                     
             ]
-        }
-    ]
+        },
+
+        // leftbar bottom options
+        {
+            id:'12',
+            name: 'More',
+            type:MainMenuItems.MORE,
+            path:Routes.MORE,
+            disabled: false,
+            children: [],
+            expanded: false
+
+        },
+        {
+            id:'13',
+            name: 'Add Group',
+            type: MainMenuItems.ADD_GROUP,
+            path: Routes.ADD_GROUP,
+            disabled: false,
+            children: [],
+            expanded: false
+        } 
+    ],
+    activeTab: null,
+    defaultOptions: [
+        '1',
+        'Geometry11',
+        '2',
+        '3',
+        '4',
+        '5',
+        '6',
+        '7'
+    ],
+    bottomTabOptions: [
+        '12',
+    ],
+    temporaryTab: null
 }
 
 export const mainMenuSlice = createSlice({
     name: 'mainMenu',
     initialState,
     reducers: {
+        setActiveTab: (state, action: PayloadAction<{menuItem: MainMenuItem | null}>) => {
+            const {menuItem} = action.payload;
+            if(menuItem && 
+                (state.defaultOptions.includes(menuItem.id) || state.bottomTabOptions.includes(menuItem.id))
+            ) {
+                mainMenuSlice.caseReducers.setTemporartyTab(state,{
+                    payload: {
+                        menuItemID: null
+                    },
+                    type: 'mainMenuSlice/setTemporaryTab'
+                })
+            }
+            else{
+                mainMenuSlice.caseReducers.setTemporartyTab(state,{
+                    payload: {
+                        menuItemID: menuItem? menuItem.id: null
+                    },
+                    type: 'mainMenuSlice/setTemporaryTab'
+                })
+            }
+            state.activeTab = menuItem;
+        },
+        setTemporartyTab: (state, action: PayloadAction<{menuItemID: string | null}>) => {
+            state.temporaryTab = action.payload.menuItemID;
+        },
         togglePanel: (state, action:PayloadAction<{panelId:string}>) => {
             const {panelId} = action.payload; 
             state.menuItems.forEach(item => {
@@ -407,8 +528,56 @@ export const mainMenuSlice = createSlice({
     },
 
 })
-export const {togglePanel, setChildItem} = mainMenuSlice.actions;
+export const {togglePanel, setChildItem, setActiveTab} = mainMenuSlice.actions;
 //selectors
 export const selectMainMenu = (state:RootState) => state.mainMenu 
-
+export const selectMainMenuItems = (state:RootState) => state.mainMenu.menuItems
+export const getItem = (id:string, items: MainMenuItem[]): MainMenuItem => {
+    let r = null;
+    for(let i=0; i< items.length; i++) {
+        let item = items[i];
+        if(item.id === id){
+            r = item;
+            break;
+        }
+        else{
+           r = getItem(id,item.children);
+           if(r)
+           break;
+        }
+    }
+    return r as MainMenuItem;
+}
+export const getItemFromPath = (path:string, items: MainMenuItem[]): MainMenuItem | null => {
+    let r = null;
+    for(let i=0; i< items.length; i++) {
+        let item = items[i];
+        if(item.path === path){
+            r = item;
+            break;
+        }
+        else{
+           r = getItemFromPath(path,item.children);
+           if(r)
+           break;
+        }
+    }
+    return r as MainMenuItem;
+}
+export const selectActiveTab = (state:RootState): MainMenuItem | null => state.mainMenu.activeTab 
+export const selectDefaultOptions = (state:RootState): MainMenuItem[] => state.mainMenu.defaultOptions.map(id => getItem(id, state.mainMenu.menuItems)) as MainMenuItem[]
+export const selectBottonTabOptions = (state:RootState): MainMenuItem[] => state.mainMenu.bottomTabOptions.map(id =>  getItem(id, state.mainMenu.menuItems)) as MainMenuItem[]
+export const selectLeafMainMenuItems = (state:RootState): MainMenuItem[] => {
+    let items: MainMenuItem[] = [];
+    state.mainMenu.menuItems.forEach(item => {
+        if(item.children.length > 0) {
+            items.push(...item.children);
+        }
+        else{
+            items.push(item);
+        }
+    })
+    return items;
+}
+export const selectTemporaryTab = (state:RootState): MainMenuItem | null => state.mainMenu.temporaryTab ? getItem(state.mainMenu.temporaryTab,state.mainMenu.menuItems) : null
 export default mainMenuSlice.reducer;

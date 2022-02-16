@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-function Title(props:{text:string, group:string}) {
+function Title(props:{text:string, group?:string}) {
     const classes = useStyles();
     return (
         <Grid container spacing={0} direction='column' alignContent='center'>

@@ -6,7 +6,7 @@ export default makeStyles((theme) => ({
         height: sideBarHeaderHeight,
     },
     rightContent: {
-        marginLeft: 'auto'
+        marginLeft: 'auto !important'
     },
     leftIcon : {
         width : 48,

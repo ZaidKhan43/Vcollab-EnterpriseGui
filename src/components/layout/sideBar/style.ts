@@ -11,9 +11,9 @@ export default makeStyles((theme) => ({
   },
   drawerPaper: {
     width: drawerWidth,
-    background: theme.palette.background.paper,
+    background: theme.palette.background.default,
     [theme.breakpoints.down("sm")]: {
-      backgroundColor: theme.palette.background.paper,
+      backgroundColor: theme.palette.background.default,
     },
     overflowX: "hidden",
     overflowY: "hidden",
