@@ -48,6 +48,8 @@ import SelectPointIcon from 'components/icons/selectPoint';
 import MuiAddIcon from '@material-ui/icons/Add';
 import MuiCreateNewFolderOutlinedIcon from '@material-ui/icons/CreateNewFolderOutlined';
 
+import {undoStack} from "../../../utils/undoStack";
+
 export default function LabelList(){
 
   const dispatch = useAppDispatch();  
@@ -107,17 +109,28 @@ export default function LabelList(){
 
   const handleInvert = (node:ITreeNode) => {
     dispatch(invertNode({nodeId:node.id}));
+
+    
   }
   
   const handleCheck = (toCheck:boolean, nodeId:string) => {
     dispatch(checkNode({toCheck,nodeId}));
   }
 
-  const handleVisibility = (toShow:boolean,node:ITreeNode) => {
+  const handleVisibility = (toShow:boolean,node:ITreeNode,undoable?:boolean) => {
     const leafIds = [node.id];
     const pids = [node.pid];
     console.log(leafIds, pids)
     dispatch(setCheckedVisibility({toShow, leafIds}))
+
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => handleVisibility(!toShow, node),
+          redo: () => handleVisibility(toShow, node),
+        }
+      )
+    }
   }
 
   const handleAdd = (node:ITreeNode) => {
