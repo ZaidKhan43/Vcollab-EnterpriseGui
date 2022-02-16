@@ -113,8 +113,17 @@ export default function LabelList(){
     
   }
   
-  const handleCheck = (toCheck:boolean, nodeId:string) => {
+  const handleCheck = (toCheck:boolean, nodeId:string, undoable?:boolean) => {
     dispatch(checkNode({toCheck,nodeId}));
+
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => handleCheck(!toCheck, nodeId),
+          redo: () => handleCheck(toCheck, nodeId),
+        }
+      )
+    }
   }
 
   const handleVisibility = (toShow:boolean,node:ITreeNode,undoable?:boolean) => {
