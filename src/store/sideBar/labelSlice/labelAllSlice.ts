@@ -359,8 +359,28 @@ export const LabelAllSlice = createSlice({
         invertNode: invertNodeReducer,
         expandNode: expandNodeReducer,
         toggleVisibility: toggleVisibilityReducer,
-        setCheckedVisibility: setCheckedVisibilityReducer,
-        invertCheckedVisibility: invertCheckedVisibilityReducer,
+        setCheckedVisibility: (state, action:PayloadAction<{toShow:boolean,leafIds:any, undoable?:boolean}>) => {
+            const {toShow, leafIds,undoable} = action.payload;
+            if(undoable)
+            undoStack.add(
+              {
+                undo: {reducer: setCheckedVisibility, payload:{toShow: !toShow , leafIds}},
+                redo: {reducer: setCheckedVisibility, payload:{toShow,leafIds}}
+              }
+            )
+            setCheckedVisibilityReducer(state,action);
+        },
+        invertCheckedVisibility: (state, action:PayloadAction<{leafIds:any, undoable?:boolean}>) => {
+            const {toShow, leafIds,undoable} = action.payload;
+            if(undoable)
+            undoStack.add(
+              {
+                undo: {reducer: invertCheckedVisibility, payload:{leafIds}},
+                redo: {reducer: invertCheckedVisibility, payload:{leafIds}}
+              }
+            )
+            invertCheckedVisibilityReducer(state,action);
+        },
         setlabelMode: (state,action) => setLabelModeReducer(state.labelsListSettings,action),
         createParentLabel : (state, action : PayloadAction<{id:string,name: string, pid: string}>) => {
             const {id,name, pid} = action.payload;

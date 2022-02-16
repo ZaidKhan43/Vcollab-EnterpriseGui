@@ -348,14 +348,17 @@ export default function LabelList(){
               disabled={selectedCount < 1}
               showClick={() => {dispatch(setCheckedVisibility({
                 toShow: true,
-                leafIds: checkedNodes.map(n => n.id)
+                leafIds: checkedNodes.map(n => n.id),
+                undoable: true,
               }))}}
               hideClick={() => {dispatch(setCheckedVisibility({
                 toShow: false,
-                leafIds: checkedNodes.map(n => n.id)
+                leafIds: checkedNodes.map(n => n.id),
+                undoable: true,
               }))}}
               invertClick={() => {dispatch(invertCheckedVisibility({
-                leafIds: checkedNodes.map(n => n.id)
+                leafIds: checkedNodes.map(n => n.id),
+                undoable: true,
               }))}}
               />
             }/>
