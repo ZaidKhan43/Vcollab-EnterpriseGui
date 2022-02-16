@@ -17,8 +17,8 @@ const InvertIcon = (props:any) => {
 
 interface InvertCellProps {
     node: ITreeNode,
-    onClick : (node:ITreeNode) => void,
-    selected : boolean,
+    onClick : (node:ITreeNode, undoable?: boolean) => void,
+    selected? : boolean,
 }
 
 function InvertCell(props:InvertCellProps) {
@@ -28,7 +28,7 @@ function InvertCell(props:InvertCellProps) {
         props.node.children.length > 0 ? 
         <Grid container alignItems='center' className={props.selected ? classes.selectedHideText : classes.hideText} style={{height:'100%',width:'100%'}}>
             <Grid item>
-                <IconButton size="small"  onClick = {() => props.onClick(props.node)}>
+                <IconButton size="small"  onClick = {() => props.onClick(props.node, true)}>
                 <InvertIcon visibility = {props.node.state.visibility} >
                 </InvertIcon>
                 </IconButton>

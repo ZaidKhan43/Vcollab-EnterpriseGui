@@ -10,14 +10,14 @@ const VisiblilityIcon = (props:any) => {
     const classes = useStyles();
     if(props.visibility === true){
         return (
-            <IconButton style={props.style} size='small' onClick = {() => props.onClick(false,props.node)}>
+            <IconButton style={props.style} size='small' onClick = {() => props.onClick(false,props.node, true)}>
                 <EyeIcon fontSize='small' className={props.visibility ? classes.actionShow : classes.actionHide}  width='16' height='16' />
             </IconButton>
         )
     }
     else{
         return (
-            <IconButton style={props.style} size='small' onClick = {() => props.onClick(true,props.node)}>
+            <IconButton style={props.style} size='small' onClick = {() => props.onClick(true,props.node, true)}>
                 <EyeSlashIcon fontSize='small' className={props.visibility ? classes.actionShow : classes.actionHide}  width='16' height='16'/>
             </IconButton>
         )
@@ -26,8 +26,8 @@ const VisiblilityIcon = (props:any) => {
 
 interface ShowHideProps {
   node: ITreeNode
-  onToggle: (toShow:boolean,node:ITreeNode) => void
-  selected : boolean
+  onToggle: (toShow:boolean,node:ITreeNode, undoable?: boolean) => void
+  selected? : boolean
 }
 
 function ShowHide(props:ShowHideProps) {

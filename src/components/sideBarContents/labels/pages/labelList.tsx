@@ -48,6 +48,8 @@ import SelectPointIcon from 'components/icons/selectPoint';
 import MuiAddIcon from '@material-ui/icons/Add';
 import MuiCreateNewFolderOutlinedIcon from '@material-ui/icons/CreateNewFolderOutlined';
 
+import {undoStack} from "../../../utils/undoStack";
+
 export default function LabelList(){
 
   const dispatch = useAppDispatch();  
@@ -105,19 +107,48 @@ export default function LabelList(){
     dispatch(expandNode({toOpen,nodeId}));
   }
 
-  const handleInvert = (node:ITreeNode) => {
+  const handleInvert = (node:ITreeNode, undoable?:boolean) => {
     dispatch(invertNode({nodeId:node.id}));
+
+    console.log("undoable", undoable)
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => handleInvert(node),
+          redo: () => handleInvert(node),
+        }
+      )
+    }
+    
   }
   
-  const handleCheck = (toCheck:boolean, nodeId:string) => {
+  const handleCheck = (toCheck:boolean, nodeId:string, undoable?:boolean) => {
     dispatch(checkNode({toCheck,nodeId}));
+
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => handleCheck(!toCheck, nodeId),
+          redo: () => handleCheck(toCheck, nodeId),
+        }
+      )
+    }
   }
 
-  const handleVisibility = (toShow:boolean,node:ITreeNode) => {
+  const handleVisibility = (toShow:boolean,node:ITreeNode,undoable?:boolean) => {
     const leafIds = [node.id];
     const pids = [node.pid];
     console.log(leafIds, pids)
     dispatch(setCheckedVisibility({toShow, leafIds}))
+
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => handleVisibility(!toShow, node),
+          redo: () => handleVisibility(toShow, node),
+        }
+      )
+    }
   }
 
   const handleAdd = (node:ITreeNode) => {
@@ -128,25 +159,25 @@ export default function LabelList(){
     }
 
     if(node.id === Label3DType.PROBE){
-      dispatch(handleProbeHeadCreation())
+      dispatch(handleProbeHeadCreation({undoable: true}))
       setInteractionMode(viewerId, InteractionMode.DEFAULT);
       dispatch(setLabelInsertionState(false));
     }
 
     if(node.id === Label3DType.FACE){
-      dispatch(handleFaceHeadCreation())
+      dispatch(handleFaceHeadCreation({undoable: true}))
       setInteractionMode(viewerId, InteractionMode.DEFAULT);
       dispatch(setLabelInsertionState(false));
     }
 
     if(node.id === Label3DType.DISTANCE){
-      dispatch(handleMeasurementHeadCreation({pid :Label3DType.DISTANCE }))
+      dispatch(handleMeasurementHeadCreation({pid :Label3DType.DISTANCE, undoable: true }))
       setInteractionMode(viewerId, InteractionMode.DEFAULT);
       dispatch(setLabelInsertionState(false));
     }
 
     if(node.id === Label3DType.ARC){
-      dispatch(handleMeasurementHeadCreation({pid : Label3DType.ARC}))
+      dispatch(handleMeasurementHeadCreation({pid : Label3DType.ARC,  undoable: true}))
       setInteractionMode(viewerId, InteractionMode.DEFAULT);
       dispatch(setLabelInsertionState(false));
     }
@@ -199,7 +230,7 @@ export default function LabelList(){
   }
 
   const onHandleDeleteButton = () => {
-    dispatch(delete3DLabel({}));
+    dispatch(delete3DLabel({undoable: true}));
   }
 
   const onHandleRegroup = () => {
@@ -208,31 +239,16 @@ export default function LabelList(){
 
     const mainPid = treeDataRedux[pid].pid;
 
-    if(mainPid === Label3DType.PROBE){
-      dispatch(handleProbeHeadCreation())
-    }
-
-    if(mainPid === Label3DType.FACE){
-      dispatch(handleFaceHeadCreation())
-    }
-
-    if(mainPid === Label3DType.DISTANCE){
-      dispatch(handleMeasurementHeadCreation({pid :Label3DType.DISTANCE }))
-    }
-
-    if(mainPid === Label3DType.ARC){
-      dispatch(handleMeasurementHeadCreation({pid : Label3DType.ARC}))
-    }
-
     setInteractionMode(viewerId, InteractionMode.DEFAULT);
     dispatch(setLabelInsertionState(false));
 
-    dispatch(reGroupLabel({selectedNodes : selectedLeafNode}))
+    dispatch(reGroupLabel({selectedNodes : selectedLeafNode, grandPid: mainPid, currentPid:pid, undoable: true}))
   }
 
   const handleSetActive = (node : any) => {
     dispatch(setActiveLabel({id: node.id}))
-    // setInteractionMode(viewerId, InteractionMode.DEFAULT);
+    if(node.id !== LabelType.LABEL2D )
+      setInteractionMode(viewerId, InteractionMode.DEFAULT);
     setSelectToggle(false)
     // dispatch(setLabelInsertionState(false));
   }
@@ -332,14 +348,17 @@ export default function LabelList(){
               disabled={selectedCount < 1}
               showClick={() => {dispatch(setCheckedVisibility({
                 toShow: true,
-                leafIds: checkedNodes.map(n => n.id)
+                leafIds: checkedNodes.map(n => n.id),
+                undoable: true,
               }))}}
               hideClick={() => {dispatch(setCheckedVisibility({
                 toShow: false,
-                leafIds: checkedNodes.map(n => n.id)
+                leafIds: checkedNodes.map(n => n.id),
+                undoable: true,
               }))}}
               invertClick={() => {dispatch(invertCheckedVisibility({
-                leafIds: checkedNodes.map(n => n.id)
+                leafIds: checkedNodes.map(n => n.id),
+                undoable: true,
               }))}}
               />
             }/>
@@ -360,7 +379,7 @@ export default function LabelList(){
               </MuiIconButton>} 
             /> */}
 
-            <Option label="Edit" icon={<MuiIconButton disabled={activeLabelId === "-1" || treeDataRedux[activeLabelId].pid ==="-1"} onClick={() =>dispatch(push(Routes.LABEL_EDIT))}>
+            <Option label="Edit" icon={<MuiIconButton disabled={activeLabelId === "-1" || treeDataRedux[activeLabelId].pid ==="-1" || (treeDataRedux[activeLabelId].pid !== LabelType.LABEL2D && treeDataRedux[activeLabelId].children.length === 0)} onClick={() =>dispatch(push(Routes.LABEL_EDIT))}>
                 <MuiEditIcon/>
               </MuiIconButton>} 
             />

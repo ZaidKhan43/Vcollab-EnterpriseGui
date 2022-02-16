@@ -25,6 +25,9 @@ import { selectInteractionMode } from 'store/appSlice';
 import { InteractionMode } from 'backend/ViewerManager';
 import { Label2DTemplate, Label3DTemplate } from 'components/sideBarContents/labels/components/shared/Editor/common';
 
+import {undoStack} from "../../../components/utils/undoStack"
+import { AnyArray } from 'immer/dist/internal';
+
 export const windowPrefixId = "Label2D";
 interface labelSettings extends LabelSettings {
     defaultParameters : ILabel,
@@ -99,50 +102,97 @@ export const init = createAsyncThunk(
     }
 )
 
+// const RedoHandleLabel2DCreation =  createAsyncThunk(
+//     "LabelListSlice/handleLabel2DCreation",
+//     (data:{data: any , undoable?:boolean , id?: string },{dispatch,getState}) => {
+//         let rootState = getState() as RootState;
+        
+//         let e = data.data.data as PointerEvent;
+//             let pos = [e.offsetX,e.offsetY];
+//             console.log("e",e);
+//             let idNew = data.id? data.id : nextId('label-2d')
+//             dispatch(createLabel({id:idNew,pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(Label2DTemplate)}));
+
+//               if(data.undoable) {
+//             undoStack.add(
+//               {
+//                 undo: {reducer: undoCreateLabel, payload:{id : idNew,pid:LabelType.LABEL2D,}},
+//                 redo: {reducer: handleLabel2DCreation, payload:{id:idNew, data: data.data}},
+//               }
+//             )
+//             }
+// });
 
 
 export const handleLabel2DCreation = createAsyncThunk(
     "LabelListSlice/handleLabel2DCreation",
-    (data:any,{dispatch,getState}) => {
+    (data:{data: any , undoable?:boolean;},{dispatch,getState}) => {
         let rootState = getState() as RootState;
         let mode = selectInteractionMode(rootState);
 
         // if(mode === InteractionMode.DEFAULT)
         //     return;
         
-        let e = data.data as PointerEvent;
+        let e = data.data.data as PointerEvent;
         
         if(mode === InteractionMode.LABEL2D) {
             let pos = [e.offsetX,e.offsetY];
             console.log("e",e);
-            dispatch(createLabel({id:nextId('label-2d'),pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(Label2DTemplate)}));
-        }
+            let idNew = nextId('label-2d')
+            dispatch(createLabel({id:idNew,pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(Label2DTemplate)}));
 
+              if(data.undoable) {
+            undoStack.add(
+              {
+                undo: {reducer: undoCreateLabel, payload:{id : idNew,pid:LabelType.LABEL2D,}},
+                redo: {reducer: createLabel, payload:{id:idNew,pid:LabelType.LABEL2D,pos:pos as [number,number],type:Label2DType.DEFAULT,msg:JSON.stringify(Label2DTemplate)}},
+              }
+            )
+            }
+        }
 });
 
 export const handleProbeHeadCreation = createAsyncThunk(
 "labelListSlice/handleProbeLabelCreation",
-(data,{dispatch, getState}) => {
+(data:{undoable?: boolean},{dispatch, getState}) => {
     // let e = data.data;
     const idNew = nextId('label-3d')
     dispatch(createInterLabel({id:idNew,pid:Label3DType.PROBE,pos:[-10,-10],type:Label3DType.PROBE,msg:"nill"}));
     dispatch(setActiveLabel({id: idNew}));
-}
-)
+
+        if(data.undoable) {
+            undoStack.add(
+              {
+                undo: {reducer: undoCreateLabel, payload:{id : idNew,pid:Label3DType.PROBE,}},
+                redo: {reducer: createInterLabel, payload:{id:idNew,pid:Label3DType.PROBE,pos:[-10,-10],type:Label3DType.PROBE,msg:"nill"}},
+              }
+            )
+        }
+});
 
 export const handleFaceHeadCreation = createAsyncThunk(
     "labelListSlice/handleProbeLabelCreation",
-    (data,{dispatch, getState}) => {
+    (data:{undoable? : boolean},{dispatch, getState}) => {
         // let e = data.data;
         const idNew = nextId('label-3d')
         dispatch(createInterLabel({id:idNew,pid:Label3DType.FACE,pos:[-10,-10],type:Label3DType.FACE,msg:"nill"}));
         dispatch(setActiveLabel({id: idNew}));
-    }
-    )
+
+        if(data.undoable) {
+            undoStack.add(
+              {
+                undo: {reducer: undoCreateLabel, payload:{id : idNew,pid:Label3DType.FACE,}},
+                redo: {reducer: createInterLabel, payload:{id:idNew,pid:Label3DType.FACE,pos:[-10,-10],type:Label3DType.FACE,msg:"nill"}},
+              }
+            )
+        }
+
+        
+});
 
 export const handleMeasurementHeadCreation = createAsyncThunk(
     'labelListSlice/handleMeasurementLabelCreation',
-    async (data: any, {dispatch,getState}) => {
+    async (data: {pid: any, undoable?: boolean}, {dispatch,getState}) => {
         let e = data.pid;
         const idNew = nextId('label-3d')
         dispatch(createInterLabel({
@@ -153,14 +203,22 @@ export const handleMeasurementHeadCreation = createAsyncThunk(
             pos:[-10,-10],
         }));
         dispatch(setActiveLabel({id: idNew}));
-    }
-)
+
+        if(data.undoable) {
+            undoStack.add(
+              {
+                undo: {reducer: undoCreateLabel, payload:{id : idNew,pid: e,}},
+                redo: {reducer: createInterLabel, payload:{id: idNew,pid: e,type:e,msg: "nill",pos:[-10,-10],}},
+              }
+            )
+        }
+    })
 
 export const handleProbeLabelCreation = createAsyncThunk(
     "labelListSlice/handleProbeLabelCreation",
-    (data:any,{dispatch,getState}) => {
+    (data:{data:any, undoable?: boolean},{dispatch,getState}) => {
         
-        let e = data.data;
+        let e = data.data.data;
         let rootState = getState() as RootState;
         let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
         let pos = get3DLabelCanvasPos(e.labelId,viewerId);
@@ -177,15 +235,25 @@ export const handleProbeLabelCreation = createAsyncThunk(
                    activeLabel = array[0];
 
         dispatch(createLabel({id:e.labelId,pid: activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:JSON.stringify(Label3DTemplate),probeData:e.msg, activeLabel: activeLabel}));
+
+        if(data.undoable) {
+            undoStack.add(
+              {
+                undo: {reducer: undoCreateLabel, payload:{id : e.labelId,pid: activeLabel,}},
+                redo: {reducer: createLabel, payload:{id:e.labelId,pid: activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:JSON.stringify(Label3DTemplate),probeData:e.msg, activeLabel: activeLabel}},
+              }
+            )
+        }
 });
 
 export const delete3DLabel = createAsyncThunk(
     "labelListSlice/delete3DLabel",
-    (data:any,{dispatch,getState}) => {
+    (data:{undoable?: boolean},{dispatch,getState}) => {
         let rootState = getState() as RootState;
         let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
         let state = rootState.labelAll;
         let keys:string[] = [];
+        let dataList : any[] = [];
         Object.keys(state.data).forEach( key => {
             if( state.data[key].state.checked === true && state.data[key].pid !== "-1" && state.data[key].id !== Label3DType.PROBE && state.data[key].id !== Label3DType.DISTANCE && state.data[key].id !== Label3DType.ARC){
                 delete3DLabelApi(key,viewerId);
@@ -193,22 +261,91 @@ export const delete3DLabel = createAsyncThunk(
                 // if(state.data[key].state.partiallyChecked === false)
                 // keys.push(key);
 
-                if(state.data[key].children.length === 0)
-                keys.push(key);
+                if(state.data[key].children.length === 0){
+                    keys.push(key);
+                    dataList.push(state.data[key])
+                }
                 
             }
         })
         dispatch(LabelAllSlice.actions.deleteLabel({keys}));
+        
+        if(data.undoable){
+            undoStack.add(
+                {
+                  undo: {reducer: undoDelete, payload:{dataList}},
+                  redo: {reducer: redoDelete, payload:{keys}},
+                }
+              )
+        }
+});
+
+const redoDelete = createAsyncThunk(
+    "labelListSlice/delete3DLabel",
+    (data:{keys: string[]},{dispatch,getState}) => {
+        // let rootState = getState() as RootState;
+        // let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
+
+        // data.keys?.forEach((item :any) => {
+        //     delete3DLabelApi(item,viewerId)
+            
+        // })
+
+        dispatch(LabelAllSlice.actions.deleteLabel({keys: data.keys}));
+});
+
+const undoDelete = createAsyncThunk(
+    "labelListSlice/handleProbeLabelCreation",
+    (data:{dataList : any},{dispatch,getState}) => {
+
+        console.log("item", data.dataList)
+        data.dataList.forEach((item: any) => 
+            dispatch(LabelAllSlice.actions.undoDeleted(item))
+        )
+    
 });
 
 export const reGroupLabel = createAsyncThunk(
     "labelListSlice/RegroupLabel",
-    (data:any,{dispatch,getState})=>{
-        let nodes = data.selectedNodes;
+    (data:{selectedNodes: any, grandPid: any, currentPid: string, undoable?: boolean, redoPid?: string},{dispatch,getState})=>{
 
-        nodes.forEach((item: string )=> 
-        dispatch(LabelAllSlice.actions.regroupLabel({key: item}))
+        let {selectedNodes, grandPid, currentPid, redoPid} = data;
+
+        let newPid : string = "";
+
+        if(grandPid === Label3DType.PROBE){
+            newPid = redoPid? redoPid : nextId('label-3d')
+            dispatch(createInterLabel({id:newPid,pid:Label3DType.PROBE,pos:[-10,-10],type:Label3DType.PROBE,msg:"nill"}))
+          }
+      
+          if(grandPid === Label3DType.FACE){
+            newPid = redoPid? redoPid: nextId('label-3d')
+            dispatch(createInterLabel({id:newPid,pid:Label3DType.FACE,pos:[-10,-10],type:Label3DType.FACE,msg:"nill"}));
+          }
+      
+          if(grandPid === Label3DType.DISTANCE){
+            newPid = redoPid? redoPid: nextId('label-3d')
+                dispatch(createInterLabel({id: newPid,pid: Label3DType.DISTANCE,type:Label3DType.DISTANCE,msg: "nill",pos:[-10,-10],}));
+          }
+      
+          if(grandPid === Label3DType.ARC){
+            newPid = redoPid? redoPid: nextId('label-3d')
+                dispatch(createInterLabel({id: newPid,pid: Label3DType.ARC,type:Label3DType.ARC,msg: "nill",pos:[-10,-10],}));
+          }
+         
+        selectedNodes.forEach((item: string )=> 
+            dispatch(LabelAllSlice.actions.regroupLabel({key: item, newPid : newPid}))
         )
+
+        if(data.undoable){
+            undoStack.add(
+                {
+                  undo: {reducer: undoRegroup, payload:{selectedNodes,oldPid: currentPid, currentPid: newPid, grandPid}},
+                  redo: {reducer: reGroupLabel, payload:{selectedNodes,grandPid, redoPid : newPid}},
+                }
+            )
+        }
+        
     }
 )
 
@@ -222,8 +359,28 @@ export const LabelAllSlice = createSlice({
         invertNode: invertNodeReducer,
         expandNode: expandNodeReducer,
         toggleVisibility: toggleVisibilityReducer,
-        setCheckedVisibility: setCheckedVisibilityReducer,
-        invertCheckedVisibility: invertCheckedVisibilityReducer,
+        setCheckedVisibility: (state, action:PayloadAction<{toShow:boolean,leafIds:any, undoable?:boolean}>) => {
+            const {toShow, leafIds,undoable} = action.payload;
+            if(undoable)
+            undoStack.add(
+              {
+                undo: {reducer: setCheckedVisibility, payload:{toShow: !toShow , leafIds}},
+                redo: {reducer: setCheckedVisibility, payload:{toShow,leafIds}}
+              }
+            )
+            setCheckedVisibilityReducer(state,action);
+        },
+        invertCheckedVisibility: (state, action:PayloadAction<{leafIds:any, undoable?:boolean}>) => {
+            const {leafIds,undoable} = action.payload;
+            if(undoable)
+            undoStack.add(
+              {
+                undo: {reducer: invertCheckedVisibility, payload:{leafIds}},
+                redo: {reducer: invertCheckedVisibility, payload:{leafIds}}
+              }
+            )
+            invertCheckedVisibilityReducer(state,action);
+        },
         setlabelMode: (state,action) => setLabelModeReducer(state.labelsListSettings,action),
         createParentLabel : (state, action : PayloadAction<{id:string,name: string, pid: string}>) => {
             const {id,name, pid} = action.payload;
@@ -267,6 +424,10 @@ export const LabelAllSlice = createSlice({
             addNodeReducer(state,{payload: newNote, type: 'ITreeNode'});
         },
 
+        undoDeleted : (state, action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string, probeData?:any, activeLabel?:string}>) => {
+            addNodeReducer(state,{payload: action.payload, type: 'ITreeNode'});
+        },
+
        createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string, probeData?:any, activeLabel?:string}>) => {
                 
                 const {id,pid,pos,msg,probeData} = action.payload;
@@ -283,16 +444,10 @@ export const LabelAllSlice = createSlice({
                     newNote.labelType = LabelType.LABEL2D
                 }
 
-                if(newNote.pid === Label3DType.PROBE){
-                    newNote.anchor = pos;
-                    state.labelsListSettings.countPoint+= 1;
-                    newNote.title = `Point Label ${state.labelsListSettings.countPoint}`;
-                    newNote.labelType = LabelType.LABEL3D;
-                }
 
                 if(newNote.pid === action.payload.activeLabel){
 
-                    if(state.data[action.payload.activeLabel].pid === Label3DType.PROBE){
+                    if(state.data[action.payload.activeLabel? action.payload.activeLabel: -1].pid === Label3DType.PROBE){
                         newNote.anchor = pos;
                         state.labelsListSettings.probeLeafCount +=1 ;
                         newNote.title = `N: Point ${state.labelsListSettings.probeLeafCount}`;
@@ -300,7 +455,7 @@ export const LabelAllSlice = createSlice({
                         newNote.type = Label3DType.PROBE;
                     }
 
-                    if(state.data[action.payload.activeLabel].pid === Label3DType.FACE){
+                    if(state.data[action.payload.activeLabel? action.payload.activeLabel: -1].pid === Label3DType.FACE){
                         newNote.anchor = pos;
                         state.labelsListSettings.faceLeafCount +=1 ;
                         newNote.title = `N: Face ${state.labelsListSettings.faceLeafCount}`;
@@ -308,7 +463,7 @@ export const LabelAllSlice = createSlice({
                         newNote.type = Label3DType.FACE;
                     }
 
-                    if(state.data[action.payload.activeLabel].pid === Label3DType.DISTANCE){
+                    if(state.data[action.payload.activeLabel? action.payload.activeLabel: -1].pid === Label3DType.DISTANCE){
                         newNote.anchor = pos;
                         state.labelsListSettings.distanceLeafCount += 1;
                         newNote.title = `N: Point-Point ${state.labelsListSettings.distanceLeafCount}`;
@@ -316,7 +471,7 @@ export const LabelAllSlice = createSlice({
                         newNote.type = Label3DType.DISTANCE;
                     }
 
-                    if(state.data[action.payload.activeLabel].pid === Label3DType.ARC){
+                    if(state.data[action.payload.activeLabel? action.payload.activeLabel: -1].pid === Label3DType.ARC){
                         newNote.anchor = pos;
                         state.labelsListSettings.arcLeafCount += 1;
                         newNote.title = `N: Arc ${state.labelsListSettings.arcLeafCount}`;
@@ -326,7 +481,66 @@ export const LabelAllSlice = createSlice({
                 }
 
                 addNodeReducer(state,{payload: newNote, type: 'ITreeNode'});
+
+                // if(true) {
+                //     undoStack.add(
+                //       {
+                //         undo: {reducer: undoCreateLabel, payload:{id,pid}},
+                //         redo: {reducer: createLabel, payload: action.payload},
+                //       }
+                //     )
+                //     }
         },
+
+        undoCreateLabel : (state , action: PayloadAction<{id:string, pid: string}>) => {
+
+            const parentnodeList : string[] = [LabelType.LABEL2D,Label3DType.PROBE, Label3DType.FACE, Label3DType.DISTANCE,Label3DType.ARC]
+
+            if(parentnodeList.includes(action.payload.pid)){
+                console.log("sadsadsad")
+                switch(action.payload.pid){
+                    case LabelType.LABEL2D :
+                        state.labelsListSettings.count2D--;
+                    break;
+                    case Label3DType.PROBE:
+                        state.labelsListSettings.countPoint--;
+                    break;
+                    case Label3DType.FACE:
+                        state.labelsListSettings.countFace--;
+                    break;
+                    case Label3DType.DISTANCE :
+                        state.labelsListSettings.countMeasurement--;
+                    break;
+                    case Label3DType.ARC :
+                        state.labelsListSettings.countMeasurement--;
+                    break;
+                    default:
+                }
+            } 
+
+            else{
+                const labelType = JSON.parse(JSON.stringify(state.data[action.payload.id].type ? state.data[action.payload.id].type : "sda"));
+                switch(labelType){
+                    case Label3DType.PROBE:
+                        state.labelsListSettings.probeLeafCount--;
+                    break;
+                    case Label3DType.FACE:
+                        state.labelsListSettings.faceLeafCount--;
+                    break;
+                    case Label3DType.DISTANCE :
+                        state.labelsListSettings.distanceLeafCount--;
+                    break;
+                    case Label3DType.ARC :
+                        state.labelsListSettings.arcLeafCount--;
+                    break;
+                    default:
+            }
+        }
+
+        deleteNodeReducer(state, {payload:{nodeId:action.payload.id},type:'string'})
+            
+        },
+
         setLabelPos:(state, action:PayloadAction<{id:string,pos:[number,number],anchor?: [number,number]}>) => {
             const {id,pos,anchor} = action.payload;
             if(id !== "-1") {
@@ -354,7 +568,7 @@ export const LabelAllSlice = createSlice({
             })
         },
 
-        regroupLabel: (state, action: PayloadAction<{key:string}>) => {
+        regroupLabel: (state, action: PayloadAction<{key:string, newPid:string}>) => {
             
             let key = action.payload.key;
             let array: string[] = [];
@@ -362,8 +576,17 @@ export const LabelAllSlice = createSlice({
                 if( state.data[key].state.selected === true)
                     array.push(state.data[key].id)
             })
+            regroupReducer(state,{payload: {nodeId : key, newParentId : action.payload.newPid}, type:'ITreeNode'})
+        },
+
+        undoRegroup: (state, action: PayloadAction<{selectedNodes : string[],oldPid: string, currentPid: string, grandPid : string }>) => {
+
+            const {selectedNodes, oldPid, currentPid, grandPid} = action.payload;
             
-            regroupReducer(state,{payload: {nodeId : key, newParentId : array[0]}, type:'ITreeNode'})
+            selectedNodes.forEach(item =>
+                LabelAllSlice.caseReducers.regroupLabel(state, {payload:{key: item, newPid: oldPid}, type:"labelAllSlice/regroupLabel"})
+            )
+            LabelAllSlice.caseReducers.undoCreateLabel(state, {payload:{id: currentPid, pid: grandPid}, type:"labelAllSlice/undoCreateLabel"});
         },
 
         setActiveLabel : (state, action: PayloadAction<{id:string}>) => {
@@ -402,6 +625,8 @@ export const {
     setLabelPos, 
     createParentLabel,
     setActiveLabel,
+    undoCreateLabel,
+    undoRegroup,
 } = LabelAllSlice.actions;
 
 //Selectors

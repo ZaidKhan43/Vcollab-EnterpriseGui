@@ -17,13 +17,15 @@ import NumericInput from 'react-numeric-input';
 import styles from '../style';
 
 import MuiButton from '@material-ui/core/Button';
-import { CameraView,ViewMode, updateChange, setActiveId} from '../../../../store/sideBar/sceneSlice';
+import { CameraView,ViewMode, updateChange, setCameraInfoAsync} from '../../../../store/sideBar/sceneSlice';
 
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 
 import MuiTabs from '@material-ui/core/Tabs';
 import MuiTab from '@material-ui/core/Tab';
+
+import {undoStack} from "../../../utils/undoStack";
 
 export default function CameraEdit (){
 
@@ -52,7 +54,7 @@ export default function CameraEdit (){
     }
 
     const onHandleSelect = (newId : number) => {
-        dispatch(setActiveId(newId))
+        dispatch(setCameraInfoAsync({id :newId, undoable: true}))
         setCameraView(cameraViews.find(item => item.id === newId))
     }
 
@@ -212,9 +214,23 @@ export default function CameraEdit (){
         setCameraView(cameraViews.find(item => item.id === active))
     }
 
-    const onHandleSave = () => {
-        const data = cameraView;
+    const onHandleSave = (newData: CameraView, undoable?: boolean) => {
+
+        const data = JSON.parse(JSON.stringify(newData));
+        let oldData = cameraViews.find(item => item.id === data?.id)
+        
         dispatch(updateChange({data,tab:projection}))
+        dispatch(setCameraInfoAsync({id : data.id}))
+
+        if(undoable){
+            undoStack.add(
+                {
+                  undo: () => onHandleSave(oldData),
+                  redo: () => onHandleSave(newData),
+                }
+            )
+        }
+
     }
 
 
@@ -417,7 +433,7 @@ export default function CameraEdit (){
                 <MuiButton style={{backgroundColor:"#5958FF",width:"30%", fontSize:"11px" , marginRight:"5px"}} 
                 disabled={!change}
                 autoFocus 
-                onClick={onHandleSave}
+                onClick={() => onHandleSave(cameraView, true)}
                 // color="primary"
               >
                 Save

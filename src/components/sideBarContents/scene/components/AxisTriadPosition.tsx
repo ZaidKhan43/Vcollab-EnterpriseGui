@@ -9,7 +9,7 @@ import useStyles from './axistriadpositionstyle';
 interface IAxisTriadPositionProps {
 
    items:ListItem[],
-   onSelectMenuList:(id:string,isSelected:boolean)=> void
+   onSelectMenuList:(id:string,isSelected:boolean, undoable?: boolean)=> void
     
 }
 
@@ -39,7 +39,7 @@ return (
             {props.items.map((listItems)=>{
 
             return(
-                <MuiListItem button onClick={(event)=>props.onSelectMenuList(listItems.id ,!listItems.selected)} selected={listItems.selected}>
+                <MuiListItem button onClick={(event)=>props.onSelectMenuList(listItems.id ,!listItems.selected, true)} selected={listItems.selected}>
 
                     <MuiListItemText primary={listItems.text } classes={{primary:classes.MuiListItemText}}  ></MuiListItemText>
                     { listItems.applied == true  ? <MuiListItemSecondaryAction><CheckIcon/></MuiListItemSecondaryAction>:null}

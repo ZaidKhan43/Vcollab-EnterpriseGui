@@ -4,7 +4,6 @@ import Title from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilCo
 import MuiIconButton from '@material-ui/core/IconButton';
 import BackButton from '../../../icons/back';
 
-import MuiGrid from '@material-ui/core/Grid';
 import MuiTypography from '@material-ui/core/Typography';
 import AddIcon from "../../../icons/plus";
 
@@ -30,8 +29,6 @@ import MuiToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 
 import { Routes } from '../../../../routes/index'
 import styles from '../style';
-
-import { useEffect } from 'react';
 
 import { CameraView ,addCameraView , setActiveId, ViewMode , setProjectionAsync , pasteCameraView , deleteCameraView, setCameraInfoAsync} from '../../../../store/sideBar/sceneSlice';
 
@@ -61,8 +58,8 @@ export default function Camera (){
       
 
     const onHandleCamera = (id : number) => {
-        setOpenDelete(false)
-        dispatch(setActiveId(id))
+        dispatch(setCameraInfoAsync({id, undoable: true, callSetActive: true}))
+
     }
 
     const onClickBackIcon = () => {
@@ -70,7 +67,7 @@ export default function Camera (){
     }
 
     const onHandleAdd = () => {
-        dispatch(addCameraView());
+        dispatch(addCameraView({undoable: true}));
     }
 
     const onHandleCopy = () => {
@@ -80,30 +77,20 @@ export default function Camera (){
     const onHandlePaste = () => {
         const data = cameraList.find(item => item.id === copy)
         if(data)
-        dispatch(pasteCameraView({data}))
+        dispatch(pasteCameraView({data, undoable: true}))
         // setCameraList(newCameraList);
     }
 
-    const onHandleDeleteButton = () => {
-        setOpenDelete(true); 
-        // setDeleteMessage("Are you sure want to delete the selected plane?")
-     }
-
     const onHandleDelete = () => {
         setOpenDelete(false);
-        const id = active;
-        dispatch(deleteCameraView({id}))
-        dispatch(setActiveId(-1))
+        const toDeleteCameraView = cameraList.find(item => item.id === active)
+        dispatch(deleteCameraView({toDeleteItem : toDeleteCameraView, undoable: true}))
     }
 
     const onHandleViewMode = (e : any) => {
         const value = Number(e.currentTarget.value);
-        dispatch(setProjectionAsync(value))
+        dispatch(setProjectionAsync({value, undoable : true}))
     }
-
-    const onHandleApply = () => {
-        dispatch(setCameraInfoAsync())
-    } 
 
     const onHandleEdit = () => {
         dispatch(push(Routes.SCENE_CAMERA_EDIT));  
@@ -197,96 +184,48 @@ export default function Camera (){
     }
 
     const getFooter = () => {
-        const activeItem = cameraList.filter(item => item.id === active) 
+        // const activeItem = cameraList.filter(item => item.id === active) 
         return(
-            <div>
-                {
-                    openDelete === false
-                    ?
-                        <div>
-                        {active > -1
-                        ?
-                        <div style={{marginTop:"20px", marginBottom:"20px"}}>
-                            <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
-                                autoFocus 
-                                onClick={onHandleApply} 
-                                // color="primary"
-                            >
-                                Apply
-                            </MuiButton>
-                        </div>
-                        :
-                         null
-                            }   
-
-                               {
-                                    
-                                    <OptionContainer>
-                                        <Option label={cameraList.find(item => item.id === active)?.userDefined ? "Edit" : "View"} icon={<MuiIconButton 
-                                            disabled={active === -1}
-                                             onClick={() => onHandleEdit()}
-                                            >   
-                                            {   cameraList.find(item => item.id === active)?.userDefined
-                                                ?
-                                                    <MuiEditIcon/>
-                                                :
-                                                    <MuiVisibilityIcon/>
-                                            }                                        
-                                            </MuiIconButton>} 
-                                        />
+            <div>     
+                <OptionContainer>
+                    <Option label={cameraList.find(item => item.id === active)?.userDefined ? "Edit" : "View"} icon={<MuiIconButton 
+                        disabled={active === -1}
+                        onClick={() => onHandleEdit()}
+                    >   
+                        { cameraList.find(item => item.id === active)?.userDefined
+                            ?
+                                <MuiEditIcon/>
+                            :
+                                <MuiVisibilityIcon/>
+                        }                                        
+                        </MuiIconButton>} 
+                    />
                                         
-                                        <Option label="Copy" icon={ <MuiIconButton 
-                                            disabled = {active === -1 || userDefinedLength === maxUserDefined} 
-                                             onClick={() => onHandleCopy()}
-                                        > 
-                                            <MuiFileCopyOutlinedIcon/>
-                                            </MuiIconButton>}
-                                        />
-                                        <Option label="Paste" icon={ <MuiIconButton 
-                                            disabled = {copy === -1 || userDefinedLength === maxUserDefined }  
-                                            onClick={() => onHandlePaste()}
-                                        > 
-                                            <MuiPaste/>
-                                            </MuiIconButton>}
-                                        />
-                                        <Option label="Delete" icon={ <MuiIconButton 
-                                            disabled = {active === -1 || cameraList.find(item => item.id === active)?.userDefined === false}  
-                                            onClick={() => onHandleDeleteButton()}
-                                        > 
-                                            <MuiDeleteForeverOutlinedIcon/>
-                                            </MuiIconButton>}
-                                        />
-                                        
-                                    </OptionContainer>
-                                }
-                    </div>
-                    :
-                    <div>
-                       <div style={{marginBottom:"5px", marginTop:"5px"}}>
-                <MuiTypography style={{marginBottom:"5px", fontSize:"14px"}}>
-                    Are you sure want to delete the selected view?
-                </MuiTypography>
-                <div style={{alignContent:"center",}}>
-                  <MuiButton style={{backgroundColor:"#5958FF",width:"20%", fontSize:"9px" , marginRight:"5px"}} 
-                    autoFocus 
-                    onClick={onHandleDelete} 
-                    // color="primary"
-                  >
-                    Confirm
-                  </MuiButton>
-                <MuiButton style={{width:"20%", fontSize:"9px"}}
-                  onClick={() => setOpenDelete(false)} 
-                  // color="primary"
-                >
-                  Cancel
-              </MuiButton>
+                    <Option label="Copy" icon={ <MuiIconButton 
+                        disabled = {active === -1 || userDefinedLength === maxUserDefined} 
+                        onClick={() => onHandleCopy()}
+                    > 
+                        <MuiFileCopyOutlinedIcon/>
+                        </MuiIconButton>}
+                    />
+                    
+                    <Option label="Paste" icon={ <MuiIconButton 
+                        disabled = {copy === -1 || userDefinedLength === maxUserDefined }  
+                        onClick={() => onHandlePaste()}
+                    > 
+                        <MuiPaste/>
+                        </MuiIconButton>}
+                    />
+                    
+                    <Option label="Delete" icon={ <MuiIconButton 
+                        disabled = {active === -1 || cameraList.find(item => item.id === active)?.userDefined === false}  
+                        onClick={() => onHandleDelete()}
+                    > 
+                        <MuiDeleteForeverOutlinedIcon/>
+                        </MuiIconButton>}
+                    />                        
+                </OptionContainer>
             </div>
-          </div>
-                    </div>
-
-                }
-                
-     </div>
         )
     }
 

@@ -43,7 +43,10 @@ export const setCheckedVisibilityReducer = (state:ITreeState, action:PayloadActi
       let node = getNode(nodeId,state);
       if(node?.pid) 
       pids.add(node.pid);
-      if(node && node.children.length === 0)
+      
+      //  To make the intermediate parent node also selectable.
+      // if(node && node.children.length === 0)
+      if(node)
       {
         setVisibility(toShow,node,true,state);
       }

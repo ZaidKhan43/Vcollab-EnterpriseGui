@@ -5,6 +5,8 @@ import { getCameraInfo, getCameraStdViews, setCameraInfo, setCameraProjection } 
 import {perspectiveToOrtho,orthoToPerspective} from '../../components/utils/camera'
 import type { RootState } from '../index';
 
+import {undoStack} from "../../components/utils/undoStack"
+
 export enum ViewMode {
     Perspective = 0,
     Orthographic = 1,
@@ -36,7 +38,7 @@ export type CameraView = {
     }[]
 }
 
-type ColorList = {
+export type ColorList = {
     id : number,
     color : {
         r : number,
@@ -188,42 +190,125 @@ export const fetchCameraMatrix = createAsyncThunk(
     }
 )
 
-export const setCameraInfoAsync = createAsyncThunk(
-    'scene/setCameraInfoAsync',
-    async (data,{dispatch,getState}) => {
+const undoSetCameraInfoAsync = createAsyncThunk(
+    'scene/undoSetCameraInfoAsync',
+    async (data: {id : number, callSetActive?: boolean, oldActivePresp?: any, oldActiveOrtho?: any },{dispatch,getState}) => {
         const state = getState() as RootState;
         const viewerId = state.app.viewers[state.app.activeViewer || ''];
-        let activeView = selectedCameraView(state)[0];
+
+        if (data.callSetActive)
+            dispatch(setActiveId(data.id))        
+
+        const {oldActivePresp, oldActiveOrtho} = data;
+        let camData;
+
+        if(data.id === -1)
+
+            camData = {
+                position: oldActivePresp?.pos,
+                dir: oldActivePresp.dir,
+                up: oldActivePresp?.up,
+                perspective: oldActivePresp?.frustum,
+                ortho: oldActiveOrtho?.frustum,
+            }
+
+        if(data.id !== -1){
+            const activeView = state.scene.cameraViews.find(item => item.id === data.id)
+            camData = {
+                position: [activeView?.cameraPosition[0].value,activeView?.cameraPosition[1].value,activeView?.cameraPosition[2].value],
+                dir: [activeView?.cameraDirection[0].value,activeView?.cameraDirection[1].value,activeView?.cameraDirection[2].value],
+                up: [activeView?.cameraUp[0].value,activeView?.cameraUp[1].value,activeView?.cameraUp[2].value],
+                perspective: 
+                {
+                    fov: activeView?.valuePerspective[0].value,
+                    aspect: activeView?.valuePerspective[1].value,
+                    far: activeView?.valuePerspective[2].value,
+                    near: activeView?.valuePerspective[3].value
+                },
+                ortho: {
+                    left: activeView?.valueOrthographic[0].value,
+                    right: activeView?.valueOrthographic[1].value,
+                    top: activeView?.valueOrthographic[2].value,
+                    bottom: activeView?.valueOrthographic[3].value,
+                    far: activeView?.valueOrthographic[4].value,
+                    near: activeView?.valueOrthographic[5].value,
+                }
+            }
+        }
+            
+        
+        setCameraInfo(viewerId,camData);
+    }
+)
+
+export const setCameraInfoAsync = createAsyncThunk(
+    'scene/setCameraInfoAsync',
+    async (data: {id : number, undoable?: boolean, callSetActive?: boolean, activeView?: any },{dispatch,getState}) => {
+        const state = getState() as RootState;
+        const viewerId = state.app.viewers[state.app.activeViewer || ''];
+
+        const oldActiveId = state.scene.settings.activeId;
+
+        if (data.callSetActive)
+            dispatch(setActiveId(data.id))        
+
+        const activeView = state.scene.cameraViews.find(item => item.id === data.id)
+          
+        const oldActivePresp = getCameraInfo(viewerId,ViewMode.Perspective)
+        const oldActiveOrtho = getCameraInfo(viewerId,ViewMode.Orthographic)
+            
         let camData = {
-            position: [activeView.cameraPosition[0].value,activeView.cameraPosition[1].value,activeView.cameraPosition[2].value],
-            dir: [activeView.cameraDirection[0].value,activeView.cameraDirection[1].value,activeView.cameraDirection[2].value],
-            up: [activeView.cameraUp[0].value,activeView.cameraUp[1].value,activeView.cameraUp[2].value],
+            position: [activeView?.cameraPosition[0].value,activeView?.cameraPosition[1].value,activeView?.cameraPosition[2].value],
+            dir: [activeView?.cameraDirection[0].value,activeView?.cameraDirection[1].value,activeView?.cameraDirection[2].value],
+            up: [activeView?.cameraUp[0].value,activeView?.cameraUp[1].value,activeView?.cameraUp[2].value],
             perspective: 
             {
-                fov: activeView.valuePerspective[0].value,
-                aspect: activeView.valuePerspective[1].value,
-                far: activeView.valuePerspective[2].value,
-                near: activeView.valuePerspective[3].value
+                fov: activeView?.valuePerspective[0].value,
+                aspect: activeView?.valuePerspective[1].value,
+                far: activeView?.valuePerspective[2].value,
+                near: activeView?.valuePerspective[3].value
             },
             ortho: {
-                left: activeView.valueOrthographic[0].value,
-                right: activeView.valueOrthographic[1].value,
-                top: activeView.valueOrthographic[2].value,
-                bottom: activeView.valueOrthographic[3].value,
-                far: activeView.valueOrthographic[4].value,
-                near: activeView.valueOrthographic[5].value,
+                left: activeView?.valueOrthographic[0].value,
+                right: activeView?.valueOrthographic[1].value,
+                top: activeView?.valueOrthographic[2].value,
+                bottom: activeView?.valueOrthographic[3].value,
+                far: activeView?.valueOrthographic[4].value,
+                near: activeView?.valueOrthographic[5].value,
             }
         }
         setCameraInfo(viewerId,camData);
+        
+        if(data.undoable) {
+            undoStack.add(
+              {
+                undo: {reducer: undoSetCameraInfoAsync, payload:{id: oldActiveId, callSetActive: true, oldActiveOrtho, oldActivePresp }},
+                redo: {reducer: setCameraInfoAsync, payload:{id: data.id, callSetActive: true}},
+              }
+            )
+          }
     }
 )
 export const setProjectionAsync = createAsyncThunk(
     'scene/setProjectionAsync',
-    async (data:ViewMode, {dispatch,getState}) => {
+    async (data:{value :ViewMode, undoable?: boolean}, {dispatch,getState}) => {
         const state = getState() as RootState;
         const viewerId = state.app.viewers[state.app.activeViewer || ''];
-        setCameraProjection(viewerId,data);
-        dispatch(sceneSlice.actions.editViewMode({value:data}));
+
+        const oldValue = state.scene.settings.projection;
+
+        setCameraProjection(viewerId,data.value);
+        dispatch(sceneSlice.actions.editViewMode({value:data.value}));
+
+        if(data.undoable) {
+            undoStack.add(
+              {
+                undo: {reducer: setProjectionAsync, payload:{value : oldValue}},
+                redo: {reducer: setProjectionAsync, payload:{value : data.value}},
+              }
+            )
+        }
+
     }
 )
 //color apis
@@ -245,19 +330,37 @@ export const sceneSlice = createSlice({
     initialState : initialState,
     reducers: {
         //camera
-        addCameraView : (state) => {
+        addCameraView : (state, action: PayloadAction<{undoable?:true}>) => {
             if(state.cameraViews.filter(item => item.userDefined === true).length < state.settings.userDefineLimit){
                 const userDefinedLength = state.cameraViews.filter(item => item.userDefined === true).length;
                 const id : number = ++state.settings.idGeneratorUserDefined;
                 const name : string = `Camera View ${userDefinedLength + 1}`;
                 const newCameraView : CameraView = {
-                ...state.settings.defaultCameraParameter,id, name, userDefined:true
-            }
-            state.cameraViews = [...state.cameraViews, newCameraView];
+                    ...state.settings.defaultCameraParameter,id, name, userDefined:true
+                }
+                state.cameraViews = [...state.cameraViews, newCameraView];
+
+                if(action.payload.undoable){
+                    undoStack.add(
+                        {
+                            undo: {reducer: undoAddCameraView, payload:{id}},
+                            redo: {reducer: addCameraView, payload:{}},
+                        }
+                    )
+                }
             }
         },
 
-        pasteCameraView: (state,action :  PayloadAction<{data: CameraView}>) => {
+        undoAddCameraView : (state,  action: PayloadAction<{id : number}>) => {
+            state.cameraViews =  state.cameraViews.filter(item => item.id !== action.payload.id)
+            state.settings.idGeneratorUserDefined--;
+        },
+
+        pushCameraView : (state, action:PayloadAction<{cameraView: CameraView, index : number}>) => {
+            state.cameraViews.push(action.payload.cameraView);
+          },
+
+        pasteCameraView: (state,action :  PayloadAction<{data: CameraView, undoable?: true}>) => {
             const userDefinedLength : number = state.cameraViews.filter(item => item.userDefined === true).length;
             let clone = JSON.parse(JSON.stringify(action.payload.data));
             const newId = ++state.settings.idGeneratorUserDefined;
@@ -265,10 +368,34 @@ export const sceneSlice = createSlice({
             clone.userDefined = true;
             clone.name = `Camera View ${userDefinedLength + 1}`;
             state.cameraViews = [...state.cameraViews , clone];
+
+            if(action.payload.undoable){
+                undoStack.add(
+                    {
+                        undo: {reducer: undoAddCameraView, payload:{id :clone.id}},
+                        redo: {reducer: pasteCameraView, payload:{data: action.payload.data}},
+                    }
+                )
+            }
         },
 
-        deleteCameraView:(state, action: PayloadAction<{id : number}>) => {
-            state.cameraViews =  state.cameraViews.filter(item => item.id !== action.payload.id)
+        deleteCameraView:(state, action: PayloadAction<{toDeleteItem : CameraView | undefined, undoable?: boolean}>) => {
+            const indexOfDeletedCameraView = state.cameraViews.findIndex(item => item.id === action.payload.toDeleteItem?.id)
+            const deletedCameraView = action.payload.toDeleteItem;
+
+            console.log(state.cameraViews)
+
+            sceneSlice.caseReducers.setActiveId(state,{payload:-1,type:"sceneSlice/setActiveId"})
+            state.cameraViews =  state.cameraViews.filter(item => item.id !== action.payload.toDeleteItem?.id)
+
+            if(action.payload.undoable){
+                undoStack.add(
+                    {
+                      undo: {reducer: pushCameraView, payload:{cameraView : deletedCameraView, index : indexOfDeletedCameraView}},
+                      redo: {reducer: deleteCameraView, payload:{toDeleteItem : deletedCameraView}},
+                    }
+                )
+            }
         },
 
         setActiveId:(state, action :  PayloadAction<number>) => {
@@ -284,6 +411,9 @@ export const sceneSlice = createSlice({
         
         updateChange: (state, action :  PayloadAction<{data : CameraView, tab : ViewMode}>) => {
             const {data,tab} = action.payload;
+
+            console.log("datta",data)
+
             const index = state.cameraViews.findIndex(item => item.id === data.id)
             if(index > -1){
                 if(tab === ViewMode.Perspective)
@@ -293,6 +423,7 @@ export const sceneSlice = createSlice({
                     let far = data.valuePerspective[2].value;
                     let near = data.valuePerspective[3].value;
                     let orthoData = perspectiveToOrtho(fov,aspect,near,far);
+                    
                     data.valueOrthographic[0].value = orthoData.left;
                     data.valueOrthographic[1].value = orthoData.right;
                     data.valueOrthographic[2].value = orthoData.top;
@@ -405,7 +536,7 @@ export const sceneSlice = createSlice({
     }
 })
 
-export const {addCameraView, setActiveId ,  updateChange, pasteCameraView , deleteCameraView, setShowAxis,setApplyItem} = sceneSlice.actions;
+export const {addCameraView, setActiveId ,  updateChange, pasteCameraView , deleteCameraView, setShowAxis,setApplyItem, pushCameraView, undoAddCameraView} = sceneSlice.actions;
 
 export default sceneSlice.reducer;
 

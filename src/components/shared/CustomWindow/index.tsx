@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useLayoutEffect, useState, forwardRef } from 
 import { Rnd, Position, ResizableDelta, DraggableData  } from 'react-rnd'
 import { useResizeDetector } from 'react-resize-detector';
 import clsx from 'clsx'
-import { selectWindowMgr, selectWindowAnchor,addWindow, removeWindow, setEditMode, setHiddenState, setWindowSize, setWindowPos, selectWindowXY, setWindowAnchor, setActiveLayers, Layers} from '../../../store/windowMgrSlice'
+import { selectWindowMgr, selectWindowAnchor,addWindow, removeWindow, setEditMode, setHiddenState, setWindowSize, setWindowPos, selectWindowXY, setWindowAnchor, setActiveLayers, Layers, setWindowSizeHandler, setWindowPostionHandler} from '../../../store/windowMgrSlice'
 import {useAppSelector, useAppDispatch} from "../../../store/storeHooks";
 import { vec2, vec3 } from 'gl-matrix';
 
@@ -183,7 +183,7 @@ const CustomWindow = forwardRef((props:CustomWindowProps, ref:any) => {
         setParentSize([props.parentRef.current.clientWidth,props.parentRef.current.clientHeight]);
         
         if(props.width && props.height)
-        dispatch(setWindowSize({uid,size:[props.width,props.height]}))
+        dispatch(setWindowSize({uid,size:[props.width,props.height],}))
         else if(windowRef.current)
             dispatch(setWindowSize({uid,size:[windowRef.current.clientWidth, windowRef.current.clientHeight]}))
         return () => {
@@ -267,16 +267,15 @@ const CustomWindow = forwardRef((props:CustomWindowProps, ref:any) => {
                     default:
                         break;
                 }
-                dispatch(setWindowAnchor({uid,anchor}));
+                dispatch(setWindowPostionHandler({uid,anchor,pos:[d.x,d.y], undoable: true}));
                 if(props.onDragStop)
                 props.onDragStop(d.x,d.y);
-                dispatch(setWindowPos({uid,pos:[d.x,d.y]}))
              }}
             onResizeStop={(e, direction, ref, delta, position) => {
-                dispatch(setWindowSize({uid,size:[ref.offsetWidth,ref.offsetHeight - titleBarHeight]}))
+                dispatch(setWindowSizeHandler({uid,size:[ref.offsetWidth,ref.offsetHeight - titleBarHeight],pos:[position.x, position.y],undoable :true}))
                 if(props.onResizeStop)
                 props.onResizeStop(position.x,position.y);
-                dispatch(setWindowPos({uid,pos:[position.x,position.y]}))
+                // dispatch(setWindowPos({uid,pos:[position.x,position.y]}))
             }}
             >
             {/* <TitleBar ref={titleBarRef} isEditMode={window?.isEditMode} height={10} /> */}

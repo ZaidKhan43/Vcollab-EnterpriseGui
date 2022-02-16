@@ -19,9 +19,11 @@ import MuiMinusIcon from '@material-ui/icons/Remove';
 import Dropzone from 'react-dropzone';
 import MuiTypography from '@material-ui/core/Typography';
 
-import { setBackgroundColorAsync , setBackgroundImageAsync } from "../../../../store/sideBar/sceneSlice";
+import { setBackgroundColorAsync , setBackgroundImageAsync, ColorList } from "../../../../store/sideBar/sceneSlice";
 
 import styles from '../style';
+
+import {undoStack} from "../../../utils/undoStack";
 
 export default function Background (){
 
@@ -29,76 +31,192 @@ export default function Background (){
 
     const [backgroundMenu, setBackgroundMenu] = useState<number | null>(0);
     const colourList = useAppSelector((state) => state.scene.colorList); 
-    const [colourSet, setColourSet] = useState( colourList.map(object => ({...object})));
+    
     const fileRedux = useAppSelector((state) => state.scene.file );
-    const [file, setFile] = useState<any>(fileRedux);
+;
     // const [snackbarContent, setSnackbarContent] = useState<null | string>(null);
     // const [snackbarBoolean, setSnackbarBoolean] = useState(false)
-        
-    useEffect(() => {setColourSet(colourList.map(object => ({...object})))},[colourList]);
-    useEffect(() => {setFile(fileRedux)},[fileRedux])
+    
 
-    const [selectedColor, setSelectedColor] = useState<any>();
+    const [selectedColor, setSelectedColor] = useState<any>(-1);
     const dispatch = useAppDispatch();
+
+    useEffect(() => {setSelectedColor(colourList.find((item : ColorList) => item.id === selectedColor.id))},[colourList]);
+
+    const isBackgroundImage = useAppSelector((state) => state.scene.isImageActive)
 
     const handleChangeTab= (e : any, value : any) => {
         setBackgroundMenu(value)
     }
 
-    const handleAddColor = () => {
-        if(colourSet.length < 3){
-            const idNew = colourSet.length + 1;
-            const newArray : any = [...colourSet, {id: idNew , color:{r:255,g:255,b:255,a:1}}];
-            setColourSet(newArray);
+    const handleUndoAdd = (newArray : ColorList[]) => {
+        let newArrayOne= [...newArray];
+
+        newArrayOne.pop();
+        dispatch(setBackgroundColorAsync(newArrayOne));
+        setSelectedColor(-1)
+
+    }
+
+    const handleAddColor = (undoable?: boolean) => {
+        if(colourList.length < 3){
+            const idNew = colourList.length + 1;
+            const newArray : any = [...colourList, {id: idNew , color:{r:255,g:255,b:255,a:1}}];
+            dispatch(setBackgroundColorAsync(newArray));
             setSelectedColor(newArray[newArray.length - 1])
+
+            if(undoable){
+                undoStack.add(
+                    {
+                      undo: () => handleUndoAdd(newArray),
+                      redo: () => handleAddColor(),
+                    }
+                )
+            }
         }
     }
 
     const handleColorSelector : (item : any) => any = (item) => {
         if( selectedColor === item)
-            setSelectedColor(null)
+            setSelectedColor(-1)
         else
             setSelectedColor(item)
     }
 
-    const handleChangeComplete = (color : {r : number , g:number, b:number, a?:number}) => {
-        const index = colourSet.findIndex((item) => item.id === selectedColor.id);
-        const newArray=[...colourSet];
+    const handleChangeComplete = (color : {r : number , g:number, b:number, a?:number},  undoable?: boolean) => {
+        const index = colourList.findIndex((item) => item.id === selectedColor.id);
+        let newArray= JSON.parse(JSON.stringify(colourList));
+
+        const oldValue = newArray[index].color;
+
         newArray[index].color= color;
-        setColourSet(newArray);
+        dispatch(setBackgroundColorAsync(newArray));
+        setSelectedColor( colourList.find((item) => item.id === selectedColor.id))
+
+        if(undoable){
+            undoStack.add(
+                {
+                  undo: () => handleChangeComplete(oldValue),
+                  redo: () => handleChangeComplete( color),
+                }
+            )
+        }
     }
 
-    const handleRemoveColor = () => {
-        if ( colourSet.length > 1){
-            const newArray = colourSet.filter((item) => item.id !== colourSet.length)
-            setColourSet(newArray)
-            setSelectedColor(newArray[newArray.length - 1])
+    const undoRemoveColor = (removedColor: ColorList, newArray : ColorList[]) => {
+        console.log(colourList)
+        const newArrayOne= [...newArray, removedColor];
+
+        if(newArray)
+            dispatch(setBackgroundColorAsync(newArrayOne));
+        setSelectedColor(-1);
+    }
+
+    const handleRemoveColor = (undoable?: boolean) => {
+
+        if ( colourList.length > 1){
+
+            const removedColor = JSON.parse(JSON.stringify(colourList.find((item) => item.id === colourList.length)));
+            const newArray = colourList.filter((item) => item.id !== colourList.length)
+            dispatch(setBackgroundColorAsync(newArray));
+            setSelectedColor(-1)
+
+            if(undoable && colourList.length > 1){
+                undoStack.add(
+                    {
+                      undo: () => undoRemoveColor(removedColor, newArray),
+                      redo: () => handleRemoveColor(),
+                    }
+                )
+            }
         }
+
+        
         
     }
 
-    const handleSave = () => {    
-       if (backgroundMenu === 0) {
-            dispatch(setBackgroundColorAsync(colourSet));
-            // setSnackbarContent("Background Colour Applied");
-            // setSnackbarBoolean(true);
-            setSelectedColor(null);
-       }
+    const handleUndo = (oldData : any) => {
 
-       if (backgroundMenu === 1) {{
-           dispatch(setBackgroundImageAsync(file));
-       }}
+        if (typeof(oldData) === 'object') {
+            dispatch(setBackgroundImageAsync(null));
+             dispatch(setBackgroundColorAsync(oldData));
+
+             setSelectedColor(-1);
+        }
+
+        if (typeof(oldData) === 'string') {
+            dispatch(setBackgroundImageAsync(oldData));
+        }
+
+ 
     }
 
-        const handleReset = () => { 
-            const resetValue = colourList.map(object => ({...object}));
-            setColourSet(resetValue)
+    const handleSave = ( newData :{newColorList? : ColorList[], newFile? : any ,undoable? : boolean}) => {    
+
+        if (backgroundMenu === 0 && newData.newColorList) {
+            let oldData : any;
+            if(isBackgroundImage)
+                oldData = fileRedux;
+            else 
+                oldData = colourList
+
+            dispatch(setBackgroundColorAsync(newData.newColorList));
             setSelectedColor(null);
-            
-        if(file !== fileRedux){
-            setFile(fileRedux)
+
+            if(newData.undoable && oldData){
+                undoStack.add(
+                    {
+                      undo: () => handleUndo(oldData),
+                      redo: () => handleSave({newColorList : newData.newColorList}),
+                    }
+                )
+            }
+        }
+
+       if (backgroundMenu === 1) {
+
+            let oldData : any;
+            if(!fileRedux)
+                oldData = colourList;
+            else
+                oldData = fileRedux;
+
+           dispatch(setBackgroundImageAsync(newData.newFile));
+
+           if(newData.undoable){
+                undoStack.add(
+                    {
+                      undo: () => handleUndo(oldData),
+                      redo: () => handleSave( {newFile: newData.newFile}),
+                    }
+                )
+            }
+        }
+
+       
+    }
+
+    const updateFile = (file : any, undoable?: boolean) => {
+        
+        let oldData : any;
+
+            if(!fileRedux)
+                oldData = colourList;
+            else
+                oldData = fileRedux;
+
+        dispatch(setBackgroundImageAsync(file));
+
+        if(undoable){
+            undoStack.add(
+                {
+                  undo: () => handleUndo(oldData),
+                  redo: () => updateFile(file),
+                }
+            )
         }
     }
+
 
     const onDrop = (acceptedFiles : any , rejected : any) => {
 
@@ -109,7 +227,8 @@ export default function Background (){
         }
         
         else{
-            setFile(URL.createObjectURL(acceptedFiles[0]));
+
+            updateFile(URL.createObjectURL(acceptedFiles[0]), true);
         }
     }
     
@@ -147,35 +266,21 @@ export default function Background (){
     }
 
     const getBody = () => {
-        let backgroundChange = false;
-        if ( colourSet.length !== colourList.length )
-            backgroundChange = true;
-        else {
-            for (let i = 0; i < colourSet.length; i++) {
-               if(colourList[i].color !== colourSet[i].color){
-                    backgroundChange = true;
-                    break;
-                }
-            }
-        }
-        
-        if(fileRedux !== file)
-            backgroundChange = true;
 
         return(
             <div className={classes.scrollBar}>
                 {   backgroundMenu === 0 &&
                     <div style={{marginTop:"20px"}}>
                         <div className={classes.buttonContainer}>
-                            <MuiPlusIcon onClick={handleAddColor} className={classes.buttonComponent }/>
+                            <MuiPlusIcon onClick={() => handleAddColor(true)} className={classes.buttonComponent }/>
                         </div>
                         <MuiGrid container spacing={3} style={{marginLeft:"10px",marginTop:"10px"}}>
                             <MuiGrid item xs={12} sm={1} style={{zIndex:10,}}>
-                                {colourSet.map((item : any, index : number) => 
+                                {colourList.map((item : any, index : number) => 
                                     <div 
                                         key={ 'divParent_' + index } 
                                         className={selectedColor ? item.id !== selectedColor.id ? classes.colorPicker : classes.active : classes.colorPicker} 
-                                        style={{height:226/colourSet.length, 
+                                        style={{height:226/colourList.length, 
                                             width:"30px",
                                             backgroundColor:`rgb(${item.color.r},${item.color.g},${item.color.b})` ,
                                             
@@ -194,7 +299,7 @@ export default function Background (){
                             </MuiGrid>
                         </MuiGrid> 
                         <div className={classes.buttonContainer}>
-                            <MuiMinusIcon  onClick={handleRemoveColor} className={classes.buttonComponent}/>
+                            <MuiMinusIcon  onClick={() => handleRemoveColor(true)} className={classes.buttonComponent}/>
                         </div>                      
                     </div>
                 }
@@ -216,7 +321,7 @@ export default function Background (){
                                             border: " 1px dashed"
                                         }}>
                                             <input {...getInputProps()} />
-                                            {   file 
+                                            {   fileRedux
                                                 ?
                                                     <div>
                                                         <img 
@@ -227,7 +332,7 @@ export default function Background (){
                                                                 objectFit: "cover",
                                                                 objectPosition: "center"
                                                             }} 
-                                                            src={file} alt="profile" 
+                                                            src={fileRedux} alt="profile" 
                                                         />
                                                     </div>
                                                 :
@@ -242,19 +347,6 @@ export default function Background (){
                             </Dropzone>
                         </div>
                 } 
-                
-                <div className={classes.saveResetButtonContainer} >
-                    <MuiGrid container spacing={3} >
-                        <MuiGrid item xs={12} sm={6}>
-                            <MuiButton disabled={ backgroundChange=== false} style={{backgroundColor:"#8C8BFF", zIndex:10}} variant="contained" color="primary" onClick={handleSave}>
-                                Save
-                            </MuiButton>            
-                        </MuiGrid>
-                        <MuiGrid item xs={12} sm={6} >
-                            <MuiButton disabled={backgroundChange === false}  style={{color:"#8C8BFF", zIndex:10}} color="primary" onClick={handleReset}>Reset</MuiButton>                                                          
-                        </MuiGrid>
-                    </MuiGrid>
-                </div>
             </div>
         )
     }

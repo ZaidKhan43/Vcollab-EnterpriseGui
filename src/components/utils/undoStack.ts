@@ -1,5 +1,6 @@
 type Payload = {reducer:any, payload:any};
-type Data = {undo: Payload, redo: Payload};
+type Data = {undo: Payload | Function, redo: Payload | Function};
+type Function = () => void;
 export enum UndoEvents {
     UPDATE = 'UPDATE'
 }
@@ -27,7 +28,16 @@ class UndoStack {
         
         if(this.stackPointer >= 0) {
             const {undo} = this.data[this.stackPointer];
-            dispatch(undo.reducer(undo.payload));
+
+            if( (typeof undo) === "object"){
+                let X = undo as Payload;
+                dispatch(X.reducer(X.payload));
+            }
+            else {
+                let X = undo as Function;
+                X();
+            }
+
             this.stackPointer -=1;
         }
         const cbk = this.listeners.get(UndoEvents.UPDATE);
@@ -39,7 +49,14 @@ class UndoStack {
         this.stackPointer +=1;
         if(this.stackPointer < this.data.length) {
             const {redo} = this.data[this.stackPointer];
-            dispatch(redo.reducer(redo.payload));
+            if( (typeof redo) === "object"){
+                let X = redo as Payload;
+                dispatch(X.reducer(X.payload));
+            }
+            else {
+                let X = redo as Function;
+                X();
+            }
         }
         else{
             this.stackPointer -=1;
