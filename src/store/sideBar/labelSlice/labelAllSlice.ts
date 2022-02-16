@@ -371,7 +371,7 @@ export const LabelAllSlice = createSlice({
             setCheckedVisibilityReducer(state,action);
         },
         invertCheckedVisibility: (state, action:PayloadAction<{leafIds:any, undoable?:boolean}>) => {
-            const {toShow, leafIds,undoable} = action.payload;
+            const {leafIds,undoable} = action.payload;
             if(undoable)
             undoStack.add(
               {
