@@ -476,8 +476,6 @@ export const LabelAllSlice = createSlice({
 
             const parentnodeList : string[] = [LabelType.LABEL2D,Label3DType.PROBE, Label3DType.FACE, Label3DType.DISTANCE,Label3DType.ARC]
 
-            
-
             if(parentnodeList.includes(action.payload.pid)){
                 console.log("sadsadsad")
                 switch(action.payload.pid){
@@ -568,7 +566,6 @@ export const LabelAllSlice = createSlice({
             selectedNodes.forEach(item =>
                 LabelAllSlice.caseReducers.regroupLabel(state, {payload:{key: item, newPid: oldPid}, type:"labelAllSlice/regroupLabel"})
             )
-           
             LabelAllSlice.caseReducers.undoCreateLabel(state, {payload:{id: currentPid, pid: grandPid}, type:"labelAllSlice/undoCreateLabel"});
         },
 

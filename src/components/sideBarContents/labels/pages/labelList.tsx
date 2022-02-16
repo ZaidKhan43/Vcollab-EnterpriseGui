@@ -107,9 +107,18 @@ export default function LabelList(){
     dispatch(expandNode({toOpen,nodeId}));
   }
 
-  const handleInvert = (node:ITreeNode) => {
+  const handleInvert = (node:ITreeNode, undoable?:boolean) => {
     dispatch(invertNode({nodeId:node.id}));
 
+    console.log("undoable", undoable)
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => handleInvert(node),
+          redo: () => handleInvert(node),
+        }
+      )
+    }
     
   }
   
