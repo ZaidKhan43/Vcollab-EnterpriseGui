@@ -72,8 +72,8 @@ function App() {
     enabled={ isFullscreenOn }
     onChange={(isFullscreenEnabled: any) => handleFullscreen(isFullscreenEnabled)}
     >
-      <Grid container spacing={0}>
-      <Grid item>
+      <Grid style={{height: '100%'}} container spacing={0}>
+      <Grid item style={{height: '100%'}} >
         <LeftBar topTabs={leftBarDefaultItems} bottomTabs={leftBarBtmOptions} onChange={handleLeftBarChange}/>
       </Grid>
       <Grid item wrap='nowrap' style={{width:`calc(100% - ${leftbarWidth}px)`}} >

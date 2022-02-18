@@ -63,7 +63,7 @@ function SearchBox(props:SearchProps) {
         let searchInput = getSearchInput(props.text);
         let r:any[] = (fuse as any)?.search(searchInput) || [];
         props.onChange(props.text, r)
-    },[props.text])
+    },[props.text, fuse])
     
     return (
             <div className={classes.root}>

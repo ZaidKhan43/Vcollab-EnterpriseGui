@@ -17,6 +17,8 @@ import { Routes } from 'routes';
 import {push} from 'connected-react-router/immutable';
 import clsx from 'clsx';
 import { MainMenuItem, selectActiveTab, selectDefaultOptions, setActiveTab, selectTemporaryTab} from 'store/mainMenuSlice';
+import useContainer from 'customHooks/useContainer';
+import { topbarHeight } from 'config';
 
 type LeftBarProps = {
     topTabs: MainMenuItem[],
@@ -36,7 +38,6 @@ const useTabStyles = makeStyles((theme: Theme) => ({
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,
     display: 'flex',
-    height: '80%'
   },
   tabs: {
     width: '100%',
@@ -75,6 +76,8 @@ function LeftBar(props: LeftBarProps) {
   const temporaryTab = useAppSelector(selectTemporaryTab);
   const dispatch = useAppDispatch();
   const activeItem = useAppSelector(selectActiveTab);
+  const bottomTabRef = useRef(null);
+  const [btnWidth, btmHeight] = useContainer(bottomTabRef,[]);
 
   const handleValChange = (event: React.ChangeEvent<{}>, newValue: MainMenuItem) => {
    
@@ -103,15 +106,20 @@ function LeftBar(props: LeftBarProps) {
     props.onChange(activeItem)
   },[activeItem])
 
+  useEffect(() => {
+    if(!isSidebarVisible && activeItem){
+      dispatch(setActiveTab({menuItem: null}))
+    }
+  },[isSidebarVisible])
 
   return (
   <>
-  <div className={classes.root}>
+  <div style={{height: `calc(100% - ${btmHeight}px)`}} className={classes.root}>
         <Box>
         <Nav activeItem={activeItem}/>
         </Box>
-        <div className={tabClasses.root}>
-        <Tabs
+        <div style={{height: `calc(100% - ${topbarHeight}px)`}} className={tabClasses.root}>
+        <Tabs 
            orientation="vertical"
            textColor='inherit'
            variant="scrollable"
@@ -170,7 +178,7 @@ function LeftBar(props: LeftBarProps) {
         </Tabs>
         </div>
   </div>
-  <div className={classes.root}>
+  <div  ref={bottomTabRef}  className={classes.root}>
         <div className={tabClasses.root} >
         <Tabs
            orientation="vertical"

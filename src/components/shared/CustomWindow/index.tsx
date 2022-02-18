@@ -93,13 +93,21 @@ const Move = (props: {show:Boolean}) => {
     </div>)
 }
 
+
 export type CustomWindowProps = {
+    /** unique identifier for the window. Each window should have unique id */
     uid: string,
+    /** The layer in which the window is added */
     layer: Layers,
+    /** should the window be visible */
     visible: boolean,
+    /** top left position of the window in pixels */
     xy?:[number,number],
+    /** Title for the window  */
     title?: string,
+    /** initial width of the window */
     width?: number,
+    /** initial height of the window */
     height?: number,
     resize?:boolean,
     anchor?:[number,number],
@@ -125,6 +133,10 @@ type RndResizeCallback = (
     position: any,
   ) => void;
 
+/**
+ * A Generic resizable and draggable window component.
+ * Pass any JSX component as children to render it inside it  
+ */
 const CustomWindow = forwardRef((props:CustomWindowProps, ref:any) => {
     const dispatch = useAppDispatch();
     const windowMgr = useAppSelector(selectWindowMgr);

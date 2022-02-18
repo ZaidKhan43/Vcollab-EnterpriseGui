@@ -70,7 +70,7 @@ export default function More(props:any){
             searchItems={mainMenuPages}
             searchText={searchText}
             searchHintsData={prevSearchItems}
-            searchResults={searchResults}
+            searchResults={ showSearch ? searchResults : mainMenuPages}
             onClickSearchHints={(s:string) => {
               setShowSearch(true);
               setTimeout(() => setSearchText(s),10)

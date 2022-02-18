@@ -14,8 +14,8 @@ import {setSidebarVisibility} from 'store/appSlice'
 const useStyles = makeStyles( theme => {
     return {
         root: {
-            backgroundColor: theme.palette.background.default,
-            borderRight: `1px solid ${theme.palette.background.paper}`
+            backgroundColor: theme.palette.background.paper,
+            borderRight: `1px solid ${theme.palette.background.default}`
         },
         icon: {
             height: '100%',
