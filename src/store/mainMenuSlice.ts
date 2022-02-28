@@ -65,12 +65,15 @@ export enum MainMenuItems {
     SETTINGS_MOUSE_CONTROLS,
 
     MORE,
-    ADD_GROUP
+    ADD_GROUP,
+    NEW_GROUP,
+    CUSTOM_GROUP
 
 }
 
 export type MainMenu = {
     menuItems: MainMenuItem[],
+    userCreatedMenuItems: MainMenuItem[],
     activeTab: MainMenuItem | null,
     defaultOptions: string[] ,
     bottomTabOptions: string[],
@@ -456,7 +459,10 @@ const initialState: MainMenu ={
             disabled: false,
             children: [],
             expanded: false
-        } 
+        }
+    ],
+    userCreatedMenuItems: [
+
     ],
     activeTab: null,
     defaultOptions: [
@@ -471,6 +477,7 @@ const initialState: MainMenu ={
     ],
     bottomTabOptions: [
         '12',
+        '13'
     ],
     temporaryTab: null
 }
@@ -479,6 +486,21 @@ export const mainMenuSlice = createSlice({
     name: 'mainMenu',
     initialState,
     reducers: {
+        addMenuItem: (state, action: PayloadAction<{menuItem: MainMenuItem}>) => {
+            const {menuItem} = action.payload;
+            state.menuItems.push(menuItem);
+
+        },
+        deleteMenuItem: (state, action: PayloadAction<{menuItemId: string}>) => {
+            const {menuItemId} = action.payload;
+            let idx = state.menuItems.findIndex(e => e.id === menuItemId);
+            if(idx !== -1) {
+                state.menuItems.splice(idx, 1);
+            }
+        },
+        addTab: (state, action: PayloadAction<{menuItemId:string}>) => {
+            state.defaultOptions.push(action.payload.menuItemId);
+        },
         setActiveTab: (state, action: PayloadAction<{menuItem: MainMenuItem | null}>) => {
             const {menuItem} = action.payload;
             if(menuItem && 
@@ -528,7 +550,7 @@ export const mainMenuSlice = createSlice({
     },
 
 })
-export const {togglePanel, setChildItem, setActiveTab} = mainMenuSlice.actions;
+export const {togglePanel, addMenuItem, deleteMenuItem, addTab, setChildItem, setActiveTab} = mainMenuSlice.actions;
 //selectors
 export const selectMainMenu = (state:RootState) => state.mainMenu 
 export const selectMainMenuItems = (state:RootState) => state.mainMenu.menuItems

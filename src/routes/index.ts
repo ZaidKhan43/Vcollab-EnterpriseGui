@@ -53,5 +53,7 @@ export enum Routes {
     SLIDES = "/slides/",
 
     MORE = "/more",
-    ADD_GROUP = '/add_group'
+    ADD_GROUP = '/add_group',
+
+    CUSTOM_GROUP = "/custom_group/"
 }

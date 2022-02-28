@@ -58,7 +58,7 @@ function Body(props: BodyProps) {
     >
        { (props.searchResults.length === 0 ? props.searchItems : props.searchResults).map(e => {
                 return <ListItem button onClick={() => handleResultsClick(e)}>
-                <ListItemIcon>
+                <ListItemIcon >
                   {e.icon ? <e.icon/>: null}
                 </ListItemIcon>
                 <ListItemText>{

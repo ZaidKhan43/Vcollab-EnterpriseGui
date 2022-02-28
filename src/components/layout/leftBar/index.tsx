@@ -16,10 +16,10 @@ import { selectSidebarVisibility, setSidebarVisibility } from 'store/appSlice';
 import { Routes } from 'routes';
 import {push} from 'connected-react-router/immutable';
 import clsx from 'clsx';
-import { MainMenuItem, selectActiveTab, selectDefaultOptions, setActiveTab, selectTemporaryTab} from 'store/mainMenuSlice';
+import { MainMenuItem, selectActiveTab, selectDefaultOptions, setActiveTab, selectTemporaryTab, MainMenuItems, selectNewGroupItem, addMenuItem, addTab} from 'store/mainMenuSlice';
 import useContainer from 'customHooks/useContainer';
 import { topbarHeight } from 'config';
-
+import nextId from 'react-id-generator'
 type LeftBarProps = {
     topTabs: MainMenuItem[],
     bottomTabs: MainMenuItem[],
@@ -54,7 +54,8 @@ const useTabStyles = makeStyles((theme: Theme) => ({
   },
   label: {
     width: '100%',
-    paddingLeft: '5px',
+    padding: '0px 5px',
+    fontSize: '0.6rem',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis'
@@ -79,14 +80,40 @@ function LeftBar(props: LeftBarProps) {
   const bottomTabRef = useRef(null);
   const [btnWidth, btmHeight] = useContainer(bottomTabRef,[]);
 
+  const createGroup = () => {
+    let id = nextId('customGroup');
+    let menuItem = {
+     id,
+     disabled: false,
+     expanded: false,
+     name: "New Group",
+     children:[],
+     type: MainMenuItems.CUSTOM_GROUP,
+     path: Routes.CUSTOM_GROUP
+   }
+   return menuItem;
+ }
   const handleValChange = (event: React.ChangeEvent<{}>, newValue: MainMenuItem) => {
-   
+    let menuItem = newValue;
+
+    if(newValue.type === MainMenuItems.ADD_GROUP){
+      menuItem = createGroup();
+      dispatch(addMenuItem({
+        menuItem
+    }));
+    dispatch(addTab({
+      menuItemId: menuItem.id 
+    }))
+    dispatch(setActiveTab({
+      menuItem
+    }))
+    }
     if(!activeItem) {
-      dispatch(setActiveTab({menuItem:newValue}));
+      dispatch(setActiveTab({menuItem}));
       dispatch(setSidebarVisibility(true));
     }
-    else if( activeItem.id !== newValue.id){
-      dispatch(setActiveTab({menuItem:newValue}));
+    else if( activeItem.id !== menuItem.id){
+      dispatch(setActiveTab({menuItem}));
     }
     else{
       dispatch(setSidebarVisibility(false));
@@ -96,6 +123,7 @@ function LeftBar(props: LeftBarProps) {
   };
 
   useEffect(() => {
+
     if(activeItem)
     {
       dispatch(push(activeItem.path))
@@ -141,13 +169,7 @@ function LeftBar(props: LeftBarProps) {
             </div>
           } 
           label={
-            <div  style={{
-              width: '100%',
-              paddingLeft: '5px',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis'
-            }}>
+            <div  className={tabClasses.label}>
               {e.name}
             </div>
           }
@@ -167,7 +189,7 @@ function LeftBar(props: LeftBarProps) {
             } 
             label={
               <div className={tabClasses.label}>
-                {temporaryTab.name}
+                {temporaryTab.name }
               </div>
             }
             {...a11yProps(temporaryTab.name)} classes={{root : tabClasses.tab}}

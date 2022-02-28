@@ -12,6 +12,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Rnd } from 'react-rnd'
 import { makeStyles } from '@material-ui/core/styles'
 import clsx from 'clsx'
+import { JsxElement } from 'typescript'
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -69,9 +70,11 @@ function Footer() {
 function Body(props:SearchHintsProps) {
     const classes = useStyles();
     return(
+            props.children ? 
+            props.children :
         <List style={props.style} component='div' aria-label="search hints list" >
             {
-                props.data.map((item) => {
+                props.data && props.data.map((item) => {
                     return(
                         <ListItem onClick={() => props.onClick(item)} button classes={{root:classes.listItem}}>
                         <ListItemText >{item}</ListItemText>
@@ -94,7 +97,8 @@ function Body(props:SearchHintsProps) {
 
 type SearchHintsProps = {
     style?:any,
-    data: string[],
+    data?: any[],
+    children?:any,
     showDelete?: boolean,
     onClick: (s:string) => void
     onDelete: (s:string) => void
@@ -132,7 +136,7 @@ function SearchHints(props:SearchHintsProps) {
                 height: 200,
               }}
             >
-            <Body style={{height,overflow:'hidden'}} data={props.data} onClick={props.onClick} onDelete={props.onDelete}></Body>
+            <Body style={{height,overflow:'hidden'}} data={props.data} children={props.children} onClick={props.onClick} onDelete={props.onDelete}/>
             <Footer/>
             </Rnd>
         </>

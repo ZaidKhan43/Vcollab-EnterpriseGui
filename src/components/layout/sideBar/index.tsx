@@ -25,6 +25,7 @@ import Messages from '../../sideBarContents/messages';
 import Labels from '../../sideBarContents/labels';
 import Slides from '../../sideBarContents/slides';
 import More from '../../sideBarContents/more';
+import AddGroup from '../../sideBarContents/addGroup';
 import { MainMenuItem } from 'store/mainMenuSlice';
 
 
@@ -79,11 +80,11 @@ export default function Sidebar(props: SideBarProps){
         </Route>
         <Route path={Routes.SETTINGS}>
         <Settings/>
-         </Route>
-         <Route path={Routes.MORE}>
+        </Route>
+        <Route path={Routes.MORE}>
         <More/>
-         </Route>
-        <Route>
+        </Route>
+        <Route path={Routes.COLORMAPS}>
         <Colormaps />
         </Route>
         <Route>
