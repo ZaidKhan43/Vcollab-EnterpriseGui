@@ -2,6 +2,42 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Overview
+
+The source code is present in the "src" directory. The index.tsx file is the entry component that contains the application.
+
+### Sub Folders
+
+#### Assets
+Contains resources like images, svgs, icons etc..
+
+#### Backend 
+This has the 3d renderer library file used to commuticate with the renderer application
+
+#### Components
+This folder has all the react components used in the application
+
+#### config 
+Contains the application information, layout settings like app bar height,  etc.. 
+
+#### Custom Hooks
+Custom react hooks are placed here
+
+#### globalStyles
+The css, css overrides from third party libraries are placed in the globalStyles folder and imported in index.ts file
+
+#### Routes
+As the folder name suggest routes for the pages are stored here
+
+#### Store
+Redux store files, slices, redux hooks etc..
+
+#### Theme
+Material Ui theme customization files
+
+#### Types
+Third party types for javascript for use in typescript. Should contain only d.ts files
+
 ## Available Scripts
 
 In the project directory, you can run:

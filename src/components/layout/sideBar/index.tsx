@@ -1,5 +1,5 @@
 import { useLayoutEffect } from 'react';
-import {Switch, Route, useParams} from 'react-router-dom';
+import {Switch, Route, useParams, useLocation} from 'react-router-dom';
 import {Routes} from '../../../routes';
 import MuiDrawer from '@material-ui/core/Drawer';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
@@ -10,7 +10,7 @@ import  styles  from "./style";
 import {selectSidebarVisibility,
         setSidebarVisibility } from '../../../store/appSlice';
 import { useAppSelector, useAppDispatch } from '../../../store/storeHooks';
-import { sideBarContentTypes } from '../../../config';
+import Group from './Group';
 
 import MainMenu from '../../sideBarContents/mainMenu';
 import ProductExplorer from '../../sideBarContents/productExplorer';
@@ -24,8 +24,15 @@ import Settings from '../../sideBarContents/settings';
 import Messages from '../../sideBarContents/messages';
 import Labels from '../../sideBarContents/labels';
 import Slides from '../../sideBarContents/slides';
+import More from '../../sideBarContents/more';
+import AddGroup from '../../sideBarContents/addGroup';
+import { MainMenuItem } from 'store/mainMenuSlice';
 
-export default function Sidebar(){
+
+type SideBarProps = {
+  selectedItem: MainMenuItem | null
+}
+export default function Sidebar(props: SideBarProps){
     
     const classes = styles();
     const isSidebarVisible = useAppSelector(selectSidebarVisibility);
@@ -33,15 +40,20 @@ export default function Sidebar(){
     const theme = useTheme();
     const smMatches = useMediaQuery(theme.breakpoints.down('sm'));
     const xsMatches = useMediaQuery(theme.breakpoints.down('xs'));
+    const location = useLocation();
 
     const handleClickAway = (event : any) => {
-      if (isSidebarVisible && smMatches) {
+      if (isSidebarVisible && smMatches ) {
+        console.log(event);
         dispatch(setSidebarVisibility(false));
       }
     };
 
     const renderContent = () => {
-      return(<Switch>  
+      return  (
+      location.pathname.endsWith('/') && props.selectedItem ?
+      <Group selectedItem={props.selectedItem}></Group>
+      : <Switch> 
         <Route exact path={Routes.HOME}>
           <MainMenu />;
         </Route>
@@ -68,8 +80,11 @@ export default function Sidebar(){
         </Route>
         <Route path={Routes.SETTINGS}>
         <Settings/>
-         </Route>
-        <Route>
+        </Route>
+        <Route path={Routes.MORE}>
+        <More/>
+        </Route>
+        <Route path={Routes.COLORMAPS}>
         <Colormaps />
         </Route>
         <Route>
@@ -103,6 +118,8 @@ export default function Sidebar(){
         open={ isSidebarVisible }
         classes={{
           paper: classes.drawerPaper,
+          root: classes.anchorLeft,
+          paperAnchorLeft: classes.anchorLeft
         }}
         >  
          {renderContent()}

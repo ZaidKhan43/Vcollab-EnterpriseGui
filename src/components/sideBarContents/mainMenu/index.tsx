@@ -36,7 +36,7 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 
 
-const getIcon = (type:MainMenuItems):JSX.Element | null => {
+export const getIcon = (type:MainMenuItems):JSX.Element | null => {
     switch(type) {
       case MainMenuItems.GEOMETRY:
         return <GeometryIcon />

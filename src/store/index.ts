@@ -17,6 +17,7 @@ import messageSlice from './sideBar/messageSlice';
 import windowMgrSlice from './windowMgrSlice';
 import labelAllSlice from './sideBar/labelSlice/labelAllSlice';
 import slideSlice from './sideBar/slideSlice';
+import moreSlice from './moreSlice';
 
 export const history = createHashHistory({
   hashType: 'slash',
@@ -41,6 +42,7 @@ const store = configureStore({
         labelAll: labelAllSlice,
         colormap : colormapSlice,
         slide : slideSlice,
+        more: moreSlice
       }),
     middleware: getDefaultMiddleware({
       serializableCheck: {

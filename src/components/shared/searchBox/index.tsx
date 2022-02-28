@@ -9,6 +9,7 @@ interface SearchProps{
     text:string,
     placeholder:string,
     searchPool:any,
+    textBoxWidth?: number,
     getAttribKeys: (data:any) => string[],
     onChange: (text:string,results: any[]) => void
     onClear: () => void
@@ -16,7 +17,7 @@ interface SearchProps{
 
 const useStyles = makeStyles(createStyles({
     root: {
-        margin:10,
+        margin:5,
         display: 'flex',
         alignItems: 'center',
         
@@ -24,17 +25,17 @@ const useStyles = makeStyles(createStyles({
     dense: {
         paddingTop: 5
     },
-    input: {
+    input: (props: any) => ({
       margin:'auto',
       height:40,
-      width:260
-    }
+      width: props.textBoxWidth ? props.textBoxWidth : 260
+    })
 }
 ))
 
 
 function SearchBox(props:SearchProps) {
-    const classes = useStyles();
+    const classes = useStyles(props);
     const [fuse,setFuse] = useState<null|any>(null);
 
     useEffect(() => {
@@ -55,8 +56,20 @@ function SearchBox(props:SearchProps) {
         let text = e.target.value;
         let searchInput = getSearchInput(text);
         let r:any[] = (fuse as any)?.search(searchInput);
+        if(props.text.length > 2)
         props.onChange(text, r)
+        else
+        props.onChange(text, [])
     }
+    
+    useEffect(() => {
+        let searchInput = getSearchInput(props.text);
+        let r:any[] = (fuse as any)?.search(searchInput) || [];
+        if(props.text.length > 2)
+        props.onChange(props.text, r)
+        else
+        props.onChange(props.text, [])
+    },[props.text, fuse])
     
     return (
             <div className={classes.root}>

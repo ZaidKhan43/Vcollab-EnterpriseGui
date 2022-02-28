@@ -13,9 +13,9 @@ export const useStyles = makeStyles((theme) => (
             background: theme.palette.type === 'dark' ? theme.palette.warning.dark : theme.palette.warning.light,
         },
         hideText: {
-            background: theme.palette.background.paper,
+            background: theme.palette.background.default,
             [theme.breakpoints.down("sm")]: {
-              backgroundColor: theme.palette.background.paper,
+              backgroundColor: theme.palette.background.default,
             },
         },
 

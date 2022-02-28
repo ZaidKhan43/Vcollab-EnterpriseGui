@@ -196,11 +196,6 @@ function AppBar() {
         <MuiToolbar className={classes.toolBar}>
 
           <div className={classes.toolBarLeftContent}>            
-            <div onClick ={ onClickHamburger }
-            className={ clsx( classes.divIcon, classes.hamburgerIcon, { [classes.hamburgerIconHidden]: isSidebarVisible }) }>
-              <MuiIconButton> <Hamburger /></MuiIconButton> 
-            </div>
-            
             <div className={clsx( classes.leftTitle, { [classes.leftTitleHidden]: isSidebarVisible })}>
               <MuiTooltip title={ modelName } aria-label="ModelName">
                 <MuiTypography variant='h1' style ={{ width : '150px', display: 'inline-block' }} noWrap>

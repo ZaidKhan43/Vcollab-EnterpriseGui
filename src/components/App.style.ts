@@ -1,8 +1,9 @@
 import { makeStyles } from '@material-ui/core/styles';
-import { topbarHeight, drawerWidth, colors } from '../config';
+import { topbarHeight, drawerWidth, colors, leftbarWidth } from '../config';
 
 export default makeStyles((theme) => ({
   root: {
+    width: '100%',
     display: 'flex',
   }, 
   content: {
