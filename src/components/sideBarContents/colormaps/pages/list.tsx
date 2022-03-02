@@ -73,25 +73,25 @@ export default function List(){
   useEffect(() => {
 
     if(selectedColorMapId === "-1"){
-      dispatch(setChildItem({panelId:'4',childId:'42', boolean: true}))
-      dispatch(setChildItem({panelId:'4',childId:'43', boolean: true}))
-      dispatch(setChildItem({panelId:'4',childId:'44', boolean: true}))
-      dispatch(setChildItem({panelId:'4',childId:'45', boolean: true}))
-      dispatch(setChildItem({panelId:'4',childId:'46', boolean: true}))
-      dispatch(setChildItem({panelId:'4',childId:'47', boolean: true}))
-      dispatch(setChildItem({panelId:'4',childId:'48', boolean: true}))
-      dispatch(setChildItem({panelId:'4',childId:'49', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps42', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps43', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps44', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps45', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps46', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps47', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps48', boolean: true}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps49', boolean: true}))
     }
 
     else{
-      dispatch(setChildItem({panelId:'4',childId:'42', boolean: false}))
-      dispatch(setChildItem({panelId:'4',childId:'43', boolean: false}))
-      dispatch(setChildItem({panelId:'4',childId:'44', boolean: false}))
-      dispatch(setChildItem({panelId:'4',childId:'45', boolean: false}))
-      dispatch(setChildItem({panelId:'4',childId:'46', boolean: false}))
-      dispatch(setChildItem({panelId:'4',childId:'47', boolean: false}))
-      dispatch(setChildItem({panelId:'4',childId:'48', boolean: false}))
-      dispatch(setChildItem({panelId:'4',childId:'49', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps42', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps43', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps44', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps45', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps46', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps47', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps48', boolean: false}))
+      dispatch(setChildItem({panelId:'4',childId:'Color Maps49', boolean: false}))
     }
 
 

@@ -9,6 +9,7 @@ export type MainMenuItem = {
     path: Routes,
     expanded: boolean,
     disabled: boolean,
+    isEditMode?: boolean,
     children: MainMenuItem[]
 }
 
@@ -458,6 +459,7 @@ const initialState: MainMenu ={
             path: Routes.ADD_GROUP,
             disabled: false,
             children: [],
+            isEditMode: true,
             expanded: false
         }
     ],
@@ -491,6 +493,20 @@ export const mainMenuSlice = createSlice({
             state.menuItems.push(menuItem);
 
         },
+        updateMenuItem: (state, action: PayloadAction<{menuItem: MainMenuItem}>) => {
+            const {menuItem} = action.payload;
+            let idx = state.menuItems.findIndex(e => e.id === menuItem.id);
+            if(idx !== -1){
+                state.menuItems[idx].id = menuItem.id;
+                state.menuItems[idx].isEditMode = menuItem.isEditMode;
+                state.menuItems[idx].disabled = menuItem.disabled;
+                state.menuItems[idx].expanded = menuItem.expanded;
+                state.menuItems[idx].name = menuItem.name;
+                state.menuItems[idx].path = menuItem.path;
+                state.menuItems[idx].type = menuItem.type;
+                state.menuItems[idx].children = menuItem.children;
+            }
+        },
         deleteMenuItem: (state, action: PayloadAction<{menuItemId: string}>) => {
             const {menuItemId} = action.payload;
             let idx = state.menuItems.findIndex(e => e.id === menuItemId);
@@ -500,6 +516,12 @@ export const mainMenuSlice = createSlice({
         },
         addTab: (state, action: PayloadAction<{menuItemId:string}>) => {
             state.defaultOptions.push(action.payload.menuItemId);
+        },
+        removeTab: (state, action: PayloadAction<{menuItemId: string}>) => {
+            let id = action.payload.menuItemId;
+            let idx = state.defaultOptions.findIndex(e => e === id);
+            if(idx !== -1)
+            state.defaultOptions.splice(idx,1);
         },
         setActiveTab: (state, action: PayloadAction<{menuItem: MainMenuItem | null}>) => {
             const {menuItem} = action.payload;
@@ -550,7 +572,7 @@ export const mainMenuSlice = createSlice({
     },
 
 })
-export const {togglePanel, addMenuItem, deleteMenuItem, addTab, setChildItem, setActiveTab} = mainMenuSlice.actions;
+export const {togglePanel, addMenuItem, updateMenuItem, deleteMenuItem, addTab, removeTab, setChildItem, setActiveTab} = mainMenuSlice.actions;
 //selectors
 export const selectMainMenu = (state:RootState) => state.mainMenu 
 export const selectMainMenuItems = (state:RootState) => state.mainMenu.menuItems

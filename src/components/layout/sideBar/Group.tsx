@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '../../../store/storeHooks';
 
 import SideBarContainer from '../../layout/sideBar/sideBarContainer'
 
-import { MainMenu as MainMenuType, MainMenuItem, MainMenuItems, selectMainMenu, setActiveTab, togglePanel } from '../../../store/mainMenuSlice';
+import { MainMenu as MainMenuType, MainMenuItem, MainMenuItems, selectMainMenu, setActiveTab, togglePanel, updateMenuItem } from '../../../store/mainMenuSlice';
 import { Typography } from '@material-ui/core';
 import GeometryIcon from 'components/icons/geometry';
 import EditIcon from '@material-ui/icons/Edit'
@@ -17,11 +17,10 @@ import AddGroup from '../../sideBarContents/addGroup'
 import { useState } from 'react';
 
 type GroupProps = {
-    selectedItem: MainMenuItem
+    selectedItem: MainMenuItem,
 }
 export default function Group(props:GroupProps){
     const dispatch = useAppDispatch();
-    const [isEditMode, setIsEditMode] = useState(false);
     const handleListItemClick = (event:any,item:MainMenuItem) => {
       dispatch(setActiveTab({menuItem:item}));
       dispatch(push(item.path));
@@ -34,7 +33,14 @@ export default function Group(props:GroupProps){
     const getHeaderRightIcon = () => {
       return( 
         props.selectedItem.type === MainMenuItems.CUSTOM_GROUP ?
-        <IconButton aria-label="search" onClick={() => {setIsEditMode(!isEditMode)}}>
+        <IconButton aria-label="search" onClick={() => {
+          let menuItem = {
+            ...props.selectedItem,
+            isEditMode: !props.selectedItem.isEditMode  
+          }
+          dispatch(updateMenuItem({menuItem}))
+          dispatch(setActiveTab({menuItem}));
+        }}>
           <EditIcon/>
         </IconButton>
         :null
@@ -65,8 +71,8 @@ export default function Group(props:GroupProps){
     }
 
     return (
-      isEditMode ?
-      <AddGroup disabled={false} onClickEdit={() => {setIsEditMode(!isEditMode)}} selectedGroup={props.selectedItem}/>
+      props.selectedItem.isEditMode ?
+      <AddGroup disabled={false} onClickEdit={() => {}} selectedGroup={props.selectedItem}/>
       :
       <SideBarContainer
       headerContent={ getHeaderContent() }

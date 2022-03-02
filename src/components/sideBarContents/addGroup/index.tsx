@@ -18,8 +18,9 @@ import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import PublishIcon from '@material-ui/icons/Publish';
 import { Input } from '@material-ui/core';
-import { addMenuItem, addTab, getItem, MainMenuItem, MainMenuItems, selectMainMenuItems, setActiveTab } from 'store/mainMenuSlice';
+import { addMenuItem, addTab, deleteMenuItem, getItem, MainMenuItem, MainMenuItems, removeTab, selectMainMenuItems, setActiveTab, updateMenuItem } from 'store/mainMenuSlice';
 import { Edit } from '@material-ui/icons';
+import { setSidebarVisibility } from 'store/appSlice';
 
 type AddGroupProps = {
     disabled: boolean,
@@ -34,7 +35,7 @@ export default function AddGroup(props:AddGroupProps){
     const [showSearch ,setShowSearch] = useState(false);
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState<SearchItem[]>([]);
-    const [selectedItems, setSelectedItems] = useState<SearchItem[]>([])
+    const [selectedItems, setSelectedItems] = useState<SearchItem[]>(props.selectedGroup.children)
     const mainMenuPages = useAppSelector(selectList);
     const mainMenuItems = useAppSelector(selectMainMenuItems);
 
@@ -88,9 +89,6 @@ export default function AddGroup(props:AddGroupProps){
       <ClearIcon />
     </IconButton>
     }
-    <IconButton aria-label='toggle edit' onClick={() => props.onClickEdit()}>
-      <Edit/>
-    </IconButton>
     </>
     )
     }
@@ -112,10 +110,24 @@ export default function AddGroup(props:AddGroupProps){
       )
     }      
 
+    const handleSave = () => {
+      let selectedMainMenuItems = selectedItems.map( e => getItem(e.id,mainMenuItems));
+      let menuItem = {
+        ...props.selectedGroup,
+        isEditMode: false,
+        name: groupName,
+        children: selectedMainMenuItems
+      };
+      dispatch(updateMenuItem({
+        menuItem
+      }))
+      dispatch(setActiveTab({menuItem}))
+    }
+
     const getFooter = () => {
         return  <OptionContainer>
         <Option label="Save" icon = {
-        <IconButton disabled={props.disabled} >
+        <IconButton disabled={props.disabled} onClick={handleSave}>
             <SaveAltIcon/>
         </IconButton>  
        }/>
@@ -126,7 +138,14 @@ export default function AddGroup(props:AddGroupProps){
        }/>
         <Option 
         label = "Delete"
-        icon = {<IconButton disabled={props.disabled} onClick={() => {}}>
+        icon = {<IconButton disabled={props.disabled} onClick={() => {
+          dispatch(deleteMenuItem({
+            menuItemId: props.selectedGroup.id
+          }))
+          dispatch(removeTab({menuItemId: props.selectedGroup.id}));
+          dispatch(setSidebarVisibility(false));
+          dispatch(setActiveTab({menuItem:null}));
+        }}>
         <DeleteForeverIcon/>
         </IconButton>  }
         />

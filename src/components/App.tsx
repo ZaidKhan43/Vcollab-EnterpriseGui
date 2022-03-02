@@ -16,7 +16,7 @@ import { appBarMinHeight, leftbarWidth, popupMenuContentTypes } from '../config'
 import LayerStack from "./layout/LayerStack";
 import { fetchCameraMatrix, fetchCameraStdViews } from '../store/sideBar/sceneSlice';
 import Grid from '@material-ui/core/Grid'
-import { MainMenuItem, MainMenuItems, selectBottonTabOptions, selectDefaultOptions } from 'store/mainMenuSlice';
+import { MainMenuItem, MainMenuItems, selectActiveTab, selectBottonTabOptions, selectDefaultOptions } from 'store/mainMenuSlice';
 
 export const ViewerContext = createContext<React.MutableRefObject<HTMLDivElement | null> | null>(null);
 
@@ -28,7 +28,7 @@ function App() {
   const isAppBarVisible  = useAppSelector(selectAppBarVisibility);
   const isFullscreenOn = useAppSelector(selectFullscreenStatus);
   const isSidebarVisible = useAppSelector(selectSidebarVisibility);
-  const [activeLeftBarItem, setActiveLeftBarItem] = useState<MainMenuItem | null>(null);
+  const activeLeftBarItem = useAppSelector(selectActiveTab);
   const leftBarDefaultItems = useAppSelector(selectDefaultOptions);
   const leftBarBtmOptions = useAppSelector(selectBottonTabOptions);
   const dispatch = useAppDispatch();  
@@ -57,10 +57,6 @@ function App() {
     if(isFullscreenEnabled !== isFullscreenOn) // To avoid unnecessary dispatch and handle exit fullscreen by pressing esc key
       dispatch(setFullscreenState(isFullscreenEnabled));
   }
-
-  const handleLeftBarChange = (activeItem: MainMenuItem | null) => {
-    setActiveLeftBarItem(activeItem);
-  }
   
   useEffect(() => {
     if(isAppBarVisible === false)
@@ -74,7 +70,7 @@ function App() {
     >
       <Grid style={{height: '100%'}} container spacing={0}>
       <Grid item style={{height: '100%'}} >
-        <LeftBar topTabs={leftBarDefaultItems} bottomTabs={leftBarBtmOptions} onChange={handleLeftBarChange}/>
+        <LeftBar topTabs={leftBarDefaultItems} bottomTabs={leftBarBtmOptions}/>
       </Grid>
       <Grid item wrap='nowrap' style={{width:`calc(100% - ${leftbarWidth}px)`}} >
       <div className={classes.root} ref = { targetRef }> 

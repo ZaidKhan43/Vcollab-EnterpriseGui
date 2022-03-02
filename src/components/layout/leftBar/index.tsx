@@ -16,14 +16,13 @@ import { selectSidebarVisibility, setSidebarVisibility } from 'store/appSlice';
 import { Routes } from 'routes';
 import {push} from 'connected-react-router/immutable';
 import clsx from 'clsx';
-import { MainMenuItem, selectActiveTab, selectDefaultOptions, setActiveTab, selectTemporaryTab, MainMenuItems, selectNewGroupItem, addMenuItem, addTab} from 'store/mainMenuSlice';
+import { MainMenuItem, selectActiveTab, selectDefaultOptions, setActiveTab, selectTemporaryTab, MainMenuItems, selectNewGroupItem, addMenuItem, addTab, selectMainMenuItems, getItem} from 'store/mainMenuSlice';
 import useContainer from 'customHooks/useContainer';
 import { topbarHeight } from 'config';
 import nextId from 'react-id-generator'
 type LeftBarProps = {
     topTabs: MainMenuItem[],
-    bottomTabs: MainMenuItem[],
-    onChange: (active: MainMenuItem | null) => void;
+    bottomTabs: MainMenuItem[]
 }
 
 function a11yProps(index: any) {
@@ -79,6 +78,7 @@ function LeftBar(props: LeftBarProps) {
   const activeItem = useAppSelector(selectActiveTab);
   const bottomTabRef = useRef(null);
   const [btnWidth, btmHeight] = useContainer(bottomTabRef,[]);
+  const mainMenuItems = useAppSelector(selectMainMenuItems);
 
   const createGroup = () => {
     let id = nextId('customGroup');
@@ -86,17 +86,18 @@ function LeftBar(props: LeftBarProps) {
      id,
      disabled: false,
      expanded: false,
-     name: "New Group",
+     name: 'New Group',
      children:[],
      type: MainMenuItems.CUSTOM_GROUP,
-     path: Routes.CUSTOM_GROUP
+     path: Routes.CUSTOM_GROUP,
+     isEditMode: true
    }
    return menuItem;
  }
-  const handleValChange = (event: React.ChangeEvent<{}>, newValue: MainMenuItem) => {
-    let menuItem = newValue;
+  const handleValChange = (event: React.ChangeEvent<{}>, newValue: string) => {
+    let menuItem = getItem(newValue, mainMenuItems);
 
-    if(newValue.type === MainMenuItems.ADD_GROUP){
+    if(menuItem.type === MainMenuItems.ADD_GROUP){
       menuItem = createGroup();
       dispatch(addMenuItem({
         menuItem
@@ -131,7 +132,7 @@ function LeftBar(props: LeftBarProps) {
     else{
       dispatch(push(Routes.HOME))
     }
-    props.onChange(activeItem)
+    
   },[activeItem])
 
   useEffect(() => {
@@ -152,7 +153,7 @@ function LeftBar(props: LeftBarProps) {
            textColor='inherit'
            variant="scrollable"
            scrollButtons="on"
-           value={activeItem}
+           value={activeItem ? activeItem.id : "-1"}
            onChange={handleValChange}
            aria-label="Vertical tabs example"
            className={tabClasses.tabs}
@@ -162,7 +163,7 @@ function LeftBar(props: LeftBarProps) {
           
           return <Tab  
             disableRipple
-            value ={e}
+            value ={e.id}
             icon = {
             <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
               {<GeometryIcon/>}
@@ -181,7 +182,7 @@ function LeftBar(props: LeftBarProps) {
         {
             temporaryTab ? 
             <Tab
-             value={temporaryTab}
+             value={temporaryTab.id}
              icon = {
               <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
                 {<GeometryIcon/>}
@@ -206,7 +207,7 @@ function LeftBar(props: LeftBarProps) {
            orientation="vertical"
            variant="fullWidth"
            scrollButtons='off'
-           value={activeItem}
+           value={activeItem ? activeItem.id : "-2"}
            onChange={handleValChange}
            aria-label="sidebar bottom options"
            className={tabClasses.tabs}
@@ -217,7 +218,7 @@ function LeftBar(props: LeftBarProps) {
                         
                 return <Tab  
                   disableRipple
-                  value={e}
+                  value={e.id}
                   icon = {
                   <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
                     {<GeometryIcon/>}
