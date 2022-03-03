@@ -68,12 +68,24 @@
     "eject": "react-scripts eject",
     "deploy": "npm run build && node buildScripts/deployDemo.js",
     "testScript": " node buildScripts/deployDemo.js",
-    "del_bak": "del /s /q *.bak"
+    "del_bak": "del /s /q *.bak",
+    "storybook": "start-storybook -p 6006 -s public",
+    "build-storybook": "build-storybook -s public"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
+    ],
+    "overrides": [
+      {
+        "files": [
+          "**/*.stories.*"
+        ],
+        "rules": {
+          "import/no-anonymous-default-export": "off"
+        }
+      }
     ]
   },
   "browserslist": {
@@ -89,6 +101,14 @@
     ]
   },
   "devDependencies": {
+    "@storybook/addon-actions": "^6.4.19",
+    "@storybook/addon-essentials": "^6.4.19",
+    "@storybook/addon-interactions": "^6.4.19",
+    "@storybook/addon-links": "^6.4.19",
+    "@storybook/node-logger": "^6.4.19",
+    "@storybook/preset-create-react-app": "^3.2.0",
+    "@storybook/react": "^6.4.19",
+    "@storybook/testing-library": "^0.0.9",
     "@types/autosuggest-highlight": "^3.1.1",
     "@types/ramda": "^0.27.44",
     "@types/react-color": "^3.0.5",
