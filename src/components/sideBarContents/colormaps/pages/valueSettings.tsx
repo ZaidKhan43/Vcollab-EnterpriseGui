@@ -383,7 +383,6 @@ export default function Variable(){
 
   return (
           <SideBarContainer
-            headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ <Title text={"Value Settings" } group="Color Maps"/> }
             headerAction = {getAction()}
             headerRightIcon = { getHeaderRightIcon() }

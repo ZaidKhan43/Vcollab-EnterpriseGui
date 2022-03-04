@@ -75,7 +75,6 @@ function Variable() {
         <FieldEdit field={variables} fieldType={FieldType.Variable} back={() => setIsEdit(false)}></FieldEdit>
         :
         <SideBarContainer
-            headerLeftIcon = {getHeaderLeftIcon()}
             headerRightIcon = {false && getHeaderRightIcon()}
             headerContent = {getHeaderContent()}
             headerAction = {getAction()}

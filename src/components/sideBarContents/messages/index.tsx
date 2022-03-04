@@ -215,7 +215,6 @@ export default function Annotations(){
     }
 
     return (<SideBarContainer
-        headerLeftIcon = { getHeaderLeftIcon() }
         headerContent={ <Title text="Messages" group=""/> }
         headerRightIcon = { getHeaderRightIcon() }
         headerAction = {getAction()}

@@ -353,7 +353,6 @@ export default function ColorPalette(){
 
   return (
           <SideBarContainer
-            headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ <Title text={"Color Palette" } group="Color Maps"/> }
             headerAction = {getAction()} 
             headerRightIcon = { getHeaderRightIcon() }

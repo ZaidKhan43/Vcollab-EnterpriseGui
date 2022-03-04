@@ -424,7 +424,6 @@ export default function ClipPlanes(props : any){
 
     return(
         <SideBarContainer
-      headerLeftIcon = { getHeaderLeftIcon() }
       headerContent={ <Title text={"Transformation" } group="Clip Planes"/> }
       headerAction = {getAction()}
       headerRightIcon = { getHeaderRightIcon() }

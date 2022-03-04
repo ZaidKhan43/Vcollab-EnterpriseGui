@@ -370,7 +370,6 @@ const getFooter=()=> {
 
 return (
    <SideBarContainer
-    headerLeftIcon = { <BackIcon onClick={onClickBackIcon}/> }
     headerRightIcon = {getHeaderRightIcon()}
     headerContent={ getHeader() }
     headerAction = {getAction()}

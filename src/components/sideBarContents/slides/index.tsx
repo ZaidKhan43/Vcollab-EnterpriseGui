@@ -349,7 +349,6 @@ export default function Slides (){
 
     return(
         <SideBarContainer
-        headerLeftIcon = { getHeaderLeftIcon() }
         headerContent={ <Title text={"3D Slides" } group=""/> }
         headerAction = {getAction()}
         headerRightIcon = { getHeaderRightIcon() }

@@ -84,7 +84,6 @@ export default function More(props:any){
     }
 
     return (<SideBarContainer
-      headerLeftIcon = { getHeaderLeftIcon() }
       headerContent={ getHeaderContent() }
       headerRightIcon = { getHeaderRightIcon() }
       body ={ getBody() }

@@ -460,7 +460,6 @@ style={{width:280,
 
   return (
           <SideBarContainer
-            headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ <Title text={"Color palette - Edit" } group="Color Maps"/> }
             headerAction = {getAction()}
             headerRightIcon = { getHeaderRightIcon() }

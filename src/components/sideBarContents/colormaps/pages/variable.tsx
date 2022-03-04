@@ -180,7 +180,6 @@ useEffect(() => {
 
   return (
           <SideBarContainer
-            headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ <Title text={"Variable" } group="Color Maps"/> }
             headerAction = {getAction()}
             headerRightIcon = { getHeaderRightIcon() }

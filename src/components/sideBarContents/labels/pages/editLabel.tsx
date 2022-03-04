@@ -114,7 +114,6 @@ export default function EditLabels2D(){
   }
   return (
           <SideBarContainer
-            headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ getHeaderContent() }
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }

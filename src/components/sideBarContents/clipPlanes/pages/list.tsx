@@ -306,7 +306,6 @@ export default function List(){
 
   return (
           <SideBarContainer
-            headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ <Title text={"List" } group="Clip Planes"/> }
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }

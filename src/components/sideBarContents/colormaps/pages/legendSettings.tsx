@@ -656,7 +656,6 @@ const getFooter = () => {
 
   return (
     <SideBarContainer
-      headerLeftIcon={getHeaderLeftIcon()}
       headerContent={<Title text={"Legend Settings"} group="Color Maps" />}
       headerRightIcon={getHeaderRightIcon()}
       headerAction={getAction()}

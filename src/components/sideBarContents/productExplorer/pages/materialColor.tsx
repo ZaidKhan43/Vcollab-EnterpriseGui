@@ -356,7 +356,6 @@ export default function MaterialColor() {
 
     return(
         <SideBarContainer
-        headerLeftIcon = { getHeaderLeftIcon() }
         headerContent={ <Title text="Geometry" group="Material Color"/> }
         headerRightIcon = { getHeaderRightIcon() }
         headerAction = {getAction()}

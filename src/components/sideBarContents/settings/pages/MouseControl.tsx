@@ -277,7 +277,6 @@ const onClickDeleteCancel =() =>{
 return (
           <>
            <SideBarContainer
-            headerLeftIcon = { <BackIcon onClick={onClickBackIcon}/> }
             headerRightIcon = {getHeaderRightIcon()}
             headerContent={ <Title text={"Mouse Controls"} group="Application Settings"/> }
             body ={ getBody() }

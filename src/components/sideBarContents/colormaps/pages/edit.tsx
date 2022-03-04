@@ -278,7 +278,6 @@ export default function Edit(){
 
   return (
           <SideBarContainer
-            headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ <Title text={"Edit" } group="Color Maps"/> }
             headerAction = {getAction()} 
             headerRightIcon = { getHeaderRightIcon() }

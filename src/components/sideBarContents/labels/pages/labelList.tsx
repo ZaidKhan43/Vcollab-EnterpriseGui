@@ -400,7 +400,6 @@ export default function LabelList(){
 
   return (
           <SideBarContainer
-            headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ <Title text={"Notes" } group="Labels"/> }
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }

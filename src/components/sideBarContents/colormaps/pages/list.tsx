@@ -338,7 +338,6 @@ export default function List(){
 
   return (
           <SideBarContainer
-            headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ <Title text={"List" } group="Color Maps"/> }
             headerRightIcon = { getHeaderRightIcon() }
             body ={ getBody() }

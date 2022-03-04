@@ -231,7 +231,6 @@ export default function Camera (){
 
     return(
         <SideBarContainer
-        headerLeftIcon = { getHeaderLeftIcon() }
         headerContent={ <Title text={"Camera" } group="Scene"/> }
         headerAction = {getAction()}
         headerRightIcon = { getHeaderRightIcon() }

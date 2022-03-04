@@ -66,7 +66,7 @@ export default function AddGroup(props:AddGroupProps){
             alignItems: 'center',
             paddingLeft: 5,
             height:40,
-            width: 240
+            width: 225
           }
         }
         value={groupName}
@@ -153,7 +153,6 @@ export default function AddGroup(props:AddGroupProps){
     }
 
     return (<SideBarContainer
-      headerLeftIcon = { getHeaderLeftIcon() }
       headerContent={ getHeaderContent() }
       headerRightIcon = { getHeaderRightIcon() }
       body ={ getBody() }

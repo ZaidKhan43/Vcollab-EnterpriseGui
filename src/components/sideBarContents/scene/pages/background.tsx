@@ -359,7 +359,6 @@ export default function Background (){
 
     return(
         <SideBarContainer
-        headerLeftIcon = { getHeaderLeftIcon() }
         headerContent={ <Title text="Backgound" group="Scene"/> }
         headerRightIcon = { getHeaderRightIcon() }
         headerAction = {getAction()}

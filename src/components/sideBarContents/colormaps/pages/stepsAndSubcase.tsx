@@ -181,7 +181,6 @@ useEffect(() => {
 
   return (
           <SideBarContainer
-            headerLeftIcon = { getHeaderLeftIcon() }
             headerContent={ <Title text={"Steps & subcase" } group="Color Maps"/> }
             headerAction = {getAction()}
             headerRightIcon = { getHeaderRightIcon() }

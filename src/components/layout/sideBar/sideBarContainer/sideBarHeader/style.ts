@@ -17,6 +17,7 @@ export default makeStyles((theme) => ({
         height : 48
     },
     content : {
+        paddingLeft: '1rem'
     },
     action: {
         

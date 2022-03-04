@@ -455,7 +455,6 @@ export default function CameraEdit (){
 
     return(
         <SideBarContainer
-        headerLeftIcon = { getHeaderLeftIcon() }
         headerContent={ <Title text={cameraView.name } group="Scene - Camera"/> }
         headerRightIcon = { getHeaderRightIcon() }
         headerAction = {getAction()}

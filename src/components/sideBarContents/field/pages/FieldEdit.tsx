@@ -87,7 +87,6 @@ function FieldEdit(props:FieldEditProps) {
         }
     return (
         <SideBarContainer
-            headerLeftIcon = {<HeaderLeftIcon onClick={onClickBackIcon}/>}
             headerContent = {<HeaderContent text="User Defined" group="Field"/>}
             headerAction = {
             <HeaderAction applyTo={selected[0] ? selected[0] : {id:"",name:""}} 

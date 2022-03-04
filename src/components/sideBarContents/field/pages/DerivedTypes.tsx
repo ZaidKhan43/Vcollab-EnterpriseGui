@@ -56,7 +56,6 @@ function Steps() {
     }
     return (
         <SideBarContainer
-            headerLeftIcon = {getHeaderLeftIcon()}
             headerRightIcon = {false && <Add onClick={handleAdd} />}
             headerContent = {getHeaderContent()}
             headerAction = {getAction()}

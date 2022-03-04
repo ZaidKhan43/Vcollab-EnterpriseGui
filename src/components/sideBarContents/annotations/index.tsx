@@ -48,7 +48,6 @@ export default function Annotations(){
     }
 
     return (<SideBarContainer
-        headerLeftIcon = { getHeaderLeftIcon() }
         headerContent={ getHeaderContent() }
         headerRightIcon = { getHeaderRightIcon() }
         body ={ getBody() }

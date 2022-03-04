@@ -66,7 +66,6 @@ export default function DisplayModes(props:any){
        return <Footer/>
     }
     return (<SideBarContainer
-      headerLeftIcon = { <BackIcon onClick={onClickBackIcon}/> }
       headerContent={ <Title text={"Display Modes" } group="Geometry"/> }
       headerAction = {getAction()}
       body ={ <DisplayModeBody disabled={IsListDisabled()}/> }

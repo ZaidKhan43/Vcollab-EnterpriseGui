@@ -93,7 +93,6 @@ const handleThemeItemClick = (
   return (
 
     <SideBarContainer
-    headerLeftIcon = {getLeftIcon() }
     headerContent={  getHeaderContent()}
     body ={ getBody() }
   />
