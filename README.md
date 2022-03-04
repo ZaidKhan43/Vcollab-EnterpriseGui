@@ -38,6 +38,18 @@ Material Ui theme customization files
 #### Types
 Third party types for javascript for use in typescript. Should contain only d.ts files
 
+## How to setup the project
+
+### Building the backend library
+The backend library needs to be built from the repo [vcollab enterprise app](https://github.com/srinivasamurthi/vcollab-enterprise-app.git).
+To build the app project follow the steps below:
+1. clone the app repo [vcollab enterprise app](https://github.com/srinivasamurthi/vcollab-enterprise-app.git).
+2. clone the renderer repo [vcollab enterprise renderer](https://github.com/srinivasamurthi/vcollab-enterprise-render.git)
+3. run "npm install" and "npm run build:es" to build the dist files in the "dist" directory
+4. Copy the files from "dist" folder in renderer to "plugins" folder in "root folder" of app repo.
+5. run "npm install" and "npm run build:esm" which produces the dist files in dist directory.
+6. Copy the files in dist directory of app repo to 'src/backend' folder of vcollab-enterprise-gui project. 
+
 ## Available Scripts
 
 In the project directory, you can run:
