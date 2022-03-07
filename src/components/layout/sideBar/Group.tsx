@@ -15,6 +15,7 @@ import EditIcon from '@material-ui/icons/Edit'
 
 import AddGroup from '../../sideBarContents/addGroup'
 import { useState } from 'react';
+import Title from './sideBarContainer/sideBarHeader/utilComponents/Title';
 
 type GroupProps = {
     selectedItem: MainMenuItem,
@@ -27,7 +28,7 @@ export default function Group(props:GroupProps){
     }
 
     const getHeaderContent = () => {
-      return <Typography style={{paddingLeft: '10px'}} >{props.selectedItem?.name}</Typography>;
+      return <Title text={props.selectedItem?.name}></Title>;
     }
 
     const getHeaderRightIcon = () => {
