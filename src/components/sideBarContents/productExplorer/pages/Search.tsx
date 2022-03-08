@@ -29,7 +29,7 @@ export default function TreeSearch(props:any){
 
     const getHeaderLeftIcon= () => {
       return (
-        <BackIcon onClick={onClickBackIcon}/>
+        null
       )
     }
 

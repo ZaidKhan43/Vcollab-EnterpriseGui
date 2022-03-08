@@ -16,26 +16,29 @@ import {selectProductTreeData, selectRootIds,selectCheckedLeafNodes,invertNode, 
 import Footer from '../Footer'
 import { useRef } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
+import { getItem, selectMainMenuItems, setActiveTab } from 'store/mainMenuSlice';
 
 
 function AssemblyTree(props:any) {
     const treeDataRedux = useAppSelector(selectProductTreeData);
     const treeRootIds = useAppSelector(selectRootIds);
+    const mainMenuItems = useAppSelector(selectMainMenuItems);
     const containerRef = useRef(null);
     // eslint-disable-next-line
     const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
     const checkedNodes = useAppSelector(selectCheckedLeafNodes);
 
     const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
-    const dispatch = useAppDispatch();  
-    
+    const dispatch = useAppDispatch();
 
     const onClickBackIcon = () =>{
       dispatch(goBack());
     }
 
     const onClickSearchIcon = () => {
-      dispatch(push(Routes.GEOMETRY_SEARCH)); 
+      let item = getItem("Geometry12",mainMenuItems);
+      dispatch(setActiveTab({menuItem:item}));
+      dispatch(push(item.path));
     }
 
     const handleNext = () => {
