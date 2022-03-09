@@ -69,7 +69,7 @@ export const getTreeData = (data:{[id:string]:ITreeNode}, results:ITreeNode[]) =
         })
     }
         let input = results.length > 0 ? filteredData : data
-        let rootNodes = Object.values(input).filter(node => node.pid === "-1");
+        let rootNodes = Object.values(input).filter(node => (node.pid === "-1" || node.pid === null));
         rootNodes.forEach(root => {
             let [node, expanded] = createTree(root.id,input)
             treeData.push(node);

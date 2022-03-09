@@ -39,6 +39,7 @@ import Option from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilC
 
 import MuiMoreVertIcon from '@material-ui/icons/MoreVert';
 import Popper from '../../../shared/popper'
+import { getItem, selectMainMenuItems, setActiveTab } from 'store/mainMenuSlice';
 
 import {undoStack} from "../../../utils/undoStack";
 
@@ -59,6 +60,9 @@ export default function List(){
 
   const [openMoreOption,setOpenMoreOption] = useState(false)
   const [anchorElMoreOption, setAnchorElMoreOption] = useState(null);
+
+  
+  const mainMenuItems = useAppSelector(selectMainMenuItems);
    
   // disable and inable the clipPlane menu items
   useEffect(() => {
@@ -142,11 +146,17 @@ export default function List(){
   }
 
   const onHandleEdit = () => {
-    dispatch(push(Routes.CLIPPLANES_SETTINGS)); 
+    let item = getItem("Clip Plane52",mainMenuItems);
+      dispatch(setActiveTab({menuItem:item}));
+      dispatch(push(item.path));
+    // dispatch(push(Routes.CLIPPLANES_SETTINGS)); 
   }
 
   const onHandleTransform = () => {
-    dispatch(push(Routes.CLIPPLANES_TRANSFORMATION));
+    let item = getItem("Clip Plane53",mainMenuItems);
+    dispatch(setActiveTab({menuItem:item}));
+    dispatch(push(item.path));
+    // dispatch(push(Routes.CLIPPLANES_TRANSFORMATION));
   }
 
   const onHandlePlateNameEdit = (e : any) => {

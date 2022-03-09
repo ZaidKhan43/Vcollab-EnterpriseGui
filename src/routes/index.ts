@@ -4,7 +4,8 @@ export enum Routes {
     GEOMETRY_ASSEMBLY_TREE = "/geometry/assembly_tree",
     GEOMETRY_SEARCH = "/geometry/search",
     GEOMETRY_DISPLAY_MODES = "/geometry/display_modes",
-    GEOMERTY_MATERIAL_COLOR = "/geometry/material_color",
+    GEOMETRY_MATERIAL_COLOR = "/geometry/material_color",
+    GEOMETRY_PART_LIST = "/geometry/part_list",
 
     FIELD = "/field/",
     FIELD_VARIABLES = "/field/variables",

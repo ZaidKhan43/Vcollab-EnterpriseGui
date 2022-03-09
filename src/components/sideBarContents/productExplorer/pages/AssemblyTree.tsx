@@ -6,39 +6,58 @@ import TreeCollapseIcon from '@material-ui/icons/ChevronRight';
 import TreeExpandedIcon from '@material-ui/icons/ExpandMore';
 import {Routes} from "../../../../routes"
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
-import RTree from '../../../shared/RsTreeTable';
+import RTree, { ITreeNode } from '../../../shared/RsTreeTable';
 import {useAppSelector, useAppDispatch} from "../../../../store/storeHooks";
 import TreeNode from '../../../shared/RsTreeTable/TreeNode';
 import ShowHideCell from '../../../shared/RsTreeTable/ShowHide';
 import InvertCell from '../../../shared/RsTreeTable/Invert';
-import { convertListToTree } from '../../../utils/tree';
+import { convertListToTree, getTreeData } from '../../../utils/tree';
 import {selectProductTreeData, selectRootIds,selectCheckedLeafNodes,invertNode, toggleVisibilityAsync, setCheckedNodesAsync, setHightLightedNodesAsync, expandNode} from '../../../../store/sideBar/productTreeSlice'
 import Footer from '../Footer'
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
 import { getItem, selectMainMenuItems, setActiveTab } from 'store/mainMenuSlice';
+import SearchBox from 'components/shared/searchBox';
+import Clear from '../shared/ClearIcon';
 
 
 function AssemblyTree(props:any) {
     const treeDataRedux = useAppSelector(selectProductTreeData);
     const treeRootIds = useAppSelector(selectRootIds);
     const mainMenuItems = useAppSelector(selectMainMenuItems);
+    const [isSearchMode, setIsSearchMode] = useState(false);
+    const [searchText, setSearchText] = useState("");
+    const [searchResults, setSearchResults] = useState<any[]>([]);
     const containerRef = useRef(null);
     // eslint-disable-next-line
     const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
     const checkedNodes = useAppSelector(selectCheckedLeafNodes);
-
-    const {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
+    const {roots: treeData, expanded: expandedKeys} = convertListToTree(treeDataRedux,treeRootIds);
+    const [data , setData] = useState(treeData);
+    const [expanded, setExpanded] = useState(expandedKeys);
     const dispatch = useAppDispatch();
+
+    useEffect(() => {
+      if(isSearchMode){
+        let {treeData, expandedKeys} = getTreeData(treeDataRedux,searchResults)
+        if(treeData)
+        setData(treeData);
+        if(expandedKeys)
+        setExpanded(expandedKeys);
+      }
+      else{
+        let {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
+        setData(roots);
+        setExpanded(expanded);
+      }
+    },[isSearchMode, searchResults, treeDataRedux])
 
     const onClickBackIcon = () =>{
       dispatch(goBack());
     }
 
     const onClickSearchIcon = () => {
-      let item = getItem("Geometry12",mainMenuItems);
-      dispatch(setActiveTab({menuItem:item}));
-      dispatch(push(item.path));
+      setIsSearchMode(true);
     }
 
     const handleNext = () => {
@@ -51,14 +70,42 @@ function AssemblyTree(props:any) {
         )
     }
 
+    const handleSearchTextChange = (s:string, r: any[]) => {
+      setSearchText(s);
+      setSearchResults(r);
+      handleSearchResult(r);
+    }
+
+    const handleSearchResult = (results:any[]) => {
+      let filtered = results.map(result => {
+          let node =  JSON.parse(JSON.stringify(result.item));
+          if(result.matches)
+          node.matches =result.matches
+          return node
+        }
+        );
+      setSearchResults(filtered);
+  }
+
     const getHeaderContent = () => {
 
-          return (<Title text="Product Tree" group="Geometry"/>)
+          return (isSearchMode ?
+            <SearchBox textBoxWidth={220} 
+            placeholder="search Tree" 
+            text={searchText} 
+            onChange={handleSearchTextChange}
+            searchPool={treeDataRedux}
+            onClear={() => {}}
+            getAttribKeys={(data) => ["title"]}
+            />
+            : <Title text="Product Tree" group="Geometry"/>)
     }
     
-
     const getHeaderRightIcon = () => {
         return (
+          isSearchMode?
+          <Clear onClick={() => setIsSearchMode(false)}/>
+          :
           <SearchIcon onClick={onClickSearchIcon} />
         )
     }
@@ -83,7 +130,7 @@ function AssemblyTree(props:any) {
       return(
         <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
           <RTree 
-          treeData={roots} 
+          treeData={data} 
           expandedRowIds = {expanded}
           onExpand={handleExpand}
           onRowClick = {() => {}}
@@ -102,6 +149,7 @@ function AssemblyTree(props:any) {
               return (
                 <TreeNode 
               node={treeDataRedux[node.id]}
+              rowData={node}
               onCheck={handleCheck}
             >
             </TreeNode>

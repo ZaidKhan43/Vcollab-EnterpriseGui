@@ -47,7 +47,7 @@ const initialState: SearchState ={
                     id: 'Geometry14',
                     name: "Material Color",
                     
-                    path: Routes.GEOMERTY_MATERIAL_COLOR,
+                    path: Routes.GEOMETRY_MATERIAL_COLOR,
                     disabled: false,
                     
                     

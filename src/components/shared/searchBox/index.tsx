@@ -56,7 +56,7 @@ function SearchBox(props:SearchProps) {
         let text = e.target.value;
         let searchInput = getSearchInput(text);
         let r:any[] = (fuse as any)?.search(searchInput);
-        if(props.text.length > 2)
+        if(text.length > 2)
         props.onChange(text, r)
         else
         props.onChange(text, [])

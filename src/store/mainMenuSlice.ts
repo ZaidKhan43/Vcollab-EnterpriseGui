@@ -21,6 +21,7 @@ export enum MainMenuItems {
     GEOMETRY_MATERIAL_COLOR,
     GEOMETRY_COORDINATE_SYSTEM,
     GEOMETRY_TRANSFORMATION,
+    GEOMETRY_PART_LIST,
 
     FIELD,
     FIELD_VARIABLES,
@@ -100,6 +101,15 @@ const initialState: MainMenu ={
                     expanded: false
                 },
                 {
+                    id: 'GeometryPartList',
+                    name: "Parts List",
+                    type: MainMenuItems.GEOMETRY_PART_LIST,
+                    path: Routes.GEOMETRY_PART_LIST,
+                    disabled: false,
+                    children:[],
+                    expanded:false
+                },
+                {
                     id: 'Geometry12',
                     name: "Search",
                     type:MainMenuItems.GEOMETRY_SEARCH,
@@ -121,7 +131,7 @@ const initialState: MainMenu ={
                     id: 'Geometry14',
                     name: "Material Color",
                     type:MainMenuItems.GEOMETRY_MATERIAL_COLOR,
-                    path: Routes.GEOMERTY_MATERIAL_COLOR,
+                    path: Routes.GEOMETRY_MATERIAL_COLOR,
                     disabled: false,
                     children: [],
                     expanded: false

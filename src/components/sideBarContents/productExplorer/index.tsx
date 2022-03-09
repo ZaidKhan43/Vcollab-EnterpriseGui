@@ -6,6 +6,7 @@ import Search from './pages/Search'
 import DisplayModes from './pages/DisplayModes'
 import { useEffect } from 'react'
 import MaterialColor from './pages/materialColor'
+import PartList from './pages/PartList'
 function ProductExplorer() {
     
     return (
@@ -19,8 +20,11 @@ function ProductExplorer() {
             <Route path={Routes.GEOMETRY_DISPLAY_MODES}>
                 <DisplayModes/>
             </Route>
-            <Route path={Routes.GEOMERTY_MATERIAL_COLOR}>
+            <Route path={Routes.GEOMETRY_MATERIAL_COLOR}>
                 <MaterialColor/>
+            </Route>
+            <Route path={Routes.GEOMETRY_PART_LIST}>
+                <PartList/>
             </Route>
         </Switch>
         
