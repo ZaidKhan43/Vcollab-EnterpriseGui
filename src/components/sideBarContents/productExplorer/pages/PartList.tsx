@@ -61,26 +61,7 @@ export default function PartsList(props:any){
 
     const getBody = () => {
       return (
-            isSearchMode?
-            <Search/>
-            :
-            <List style={{maxHeight: '100%'}} className={listClasses.Scrollbar}>
-            {
-                Object.values(treeData).map(e => {
-                    return(
-                        e.children.length === 0 ?
-                        <ListItem button>
-                        <ListItemText>
-                            {
-                                e.title
-                            }
-                        </ListItemText>
-                    </ListItem>
-                    :null
-                    )
-                })
-            }
-            </List>
+            <Search isSearchMode = {isSearchMode}/>
       )
     }      
 

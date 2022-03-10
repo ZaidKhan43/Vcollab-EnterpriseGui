@@ -14,11 +14,12 @@ const useRTreeOverrideStyles = makeStyles((theme) => ({
   }
 })) 
 
-function Search(props:any) {
+function Search(props:{isSearchMode:boolean}) {
     const treeData = useAppSelector(selectProductTreeData);
     const prevSearches = useAppSelector(selectPrevSearches);
     const searchHints = useAppSelector(selectSearchHints);
     const result = useAppSelector(selectSearchResults);
+    const [allParts, setAllParts] = useState(Object.values(treeData).filter(e => e.children.length === 0).map(e => {return {item: e}}))
     const dispatch = useAppDispatch();
     // eslint-disable-next-line
     const [selectAll, setSelectAll] = useState(false);
@@ -60,24 +61,27 @@ function Search(props:any) {
     const overrideStyles = useRTreeOverrideStyles();
     return (
         <div ref = {containerRef} style={{height:'100%', overflow:'hidden'}} >
-          <div ref = {headerRef} >
+          {
+              props.isSearchMode ?
+                <div ref = {headerRef} >
 
-            <SearchHints data = {generateOptions()} onClick={handleHintsClick} onDelete={handleHintsDelete}></SearchHints>
-            {
-            result.length !== 0 ?
-            <div>
-            <Checkbox color="primary" size='small' onChange = {(e:any) => {handleSelectAll(e.target.checked)}} checked = {selectAll} ></Checkbox>
-                Select All
-            </div>
-            : null
-            }
-          </div>
-
+                <SearchHints data = {generateOptions()} onClick={handleHintsClick} onDelete={handleHintsDelete}></SearchHints>
+                {
+                result.length !== 0 ?
+                <div>
+                <Checkbox color="primary" size='small' onChange = {(e:any) => {handleSelectAll(e.target.checked)}} checked = {selectAll} ></Checkbox>
+                    Select All
+                </div>
+                : null
+                }
+                </div>
+                :null
+          }  
 
             {/*
  // @ts-ignore */}
             <Table height={containerHeight? containerHeight - headerHeight : 0}
-                   data={result}
+                   data={ props.isSearchMode ? result : allParts}
                    id="searchList"
                    showHeader={false}
                    width={300}

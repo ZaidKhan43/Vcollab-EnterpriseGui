@@ -46,7 +46,7 @@ export default function TreeSearch(props:any){
 
     const getBody = () => {
       return (
-            <Search/>
+            <Search isSearchMode={true}/>
       )
     }      
 

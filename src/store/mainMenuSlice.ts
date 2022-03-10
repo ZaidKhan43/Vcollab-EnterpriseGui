@@ -478,14 +478,16 @@ const initialState: MainMenu ={
     ],
     activeTab: null,
     defaultOptions: [
+        // uncomment below to enable default tabs
         '1',
         'Geometry11',
-        '2',
-        '3',
-        '4',
-        '5',
-        '6',
-        '7'
+
+        // '2',
+        // '3',
+        // '4',
+        // '5',
+        // '6',
+        // '7'
     ],
     bottomTabOptions: [
         '12',

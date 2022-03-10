@@ -10,7 +10,8 @@ const useStyles = makeStyles( theme => ({
     },
 }))
 
-const Title = (props:any) => {
+
+const Title = (props:{rowData:any}) => {
 
         const classes = useStyles();
         let [parts, setParts] = useState([] as any[]);
@@ -37,8 +38,8 @@ const Title = (props:any) => {
           :
           <Typography>
             {
-            props.rowData.title? props.rowData.title:
-            null}
+            props.rowData?.title? props.rowData.title:null
+            }
           </Typography>
           )
 }

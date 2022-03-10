@@ -15,8 +15,7 @@ const traverse = (rootId:string, data:{[id:string]:ITreeNode}, cbk:(node:ITreeNo
     let root = data[rootId];
     cbk(root);
     root.children.forEach(id => {
-        let node = data[id];
-        cbk(node)
+        traverse(id,data,cbk);
     })
 }
 const createTree = (rootId:string, data:{[id:string]:ITreeNode}):any => {
