@@ -11,7 +11,8 @@ import SearchBox from '../../shared/searchBox';
 import Body from './Body'
 import { useState } from 'react';
 import Title from 'components/layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
-import { SearchItem, selectList, selectPrevSearches} from '../../../store/moreSlice'
+import { SearchItem, getSearchItems, selectPrevSearches} from '../../../store/moreSlice'
+import { selectMainMenuItems } from 'store/mainMenuSlice';
 
 export default function More(props:any){
     
@@ -21,7 +22,8 @@ export default function More(props:any){
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState<SearchItem[]>([]);
     const prevSearchItems = useAppSelector(selectPrevSearches);
-    const mainMenuPages = useAppSelector(selectList);
+    const mainMenuItems = useAppSelector(selectMainMenuItems);
+    const [searchList,setSearchList] = useState(getSearchItems(mainMenuItems,true));
 
     const getHeaderLeftIcon= () => {
       return null
@@ -34,12 +36,11 @@ export default function More(props:any){
         text={searchText} 
         onChange={(e:any,r:any[]) => {
           setSearchText(e);
-          setSearchResults(r.map(e => e.item));
+          setSearchResults(r.map(el => el.item));
         }} 
         onClear={() => {}} 
-        searchPool={mainMenuPages}
+        searchPool={searchList}
         placeholder='type here'
-        textBoxWidth={240}
         getAttribKeys={(data: SearchItem) => {return ["name"]}}
         />
         :
@@ -67,10 +68,10 @@ export default function More(props:any){
       return (
             <Body 
             showSearch={showSearch}
-            searchItems={mainMenuPages}
+            searchItems={searchList}
             searchText={searchText}
             searchHintsData={prevSearchItems}
-            searchResults={ showSearch ? searchResults : mainMenuPages}
+            searchResults={ showSearch ? searchResults : searchList}
             onClickSearchHints={(s:string) => {
               setShowSearch(true);
               setTimeout(() => setSearchText(s),10)

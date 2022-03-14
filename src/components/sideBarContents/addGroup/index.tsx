@@ -9,9 +9,9 @@ import {useAppSelector, useAppDispatch} from "../../../store/storeHooks";
 import { Routes } from '../../../routes';
 import SearchBox from '../../shared/searchBox';
 import Body from './Body'
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Title from 'components/layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
-import { SearchItem, selectList, selectPrevSearches} from '../../../store/moreSlice'
+import { getSearchItems, SearchItem, selectList, selectPrevSearches} from '../../../store/moreSlice'
 import OptionContainer from 'components/layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer';
 import Option from 'components/layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
@@ -36,8 +36,27 @@ export default function AddGroup(props:AddGroupProps){
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState<SearchItem[]>([]);
     const [selectedItems, setSelectedItems] = useState<SearchItem[]>(props.selectedGroup.children)
-    const mainMenuPages = useAppSelector(selectList);
     const mainMenuItems = useAppSelector(selectMainMenuItems);
+    const [searchList, setSearchList] = useState(getSearchItems(mainMenuItems,true));
+    const selectedGroupRef = useRef<MainMenuItem | null>(null);
+
+    useEffect(() => {
+      
+      return () => {
+        let selectedMainMenuItems = selectedItems.map( e => getItem(e.id,mainMenuItems));
+        console.log(selectedMainMenuItems);
+        if(selectedGroupRef.current)
+        dispatch(updateMenuItem({
+          menuItem: {
+            ...selectedGroupRef.current,
+            isEditMode: false
+          }
+        }))
+        else{
+          handleAddGroupDelete();
+        } 
+      }
+    },[])
 
     const getHeaderLeftIcon= () => {
       return null
@@ -53,9 +72,8 @@ export default function AddGroup(props:AddGroupProps){
           setSearchResults(r.map(e => e.item));
         }} 
         onClear={() => {}} 
-        searchPool={mainMenuPages}
+        searchPool={searchList}
         placeholder='type here'
-        textBoxWidth={240}
         getAttribKeys={(data: SearchItem) => {return ["name"]}}
         />
         :
@@ -97,11 +115,11 @@ export default function AddGroup(props:AddGroupProps){
       return (
             <Body 
             showSearch={showSearch}
-            searchItems={mainMenuPages}
+            searchItems={searchList}
             searchText={searchText}
             selectedList={selectedItems}
             setSelectedList={setSelectedItems}
-            searchResults={ showSearch ? searchResults : mainMenuPages}
+            searchResults={ showSearch ? searchResults : searchList}
             onClickSearchHints={(s:string) => {
               setShowSearch(true);
               setTimeout(() => setSearchText(s),10)
@@ -118,10 +136,20 @@ export default function AddGroup(props:AddGroupProps){
         name: groupName,
         children: selectedMainMenuItems
       };
+      selectedGroupRef.current = menuItem;
       dispatch(updateMenuItem({
         menuItem
       }))
-      dispatch(setActiveTab({menuItem}))
+      setTimeout(() => dispatch(setActiveTab({menuItem})) , 10)
+    }
+
+    const handleAddGroupDelete = () =>  {
+      dispatch(deleteMenuItem({
+        menuItemId: props.selectedGroup.id
+      }))
+      dispatch(removeTab({menuItemId: props.selectedGroup.id}));
+      dispatch(setSidebarVisibility(false));
+      dispatch(setActiveTab({menuItem:null}));
     }
 
     const getFooter = () => {
@@ -138,14 +166,7 @@ export default function AddGroup(props:AddGroupProps){
        }/>
         <Option 
         label = "Delete"
-        icon = {<IconButton disabled={props.disabled} onClick={() => {
-          dispatch(deleteMenuItem({
-            menuItemId: props.selectedGroup.id
-          }))
-          dispatch(removeTab({menuItemId: props.selectedGroup.id}));
-          dispatch(setSidebarVisibility(false));
-          dispatch(setActiveTab({menuItem:null}));
-        }}>
+        icon = {<IconButton disabled={props.disabled} onClick={handleAddGroupDelete}>
         <DeleteForeverIcon/>
         </IconButton>  }
         />

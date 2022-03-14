@@ -12,12 +12,14 @@ import TreeNode from '../../../shared/RsTreeTable/TreeNode';
 import ShowHideCell from '../../../shared/RsTreeTable/ShowHide';
 import InvertCell from '../../../shared/RsTreeTable/Invert';
 import { convertListToTree, getTreeData } from '../../../utils/tree';
-import {selectProductTreeData, selectRootIds,selectCheckedLeafNodes,invertNode, toggleVisibilityAsync, setCheckedNodesAsync, setHightLightedNodesAsync, expandNode} from '../../../../store/sideBar/productTreeSlice'
+import {selectProductTreeData, selectRootIds,selectCheckedLeafNodes,invertNode, toggleVisibilityAsync, setCheckedNodesAsync, setHightLightedNodesAsync, expandNode, updatePrevSearches} from '../../../../store/sideBar/productTreeSlice'
+import {selectSearchHints, removeSearchHint, selectPrevSearches, setSearchString, selectSearchResults} from "../../../../store/sideBar/productTreeSlice"
 import Footer from '../Footer'
 import { useEffect, useRef, useState } from 'react';
 import useContainer from '../../../../customHooks/useContainer';
 import { getItem, selectMainMenuItems, setActiveTab } from 'store/mainMenuSlice';
 import SearchBox from 'components/shared/searchBox';
+import SearchHints from '../../../shared/hintsPanel'
 import Clear from '../shared/ClearIcon';
 
 
@@ -28,7 +30,12 @@ function AssemblyTree(props:any) {
     const [isSearchMode, setIsSearchMode] = useState(false);
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState<any[]>([]);
+    const prevSearches = useAppSelector(selectPrevSearches);
+    const searchHints = useAppSelector(selectSearchHints);
     const containerRef = useRef(null);
+    const headerRef = useRef(null);
+    // eslint-disable-next-line
+    const [headerWidth, headerHeight] = useContainer(headerRef,[]);
     // eslint-disable-next-line
     const [containerWidth, containerHeight] = useContainer(containerRef,[treeDataRedux]);
     const checkedNodes = useAppSelector(selectCheckedLeafNodes);
@@ -49,6 +56,7 @@ function AssemblyTree(props:any) {
         let {roots, expanded} = convertListToTree(treeDataRedux,treeRootIds);
         setData(roots);
         setExpanded(expanded);
+        dispatch(updatePrevSearches(searchText))
       }
     },[isSearchMode, searchResults, treeDataRedux])
 
@@ -90,7 +98,7 @@ function AssemblyTree(props:any) {
     const getHeaderContent = () => {
 
           return (isSearchMode ?
-            <SearchBox textBoxWidth={220} 
+            <SearchBox 
             placeholder="search Tree" 
             text={searchText} 
             onChange={handleSearchTextChange}
@@ -126,16 +134,64 @@ function AssemblyTree(props:any) {
     const handleInvert = (node:any) => {
       dispatch(invertNode({nodeId:node.id, undoable:true}));
     }
+
+    const generateOptions = () => {
+      let options:any = {};
+      prevSearches.forEach((e:string) => {
+          options[e] = Object.keys(options).length;
+      })
+      searchHints.forEach((e:string) => {
+          options[e] = Object.keys(options).length;
+      })
+      return Object.keys(options) as string[]
+  }
+
+  // const handleCheck = (toCheck:boolean,node:ITreeNode) => {
+  //     dispatch(setCheckedNodesAsync({toCheck,nodeId:node.id}));
+  // }
+
+  // const handleSelectAll = (state:boolean) => {
+  //     if(props.isSearchMode)
+  //     result.forEach((data:any) => {
+  //         dispatch(setCheckedNodesAsync({toCheck: state, nodeId: data.item.id}));
+  //     })
+  //     else
+  //     Object.values(treeData).forEach(e => {
+  //         dispatch(setCheckedNodesAsync({toCheck: state, nodeId: e.id}));
+  //     })
+  //     setSelectAll(state);
+  // }
+   const handleHintsClick = (s:string) => {
+      setSearchText(s);
+  }
+  const handleHintsDelete = (s:string) => {
+      dispatch(removeSearchHint({data:s}));
+  }
     const getBody = () => {
       return(
         <div ref = {containerRef} style={{height:'100%',background:'transparent'}} >
+          <div ref = {headerRef} >
+                {
+                    isSearchMode ?
+                    <SearchHints data = {generateOptions()} onClick={handleHintsClick} onDelete={handleHintsDelete}></SearchHints>
+                    :null
+                }
+                {/* {
+                result.length !== 0 || !props.isSearchMode ?
+                <div>
+                <Checkbox color="primary" size='small' onChange = {(e:any) => {handleSelectAll(e.target.checked)}} checked = {selectAll} ></Checkbox>
+                    Select All
+                </div>
+                : null
+                } */}
+                </div>  
           <RTree 
           treeData={data} 
           expandedRowIds = {expanded}
           onExpand={handleExpand}
           onRowClick = {() => {}}
           width = {300}
-          height = {containerHeight ? containerHeight - 5: 0}
+          height = {containerHeight ? containerHeight - (headerHeight+5): 0}
           renderTreeToggle = {
             (icon,rowData) => {
               if (rowData.children && rowData.children.length === 0) {

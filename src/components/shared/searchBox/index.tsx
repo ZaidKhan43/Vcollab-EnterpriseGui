@@ -1,5 +1,5 @@
 import React from 'react'
-import InputBase from '@material-ui/core/FilledInput'
+import TextField from '@material-ui/core/TextField'
 import Fuse from 'fuse.js'
 import { createStyles, makeStyles } from '@material-ui/core'
 import { useEffect } from 'react'
@@ -26,9 +26,7 @@ const useStyles = makeStyles(createStyles({
         paddingTop: 5
     },
     input: (props: any) => ({
-      margin:'auto',
-      height:40,
-      width: props.textBoxWidth ? props.textBoxWidth : 260
+      width: props.textBoxWidth ? props.textBoxWidth : 220
     })
 }
 ))
@@ -73,8 +71,8 @@ function SearchBox(props:SearchProps) {
     
     return (
             <div className={classes.root}>
-            <InputBase
-            classes={{root:classes.input, inputMarginDense: classes.dense}}
+            <TextField
+            classes={{root:classes.input}}
             placeholder={props.placeholder}
             margin='dense'
             value={props.text}

@@ -109,15 +109,6 @@ const initialState: MainMenu ={
                     children:[],
                     expanded:false
                 },
-                {
-                    id: 'Geometry12',
-                    name: "Search",
-                    type:MainMenuItems.GEOMETRY_SEARCH,
-                    path: Routes.GEOMETRY_SEARCH,
-                    disabled: false,
-                    children: [],
-                    expanded: false
-                  },
                   {
                     id: 'Geometry13',
                     name: "Display Mode",

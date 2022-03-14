@@ -15,9 +15,10 @@ type SearchProps = {
 }
 function SearchWithHints(props:SearchProps) {
     return (
-        <div >
+        <div style={{ display:'flex', justifyContent: 'center'}}>
             <SearchBox 
             text={props.text} 
+            textBoxWidth={250}
             searchPool={props.searchPool} 
             getAttribKeys={props.getAttribKeys} 
             placeholder={props.placeholder} 

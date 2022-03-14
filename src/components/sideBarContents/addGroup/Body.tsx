@@ -36,7 +36,8 @@ function Body(props: BodyProps) {
     const [containerWidth, containerHeight] = useContainer(containerRef,[]);
 
     const isChecked = (item: SearchItem) => {
-      return props.selectedList.includes(item);
+      let r = props.selectedList.find(e => e.id === item.id);
+      return r ? true : false;
     }
 
     const handleResultsClick = (e) => {
