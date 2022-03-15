@@ -481,7 +481,6 @@ const initialState: MainMenu ={
         // '7'
     ],
     bottomTabOptions: [
-        '12',
         '13'
     ],
     temporaryTab: null
@@ -528,8 +527,10 @@ export const mainMenuSlice = createSlice({
         },
         setActiveTab: (state, action: PayloadAction<{menuItem: MainMenuItem | null}>) => {
             const {menuItem} = action.payload;
-            if(menuItem && 
-                (state.defaultOptions.includes(menuItem.id) || state.bottomTabOptions.includes(menuItem.id))
+            if(menuItem &&
+                ( menuItem.type === MainMenuItems.MORE || 
+                  state.defaultOptions.includes(menuItem.id) || 
+                  state.bottomTabOptions.includes(menuItem.id))
             ) {
                 mainMenuSlice.caseReducers.setTemporartyTab(state,{
                     payload: {
@@ -625,6 +626,9 @@ export const selectLeafMainMenuItems = (state:RootState): MainMenuItem[] => {
         }
     })
     return items;
+}
+export const selectMoreMenu = (state:RootState):MainMenuItem | undefined => {
+    return state.mainMenu.menuItems.find(e => e.type === MainMenuItems.MORE)
 }
 export const selectTemporaryTab = (state:RootState): MainMenuItem | null => state.mainMenu.temporaryTab ? getItem(state.mainMenu.temporaryTab,state.mainMenu.menuItems) : null
 export default mainMenuSlice.reducer;

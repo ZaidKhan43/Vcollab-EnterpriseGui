@@ -212,7 +212,7 @@ function AppBar() {
             <div className={classes.divIcon} onClick={handleRedo}>
             <MuiIconButton disabled={!isRedoable}><RedoIcon /></MuiIconButton> 
             </div>
-            <div className={classes.divIcon} onClick={() => {}}>
+            {/* <div className={classes.divIcon} onClick={() => {}}>
             <ToggleSplitBtn 
               options={labelInsertModeOptions}
               selectedId={selectedLabelInsertionMode}
@@ -244,7 +244,7 @@ function AppBar() {
             
             <div className={classes.divIcon} onClick={(evt) => onClickMenuIcon(evt,  popupMenuContentTypes.more) }>
               <MuiIconButton><More /></MuiIconButton>
-            </div>
+            </div> */}
              
             <div className={classes.divIcon} onClick={ onClickFullscreen }>
               {(isFullscreenEnabled ?

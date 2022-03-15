@@ -16,7 +16,7 @@ import { selectSidebarVisibility, setSidebarVisibility } from 'store/appSlice';
 import { Routes } from 'routes';
 import {push} from 'connected-react-router/immutable';
 import clsx from 'clsx';
-import { MainMenuItem, selectActiveTab, selectDefaultOptions, setActiveTab, selectTemporaryTab, MainMenuItems, selectNewGroupItem, addMenuItem, addTab, selectMainMenuItems, getItem} from 'store/mainMenuSlice';
+import { MainMenuItem, selectActiveTab, selectDefaultOptions, setActiveTab, selectTemporaryTab, MainMenuItems, selectNewGroupItem, addMenuItem, addTab, selectMainMenuItems, getItem, selectMoreMenu} from 'store/mainMenuSlice';
 import useContainer from 'customHooks/useContainer';
 import { topbarHeight } from 'config';
 import nextId from 'react-id-generator'
@@ -72,6 +72,7 @@ function LeftBar(props: LeftBarProps) {
   const iconClasses = useIconStyles();
   const tabClasses = useTabStyles();
   
+  const moreMenuItem = useAppSelector(selectMoreMenu);
   const isSidebarVisible = useAppSelector(selectSidebarVisibility);
   const temporaryTab = useAppSelector(selectTemporaryTab);
   const dispatch = useAppDispatch();
@@ -144,15 +145,45 @@ function LeftBar(props: LeftBarProps) {
   return (
   <>
   <div style={{height: `calc(100% - ${btmHeight}px)`}} className={classes.root}>
-        <Box>
+        {/* <Box>
         <Nav activeItem={activeItem}/>
-        </Box>
+        </Box> */}
+        {
+        moreMenuItem ?
+        <Tabs 
+          orientation="vertical"
+          textColor='inherit'
+          variant="scrollable"
+          scrollButtons="off"
+          value={activeItem ? activeItem.id : "-1"}
+          onChange={handleValChange}
+          aria-label="more tab"
+          className={tabClasses.tabs}
+        >
+         <Tab  
+           disableRipple
+           value ={moreMenuItem.id}
+           icon = {
+           <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
+             {<GeometryIcon/>}
+           </div>
+         } 
+         label={
+           <div  className={tabClasses.label}>
+             {moreMenuItem.name}
+           </div>
+         }
+         {...a11yProps(moreMenuItem.name)} classes={{root : tabClasses.tab}}
+         />
+       </Tabs>
+       : null
+        }
         <div style={{height: `calc(100% - ${topbarHeight}px)`}} className={tabClasses.root}>
         <Tabs 
            orientation="vertical"
            textColor='inherit'
            variant="scrollable"
-           scrollButtons="on"
+           //scrollButtons="on"
            value={activeItem ? activeItem.id : "-1"}
            onChange={handleValChange}
            aria-label="Vertical tabs example"
