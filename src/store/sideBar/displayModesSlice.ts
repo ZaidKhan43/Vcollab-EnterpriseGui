@@ -33,7 +33,7 @@ const initialState: DisplayModesState = {
         expanded: true,
         menuData: []
       },],
-    applyTo: Selection.SELECTED_PARTS
+    applyTo: Selection.ALL_PARTS
 }
 
 export enum DownloadStates {

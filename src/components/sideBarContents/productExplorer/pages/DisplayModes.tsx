@@ -56,8 +56,8 @@ export default function DisplayModes(props:any){
            getContentAnchorEl: null
           }}
           >
-            <MenuItem value={Selection.SELECTED_PARTS}>Selected Parts</MenuItem>
             <MenuItem value={Selection.ALL_PARTS}>All Parts</MenuItem>
+            <MenuItem value={Selection.SELECTED_PARTS}>Selected Parts</MenuItem>
             <MenuItem value={Selection.UNSELECTED_PARTS}>Unselected Parts</MenuItem>
           </SelectAction>
         )
