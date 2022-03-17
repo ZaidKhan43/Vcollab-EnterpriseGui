@@ -115,8 +115,9 @@ export function probe(pointerData:{xyFromTop:number[], width:number,height:numbe
 }
 //#endregion
 //#region Labels
-export function add3DLabel(uid:string,hitPoint:number[],activeViewerID:string) {
-    viewerMgr.add3DLabel(uid,hitPoint,activeViewerID);
+export function add3DLabel(uid:string,hitPoint:number[],type:any,probeData:any,activeViewerID:string) {
+
+    viewerMgr.add3DLabel(uid,hitPoint,type,probeData,activeViewerID);
 }
 export function delete3DLabel(uid:string,activeViewerID:string):boolean{
     return viewerMgr.delete3DLabel(uid,activeViewerID);

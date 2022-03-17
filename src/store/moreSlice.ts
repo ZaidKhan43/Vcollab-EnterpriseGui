@@ -21,21 +21,23 @@ export type SearchState = {
 export const getSearchItems = (mainMenuItems:MainMenuItem[], withGroup?:boolean): SearchItem[] => {
     let items:SearchItem[] = [];
     mainMenuItems.forEach(e => {
-        let item = {
-            id: e.id,
-            type: e.type,
-            name: e.name,
-            path: e.path,
-            disabled: e.disabled,
-        }
-        
-        if(e.children.length > 0){
-            if(withGroup)
-            items.push(item);
-            items.push(...getSearchItems(e.children));
-        }
-        else {
-            items.push(item);
+        if(e.type !== MainMenuItems.MORE){
+            let item = {
+                id: e.id,
+                type: e.type,
+                name: e.name,
+                path: e.path,
+                disabled: e.disabled,
+            }
+            
+            if(e.children.length > 0){
+                if(withGroup)
+                items.push(item);
+                items.push(...getSearchItems(e.children));
+            }
+            else {
+                items.push(item);
+            }
         }
     })
     return items;

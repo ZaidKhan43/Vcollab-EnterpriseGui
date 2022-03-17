@@ -2,7 +2,9 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { createAsyncThunk, } from '@reduxjs/toolkit';
 import type { RootState } from '../index';
 import { Source } from '../../components/shared/List/List';
+import {undoStack} from '../../components/utils/undoStack';
 import {setMouseBindings, getMouseData, getSystemMouseMappings} from '../../backend/viewerAPIProxy';
+import { identity } from 'ramda';
 
 type Settings = {
 
@@ -95,7 +97,6 @@ export type Action = {
 }
 
 
-
 const initialState: Settings = {
 
   activeTheme: 'dark',
@@ -110,7 +111,7 @@ const initialState: Settings = {
   copyItem: false,
   currentPage: "ApplicationSettings",
   themes: [
-    { id: '1', name: 'Dark', selected: true, applied: true },
+    { id: '1', name: 'Dark', selected: false, applied: true },
     { id: '2', name: 'Light', selected: false, applied: false },
     { id: '3', name: 'Light +', selected: false, applied: false }],
 
@@ -159,14 +160,13 @@ const getMouseDataJson = function(state: Settings) : Object | undefined{
   }
 }
 
-
-
 // send data to backend and call applyReducer
 export const applyMouseData = createAsyncThunk(
   'settings/applyMouseData',
-  async (data, {dispatch,getState}) => {
+  async (data:any, {dispatch,getState}) => {
 
-      dispatch(settingsSlice.actions.setApplyItem())
+      const {applyID} = data ;
+      dispatch(settingsSlice.actions.setApplyItem(applyID))
       let rootState = getState() as RootState;
       let state = rootState.settings;
       let json = getMouseDataJson(state);
@@ -210,50 +210,48 @@ SystemMouseData.forEach((data)=> {
   
   })
     
-
 // creating menu items
 
-     SystemMouseData.forEach((data)=> {
-      menuItemsconut=menuItemsconut+1;
-      //let itempriority = systemDataCount.toString();
-      MenuItem.push({id:data.id,selected: false, text: data.name, applied: false, edit: false, readonly: true, type: Source.SYSTEM })
-      })
+SystemMouseData.forEach((data)=> {
+menuItemsconut=menuItemsconut+1;
+//let itempriority = systemDataCount.toString();
+MenuItem.push({id:data.id,selected: false, text: data.name, applied:data.default ?true:false, edit: false, readonly: true, type: Source.SYSTEM })
+})
 
 // creating system provided data
 
-    SystemMouseData.forEach((data)=>{
-      systemDataCount=systemDataCount+1;
-      //let itempriority = systemDataCount.toString();
-      SystemProvidedData.push({id:data.id,list:data.mapping})
-    })
+SystemMouseData.forEach((data)=>{
+  systemDataCount=systemDataCount+1;
+  //let itempriority = systemDataCount.toString();
+  SystemProvidedData.push({id:data.id,list:data.mapping})
+})
 
-    action.forEach((data)=>{
-      actioncount=actioncount+1;
-      let itempriority = actioncount.toString();
-      actions.push({id:actioncount.toString(),name:data.name,icon:false,priority:itempriority})
-    })
+action.forEach((data)=>{
+  actioncount=actioncount+1;
+  let itempriority = actioncount.toString();
+  actions.push({id:actioncount.toString(),name:data.name,icon:false,priority:itempriority})
+})
 
-    control.forEach((data)=> {
+control.forEach((data)=> {
 
-      controlcount=controlcount+1;
-      let itempriority = controlcount.toString();
-      if(data.when == "" ) {
-     
-      controls.push({id:data.id,keys:data.keys,modifiers:data.modifiers,icon:false,priority:itempriority,when:""})
-      }
-      else {
+  controlcount=controlcount+1;
+  let itempriority = controlcount.toString();
+  if(data.when == "" ) {
+  
+  controls.push({id:data.id,keys:data.keys,modifiers:data.modifiers,icon:false,priority:itempriority,when:""})
+  }
+  else {
 
-        controls.push({id:data.id,keys:data.keys,modifiers:data.modifiers,icon:false,priority:itempriority,when:data.when})
-      }
-    })
+    controls.push({id:data.id,keys:data.keys,modifiers:data.modifiers,icon:false,priority:itempriority,when:data.when})
+  }
+})
 
-    dispatch(settingsSlice.actions.setDefaultMouseControl(defaultMouseControl));
-    dispatch(settingsSlice.actions.setActions(actions));
-    dispatch(settingsSlice.actions.setControls(controls));
-    dispatch(settingsSlice.actions.setSystemProvided(SystemProvidedData));
-    dispatch(settingsSlice.actions.setmenuItems(MenuItem));
+dispatch(settingsSlice.actions.setDefaultMouseControl(defaultMouseControl));
+dispatch(settingsSlice.actions.setActions(actions));
+dispatch(settingsSlice.actions.setControls(controls));
+dispatch(settingsSlice.actions.setSystemProvided(SystemProvidedData));
+dispatch(settingsSlice.actions.setmenuItems(MenuItem));
 
-    
   }
 )
 
@@ -359,11 +357,14 @@ export const settingsSlice = createSlice({
 
     },
 
-    addItemToMouseControlsList: (state, action: PayloadAction<string>) => {
+    addItemToMouseControlsList: (state, action: PayloadAction<{undoable:boolean , activeMenuId:string}>) => {
+
+      const {undoable ,activeMenuId} = action.payload;
 
       const controlPriority: any[] = [];
       const actionPriority: any[] = [];
       const userPriority: any[] = [];
+
 
       state.controls.forEach((item) => {
 
@@ -391,7 +392,7 @@ export const settingsSlice = createSlice({
 
       state.userProvided.map((item) => {
 
-        if (item.id === action.payload) {
+        if (item.id === activeMenuId) {
 
           item.list.forEach((list) => {
 
@@ -401,21 +402,10 @@ export const settingsSlice = createSlice({
         }
       })
 
-
-
       const controlPriorityCompare = controlPriority.filter(val => !userPriority.includes(val));
-
-
-
       const controlHigherpriority = Math.min.apply(null, controlPriorityCompare);
-
-      
-
-
       const actionPriorityCompare = actionPriority.filter(val => !userPriority.includes(val));
-
       const actionHigherpriority = Math.min.apply(null, actionPriorityCompare);
-
 
 
       const getControlText = (priority: string) => {
@@ -458,7 +448,7 @@ export const settingsSlice = createSlice({
       state.userProvided.map((item) => {
 
         if (item.list.length <= 5) {
-          if (item.id === action.payload) {
+          if (item.id === activeMenuId) {
 
             let newRowpriority: any = '';
 
@@ -476,6 +466,15 @@ export const settingsSlice = createSlice({
 
             item.list = [...item.list, addNewRow]
 
+            if(undoable) {
+
+              undoStack.add({
+      
+                undo:{reducer:undoAddItemToMouseControlsList,payload:{newRowId , activeMenuId}},
+                redo:{reducer:redoAddItemToMouseControlsList,payload:{newRowId,controlTextId,actionTextId,newRowpriority,activeMenuId}}
+              })
+            }
+
           }
 
         }
@@ -486,54 +485,127 @@ export const settingsSlice = createSlice({
 
       })
 
+
+      setItemSave(true);
+
     },
 
-    deleteItemToMouseControlList: (state, action: PayloadAction<{ rowId: string, activeMenuId: string }>) => {
+    redoAddItemToMouseControlsList:(state,action:PayloadAction<{newRowId:string,controlTextId:string,actionTextId:string,newRowpriority:string,activeMenuId:string}>) => {
 
 
+      const {newRowId,controlTextId,actionTextId,newRowpriority,activeMenuId} = action.payload;
+
+      state.userProvided.forEach((item) => {
+
+         if(item.id === activeMenuId ) {
+
+
+            const addRow = { id: newRowId, control: controlTextId, action: actionTextId, priority: newRowpriority }
+
+            item.list = [...item.list, addRow]
+
+         }
+
+
+      })
+
+      setItemSave(true);
+
+
+    },
+
+    undoAddItemToMouseControlsList:(state ,action:PayloadAction<{newRowId:string , activeMenuId:string}>) => {
+
+      const {newRowId , activeMenuId} = action.payload;
       state.userProvided.map((item: MouseControlList) => {
 
-        if (item.id === action.payload.activeMenuId) {
-
+        if (item.id === activeMenuId) {
 
           item.list.forEach((listItem: MouseControlListItem) => {
 
+            if (listItem.id === newRowId) {
 
-            if (listItem.id === action.payload.rowId) {
-
-              var index = item.list.findIndex(listItem => listItem.id === action.payload.rowId);
+              var index = item.list.findIndex(listItem => listItem.id === newRowId);
 
               item.list.splice(index, 1);
 
-
-
-              // var index = (parseInt(action.payload.rowId)-1);
-
-              // console.log(index);
-
-              //  
-
             }
 
-
-
           })
-
-
-          //   // item.list.splice(item.list.findIndex(item => item.id === action.payload.rowId),1);
-
-          //   let index = item.list.map((listItem) => listItem.id).indexOf(action.payload.rowId);
-
-          //   if (index > -1) {
-
-          //       item.list.splice(index, 1);
-
-          //      }
 
         }
 
       })
 
+      setItemSave(true);
+
+    },
+
+    deleteItemToMouseControlList: (state, action: PayloadAction<{undoable:boolean,rowId: string, activeMenuId: string }>) => {
+
+     const {undoable , rowId ,activeMenuId } = action.payload;
+
+     var controlID:string = '';
+     var actionID:string = '';
+     var rowID:string = rowId;
+     var rowPriority:string = '';
+     var deleteItemIndex:any='';
+
+      state.userProvided.map((item: MouseControlList) => {
+
+        if (item.id === action.payload.activeMenuId) {
+
+          item.list.forEach((listItem: MouseControlListItem) => {
+
+            if (listItem.id === action.payload.rowId) {
+
+              controlID = listItem.control;
+              actionID = listItem.action;
+              rowPriority = listItem.priority;
+              deleteItemIndex = item.list.findIndex(listItem => listItem.id === action.payload.rowId);
+
+              item.list.splice(deleteItemIndex, 1);
+
+            }
+
+          })
+
+        }
+
+      })
+
+      if(undoable) {
+
+        undoStack.add({
+
+          undo:{reducer:undoDeleteItemToMouseControlList,payload:{rowId,controlID,actionID,rowPriority,activeMenuId,deleteItemIndex}},
+          redo:{reducer:deleteItemToMouseControlList,payload:{undoable:false,rowId,activeMenuId}}
+        })
+      }
+
+      setItemSave(true);
+
+    },
+
+    undoDeleteItemToMouseControlList:(state,action:PayloadAction<{rowId:string,controlID:string,actionID:string,rowPriority:string,activeMenuId:string,deleteItemIndex:number}>) => {
+
+      const {rowId,controlID,actionID,rowPriority,activeMenuId,deleteItemIndex} = action.payload;
+
+      state.userProvided.forEach((item) => {
+
+         if(item.id === activeMenuId ) {
+
+            const addRow = { id: rowId, control: controlID, action: actionID, priority: rowPriority }
+
+            item.list = [...item.list]
+            item.list.splice(deleteItemIndex,0,addRow);
+
+         }
+
+
+      })
+
+      setItemSave(true);
 
     },
 
@@ -601,6 +673,45 @@ export const settingsSlice = createSlice({
       state.Slidervalue = action.payload
     },
 
+    setSelectedItem: (state, action: PayloadAction<{ id: string, isSelected: boolean }>) => {
+
+
+      state.menuItems.forEach((item: MenuItem) => {
+
+        if (item.id === action.payload.id) {
+
+          item.selected = action.payload.isSelected;
+
+        }
+        else {
+
+          item.selected = false
+        }
+
+      })
+
+
+    },
+
+    setSelectedMouseControl:(state,action:PayloadAction<{ id:string, isSelected: boolean }>)=> {
+
+
+      state.menuItems.forEach((item: MenuItem) => {
+
+        if (item.id === action.payload.id) {
+
+          item.selected = action.payload.isSelected;
+
+        }
+        else {
+
+          item.selected = false
+        }
+
+      })
+
+    },
+
     setSelectedThemeItem: (state, action: PayloadAction<{ id: string, isSelected: boolean }>) => {
 
       state.themes.forEach((item: Theme) => {
@@ -617,22 +728,6 @@ export const settingsSlice = createSlice({
       })
 
 
-    },
-
-    setSelectedItem: (state, action: PayloadAction<{ id: string, isSelected: boolean }>) => {
-
-      state.menuItems.forEach((item: MenuItem) => {
-
-        if (item.id === action.payload.id) {
-
-          item.selected = action.payload.isSelected
-
-        }
-        else {
-
-          item.selected = false
-        }
-      })
     },
 
     setThemeApply: (state) => {
@@ -655,28 +750,34 @@ export const settingsSlice = createSlice({
 
     },
 
-    setApplyItem: (state) => {
+    // Mouse Controls list page reducers 
 
+    setApplyItem: (state ,action:PayloadAction<any>) => {
+
+      const applyID:string = action.payload ;
       state.menuItems.forEach((item: MenuItem) => {
 
-        if (item.selected === true) {
+        if (item.id === applyID ) {
 
-          item.applied = true
-          item.selected = false // 
+          item.applied = true ;
+          item.selected = false ;
         }
         else {
 
-          item.applied = false
+          item.applied = false;
 
         }
+
       })
 
     },
 
-    addItemToMenuItems: (state) => {
+    addItemToMenuItems: (state ,action:PayloadAction<{undoable:boolean}>) => {
 
-      state.idGenerator += 1;
-      state.userLabelId += 1;
+      const undoable = action.payload.undoable;
+
+        state.idGenerator += 1;
+        state.userLabelId += 1;
 
       // add item into menulist
       state.menuItems = [...state.menuItems, {
@@ -692,21 +793,59 @@ export const settingsSlice = createSlice({
       // add item into userprovidedList
 
       state.userProvided = [...state.userProvided, {
-
         id: state.idGenerator.toString(),
         list: JSON.parse(JSON.stringify(state.defaultMouseControlList.list)),
 
       }]
 
+
+      if(undoable) {
+
+         undoStack.add(
+           {
+             undo:{reducer:deleteItem,payload:{id:state.idGenerator.toString(),undoable:false}},
+             redo:{reducer:redoAddItemToMenuItems,payload:{userID:state.idGenerator.toString(),labelText:`User ${state.userLabelId}`}}
+           }
+         )
+
+      }
+
     },
 
-    pasteItem: (state, action: PayloadAction<any>) => {
+    redoAddItemToMenuItems:(state , action:PayloadAction<{userID:string,labelText:string}>) =>{
+
+      const {userID,labelText} = action.payload ;
+
+            // add item into menulist
+            state.menuItems = [...state.menuItems, {
+              id: userID,
+              selected: false,
+              text: labelText,
+              applied: false,
+              edit: false,
+              readonly: false,
+              type: Source.USER
+            }]
+      
+            // add item into userprovidedList
+      
+            state.userProvided = [...state.userProvided, {
+              id: userID ,
+              list: JSON.parse(JSON.stringify(state.defaultMouseControlList.list)),
+      
+            }]
+
+    },
+
+    pasteItem: (state, action: PayloadAction<{id:string,undoable:boolean}>) => {
+
+      const undoable = action.payload.undoable;
 
       state.idGenerator += 1;
 
       state.menuItems.map((item) => {
 
-        if (item.id === action.payload) {
+        if (item.id === action.payload.id) {
 
           state.menuItems = [...state.menuItems, {
             id: state.idGenerator.toString(),
@@ -721,20 +860,99 @@ export const settingsSlice = createSlice({
 
       });
 
-      state.userProvided = [...state.userProvided, {
+      state.userProvided.forEach((item)=>{
 
-        id: state.idGenerator.toString(),
-        list: JSON.parse(JSON.stringify(state.defaultMouseControlList.list)),
+        if(item.id === action.payload.id) {
+          state.userProvided = [...state.userProvided, {
+            id:state.idGenerator.toString(),
+            list: item.list,
+          }]
 
-      }]
+        }
+
+      })
+
+      if(undoable) {
+
+        undoStack.add({
+
+          undo:{reducer:deleteItem,payload:{id:state.idGenerator}},
+          redo:{reducer:pasteItem,payload:{id:action.payload.id}}
+        })
+      }
 
     },
 
-    deleteItem: (state, action: PayloadAction<string>) => {
+    deleteItem: (state, action: PayloadAction<{id:string,undoable:boolean}>) => {
 
-      state.menuItems.splice(state.menuItems.findIndex(item => item.id === action.payload), 1);
+      const undoable = action.payload.undoable;
+      var deletedItemID:string = action.payload.id;
+      var deletedItemLabel:string = '';
+      var deletedItemIndex:number = state.menuItems.findIndex(item=>item.id === action.payload.id);
+
+      state.menuItems.forEach((item)=>{
+
+        if(item.id === action.payload.id) {
+
+          deletedItemLabel = item.text ;
+
+        }
+
+      })
+
+      state.menuItems.splice(state.menuItems.findIndex(item => item.id === action.payload.id), 1);
       state.copyItem = false;
 
+      if(undoable) {
+
+        undoStack.add({
+
+          undo:{reducer:undoDeleteItem,payload:{itemindex:deletedItemIndex,itemid:deletedItemID,itemLabel:deletedItemLabel}},
+          redo:{reducer:deleteItem,payload:{id:action.payload.id}}
+        })
+      }
+
+    },
+
+    undoDeleteItem :(state , action:PayloadAction<{itemindex:number ,itemid:string,itemLabel:string}>) => {
+
+      const { itemid ,itemindex,itemLabel} = action.payload;
+
+      const oldData = {
+        id:itemid ,
+        selected: false,
+        text:itemLabel ,
+        applied: false,
+        edit: false,
+        readonly: false,
+        type: Source.USER
+      }
+
+      state.menuItems = [...state.menuItems];
+
+      state.menuItems.splice(itemindex , 0 , oldData);
+
+      // add item into userprovidedList
+
+      state.userProvided.forEach((item)=> {
+
+        if(item.id === itemid) {
+
+          let userData = [...state.userProvided ];
+
+          userData.splice(itemindex,0,{
+            id:itemid,
+            list: item.list,
+          })
+
+          // state.userProvided = [...state.userProvided, {
+          //   id:itemid,
+          //   list: item.list,
+          // }]
+
+        }
+
+      })
     },
 
     setItemSave: (state, action: PayloadAction<boolean>) => {
@@ -763,16 +981,22 @@ export const {
   setSlidervalue,
   setSelectedThemeItem,
   setSelectedItem,
+  setSelectedMouseControl,
   setControlReadOnly,
   addItemToMenuItems,
+  redoAddItemToMenuItems,
   addItemToMouseControlsList,
+  undoAddItemToMouseControlsList,
+  redoAddItemToMouseControlsList,
   deleteItemToMouseControlList,
+  undoDeleteItemToMouseControlList,
   resetControlAction,
   setUserControls,
   setUserActions,
   setcopyItem,
   pasteItem,
   deleteItem,
+  undoDeleteItem,
   setcurrentPage,
   setItemSave,
   setMouseControlListReset,

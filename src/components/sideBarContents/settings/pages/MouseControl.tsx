@@ -27,6 +27,7 @@ import FooterOptionsContainer from '../../../layout/sideBar/sideBarContainer/sid
 import FooterOption from'../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
 import Delete from '../components/Delete';
 
+import {undoStack} from '../../../../components/utils/undoStack';
 
 import {goBack,push} from 'connected-react-router/immutable';
 
@@ -50,15 +51,11 @@ import { useAppSelector, useAppDispatch } from '../../../../store/storeHooks';
 import useStyles from'./MouseControlStyle';
 
 export default function MouseControlPanel() {
-
-
-const [deletDialogOpen , setDeletDialogOpen] = useState(false);  
-  
+ 
 const classes = useStyles();
 const dispatch = useAppDispatch();    
 
-  
-const isitemcopyed = useAppSelector(selectcopyItem);
+const isItemCopy = useAppSelector(selectcopyItem);
 
 const menuItems = useAppSelector(selectmenuItems);
 
@@ -73,7 +70,7 @@ const getHeaderRightIcon=()=> {
 
   const onhandleAdd= () => {
 
-    dispatch(addItemToMenuItems());
+    dispatch(addItemToMenuItems({undoable:true}));
   
   }
 
@@ -91,7 +88,7 @@ const getBody=()=> {
 
     const onSelectMenuList = (
       id:string,
-      isSelected:boolean
+      isSelected:boolean,
 
     ) => {
 
@@ -122,9 +119,30 @@ const getBody=()=> {
 
 const getFooter =() => {
 
-const onHandleApply =() => {
+const onHandleApply = (undoable:boolean , id:string) => {
 
-    dispatch(applyMouseData());
+  var newSelectedID:string  = id ;
+  var lastSelectedID:string = '';
+
+  menuItems.forEach((items:any)=>{
+
+    if(items.applied === true ) {
+
+      lastSelectedID = items.id;
+
+    }
+
+  })
+
+   if(undoable) {
+
+    undoStack.add({
+      undo:()=>{onHandleApply(false , lastSelectedID )},
+      redo:()=>{onHandleApply(false , newSelectedID )}
+    })
+   }
+
+    dispatch(applyMouseData({applyID:id}));
 }  
 
 const onHandleEdit=() => {
@@ -150,13 +168,15 @@ const onHandleCopy =() => {
 
 const onHandlePaste =() => {
 
-  if(isitemcopyed === true) {
+
+  if(isItemCopy === true) {
 
     menuItems.find((item)=> {
 
       if(item.selected === true) {
 
-        dispatch(pasteItem(item.id));
+
+        dispatch(pasteItem({id:item.id,undoable:true}));
 
       }
   })
@@ -165,7 +185,7 @@ const onHandlePaste =() => {
 
   else {
 
-    dispatch(setcopyItem(false));
+    dispatch(setcopyItem({isItemCopy:false , undoable:true}));
   }
 
   
@@ -173,24 +193,16 @@ const onHandlePaste =() => {
 
 const onClickDelete= ()=> {
 
-
   menuItems.find((item)=> {
 
     if(item.selected === true) {
 
-      dispatch(deleteItem(item.id));
+      dispatch(deleteItem({id:item.id,undoable:true}));
 
     }
 }) 
 
-setDeletDialogOpen(false);
    
-}
-
-const onClickDeleteCancel =() =>{
-
- setDeletDialogOpen(false);
-
 }
 
  return (
@@ -199,12 +211,31 @@ const onClickDeleteCancel =() =>{
 
   {menuItems.map((item)=>{
 
-    if(item.selected === true && deletDialogOpen === false) {
+    if(item.selected === true) {
 
        return (
           
            <div>
-           <div style={{paddingTop:"10px",paddingBottom:"10px"}}><MuiButton  variant="contained" color="primary" onClick={()=> onHandleApply()}>Apply</MuiButton></div>
+           <div style={{paddingTop:"10px",paddingBottom:"10px"}}><MuiButton  variant="contained" color="primary" 
+           
+           onClick={()=> 
+
+            {
+              var selectedID:string = '';
+
+              menuItems.forEach((items:any)=> {
+
+                if(items.selected === true) {
+
+                  selectedID = item.id;
+
+                }
+
+              })
+              onHandleApply(true,selectedID);
+            }
+            
+            }>Apply</MuiButton></div>
           <FooterOptionsContainer>
 
           {menuItems.map((item)=>{
@@ -236,7 +267,7 @@ const onClickDeleteCancel =() =>{
             </MuiIconButton>}></FooterOption>
       
             <FooterOption label={"Paste"} 
-            icon={<MuiIconButton disabled={isitemcopyed ? false:true} onClick={() => onHandlePaste()}> 
+            icon={<MuiIconButton disabled={isItemCopy ? false:true} onClick={() => onHandlePaste()}> 
                     <MuiPaste/>
             </MuiIconButton>}></FooterOption>
       
@@ -250,7 +281,7 @@ const onClickDeleteCancel =() =>{
                 )
               }
       
-            }) ?  false: true } onClick={() => setDeletDialogOpen(true)}> 
+            }) ?  false: true } onClick={() => onClickDelete()}> 
             <MuiDeletIcon />
             </MuiIconButton>}></FooterOption>
         </FooterOptionsContainer>
@@ -259,16 +290,7 @@ const onClickDeleteCancel =() =>{
 
        )
 
-    }   
-    else if(item.selected === true && deletDialogOpen === true){
-      return (
-
-        <div>
-              <Delete onClickConfirm={onClickDelete} onClickCancel={onClickDeleteCancel}></Delete>  
-
-        </div>  
-      )
-    }     
+    }       
   })}
 </div>)
 
@@ -277,6 +299,7 @@ const onClickDeleteCancel =() =>{
 return (
           <>
            <SideBarContainer
+            headerLeftIcon = { <BackIcon onClick={onClickBackIcon}/> }
             headerRightIcon = {getHeaderRightIcon()}
             headerContent={ <Title text={"Mouse Controls"} group="Application Settings"/> }
             body ={ getBody() }

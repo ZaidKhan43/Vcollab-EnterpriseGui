@@ -1,5 +1,5 @@
-import { createSlice,createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
-import {delete3DLabel as delete3DLabelApi, get3DLabelCanvasPos, probe} from '../../../backend/viewerAPIProxy';
+import { createSlice,createAsyncThunk, PayloadAction ,applyMiddleware} from '@reduxjs/toolkit';
+import {add3DLabel,delete3DLabel as delete3DLabelApi, get3DLabelCanvasPos, probe} from '../../../backend/viewerAPIProxy';
 import type { RootState } from '../../index';
 import {LabelMode, Label2D, LabelSettings, Label2DType, LabelType, ILabel, Label3DType, Label3D} from './shared/types';
 import { setLabelModeReducer } from './shared/reducers';
@@ -193,6 +193,9 @@ export const handleFaceHeadCreation = createAsyncThunk(
 export const handleMeasurementHeadCreation = createAsyncThunk(
     'labelListSlice/handleMeasurementLabelCreation',
     async (data: {pid: any, undoable?: boolean}, {dispatch,getState}) => {
+
+        let rootState = getState() as RootState;
+        let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
         let e = data.pid;
         const idNew = nextId('label-3d')
         dispatch(createInterLabel({
@@ -212,38 +215,50 @@ export const handleMeasurementHeadCreation = createAsyncThunk(
               }
             )
         }
-    })
+ })
 
 export const handleProbeLabelCreation = createAsyncThunk(
     "labelListSlice/handleProbeLabelCreation",
-    (data:{data:any, undoable?: boolean},{dispatch,getState}) => {
-        
+    async(data:{data:any, undoable?: boolean ,activeViewerID:string},{dispatch}) => {
+
+
         let e = data.data.data;
-        let rootState = getState() as RootState;
-        let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
-        let pos = get3DLabelCanvasPos(e.labelId,viewerId);
+        let undoable:boolean = data.undoable!;
+    
+   dispatch(handleProbeLabelCreationUndoRedo({data:e,undoable:undoable,activeViewerID:data.activeViewerID}))
+    //     let rootState = getState() as RootState;
+    //     let viewerId = rootState.app.viewers[rootState.app.activeViewer || ''];
+    //     let pos = get3DLabelCanvasPos(e.labelId,viewerId);
+    //     const loading:string = rootState.labelAll.lableCreationStatus;
 
-
-        let array : string[] = [];
-                let activeLabel = "-1"
-                Object.keys(rootState.labelAll.data).forEach(key => {
-                    if (rootState.labelAll.data[key].state.selected === true)
-                        array.push(rootState.labelAll.data[key].id)
-                })
+    //     let array : string[] = [];
+    //             let activeLabel = "-1"
+    //             Object.keys(rootState.labelAll.data).forEach(key => {
+    //                 if (rootState.labelAll.data[key].state.selected === true)
+    //                     array.push(rootState.labelAll.data[key].id)
+    //             })
             
-                if(array.length >= 1)
-                   activeLabel = array[0];
+    //             if(array.length >= 1)
+    //                activeLabel = array[0];
 
-        dispatch(createLabel({id:e.labelId,pid: activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:JSON.stringify(Label3DTemplate),probeData:e.msg, activeLabel: activeLabel}));
 
-        if(data.undoable) {
-            undoStack.add(
-              {
-                undo: {reducer: undoCreateLabel, payload:{id : e.labelId,pid: activeLabel,}},
-                redo: {reducer: createLabel, payload:{id:e.labelId,pid: activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:JSON.stringify(Label3DTemplate),probeData:e.msg, activeLabel: activeLabel}},
-              }
-            )
-        }
+
+    //                if(loading == "fulfilled") {
+
+    //                  dispatch(createLabel({id:e.labelId,pid: activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:JSON.stringify(Label3DTemplate),probeData:e.msg, activeLabel: activeLabel}));
+
+    //                  if(data.undoable) {
+    //                     undoStack.add(
+    //                       {
+    //                         undo: {reducer: undoCreateLabel, payload:{id : e.labelId,pid: activeLabel, activeViewerID:viewerId}},
+    //                         redo: {reducer: redoCreateLabel, payload:{id:e.labelId,pid: activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:e.type,msg:JSON.stringify(Label3DTemplate),probeData:e.msg, activeLabel: activeLabel,labelType:e.type,probeDataInArray:e.probeData,selectedPoints:e.selectedPoints,activeViewerID:viewerId}},
+    //                       }
+    //                     )
+    //                 }
+                       
+    //                }
+
+        
 });
 
 export const delete3DLabel = createAsyncThunk(
@@ -256,6 +271,7 @@ export const delete3DLabel = createAsyncThunk(
         let dataList : any[] = [];
         Object.keys(state.data).forEach( key => {
             if( state.data[key].state.checked === true && state.data[key].pid !== "-1" && state.data[key].id !== Label3DType.PROBE && state.data[key].id !== Label3DType.DISTANCE && state.data[key].id !== Label3DType.ARC){
+
                 delete3DLabelApi(key,viewerId);
 
                 // if(state.data[key].state.partiallyChecked === false)
@@ -304,6 +320,19 @@ const undoDelete = createAsyncThunk(
         )
     
 });
+
+const handleProbeLabelCreationUndoRedoAsync = createAsyncThunk(
+
+    "labelListSlice/handleProbeLabelCreationUndoRedo",
+
+    (data:{id:string,pid: string,pos: number[], anchor:number,type:any,msg:any,probeData:any, activeLabel: string,labelType:any,probeDataInArray:any,selectedPoints:any,activeViewerID:string},{dispatch,getState}) => {
+
+
+        add3DLabel(data.id,data.selectedPoints,data.labelType,data.probeDataInArray,data.activeViewerID);
+
+
+     }
+);
 
 export const reGroupLabel = createAsyncThunk(
     "labelListSlice/RegroupLabel",
@@ -359,6 +388,7 @@ export const LabelAllSlice = createSlice({
         invertNode: invertNodeReducer,
         expandNode: expandNodeReducer,
         toggleVisibility: toggleVisibilityReducer,
+
         setCheckedVisibility: (state, action:PayloadAction<{toShow:boolean,leafIds:any, undoable?:boolean}>) => {
             const {toShow, leafIds,undoable} = action.payload;
             if(undoable)
@@ -370,6 +400,7 @@ export const LabelAllSlice = createSlice({
             )
             setCheckedVisibilityReducer(state,action);
         },
+
         invertCheckedVisibility: (state, action:PayloadAction<{leafIds:any, undoable?:boolean}>) => {
             const {leafIds,undoable} = action.payload;
             if(undoable)
@@ -381,7 +412,9 @@ export const LabelAllSlice = createSlice({
             )
             invertCheckedVisibilityReducer(state,action);
         },
+
         setlabelMode: (state,action) => setLabelModeReducer(state.labelsListSettings,action),
+
         createParentLabel : (state, action : PayloadAction<{id:string,name: string, pid: string}>) => {
             const {id,name, pid} = action.payload;
             let newParent = {...state.labelsListSettings.defaultParameters};
@@ -394,12 +427,16 @@ export const LabelAllSlice = createSlice({
         },
 
         createInterLabel: (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string}>) => {
+
+
             const {id,pid,pos,msg} = action.payload;
+
             let newNote = {...state.labelsListSettings.defaultParameters};
             newNote.id = id
             newNote.pid = pid
             newNote.label = msg;
             newNote.pos = pos;
+
 
             if(newNote.pid === Label3DType.PROBE){
                 newNote.anchor = pos;
@@ -428,7 +465,7 @@ export const LabelAllSlice = createSlice({
             addNodeReducer(state,{payload: action.payload, type: 'ITreeNode'});
         },
 
-       createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string, probeData?:any, activeLabel?:string}>) => {
+        createLabel : (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string, probeData?:any, activeLabel?:string}>) => {
                 
                 const {id,pid,pos,msg,probeData} = action.payload;
                 let newNote:any = {...state.labelsListSettings.defaultParameters};
@@ -492,12 +529,12 @@ export const LabelAllSlice = createSlice({
                 //     }
         },
 
-        undoCreateLabel : (state , action: PayloadAction<{id:string, pid: string}>) => {
+        undoCreateLabel : (state , action: PayloadAction<{id:string, pid: string ,activeViewerID:string}>) => {
 
             const parentnodeList : string[] = [LabelType.LABEL2D,Label3DType.PROBE, Label3DType.FACE, Label3DType.DISTANCE,Label3DType.ARC]
 
             if(parentnodeList.includes(action.payload.pid)){
-                console.log("sadsadsad")
+
                 switch(action.payload.pid){
                     case LabelType.LABEL2D :
                         state.labelsListSettings.count2D--;
@@ -529,6 +566,7 @@ export const LabelAllSlice = createSlice({
                     break;
                     case Label3DType.DISTANCE :
                         state.labelsListSettings.distanceLeafCount--;
+                        
                     break;
                     case Label3DType.ARC :
                         state.labelsListSettings.arcLeafCount--;
@@ -537,8 +575,67 @@ export const LabelAllSlice = createSlice({
             }
         }
 
+        delete3DLabelApi(action.payload.id ,action.payload.activeViewerID);
         deleteNodeReducer(state, {payload:{nodeId:action.payload.id},type:'string'})
-            
+  
+        },
+        redoCreateLabel: (state , action: PayloadAction<{pid:string,id:string,pos:[number,number],anchor?:[number,number],type:Label2DType | Label3DType ,msg:string, probeData?:any, activeLabel?:string,labelType:Label2DType | Label3DType,probeDataInArray:any,selectedPoints:AnyArray,activeViewerID:string}>) => {
+
+           const {id,pid,pos,msg,probeData,labelType,probeDataInArray,selectedPoints,activeViewerID} = action.payload;
+           
+
+           let newNote:any = {...state.labelsListSettings.defaultParameters};
+           newNote.id = id
+           newNote.pid = pid
+           newNote.label = msg;
+           newNote.pos = pos;
+           if(probeData)
+           newNote.probeData = probeData;
+           if(newNote.pid === LabelType.LABEL2D){
+               state.labelsListSettings.count2D+= 1;
+               newNote.title = `Label ${state.labelsListSettings.count2D}`;
+               newNote.labelType = LabelType.LABEL2D
+           }
+
+
+           if(newNote.pid === action.payload.activeLabel){
+
+               if(state.data[action.payload.activeLabel? action.payload.activeLabel: -1].pid === Label3DType.PROBE){
+                   newNote.anchor = pos;
+                   state.labelsListSettings.probeLeafCount +=1 ;
+                   newNote.title = `N: Point ${state.labelsListSettings.probeLeafCount}`;
+                   newNote.labelType = LabelType.LABEL3D;
+                   newNote.type = Label3DType.PROBE;
+               }
+
+               if(state.data[action.payload.activeLabel? action.payload.activeLabel: -1].pid === Label3DType.FACE){
+                   newNote.anchor = pos;
+                   state.labelsListSettings.faceLeafCount +=1 ;
+                   newNote.title = `N: Face ${state.labelsListSettings.faceLeafCount}`;
+                   newNote.labelType = LabelType.LABEL3D;
+                   newNote.type = Label3DType.FACE;
+               }
+
+               if(state.data[action.payload.activeLabel? action.payload.activeLabel: -1].pid === Label3DType.DISTANCE){
+                   newNote.anchor = pos;
+                   state.labelsListSettings.distanceLeafCount += 1;
+                   newNote.title = `N: Point-Point ${state.labelsListSettings.distanceLeafCount}`;
+                   newNote.labelType = LabelType.LABEL3D;
+                   newNote.type = Label3DType.DISTANCE;
+               }
+
+               if(state.data[action.payload.activeLabel? action.payload.activeLabel: -1].pid === Label3DType.ARC){
+                   newNote.anchor = pos;
+                   state.labelsListSettings.arcLeafCount += 1;
+                   newNote.title = `N: Arc ${state.labelsListSettings.arcLeafCount}`;
+                   newNote.labelType = LabelType.LABEL3D;
+                   newNote.type = Label3DType.ARC;
+               }
+           }
+          
+           addNodeReducer(state,{payload: newNote, type: 'ITreeNode'});
+           add3DLabel(id,selectedPoints,labelType,probeDataInArray,activeViewerID);
+          
         },
 
         setLabelPos:(state, action:PayloadAction<{id:string,pos:[number,number],anchor?: [number,number]}>) => {
@@ -550,16 +647,19 @@ export const LabelAllSlice = createSlice({
                 }
             }
         },
+
         editLabel: (state, action: PayloadAction<{id:string, value:string}>) => {
             const {id,value} = action.payload;
             if(id !== "-1"){
                 state.data[id].label = value;
             }
         },
+
         editLabelBackground: (state, action: PayloadAction<{id:string, color:string}>) => {
             const {id,color} = action.payload;
             state.data[id].bgColor = color;
         },
+
         deleteLabel: (state, action: PayloadAction<{keys:string[]}>) => {
             let keys = action.payload.keys;
             console.log("deleteKeys", keys)
@@ -601,8 +701,40 @@ export const LabelAllSlice = createSlice({
                 if( state.data[key].state.selected === true && key !== action.payload.id)
                     state.data[key].state.selected = false;
             })
+        } ,
+
+        handleProbeLabelCreationUndoRedo:(state ,action: PayloadAction<{data:any,undoable:boolean,activeViewerID:string}>) =>{
+
+             const {data , undoable , activeViewerID } = action.payload;
+
+             let pos = get3DLabelCanvasPos(data.labelId,activeViewerID);
+
+               let array : string[] = [];
+                 let activeLabel = "-1"
+                 Object.keys(state.data).forEach(key => {
+                     if (state.data[key].state.selected === true)
+                         array.push(state.data[key].id)
+                 })
+            
+                 if(array.length >= 1)
+                    activeLabel = array[0];
+   
+      
+
+         LabelAllSlice.caseReducers.createLabel(state, {payload:{id:data.labelId,pid: activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:data.type,msg:JSON.stringify(Label3DTemplate),probeData:data.msg, activeLabel: activeLabel}, type:"labelListSlice/handleProbeLabelCreation"})
+               //  createLabel({id:data.labelId,pid: activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:data.type,msg:JSON.stringify(Label3DTemplate),probeData:data.msg, activeLabel: activeLabel});
+
+        if(undoable) {
+            undoStack.add(
+              {
+                undo: {reducer: undoCreateLabel, payload:{id : data.labelId,pid: activeLabel, activeViewerID:activeViewerID}},
+                redo: {reducer: handleProbeLabelCreationUndoRedoAsync, payload:{id:data.labelId,pid: activeLabel,pos: pos as [number,number], anchor: pos as [number,number],type:data.type,msg:JSON.stringify(Label3DTemplate),probeData:data.msg, activeLabel: activeLabel,labelType:data.type,probeDataInArray:data.probeData,selectedPoints:data.selectedPoints,activeViewerID:activeViewerID}},
+              }
+            )
         }
-    }
+
+        }
+    },
 })
 
 export default LabelAllSlice.reducer;
@@ -618,6 +750,7 @@ export const {
     invertCheckedVisibility,
     //current 
     createLabel,
+    handleProbeLabelCreationUndoRedo,
     createInterLabel,
     editLabel,
     editLabelBackground,
@@ -626,7 +759,9 @@ export const {
     createParentLabel,
     setActiveLabel,
     undoCreateLabel,
+    redoCreateLabel,
     undoRegroup,
+    
 } = LabelAllSlice.actions;
 
 //Selectors

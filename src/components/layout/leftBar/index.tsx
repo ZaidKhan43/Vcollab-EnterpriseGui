@@ -8,6 +8,7 @@ import Box from '@material-ui/core/Box'
 import GeometryIcon  from '../../icons/geometry';
 import TestIcon from '../../icons/annotation'
 import Nav from '../nav'
+import ContextMenu from '../../shared/contextMenu'
 
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -17,10 +18,15 @@ import { selectSidebarVisibility, setSidebarVisibility } from 'store/appSlice';
 import { Routes } from 'routes';
 import {push} from 'connected-react-router/immutable';
 import clsx from 'clsx';
-import { MainMenuItem, selectActiveTab, selectDefaultOptions, setActiveTab, selectTemporaryTab, MainMenuItems, selectNewGroupItem, addMenuItem, addTab, selectMainMenuItems, getItem, selectMoreMenu, getIcon} from 'store/mainMenuSlice';
+
+// icons 
+import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
+import ArrowRightIcon from '@material-ui/icons/ArrowRight';
+import { MainMenuItem, selectActiveTab, selectDefaultOptions, removeTab, setActiveTab, selectTemporaryTab, MainMenuItems, addMenuItem, addTab, selectMainMenuItems, getItem, selectMoreMenu, getIcon} from 'store/mainMenuSlice';
 import useContainer from 'customHooks/useContainer';
 import { topbarHeight } from 'config';
 import nextId from 'react-id-generator'
+import { FlashOnTwoTone } from '@material-ui/icons';
 type LeftBarProps = {
     topTabs: MainMenuItem[],
     bottomTabs: MainMenuItem[]
@@ -82,6 +88,58 @@ function LeftBar(props: LeftBarProps) {
   const [btnWidth, btmHeight] = useContainer(bottomTabRef,[]);
   const mainMenuItems = useAppSelector(selectMainMenuItems);
 
+  const contextMenuItemsArray = [
+    {
+      id: 'itempin', text: 'pin', icon: <ArrowLeftIcon fontSize="small" />
+    },
+    {
+      id: 'itemunpin', text: 'unpin', icon: <ArrowRightIcon fontSize="small" />
+    },
+    {
+      id: 'addgroup', text: 'addgroup', icon: <ArrowRightIcon fontSize="small" />
+    }
+  ]
+
+  const [contextMenuID, setContextMenuID] = useState(null || String);
+
+  const [contextMenuXPos, setContextMenuXPos] = useState(0);
+
+  const [contextMenuYPos, setContextMenuYPos] = useState(0);
+
+  const [contextMenuItems, setContextMenuItems] = useState(contextMenuItemsArray)
+
+  const [contextMenuShow, setContextMenuShow] = useState(false);
+
+  const defaultOptions = useAppSelector(selectDefaultOptions);
+
+const handleGroup = () => {
+    setContextMenuShow(false);
+    const newItem = contextMenuID;
+    let menuItem = getItem(newItem, mainMenuItems);
+    menuItem = createGroup();
+    dispatch(addMenuItem({
+      menuItem
+    }));
+    dispatch(addTab({
+      menuItemId: menuItem.id
+    }))
+    dispatch(setActiveTab({
+      menuItem
+    }))
+
+    if (!activeItem) {
+      dispatch(setActiveTab({ menuItem }));
+      dispatch(setSidebarVisibility(true));
+    }
+    else if (activeItem.id !== menuItem.id) {
+      dispatch(setActiveTab({ menuItem }));
+    }
+    else {
+      dispatch(setSidebarVisibility(false));
+      dispatch(setActiveTab({ menuItem: null }));
+    }
+  }
+
   const createGroup = () => {
     let id = nextId('customGroup');
     let menuItem = {
@@ -124,7 +182,140 @@ function LeftBar(props: LeftBarProps) {
     }
     
   };
+  //manickam --
+  const setContextMenu = (event: any, id: string) => {
 
+    event.preventDefault();
+    event.stopPropagation();
+
+    setContextMenuID(id);
+    setContextMenuShow(true);
+
+    setContextMenuXPos(event.pageX);
+    setContextMenuYPos(event.pageY);
+
+    let IDS: any[] = []
+
+    defaultOptions.map((defaultData) => {
+
+      IDS.push(defaultData.id)
+
+    })
+
+    let idExsist = IDS.includes(id);
+
+      if (idExsist) {
+
+            let menuItemsCopy = [...contextMenuItemsArray]
+
+            let filteredDataSource = menuItemsCopy.filter((item) => {
+
+              if (item.id === "itemunpin" || item.id === "addgroup") {
+
+                return item;
+
+              }
+
+            });
+
+            setContextMenuItems(filteredDataSource);
+
+      }
+      else {
+
+          let menuItemsCopy = [...contextMenuItemsArray]
+
+          let filteredDataSource = menuItemsCopy.filter((item) => {
+
+            if (item.id === "itempin" || item.id === "addgroup") {
+
+              return item;
+
+            }
+
+          });
+
+          setContextMenuItems(filteredDataSource);
+
+        }
+
+  }
+
+  const setContextParentMenu = (event: any) => {
+
+    event.preventDefault();
+    setContextMenuShow(true);
+    setContextMenuXPos(event.pageX);
+    setContextMenuYPos(event.pageY);
+
+
+    let menuItemsCopy = [...contextMenuItemsArray]
+
+    let filteredDataSource = menuItemsCopy.filter((item) => {
+
+      if (item.id === "addgroup") {
+
+        return item;
+
+      }
+
+    });
+
+    setContextMenuItems(filteredDataSource);
+
+  }
+
+  const pinItems = () => {
+
+    let menuItem = getItem(contextMenuID, mainMenuItems);
+
+    const menuItemId = contextMenuID;
+
+    dispatch(addTab({ menuItemId }))
+
+    dispatch(setActiveTab({
+      menuItem
+    }))
+
+
+    setContextMenuShow(false);
+
+
+  }
+  const unpinItems = () => {
+    const menuItemId = contextMenuID;
+    dispatch(removeTab({ menuItemId }))
+    dispatch(setActiveTab({menuItem:null}))
+    dispatch(setSidebarVisibility(false))
+    setContextMenuShow(false);
+  }
+  
+
+  const onHandleContextMenuClick = (id: string) => {
+
+
+    if (id === "itempin") {
+
+      pinItems()
+
+    }
+    if (id === "itemunpin") {
+
+      unpinItems()
+    }
+    if (id === "addgroup") {
+
+      handleGroup()
+    }
+
+  }
+
+  const handleOutSideClick =()=> {
+
+    setContextMenuShow(false);
+
+  }
+  //mainck end--
   useEffect(() => {
 
     if(activeItem)
@@ -181,7 +372,9 @@ function LeftBar(props: LeftBarProps) {
        </Tabs>
        : null
         }
-        <div style={{height: `calc(100% - ${topbarHeight}px)`}} className={tabClasses.root}>
+        
+        <div style={{height: `calc(100% - ${topbarHeight}px)`}} className={tabClasses.root} onContextMenu={(event) => setContextParentMenu(event)} >
+        {contextMenuShow ? <ContextMenu mousePointer={{ mouseX: contextMenuXPos, mouseY: contextMenuYPos }} handleOutSideClick={handleOutSideClick} onHandleContextMenuClick={onHandleContextMenuClick} items={contextMenuItems} /> : null}
         <Tabs 
            orientation="vertical"
            textColor='inherit'
@@ -198,6 +391,7 @@ function LeftBar(props: LeftBarProps) {
           return <Tab  
             disableRipple
             value ={e.id}
+            onContextMenu={(event) => setContextMenu(event, e.id)}
             icon = {
             <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
               { 
@@ -219,6 +413,7 @@ function LeftBar(props: LeftBarProps) {
             temporaryTab ? 
             <Tab
              value={temporaryTab.id}
+             onContextMenu={(event) => setContextMenu(event, temporaryTab.id)}
              icon = {
               <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
                 { React.createElement(getIcon(temporaryTab.type)) }

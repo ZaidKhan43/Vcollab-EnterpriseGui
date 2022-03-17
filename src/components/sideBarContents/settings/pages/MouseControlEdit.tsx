@@ -19,6 +19,7 @@ import  {Source} from '../../../../components/shared/List/List';
 import Title from'../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title';
 import SelectAction from '../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/SelectAction';
 import Input from '../components/ActionControlEdit'; 
+import {undoStack} from '../../../../components/utils/undoStack';
 import FooterOptionsContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer';
 import FooterOption from'../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option';
 
@@ -39,6 +40,7 @@ import {
   resetControlAction,
   selectmenuItems,
   setSelectedItem,
+  setSelectedMouseControl,
   selectIsControlReadOnly,
   setControlReadOnly,
   selectdefaultMouseControlList
@@ -46,6 +48,7 @@ import {
 } from '../../../../store/sideBar/settings';
 
 import { useAppSelector,useAppDispatch } from '../../../../store/storeHooks';
+import { TrueLiteral } from 'typescript';
 
 export default function ApplicationSettings() {
 
@@ -81,18 +84,17 @@ useEffect(()=>{
 
 },[isResetMouseControlList])
 
-
 const onClickBackIcon = () =>{
   dispatch(goBack());
 } 
 
 
-const onHandleSelection = (event: React.ChangeEvent<{ value: unknown }>) => {
+const onHandleSelection = ( event:any ) => {
 
   if(event.target.value as string!= undefined) {
 
     setItem(event.target.value as string);
-    const id:string = event.target.value as string
+    const id:string = event.target.value as string;
   
   // do display after data saved or user changed options  
   
@@ -100,10 +102,19 @@ const onHandleSelection = (event: React.ChangeEvent<{ value: unknown }>) => {
   
     if(item.id === event.target.value) {
   
-      const isSelected:boolean = !item.selected
+        const isSelected:boolean = !item.selected;
+        const undoable:boolean = true ;
   
-        dispatch(setSelectedItem({id,isSelected}))
+        dispatch(setSelectedMouseControl({id,isSelected}))
         dispatch(setControlReadOnly(item.id));
+
+        if(undoable) {
+
+          undoStack.add({
+            undo:()=>{selectionUndoRedo(activeMenuId ,isSelected )},
+            redo:()=>{selectionUndoRedo(event.target.value, isSelected)}
+          })
+         }
     }
   
     })
@@ -115,6 +126,14 @@ const onHandleSelection = (event: React.ChangeEvent<{ value: unknown }>) => {
   }
 
 };
+
+const selectionUndoRedo = (id:string , isSelected:boolean)=>{
+
+  setItem(id);
+
+  dispatch(setSelectedMouseControl({id,isSelected}))
+
+}
 
 const getHeader=()=> {
 
@@ -129,7 +148,9 @@ const getHeaderRightIcon=()=>{
 
   const onhandleAddItemToMouseControlsList= ()=> {
 
-    dispatch(addItemToMouseControlsList(activeMenuId));
+    const undoable:boolean = true ;
+
+    dispatch(addItemToMouseControlsList({undoable,activeMenuId}));
   
   } 
   
@@ -148,7 +169,7 @@ const getAction=()=> {
           labelId="demo-simple-select-label"
           id="demo-simple-select"
           value={menuItem}
-          onChange={onHandleSelection}
+          onChange={(event:any) => onHandleSelection(event)}
           MenuProps={{
             disablePortal: true,
             anchorOrigin: {
@@ -158,7 +179,6 @@ const getAction=()=> {
            getContentAnchorEl: null
           }}
         >
-
 
               <ListSubheader >System Provided</ListSubheader>
                 {
@@ -174,9 +194,6 @@ const getAction=()=> {
 
 
                     }
-                        
-                   
-                    
 
                    })
 
@@ -203,7 +220,6 @@ const getAction=()=> {
                    })
 
                 }
-
          
         </SelectAction>)
 
@@ -336,45 +352,45 @@ let selectedUserData = getSelectedUserData(activeMenuId);
 
 }
 
-const getFooter=()=> {
+// const getFooter=()=> {
 
-  const onClickReset =() => {
-    dispatch(setMouseControlListReset(true));
+//   const onClickReset =() => {
+//     dispatch(setMouseControlListReset(true));
 
-    dispatch(resetControlAction(activeMenuId));
+//     dispatch(resetControlAction(activeMenuId));
 
-  }
+//   }
 
-  const onClickSave=()=>{
+//   const onClickSave=()=>{
 
-    dispatch(setItemSave(true));
-  }
+//     dispatch(setItemSave(true));
+//   }
 
-  return (
-    isControlReadyOnly? null:
-    <div>
-    <FooterOptionsContainer>
+//   return (
+//     isControlReadyOnly? null:
+//     <div>
+//     <FooterOptionsContainer>
            
-           <FooterOption label={"Reset"} icon={<MuiIconButton onClick={()=>onClickReset()}><SyncIcon/></MuiIconButton>}></FooterOption>
+//            <FooterOption label={"Reset"} icon={<MuiIconButton onClick={()=>onClickReset()}><SyncIcon/></MuiIconButton>}></FooterOption>
           
-           <Grid item>
+//            <Grid item>
 
-                <div style={{marginTop:"25px"}}><MuiButton  variant="contained" color="primary" onClick={()=>onClickSave()}>Save</MuiButton></div>
-           </Grid>
+//                 <div style={{marginTop:"25px"}}><MuiButton  variant="contained" color="primary" onClick={()=>onClickSave()}>Save</MuiButton></div>
+//            </Grid>
             
-    </FooterOptionsContainer>
-    </div>
+//     </FooterOptionsContainer>
+//     </div>
 
-  )
-}
+//   )
+// }
 
 return (
    <SideBarContainer
+    headerLeftIcon = { <BackIcon onClick={onClickBackIcon}/> }
     headerRightIcon = {getHeaderRightIcon()}
     headerContent={ getHeader() }
     headerAction = {getAction()}
     body ={ getBody() }
-    footer={getFooter()}
   />
   
 )

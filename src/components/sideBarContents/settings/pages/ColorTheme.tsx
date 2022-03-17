@@ -7,8 +7,6 @@ import MuiListItem  from '@material-ui/core/ListItem';
 import MuiListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 
-
-
 import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import {selectThems,setSelectedThemeItem,setThemeApply} from '../../../../store/sideBar/settings';
 import {useAppSelector, useAppDispatch} from '../../../../store/storeHooks';
@@ -16,6 +14,7 @@ import {useAppSelector, useAppDispatch} from '../../../../store/storeHooks';
 import BackIcon from'../shared/BackIcon'
 import Title from'../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title'
 
+import {undoStack} from '../../../../components/utils/undoStack';
 
 import style from './ColorThemeStyle';
 
@@ -53,10 +52,33 @@ const getHeaderContent=()=>{
 const getBody=()=>{
 
 const handleThemeItemClick = (
+  undoable:boolean,
   id:string,
   isSelected:boolean
 
 ) => {
+
+  var newSelectedID:string  = id ;
+  var lastSelectedID:string = '';
+
+
+  thems.forEach((items:any)=> {
+
+    if(items.applied === true ) {
+
+      lastSelectedID = items.id;
+
+    }
+
+  })
+
+  if(undoable) {
+
+    undoStack.add({
+      undo:()=>{handleThemeItemClick(false , lastSelectedID ,isSelected)},
+      redo:()=>{handleThemeItemClick(false , newSelectedID , isSelected )}
+    })
+   }
 
   dispatch(setSelectedThemeItem({id,isSelected}));
   dispatch(setThemeApply());
@@ -72,7 +94,7 @@ const handleThemeItemClick = (
 
             return(
 
-              <MuiListItem button  onClick={(event)=>handleThemeItemClick(item.id,!item.selected)} selected={item.selected}>
+              <MuiListItem button  onClick={(event)=>handleThemeItemClick(true,item.id,!item.selected)} selected={item.selected}>
 
                    <MuiListItemText primary={item.name}></MuiListItemText>
                    { item.applied == true  ? <ListItemSecondaryAction><CheckIcon/></ListItemSecondaryAction>:null}
@@ -93,6 +115,7 @@ const handleThemeItemClick = (
   return (
 
     <SideBarContainer
+    headerLeftIcon = {getLeftIcon() }
     headerContent={  getHeaderContent()}
     body ={ getBody() }
   />

@@ -1,6 +1,6 @@
-import {useState , useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
-import MuiGrid from'@material-ui/core/Grid';
+import MuiGrid from '@material-ui/core/Grid';
 import MuiMenuItem from '@material-ui/core/MenuItem';
 import MuiSelect from '@material-ui/core/Select';
 import MuiList from '@material-ui/core/List';
@@ -13,19 +13,19 @@ import MuiTooltip from '@material-ui/core/Tooltip';
 
 //icons
 
-import ZoomOut from'../../../../../src/components/icons/zoomout';
-import ZoomIn from'../../../../../src/components/icons/zoomin';
+import ZoomOut from '../../../../../src/components/icons/zoomout';
+import ZoomIn from '../../../../../src/components/icons/zoomin';
 import Highlight from '../../../../../src/components/icons/heighlight';
 import Rotate from '../../../../../src/components/icons/rotate';
 import Pan from '../../../../../src/components/icons/pan';
 import MuiCloseIcon from '@material-ui/icons/Close';
 
 
-import { createStyles, withStyles, makeStyles,Theme } from '@material-ui/core/styles';
+import { createStyles, withStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import useStyle from './EditPageStyle'
 import InputBase from '@material-ui/core/InputBase';
 
-import {useAppSelector ,useAppDispatch} from '../../../../store/storeHooks';
+import { useAppSelector, useAppDispatch } from '../../../../store/storeHooks';
 
 import {
     selectactions,
@@ -47,409 +47,412 @@ import {
 const CustomizedInput = withStyles((theme: Theme) =>
     createStyles({
 
-      input: {
-        border:'none'
-      },
+        input: {
+            border: 'none'
+        },
 
-   
+
     }),
-  )(InputBase);   
+)(InputBase);
 
 
 
-export default  function Input(props:{item:{rowId:string,control:Control,action:Action},save:boolean,reset:boolean}) {
+export default function Input(props: { item: { rowId: string, control: Control, action: Action }, save: boolean, reset: boolean }) {
 
-const dispatch = useAppDispatch();
-const controls = useAppSelector(selectcontrols);
-const actions  = useAppSelector(selectactions);    
-const activeMenuId = useAppSelector(selectActiveMenuId);
-const menuItemList = useAppSelector(selectmenuItems);
-const isControlReadyOnly = useAppSelector(selectIsControlReadOnly);
-
-
-
-const [controlItem ,setControlItem] = useState(props.item.control.id);
-
-const [actionItem, setActionItem] = useState(props.item.action.id);
-
-const [leftItemOpen, setleftItemOpen] = useState(false);
-
-const [RightItemOpen, setRightItemOpen] = useState(false);
-
-const [controlMouseOver,setControlMouseOver] = useState(false);
-const [actionMouseOver,setActionMouseOver] = useState(false);
-
-const classes = useStyle();
+    const dispatch = useAppDispatch();
+    const controls = useAppSelector(selectcontrols);
+    const actions = useAppSelector(selectactions);
+    const activeMenuId = useAppSelector(selectActiveMenuId);
+    const menuItemList = useAppSelector(selectmenuItems);
+    const isControlReadyOnly = useAppSelector(selectIsControlReadOnly);
 
 
 
-useEffect(()=>{
+    const [controlItem, setControlItem] = useState(props.item.control.id);
 
-    setControlItem(props.item.control.id);
-    setActionItem(props.item.action.id);
+    const [actionItem, setActionItem] = useState(props.item.action.id);
 
-},[props.item.control.id,props.item.action.id])
+    const [leftItemOpen, setleftItemOpen] = useState(false);
 
+    const [RightItemOpen, setRightItemOpen] = useState(false);
 
+    const [controlMouseOver, setControlMouseOver] = useState(false);
+    const [actionMouseOver, setActionMouseOver] = useState(false);
 
-useEffect(()=> {
-
-    if(props.save === true) {
-
-       const rowId = props.item.rowId
-       const controlItemId = controlItem;
-       const actionItemId = actionItem;
-   
-       dispatch(setUserControls({controlItemId,rowId,activeMenuId}));
-   
-       dispatch(setUserActions({actionItemId,rowId,activeMenuId}));
-
-       dispatch(setItemSave(false));
-   
-       } 
-   
-   },[props.save])  
+    const classes = useStyle();
 
 
-useEffect(()=> {
 
-       if(props.reset === true) {
+    useEffect(() => {
 
         setControlItem(props.item.control.id);
         setActionItem(props.item.action.id);
 
-        dispatch(setMouseControlListReset(false));
-
-       }
-
-},[props.reset])
+    }, [props.item.control.id, props.item.action.id])
 
 
- const selectIcon=(item:Action) => {
 
-    switch(item.text) {
+    useEffect(() => {
 
-        case 'Pan':
-        
-         return <Pan/>;
+        if (props.save === true) {
 
-        case 'Rotate':
+            const rowId = props.item.rowId
+            const controlItemId = controlItem;
+            const actionItemId = actionItem;
 
-         return <Rotate/>;
-        
-        case 'Zoom in':
+            dispatch(setUserControls({ controlItemId, rowId, activeMenuId }));
 
-         return <ZoomIn/>;
+            dispatch(setUserActions({ actionItemId, rowId, activeMenuId }));
 
-        case 'Zoom out' :
-            
-          return <ZoomOut/>;
+            dispatch(setItemSave(false));
 
-        case 'Highlight' :
-            
-          return <Highlight/>;
+        }
 
-        default:
-        
-        return null; 
+    }, [props.save])
+
+
+    useEffect(() => {
+
+        if (props.reset === true) {
+
+            setControlItem(props.item.control.id);
+            setActionItem(props.item.action.id);
+
+            dispatch(setMouseControlListReset(false));
+
+        }
+
+    }, [props.reset])
+
+
+    //  const selectIcon=(item:Action) => {
+
+    //     switch(item.text) {
+
+    //         case 'Pan':
+
+    //          return <Pan/>;
+
+    //         case 'Rotate':
+
+    //          return <Rotate/>;
+
+    //         case 'Zoom in':
+
+    //          return <ZoomIn/>;
+
+    //         case 'Zoom out' :
+
+    //           return <ZoomOut/>;
+
+    //         case 'Highlight' :
+
+    //           return <Highlight/>;
+
+    //         default:
+
+    //         return null; 
+    //     }
+    //  }
+
+    const handleControlChange = (event: React.ChangeEvent<{ value: unknown }>, rowId: string) => {
+
+
+        setControlItem(event.target.value as string);
+
+        dispatch(setItemSave(true));
+
+
+    };
+
+    const handleActionsChange = (event: React.ChangeEvent<{ value: unknown }>, id: string) => {
+
+        setActionItem(event.target.value as string);
+        dispatch(setItemSave(true));
+
+    };
+
+    const handleMouseControlListDelete = (undoable: boolean, rowId: string, activeMenuId: string) => {
+
+
+        dispatch(deleteItemToMouseControlList({ undoable, rowId, activeMenuId }));
+
     }
- }
-
- const handleControlChange = (event: React.ChangeEvent<{ value: unknown }>,rowId:string) => {
 
 
-     setControlItem(event.target.value as string);
+    const handleLeftClose = () => {
+        setleftItemOpen(false);
+    };
 
+    const handleLeftOpen = () => {
+        setleftItemOpen(true);
+    };
 
- };
+    const handleRightClose = () => {
+        setRightItemOpen(false);
+    };
 
- const handleActionsChange = (event: React.ChangeEvent<{ value: unknown }>,id:string) => {
+    const handleRightOpen = () => {
+        setRightItemOpen(true);
+    };
 
-    setActionItem(event.target.value as string);
+    const EmpetyDiv = () => {
 
- };
- 
-const handleMouseControlListDelete = (rowId:string , activeMenuId:string)=> {
+        return (
 
-
-dispatch(deleteItemToMouseControlList({rowId,activeMenuId}));
-
-} 
-
-
-const handleLeftClose = () => {
-    setleftItemOpen(false);
-};
-
-const handleLeftOpen = () => {
-    setleftItemOpen(true);
-};
-
-const handleRightClose = () => {
-    setRightItemOpen(false);
-};
-
-const handleRightOpen = () => {
-    setRightItemOpen(true);
-};
-
-const EmpetyDiv=() => {
-
-    return(
-
-        <div></div>
-    )
-}
+            <div></div>
+        )
+    }
 
 
     return (
-               isControlReadyOnly?
-               (<div >
+        isControlReadyOnly ?
+            (<div >
 
                 <MuiList className={classes.listItem}
-                >      
-                 <MuiGrid container  >
-                                <MuiListItem button dense={true} > 
-                                    <MuiGrid item xs={6} >
-         
-                                    {controls?.map((item)=> {
+                >
+                    <MuiGrid container  >
+                        <MuiListItem button dense={true} >
+                            <MuiGrid item xs={6} >
 
-                                        if(item.id === controlItem) {
+                                {controls?.map((item) => {
 
-                                            let displayText = ''
+                                    if (item.id === controlItem) {
 
-                                            item.modifiers.map((keyNames)=>{
+                                        let displayText = ''
 
-                                                displayText = displayText+keyNames.name+"+"
+                                        item.modifiers.map((keyNames) => {
 
-                                            })
+                                            displayText = displayText + keyNames.name + "+"
 
-                                                const text = displayText+item.keys.name;
-                                                let short = text.slice(0,10);
+                                        })
 
-                                                if(short.length >= 10) {
+                                        const text = displayText + item.keys.name;
+                                        let short = text.slice(0, 10);
 
-                                                   short = short.slice(0,10)+".."
+                                        if (short.length >= 10) {
 
-
-                                                }
-                                                else {
-                                                    short =  short.slice(0,10)
-
-                                                }
-
-                                                return(
-              
-                                                    <MuiTooltip title={text} placement="top">
-                                                    <MuiListItemText  primary={short}></MuiListItemText>
-                                                    </MuiTooltip>
-
-                                                )
+                                            short = short.slice(0, 10) + ".."
 
 
                                         }
+                                        else {
+                                            short = short.slice(0, 10)
+
+                                        }
+
+                                        return (
+
+                                            <MuiTooltip title={text} placement="top">
+                                                <MuiListItemText primary={short}></MuiListItemText>
+                                            </MuiTooltip>
+
+                                        )
+
+
                                     }
-                                                     
-                                     )}
-                                       
-                                     </MuiGrid>
-         
-                                     <MuiGrid item xs={6} >
-         
-                                     {actions?.map((item)=> {
+                                }
 
-                                            if(item.id === actionItem) {
+                                )}
 
-                                                const text = item.name;
-                                                let short = text.slice(0,8);
+                            </MuiGrid>
 
-                                                if(short.length >= 8) {
+                            <MuiGrid item xs={6} >
 
-                                                   short = short.slice(0,8)+".."
+                                {actions?.map((item) => {
+
+                                    if (item.id === actionItem) {
+
+                                        const text = item.name;
+                                        let short = text.slice(0, 8);
+
+                                        if (short.length >= 8) {
+
+                                            short = short.slice(0, 8) + ".."
 
 
-                                                }
-                                                else {
-                                                    short =  short.slice(0,10)
+                                        }
+                                        else {
+                                            short = short.slice(0, 10)
 
-                                                }
+                                        }
 
-                                                return (
-                                                   <MuiTooltip title={item.name} placement="top">
-                                                    <MuiListItemText style={{marginLeft:'50px'}} primary={short}></MuiListItemText>
-                                                   </MuiTooltip>
-                                                )
-                                                
+                                        return (
+                                            <MuiTooltip title={item.name} placement="top">
+                                                <MuiListItemText style={{ marginLeft: '50px' }} primary={short}></MuiListItemText>
+                                            </MuiTooltip>
+                                        )
+
+                                    }
+                                }
+                                )}
+
+                            </MuiGrid>
+                        </MuiListItem>
+
+                    </MuiGrid>
+                </MuiList>
+            </div>) : (<div>
+                <MuiList className={classes.listItem}>
+                    <MuiListItem button dense >
+                        <MuiGrid container alignItems={'center'} spacing={6}>
+                            <MuiGrid item xs={6} >
+                                <MuiSelect
+                                    open={leftItemOpen}
+                                    onClose={handleLeftClose}
+                                    onOpen={handleLeftOpen}
+                                    input={<CustomizedInput />}
+                                    value={controlItem}
+                                    renderValue={() => <div>{controls?.map((item) => {
+
+                                        if (item.id === controlItem) {
+
+                                            let displayText = ''
+
+                                            item.modifiers.map((keyNames) => {
+
+                                                displayText = displayText + keyNames.name + "+"
+
+                                            })
+
+
+                                            const text = displayText + item.keys.name;
+                                            let short = text.slice(0, 10);
+
+                                            if (short.length >= 10) {
+
+                                                short = short.slice(0, 10) + ".."
+
+
                                             }
+                                            else {
+                                                short = short.slice(0, 10)
+
                                             }
+
+                                            return (
+
+                                                short
+
+                                            )
+                                        }
+
+                                    }
+
+
+                                    )}</div>}
+                                    onChange={(e) => handleControlChange(e, props.item.rowId)}
+                                    IconComponent={controlMouseOver ? MuiArrowDropDownIcon : EmpetyDiv}
+                                    onMouseOver={() => setControlMouseOver(true)}
+                                    onMouseOut={() => setControlMouseOver(false)}
+                                    classes={{ root: classes.selectDropDown }}
+                                    MenuProps={{
+                                        disablePortal: true,
+                                        anchorOrigin: {
+                                            vertical: "bottom",
+                                            horizontal: "left",
+                                        },
+                                        getContentAnchorEl: null
+                                    }}
+
+                                >
+                                    {controls?.map((item) => {
+
+                                        let displayText = ''
+
+                                        item.modifiers.map((keyNames) => {
+
+                                            displayText = displayText + keyNames.name + "+"
+
+                                        })
+
+                                        return (
+                                            <MuiMenuItem value={item.id}
+                                            >{displayText + item.keys.name}</MuiMenuItem>
+
+                                        )
+                                    }
+
+
                                     )}
-                                       
-                                     </MuiGrid>
-                                 </MuiListItem>    
-         
-                 </MuiGrid>
-              </MuiList>
-             </div>):(<div>
-                        <MuiList  className={classes.listItem}>      
-                                <MuiListItem button dense >  
-                                <MuiGrid container alignItems={'center'}  spacing={6}>
-                                        <MuiGrid item xs={6} >
-                                            <MuiSelect
-                                            open={leftItemOpen}
-                                            onClose={handleLeftClose}
-                                            onOpen={handleLeftOpen}
-                                            input={<CustomizedInput />}
-                                            value={controlItem}
-                                            renderValue={() => <div>{controls?.map((item)=> {
 
-                                                if(item.id === controlItem) {
+                                </MuiSelect>
+                            </MuiGrid>
 
-                                                let displayText = ''
+                            <MuiGrid item xs={3}  >
 
-                                                item.modifiers.map((keyNames)=>{
+                                <MuiSelect
+                                    open={RightItemOpen}
+                                    onClose={handleRightClose}
+                                    onOpen={handleRightOpen}
+                                    input={<CustomizedInput />}
+                                    value={actionItem}
+                                    renderValue={() => <div>{actions?.map((item) => {
 
-                                                    displayText = displayText+keyNames.name+"+"
+                                        if (item.id === actionItem) {
 
-                                                })
+                                            let short = item.name.slice(0, 8);
 
+                                            if (short.length >= 8) {
 
-                                                    const text = displayText+item.keys.name;
-                                                    let short = text.slice(0,10);
+                                                short = short.slice(0, 10) + ".."
 
-                                                    if(short.length >= 10) {
-
-                                                       short = short.slice(0,10)+".."
-
-
-                                                    }
-                                                    else {
-                                                        short =  short.slice(0,10)
-
-                                                    }
-
-                                                    return(
-
-                                                       short
-
-                                                    )
-                                            }
 
                                             }
-                                        
-                                            
-                                            )}</div>}
-                                            onChange={(e)=>handleControlChange(e,props.item.rowId)}
-                                            IconComponent={controlMouseOver?MuiArrowDropDownIcon:EmpetyDiv}
-                                            onMouseOver={()=>setControlMouseOver(true)} 
-                                            onMouseOut={()=>setControlMouseOver(false)}
-                                            classes={{root:classes.selectDropDown}}
-                                            MenuProps={{
-                                                disablePortal: true,
-                                                anchorOrigin: {
-                                                vertical:"bottom",
-                                                horizontal:"left",
-                                            },
-                                            getContentAnchorEl: null
-                                            }}
-
-                                            >
-                                                {controls?.map((item)=> {
-
-                                                    let displayText = ''
-
-                                                    item.modifiers.map((keyNames)=>{
-
-                                                        displayText = displayText+keyNames.name+"+"
-
-                                                    })
-
-                                                        return(
-                                                            <MuiMenuItem value={item.id} 
-                                                            >{displayText+item.keys.name}</MuiMenuItem>
-
-                                                        )
-                                                }
-                                            
-                                                
-                                                )}
-
-                                            </MuiSelect>
-                                            </MuiGrid>
-
-                                            <MuiGrid item xs={3}  >
-
-                                            <MuiSelect
-                                            open={RightItemOpen}
-                                            onClose={handleRightClose}
-                                            onOpen={handleRightOpen}
-                                            input={<CustomizedInput />}
-                                            value={actionItem}
-                                            renderValue={() => <div>{actions?.map((item)=> {
-
-                                                if(item.id === actionItem) {
-
-                                                    let short = item.name.slice(0,8);
-
-                                                    if(short.length >= 8) {
-
-                                                       short = short.slice(0,10)+".."
-
-
-                                                    }
-                                                    else {
-                                                        short =  short.slice(0,10)
-
-                                                    }
-
-                                                    return(
-
-                                                       short
-
-                                                    )
-                                                
-                                            }
+                                            else {
+                                                short = short.slice(0, 10)
 
                                             }
-                                        
-                                            
-                                            )}</div>}
-                                            onChange={(e)=>handleActionsChange(e,props.item.rowId)}
-                                            IconComponent={actionMouseOver?MuiArrowDropDownIcon:EmpetyDiv}
-                                            onMouseOver={()=>setActionMouseOver(true)} 
-                                            onMouseOut={()=>setActionMouseOver(false)}
-                                            classes={{root:classes.selectDropDown}}
-                                            MenuProps={{
-                                                disablePortal: true,
-                                                anchorOrigin: {
-                                                vertical:"bottom",
-                                                horizontal:"left",
-                                            },
-                                            getContentAnchorEl: null
-                                            }}
-                                            >
-                                                {actions?.map((item)=>
 
-                                                    <MuiMenuItem  value={item.id}>
-                                                        <div className={classes.alignMenuItem}>
-                                                            <div >{item.name}</div>
-                                                        </div>
+                                            return (
 
-                                                    </MuiMenuItem>
-                                                
-                                                )}
+                                                short
 
-                                            </MuiSelect>
+                                            )
 
-                                    </MuiGrid>
+                                        }
 
-                                    <MuiGrid item xs={3}>
-                                        <div  style={{float:'right',marginRight:'-10px'}}onClick={()=>handleMouseControlListDelete(props.item.rowId,activeMenuId)}><MuiCloseIcon fontSize='small'></MuiCloseIcon></div>
-                                    </MuiGrid>
-                                    </MuiGrid>
-                                </MuiListItem>
-                                </MuiList>
+                                    }
 
-                        </div>)
+
+                                    )}</div>}
+                                    onChange={(e) => handleActionsChange(e, props.item.rowId)}
+                                    IconComponent={actionMouseOver ? MuiArrowDropDownIcon : EmpetyDiv}
+                                    onMouseOver={() => setActionMouseOver(true)}
+                                    onMouseOut={() => setActionMouseOver(false)}
+                                    classes={{ root: classes.selectDropDown }}
+                                    MenuProps={{
+                                        disablePortal: true,
+                                        anchorOrigin: {
+                                            vertical: "bottom",
+                                            horizontal: "left",
+                                        },
+                                        getContentAnchorEl: null
+                                    }}
+                                >
+                                    {actions?.map((item) =>
+
+                                        <MuiMenuItem value={item.id}>
+                                            <div className={classes.alignMenuItem}>
+                                                <div >{item.name}</div>
+                                            </div>
+
+                                        </MuiMenuItem>
+
+                                    )}
+
+                                </MuiSelect>
+
+                            </MuiGrid>
+
+                            <MuiGrid item xs={3}>
+                                <div style={{ float: 'right', marginRight: '-10px' }} onClick={() => handleMouseControlListDelete(true, props.item.rowId, activeMenuId)}><MuiCloseIcon fontSize='small'></MuiCloseIcon></div>
+                            </MuiGrid>
+                        </MuiGrid>
+                    </MuiListItem>
+                </MuiList>
+
+            </div>)
     )
 
 

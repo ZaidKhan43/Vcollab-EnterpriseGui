@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { EventDispatcher } from '../../backend/EventDispatcher';
 import {getEventDispatcher,getEventsList} from "../../backend/viewerAPIProxy";
-import { useAppDispatch } from '../../store/storeHooks';
-import { setModelLoadingStatus, setInteractionModeAsync } from '../../store/appSlice';
+import { useAppDispatch , useAppSelector } from '../../store/storeHooks';
+import { setModelLoadingStatus, setInteractionModeAsync , selectActiveViewerID } from '../../store/appSlice';
 import { handlePlaneSelection } from '../../store/sideBar/clipSlice';
 import {init as label2dInit, handleLabel2DCreation, handleProbeLabelCreation} from '../../store/sideBar/labelSlice/labelAllSlice';
 import { addMessage, updateMessage, NetworkData, NotificationType, finishMessage } from '../../store/sideBar/messageSlice';
@@ -19,6 +19,7 @@ function setup(dispatch:any) {
 }
 function EventRegistry(props: Props) {
     const dispatch = useAppDispatch();
+    const activeViewerID = useAppSelector(selectActiveViewerID);
     setup(dispatch);
     useEffect(() => {
         if(props.mount) {
@@ -106,7 +107,7 @@ function EventRegistry(props: Props) {
               eventDispatcher?.addEventListener(
                 events.viewerEvents.LABEL3D_CREATED,
                 (event:any) => {
-                  dispatch(handleProbeLabelCreation({data: event, undoable: true}));
+                  dispatch(handleProbeLabelCreation({data: event, undoable: true ,activeViewerID:activeViewerID}));
                 }
               );
               eventDispatcher?.addEventListener(

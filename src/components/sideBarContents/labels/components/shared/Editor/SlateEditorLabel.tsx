@@ -7,7 +7,8 @@ import {
   Transforms,
   Element as SlateElement,
 } from 'slate'
-import { HistoryEditor } from 'slate-history';
+import { HistoryEditor ,withHistory } from 'slate-history';
+
 
 type CustomText = { text: string }
 type CustomElement = { type: 'paragraph'; children: CustomText[] }
@@ -88,7 +89,7 @@ export default function LabelEditor(props:{msg:string}) {
 
   const [value, setValue] = useState<Descendant[]>(JSON.parse(props.msg));
 
-  const [editor] = useState(() => withReact(createEditor()))
+  const editor = useMemo(() => withReact(withHistory(createEditor())), [])
 
   const renderElement = useCallback(props => <Element {...props}/>,[])
 
