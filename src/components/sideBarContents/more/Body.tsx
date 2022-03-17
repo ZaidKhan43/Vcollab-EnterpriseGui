@@ -6,7 +6,7 @@ import ListItemIcon  from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import useListStyles from '../../shared/List/liststyle'
 import useContainer from 'customHooks/useContainer'
-import {getItem, selectMainMenuItems, setActiveTab} from 'store/mainMenuSlice'
+import {getIcon, getItem, selectMainMenuItems, setActiveTab} from 'store/mainMenuSlice'
 import { addPrevSearchItem, SearchItem, selectPrevSearches } from 'store/moreSlice'
 import {useAppDispatch, useAppSelector} from 'store/storeHooks'
 import { push } from 'connected-react-router/immutable'
@@ -59,7 +59,7 @@ function Body(props: BodyProps) {
        { (props.searchResults.length === 0 ? props.searchItems : props.searchResults).map(e => {
                 return <ListItem button onClick={() => handleResultsClick(e)}>
                 <ListItemIcon >
-                  {e.icon ? <e.icon/>: null}
+                  { React.createElement(getIcon(e.type))}
                 </ListItemIcon>
                 <ListItemText>{
                     e.name

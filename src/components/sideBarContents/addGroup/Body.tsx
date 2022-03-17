@@ -8,7 +8,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 import Divider from '@material-ui/core/Divider'
 import useListStyles from '../../shared/List/liststyle'
 import useContainer from 'customHooks/useContainer'
-import {getItem, MainMenuItem, selectMainMenuItems, setActiveTab} from 'store/mainMenuSlice'
+import {getIcon, getItem, MainMenuItem, selectMainMenuItems, setActiveTab} from 'store/mainMenuSlice'
 import { addPrevSearchItem, SearchItem, selectPrevSearches } from 'store/moreSlice'
 import {useAppDispatch, useAppSelector} from 'store/storeHooks'
 import { push } from 'connected-react-router/immutable'
@@ -95,7 +95,7 @@ function Body(props: BodyProps) {
                   <Checkbox checked={isChecked(e)}/>
                 </ListItemIcon>
                 <ListItemIcon>
-                  {e.icon ? <e.icon/>: null}
+                  {React.createElement(getIcon(e.type))}
                 </ListItemIcon>
                 <ListItemText>{
                     e.name

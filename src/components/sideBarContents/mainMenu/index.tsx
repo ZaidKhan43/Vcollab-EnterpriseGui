@@ -7,18 +7,6 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 
-import GeometryIcon  from '../../icons/geometry';
-import FieldIcon from '../../icons/field';
-import SceneIcon from '../../icons/scene';
-import ColorMapIcon from '../../icons/colormap';
-import LabelIcon from '../../icons/label';
-import ClipIcon from '../../icons/clipplanes';
-import TransformIcon from '../../icons/transform';
-import AnimIcon from '../../icons/animation';
-import SlidesIcon from '../../icons/slides';
-import MessageIcon from '../../icons/Messages';
-import SettingsIcon from '../../icons/settings';
-
 import Logo from '../../../assets/images/LogoBig.svg';
 
 import styles from './style';
@@ -31,39 +19,12 @@ import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
 import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
 import MuiExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { Routes } from '../../../routes';
-import { MainMenu as MainMenuType, MainMenuItem, MainMenuItems, selectMainMenu, togglePanel } from '../../../store/mainMenuSlice';
+import { MainMenu as MainMenuType, MainMenuItem, MainMenuItems, selectMainMenu, togglePanel, getIcon } from '../../../store/mainMenuSlice';
 import { useState } from 'react';
 import { useEffect } from 'react';
 
 
-export const getIcon = (type:MainMenuItems):JSX.Element | null => {
-    switch(type) {
-      case MainMenuItems.GEOMETRY:
-        return <GeometryIcon />
-      case MainMenuItems.FIELD:
-        return <FieldIcon/>
-      case MainMenuItems.SCENE:
-        return <SceneIcon/>
-      case MainMenuItems.COLOR_MAPS:
-        return <ColorMapIcon/>
-      case MainMenuItems.CLIP_PLANE:
-        return <ClipIcon/>
-      case MainMenuItems.LABELS:
-        return <LabelIcon/>
-      case MainMenuItems.TRANSFORMATIONS:
-        return <TransformIcon/>
-      case MainMenuItems.ANIMATIONS:
-        return <AnimIcon/>
-      case MainMenuItems.SLIDES:
-        return <SlidesIcon/>
-      case MainMenuItems.MESSAGES:
-        return <MessageIcon/>
-      case MainMenuItems.SETTINGS:
-        return <SettingsIcon/>
-      default:
-        return null
-    }
-}
+
 
 const getMainMenuData = (mainMenu:MainMenuType) => {
     let data:any[] = [];

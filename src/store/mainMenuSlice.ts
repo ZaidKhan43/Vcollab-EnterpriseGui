@@ -1,5 +1,17 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Routes } from '../routes';
+import GeometryIcon  from 'components/icons/geometry';
+import FieldIcon from 'components/icons/field';
+import SceneIcon from 'components/icons/scene';
+import ColorMapIcon from 'components/icons/colormap';
+import LabelIcon from 'components/icons/label';
+import ClipIcon from 'components/icons/clipplanes';
+import TransformIcon from 'components/icons/transform';
+import AnimIcon from 'components/icons/animation';
+import SlidesIcon from 'components/icons/slides';
+import MessageIcon from 'components/icons/Messages';
+import SettingsIcon from 'components/icons/settings';
+import MoreIcon from 'components/icons/more';
 import type { RootState } from './index';
 
 export type MainMenuItem = {
@@ -71,6 +83,53 @@ export enum MainMenuItems {
     NEW_GROUP,
     CUSTOM_GROUP
 
+}
+
+export const getIcon = (type:MainMenuItems): any | null => {
+    let Out = null;
+    switch(type) {
+      case MainMenuItems.GEOMETRY:
+        Out =  GeometryIcon 
+        break;
+      case MainMenuItems.FIELD:
+        Out =  FieldIcon
+        break;
+      case MainMenuItems.SCENE:
+        Out =  SceneIcon
+        break;
+      case MainMenuItems.COLOR_MAPS:
+        Out =  ColorMapIcon
+        break;
+      case MainMenuItems.CLIP_PLANE:
+        Out =  ClipIcon
+        break;
+      case MainMenuItems.LABELS:
+        Out =  LabelIcon
+        break;
+      case MainMenuItems.TRANSFORMATIONS:
+        Out =  TransformIcon
+        break;
+      case MainMenuItems.ANIMATIONS:
+        Out =  AnimIcon
+        break;
+      case MainMenuItems.SLIDES:
+        Out =  SlidesIcon
+        break;
+      case MainMenuItems.MESSAGES:
+        Out =  MessageIcon
+        break;
+      case MainMenuItems.SETTINGS:
+        Out =  SettingsIcon
+        break;
+      case MainMenuItems.MORE:
+        Out = MoreIcon;
+        break;
+      default:
+        Out =  GeometryIcon
+        break;
+    }
+    
+    return Out ;
 }
 
 export type MainMenu = {

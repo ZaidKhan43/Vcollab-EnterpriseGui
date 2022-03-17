@@ -3,11 +3,12 @@ import React from 'react';
 import { Routes } from '../routes';
 import type { RootState } from './index';
 import GeometryIcon from 'components/icons/geometry';
-import { MainMenuItem } from './mainMenuSlice';
+import { MainMenuItem, MainMenuItems } from './mainMenuSlice';
 export type SearchItem = {
     id:string,
     name: string,
     path: Routes,
+    type: MainMenuItems,
     icon?: any,
     disabled: boolean,
 }
@@ -22,10 +23,10 @@ export const getSearchItems = (mainMenuItems:MainMenuItem[], withGroup?:boolean)
     mainMenuItems.forEach(e => {
         let item = {
             id: e.id,
+            type: e.type,
             name: e.name,
             path: e.path,
             disabled: e.disabled,
-            icon: GeometryIcon
         }
         
         if(e.children.length > 0){

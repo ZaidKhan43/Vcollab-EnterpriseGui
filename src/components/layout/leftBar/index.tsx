@@ -6,6 +6,7 @@ import { makeStyles, Theme } from '@material-ui/core/styles';
 import MuiIcon from '@material-ui/core/Icon'
 import Box from '@material-ui/core/Box'
 import GeometryIcon  from '../../icons/geometry';
+import TestIcon from '../../icons/annotation'
 import Nav from '../nav'
 
 import Tabs from '@material-ui/core/Tabs';
@@ -16,7 +17,7 @@ import { selectSidebarVisibility, setSidebarVisibility } from 'store/appSlice';
 import { Routes } from 'routes';
 import {push} from 'connected-react-router/immutable';
 import clsx from 'clsx';
-import { MainMenuItem, selectActiveTab, selectDefaultOptions, setActiveTab, selectTemporaryTab, MainMenuItems, selectNewGroupItem, addMenuItem, addTab, selectMainMenuItems, getItem, selectMoreMenu} from 'store/mainMenuSlice';
+import { MainMenuItem, selectActiveTab, selectDefaultOptions, setActiveTab, selectTemporaryTab, MainMenuItems, selectNewGroupItem, addMenuItem, addTab, selectMainMenuItems, getItem, selectMoreMenu, getIcon} from 'store/mainMenuSlice';
 import useContainer from 'customHooks/useContainer';
 import { topbarHeight } from 'config';
 import nextId from 'react-id-generator'
@@ -164,9 +165,11 @@ function LeftBar(props: LeftBarProps) {
            disableRipple
            value ={moreMenuItem.id}
            icon = {
-           <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
-             {<GeometryIcon/>}
-           </div>
+            <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
+            { 
+               React.createElement(getIcon(moreMenuItem.type))
+            }
+          </div>
          } 
          label={
            <div  className={tabClasses.label}>
@@ -197,7 +200,9 @@ function LeftBar(props: LeftBarProps) {
             value ={e.id}
             icon = {
             <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
-              {<GeometryIcon/>}
+              { 
+                React.createElement(getIcon(e.type)) 
+              }
             </div>
           } 
           label={
@@ -216,7 +221,7 @@ function LeftBar(props: LeftBarProps) {
              value={temporaryTab.id}
              icon = {
               <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
-                {<GeometryIcon/>}
+                { React.createElement(getIcon(temporaryTab.type)) }
               </div>
             } 
             label={
