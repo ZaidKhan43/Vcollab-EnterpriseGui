@@ -116,7 +116,7 @@ export default function List(){
   }
 
   const handleCreateLabel = (nodeId : string) => {
-    	dispatch(createColorMap({nodeId : nodeId, undoable: true}))
+    	dispatch(createColorMap(nodeId))
   }
 
   const handleRowClick = (node : any) => {
@@ -216,7 +216,7 @@ export default function List(){
                     <MuiGrid container alignItems='center' style={{width:'100%',height:'100%'}}>
                       <MuiGrid item xs={4}></MuiGrid>
                       <MuiGrid item xs={6}>
-                        <MuiIconButton size='small' onClick={() => handleCreateLabel(node.id, true)}>
+                        <MuiIconButton size='small' onClick={() => handleCreateLabel(node.id)}>
                           <AddIcon fontSize='default'/> 
                         </MuiIconButton> 
                       </MuiGrid>

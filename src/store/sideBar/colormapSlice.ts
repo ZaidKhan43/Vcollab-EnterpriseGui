@@ -476,7 +476,7 @@ export const colormapSlice = createSlice({
                 type: "colormapSlice/addColorMap/addNodeReducer"
             })
         },
-        createColorMap : (state , action: PayloadAction<{nodeId:string, undoable?: boolean}>) => {
+        createColorMap : (state , action: PayloadAction<string>) => {
                 state.colormapSettings.idGenerator += 1;
                 
                 const id =state.colormapSettings.idGenerator;
@@ -484,8 +484,8 @@ export const colormapSlice = createSlice({
                 let newData = JSON.parse(JSON.stringify(state.colormapTree.data[state.appliedColorMapId]))
                 
                 let newNote = {...newData};
-                newNote.id = `${id}`;
-                newNote.pid = `${action.payload.nodeId}`;
+                newNote.id = `${state.colormapSettings.idGenerator}`;
+                newNote.pid = `${action.payload}`;
                 newNote.colormapType = ColormapType.USER;
                 // if(newNote.pid === "0"){
                     state.colormapSettings.userDefinedCount +=1;
@@ -499,23 +499,10 @@ export const colormapSlice = createSlice({
                 // }
                 
                 state.colormapTree.data[`${id}`] =newNote;
-                state.colormapTree.data[`${action.payload.nodeId}`].children.push(newNote.id)
+                state.colormapTree.data[`${action.payload}`].children.push(newNote.id)
                 // Object.keys(state.data).find(key => state.data[key] === `${action.payload}`)
                 saveTreeReducer(state.colormapTree,{payload:{tree: state.colormapTree.data, rootIds: state.colormapTree.rootIds},type:"colormap/addColormap"})
-                if(action.payload.undoable){
-                    console.log(newNote.id);
-                    undoStack.add(
-                      {
-                        // undo: () => deleteColorMap(newNote.id),
-                        // redo: () => createColorMap({nodeId:action.payload.nodeId}),
-                        undo: {reducer: undoCreateColorMap, payload:newNote.id},
-                        redo: {reducer: createColorMap, payload:{nodeId:action.payload.nodeId}},
-                      }
-                    )
-                  }
         },
-
-        
 
         setColorMapSelection: (state, action: PayloadAction<string>) => {
 
@@ -524,21 +511,7 @@ export const colormapSlice = createSlice({
             else 
             state.selectedColorMapId = action.payload;
 
-        },
-         
-        undoCreateColorMap : (state, action : PayloadAction<string>) => {
-            console.log(action.payload)
-
-            state.selectedColorMapId = "-1";
-            delete state.colormapTree.data[action.payload];
-            Object.keys(state.colormapTree.data).forEach(key => {
-                state.colormapTree.data[key].children = state.colormapTree.data[key].children.filter(item => item !== action.payload)
-            })
-        state.colormapSettings.userDefinedCount -= 1
-        state.colormapSettings.idGenerator -= 1;
-        
-        },
-
+        }, 
 
         deleteColorMap : (state, action : PayloadAction<string>) => {
 
@@ -711,7 +684,7 @@ export const colormapSlice = createSlice({
 })
 
 export default colormapSlice.reducer;
-export const {addColorMap, saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, deleteColorMap, applyColorMap, pasteColormap, setColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep, editColorPalette, setSelectedValue, setSelectedValueType, editColorPaletteNature, setLegendSettings, undoCreateColorMap} = colormapSlice.actions;
+export const {addColorMap, saveTree , checkNode , highlightNode , invertNode, expandNode, toggleVisibility, setCheckedVisibility ,createColorMap, deleteColorMap, applyColorMap, pasteColormap, setColorMapSelection, expandColorPaletteNode, createPalette, setColorPalette, setSelectedColorPalette, deleteColorPalette, pasteColorPalette, setSelectedVariable, setSelectedDerivedType, setSelectedSection, setSelectedStep, editColorPalette, setSelectedValue, setSelectedValueType, editColorPaletteNature, setLegendSettings} = colormapSlice.actions;
 
 
 //Selectors
