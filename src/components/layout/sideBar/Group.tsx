@@ -1,3 +1,4 @@
+import React from 'react';
 import {push} from 'connected-react-router/immutable';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem'
@@ -8,7 +9,7 @@ import { useAppDispatch, useAppSelector } from '../../../store/storeHooks';
 
 import SideBarContainer from '../../layout/sideBar/sideBarContainer'
 
-import { MainMenu as MainMenuType, MainMenuItem, MainMenuItems, selectMainMenu, setActiveTab, togglePanel, updateMenuItem } from '../../../store/mainMenuSlice';
+import { getIcon, MainMenu as MainMenuType, MainMenuItem, MainMenuItems, selectMainMenu, setActiveTab, togglePanel, updateMenuItem } from '../../../store/mainMenuSlice';
 import { Typography } from '@material-ui/core';
 import GeometryIcon from 'components/icons/geometry';
 import EditIcon from '@material-ui/icons/Edit'
@@ -60,7 +61,7 @@ export default function Group(props:GroupProps){
           onClick={(event) => handleListItemClick(event, item)}
         >
           <ListItemIcon>
-            {item.icon ? <item.icon/> : <GeometryIcon/>}
+            {React.createElement(getIcon(item.type))}
           </ListItemIcon>
           <ListItemText primary={item.name} />
         </ListItem>

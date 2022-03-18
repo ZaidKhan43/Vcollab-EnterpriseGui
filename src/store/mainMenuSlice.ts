@@ -1,17 +1,46 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Routes } from '../routes';
+
+//icons
 import GeometryIcon  from 'components/icons/geometry';
+import AssemblyIcon  from 'components/icons/assembly';
+import DisplayModeIcon from 'components/icons/displaymodes';
+import MaterialColorIcon from 'components/icons/materialColor';
+import CoordinateIcon from 'components/icons/coordinateSystem';
+
 import FieldIcon from 'components/icons/field';
+import StepsAndSubcaseIcon from 'components/icons/stepsAndSubcase';
+import DerivedIcon from 'components/icons/derived';
+import SectionAndLayersIcon from 'components/icons/sectionAndLayers'
+
 import SceneIcon from 'components/icons/scene';
+import CameraIcon from 'components/icons/camera';
+import TriadIcon from 'components/icons/triad';
+import LightIcon from 'components/icons/lights';
+
 import ColorMapIcon from 'components/icons/colormap';
+import ColorMapEditIcon from 'components/icons/colormapEdit';
+import ColorMapPaletteIcon from 'components/icons/palette';
+import ColorMapValueSettings from 'components/icons/valueSettings';
+import LegendSettingsIcon from 'components/icons/legendSettings';
+
 import LabelIcon from 'components/icons/label';
+
 import ClipIcon from 'components/icons/clipplanes';
+import ClipPlaneListIcon from 'components/icons/clipPlaneList';
+import ClipPlaneTransformIcon from 'components/icons/clipPlaneTransform';
+import ClipPlaneSettingsIcon from 'components/icons/clipPlaneSettings';
+
 import TransformIcon from 'components/icons/transform';
 import AnimIcon from 'components/icons/animation';
 import SlidesIcon from 'components/icons/slides';
 import MessageIcon from 'components/icons/Messages';
 import SettingsIcon from 'components/icons/settings';
 import MoreIcon from 'components/icons/more';
+
+import ThemeIcon from 'components/icons/theme';
+import MouseControlsIcon from 'components/icons/mouseControls';
+
 import type { RootState } from './index';
 
 export type MainMenuItem = {
@@ -88,43 +117,134 @@ export enum MainMenuItems {
 export const getIcon = (type:MainMenuItems): any | null => {
     let Out = null;
     switch(type) {
-      case MainMenuItems.GEOMETRY:
+        // geometry
+        case MainMenuItems.GEOMETRY:
         Out =  GeometryIcon 
         break;
-      case MainMenuItems.FIELD:
+        case MainMenuItems.GEOMETRY_ASSEMBLY_TREE:
+        Out = AssemblyIcon
+        break;
+        case MainMenuItems.GEOMETRY_DISPLAY_MODE:
+        Out = DisplayModeIcon
+        break;
+        case MainMenuItems.GEOMETRY_MATERIAL_COLOR:
+        Out = MaterialColorIcon
+        break;
+        case MainMenuItems.GEOMETRY_COORDINATE_SYSTEM:
+        Out = CoordinateIcon
+        break;
+        case MainMenuItems.GEOMETRY_TRANSFORMATION:
+        Out = TransformIcon
+        break;
+        // field
+        case MainMenuItems.FIELD:
         Out =  FieldIcon
         break;
-      case MainMenuItems.SCENE:
+        case MainMenuItems.FIELD_VARIABLES:
+        Out = FieldIcon
+        break;
+        case MainMenuItems.FIELD_STEPS_AND_SUBCASES:
+        Out = StepsAndSubcaseIcon
+        break;
+        case MainMenuItems.FIELD_DERIVED_TYPES:
+        Out = DerivedIcon
+        break;
+        case MainMenuItems.FIELD_SECTIONS_AND_LAYERS:
+        Out = SectionAndLayersIcon
+        break;
+        //scene
+        case MainMenuItems.SCENE:
         Out =  SceneIcon
         break;
-      case MainMenuItems.COLOR_MAPS:
+        case MainMenuItems.SCENE_CAMERA:
+        Out = CameraIcon
+        break;
+        case MainMenuItems.SCENE_BACKGROUND:
+        Out = MaterialColorIcon
+        break;
+        case MainMenuItems.SCENE_AXIS_TRIAD:
+        Out = TriadIcon
+        break;
+        case MainMenuItems.SCENE_LIGHT:
+        Out = LightIcon
+        break;
+        //colormap
+        case MainMenuItems.COLOR_MAPS:
         Out =  ColorMapIcon
         break;
-      case MainMenuItems.CLIP_PLANE:
+        case MainMenuItems.COLOR_MAPS_LIST:
+        Out =  ColorMapIcon
+        break;
+        case MainMenuItems.COLOR_MAPS_EDIT:
+        Out = ColorMapEditIcon
+        break;
+        case MainMenuItems.COLOR_MAPS_VARIABLE:
+        Out = FieldIcon
+        break;
+        case MainMenuItems.COLOR_MAPS_DERIVED_TYPES:
+        Out = DerivedIcon
+        break;
+        case MainMenuItems.COLOR_MAPS_SELECTION_AND_LAYER:
+        Out = SectionAndLayersIcon
+        break;
+        case MainMenuItems.COLOR_MAPS_STEPS_AND_SUBCASE:
+        Out = StepsAndSubcaseIcon
+        break;
+        case MainMenuItems.COLOR_MAPS_COLOR_PALETTE:
+        Out = ColorMapPaletteIcon
+        break;
+        case MainMenuItems.COLOR_MAPS_VALUE_SETTINGS:
+        Out = ColorMapValueSettings
+        break;
+        case MainMenuItems.COLOR_MAPS_LEGEND_SETTINGS:
+        Out = LegendSettingsIcon
+        break;
+        //clip plane
+        case MainMenuItems.CLIP_PLANE:
         Out =  ClipIcon
         break;
-      case MainMenuItems.LABELS:
+        case MainMenuItems.CLIP_PLANE_LIST:
+        Out = ClipPlaneListIcon
+        break;
+        case MainMenuItems.CLIP_PLANE_TRANSFORM:
+        Out = ClipPlaneTransformIcon
+        break;
+        case MainMenuItems.CLIP_PLANE_SETTINGS:
+        Out = ClipPlaneSettingsIcon
+        break;
+        //labels
+        case MainMenuItems.LABELS:
         Out =  LabelIcon
         break;
-      case MainMenuItems.TRANSFORMATIONS:
+        case MainMenuItems.TRANSFORMATIONS:
         Out =  TransformIcon
         break;
-      case MainMenuItems.ANIMATIONS:
+        case MainMenuItems.ANIMATIONS:
         Out =  AnimIcon
         break;
-      case MainMenuItems.SLIDES:
+        case MainMenuItems.SLIDES:
         Out =  SlidesIcon
         break;
-      case MainMenuItems.MESSAGES:
+        case MainMenuItems.MESSAGES:
         Out =  MessageIcon
         break;
-      case MainMenuItems.SETTINGS:
+        //settings
+        case MainMenuItems.SETTINGS:
         Out =  SettingsIcon
         break;
-      case MainMenuItems.MORE:
+        case MainMenuItems.SETTINGS_THEME:
+        Out = ThemeIcon
+        break;
+        case MainMenuItems.SETTINGS_MOUSE_CONTROLS:
+        Out = MouseControlsIcon
+        break;
+        case MainMenuItems.MORE:
         Out = MoreIcon;
         break;
-      default:
+        case MainMenuItems.ADD_GROUP:
+        Out = FieldIcon;
+        break;
+        default:
         Out =  GeometryIcon
         break;
     }
@@ -143,7 +263,7 @@ export type MainMenu = {
 const initialState: MainMenu ={
     menuItems: [
         {
-            id:'1',
+            id:'Geometry1',
             expanded: false,
             name: "Geometry",
             type: MainMenuItems.GEOMETRY,
@@ -186,24 +306,29 @@ const initialState: MainMenu ={
                     children: [],
                     expanded: false
                   },
-                //   {
-                //     id: '15',
-                //     name: "Coordinate System",
-                //     type:MainMenuItems.GEOMETRY_COORDINATE_SYSTEM,
-                //     path: Routes.HOME,
-                //     disabled: false,
-                //   },
-                //   {
-                //     id: '16',
-                //     name: "Transform",
-                //     type:MainMenuItems.GEOMETRY_TRANSFORMATION,
-                //     path: Routes.HOME,
-                //     disabled: false,
-                //   }
+                  // not done 
+                  {
+                    id: 'Geometry15',
+                    name: "Coordinate System",
+                    type:MainMenuItems.GEOMETRY_COORDINATE_SYSTEM,
+                    path: Routes.GEOMETRY,
+                    children: [],
+                    expanded: false,
+                    disabled: true,
+                  },
+                  {
+                    id: 'Geometry16',
+                    name: "Geometry Transform",
+                    type:MainMenuItems.GEOMETRY_TRANSFORMATION,
+                    path: Routes.GEOMETRY,
+                    children: [],
+                    expanded: false,
+                    disabled: true,
+                  }
             ]
         },
         {
-            id:'2',
+            id:'Field2',
             expanded: false,
             name: "Field",
             type: MainMenuItems.FIELD,
@@ -249,7 +374,7 @@ const initialState: MainMenu ={
             ]
         },
         {
-            id:'3',
+            id:'Scene3',
             expanded:false,
             name: "Scene",
             type: MainMenuItems.SCENE,
@@ -283,17 +408,19 @@ const initialState: MainMenu ={
                     children: [],
                     expanded: false
                 },
-                // {
-                //     id:'34',
-                //     name: "Light",
-                //     type:MainMenuItems.SCENE_LIGHT,
-                //     path:Routes.SCENE_LIGHT,
-                //     disabled: false
-                // },
+                {
+                    id:'Scene34',
+                    name: "Lights",
+                    type:MainMenuItems.SCENE_LIGHT,
+                    path:Routes.SCENE_LIGHT,
+                    disabled: true,
+                    children:[],
+                    expanded: false
+                },
             ]
         },
         {
-            id:'4',
+            id:'Color Maps4',
             expanded:false,
             name: "Color Maps",
             type:MainMenuItems.COLOR_MAPS,
@@ -384,7 +511,7 @@ const initialState: MainMenu ={
             ]
         },
         {
-            id:'5',
+            id:'Clip Plane5',
             expanded: false,
             name: "Clip Plane",
             type: MainMenuItems.CLIP_PLANE,
@@ -393,7 +520,7 @@ const initialState: MainMenu ={
             children: [
                 {
                     id:'Clip Plane51',
-                    name: "List",
+                    name: "Clip planes List",
                     type:MainMenuItems.CLIP_PLANE_LIST,
                     path:Routes.CLIPPLANES_LIST,
                     disabled: false,
@@ -402,7 +529,7 @@ const initialState: MainMenu ={
                 },
                 {
                     id:'Clip Plane52',
-                    name: "Settings",
+                    name: "Clip plane Settings",
                     type:MainMenuItems.CLIP_PLANE_SETTINGS,
                     path:Routes.CLIPPLANES_SETTINGS,
                     disabled: true,
@@ -411,7 +538,7 @@ const initialState: MainMenu ={
                 },
                 {
                     id:'Clip Plane53',
-                    name: "Transform",
+                    name: "Clip plane Transform",
                     type:MainMenuItems.CLIP_PLANE_TRANSFORM,
                     path:Routes.CLIPPLANES_TRANSFORMATION,
                     disabled: true,
@@ -421,7 +548,7 @@ const initialState: MainMenu ={
             ]
         },
         {
-            id:'6',
+            id:'Labels6',
             expanded: false,
             name: "Labels",
             type: MainMenuItems.LABELS,
@@ -449,7 +576,7 @@ const initialState: MainMenu ={
         },
 
         {
-            id:'9',
+            id:'3DSlides',
             expanded: false,
             name: "3D Slides",
             type: MainMenuItems.SLIDES,
@@ -529,18 +656,16 @@ const initialState: MainMenu ={
     activeTab: null,
     defaultOptions: [
         // uncomment below to enable default tabs
-        '1',
+        'Geometry1',
         'Geometry11',
-
-        // '2',
-        // '3',
-        // '4',
-        // '5',
-        // '6',
-        // '7'
+        'Field2',
+        'Scene3',
+        'Color Maps4',
+        'Clip Plane5',
+        'Labels6',
+        '3DSlides'
     ],
     bottomTabOptions: [
-        '13'
     ],
     temporaryTab: null
 }
