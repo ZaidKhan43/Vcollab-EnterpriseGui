@@ -40,7 +40,7 @@ import MoreIcon from 'components/icons/more';
 
 import ThemeIcon from 'components/icons/theme';
 import MouseControlsIcon from 'components/icons/mouseControls';
-
+import AddGroupIcon from 'components/icons/addGroup';
 import type { RootState } from './index';
 
 export type MainMenuItem = {
@@ -242,7 +242,7 @@ export const getIcon = (type:MainMenuItems): any | null => {
         Out = MoreIcon;
         break;
         case MainMenuItems.ADD_GROUP:
-        Out = FieldIcon;
+        Out = AddGroupIcon;
         break;
         default:
         Out =  GeometryIcon

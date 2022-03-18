@@ -69,17 +69,17 @@ export default function List(){
       const enabledPlanes = planes.filter(item => item.enabled === true);
       
       if(planes.length === 0)
-          dispatch(setChildItem({panelId:'5',childId:'Clip Plane52', boolean: true}))
+          dispatch(setChildItem({panelId:'Clip Plane5',childId:'Clip Plane52', boolean: true}))
 
         else
-          dispatch(setChildItem({panelId:'5',childId:'Clip Plane52', boolean: false}))
+          dispatch(setChildItem({panelId:'Clip Plane5',childId:'Clip Plane52', boolean: false}))
 
         
         if(enabledPlanes.length === 0)
-        dispatch(setChildItem({panelId:'5',childId:'Clip Plane53', boolean: true}))
+        dispatch(setChildItem({panelId:'Clip Plane5',childId:'Clip Plane53', boolean: true}))
 
         else
-          dispatch(setChildItem({panelId:'5',childId:'Clip Plane53', boolean: false}))
+          dispatch(setChildItem({panelId:'Clip Plane5',childId:'Clip Plane53', boolean: false}))
 
       },[planes]);
 

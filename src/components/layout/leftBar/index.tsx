@@ -20,8 +20,10 @@ import {push} from 'connected-react-router/immutable';
 import clsx from 'clsx';
 
 // icons 
-import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
-import ArrowRightIcon from '@material-ui/icons/ArrowRight';
+import PinIcon from 'components/icons/pin';
+import UnPinIcon from 'components/icons/unpin';
+import AddGroupIcon from 'components/icons/addGroup';
+
 import { MainMenuItem, selectActiveTab, selectDefaultOptions, removeTab, setActiveTab, selectTemporaryTab, MainMenuItems, addMenuItem, addTab, selectMainMenuItems, getItem, selectMoreMenu, getIcon} from 'store/mainMenuSlice';
 import useContainer from 'customHooks/useContainer';
 import { topbarHeight } from 'config';
@@ -71,6 +73,10 @@ const useTabStyles = makeStyles((theme: Theme) => ({
     color: theme.palette.text.primary,
     textTransform: 'capitalize',
     fontSize: '0.5rem'
+  },
+  scrollBtn: {
+      opacity: "0.5 !important",
+      pointerEvents: 'none' 
   }
 }));
 
@@ -90,13 +96,13 @@ function LeftBar(props: LeftBarProps) {
 
   const contextMenuItemsArray = [
     {
-      id: 'itempin', text: 'pin', icon: <ArrowLeftIcon fontSize="small" />
+      id: 'itempin', text: 'pin', icon: <PinIcon fontSize='small'/>
     },
     {
-      id: 'itemunpin', text: 'unpin', icon: <ArrowRightIcon fontSize="small" />
+      id: 'itemunpin', text: 'unpin', icon: <UnPinIcon  fontSize='small'/>
     },
     {
-      id: 'addgroup', text: 'addgroup', icon: <ArrowRightIcon fontSize="small" />
+      id: 'addgroup', text: 'addgroup', icon: <AddGroupIcon  fontSize='small'/>
     }
   ]
 
@@ -313,7 +319,6 @@ const handleGroup = () => {
   const handleOutSideClick =()=> {
 
     setContextMenuShow(false);
-
   }
   //mainck end--
   useEffect(() => {
@@ -384,6 +389,11 @@ const handleGroup = () => {
            onChange={handleValChange}
            aria-label="Vertical tabs example"
            className={tabClasses.tabs}
+           TabScrollButtonProps ={{
+             classes: {
+               disabled: tabClasses.scrollBtn
+             }
+           }}
          >
         
         {props.topTabs.map( e => {
@@ -433,7 +443,7 @@ const handleGroup = () => {
         </div>
   </div>
   <div  ref={bottomTabRef}  className={classes.root}>
-        <div className={tabClasses.root} >
+         <div className={tabClasses.root} >
         <Tabs
            orientation="vertical"
            variant="fullWidth"
@@ -466,7 +476,7 @@ const handleGroup = () => {
               })
           }
         </Tabs>
-        </div>
+        </div> 
   </div>
   </>
   );
