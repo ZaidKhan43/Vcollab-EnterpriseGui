@@ -631,7 +631,7 @@ const initialState: MainMenu ={
         // leftbar bottom options
         {
             id:'12',
-            name: 'More',
+            name: 'All Menus',
             type:MainMenuItems.MORE,
             path:Routes.MORE,
             disabled: false,
