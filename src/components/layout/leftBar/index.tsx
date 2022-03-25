@@ -24,11 +24,11 @@ import PinIcon from 'components/icons/pin';
 import UnPinIcon from 'components/icons/unpin';
 import AddGroupIcon from 'components/icons/addGroup';
 
-import { MainMenuItem, selectActiveTab, selectDefaultOptions, removeTab, setActiveTab, selectTemporaryTab, MainMenuItems, addMenuItem, addTab, selectMainMenuItems, getItem, selectMoreMenu, getIcon} from 'store/mainMenuSlice';
+import { MainMenuItem, selectActiveTab, selectDefaultOptions, removeTab, setActiveTab, selectTemporaryTab, MainMenuItems, addMenuItem, addTab, selectMainMenuItems, getItem, selectMoreMenu, getIcon, setDefaultTabs} from 'store/mainMenuSlice';
 import useContainer from 'customHooks/useContainer';
 import { topbarHeight } from 'config';
 import nextId from 'react-id-generator'
-import { FlashOnTwoTone } from '@material-ui/icons';
+import {DragDropContext, Draggable, Droppable} from 'react-beautiful-dnd'
 type LeftBarProps = {
     topTabs: MainMenuItem[],
     bottomTabs: MainMenuItem[]
@@ -80,6 +80,50 @@ const useTabStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
+const TabList = React.memo( (props:any) => {
+  return props.tabs.map((e:any, index:number) => {
+      return <TabItem e={e} index={index} setContextMenu={props.setContextMenu} />
+  }) 
+})
+const TabItem = (props:any) => {
+  const iconClasses = useIconStyles();
+  const tabClasses = useTabStyles();
+  let e = props.e;
+  let index = props.index;
+
+  return  <Draggable  draggableId={e.id} key={e.id} index={index}>
+  { (provided) => {
+        return <Tab  
+        {
+          ...provided.draggableProps
+        }
+        {
+          ...provided.dragHandleProps
+        }
+        ref = { provided.innerRef} 
+        key={e.id}
+        disableRipple
+        value ={e.id}
+        onContextMenu={(event) => props.setContextMenu(event, e.id)}
+        icon = {
+        <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
+          { 
+            React.createElement(getIcon(e.type)) 
+          }
+        </div>
+      } 
+      label={
+        <div  className={tabClasses.label}>
+          {e.name}
+        </div>
+      }
+      {...a11yProps(e.name)} classes={{root : tabClasses.tab}}
+      />
+    }
+  }
+  </Draggable>
+}
+
 function LeftBar(props: LeftBarProps) {
   const classes = useStyles();
   const iconClasses = useIconStyles();
@@ -93,6 +137,12 @@ function LeftBar(props: LeftBarProps) {
   const bottomTabRef = useRef(null);
   const [btnWidth, btmHeight] = useContainer(bottomTabRef,[]);
   const mainMenuItems = useAppSelector(selectMainMenuItems);
+  const [topTabs, setTopTabs] = useState(props.topTabs);
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    setTopTabs(props.topTabs)
+  },[props.topTabs])
 
   const contextMenuItemsArray = [
     {
@@ -118,7 +168,7 @@ function LeftBar(props: LeftBarProps) {
 
   const defaultOptions = useAppSelector(selectDefaultOptions);
 
-const handleGroup = () => {
+  const handleGroup = () => {
     setContextMenuShow(false);
     const newItem = contextMenuID;
     let menuItem = getItem(newItem, mainMenuItems);
@@ -316,11 +366,40 @@ const handleGroup = () => {
 
   }
 
-  const handleOutSideClick =()=> {
+  const handleOutSideClick = ()=> {
 
     setContextMenuShow(false);
   }
+
   //mainck end--
+  const reorder = (list:any[], startIndex:number, endIndex:number) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+  
+    return result;
+  };
+
+  const handleDragEnd = (result:any) => {
+    setIsDragging(false);
+    if (!result.destination) {
+      return;
+    }
+
+    if (result.destination.index === result.source.index) {
+      return;
+    }
+
+    const tabs:any[] = reorder(
+      topTabs,
+      result.source.index,
+      result.destination.index
+    );
+
+    setTopTabs(tabs);
+    dispatch(setDefaultTabs({tabIds: tabs.map(e => e.id)}))
+  }
+  
   useEffect(() => {
 
     if(activeItem)
@@ -338,6 +417,7 @@ const handleGroup = () => {
       dispatch(setActiveTab({menuItem: null}))
     }
   },[isSidebarVisible])
+
 
   return (
   <>
@@ -380,28 +460,82 @@ const handleGroup = () => {
         
         <div style={{height: `calc(100% - ${topbarHeight}px)`}} className={tabClasses.root} onContextMenu={(event) => setContextParentMenu(event)} >
         {contextMenuShow ? <ContextMenu mousePointer={{ mouseX: contextMenuXPos, mouseY: contextMenuYPos }} handleOutSideClick={handleOutSideClick} onHandleContextMenuClick={onHandleContextMenuClick} items={contextMenuItems} /> : null}
-        <Tabs 
-           orientation="vertical"
-           textColor='inherit'
-           variant="scrollable"
-           //scrollButtons="on"
-           value={activeItem ? activeItem.id : "-1"}
-           onChange={handleValChange}
-           aria-label="Vertical tabs example"
-           className={tabClasses.tabs}
-           TabScrollButtonProps ={{
-             classes: {
-               disabled: tabClasses.scrollBtn
-             }
-           }}
-         >
-        
-        {props.topTabs.map( e => {
+        {
           
-          return <Tab  
+          isDragging ? 
+          <DragDropContext onDragEnd={handleDragEnd} >
+          <Droppable droppableId="droppable" >
+            {(droppableProvided, snapshot) => 
+            <Tabs 
+            {...droppableProvided.droppableProps}
+            ref = {droppableProvided.innerRef}
+            orientation="vertical"
+            textColor='inherit'
+            variant="scrollable"
+            //scrollButtons="on"
+            value={activeItem ? activeItem.id : "-1"}
+            onChange={handleValChange}
+            aria-label="Vertical tabs example"
+            className={tabClasses.tabs}
+            TabScrollButtonProps ={{
+            classes: {
+              disabled: tabClasses.scrollBtn
+            }
+            }}
+            >
+            <TabList tabs={topTabs} setContextMenu={setContextMenu} />
+    
+            {
+            temporaryTab ? 
+            <Tab
+            value={temporaryTab.id}
+            onContextMenu={(event) => setContextMenu(event, temporaryTab.id)}
+            icon = {
+              <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
+                { React.createElement(getIcon(temporaryTab.type)) }
+              </div>
+            } 
+            label={
+              <div className={tabClasses.label}>
+                {temporaryTab.name }
+              </div>
+            }
+            {...a11yProps(temporaryTab.name)} classes={{root : tabClasses.tab}}
+            >
+            </Tab>
+            :null
+            }
+            </Tabs>
+            }
+          </Droppable>
+        </DragDropContext>
+          : 
+          <Tabs 
+        orientation="vertical"
+        textColor='inherit'
+        variant="scrollable"
+        //scrollButtons="on"
+        value={activeItem ? activeItem.id : "-1"}
+        onChange={handleValChange}
+        aria-label="Vertical tabs example"
+        className={tabClasses.tabs}
+        TabScrollButtonProps ={{
+        classes: {
+          disabled: tabClasses.scrollBtn
+        }
+        }}
+        >
+        { 
+          isDragging ? <TabList tabs={topTabs} setContextMenu={setContextMenu} />
+          : 
+
+          topTabs.map(e => {
+            return <Tab  
             disableRipple
             value ={e.id}
             onContextMenu={(event) => setContextMenu(event, e.id)}
+            draggable
+            onDragStart = {() => {setIsDragging(!isDragging); setActiveTab({menuItem:null}); setSidebarVisibility(false)}}
             icon = {
             <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
               { 
@@ -420,26 +554,28 @@ const handleGroup = () => {
         })
         }
         {
-            temporaryTab ? 
-            <Tab
-             value={temporaryTab.id}
-             onContextMenu={(event) => setContextMenu(event, temporaryTab.id)}
-             icon = {
-              <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
-                { React.createElement(getIcon(temporaryTab.type)) }
-              </div>
-            } 
-            label={
-              <div className={tabClasses.label}>
-                {temporaryTab.name }
-              </div>
-            }
-            {...a11yProps(temporaryTab.name)} classes={{root : tabClasses.tab}}
-            >
-            </Tab>
-            :null
-          }
+        temporaryTab ? 
+        <Tab
+        value={temporaryTab.id}
+        onContextMenu={(event) => setContextMenu(event, temporaryTab.id)}
+        icon = {
+          <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
+            { React.createElement(getIcon(temporaryTab.type)) }
+          </div>
+        } 
+        label={
+          <div className={tabClasses.label}>
+            {temporaryTab.name }
+          </div>
+        }
+        {...a11yProps(temporaryTab.name)} classes={{root : tabClasses.tab}}
+        >
+        </Tab>
+        :null
+        }
         </Tabs>
+        }
+
         </div>
   </div>
   <div  ref={bottomTabRef}  className={classes.root}>
