@@ -28,7 +28,7 @@
     "gl-matrix": "^3.3.0",
     "history": "^4.10.1",
     "moment": "^2.29.1",
-    "ramda": "^0.27.1",
+    "ramda": "^0.27.2",
     "rc-slider": "^9.7.2",
     "react": "^17.0.2",
     "react-beautiful-dnd": "^13.1.0",

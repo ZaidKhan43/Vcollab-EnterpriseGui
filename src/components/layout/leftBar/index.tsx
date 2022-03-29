@@ -45,7 +45,8 @@ const useTabStyles = makeStyles((theme: Theme) => ({
   root: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,
-    display: 'flex',
+    display: 'flex'
+   
   },
   tabs: {
     width: '100%',
@@ -58,7 +59,8 @@ const useTabStyles = makeStyles((theme: Theme) => ({
     fontSize: '0.5rem',
     '& svg':{
       width: '1.25rem'
-    }
+    },
+    
   },
   label: {
     width: '100%',
@@ -70,9 +72,13 @@ const useTabStyles = makeStyles((theme: Theme) => ({
   },
   tab:{
     minWidth: '0px',
-    color: theme.palette.text.primary,
+    color: 'theme.palette.text.primary',
     textTransform: 'capitalize',
-    fontSize: '0.5rem'
+    fontSize: '0.5rem',
+    "&:hover": {
+       color: "white",
+      opacity: 1
+    }
   },
   scrollBtn: {
       opacity: "0.5 !important",
