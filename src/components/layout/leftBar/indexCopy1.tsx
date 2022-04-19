@@ -18,17 +18,16 @@ import { selectSidebarVisibility, setSidebarVisibility } from 'store/appSlice';
 import { Routes } from 'routes';
 import {push} from 'connected-react-router/immutable';
 import clsx from 'clsx';
+import { Draggable, DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 // icons 
-import PinIcon from 'components/icons/pin';
-import UnPinIcon from 'components/icons/unpin';
-import AddGroupIcon from 'components/icons/addGroup';
-
-import { MainMenuItem, selectActiveTab, selectDefaultOptions, removeTab, setActiveTab, selectTemporaryTab, MainMenuItems, addMenuItem, addTab, selectMainMenuItems, getItem, selectMoreMenu, getIcon, setDefaultTabs} from 'store/mainMenuSlice';
+import ArrowLeftIcon from '@material-ui/icons/ArrowLeft';
+import ArrowRightIcon from '@material-ui/icons/ArrowRight';
+import { MainMenuItem, selectActiveTab, selectDefaultOptions, removeTab, setActiveTab, selectTemporaryTab, MainMenuItems, addMenuItem, addTab, selectMainMenuItems, getItem, selectMoreMenu, getIcon} from 'store/mainMenuSlice';
 import useContainer from 'customHooks/useContainer';
 import { topbarHeight } from 'config';
 import nextId from 'react-id-generator'
-import {DragDropContext, Draggable, Droppable} from 'react-beautiful-dnd'
+import { FlashOnTwoTone } from '@material-ui/icons';
 type LeftBarProps = {
     topTabs: MainMenuItem[],
     bottomTabs: MainMenuItem[]
@@ -45,22 +44,21 @@ const useTabStyles = makeStyles((theme: Theme) => ({
   root: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.paper,
-    display: 'flex'
-   
+    display: 'flex',
   },
   tabs: {
     width: '100%',
     borderRight: `1px solid ${theme.palette.divider}`,
     '& button' : {
       padding: '0px'
-    }
+    },
+    right : '0px'
   },
   tabIcon: {
     fontSize: '0.5rem',
     '& svg':{
       width: '1.25rem'
-    },
-    
+    }
   },
   label: {
     width: '100%',
@@ -72,17 +70,13 @@ const useTabStyles = makeStyles((theme: Theme) => ({
   },
   tab:{
     minWidth: '0px',
-    color: 'theme.palette.text.primary',
+    color: theme.palette.text.primary,
     textTransform: 'capitalize',
-    fontSize: '0.5rem',
-    "&:hover": {
-       color: "white",
-      opacity: 1
-    }
+    fontSize: '0.5rem'
   },
-  scrollBtn: {
-      opacity: "0.5 !important",
-      pointerEvents: 'none' 
+
+  indicator : {
+    right: '0px'
   }
 }));
 
@@ -91,6 +85,7 @@ const useTabStyles = makeStyles((theme: Theme) => ({
 //       return <TabItem e={e} index={index} setContextMenu={props.setContextMenu} />
 //   }) 
 // })
+
 // const TabItem = (props:any) => {
 //   const iconClasses = useIconStyles();
 //   const tabClasses = useTabStyles();
@@ -106,11 +101,17 @@ const useTabStyles = makeStyles((theme: Theme) => ({
 //         {
 //           ...provided.dragHandleProps
 //         }
+//         //  onClick={() => alert('clicked')}
 //         ref = { provided.innerRef} 
-//         key={e.id}
+//         key={index}
 //         disableRipple
-//         value ={e.id}
+        
+//         // value ={e.id}
+//         // draggable
+//         //  onDragStart = {() => {setActiveTab({menuItem:null}); setSidebarVisibility(true)}}
+
 //         onContextMenu={(event) => props.setContextMenu(event, e.id)}
+
 //         icon = {
 //         <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
 //           { 
@@ -130,6 +131,7 @@ const useTabStyles = makeStyles((theme: Theme) => ({
 //   </Draggable>
 // }
 
+
 function LeftBar(props: LeftBarProps) {
   const classes = useStyles();
   const iconClasses = useIconStyles();
@@ -144,21 +146,17 @@ function LeftBar(props: LeftBarProps) {
   const [btnWidth, btmHeight] = useContainer(bottomTabRef,[]);
   const mainMenuItems = useAppSelector(selectMainMenuItems);
   const [topTabs, setTopTabs] = useState(props.topTabs);
-  // const [isDragging, setIsDragging] = useState(false);
 
-  useEffect(() => {
-    setTopTabs(props.topTabs)
-  },[props.topTabs])
-
+ 
   const contextMenuItemsArray = [
     {
-      id: 'itempin', text: 'pin', icon: <PinIcon fontSize='small'/>
+      id: 'itempin', text: 'pin', icon: <ArrowLeftIcon fontSize="small" />
     },
     {
-      id: 'itemunpin', text: 'unpin', icon: <UnPinIcon  fontSize='small'/>
+      id: 'itemunpin', text: 'unpin', icon: <ArrowRightIcon fontSize="small" />
     },
     {
-      id: 'addgroup', text: 'addgroup', icon: <AddGroupIcon  fontSize='small'/>
+      id: 'addgroup', text: 'addgroup', icon: <ArrowRightIcon fontSize="small" />
     }
   ]
 
@@ -174,7 +172,7 @@ function LeftBar(props: LeftBarProps) {
 
   const defaultOptions = useAppSelector(selectDefaultOptions);
 
-  const handleGroup = () => {
+const handleGroup = () => {
     setContextMenuShow(false);
     const newItem = contextMenuID;
     let menuItem = getItem(newItem, mainMenuItems);
@@ -217,6 +215,7 @@ function LeftBar(props: LeftBarProps) {
    return menuItem;
  }
   const handleValChange = (event: React.ChangeEvent<{}>, newValue: string) => {
+    console.log(newValue);
     let menuItem = getItem(newValue, mainMenuItems);
 
     if(menuItem.type === MainMenuItems.ADD_GROUP){
@@ -355,7 +354,6 @@ function LeftBar(props: LeftBarProps) {
 
   const onHandleContextMenuClick = (id: string) => {
 
-
     if (id === "itempin") {
 
       pinItems()
@@ -372,12 +370,40 @@ function LeftBar(props: LeftBarProps) {
 
   }
 
-  const handleOutSideClick = ()=> {
+  const handleOutSideClick =()=> {
 
     setContextMenuShow(false);
-  }
 
+  }
   //mainck end--
+  useEffect(() => {
+
+    if(activeItem)
+    {
+      dispatch(push(activeItem.path))
+    }
+    else{
+      dispatch(push(Routes.HOME))
+    }
+    
+  },[activeItem])
+
+  useEffect(() => {
+    if(!isSidebarVisible && activeItem){
+      dispatch(setActiveTab({menuItem: null}))
+    }
+  },[isSidebarVisible])
+
+  // const handleDragEnd = (result:any) => {
+  //       if (!result.destination) return;
+  //       if (result.destination.index === result.source.index) return;
+    
+  //       const newTabs = Array.from(topTabs);
+  //       const [removed] = newTabs.splice(result.source.index, 1);
+  //       newTabs.splice(result.destination.index, 0, removed);
+  //       setTopTabs(newTabs);
+  //     };
+
   const reorder = (list:any[], startIndex:number, endIndex:number) => {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
@@ -403,30 +429,12 @@ function LeftBar(props: LeftBarProps) {
     );
 
     setTopTabs(tabs);
-    dispatch(setDefaultTabs({tabIds: tabs.map(e => e.id)}))
+    // dispatch(setDefaultTabs({tabIds: tabs.map(e => e.id)}))
   }
-  
-  useEffect(() => {
-
-    if(activeItem)
-    {
-      dispatch(push(activeItem.path))
-    }
-    else{
-      dispatch(push(Routes.HOME))
-    }
-    
-  },[activeItem])
-
-  useEffect(() => {
-    if(!isSidebarVisible && activeItem){
-      dispatch(setActiveTab({menuItem: null}))
-    }
-  },[isSidebarVisible])
-
 
   return (
   <>
+ 
   <div style={{height: `calc(100% - ${btmHeight}px)`}} className={classes.root}>
         {/* <Box>
         <Nav activeItem={activeItem}/>
@@ -438,7 +446,7 @@ function LeftBar(props: LeftBarProps) {
           textColor='inherit'
           variant="scrollable"
           scrollButtons="off"
-          value={activeItem ? activeItem.id : "-1"}
+          value={activeItem ? activeItem.id : false}
           onChange={handleValChange}
           aria-label="more tab"
           className={tabClasses.tabs}
@@ -463,32 +471,32 @@ function LeftBar(props: LeftBarProps) {
        </Tabs>
        : null
         }
-        
+         
         <div style={{height: `calc(100% - ${topbarHeight}px)`}} className={tabClasses.root} onContextMenu={(event) => setContextParentMenu(event)} >
         {contextMenuShow ? <ContextMenu mousePointer={{ mouseX: contextMenuXPos, mouseY: contextMenuYPos }} handleOutSideClick={handleOutSideClick} onHandleContextMenuClick={onHandleContextMenuClick} items={contextMenuItems} /> : null}
-        
-          <DragDropContext onDragEnd={handleDragEnd} >
+       
+        <DragDropContext onDragEnd={handleDragEnd} >
           <Droppable droppableId="droppable" >
             {(droppableProvided, snapshot) => 
-            <Tabs 
-            {...droppableProvided.droppableProps}
+          
+        <Tabs 
+               {...droppableProvided.droppableProps}
             ref = {droppableProvided.innerRef}
-            orientation="vertical"
-            textColor='inherit'
-            variant="scrollable"
-            //scrollButtons="on"
-            value={activeItem ? activeItem.id : "-1"}
-            onChange={handleValChange}
-            aria-label="Vertical tabs example"
-            className={tabClasses.tabs}
-            TabScrollButtonProps ={{
-            classes: {
-              disabled: tabClasses.scrollBtn
-            }
-            }}
-            >
-            {/* <TabList tabs={topTabs} setContextMenu={setContextMenu} /> */}
-            {topTabs.map( (e:any,index:number) => (
+           orientation="vertical"
+           textColor='inherit'
+           variant="scrollable"
+           //scrollButtons="on"
+           value={activeItem ? activeItem.id : false}
+           onChange={handleValChange}
+           aria-label="Vertical tabs example"
+           className={tabClasses.tabs}
+           indicatorColor="primary"
+          //  classes = {{tabClasses.indicator}}
+           
+         >
+                    {/* <TabList tabs={topTabs} setContextMenu={setContextMenu} /> */}
+
+        {topTabs.map( (e:any,index:number) => (
           <Draggable key={e.id} draggableId={e.id} index={index} disableInteractiveElementBlocking={true} >
           {(draggableProvided) => (
           <Tab  
@@ -517,13 +525,12 @@ function LeftBar(props: LeftBarProps) {
           </Draggable>
         ))
         }
-    
-            {
+        {
             temporaryTab ? 
             <Tab
-            value={temporaryTab.id}
-            onContextMenu={(event) => setContextMenu(event, temporaryTab.id)}
-            icon = {
+             value={temporaryTab.id}
+             onContextMenu={(event) => setContextMenu(event, temporaryTab.id)}
+             icon = {
               <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
                 { React.createElement(getIcon(temporaryTab.type)) }
               </div>
@@ -537,89 +544,21 @@ function LeftBar(props: LeftBarProps) {
             >
             </Tab>
             :null
-            }
-            </Tabs>
-            }
-          </Droppable>
-        </DragDropContext>
-        </div>
-        </div>
-          {/* :  */}
-          {/* <Tabs 
-        orientation="vertical"
-        textColor='inherit'
-        variant="scrollable"
-        //scrollButtons="on"
-        value={activeItem ? activeItem.id : "-1"}
-        onChange={handleValChange}
-        aria-label="Vertical tabs example"
-        className={tabClasses.tabs}
-        TabScrollButtonProps ={{
-        classes: {
-          disabled: tabClasses.scrollBtn
-        }
-        }}
-        > */} 
-        {/* { 
-          isDragging ? <TabList tabs={topTabs} setContextMenu={setContextMenu} />
-          : 
-
-          topTabs.map(e => {
-            return <Tab  
-            disableRipple
-            value ={e.id}
-            onContextMenu={(event) => setContextMenu(event, e.id)}
-            draggable
-            onDragStart = {() => {setIsDragging(!isDragging); setActiveTab({menuItem:null}); setSidebarVisibility(false)}}
-            icon = {
-            <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
-              { 
-                React.createElement(getIcon(e.type)) 
-              }
-            </div>
-          } 
-          label={
-            <div  className={tabClasses.label}>
-              {e.name}
-            </div>
           }
-          {...a11yProps(e.name)} classes={{root : tabClasses.tab}}
-          />
-         
-        })
-        }
-        {
-        temporaryTab ? 
-        <Tab
-        value={temporaryTab.id}
-        onContextMenu={(event) => setContextMenu(event, temporaryTab.id)}
-        icon = {
-          <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
-            { React.createElement(getIcon(temporaryTab.type)) }
-          </div>
-        } 
-        label={
-          <div className={tabClasses.label}>
-            {temporaryTab.name }
-          </div>
-        }
-        {...a11yProps(temporaryTab.name)} classes={{root : tabClasses.tab}}
-        >
-        </Tab>
-        :null
-        }
         </Tabs>
-        }
-
+         }
+         </Droppable>
+       </DragDropContext>
+        
         </div>
-  </div> */}
+  </div>
   <div  ref={bottomTabRef}  className={classes.root}>
-         <div className={tabClasses.root} >
+        <div className={tabClasses.root} >
         <Tabs
            orientation="vertical"
            variant="fullWidth"
            scrollButtons='off'
-           value={activeItem ? activeItem.id : "-2"}
+           value={activeItem ? activeItem.id : false}
            onChange={handleValChange}
            aria-label="sidebar bottom options"
            className={tabClasses.tabs}
@@ -647,10 +586,11 @@ function LeftBar(props: LeftBarProps) {
               })
           }
         </Tabs>
-        </div> 
+        </div>
   </div>
   </>
+  
   );
+  
 }
-
 export default LeftBar;
