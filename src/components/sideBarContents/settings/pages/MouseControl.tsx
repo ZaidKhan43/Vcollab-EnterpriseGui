@@ -25,7 +25,7 @@ import SideBarContainer from '../../../layout/sideBar/sideBarContainer';
 import Title from'../../../layout/sideBar/sideBarContainer/sideBarHeader/utilComponents/Title'
 import FooterOptionsContainer from '../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/OptionContainer'
 import FooterOption from'../../../layout/sideBar/sideBarContainer/sideBarFooter/utilComponents/Option'
-import Delete from '../components/Delete';
+
 
 import {undoStack} from '../../../../components/utils/undoStack';
 
@@ -61,9 +61,9 @@ const menuItems = useAppSelector(selectmenuItems);
 
 const activeUserId = useAppSelector(selectActiveMenuId);
 
-const onClickBackIcon = () =>{
-  dispatch(goBack());
-}    
+// const onClickBackIcon = () =>{
+//   dispatch(goBack());
+// }    
 
 
 const getHeaderRightIcon=()=> {
@@ -102,7 +102,6 @@ const getBody=()=> {
 
     }
     const onClickUpdateListName=(id:string ,value:string)=>{
-
     
       dispatch(setMenuItemEditableText({text:value,activeMenuId:id}));
       
@@ -115,7 +114,6 @@ const getBody=()=> {
     )
 
 }
-
 
 const getFooter =() => {
 
@@ -145,11 +143,34 @@ const onHandleApply = (undoable:boolean , id:string) => {
     dispatch(applyMouseData({applyID:id}));
 }  
 
-const onHandleEdit=() => {
+const onHandleEdit=(undoable:boolean) => {
    
   dispatch(push(Routes.SETTINGS_MOUSE_CONTROLS_EDIT));
 
   dispatch(setControlReadOnly(activeUserId));
+
+  if(undoable) {
+
+    undoStack.add({
+      undo:()=>{onHandleEditUndo()},
+      redo:()=>{onHandleEditRedo()}
+    })
+   }
+
+}
+
+const onHandleEditUndo =()=>{
+
+  dispatch(push(Routes.SETTINGS_MOUSE_CONTROLS));
+
+}
+
+const onHandleEditRedo =()=>{
+
+  const id = activeUserId; 
+  const isSelected = true ;
+  dispatch(setSelectedItem({id,isSelected}));
+  dispatch(push(Routes.SETTINGS_MOUSE_CONTROLS_EDIT));
 
 }
 
@@ -244,14 +265,14 @@ const onClickDelete= ()=> {
                     
                 return (
 
-                  <FooterOption label={"Edit"}  icon={<MuiIconButton  onClick={() => onHandleEdit()}><MuiEditIcon/></MuiIconButton>}></FooterOption>
+                  <FooterOption label={"Edit"}  icon={<MuiIconButton  onClick={() => onHandleEdit(true)}><MuiEditIcon/></MuiIconButton>}></FooterOption>
                 
                   )
               }
               else if(item.type === Source.SYSTEM && item.selected === true){
 
                 return (
-                  <FooterOption label={"View"}  icon={<MuiIconButton  onClick={() => onHandleEdit()}><VisibilityIcon/></MuiIconButton>}></FooterOption>
+                  <FooterOption label={"View"}  icon={<MuiIconButton  onClick={() => onHandleEdit(true)}><VisibilityIcon/></MuiIconButton>}></FooterOption>
 
                 )
               }
@@ -299,14 +320,10 @@ const onClickDelete= ()=> {
 return (
           <>
            <SideBarContainer
-            headerLeftIcon = { <BackIcon onClick={onClickBackIcon}/> }
             headerRightIcon = {getHeaderRightIcon()}
             headerContent={ <Title text={"Mouse Controls"} group="Application Settings"/> }
             body ={ getBody() }
             footer = { getFooter() }
           />
           </>
-
-)
-
-}
+)}

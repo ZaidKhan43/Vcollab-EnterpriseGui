@@ -180,7 +180,7 @@ export default function Annotations(){
     }
 
     const getBody = () => {
-        
+        console.log("baei",notificationList)
         return (
             <div className={classes.scrollBar}>
                 {notificationList.map((item: any,index:number) => 

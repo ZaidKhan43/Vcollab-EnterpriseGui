@@ -1,5 +1,5 @@
 import SvgIcon from '@material-ui/core/SvgIcon';
-import "../../index.css"
+
 export default function Assembly(props:any) {
   return (
     <SvgIcon viewBox='0 0 18 18' { ...props}>

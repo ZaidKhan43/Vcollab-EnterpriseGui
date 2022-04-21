@@ -4,7 +4,7 @@ import { topbarHeight, drawerWidth, leftbarWidth } from '../../../config';
 export default makeStyles((theme) => ({
     root: {
         width: leftbarWidth,
-        backgroundColor: theme.palette.background.paper,
-        color: theme.palette.text.primary
+        backgroundColor: theme.palette.background.default,
+        color: theme.palette.text.primary,
     }
 }));

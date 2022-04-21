@@ -18,6 +18,8 @@ import { selectSidebarVisibility, setSidebarVisibility } from 'store/appSlice';
 import { Routes } from 'routes';
 import {push} from 'connected-react-router/immutable';
 import clsx from 'clsx';
+import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
+
 
 // icons 
 import PinIcon from 'components/icons/pin';
@@ -44,7 +46,7 @@ function a11yProps(index: any) {
 const useTabStyles = makeStyles((theme: Theme) => ({
   root: {
     flexGrow: 1,
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: theme.palette.background.default,
     display: 'flex'
    
   },
@@ -424,9 +426,8 @@ function LeftBar(props: LeftBarProps) {
     }
   },[isSidebarVisible])
 
-
   return (
-  <>
+<>
   <div style={{height: `calc(100% - ${btmHeight}px)`}} className={classes.root}>
         {/* <Box>
         <Nav activeItem={activeItem}/>
@@ -438,13 +439,13 @@ function LeftBar(props: LeftBarProps) {
           textColor='inherit'
           variant="scrollable"
           scrollButtons="off"
-          value={activeItem ? activeItem.id : "-1"}
+          value={topTabs}
           onChange={handleValChange}
           aria-label="more tab"
           className={tabClasses.tabs}
         >
          <Tab  
-           disableRipple
+          //  disableRipple
            value ={moreMenuItem.id}
            icon = {
             <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
@@ -497,7 +498,7 @@ function LeftBar(props: LeftBarProps) {
           {...draggableProvided.dragHandleProps}
             //disableRipple
             value={activeItem ? activeItem.id : false}
-            onChange={(event) => handleValChange(event, e.id) }
+            onClick={(event) => handleValChange(event, e.id) }
             onContextMenu={(event) => setContextMenu(event, e.id)}
             icon = {
             <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
@@ -544,75 +545,7 @@ function LeftBar(props: LeftBarProps) {
         </DragDropContext>
         </div>
         </div>
-          {/* :  */}
-          {/* <Tabs 
-        orientation="vertical"
-        textColor='inherit'
-        variant="scrollable"
-        //scrollButtons="on"
-        value={activeItem ? activeItem.id : "-1"}
-        onChange={handleValChange}
-        aria-label="Vertical tabs example"
-        className={tabClasses.tabs}
-        TabScrollButtonProps ={{
-        classes: {
-          disabled: tabClasses.scrollBtn
-        }
-        }}
-        > */} 
-        {/* { 
-          isDragging ? <TabList tabs={topTabs} setContextMenu={setContextMenu} />
-          : 
-
-          topTabs.map(e => {
-            return <Tab  
-            disableRipple
-            value ={e.id}
-            onContextMenu={(event) => setContextMenu(event, e.id)}
-            draggable
-            onDragStart = {() => {setIsDragging(!isDragging); setActiveTab({menuItem:null}); setSidebarVisibility(false)}}
-            icon = {
-            <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
-              { 
-                React.createElement(getIcon(e.type)) 
-              }
-            </div>
-          } 
-          label={
-            <div  className={tabClasses.label}>
-              {e.name}
-            </div>
-          }
-          {...a11yProps(e.name)} classes={{root : tabClasses.tab}}
-          />
          
-        })
-        }
-        {
-        temporaryTab ? 
-        <Tab
-        value={temporaryTab.id}
-        onContextMenu={(event) => setContextMenu(event, temporaryTab.id)}
-        icon = {
-          <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
-            { React.createElement(getIcon(temporaryTab.type)) }
-          </div>
-        } 
-        label={
-          <div className={tabClasses.label}>
-            {temporaryTab.name }
-          </div>
-        }
-        {...a11yProps(temporaryTab.name)} classes={{root : tabClasses.tab}}
-        >
-        </Tab>
-        :null
-        }
-        </Tabs>
-        }
-
-        </div>
-  </div> */}
   <div  ref={bottomTabRef}  className={classes.root}>
          <div className={tabClasses.root} >
         <Tabs

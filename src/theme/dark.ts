@@ -10,8 +10,15 @@ const darMode = {
     },
     action: {
       selected: "#4882c9"
+    },
+    scrollbar:{
+      main:"white"
     }
+
   },
 } 
 
 export default darMode; 
+
+
+

@@ -229,6 +229,28 @@ export default function LabelList(){
     
   }
 
+  const onHandleEdit = ( undoable:boolean)=>{
+
+    dispatch(push(Routes.LABEL_EDIT))
+
+    if(undoable){
+      undoStack.add(
+        {
+          undo: () => onHandleEditUndo(),
+          redo: () => onHandleEdit(false),
+        }
+      )
+    }
+
+
+  }
+
+  const onHandleEditUndo = ()=>{
+
+    dispatch(push(Routes.LABELS_LIST));
+
+  }
+  
   const onHandleDeleteButton = () => {
     dispatch(delete3DLabel({undoable: true}));
   }
@@ -252,8 +274,6 @@ export default function LabelList(){
     setSelectToggle(false)
     // dispatch(setLabelInsertionState(false));
   }
-
-  
 
   const getBody = () => {
 
@@ -379,7 +399,7 @@ export default function LabelList(){
               </MuiIconButton>} 
             /> */}
 
-            <Option label="Edit" icon={<MuiIconButton disabled={activeLabelId === "-1" || treeDataRedux[activeLabelId].pid ==="-1" || (treeDataRedux[activeLabelId].pid !== LabelType.LABEL2D && treeDataRedux[activeLabelId].children.length === 0)} onClick={() =>dispatch(push(Routes.LABEL_EDIT))}>
+            <Option label="Edit" icon={<MuiIconButton disabled={activeLabelId === "-1" || treeDataRedux[activeLabelId].pid ==="-1" || (treeDataRedux[activeLabelId].pid !== LabelType.LABEL2D && treeDataRedux[activeLabelId].children.length === 0)} onClick={() => onHandleEdit(true)}>
                 <MuiEditIcon/>
               </MuiIconButton>} 
             />

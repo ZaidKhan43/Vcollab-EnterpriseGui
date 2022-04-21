@@ -3,14 +3,21 @@ export const appTheme = {
     MuiAccordion: {
       root: {
         boxShadow: 'none',
-        '&:before': { 
+        '&:before': {
           backgroundColor: 'none'
         }
       }
-    }
-  },  
-  palette:{
-    type:'dark'
+    },
+
+    // MuiTabs: {
+    //   indicator: {
+    //     backgroundColor: 'green'
+    //   }
+    // },
+  },
+
+  palette: {
+    type: 'dark',
   },
   typography: {
     fontFamily: ['Montserrat', 'san-serif'].join(','),
@@ -48,3 +55,5 @@ export const appTheme = {
 };
 
 export default appTheme;
+
+

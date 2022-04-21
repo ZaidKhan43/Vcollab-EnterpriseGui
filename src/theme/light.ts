@@ -5,6 +5,15 @@ const lightMode = {
     ...appTheme,
     palette: {
       type: 'light' as PaletteType,
+      primary: {
+        main: '#4882c9',
+      },
+      action: {
+        selected: "#4882c9"
+      },
+      scrollbar:{
+        main:"#808080"
+      }
     },
   } 
 
