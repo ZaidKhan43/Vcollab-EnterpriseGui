@@ -115,14 +115,20 @@ const initialState: Settings = {
     { id: '2', name: 'Light', selected: false, applied: false },
     { id: '3', name: 'Light +', selected: false, applied: false }],
 
-  menuItems: [],
+  menuItems: [
+  ],
 
-  systemProvided: [],
+  systemProvided: [
 
-  userProvided: [],
+  ],
 
-  controls: [],
+  userProvided: [
 
+  ],
+
+  controls: [
+
+  ],
   actions: []
 }
 
@@ -236,7 +242,7 @@ control.forEach((data)=> {
   }
   else {
 
-  controls.push({id:data.id,keys:data.keys,modifiers:data.modifiers,icon:false,priority:itempriority,when:data.when})
+    controls.push({id:data.id,keys:data.keys,modifiers:data.modifiers,icon:false,priority:itempriority,when:data.when})
   }
 })
 

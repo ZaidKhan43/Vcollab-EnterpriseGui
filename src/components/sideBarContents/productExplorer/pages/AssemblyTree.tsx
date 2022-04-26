@@ -104,11 +104,12 @@ function AssemblyTree(props:any) {
             onChange={handleSearchTextChange}
             searchPool={treeDataRedux}
             onClear={() => {}}
+            
             getAttribKeys={(data) => ["title"]}
             />
             : <Title text="Product Tree" group="Geometry"/>)
     }
-    
+
     const getHeaderRightIcon = () => {
         return (
           isSearchMode?

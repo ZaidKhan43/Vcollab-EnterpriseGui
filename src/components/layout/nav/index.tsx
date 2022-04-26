@@ -38,8 +38,6 @@ type NavProps = {
 }
 
 function Nav(props: NavProps) {
-
-
     const history = useHistory();
     const dispatch = useAppDispatch();
     const activeItemHistory = useRef<(MainMenuItem | null)[]>([]); 
@@ -61,9 +59,9 @@ function Nav(props: NavProps) {
           dispatch(setActiveTab({menuItem: active}))
           dispatch(setSidebarVisibility(true));
         }
-    }
+      }
     
-    const handleNavForward = () => {
+      const handleNavForward = () => {
         if(historyPointer.current < activeItemHistory.current.length-1){
           isNavPressed.current = true;
           historyPointer.current+=1;
@@ -71,7 +69,7 @@ function Nav(props: NavProps) {
           dispatch(setActiveTab({menuItem: active}))
           dispatch(setSidebarVisibility(true));
         }
-    }
+      }
 
     useEffect(() => {
         if(props.activeItem && !isNavPressed.current)
@@ -83,9 +81,8 @@ function Nav(props: NavProps) {
           historyPointer.current+=1;
         }
         isNavPressed.current = false;
-    },[props.activeItem])
+      },[props.activeItem])
     
-
     
   return (
     <Grid container className={classes.root} style={{width:'100%', height: topbarHeight + 'px'}}>

@@ -18,8 +18,6 @@ import { selectSidebarVisibility, setSidebarVisibility } from 'store/appSlice';
 import { Routes } from 'routes';
 import {push} from 'connected-react-router/immutable';
 import clsx from 'clsx';
-import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
-
 
 // icons 
 import PinIcon from 'components/icons/pin';
@@ -46,7 +44,7 @@ function a11yProps(index: any) {
 const useTabStyles = makeStyles((theme: Theme) => ({
   root: {
     flexGrow: 1,
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: theme.palette.background.paper,
     display: 'flex'
    
   },
@@ -87,50 +85,6 @@ const useTabStyles = makeStyles((theme: Theme) => ({
       pointerEvents: 'none' 
   }
 }));
-
-// const TabList = React.memo( (props:any) => {
-//   return props.tabs.map((e:any, index:number) => {
-//       return <TabItem e={e} index={index} setContextMenu={props.setContextMenu} />
-//   }) 
-// })
-// const TabItem = (props:any) => {
-//   const iconClasses = useIconStyles();
-//   const tabClasses = useTabStyles();
-//   let e = props.e;
-//   let index = props.index;
-
-//   return  <Draggable  draggableId={e.id} key={e.id} index={index}>
-//   { (provided) => {
-//         return <Tab  
-//         {
-//           ...provided.draggableProps
-//         }
-//         {
-//           ...provided.dragHandleProps
-//         }
-//         ref = { provided.innerRef} 
-//         key={e.id}
-//         disableRipple
-//         value ={e.id}
-//         onContextMenu={(event) => props.setContextMenu(event, e.id)}
-//         icon = {
-//         <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
-//           { 
-//             React.createElement(getIcon(e.type)) 
-//           }
-//         </div>
-//       } 
-//       label={
-//         <div  className={tabClasses.label}>
-//           {e.name}
-//         </div>
-//       }
-//       {...a11yProps(e.name)} classes={{root : tabClasses.tab}}
-//       />
-//     }
-//   }
-//   </Draggable>
-// }
 
 function LeftBar(props: LeftBarProps) {
   const classes = useStyles();
@@ -219,6 +173,8 @@ function LeftBar(props: LeftBarProps) {
    return menuItem;
  }
   const handleValChange = (event: React.ChangeEvent<{}>, newValue: string) => {
+
+    console.log("handleValChange", newValue, activeItem);
     let menuItem = getItem(newValue, mainMenuItems);
 
     if(menuItem.type === MainMenuItems.ADD_GROUP){
@@ -233,6 +189,20 @@ function LeftBar(props: LeftBarProps) {
       menuItem
     }))
     }
+
+    if(menuItem.type === MainMenuItems.MORE){
+      if(!activeItem || (activeItem.id !== menuItem.id)){
+        dispatch(setActiveTab({menuItem}));
+        dispatch(setSidebarVisibility(true));
+      }
+      else{
+        dispatch(setSidebarVisibility(false));
+        dispatch(setActiveTab({menuItem:null}));
+      }
+      return
+    }
+
+
     if(!activeItem) {
       dispatch(setActiveTab({menuItem}));
       dispatch(setSidebarVisibility(true));
@@ -241,6 +211,7 @@ function LeftBar(props: LeftBarProps) {
       dispatch(setActiveTab({menuItem}));
     }
     else{
+      console.log(false,null);
       dispatch(setSidebarVisibility(false));
       dispatch(setActiveTab({menuItem:null}));
     }
@@ -426,26 +397,43 @@ function LeftBar(props: LeftBarProps) {
     }
   },[isSidebarVisible])
 
+  const getActiveItemIndex = (tabGroupName : string) => {
+    if(activeItem)
+    {
+      if(tabGroupName === "TopTab"){
+        if(activeItem.type === MainMenuItems.MORE)     
+          return activeItem.id;      
+      }
+      if(tabGroupName === "MenuTab") {
+        if(activeItem.type !== MainMenuItems.MORE){
+          //return activeItem.id; 
+          const index = topTabs.findIndex(item => item.id === activeItem.id);
+          return index;
+        }     
+          
+      }  
+  }
+  return false; 
+}
+
+
   return (
-<>
-  <div style={{height: `calc(100% - ${btmHeight}px)`}} className={classes.root}>
-        {/* <Box>
-        <Nav activeItem={activeItem}/>
-        </Box> */}
-        {
-        moreMenuItem ?
+  <>
+    <div style={{height: `calc(100% - ${btmHeight}px)`}} className={classes.root}>
+      {
+        moreMenuItem &&
         <Tabs 
           orientation="vertical"
           textColor='inherit'
           variant="scrollable"
           scrollButtons="off"
-          value={topTabs}
+          value={getActiveItemIndex("TopTab")}
           onChange={handleValChange}
           aria-label="more tab"
           className={tabClasses.tabs}
         >
          <Tab  
-          //  disableRipple
+           disableRipple
            value ={moreMenuItem.id}
            icon = {
             <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
@@ -462,8 +450,7 @@ function LeftBar(props: LeftBarProps) {
          {...a11yProps(moreMenuItem.name)} classes={{root : tabClasses.tab}}
          />
        </Tabs>
-       : null
-        }
+      }
         
         <div style={{height: `calc(100% - ${topbarHeight}px)`}} className={tabClasses.root} onContextMenu={(event) => setContextParentMenu(event)} >
         {contextMenuShow ? <ContextMenu mousePointer={{ mouseX: contextMenuXPos, mouseY: contextMenuYPos }} handleOutSideClick={handleOutSideClick} onHandleContextMenuClick={onHandleContextMenuClick} items={contextMenuItems} /> : null}
@@ -478,7 +465,8 @@ function LeftBar(props: LeftBarProps) {
             textColor='inherit'
             variant="scrollable"
             //scrollButtons="on"
-            value={activeItem ? activeItem.id : "-1"}
+            //value={activeItem ? activeItem.id : false}
+            value={getActiveItemIndex("MenuTab")}
             onChange={handleValChange}
             aria-label="Vertical tabs example"
             className={tabClasses.tabs}
@@ -496,9 +484,9 @@ function LeftBar(props: LeftBarProps) {
           ref={draggableProvided.innerRef}
           {...draggableProvided.draggableProps}
           {...draggableProvided.dragHandleProps}
-            //disableRipple
-            value={activeItem ? activeItem.id : false}
-            onClick={(event) => handleValChange(event, e.id) }
+            disableRipple
+            value={e.id}
+            onChange={(event) => handleValChange(event, e.id) }
             onContextMenu={(event) => setContextMenu(event, e.id)}
             icon = {
             <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
@@ -544,44 +532,40 @@ function LeftBar(props: LeftBarProps) {
           </Droppable>
         </DragDropContext>
         </div>
-        </div>
-         
-  <div  ref={bottomTabRef}  className={classes.root}>
-         <div className={tabClasses.root} >
-        <Tabs
-           orientation="vertical"
-           variant="fullWidth"
-           scrollButtons='off'
-           value={activeItem ? activeItem.id : "-2"}
-           onChange={handleValChange}
-           aria-label="sidebar bottom options"
-           className={tabClasses.tabs}
-         >
-          
-          {
-              props.bottomTabs.map( e => {
-                        
-                return <Tab  
-                  disableRipple
-                  value={e.id}
-                  icon = {
-                  <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
-                    {<GeometryIcon/>}
-                  </div>
-                } 
-                label={
-                  <div className={tabClasses.label}>
-                    {e.name}
-                  </div>
-                }
-                {...a11yProps(e.name)} classes={{root : tabClasses.tab}}
-                />
-              
-              })
-          }
-        </Tabs>
+        </div>        
+      <div  ref={bottomTabRef}  className={classes.root}>
+        <div className={tabClasses.root} >
+          <Tabs
+            orientation="vertical"
+            variant="fullWidth"
+            scrollButtons='off'
+            value={activeItem ? activeItem.id : false}
+            onChange={handleValChange}
+            aria-label="sidebar bottom options"
+            className={tabClasses.tabs}
+          >                
+            {
+                props.bottomTabs.map( e => {                              
+                  return <Tab  
+                    disableRipple
+                    value={e.id}
+                    icon = {
+                    <div className={clsx(iconClasses.divIcon, tabClasses.tabIcon)}>
+                      {<GeometryIcon/>}
+                    </div>
+                  } 
+                  label={
+                    <div className={tabClasses.label}>
+                      {e.name}
+                    </div>
+                  }
+                  {...a11yProps(e.name)} classes={{root : tabClasses.tab}}
+                  />                    
+                })
+            }
+          </Tabs>
         </div> 
-  </div>
+    </div>
   </>
   );
 }

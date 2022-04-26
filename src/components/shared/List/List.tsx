@@ -5,8 +5,6 @@ import MuiListItemSecondaryAction from '@material-ui/core/ListItemSecondaryActio
 import Input from '@material-ui/core/Input';
 import CheckIcon from '@material-ui/icons/Check';
 
-import Scrollbar from '../Scrollbar'
-
 import style from './liststyle';
 
 
@@ -44,8 +42,7 @@ export default function List(props:IListProps) {
 
   return (
 
-    <Scrollbar >
-         <div >   
+         <div className={classes.Scrollbar}>   
                 <MuiList >
                   <MuiListItem > 
                     
@@ -113,8 +110,6 @@ export default function List(props:IListProps) {
                 </MuiList>
 
          </div>
-
-         </Scrollbar >
   )
 
 }

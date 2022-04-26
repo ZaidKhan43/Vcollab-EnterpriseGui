@@ -37,9 +37,6 @@ import MuiTooltip from '@material-ui/core/Tooltip'
 
 import {undoStack} from "../../../utils/undoStack";
 
-
-import Scrollbar from "../../../shared/Scrollbar";
-
 export default function ClipPlanes(props : any){
 
   const classes = styles();
@@ -325,9 +322,7 @@ export default function ClipPlanes(props : any){
   const getBody = () => {
     //console.log("getBody",rotate)
     return (
-
-      <Scrollbar>
-      <div > 
+      <div className={classes.scrollBar}> 
 
       <div className={classes.translatePageContainer}>
 
@@ -422,8 +417,8 @@ export default function ClipPlanes(props : any){
           </MuiGrid>  
       </div>
       </div>
-      </div>
-      </Scrollbar>
+          </div>
+
     )
   } 
 

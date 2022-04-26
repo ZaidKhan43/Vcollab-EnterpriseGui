@@ -61,9 +61,9 @@ const menuItems = useAppSelector(selectmenuItems);
 
 const activeUserId = useAppSelector(selectActiveMenuId);
 
-// const onClickBackIcon = () =>{
-//   dispatch(goBack());
-// }    
+const onClickBackIcon = () =>{
+  dispatch(goBack());
+}    
 
 
 const getHeaderRightIcon=()=> {
@@ -320,10 +320,14 @@ const onClickDelete= ()=> {
 return (
           <>
            <SideBarContainer
+            headerLeftIcon = { <BackIcon onClick={onClickBackIcon}/> }
             headerRightIcon = {getHeaderRightIcon()}
             headerContent={ <Title text={"Mouse Controls"} group="Application Settings"/> }
             body ={ getBody() }
             footer = { getFooter() }
           />
           </>
-)}
+
+)
+
+}

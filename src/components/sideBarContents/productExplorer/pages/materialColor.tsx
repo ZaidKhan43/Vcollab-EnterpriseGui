@@ -23,9 +23,6 @@ import {useState} from "react"
 
 import styles from '../styles/materialColor';
 
-
-import Scrollbar from '../../../../components/shared/Scrollbar';
-
 export default function MaterialColor() {
 
     const classes = styles();
@@ -260,9 +257,7 @@ export default function MaterialColor() {
             selectedColorValue = list[0].specularColor        
         
         return(
-
-            <Scrollbar>
-            <div>
+            <div className={classes.scrollBar}>
                 <div style={{marginLeft:"10px"}}>
                 <div style = {{marginTop:"20px" , marginBottom:"30px"}}>
                     <MuiGrid container spacing={1}>
@@ -327,8 +322,6 @@ export default function MaterialColor() {
                 </div>
             </div>
             </div>
-
-        </Scrollbar>
         )
     }
 

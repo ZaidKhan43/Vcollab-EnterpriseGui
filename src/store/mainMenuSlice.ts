@@ -260,7 +260,7 @@ export type MainMenu = {
     bottomTabOptions: string[],
     temporaryTab: string | null
 }
-const initialState: MainMenu = {
+const initialState: MainMenu ={
     menuItems: [
         {
             id:'Geometry1',
@@ -327,7 +327,6 @@ const initialState: MainMenu = {
                   }
             ]
         },
-
         {
             id:'Field2',
             expanded: false,
@@ -374,7 +373,6 @@ const initialState: MainMenu = {
                   },
             ]
         },
-
         {
             id:'Scene3',
             expanded:false,
@@ -421,7 +419,6 @@ const initialState: MainMenu = {
                 },
             ]
         },
-
         {
             id:'Color Maps4',
             expanded:false,
@@ -513,7 +510,6 @@ const initialState: MainMenu = {
                 },
             ]
         },
-
         {
             id:'Clip Plane5',
             expanded: false,
@@ -551,7 +547,6 @@ const initialState: MainMenu = {
                 },
             ]
         },
-
         {
             id:'Labels6',
             expanded: false,
@@ -561,7 +556,6 @@ const initialState: MainMenu = {
             disabled: false,
             children: [],
         },
-
         {
             id:'7',
             expanded: false,
@@ -571,7 +565,6 @@ const initialState: MainMenu = {
             disabled: false,
             children: []
         },
-
         {
             id:'8',
             expanded: false,
@@ -646,7 +639,6 @@ const initialState: MainMenu = {
             expanded: false
 
         },
-        
         {
             id:'13',
             name: 'Add Group',
@@ -658,13 +650,10 @@ const initialState: MainMenu = {
             expanded: false
         }
     ],
-    
     userCreatedMenuItems: [
 
     ],
-
     activeTab: null,
-
     defaultOptions: [
         // uncomment below to enable default tabs
         'Geometry1',
@@ -676,10 +665,8 @@ const initialState: MainMenu = {
         'Labels6',
         '3DSlides'
     ],
-
     bottomTabOptions: [
     ],
-
     temporaryTab: null
 }
 
@@ -776,7 +763,6 @@ export const mainMenuSlice = createSlice({
     },
 
 })
-
 export const {togglePanel, addMenuItem, updateMenuItem, setDefaultTabs, deleteMenuItem, addTab, removeTab, setChildItem, setActiveTab} = mainMenuSlice.actions;
 //selectors
 export const selectMainMenu = (state:RootState) => state.mainMenu 
